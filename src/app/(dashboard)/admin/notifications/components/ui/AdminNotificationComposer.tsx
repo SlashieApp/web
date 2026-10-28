@@ -122,7 +122,7 @@ export function AdminNotificationComposer({
             <Textarea rows={3} {...form.register('userIdsText')} />
           </FormField>
           <Stack gap={2}>
-            <Text fontSize="sm" fontWeight={600} color="text.default">
+            <Text fontSize="sm" fontWeight={500} color="text.default">
               {t.cohortsLabel}
             </Text>
             <Controller
@@ -216,7 +216,7 @@ export function AdminNotificationComposer({
       </Card>
       <Card layout="section" heading={t.preview}>
         <Stack gap={2}>
-          <Text fontSize="md" fontWeight={700} color="text.default">
+          <Text fontSize="md" fontWeight={500} color="text.default">
             {values.title?.trim() || t.titleLabel}
           </Text>
           <Text fontSize="sm" color="text.muted" lineHeight="tall">

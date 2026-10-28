@@ -235,7 +235,7 @@ function HeaderTitle({ thread }: { thread: ThreadFieldsFragment }) {
   const party = thread.otherParty
   const title = threadTitle(thread, t)
   const heading = (
-    <Heading as="h2" fontSize="md" fontWeight={700} lineClamp={1}>
+    <Heading as="h2" fontSize="md" letterSpacing="0" lineClamp={1}>
       {title}
     </Heading>
   )

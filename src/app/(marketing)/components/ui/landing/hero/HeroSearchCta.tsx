@@ -9,7 +9,6 @@ const HeroSearchForm = chakra('form')
 
 import { buildSearchUrl } from '@/app/(task)/search/helpers/searchQueryParams'
 import { useLocalizedHref } from '@/i18n/LocaleProvider'
-import { sdlCard } from '@/theme/styles'
 import { Button, Input } from '@ui'
 
 type HeroSearchCtaProps = {
@@ -40,13 +39,12 @@ export function HeroSearchCta({
         gap={2}
         align="stretch"
         p={{ base: 1.5, md: 2 }}
-        borderRadius={sdlCard.radius}
-        borderWidth="1px"
-        borderColor="border.default"
+        borderRadius="full"
         bg="bg.surface"
         boxShadow="e3"
         _focusWithin={{
-          borderColor: 'action.primary',
+          outline: '2px solid',
+          outlineColor: 'border.focus',
           boxShadow: 'e4',
         }}
       >

@@ -38,12 +38,12 @@ export function NextStepCard({
             color="var(--chakra-colors-status-warning-fg)"
             aria-hidden
           />
-          <Heading as="h2" fontSize="md">
+          <Heading as="h2" fontSize="md" letterSpacing="0">
             {t.title}
           </Heading>
         </HStack>
         <Stack gap={1}>
-          <Text fontSize="sm" fontWeight={600}>
+          <Text fontSize="sm" fontWeight={500}>
             {copy.heading}
           </Text>
           <Text fontSize="sm" color="text.muted" lineHeight="tall">
@@ -73,7 +73,7 @@ export function PrivacyVisibilityCard({ me }: { me: MeSnapshot }) {
         <Stack gap={1}>
           <HStack gap={2}>
             <LuLock size={18} aria-hidden />
-            <Heading as="h2" fontSize="md">
+            <Heading as="h2" fontSize="md" letterSpacing="0">
               {t.title}
             </Heading>
           </HStack>
@@ -89,7 +89,7 @@ export function PrivacyVisibilityCard({ me }: { me: MeSnapshot }) {
           onChange={(next) => void update('isProfilePrivate', next)}
         />
         <Stack gap={0}>
-          <Text fontSize="sm" fontWeight={600}>
+          <Text fontSize="sm" fontWeight={500}>
             {t.contactStaysPrivate}
           </Text>
           <Text fontSize="xs" color="text.muted">

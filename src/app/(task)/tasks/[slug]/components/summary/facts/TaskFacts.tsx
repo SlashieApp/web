@@ -29,7 +29,7 @@ import { publicProfilePath } from '@/app/helpers/publicProfilePath'
 import { useLocale } from '@/i18n/LocaleProvider'
 import { formatMessage } from '@/i18n/loadPageI11n'
 import { useI11n } from '@/i18n/useI11n'
-import { sdlFocusRing } from '@/theme/styles'
+import { sdlEyebrow, sdlFigure, sdlFocusRing } from '@/theme/styles'
 import { orderBookedDatetime } from '@/utils/orderHelpers'
 import { formatPrice } from '@/utils/price'
 import { formatTimeSlotLabel, isTimeSlotPast } from '@/utils/timeSlots'
@@ -148,7 +148,7 @@ function LocationHint({ label, note }: { label: string; note: string }) {
       </Popover.Trigger>
       <Portal>
         <Popover.Positioner>
-          <Popover.Content maxW="280px" borderRadius="md">
+          <Popover.Content maxW="280px" borderRadius="xl" boxShadow="e3">
             <Popover.Body
               p={3}
               fontSize="sm"
@@ -190,18 +190,10 @@ function PriceColumn({
       borderColor={highlight ? 'status.success.solid' : 'border.default'}
       bg={highlight ? 'status.success.soft' : 'bg.subtle'}
     >
-      <Text
-        fontSize="xs"
-        fontWeight={500}
-        color="text.muted"
-        letterSpacing="0.06em"
-        textTransform="uppercase"
-      >
-        {label}
-      </Text>
+      <Text {...sdlEyebrow}>{label}</Text>
       <Text
         fontSize="xl"
-        fontWeight={700}
+        {...sdlFigure}
         color="text.default"
         lineHeight="short"
       >
@@ -216,18 +208,16 @@ function PriceColumn({
   )
 }
 
-/** First (primary) category in brand, the rest neutral; each links to search. */
+/** A category is neutral (green is for state); each links to search. */
 function CategoryChip({
   label,
   href,
-  primary,
 }: {
   label: string
   href: string | null
-  primary: boolean
 }) {
   const chip = (
-    <Badge variant={primary ? 'brand' : 'neutral'} shape="pill">
+    <Badge variant="neutral" shape="pill">
       {label}
     </Badge>
   )
@@ -295,23 +285,14 @@ export function BudgetFact() {
 
   return (
     <Stack gap={2} py={3}>
-      <Text
-        fontSize="xs"
-        fontWeight={500}
-        color="text.muted"
-        letterSpacing="0.06em"
-        textTransform="uppercase"
-      >
-        {t.details.budget}
-      </Text>
+      <Text {...sdlEyebrow}>{t.details.budget}</Text>
       {line ? (
         <Text
           fontSize={{ base: '4xl', lg: '5xl' }}
-          fontWeight={800}
+          {...sdlFigure}
           lineHeight="1"
-          letterSpacing="-0.02em"
-          color="status.success.fg"
-          fontVariantNumeric="tabular-nums"
+          letterSpacing={{ base: '-0.03em', lg: '-0.035em' }}
+          color="text.default"
         >
           {line}
         </Text>
@@ -321,7 +302,7 @@ export function BudgetFact() {
       {kind || payment ? (
         <Wrap gap={1.5}>
           {kind ? (
-            <Badge variant="brand" shape="pill">
+            <Badge variant="neutral" shape="pill">
               {kind}
             </Badge>
           ) : null}
@@ -549,12 +530,11 @@ export function CategoriesFact() {
     <DetailRow icon={<LuTag />} label={t.details.categories}>
       {categories ? (
         <Wrap gap={1.5}>
-          {categories.map((category, index) => (
+          {categories.map((category) => (
             <CategoryChip
               key={category.label.toLowerCase()}
               label={category.label}
               href={category.href}
-              primary={index === 0}
             />
           ))}
         </Wrap>

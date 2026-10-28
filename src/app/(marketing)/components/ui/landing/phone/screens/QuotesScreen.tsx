@@ -33,18 +33,23 @@ function QuoteRow({
       <HStack gap="10px" align="flex-start">
         <InitialAvatar initials={quote.initials} size={42} />
         <Stack gap="2px" flex={1} minW={0}>
-          <Text fontSize="15px" fontWeight={700}>
+          <Text fontSize="15px" fontWeight={500}>
             {quote.name}
           </Text>
           <HStack gap="4px">
             <Stars filled={5} size={12} />
-            <Text fontSize="12px" color="text.muted" fontWeight={600}>
+            <Text fontSize="12px" color="text.muted" fontWeight={500}>
               {quote.rating}{' '}
               {formatMessage(copy.reviews, { count: quote.reviews })}
             </Text>
           </HStack>
         </Stack>
-        <Text fontSize="20px" fontWeight={800} color="status.success.fg">
+        <Text
+          fontSize="20px"
+          fontWeight={600}
+          fontVariantNumeric="tabular-nums"
+          color="status.success.fg"
+        >
           {quote.price}
         </Text>
       </HStack>
@@ -61,7 +66,7 @@ function QuoteRow({
           mt="8px"
           gap="8px"
           fontSize="12px"
-          fontWeight={600}
+          fontWeight={500}
           color="status.success.fg"
           css={{ animation: 'rise-in 320ms cubic-bezier(0.2, 0, 0, 1) both' }}
         >
@@ -136,11 +141,11 @@ export function QuotesScreen({
         <Stack gap="8px">
           <HStack gap="6px">
             <Box w="8px" h="8px" borderRadius="full" bg="action.primary" />
-            <Text fontSize="12px" fontWeight={700} color="status.success.fg">
+            <Text fontSize="12px" fontWeight={500} color="status.success.fg">
               {t.status}
             </Text>
           </HStack>
-          <Text fontSize="21px" fontWeight={800} lineHeight={1.2}>
+          <Text fontSize="21px" fontWeight={500} lineHeight={1.2}>
             {task.title}
           </Text>
           <HStack gap="6px" flexWrap="wrap">
@@ -165,7 +170,7 @@ export function QuotesScreen({
             textAlign="center"
             py="10px"
             fontSize="14px"
-            fontWeight={600}
+            fontWeight={500}
             color="text.muted"
           >
             {t.overview}
@@ -179,7 +184,7 @@ export function QuotesScreen({
             borderColor="action.primary"
             mb="-1px"
           >
-            <Text fontSize="14px" fontWeight={700}>
+            <Text fontSize="14px" fontWeight={500}>
               {t.tab}
             </Text>
             <Box
@@ -187,7 +192,8 @@ export function QuotesScreen({
               borderRadius="full"
               bg="bg.subtle"
               fontSize="12px"
-              fontWeight={700}
+              fontWeight={600}
+              fontVariantNumeric="tabular-nums"
             >
               {t.items.length}
             </Box>

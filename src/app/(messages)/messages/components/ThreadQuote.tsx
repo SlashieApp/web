@@ -173,7 +173,7 @@ export function ThreadQuote({
           src={quote.worker?.profile.avatarUrl ?? undefined}
         />
         <Stack gap={0} flex={1} minW={0}>
-          <Text fontWeight={600} fontSize="sm" truncate>
+          <Text fontWeight={500} fontSize="sm" truncate>
             {name}
           </Text>
           {canAct && !workerSuspended ? null : (
@@ -195,7 +195,7 @@ export function ThreadQuote({
         </Stack>
         {quote.price ? (
           <Text
-            fontWeight={700}
+            fontWeight={600}
             fontSize="lg"
             flexShrink={0}
             fontVariantNumeric="tabular-nums"

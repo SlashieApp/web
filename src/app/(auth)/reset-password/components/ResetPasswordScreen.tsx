@@ -52,7 +52,7 @@ function resetMessageFor(error: unknown): ResetPasswordMessage {
 function BackToLogin() {
   const shared = useI11n(authBag)
   return (
-    <Link href="/login" fontWeight={700} color="text.link">
+    <Link href="/login" fontWeight={500} color="text.link">
       {shared.backToLogin}
     </Link>
   )
@@ -213,7 +213,7 @@ export function ResetPasswordScreen() {
                   <Text fontSize="sm">
                     <Link
                       href="/forgot-password"
-                      fontWeight={700}
+                      fontWeight={500}
                       color="text.link"
                     >
                       {t.missingCta}

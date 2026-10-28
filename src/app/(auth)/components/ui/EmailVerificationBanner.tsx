@@ -28,7 +28,7 @@ export function EmailVerificationBanner() {
         align="center"
         maxW="full"
       >
-        <Text fontSize="sm" color="status.success.fg" fontWeight={600}>
+        <Text fontSize="sm" color="status.success.fg" fontWeight={500}>
           Verify your email to post tasks and send quotes.
         </Text>
         <HStack gap={2} flexWrap="wrap" align="center">
@@ -44,7 +44,7 @@ export function EmailVerificationBanner() {
           <Link
             href="/verify-email/sent"
             fontSize="sm"
-            fontWeight={700}
+            fontWeight={500}
             color="text.link"
             _hover={{ color: 'status.success.fg', textDecoration: 'none' }}
           >

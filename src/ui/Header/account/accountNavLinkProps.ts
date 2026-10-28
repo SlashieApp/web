@@ -18,7 +18,7 @@ export const accountNavLinkRowProps = {
   borderWidth: 0,
   borderRadius: 'md',
   fontSize: 'sm',
-  fontWeight: 600,
+  fontWeight: 500,
   color: 'text.default',
   _hover: navRowHover,
   ...focusVisibleMatchesHover(navRowHover),

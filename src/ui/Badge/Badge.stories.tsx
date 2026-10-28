@@ -20,7 +20,6 @@ const meta = {
   argTypes: {
     variant: { control: 'select', options: FAMILIES },
     size: { control: 'inline-radio', options: ['sm', 'lg'] },
-    shape: { control: 'inline-radio', options: ['default', 'pill'] },
     dot: { control: 'boolean' },
     children: { control: 'text' },
   },
@@ -30,12 +29,19 @@ const meta = {
 export default meta
 type Story = StoryObj<typeof meta>
 
-/** Playground: drive variant, size, shape, dot and label from Controls. */
+/** Playground: drive variant, size, dot and label from Controls. */
 export const Playground: Story = {}
 
-/** Success: positive state such as Completed (`brand`, the default, renders the same). */
+/** Success: positive state such as Completed (`brand` renders the same). A 1px border from the family. */
 export const Success: Story = {
   args: { variant: 'success', children: 'Completed' },
+  play: async ({ canvasElement }) => {
+    const badge = within(canvasElement).getByText('Completed')
+    const style = getComputedStyle(badge)
+    await expect(style.borderTopWidth).toBe('1px')
+    await expect(style.borderTopColor).toBe('rgb(198, 246, 221)')
+    await expect(style.fontWeight).toBe('500')
+  },
 }
 
 /** Warning: needs attention soon, such as a quote that is waiting. */
@@ -53,9 +59,16 @@ export const Info: Story = {
   args: { variant: 'info', children: 'In progress' },
 }
 
-/** Neutral: inactive or low-emphasis state such as Draft. */
+/** Neutral (the default): categories, and inactive or low-emphasis state such as Draft. */
 export const Neutral: Story = {
   args: { variant: 'neutral', children: 'Draft' },
+  play: async ({ canvasElement }) => {
+    const badge = within(canvasElement).getByText('Draft')
+    const style = getComputedStyle(badge)
+    await expect(style.backgroundColor).toBe('rgb(244, 244, 245)')
+    await expect(style.color).toBe('rgb(82, 82, 91)')
+    await expect(style.borderTopColor).toBe('rgb(228, 228, 231)')
+  },
 }
 
 /** Small (`sm`, the default): 12px text for dense rows. */
@@ -85,11 +98,17 @@ export const SmallHeight: Story = {
 /** Large (`lg`): 14px text for headers and detail panels. */
 export const Large: Story = { args: { size: 'lg' } }
 
-/** Default shape: `md` corner radius. */
+/** Default shape: a pill too since the tone refresh; `shape` stays only so old call sites need no change. */
 export const DefaultShape: Story = { args: { shape: 'default' } }
 
 /** Pill shape: fully rounded, used for counts and status chips. */
-export const Pill: Story = { args: { shape: 'pill' } }
+export const Pill: Story = {
+  args: { shape: 'pill' },
+  play: async ({ canvasElement }) => {
+    const badge = within(canvasElement).getByText('Open')
+    await expect(getComputedStyle(badge).borderTopLeftRadius).toBe('9999px')
+  },
+}
 
 /** With dot: the leading status dot keeps meaning from relying on colour alone. */
 export const WithDot: Story = { args: { dot: true } }

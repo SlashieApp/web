@@ -12,6 +12,7 @@ import type { ReactNode } from 'react'
 import { LuBriefcase, LuCheck, LuZap } from 'react-icons/lu'
 
 import { formatMessage } from '@/i18n/loadPageI11n'
+import { sdlFigure } from '@/theme/styles'
 import { Badge, Button, Link } from '@ui'
 
 import {
@@ -105,15 +106,7 @@ function PlanCard({
           {icon}
         </Box>
         {current ? (
-          <Badge
-            bg="status.success.soft"
-            color="status.success.fg"
-            borderRadius="full"
-            px={3}
-            py={1}
-            fontSize="xs"
-            fontWeight={700}
-          >
+          <Badge variant="success" px={3} py={1}>
             {yourPlan}
           </Badge>
         ) : null}
@@ -130,14 +123,14 @@ function PlanCard({
         <HStack gap={2} align="baseline" flexWrap="wrap">
           <Text
             fontSize="3xl"
-            fontWeight={800}
+            {...sdlFigure}
             lineHeight="1"
-            color={featured ? 'text.link' : 'text.default'}
+            color="text.default"
           >
             {amount}
           </Text>
           {suffix ? (
-            <Text fontSize="md" fontWeight={600} color="text.muted">
+            <Text fontSize="md" fontWeight={500} color="text.muted">
               {suffix}
             </Text>
           ) : null}

@@ -120,7 +120,7 @@ export function WorkerSetupChipsField({
                 pr={3}
                 bg="status.success.soft"
                 color="status.success.fg"
-                fontWeight={600}
+                fontWeight={500}
                 _hover={{ bg: 'status.success.border' }}
               >
                 {item}
@@ -175,7 +175,7 @@ export function WorkerSetupChipsField({
         {remaining.length > 0 && !atCap ? (
           <Box pt={3}>
             {suggestionsLabel ? (
-              <Text fontSize="xs" fontWeight={600} color="text.muted" pb={2}>
+              <Text fontSize="xs" fontWeight={500} color="text.muted" pb={2}>
                 {suggestionsLabel}
               </Text>
             ) : null}
@@ -189,7 +189,7 @@ export function WorkerSetupChipsField({
                   {...chipStyles}
                   pl={3}
                   borderWidth="1px"
-                  borderColor="border.default"
+                  borderColor="border.strong"
                   bg="bg.surface"
                   color="text.muted"
                   fontWeight={500}

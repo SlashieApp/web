@@ -105,7 +105,7 @@ export function TaskDetailView() {
           <Box pointerEvents="auto">
             <Box
               display={{ base: 'block', lg: 'none' }}
-              bg="status.success.soft"
+              bg="bg.canvas"
               h={TASK_DETAIL_PIN_CLEARANCE}
               aria-hidden
             />

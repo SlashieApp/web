@@ -52,7 +52,6 @@ export function PasswordInput(props: InputProps) {
         <IconButton
           type="button"
           variant="ghost"
-          borderRadius="md"
           aria-label={visible ? t.hidePassword : t.showPassword}
           onClick={() => setVisible((v) => !v)}
         >

@@ -11,12 +11,7 @@ export function PricingHeader({
 }) {
   return (
     <Stack gap={3} align="center" textAlign="center" maxW="40rem" mx="auto">
-      <Heading
-        as="h2"
-        size={{ base: 'xl', md: '2xl' }}
-        letterSpacing="-0.02em"
-        fontFamily="display"
-      >
+      <Heading as="h2" size={{ base: 'xl', md: '2xl' }} fontFamily="display">
         {copy.heading}
       </Heading>
       <Text fontSize="md" color="text.muted" lineHeight="tall">

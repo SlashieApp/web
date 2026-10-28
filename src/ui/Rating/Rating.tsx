@@ -2,6 +2,8 @@
 
 import { HStack, type StackProps, Text } from '@chakra-ui/react'
 
+import { sdlFigure } from '@/theme/styles'
+
 /**
  * SDL Rating. Compact, read-only star + score used on task/profile cards.
  *
@@ -105,7 +107,7 @@ export function Rating({ value, size = 'md', label, ...rest }: RatingProps) {
       <Text
         as="span"
         fontSize={score}
-        fontWeight={600}
+        {...sdlFigure}
         color="text.muted"
         lineHeight="1"
       >

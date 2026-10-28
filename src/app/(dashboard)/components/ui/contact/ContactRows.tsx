@@ -157,7 +157,7 @@ function ContactRow({
         minH="44px"
       >
         <Stack gap={0} minW={0}>
-          <Text fontSize="sm" fontWeight={700} color="text.default">
+          <Text fontSize="sm" fontWeight={500} color="text.default">
             {config.channel === 'email' ? t.email : t.phone}
           </Text>
           <Text fontSize="sm" color="text.muted" wordBreak="break-word">

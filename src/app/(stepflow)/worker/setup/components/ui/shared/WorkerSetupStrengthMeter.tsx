@@ -39,7 +39,7 @@ export function WorkerSetupStrengthMeter({
     >
       <Stack gap={3}>
         <HStack justify="space-between" align="center" gap={3}>
-          <Text fontSize="md" fontWeight={700} color="text.default">
+          <Text fontSize="md" fontWeight={500} color="text.default">
             {copy.strengthTitle}
           </Text>
           <Badge
@@ -79,7 +79,7 @@ export function WorkerSetupStrengthMeter({
                 alignSelf="flex-start"
                 minH="44px"
                 fontSize="sm"
-                fontWeight={600}
+                fontWeight={500}
                 color="text.link"
                 bg="transparent"
                 cursor="pointer"

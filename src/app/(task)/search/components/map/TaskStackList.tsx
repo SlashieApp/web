@@ -63,7 +63,7 @@ export function TaskStackList({
               onSelect(task.id)
             }}
           >
-            <Text fontWeight={700} color="text.default" lineClamp={1}>
+            <Text fontWeight={500} color="text.default" lineClamp={1}>
               {task.title}
             </Text>
             <Text fontSize="sm" color="text.muted" lineClamp={1}>
@@ -167,13 +167,11 @@ function StackCard({
       overflowY="auto"
       p={2}
       bg="bg.surface"
-      borderWidth="1px"
-      borderColor="border.default"
-      borderRadius="lg"
-      boxShadow="lg"
+      borderRadius="xl"
+      boxShadow="e3"
       zIndex="popover"
     >
-      <Text px={3} pt={1} pb={2} fontSize="sm" fontWeight={700}>
+      <Text px={3} pt={1} pb={2} fontSize="sm" fontWeight={500}>
         {title}
       </Text>
       {children}

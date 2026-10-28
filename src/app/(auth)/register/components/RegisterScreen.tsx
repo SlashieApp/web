@@ -201,7 +201,7 @@ export function RegisterScreen() {
           {t.loginPrompt}{' '}
           <Link
             href={authSwitchHref('/login', searchParams)}
-            fontWeight={700}
+            fontWeight={500}
             color="text.link"
           >
             {t.loginLink}
@@ -240,13 +240,13 @@ export function RegisterScreen() {
                     label={
                       <>
                         {t.termsBefore}{' '}
-                        <Link href="/terms" fontWeight={700} color="text.link">
+                        <Link href="/terms" fontWeight={500} color="text.link">
                           {t.termsLink}
                         </Link>{' '}
                         {t.termsAnd}{' '}
                         <Link
                           href="/privacy"
-                          fontWeight={700}
+                          fontWeight={500}
                           color="text.link"
                         >
                           {t.privacyLink}

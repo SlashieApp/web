@@ -58,7 +58,6 @@ function SearchFieldButton({
       h={8}
       px={0}
       py={0}
-      borderRadius="lg"
       variant="ghost"
       color="text.muted"
       _hover={{ bg: 'bg.subtle', color: 'text.default' }}
@@ -127,6 +126,7 @@ export function TaskSearchBase({
   if (mode === 'trigger') {
     return (
       <Input
+        pill
         rootProps={{
           cursor: 'pointer',
           onMouseDown: (e: MouseEvent<HTMLDivElement>) => {
@@ -157,6 +157,7 @@ export function TaskSearchBase({
 
   return (
     <Input
+      pill
       startElement={startElement}
       endElement={endElement}
       value={value}

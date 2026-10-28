@@ -112,14 +112,14 @@ export function ChatScreen({
           <LuArrowLeft size={22} />
         </Box>
         <Stack gap={0} flex={1} minW={0}>
-          <Text fontSize="15px" fontWeight={700} lineClamp={1}>
+          <Text fontSize="15px" fontWeight={500} lineClamp={1}>
             {copy.tasks.hedge.title}
           </Text>
           <Text fontSize="12px" color="text.muted">
             {t.worker}
           </Text>
         </Stack>
-        <Text fontSize="13px" fontWeight={700} color="text.link">
+        <Text fontSize="13px" fontWeight={500} color="text.link">
           {t.viewTask}
         </Text>
       </HStack>
@@ -136,7 +136,7 @@ export function ChatScreen({
           alignSelf="center"
           fontSize="12px"
           color="text.subtle"
-          fontWeight={600}
+          fontWeight={500}
         >
           {t.today}
         </Text>
@@ -150,7 +150,7 @@ export function ChatScreen({
           bg="bg.subtle"
           style={enterStyle(entered, 0)}
         >
-          <Text fontSize="14px" fontWeight={700}>
+          <Text fontSize="14px" fontWeight={500}>
             {t.flashTitle}
           </Text>
           <Text fontSize="13px" color="text.muted" mt="2px">
@@ -166,7 +166,7 @@ export function ChatScreen({
             borderColor="border.strong"
             bg="bg.surface"
             fontSize="13px"
-            fontWeight={700}
+            fontWeight={500}
           >
             {t.viewTask}
           </Box>

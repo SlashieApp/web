@@ -57,7 +57,7 @@ export function FeedbackTrigger({
         type="button"
         onClick={onClick}
         {...footerLinkProps}
-        fontWeight={600}
+        fontWeight={500}
         fontSize="sm"
         color="text.default"
         _hover={{ color: 'text.link' }}
@@ -95,7 +95,7 @@ export function FeedbackTrigger({
         py={2}
         borderRadius="md"
         fontSize="sm"
-        fontWeight={600}
+        fontWeight={500}
         color="text.default"
         onClick={onClick}
       >

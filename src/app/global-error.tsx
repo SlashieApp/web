@@ -44,16 +44,18 @@ export default function GlobalError({
           display: 'grid',
           placeItems: 'center',
           padding: '48px 16px',
-          background: '#F4F6F5',
+          background: '#FAFAFA',
           color: '#111816',
           fontFamily: 'system-ui, -apple-system, "Segoe UI", sans-serif',
         }}
       >
         <main style={{ maxWidth: '28rem', textAlign: 'center' }}>
-          <h1 style={{ fontSize: '1.5rem', margin: '0 0 8px' }}>
+          <h1
+            style={{ fontSize: '1.5rem', fontWeight: 500, margin: '0 0 8px' }}
+          >
             {t.errorTitle}
           </h1>
-          <p style={{ margin: '0 0 24px', color: '#4A5551', lineHeight: 1.6 }}>
+          <p style={{ margin: '0 0 24px', color: '#52525B', lineHeight: 1.6 }}>
             {t.errorBody}
           </p>
           <button
@@ -63,11 +65,11 @@ export default function GlobalError({
               minHeight: 44,
               padding: '0 20px',
               border: 0,
-              borderRadius: 10,
+              borderRadius: 9999,
               background: '#05683F',
               color: '#FFFFFF',
               font: 'inherit',
-              fontWeight: 600,
+              fontWeight: 500,
               cursor: 'pointer',
             }}
           >
@@ -76,7 +78,7 @@ export default function GlobalError({
           <p style={{ margin: '16px 0 0' }}>
             <NextLink
               href={APP_HOME}
-              style={{ color: '#05683F', fontWeight: 600 }}
+              style={{ color: '#05683F', fontWeight: 500 }}
             >
               {t.search}
             </NextLink>

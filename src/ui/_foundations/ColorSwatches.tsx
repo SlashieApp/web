@@ -4,7 +4,7 @@ import { Box, ChakraProvider, SimpleGrid, Stack, Text } from '@chakra-ui/react'
 import type { ReactNode } from 'react'
 
 import { darkSystem, lightSystem } from '@/theme/chakraSystem'
-import { sdlMotion } from '@/theme/styles'
+import { sdlEyebrow, sdlMotion } from '@/theme/styles'
 
 /**
  * Foundations/Color live swatches.
@@ -23,32 +23,33 @@ type Swatch = { name: string; hex: string; role?: string }
 
 export const greenScale: Swatch[] = [
   { name: 'green.50', hex: '#E7FBF0', role: 'success.soft (light)' },
-  { name: 'green.100', hex: '#C6F6DD' },
-  { name: 'green.200', hex: '#92ECC0', role: 'intent border tint' },
+  { name: 'green.100', hex: '#C6F6DD', role: 'status.success.border (light)' },
+  { name: 'green.200', hex: '#92ECC0' },
   { name: 'green.300', hex: '#54DD9D', role: 'text.link / fg (dark)' },
-  { name: 'green.400', hex: '#00DC82', role: 'action.primary' },
+  { name: 'green.400', hex: '#00DC82', role: 'action.primary (fills only)' },
   { name: 'green.500', hex: '#00C275', role: 'action.primaryHover' },
   {
     name: 'green.600',
     hex: '#02A567',
-    role: 'action.primaryPressed / border.focus',
+    role: 'border.focus / accent.active (light)',
   },
-  { name: 'green.700', hex: '#048654', role: 'text.link (light) / success.fg' },
-  { name: 'green.800', hex: '#05683F' },
+  { name: 'green.700', hex: '#048654' },
+  { name: 'green.800', hex: '#05683F', role: 'text.link / success.fg (light)' },
   { name: 'green.900', hex: '#053D27' },
 ]
 
+/** Zinc: the neutral ramp since the tone refresh (900 is the ink, unchanged). */
 export const neutralScale: Swatch[] = [
   { name: 'neutral.0', hex: '#FFFFFF', role: 'bg.surface (light)' },
-  { name: 'neutral.50', hex: '#F7F9F8', role: 'bg.canvas (light)' },
-  { name: 'neutral.100', hex: '#EEF1F0', role: 'bg.subtle (light)' },
-  { name: 'neutral.200', hex: '#E0E5E3', role: 'border.default (light)' },
-  { name: 'neutral.300', hex: '#C7CECB', role: 'border.strong (light)' },
-  { name: 'neutral.400', hex: '#9BA4A0' },
-  { name: 'neutral.500', hex: '#6E7873' },
-  { name: 'neutral.600', hex: '#515A56', role: 'text.muted (light)' },
-  { name: 'neutral.700', hex: '#3A423E' },
-  { name: 'neutral.800', hex: '#232A27' },
+  { name: 'neutral.50', hex: '#FAFAFA', role: 'bg.canvas (light)' },
+  { name: 'neutral.100', hex: '#F4F4F5', role: 'bg.subtle (light)' },
+  { name: 'neutral.200', hex: '#E4E4E7', role: 'border.default (light)' },
+  { name: 'neutral.300', hex: '#D4D4D8', role: 'border.strong (light)' },
+  { name: 'neutral.400', hex: '#A1A1AA', role: 'border.hover (light)' },
+  { name: 'neutral.500', hex: '#71717A' },
+  { name: 'neutral.600', hex: '#52525B', role: 'text.muted (light)' },
+  { name: 'neutral.700', hex: '#3F3F46' },
+  { name: 'neutral.800', hex: '#27272A' },
   {
     name: 'neutral.900',
     hex: '#0A1512',
@@ -109,7 +110,7 @@ export const semanticText: SemanticRole[] = [
   {
     role: 'text.subtle',
     token: '--chakra-colors-text-subtle',
-    note: 'AA support copy (#5F6A65 light)',
+    note: 'placeholders, eyebrows (#6B6B74 light): AA on every light surface',
   },
   {
     role: 'text.onGreen',
@@ -122,6 +123,7 @@ export const semanticText: SemanticRole[] = [
 export const semanticBorder: SemanticRole[] = [
   { role: 'border.default', token: '--chakra-colors-border-default' },
   { role: 'border.strong', token: '--chakra-colors-border-strong' },
+  { role: 'border.hover', token: '--chakra-colors-border-hover' },
   { role: 'border.focus', token: '--chakra-colors-border-focus' },
 ]
 
@@ -133,9 +135,17 @@ export const semanticAction: SemanticRole[] = [
     token: '--chakra-colors-action-primaryPressed',
   },
   { role: 'accent.premium', token: '--chakra-colors-accent-premium' },
+  {
+    role: 'accent.active',
+    token: '--chakra-colors-accent-active',
+    note: 'active bars, state icons (green 600)',
+  },
 ]
 
 export const statusFamilies = ['success', 'warning', 'danger', 'info'] as const
+
+/** Families that only have a tag border so far (premium, plum). */
+const borderOnlyFamilies = ['premium'] as const
 
 // ── Atoms ───────────────────────────────────────────────────────────────────
 
@@ -154,7 +164,7 @@ function PrimitiveSwatch({ name, hex, role }: Swatch) {
         _hover={{ transform: 'translateY(-2px)' }}
       />
       <Stack gap={0}>
-        <Text fontSize="xs" fontWeight={600} color="text.default">
+        <Text fontSize="xs" fontWeight={500} color="text.default">
           {name}
         </Text>
         <Text fontSize="xs" fontFamily="mono" color="text.muted">
@@ -185,7 +195,7 @@ function SemanticSwatch({ role, token, note }: SemanticRole) {
         _hover={{ transform: 'translateY(-2px)' }}
       />
       <Stack gap={0}>
-        <Text fontSize="xs" fontWeight={600} color="text.default">
+        <Text fontSize="xs" fontWeight={500} color="text.default">
           {role}
         </Text>
         <Text fontSize="11px" fontFamily="mono" color="text.muted">
@@ -202,17 +212,7 @@ function SemanticSwatch({ role, token, note }: SemanticRole) {
 }
 
 function SectionLabel({ children }: { children: ReactNode }) {
-  return (
-    <Text
-      fontSize="xs"
-      fontWeight={700}
-      textTransform="uppercase"
-      letterSpacing="0.12em"
-      color="text.muted"
-    >
-      {children}
-    </Text>
-  )
+  return <Text {...sdlEyebrow}>{children}</Text>
 }
 
 /** All swatch sections, themed by whichever system wraps this tree. */
@@ -293,15 +293,15 @@ function ColorContents() {
 
       <Stack gap={3}>
         <SectionLabel>
-          Semantic — status families (soft / fg / solid)
+          Semantic: status families (soft / fg / solid / border)
         </SectionLabel>
         <Stack gap={4}>
           {statusFamilies.map((family) => (
             <Stack key={family} gap={2}>
-              <Text fontSize="xs" fontWeight={600} color="text.default">
+              <Text fontSize="xs" fontWeight={500} color="text.default">
                 status.{family}
               </Text>
-              <SimpleGrid columns={3} gap={4}>
+              <SimpleGrid columns={{ base: 2, sm: 4 }} gap={4}>
                 <SemanticSwatch
                   role={`status.${family}.soft`}
                   token={`--chakra-colors-status-${family}-soft`}
@@ -313,6 +313,25 @@ function ColorContents() {
                 <SemanticSwatch
                   role={`status.${family}.solid`}
                   token={`--chakra-colors-status-${family}-solid`}
+                />
+                <SemanticSwatch
+                  role={`status.${family}.border`}
+                  token={`--chakra-colors-status-${family}-border`}
+                  note="tag border"
+                />
+              </SimpleGrid>
+            </Stack>
+          ))}
+          {borderOnlyFamilies.map((family) => (
+            <Stack key={family} gap={2}>
+              <Text fontSize="xs" fontWeight={500} color="text.default">
+                status.{family}
+              </Text>
+              <SimpleGrid columns={{ base: 2, sm: 4 }} gap={4}>
+                <SemanticSwatch
+                  role={`status.${family}.border`}
+                  token={`--chakra-colors-status-${family}-border`}
+                  note="tag border"
                 />
               </SimpleGrid>
             </Stack>
@@ -343,14 +362,7 @@ function ModePanel({
         borderRadius="xl"
         p={5}
       >
-        <Text
-          fontSize="xs"
-          fontWeight={700}
-          textTransform="uppercase"
-          letterSpacing="0.12em"
-          color="text.muted"
-          mb={4}
-        >
+        <Text {...sdlEyebrow} mb={4}>
           {mode} mode
         </Text>
         {children}
@@ -389,14 +401,7 @@ export function GreenInkDemo() {
               borderRadius="xl"
               p={5}
             >
-              <Text
-                fontSize="xs"
-                fontWeight={700}
-                textTransform="uppercase"
-                letterSpacing="0.12em"
-                color="text.muted"
-                mb={4}
-              >
+              <Text {...sdlEyebrow} mb={4}>
                 {mode} mode
               </Text>
               <Stack gap={3}>
@@ -406,7 +411,7 @@ export function GreenInkDemo() {
                   borderRadius="lg"
                   px={4}
                   py={3}
-                  fontWeight={600}
+                  fontWeight={500}
                   fontSize="sm"
                 >
                   action.primary + text.onGreen (ink, never white)
@@ -417,7 +422,7 @@ export function GreenInkDemo() {
                   borderRadius="lg"
                   px={4}
                   py={3}
-                  fontWeight={600}
+                  fontWeight={500}
                   fontSize="sm"
                 >
                   status.danger.solid + text.onGreen

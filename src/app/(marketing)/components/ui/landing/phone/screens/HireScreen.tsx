@@ -53,18 +53,23 @@ export function HireScreen({
         <HStack gap="12px">
           <InitialAvatar initials={quote.initials} size={52} />
           <Stack gap="2px" flex={1}>
-            <Text fontSize="17px" fontWeight={800}>
+            <Text fontSize="17px" fontWeight={500}>
               {quote.name}
             </Text>
             <HStack gap="4px">
               <Stars filled={5} size={13} />
-              <Text fontSize="12px" color="text.muted" fontWeight={600}>
+              <Text fontSize="12px" color="text.muted" fontWeight={500}>
                 {quote.rating}{' '}
                 {formatMessage(copy.quotes.reviews, { count: quote.reviews })}
               </Text>
             </HStack>
           </Stack>
-          <Text fontSize="28px" fontWeight={800} color="status.success.fg">
+          <Text
+            fontSize="28px"
+            fontWeight={600}
+            fontVariantNumeric="tabular-nums"
+            color="status.success.fg"
+          >
             {t.price}
           </Text>
         </HStack>
@@ -72,7 +77,7 @@ export function HireScreen({
         <Stack gap="8px" fontSize="14px">
           <HStack gap="8px">
             <LuCalendar size={16} aria-hidden />
-            <Text fontWeight={600}>{t.when}</Text>
+            <Text fontWeight={500}>{t.when}</Text>
           </HStack>
           <HStack gap="8px" color="text.muted">
             <LuHandCoins size={16} aria-hidden />
@@ -104,7 +109,7 @@ export function HireScreen({
               <LuCheck size={20} aria-hidden />
             </Box>
             <Stack gap={0}>
-              <Text fontSize="15px" fontWeight={700}>
+              <Text fontSize="15px" fontWeight={500}>
                 {t.acceptedTitle}
               </Text>
               <Text fontSize="13px" color="text.muted">

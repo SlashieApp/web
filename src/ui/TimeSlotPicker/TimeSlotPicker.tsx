@@ -7,6 +7,7 @@ import { LuPlus, LuX } from 'react-icons/lu'
 import { useLocale } from '@/i18n/LocaleProvider'
 import { formatMessage } from '@/i18n/loadPageI11n'
 import { useI11n } from '@/i18n/useI11n'
+import { sdlFigure } from '@/theme/styles'
 import {
   TIME_SLOT_DURATION_PRESETS,
   TIME_SLOT_MAX,
@@ -115,13 +116,13 @@ function DayStrip({
             onClick={() => onChange(ymd)}
           >
             <Stack gap={0} align="center">
-              <Text fontSize="xs" fontWeight={700}>
+              <Text fontSize="xs" fontWeight={500}>
                 {d.toLocaleDateString(locale, { weekday: 'short' })}
               </Text>
-              <Text fontSize="sm" fontWeight={800}>
+              <Text fontSize="sm" {...sdlFigure}>
                 {d.getDate()}
               </Text>
-              <Text fontSize="2xs" fontWeight={600} minH="1em">
+              <Text fontSize="2xs" fontWeight={500} minH="1em">
                 {showMonth
                   ? d.toLocaleDateString(locale, { month: 'short' })
                   : ''}
@@ -179,7 +180,7 @@ export function TimeSlotPicker({
           >
             <Stack gap={3}>
               <HStack justify="space-between">
-                <Text fontWeight={700}>{heading}</Text>
+                <Text fontWeight={500}>{heading}</Text>
                 {slots.length > 1 ? (
                   <IconButton
                     type="button"
@@ -205,7 +206,7 @@ export function TimeSlotPicker({
                   <Text
                     as="label"
                     fontSize="sm"
-                    fontWeight={600}
+                    fontWeight={500}
                     mb={1}
                     display="block"
                   >
@@ -224,7 +225,7 @@ export function TimeSlotPicker({
                   <Text
                     as="label"
                     fontSize="sm"
-                    fontWeight={600}
+                    fontWeight={500}
                     mb={1}
                     display="block"
                   >

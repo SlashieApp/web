@@ -43,7 +43,7 @@ export function SafetyNotice({ variant = 'inline' }: SafetyNoticeProps) {
   return (
     <Text fontSize="sm" color="text.muted" lineHeight="tall">
       {line}{' '}
-      <Link href={SAFETY_HREF} tone="emphasis" fontWeight={600}>
+      <Link href={SAFETY_HREF} tone="emphasis" fontWeight={500}>
         {t.linkLabel}
       </Link>
     </Text>

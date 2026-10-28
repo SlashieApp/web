@@ -69,7 +69,7 @@ export function CreateTaskLocationSection({
         <Box color="action.primary" flexShrink={0} aria-hidden>
           <LuMapPin size={14} />
         </Box>
-        <Text fontSize="sm" fontWeight={600} lineClamp={1}>
+        <Text fontSize="sm" fontWeight={500} lineClamp={1}>
           {publicArea
             ? formatMessage(t.workersWillSee, { area: publicArea })
             : t.areaPending}

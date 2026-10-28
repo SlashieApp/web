@@ -90,7 +90,7 @@ export function StepFlowHeader({
           flex={1}
           minW={0}
           fontSize="md"
-          fontWeight={600}
+          fontWeight={500}
           color="text.default"
           textAlign={{ base: 'left', md: 'center' }}
           truncate
@@ -131,10 +131,12 @@ export function StepFlowHeading({
         tabIndex={headingRef ? -1 : undefined}
         outline="none"
         fontSize={compact ? 'xl' : { base: '2xl', md: '3xl' }}
-        fontWeight={800}
+        fontWeight={500}
         lineHeight="short"
         color="text.default"
-        letterSpacing="-0.02em"
+        letterSpacing={
+          compact ? '-0.015em' : { base: '-0.02em', md: '-0.025em' }
+        }
       >
         {title}
       </Text>
@@ -229,7 +231,6 @@ export function StepFlowActions({
           minW={{ base: 0, lg: 'auto' }}
           flex={{ base: 1, lg: 'none' }}
           ml="auto"
-          borderRadius="md"
           px={6}
         >
           <HStack gap={2}>

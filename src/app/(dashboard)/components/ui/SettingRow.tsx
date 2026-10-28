@@ -28,7 +28,7 @@ export function SettingRow({ label, description, children }: SettingRowProps) {
       flexWrap="wrap"
     >
       <Stack gap={0} flex="1" minW="12rem">
-        <Text fontSize="sm" fontWeight={700} color="text.default">
+        <Text fontSize="sm" fontWeight={500} color="text.default">
           {label}
         </Text>
         {description ? (

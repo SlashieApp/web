@@ -158,7 +158,7 @@ export function ProfileSkillsSection({
       ) : null}
       {qualifications.length > 0 ? (
         <Stack gap={2}>
-          <Text fontSize="sm" fontWeight={600} color="text.default">
+          <Text fontSize="sm" fontWeight={500} color="text.default">
             {t.qualifications}
           </Text>
           <HStack gap={2} flexWrap="wrap">
@@ -204,7 +204,7 @@ function ProfileWorkSection({
       <Stack gap={3}>
         {visible.map((job, index) => (
           <Stack key={`${job.id}-${index}`} gap={0.5} {...rowBorder(index)}>
-            <Text fontWeight={600} color="text.default">
+            <Text fontWeight={500} color="text.default">
               {job.title}
             </Text>
             <HStack gap={2} flexWrap="wrap" fontSize="sm" color="text.muted">
@@ -252,7 +252,7 @@ function ProfileReviewsSection({ model }: { model: PublicProfileModel }) {
           <Text
             fontFamily="heading"
             fontSize="4xl"
-            fontWeight={700}
+            fontWeight={600}
             lineHeight="1"
             color="text.default"
             fontVariantNumeric="tabular-nums"
@@ -269,7 +269,7 @@ function ProfileReviewsSection({ model }: { model: PublicProfileModel }) {
         </HStack>
       ) : (
         <Stack gap={0.5}>
-          <Text fontWeight={600} color="text.default">
+          <Text fontWeight={500} color="text.default">
             {countLabel}
           </Text>
           <Text fontSize="sm" color="text.muted">
@@ -295,7 +295,7 @@ function ProfileReviewsSection({ model }: { model: PublicProfileModel }) {
                   fallback={review.authorName ? 'initials' : 'icon'}
                 />
                 <Stack gap={0} flex="1" minW={0}>
-                  <Text fontSize="sm" fontWeight={600} color="text.default">
+                  <Text fontSize="sm" fontWeight={500} color="text.default">
                     {review.authorName ?? t.anonymousAuthor}
                   </Text>
                   <Text fontSize="xs" color="text.muted">
@@ -399,6 +399,7 @@ function ProfileOpenTasksSection({
         id="profile-open-tasks"
         fontSize={{ base: '16px', md: '20px' }}
         fontWeight={500}
+        letterSpacing={{ base: '0', md: '-0.015em' }}
         color="text.default"
       >
         {t.openTasks}

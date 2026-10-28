@@ -284,7 +284,7 @@ export function PhoneVerificationModal({
         >
           <Text fontSize="sm" color="text.muted" lineHeight="tall">
             {codeBefore}
-            <Text as="span" fontWeight={600} color="text.default">
+            <Text as="span" fontWeight={500} color="text.default">
               {maskedPhone}
             </Text>
             {codeAfter}
@@ -308,7 +308,7 @@ export function PhoneVerificationModal({
               type="button"
               style={{
                 font: 'inherit',
-                fontWeight: 600,
+                fontWeight: 500,
                 padding: 0,
                 border: 'none',
                 background: 'none',

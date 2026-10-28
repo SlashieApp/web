@@ -9,7 +9,7 @@ import {
 
 import { chakraBreakpoints } from './breakpoints'
 import { PAGE_CONTAINER_MAX_W_CSS, PAGE_GUTTER_X } from './pageContainer'
-import { sdlElevation, sdlTextAa, sdlTypeScale } from './styles'
+import { sdlElevation, sdlFonts, sdlTextAa, sdlTypeScale } from './styles'
 
 /**
  * SLASHIE DESIGN LANGUAGE (SDL) — Chakra theme = single source of truth.
@@ -32,9 +32,10 @@ import { sdlElevation, sdlTextAa, sdlTypeScale } from './styles'
  * `textStyle="heading-md"` instead of re-deriving size/line-height/weight.
  * Generated from the single `sdlTypeScale` source; the font family is assigned by
  * role prefix (display/heading -> display face, mono -> mono, else -> body).
+ * A role with a `phone` size takes it below `md`.
  */
 const sdlTextStyles = Object.fromEntries(
-  Object.entries(sdlTypeScale).map(([role, scale]) => {
+  Object.entries(sdlTypeScale).map(([role, step]) => {
     const fontFamily = role.startsWith('display')
       ? 'display'
       : role.startsWith('heading')
@@ -42,19 +43,51 @@ const sdlTextStyles = Object.fromEntries(
         : role.startsWith('mono')
           ? 'mono'
           : 'body'
+    const phone = 'phone' in step ? step.phone : undefined
+    const textTransform =
+      'textTransform' in step ? step.textTransform : undefined
     return [
       role,
       {
         value: {
           fontFamily,
-          fontSize: scale.fontSize,
-          lineHeight: scale.lineHeight,
-          fontWeight: `${scale.fontWeight}`,
+          fontSize: phone
+            ? { base: phone.fontSize, md: step.fontSize }
+            : step.fontSize,
+          lineHeight: phone
+            ? { base: phone.lineHeight, md: step.lineHeight }
+            : step.lineHeight,
+          fontWeight: `${step.fontWeight}`,
+          letterSpacing: step.letterSpacing,
+          ...(textTransform ? { textTransform } : {}),
         },
       },
     ]
   }),
 )
+
+/**
+ * Chakra `Heading` sizes: weight 500 (`medium`), tracking by size. Sizes and
+ * line heights stay Chakra's own (the `textStyle` of the same name); only the
+ * weight and the tracking change. A size gets the tracking of its font size
+ * (`fontSizes` below): up to 16px none, 18px -0.01em, 20px -0.015em, 24px
+ * -0.02em, 28px -0.025em, 34 to 36px -0.03em, 44px and up -0.035em.
+ * Chakra's own 4xl to 7xl text styles carry -0.025em, so those sizes say theirs
+ * after the text style.
+ */
+const sdlHeadingSizes = {
+  xs: { textStyle: 'xs' },
+  sm: { textStyle: 'sm' },
+  md: { textStyle: 'md' },
+  lg: { textStyle: 'lg', letterSpacing: '-0.01em' },
+  xl: { textStyle: 'xl', letterSpacing: '-0.015em' },
+  '2xl': { textStyle: '2xl', letterSpacing: '-0.02em' },
+  '3xl': { textStyle: '3xl', letterSpacing: '-0.025em' },
+  '4xl': { textStyle: '4xl', letterSpacing: '-0.03em' },
+  '5xl': { textStyle: '5xl', letterSpacing: '-0.035em' },
+  '6xl': { textStyle: '6xl', letterSpacing: '-0.035em' },
+  '7xl': { textStyle: '7xl', letterSpacing: '-0.035em' },
+} as const
 
 const sharedTheme = {
   theme: {
@@ -73,17 +106,18 @@ const sharedTheme = {
           800: { value: '#05683F' },
           900: { value: '#053D27' },
         },
+        // Zinc (tone refresh, Train 1); 900 is the unchanged ink.
         neutral: {
           0: { value: '#FFFFFF' },
-          50: { value: '#F7F9F8' },
-          100: { value: '#EEF1F0' },
-          200: { value: '#E0E5E3' },
-          300: { value: '#C7CECB' },
-          400: { value: '#9BA4A0' },
-          500: { value: '#6E7873' },
-          600: { value: '#515A56' },
-          700: { value: '#3A423E' },
-          800: { value: '#232A27' },
+          50: { value: '#FAFAFA' },
+          100: { value: '#F4F4F5' },
+          200: { value: '#E4E4E7' },
+          300: { value: '#D4D4D8' },
+          400: { value: '#A1A1AA' },
+          500: { value: '#71717A' },
+          600: { value: '#52525B' },
+          700: { value: '#3F3F46' },
+          800: { value: '#27272A' },
           900: { value: '#0A1512' },
         },
         plum: {
@@ -112,21 +146,13 @@ const sharedTheme = {
         },
       },
       fonts: {
-        // Display = marketing/display only. Body/ui = Inter. Mono = codes.
-        display: {
-          value:
-            'var(--font-plus-jakarta), "Plus Jakarta Sans", Inter, system-ui, sans-serif',
-        },
-        heading: {
-          value:
-            'var(--font-plus-jakarta), "Plus Jakarta Sans", Inter, system-ui, sans-serif',
-        },
-        body: {
-          value: 'var(--font-inter), "Inter", system-ui, sans-serif',
-        },
-        mono: {
-          value: '"SF Mono", "JetBrains Mono", ui-monospace, monospace',
-        },
+        // Geist for display, headings and body; Geist Mono for codes. The
+        // variables come from next/font on <html> (src/app/layout.tsx), the
+        // element these tokens resolve on (FE-468).
+        display: { value: sdlFonts.sans },
+        heading: { value: sdlFonts.sans },
+        body: { value: sdlFonts.sans },
+        mono: { value: sdlFonts.mono },
       },
       fontSizes: {
         xs: { value: '12px' },
@@ -175,6 +201,10 @@ const sharedTheme = {
           px: PAGE_GUTTER_X,
         },
       },
+      heading: {
+        base: { fontWeight: 'medium' },
+        variants: { size: sdlHeadingSizes },
+      },
     },
     keyframes: {
       /** Marketing entrance: fade + rise. Pair with a reduced-motion override. */
@@ -198,11 +228,16 @@ const sharedTheme = {
 }
 
 /** Light-mode semantic roles. Components reference ONLY these (never primitives/hex). */
-const lightSemanticColors = {
+export const lightSemanticColors = {
   bg: {
-    canvas: { value: { base: '#F7F9F8' } },
+    canvas: { value: { base: '#FAFAFA' } },
     surface: { value: { base: '#FFFFFF' } },
-    subtle: { value: { base: '#EEF1F0' } },
+    /**
+     * `_light` as well as `base`: Chakra's own `bg.subtle` has `_light` and
+     * `_dark` values that mergeConfigs keeps beside ours, and on
+     * `<html class="light">` they win, so `base` alone renders gray.50 (FE-469).
+     */
+    subtle: { value: { base: '#F4F4F5', _light: '#F4F4F5' } },
     raised: { value: { base: '#FFFFFF' } },
     /** Scrim behind modals/drawers - SDL ink wash, not pure black. */
     overlay: { value: { base: 'rgba(10, 21, 18, 0.55)' } },
@@ -217,8 +252,14 @@ const lightSemanticColors = {
   },
   text: {
     default: { value: { base: '#0A1512' } },
-    muted: { value: { base: '#515A56' } },
-    subtle: { value: { base: sdlTextAa.lightSubtle } },
+    /** 7.7:1 on white, 7.0:1 on `bg.subtle`. */
+    muted: { value: { base: '#52525B' } },
+    /**
+     * Placeholders, eyebrows, inactive tabs: 5.3:1 on white, 5.1 on `bg.canvas`,
+     * 4.8 on `bg.subtle`, so it is AA on every light surface (zinc 500 is
+     * 4.4:1 on `bg.subtle`, one step too light).
+     */
+    subtle: { value: { base: '#6B6B74' } },
     onGreen: { value: { base: '#0A1512' } },
     /** Text on the dark brand/auth hero (white + alphas; mode-independent). */
     onBrand: { value: { base: '#FFFFFF' } },
@@ -230,15 +271,17 @@ const lightSemanticColors = {
     /** Green link/accent text on dark surfaces (SDL dark-mode link value). */
     onInvertedLink: { value: { base: '#54DD9D' } },
     /**
-     * Green ink for text. green-800: green-700 (#048654) is 4.37:1 on
-     * `bg.canvas` (#F7F9F8) — just under WCAG AA 4.5:1 for normal text —
+     * Green ink for text. green-800: green-700 (#048654) is 4.43:1 on
+     * `bg.canvas` (#FAFAFA), just under WCAG AA 4.5:1 for normal text,
      * while green-800 passes on every light surface.
      */
     link: { value: { base: '#05683F' } },
   },
   border: {
-    default: { value: { base: '#E0E5E3' } },
-    strong: { value: { base: '#C7CECB' } },
+    default: { value: { base: '#E4E4E7' } },
+    strong: { value: { base: '#D4D4D8' } },
+    /** Outline pills and fields on hover: one step darker than `strong`. */
+    hover: { value: { base: '#A1A1AA' } },
     focus: { value: { base: '#02A567' } },
     /** White hairline on brand-hero glass cards. */
     glass: { value: { base: 'rgba(255, 255, 255, 0.14)' } },
@@ -252,6 +295,11 @@ const lightSemanticColors = {
   },
   accent: {
     premium: { value: { base: '#6938EF' } },
+    /**
+     * Active bars (tabs, stepper) and state icons: green 600, 3.2:1 on white,
+     * for UI only, never text. Green 400 is for fills.
+     */
+    active: { value: { base: '#02A567' } },
   },
   status: {
     success: {
@@ -260,18 +308,20 @@ const lightSemanticColors = {
       // soft tint / bg.canvas (under WCAG AA 4.5:1), same fix as text.link.
       fg: { value: { base: '#05683F' } },
       solid: { value: { base: '#00DC82' } },
-      /** Soft success-tinted border (parity with legacy green.200). */
-      border: { value: { base: '#92ECC0' } },
+      /** Tag border: the 1px edge of a tinted tag (green 100). */
+      border: { value: { base: '#C6F6DD' } },
     },
     warning: {
       soft: { value: { base: '#FEF6E7' } },
       fg: { value: { base: '#8A5A00' } },
       solid: { value: { base: '#F5A300' } },
+      border: { value: { base: '#FBE3B4' } },
     },
     danger: {
       soft: { value: { base: '#FEF1F1' } },
       fg: { value: { base: '#B42318' } },
       solid: { value: { base: '#F04438' } },
+      border: { value: { base: '#FBD5D2' } },
       /** Focus-ring wash for solid danger controls (tokenized from `solid`). */
       ring: { value: { base: 'rgba(240, 68, 56, 0.24)' } },
     },
@@ -279,12 +329,17 @@ const lightSemanticColors = {
       soft: { value: { base: '#EFF6FF' } },
       fg: { value: { base: '#175CD3' } },
       solid: { value: { base: '#2E90FA' } },
+      border: { value: { base: '#D3E5FD' } },
+    },
+    /** Premium (plum) tags: only the border is a status role so far. */
+    premium: {
+      border: { value: { base: '#E6DEFD' } },
     },
   },
 } as const
 
 /** Dark-mode semantic roles. Same keys as light; only values differ. */
-const darkSemanticColors = {
+export const darkSemanticColors = {
   bg: {
     canvas: { value: { base: '#0C1310' } },
     surface: { value: { base: '#121A16' } },
@@ -320,6 +375,11 @@ const darkSemanticColors = {
   border: {
     default: { value: { base: '#283330' } },
     strong: { value: { base: '#313D39' } },
+    /**
+     * A step up from `strong`, so an outline control still answers a hover in
+     * dark now that its hover fill is gone. Provisional until the dark retune.
+     */
+    hover: { value: { base: '#4A5953' } },
     focus: { value: { base: '#00DC82' } },
     /** White hairline on brand-hero glass cards. */
     glass: { value: { base: 'rgba(255, 255, 255, 0.14)' } },
@@ -333,6 +393,8 @@ const darkSemanticColors = {
   },
   accent: {
     premium: { value: { base: '#7A5AF8' } },
+    /** Dark keeps green 400 for active bars. */
+    active: { value: { base: '#00DC82' } },
   },
   status: {
     success: {
@@ -346,11 +408,13 @@ const darkSemanticColors = {
       soft: { value: { base: 'rgba(245, 163, 0, 0.16)' } },
       fg: { value: { base: '#F5C66B' } },
       solid: { value: { base: '#F5A300' } },
+      border: { value: { base: 'rgba(245, 163, 0, 0.32)' } },
     },
     danger: {
       soft: { value: { base: 'rgba(240, 68, 56, 0.16)' } },
       fg: { value: { base: '#FDA29B' } },
       solid: { value: { base: '#F04438' } },
+      border: { value: { base: 'rgba(240, 68, 56, 0.32)' } },
       /** Focus-ring wash for solid danger controls (tokenized from `solid`). */
       ring: { value: { base: 'rgba(240, 68, 56, 0.32)' } },
     },
@@ -358,6 +422,10 @@ const darkSemanticColors = {
       soft: { value: { base: 'rgba(46, 144, 250, 0.16)' } },
       fg: { value: { base: '#84CAFF' } },
       solid: { value: { base: '#2E90FA' } },
+      border: { value: { base: 'rgba(46, 144, 250, 0.32)' } },
+    },
+    premium: {
+      border: { value: { base: 'rgba(122, 90, 248, 0.32)' } },
     },
   },
 } as const

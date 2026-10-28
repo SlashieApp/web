@@ -21,6 +21,7 @@ import { useMessages } from '@/app/(messages)/messages/context/MessagesProvider'
 import { useLocale } from '@/i18n/LocaleProvider'
 import { formatMessage } from '@/i18n/loadPageI11n'
 import { useI11n } from '@/i18n/useI11n'
+import { sdlFigure } from '@/theme/styles'
 import {
   Avatar,
   Button,
@@ -78,7 +79,7 @@ function ThreadRow({
       />
       <Stack gap={0.5} minW={0} flex={1}>
         <HStack justify="space-between" gap={2}>
-          <Text fontWeight={unread ? 800 : 600} fontSize="sm" lineClamp={1}>
+          <Text fontWeight={unread ? 600 : 500} fontSize="sm" lineClamp={1}>
             {threadTitle(thread, t)}
           </Text>
           <Text fontSize="xs" color="text.muted" flexShrink={0}>
@@ -107,7 +108,7 @@ function ThreadRow({
               bg="status.success.solid"
               color="text.onGreen"
               fontSize="11px"
-              fontWeight={700}
+              {...sdlFigure}
               aria-label={formatMessage(t.unread, {
                 count: thread.unreadCount,
               })}
@@ -141,6 +142,7 @@ function InboxSearch({ t }: { t: Copy }) {
     <HStack gap={2}>
       <Input
         ref={inputRef}
+        pill
         type="search"
         value={searchText}
         onChange={(e) => setSearchText(e.target.value)}
@@ -297,14 +299,14 @@ export function ThreadList({ selectedId }: { selectedId: string | null }) {
           </Stack>
         ) : body === 'empty' ? (
           <Stack px={4} py={8} gap={1}>
-            <Text fontWeight={700}>{t.emptyTitle}</Text>
+            <Text fontWeight={500}>{t.emptyTitle}</Text>
             <Text fontSize="sm" color="text.muted">
               {t.emptyBody}
             </Text>
           </Stack>
         ) : body === 'noMatches' ? (
           <Stack px={4} py={8} gap={3} align="flex-start">
-            <Text as="output" display="block" fontWeight={700}>
+            <Text as="output" display="block" fontWeight={500}>
               {t.inbox.noMatchTitle}
             </Text>
             <Button

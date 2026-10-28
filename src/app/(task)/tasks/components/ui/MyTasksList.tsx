@@ -89,7 +89,7 @@ function Section({
       <Heading
         as="h2"
         fontSize="lg"
-        fontWeight={700}
+        fontWeight={500}
         color="text.default"
         letterSpacing="-0.01em"
       >

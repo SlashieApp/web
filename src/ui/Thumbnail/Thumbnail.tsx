@@ -211,7 +211,7 @@ function ErrorState() {
       <Box
         as="span"
         fontSize="xs"
-        fontWeight={600}
+        fontWeight={500}
         color="status.danger.fg"
         px={1}
         textAlign="center"

@@ -107,7 +107,7 @@ export function BillingPlanCard({
     <Card layout="section" p={{ base: 5, md: 6 }}>
       <Stack gap={5}>
         <HStack justify="space-between" align="flex-start" gap={3}>
-          <Heading as="h2" fontSize="lg">
+          <Heading as="h2" fontSize="lg" letterSpacing="-0.01em">
             {t.titles[config.title]}
           </Heading>
           {config.badge ? (

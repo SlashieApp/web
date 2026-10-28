@@ -223,7 +223,7 @@ export function RadioButton({
           />
         ) : null}
       </Box>
-      <Text as="span" fontSize={sizing.fontSize} fontWeight={600}>
+      <Text as="span" fontSize={sizing.fontSize} fontWeight={500}>
         {label}
       </Text>
     </RadioButtonShell>

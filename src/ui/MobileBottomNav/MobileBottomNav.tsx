@@ -18,6 +18,7 @@ import { formatMessage } from '@/i18n/loadPageI11n'
 import { useI11n } from '@/i18n/useI11n'
 import {
   sdlElevation,
+  sdlFigure,
   sdlFocusRing,
   sdlMotion,
   sdlPressActiveCss,
@@ -41,7 +42,7 @@ import { MESSAGES_HREF, MOBILE_BOTTOM_NAV_MAX_W } from './mobileBottomNavLayout'
 const MOBILE_BOTTOM_NAV_FADE_HEIGHT =
   'calc(64px + env(safe-area-inset-bottom, 0px))' as const
 
-const canvasVar = 'var(--chakra-colors-bg-canvas, #F7F9F8)'
+const canvasVar = 'var(--chakra-colors-bg-canvas, #FAFAFA)'
 const surfaceVar = 'var(--chakra-colors-bg-surface, #FFFFFF)'
 
 const reducedTransparencyQuery =
@@ -266,8 +267,6 @@ export function MobileBottomNav() {
           pointerEvents="auto"
           position="relative"
           mb="calc(env(safe-area-inset-bottom, 0px) + 10px)"
-          borderWidth="1px"
-          borderColor="border.default"
           borderRadius="lg"
           w="full"
           maxW={MOBILE_BOTTOM_NAV_MAX_W}
@@ -333,7 +332,7 @@ export function MobileBottomNav() {
                   </Box>
                   <Text
                     fontSize="10px"
-                    fontWeight={700}
+                    fontWeight={500}
                     color={active ? 'status.success.fg' : 'text.muted'}
                     lineHeight="short"
                     whiteSpace="nowrap"
@@ -393,7 +392,7 @@ export function MobileBottomNav() {
                       bg="status.success.solid"
                       color="text.onGreen"
                       fontSize="9px"
-                      fontWeight={800}
+                      {...sdlFigure}
                       aria-hidden
                     >
                       {badge > 99 ? '99+' : badge}
@@ -402,7 +401,7 @@ export function MobileBottomNav() {
                 </Box>
                 <Text
                   fontSize="10px"
-                  fontWeight={700}
+                  fontWeight={500}
                   lineHeight="short"
                   whiteSpace="nowrap"
                   overflow="hidden"

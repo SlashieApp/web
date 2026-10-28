@@ -171,7 +171,8 @@ export function clusterMarkerElement(
     boxShadow: PIN.shadowExpanded,
     fontFamily: PIN_FONT,
     fontSize: `${CLUSTER_FONT_PX[size]}px`,
-    fontWeight: '800',
+    fontWeight: '600',
+    fontVariantNumeric: 'tabular-nums',
     lineHeight: '1',
     cursor: 'pointer',
   })

@@ -122,7 +122,8 @@ export function InfoBar({
             <Heading
               as="h3"
               fontSize={{ base: 'md', md: 'lg' }}
-              fontWeight={600}
+              fontWeight={500}
+              letterSpacing={{ base: '0', md: '-0.01em' }}
               color="text.default"
               lineHeight="short"
             >
@@ -147,7 +148,7 @@ export function InfoBar({
                 href={linkHref}
                 tone="emphasis"
                 fontSize="sm"
-                fontWeight={600}
+                fontWeight={500}
                 display="inline-flex"
                 alignItems="center"
                 gap={1.5}

@@ -28,11 +28,11 @@ export function MyTasksQuoteBlocker({ blocker }: { blocker: QuoteBlocker }) {
       color="text.default"
     >
       <Text fontSize="sm">
-        <Text as="span" fontWeight={700}>
+        <Text as="span" fontWeight={500}>
           {t.lead}
         </Text>{' '}
         {t.reasons[blocker]}{' '}
-        <Link href={HREF[blocker]} fontWeight={700} color="text.link">
+        <Link href={HREF[blocker]} fontWeight={500} color="text.link">
           {t.actions[blocker]}
         </Link>
       </Text>

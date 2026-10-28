@@ -7,6 +7,7 @@ import type { IconType } from 'react-icons'
 import { LuEye, LuLogIn, LuRepeat, LuRotateCcw, LuSearch } from 'react-icons/lu'
 
 import { WEB_MQ } from '@/theme/breakpoints'
+import { sdlFigure } from '@/theme/styles'
 import { useIsBrowser } from '@/utils/useIsBrowser'
 import { Button, Link, MOBILE_BOTTOM_NAV_MAX_W } from '@ui'
 
@@ -128,22 +129,14 @@ function MainCtaControl({
 
   if (model.presentation === 'close') {
     return (
-      <Box
-        w="full"
-        bg="bg.surface"
-        borderRadius="xl"
-        boxShadow="e3"
-        borderWidth="1px"
-        borderColor="border.default"
-        p={4}
-      >
+      <Box w="full" bg="bg.surface" borderRadius="xl" boxShadow="e3" p={4}>
         <Stack gap={3}>
           {model.content ? (
             <Stack gap={0}>
-              <Text fontSize="xs" fontWeight={700} color="text.muted">
+              <Text fontSize="xs" fontWeight={500} color="text.muted">
                 {model.content.eyebrow}
               </Text>
-              <Text fontWeight={700}>{model.content.value}</Text>
+              <Text {...sdlFigure}>{model.content.value}</Text>
             </Stack>
           ) : null}
           <OrderCloseControls />

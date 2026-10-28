@@ -75,7 +75,7 @@ export function useAcceptQuoteDialog({
       }
     >
       <Stack gap={2}>
-        <Text fontWeight={700}>{q.pickSlot}</Text>
+        <Text fontWeight={500}>{q.pickSlot}</Text>
         {futureSlots.length === 0 ? (
           <Text fontSize="sm" color="status.danger.fg">
             {q.noFutureSlots}

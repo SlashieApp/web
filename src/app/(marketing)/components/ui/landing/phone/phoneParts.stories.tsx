@@ -146,7 +146,7 @@ export const SurfaceCard: Story = {
   decorators: [withColumn],
   render: () => (
     <DemoCard>
-      <Text fontSize="15px" fontWeight={700}>
+      <Text fontSize="15px" fontWeight={500}>
         {copy.tasks.hedge.title}
       </Text>
       <Text fontSize="13px" color="text.muted">

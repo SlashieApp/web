@@ -38,7 +38,7 @@ export function TaskTag() {
           bg="action.primary"
           color="text.onGreen"
           fontSize="xs"
-          fontWeight={700}
+          fontWeight={500}
           boxShadow="none"
           _hover={{ bg: 'action.primaryHover', color: 'text.onGreen' }}
           aria-label={formatMessage(t.removeFilter, { label: tag.label })}
@@ -59,7 +59,7 @@ export function TaskTag() {
         minH={0}
         borderRadius="full"
         fontSize="xs"
-        fontWeight={700}
+        fontWeight={500}
         color="text.muted"
         onClick={clearAllBrowseFilters}
       >

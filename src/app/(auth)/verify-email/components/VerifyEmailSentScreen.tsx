@@ -60,7 +60,7 @@ export function VerifyEmailSentScreen() {
         <>
           {t.descriptionPrefix}{' '}
           {me?.email ? (
-            <Text as="span" fontWeight={700} color="text.default">
+            <Text as="span" fontWeight={500} color="text.default">
               {me.email}
             </Text>
           ) : (

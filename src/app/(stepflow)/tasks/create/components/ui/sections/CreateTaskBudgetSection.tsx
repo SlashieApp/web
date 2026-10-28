@@ -5,6 +5,7 @@ import { Currency, TaskBudgetType, TaskPaymentMethod } from '@codegen/schema'
 import type { UseFormRegister } from 'react-hook-form'
 
 import { useI11n } from '@/i18n/useI11n'
+import { sdlFigure } from '@/theme/styles'
 import { FormField, Input, RadioButtonGroup } from '@ui'
 
 import type { CreateTaskFormFieldValues } from '../../../createTaskFormSchema'
@@ -88,7 +89,7 @@ export function CreateTaskBudgetSection({
           placeholder="0.00"
           rootProps={{ maxW: { base: 'full', md: '240px' } }}
           startElement={
-            <Text fontWeight={700} fontSize="sm" color="text.muted">
+            <Text {...sdlFigure} fontSize="sm" color="text.muted">
               {CURRENCY_SYMBOL[budgetCurrency]}
             </Text>
           }

@@ -224,7 +224,7 @@ export function AccountPasswordDialog({
       ) : null}
 
       {mode === 'set' && signedInAgain && !needsReauth ? (
-        <Text fontSize="sm" color="status.success.fg" fontWeight={600}>
+        <Text fontSize="sm" color="status.success.fg" fontWeight={500}>
           {t.reauthDone}
         </Text>
       ) : null}

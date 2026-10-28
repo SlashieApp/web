@@ -4,6 +4,7 @@ import {
   BRAND_PRIMARY_SOFT_BG,
   brandPrimary,
   sdlElevation,
+  sdlFonts,
   sdlRadii,
 } from '@/theme/system'
 import {
@@ -20,15 +21,14 @@ export const PIN = {
   greenSoft: brandPrimary[400],
   greenPale: BRAND_PRIMARY_SOFT_BG,
   /* Raw Mapbox/DOM consumer — hexes match `text.muted` / `border.default`. */
-  textMuted: '#515A56',
-  border: '#E0E5E3',
+  textMuted: '#52525B',
+  border: '#E4E4E7',
   white: '#FFFFFF',
   shadow: sdlElevation.e1,
   shadowExpanded: sdlElevation.e2,
 } as const
 
-export const PIN_FONT =
-  'Inter, system-ui, -apple-system, BlinkMacSystemFont, sans-serif'
+export const PIN_FONT = sdlFonts.sans
 
 const POPUP_RADIUS = `${sdlRadii.lg}px`
 
@@ -92,7 +92,7 @@ export function mountPersonAvatarStyles(
     background: BRAND_PRIMARY_SOFT_BG,
     color: PIN.green,
     fontSize: '9px',
-    fontWeight: '800',
+    fontWeight: '600',
     lineHeight: '1',
     letterSpacing: '0.02em',
   })
@@ -167,7 +167,8 @@ export function mountPinStaticStyles(dom: PinDom, motion: boolean) {
 
   Object.assign(dom.priceEl.style, {
     fontSize: '18px',
-    fontWeight: '800',
+    fontWeight: '600',
+    fontVariantNumeric: 'tabular-nums',
     lineHeight: '1.1',
     color: PIN.green,
     marginBottom: dom.milesEl ? '2px' : '0',
@@ -178,6 +179,7 @@ export function mountPinStaticStyles(dom: PinDom, motion: boolean) {
     Object.assign(dom.milesEl.style, {
       fontSize: '12px',
       fontWeight: '600',
+      fontVariantNumeric: 'tabular-nums',
       lineHeight: '1.25',
       color: PIN.textMuted,
       whiteSpace: 'nowrap',
@@ -241,7 +243,7 @@ export function applyPinVisualState(
     boxShadow: showPill ? PIN.shadow : 'none',
     border: selected
       ? `2px solid ${PIN.greenBright}`
-      : '1px solid rgba(209, 213, 212, 0.55)',
+      : '1px solid rgba(212, 212, 216, 0.55)',
     pointerEvents: showPill ? 'auto' : 'none',
   })
 
@@ -254,7 +256,8 @@ export function applyPinVisualState(
     boxSizing: 'border-box',
     padding: dom.isPersonPin ? '4px 12px 4px 5px' : '5px 12px',
     fontSize: '13px',
-    fontWeight: '800',
+    fontWeight: '600',
+    fontVariantNumeric: 'tabular-nums',
     lineHeight: '1.2',
     color: PIN.green,
     whiteSpace: 'nowrap',

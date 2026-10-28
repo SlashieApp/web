@@ -166,7 +166,7 @@ export function ProgressBar({
           ) : null}
           <Text
             fontSize="xs"
-            fontWeight={600}
+            fontWeight={500}
             color={error ? 'status.danger.fg' : 'text.muted'}
           >
             {label}

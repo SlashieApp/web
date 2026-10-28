@@ -4,6 +4,7 @@ import { Box, Flex, Grid, HStack, Stack, Text } from '@chakra-ui/react'
 import { Badge, Button } from '@ui'
 import {
   sdlElevation,
+  sdlEyebrow,
   sdlMotion,
   sdlRadii,
   sdlSpace,
@@ -31,16 +32,18 @@ export const SEMANTIC_ROLES = [
   ['bg.raised', 'Popovers, raised panels'],
   ['text.default', 'Primary ink'],
   ['text.muted', 'Secondary text, labels'],
-  ['text.subtle', 'Placeholders, hints'],
+  ['text.subtle', 'Placeholders, eyebrows, inactive tabs'],
   ['text.onGreen', 'Ink on green / danger fills'],
   ['text.link', 'Links, accent text'],
   ['border.default', 'Hairlines, dividers'],
-  ['border.strong', 'Emphasised borders'],
+  ['border.strong', 'Inputs, outline pills'],
+  ['border.hover', 'Outline pills and fields on hover'],
   ['border.focus', 'Focus ring'],
   ['action.primary', 'Primary button fill'],
   ['action.primaryHover', 'Primary hover'],
   ['action.primaryPressed', 'Primary pressed'],
   ['accent.premium', 'Premium (plum)'],
+  ['accent.active', 'Active bars, state icons (green 600)'],
 ]
 
 export const STATUS_FAMILIES = ['success', 'warning', 'danger', 'info']
@@ -67,7 +70,7 @@ export function Swatch({ role, note }) {
         borderColor="border.default"
       />
       <Stack gap={0.5} minW="0">
-        <Text fontFamily="mono" fontSize="xs" fontWeight={600} color="text.default">
+        <Text fontFamily="mono" fontSize="xs" fontWeight={500} color="text.default">
           {role}
         </Text>
         {note ? (
@@ -114,25 +117,19 @@ swatch and example on this page re-resolves live.
   ))}
 </Grid>
 
-### Status roles (`soft` / `fg` / `solid`)
+### Status roles (`soft` / `fg` / `solid` / `border`)
 
 <Stack gap={4} my={5}>
   {STATUS_FAMILIES.map((family) => (
     <Box key={family}>
-      <Text
-        fontSize="xs"
-        textTransform="uppercase"
-        letterSpacing="0.12em"
-        color="text.muted"
-        fontWeight={700}
-        mb={2}
-      >
+      <Text {...sdlEyebrow} mb={2}>
         {family}
       </Text>
-      <Grid templateColumns="repeat(3, 1fr)" gap={4} maxW="480px">
+      <Grid templateColumns="repeat(4, 1fr)" gap={4} maxW="640px">
         <Swatch role={`status.${family}.soft`} note="background" />
         <Swatch role={`status.${family}.fg`} note="text / icon" />
         <Swatch role={`status.${family}.solid`} note="dot / solid" />
+        <Swatch role={`status.${family}.border`} note="tag border" />
       </Grid>
     </Box>
   ))}
@@ -283,12 +280,14 @@ Roles read from `sdlTypeScale`. Consumed by `Text` / `Heading` and these docs.
           fontSize: t.fontSize,
           lineHeight: t.lineHeight,
           fontWeight: t.fontWeight,
+          letterSpacing: t.letterSpacing,
+          textTransform: t.textTransform,
         }}
       >
         The quick brown fox
       </Text>
       <Text fontFamily="mono" fontSize="xs" color="text.subtle">
-        {t.fontSize} / {t.lineHeight} / {t.fontWeight}
+        {t.fontSize} / {t.lineHeight} / {t.fontWeight} / {t.letterSpacing}
       </Text>
     </Flex>
   ))}
@@ -344,8 +343,9 @@ Values read from `sdlRadii`.
 
 ## Elevation
 
-Values read from `sdlElevation`. Dark mode prefers a lighter surface plus a 1px
-border over heavy shadow.
+Values read from `sdlElevation`: a hairline first, then the least shadow that does
+the job. `e3` and `e4` carry their own 1px ring, so only `e1` and `e2` sit on a border.
+Dark mode prefers a lighter surface plus a 1px border over heavy shadow.
 
 <Grid templateColumns="repeat(auto-fill, minmax(140px, 1fr))" gap={6} my={5}>
   {Object.entries(sdlElevation).map(([name, shadow]) => (
@@ -354,7 +354,7 @@ border over heavy shadow.
         boxSize="72px"
         bg="bg.surface"
         borderRadius="lg"
-        borderWidth="1px"
+        borderWidth={name === 'e1' || name === 'e2' ? '1px' : 0}
         borderColor="border.default"
         style={{ boxShadow: shadow }}
       />

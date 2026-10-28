@@ -69,6 +69,8 @@ export function WorkersSearchBar({ stuck = false }: { stuck?: boolean }) {
         maxW="full"
         p={2}
         borderRadius={stuck ? 0 : 'lg'}
+        // e3 carries its own ring; the border returns when it sits flush.
+        borderColor={stuck ? 'border.default' : 'transparent'}
         boxShadow={stuck ? 'none' : 'e3'}
         transitionProperty="border-radius, box-shadow"
         transitionDuration={sdlMotion.duration.moderate}
@@ -111,6 +113,8 @@ export function WorkersSearchBar({ stuck = false }: { stuck?: boolean }) {
         maxW="full"
         p={3}
         borderRadius={stuck ? 0 : 'lg'}
+        // e3 carries its own ring; the border returns when it sits flush.
+        borderColor={stuck ? 'border.default' : 'transparent'}
         boxShadow={stuck ? 'none' : 'e3'}
         transitionProperty="border-radius, box-shadow"
         transitionDuration={sdlMotion.duration.moderate}

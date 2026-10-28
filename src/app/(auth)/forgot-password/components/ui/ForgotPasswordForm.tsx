@@ -62,7 +62,7 @@ export function ForgotPasswordForm() {
       title={t.title}
       description={t.description}
       footer={
-        <Link href="/login" fontWeight={700} color="text.link">
+        <Link href="/login" fontWeight={500} color="text.link">
           {shared.backToLogin}
         </Link>
       }

@@ -13,6 +13,7 @@ import {
 
 import { formatMessage } from '@/i18n/loadPageI11n'
 import { useI11n } from '@/i18n/useI11n'
+import { sdlFigure } from '@/theme/styles'
 
 import {
   type AchievementPanel,
@@ -158,11 +159,10 @@ function ActivityStatGrid({ panel }: { panel: AchievementPanel }) {
           </Text>
           <Text
             fontSize={tile.value.length > 12 ? 'sm' : 'xl'}
-            fontWeight={700}
+            {...sdlFigure}
             color="text.default"
             lineHeight="1.2"
             lineClamp={2}
-            fontVariantNumeric="tabular-nums"
           >
             {tile.value}
           </Text>
@@ -185,7 +185,7 @@ function CategoryPie({ panel }: { panel: AchievementPanel }) {
   })
   return (
     <Stack gap={3}>
-      <Text fontSize="sm" fontWeight={700} color="text.default">
+      <Text fontSize="sm" fontWeight={500} color="text.default">
         {t.achievements.categoryMix}
       </Text>
       <HStack gap={4} align="center">
@@ -263,7 +263,7 @@ export function MyTasksActivityDetails({
           panel.sparse && !panel.quotes && panel.streakWeeks == null
         return (
           <Stack key={panel.role} gap={4}>
-            <Text as="h3" fontSize="sm" fontWeight={700} color="text.default">
+            <Text as="h3" fontSize="sm" fontWeight={500} color="text.default">
               {roleLabel}
             </Text>
             <ActivityStatGrid panel={panel} />
@@ -275,7 +275,7 @@ export function MyTasksActivityDetails({
             <CategoryPie panel={panel} />
             {panel.role === 'worker' && panel.location ? (
               <Stack gap={0}>
-                <Text fontSize="xs" fontWeight={700} color="text.muted">
+                <Text fontSize="xs" fontWeight={500} color="text.muted">
                   {locationLabel}
                 </Text>
                 <Text fontSize="sm" color="text.default">
@@ -298,15 +298,10 @@ export function MyTasksActivityDetails({
             ) : null}
             {panel.agreedTotalLabel ? (
               <Stack gap={1}>
-                <Text fontSize="xs" fontWeight={700} color="text.muted">
+                <Text fontSize="xs" fontWeight={500} color="text.muted">
                   {t.achievements.agreedTotals}
                 </Text>
-                <Text
-                  fontSize="xl"
-                  fontWeight={700}
-                  color="text.default"
-                  fontVariantNumeric="tabular-nums"
-                >
+                <Text fontSize="xl" {...sdlFigure} color="text.default">
                   {panel.agreedTotalLabel}
                 </Text>
               </Stack>

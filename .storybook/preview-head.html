@@ -1,15 +1,23 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link
-  href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap"
+  href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&family=Geist+Mono:wght@100..900&display=swap"
   rel="stylesheet"
 />
 <style>
+  /* The app sets these on <html> with next/font (src/app/layout.tsx). Chakra
+     resolves its font tokens on <html> too, so they must be here and not on a
+     story wrapper. */
+  :root {
+    --font-geist: 'Geist';
+    --font-geist-mono: 'Geist Mono';
+  }
+
   /* Sit the whole preview canvas on the Slashie `bg.canvas` surface, matching
      the app. Uses the Chakra semantic-token CSS var so it follows the light/dark
      toolbar toggle; the literal is a pre-mount fallback (light canvas). */
   html,
   body {
-    background: var(--chakra-colors-bg-canvas, #f7f9f8);
+    background: var(--chakra-colors-bg-canvas, #fafafa);
   }
 </style>

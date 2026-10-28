@@ -41,12 +41,12 @@ export function EditTaskRail({
         {quotes ? <Text color="text.muted">{quotes}</Text> : null}
       </HStack>
       <Stack gap={2}>
-        <Link href={`/tasks/${taskId}`} fontWeight={600}>
+        <Link href={`/tasks/${taskId}`} fontWeight={500}>
           {r.viewTask}
         </Link>
         <Link
           href={`/tasks/${taskId}/preview`}
-          fontWeight={600}
+          fontWeight={500}
           display="inline-flex"
           alignItems="center"
           gap={1.5}
@@ -56,7 +56,7 @@ export function EditTaskRail({
         </Link>
       </Stack>
       <Stack gap={2}>
-        <Text fontWeight={600} color="text.default">
+        <Text fontWeight={500} color="text.default">
           {r.helpHeading}
         </Text>
         <Link
@@ -110,7 +110,7 @@ export function EditTaskMobileBar({
       </HStack>
       <Link
         href={`/tasks/${taskId}/preview`}
-        fontWeight={600}
+        fontWeight={500}
         display="inline-flex"
         alignItems="center"
         gap={1.5}

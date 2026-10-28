@@ -1,8 +1,16 @@
-import { readFileSync } from 'node:fs'
+import { readFileSync, readdirSync, statSync } from 'node:fs'
 import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
 
-import { sdlCard, sdlCardSurface, sdlTextAa } from './styles'
+import { darkSemanticColors, lightSemanticColors, system } from './chakraSystem'
+import {
+  sdlCard,
+  sdlCardSurface,
+  sdlElevation,
+  sdlFonts,
+  sdlTextAa,
+  sdlTypeScale,
+} from './styles'
 
 function srgbChannel(channel: number): number {
   const c = channel / 255
@@ -44,6 +52,28 @@ function parseRgbaAlpha(value: string): number {
   return Number(match[1])
 }
 
+/** A role's light value, such as `light('text', 'muted')`. */
+function light(group: keyof typeof lightSemanticColors, role: string): string {
+  const roles = lightSemanticColors[group] as Record<
+    string,
+    { value: { base: string } }
+  >
+  return roles[role].value.base
+}
+
+/** Every role path of a semantic colour tree, such as `status.warning.border`. */
+function rolePaths(tree: object, prefix = ''): string[] {
+  return Object.entries(tree).flatMap(([key, node]) =>
+    'value' in node
+      ? [`${prefix}${key}`]
+      : rolePaths(node as object, `${prefix}${key}.`),
+  )
+}
+
+function expectWithin(actual: number, expected: number, tolerance = 0.1) {
+  expect(Math.abs(actual - expected)).toBeLessThan(tolerance)
+}
+
 describe('sdlCard recipe', () => {
   it('uses one radius and the e1/e2/e3 elevation steps', () => {
     expect(sdlCard.radius).toBe('lg')
@@ -65,13 +95,7 @@ describe('sdlCard recipe', () => {
 })
 
 describe('WCAG AA support copy', () => {
-  it('meets 4.5:1 on light canvas, inverted hero, and brand hero', () => {
-    expect(
-      contrastRatio(sdlTextAa.lightSubtle, '#F7F9F8'),
-    ).toBeGreaterThanOrEqual(4.5)
-    expect(
-      contrastRatio(sdlTextAa.lightSubtle, '#FFFFFF'),
-    ).toBeGreaterThanOrEqual(4.5)
+  it('meets 4.5:1 on inverted hero and brand hero', () => {
     expect(
       contrastRatio(sdlTextAa.invertedMuted, '#0C1310'),
     ).toBeGreaterThanOrEqual(4.5)
@@ -94,10 +118,326 @@ describe('WCAG AA support copy', () => {
       join(process.cwd(), 'src/theme/chakraSystem.ts'),
       'utf8',
     )
-    expect(theme).toContain('sdlTextAa.lightSubtle')
     expect(theme).toContain('sdlTextAa.invertedMuted')
     expect(theme).toContain('sdlTextAa.onBrandMuted')
     expect(theme).toContain('sdlTextAa.onBrandSubtle')
+  })
+})
+
+describe('light text roles (tone refresh)', () => {
+  const surfaces = ['surface', 'canvas', 'subtle'].map((role) =>
+    light('bg', role),
+  )
+
+  it('text.default, muted, subtle and link are AA on every light surface', () => {
+    for (const role of ['default', 'muted', 'subtle', 'link']) {
+      for (const surface of surfaces) {
+        expect(
+          contrastRatio(light('text', role), surface),
+          `text.${role} on ${surface}`,
+        ).toBeGreaterThanOrEqual(4.5)
+      }
+    }
+  })
+
+  it('keeps the ratios the spec lists', () => {
+    const white = light('bg', 'surface')
+    const subtleFill = light('bg', 'subtle')
+    expectWithin(contrastRatio(light('text', 'default'), white), 18.6)
+    expectWithin(contrastRatio(light('text', 'muted'), white), 7.7)
+    expectWithin(contrastRatio(light('text', 'muted'), subtleFill), 7.0)
+    expectWithin(contrastRatio(light('text', 'subtle'), white), 5.3)
+    expectWithin(
+      contrastRatio(light('text', 'subtle'), light('bg', 'canvas')),
+      5.1,
+    )
+    expectWithin(contrastRatio(light('text', 'subtle'), subtleFill), 4.8)
+    expectWithin(contrastRatio(light('text', 'link'), white), 6.9)
+  })
+
+  it('puts ink on the green fill, and green 600 passes as UI, not as text', () => {
+    expect(
+      contrastRatio(light('text', 'onGreen'), light('action', 'primary')),
+    ).toBeGreaterThanOrEqual(10)
+    // Green 600: focus rings, active bars and state icons (3:1 for UI).
+    expect(
+      contrastRatio(light('border', 'focus'), light('bg', 'surface')),
+    ).toBeGreaterThanOrEqual(3)
+    expect(light('accent', 'active')).toBe(light('border', 'focus'))
+    // Green 400 on white is a fill only.
+    expect(
+      contrastRatio(light('action', 'primary'), light('bg', 'surface')),
+    ).toBeLessThan(3)
+  })
+
+  it('status text is AA on its soft tint, the fill of a tag', () => {
+    for (const family of ['success', 'warning', 'danger', 'info']) {
+      const roles = lightSemanticColors.status[
+        family as 'success' | 'warning' | 'danger' | 'info'
+      ] as Record<string, { value: { base: string } }>
+      expect(
+        contrastRatio(roles.fg.value.base, roles.soft.value.base),
+        `status.${family}.fg on soft`,
+      ).toBeGreaterThanOrEqual(4.5)
+    }
+  })
+
+  it('neutral tags (text.muted on bg.subtle) are AA', () => {
+    expect(
+      contrastRatio(light('text', 'muted'), light('bg', 'subtle')),
+    ).toBeGreaterThanOrEqual(4.5)
+  })
+})
+
+describe('tone refresh tokens (Train 1)', () => {
+  it('moves the neutral ramp from green-tinted slate to zinc', () => {
+    const ramp: Record<string, string> = {
+      '0': '#FFFFFF',
+      '50': '#FAFAFA',
+      '100': '#F4F4F5',
+      '200': '#E4E4E7',
+      '300': '#D4D4D8',
+      '400': '#A1A1AA',
+      '500': '#71717A',
+      '600': '#52525B',
+      '700': '#3F3F46',
+      '800': '#27272A',
+      '900': '#0A1512',
+    }
+    for (const [step, hex] of Object.entries(ramp)) {
+      expect(system.token(`colors.neutral.${step}`)).toBe(hex)
+    }
+  })
+
+  it('sets the light roles', () => {
+    expect(light('bg', 'canvas')).toBe('#FAFAFA')
+    expect(light('bg', 'surface')).toBe('#FFFFFF')
+    expect(light('bg', 'raised')).toBe('#FFFFFF')
+    expect(light('bg', 'subtle')).toBe('#F4F4F5')
+    expect(light('text', 'default')).toBe('#0A1512')
+    expect(light('text', 'muted')).toBe('#52525B')
+    expect(light('text', 'subtle')).toBe('#6B6B74')
+    expect(light('text', 'link')).toBe('#05683F')
+    expect(light('border', 'default')).toBe('#E4E4E7')
+    expect(light('border', 'strong')).toBe('#D4D4D8')
+    expect(light('border', 'hover')).toBe('#A1A1AA')
+    expect(light('border', 'focus')).toBe('#02A567')
+  })
+
+  it('sets the tag borders by status family', () => {
+    const status = lightSemanticColors.status
+    expect(status.success.border.value.base).toBe('#C6F6DD')
+    expect(status.warning.border.value.base).toBe('#FBE3B4')
+    expect(status.danger.border.value.base).toBe('#FBD5D2')
+    expect(status.info.border.value.base).toBe('#D3E5FD')
+    expect(status.premium.border.value.base).toBe('#E6DEFD')
+  })
+
+  it('keeps green, plum and the status primitives', () => {
+    expect(system.token('colors.green.400')).toBe('#00DC82')
+    expect(system.token('colors.green.800')).toBe('#05683F')
+    expect(system.token('colors.plum.500')).toBe('#6938EF')
+    expect(system.token('colors.danger.solid')).toBe('#F04438')
+  })
+
+  it('leaves the existing dark roles as they were', () => {
+    const dark = darkSemanticColors
+    expect(dark.bg.canvas.value.base).toBe('#0C1310')
+    expect(dark.bg.surface.value.base).toBe('#121A16')
+    expect(dark.bg.subtle.value.base).toBe('#18221E')
+    expect(dark.text.default.value.base).toBe('#F2F5F4')
+    expect(dark.text.muted.value.base).toBe('#A6AFAB')
+    expect(dark.text.subtle.value.base).toBe('#7E8783')
+    expect(dark.text.link.value.base).toBe('#54DD9D')
+    expect(dark.border.default.value.base).toBe('#283330')
+    expect(dark.border.strong.value.base).toBe('#313D39')
+    expect(dark.border.focus.value.base).toBe('#00DC82')
+    expect(dark.status.success.border.value.base).toBe(
+      'rgba(0, 220, 130, 0.32)',
+    )
+  })
+
+  it('defines every light role in dark too, so no role is empty in one mode', () => {
+    expect(rolePaths(darkSemanticColors).sort()).toEqual(
+      rolePaths(lightSemanticColors).sort(),
+    )
+  })
+})
+
+describe('light roles render as declared', () => {
+  // Chakra's default config also defines these names, with `_light` and `_dark`
+  // values that mergeConfigs keeps beside our `base` and that win on
+  // <html class="light">. Both were already shadowed before the tone refresh
+  // (they render Chakra's black and gray.800); not part of Train 1.
+  const SHADOWED_BEFORE_TRAIN_1 = new Set(['bg.inverted', 'border.inverted'])
+
+  it('is not shadowed by a Chakra default `_light` value', () => {
+    for (const path of rolePaths(lightSemanticColors)) {
+      if (SHADOWED_BEFORE_TRAIN_1.has(path)) continue
+      const conditions = system.tokens.getByName(`colors.${path}`)?.extensions
+        .conditions as Record<string, string> | undefined
+      expect(conditions?.base, path).toBeDefined()
+      if (conditions?._light !== undefined) {
+        expect(conditions._light, path).toBe(conditions.base)
+      }
+    }
+  })
+
+  it('renders bg.subtle as #F4F4F5, not gray.50', () => {
+    const conditions = system.tokens.getByName('colors.bg.subtle')?.extensions
+      .conditions as Record<string, string>
+    expect(conditions._light).toBe('#F4F4F5')
+  })
+})
+
+describe('typeface', () => {
+  const sans =
+    'var(--font-geist), "Geist", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif'
+  const mono =
+    'var(--font-geist-mono), "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace'
+
+  it('resolves display, heading and body to Geist, and mono to Geist Mono', () => {
+    expect(sdlFonts.sans).toBe(sans)
+    expect(sdlFonts.mono).toBe(mono)
+    for (const token of ['display', 'heading', 'body']) {
+      expect(system.token(`fonts.${token}`)).toBe(sans)
+    }
+    expect(system.token('fonts.mono')).toBe(mono)
+  })
+
+  it('sets the next/font variables on <html>, where Chakra resolves them (FE-468)', () => {
+    const layout = readFileSync(
+      join(process.cwd(), 'src/app/layout.tsx'),
+      'utf8',
+    )
+    expect(layout).toContain("from 'next/font/google'")
+    expect(layout).toContain("variable: '--font-geist'")
+    expect(layout).toContain("variable: '--font-geist-mono'")
+    expect(layout).toMatch(
+      /<html[^>]*className=\{`\$\{geist\.variable\} \$\{geistMono\.variable\}`\}/,
+    )
+    expect(layout).not.toMatch(/<body[^>]*className/)
+    expect(layout).not.toMatch(/Inter|Plus_Jakarta/)
+  })
+
+  it('sets the body font and canvas in globals.css', () => {
+    const css = readFileSync(join(process.cwd(), 'src/app/globals.css'), 'utf8')
+    expect(css).toContain('--background: #fafafa;')
+    expect(css).toMatch(/font-family:\s*var\(--font-geist\),\s*["']Geist["']/)
+    expect(css).not.toMatch(/--font-inter|--font-plus-jakarta/)
+  })
+})
+
+describe('type scale', () => {
+  it('keeps every heading at 500 and nothing heavier than 500', () => {
+    for (const [role, step] of Object.entries(sdlTypeScale)) {
+      expect(step.fontWeight, role).toBeLessThanOrEqual(500)
+      if (role.startsWith('display') || role.startsWith('heading')) {
+        expect(step.fontWeight, role).toBe(500)
+      }
+    }
+  })
+
+  it('has the spec sizes, line heights and tracking', () => {
+    const rows: Array<[string, string, string, number, string]> = [
+      ['display-2xl', '72px', '72px', 500, '-0.045em'],
+      ['display-xl', '56px', '58px', 500, '-0.04em'],
+      ['display-lg', '44px', '48px', 500, '-0.035em'],
+      ['heading-xl', '34px', '41px', 500, '-0.03em'],
+      ['heading-lg', '24px', '30px', 500, '-0.02em'],
+      ['heading-md', '20px', '26px', 500, '-0.015em'],
+      ['heading-sm', '18px', '24px', 500, '-0.01em'],
+      ['text-lg', '18px', '28px', 400, '0'],
+      ['text-md', '16px', '24px', 400, '0'],
+      ['text-sm', '14px', '21px', 400, '0'],
+      ['text-xs', '12px', '16px', 500, '0'],
+      ['label-md', '14px', '17px', 500, '0'],
+      ['label-sm', '12px', '14px', 500, '0.02em'],
+      ['eyebrow', '12px', '16px', 500, '0.08em'],
+      ['mono-sm', '14px', '21px', 500, '0'],
+    ]
+    expect(Object.keys(sdlTypeScale).sort()).toEqual(
+      rows.map(([role]) => role).sort(),
+    )
+    for (const [role, size, line, weight, tracking] of rows) {
+      expect(sdlTypeScale[role as keyof typeof sdlTypeScale]).toMatchObject({
+        fontSize: size,
+        lineHeight: line,
+        fontWeight: weight,
+        letterSpacing: tracking,
+      })
+    }
+  })
+
+  it('shrinks the largest display to 44/46 on a phone, and caps the eyebrow', () => {
+    expect(sdlTypeScale['display-2xl'].phone).toEqual({
+      fontSize: '44px',
+      lineHeight: '46px',
+    })
+    expect(sdlTypeScale.eyebrow.textTransform).toBe('uppercase')
+  })
+
+  it('reaches Chakra as text styles, the eyebrow included', () => {
+    for (const role of Object.keys(sdlTypeScale)) {
+      expect(system.css({ textStyle: role }), role).toBeTruthy()
+    }
+    expect(system.css({ textStyle: 'eyebrow' })).toMatchObject({
+      textTransform: 'uppercase',
+      letterSpacing: '0.08em',
+      fontWeight: '500',
+    })
+  })
+
+  it('sets the Heading recipe to weight 500 with tracking by size', () => {
+    const heading = system.getRecipe('heading') as {
+      base: { fontWeight: string }
+      variants: { size: Record<string, { letterSpacing?: string }> }
+    }
+    expect(heading.base.fontWeight).toBe('medium')
+    const tracking: Record<string, string | undefined> = {
+      xs: undefined,
+      sm: undefined,
+      md: undefined,
+      lg: '-0.01em',
+      xl: '-0.015em',
+      '2xl': '-0.02em',
+      '3xl': '-0.025em',
+      '4xl': '-0.03em',
+      '5xl': '-0.035em',
+      '6xl': '-0.035em',
+      '7xl': '-0.035em',
+    }
+    for (const [size, letterSpacing] of Object.entries(tracking)) {
+      expect(heading.variants.size[size].letterSpacing, size).toBe(
+        letterSpacing,
+      )
+    }
+  })
+})
+
+describe('elevation scale', () => {
+  it('is a hairline first, then the least shadow', () => {
+    expect(sdlElevation).toEqual({
+      e1: '0 1px 2px rgba(10, 21, 18, 0.04), 0 2px 10px rgba(10, 21, 18, 0.05)',
+      e2: '0 2px 4px rgba(10, 21, 18, 0.05), 0 6px 16px rgba(10, 21, 18, 0.07)',
+      e3: '0 0 0 1px rgba(10, 21, 18, 0.06), 0 8px 24px rgba(10, 21, 18, 0.08)',
+      e4: '0 0 0 1px rgba(10, 21, 18, 0.04), 0 16px 40px rgba(10, 21, 18, 0.12)',
+      e5: '0 25px 50px -12px rgba(10, 21, 18, 0.25)',
+    })
+  })
+
+  it('gives e3 and e4 their own 1px ring, so their surfaces have no border', () => {
+    expect(sdlElevation.e3.startsWith('0 0 0 1px')).toBe(true)
+    expect(sdlElevation.e4.startsWith('0 0 0 1px')).toBe(true)
+    expect(sdlElevation.e1.startsWith('0 0 0 1px')).toBe(false)
+    expect(sdlElevation.e5.startsWith('0 0 0 1px')).toBe(false)
+  })
+
+  it('registers e1 to e5 as Chakra shadows', () => {
+    for (const [name, value] of Object.entries(sdlElevation)) {
+      expect(system.token(`shadows.${name}`)).toBe(value)
+    }
+    expect(system.token('shadows.card')).toBe(sdlElevation.e1)
   })
 })
 
@@ -130,7 +470,34 @@ describe('elevation aliases in feature chrome', () => {
     expect(pin).toContain('sdlElevation.e1')
     expect(pin).toContain('sdlElevation.e2')
     expect(pin).not.toContain('0 4px 16px')
-    expect(heroSearch).toContain('borderRadius={sdlCard.radius}')
+    expect(heroSearch).toContain('boxShadow="e3"')
     expect(heroSearch).not.toContain('rgba(0, 220, 130')
+  })
+})
+
+describe('no heavy weights in src', () => {
+  /** Every .ts, .tsx, .mdx and .css file under `dir`, but not this test. */
+  function sourceFiles(dir: string): string[] {
+    return readdirSync(dir).flatMap((name) => {
+      const path = join(dir, name)
+      if (statSync(path).isDirectory()) return sourceFiles(path)
+      if (!/\.(tsx?|mdx|css)$/.test(name)) return []
+      return path.endsWith('visualSystem.test.ts') ? [] : [path]
+    })
+  }
+
+  // A weight of 700 to 900, or a bold keyword, on a `fontWeight` or `font-weight`.
+  const HEAVY =
+    /(?:fontWeight|font-weight)[^\n]*?(?<![.\w-])(?:[789]00|bold|bolder|extrabold|black)(?![\w%.])/
+
+  it('has no 700, 800 or bold: headings are 500, figures 600', () => {
+    const offenders = sourceFiles(join(process.cwd(), 'src')).flatMap((file) =>
+      readFileSync(file, 'utf8')
+        .split('\n')
+        .map((line, index) => ({ line, index }))
+        .filter(({ line }) => HEAVY.test(line))
+        .map(({ line, index }) => `${file}:${index + 1}: ${line.trim()}`),
+    )
+    expect(offenders).toEqual([])
   })
 })

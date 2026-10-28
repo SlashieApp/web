@@ -6,6 +6,7 @@ import { LuSlidersHorizontal } from 'react-icons/lu'
 
 import { formatMessage } from '@/i18n/loadPageI11n'
 import { useI11n } from '@/i18n/useI11n'
+import { sdlFigure } from '@/theme/styles'
 import { Button, Drawer, IconButton } from '@ui'
 
 import {
@@ -90,7 +91,7 @@ export function MyTasksFilters({
             bg="action.primary"
             color="text.onGreen"
             fontSize="xs"
-            fontWeight={700}
+            {...sdlFigure}
             lineHeight="18px"
             textAlign="center"
             pointerEvents="none"

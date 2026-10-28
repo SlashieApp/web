@@ -6,6 +6,7 @@ import { LuEye, LuPlus, LuX } from 'react-icons/lu'
 
 import { formatMessage } from '@/i18n/loadPageI11n'
 import { useI11n } from '@/i18n/useI11n'
+import { sdlFigure } from '@/theme/styles'
 import { formatBudgetAmount } from '@/utils/price'
 import {
   FormField,
@@ -135,7 +136,7 @@ export function TaskQuoteStepContent({
               value={poundsInput}
               onChange={(e) => onPoundsInputChange(e.target.value)}
               startElement={
-                <Text fontWeight={700} fontSize="sm" color="text.default">
+                <Text {...sdlFigure} fontSize="sm" color="text.default">
                   £
                 </Text>
               }
@@ -275,7 +276,7 @@ export function TaskQuoteStepContent({
           ) : null}
           <Text fontSize="xs" color="text.muted" textAlign="center">
             {termsBefore}
-            <Link href="/terms" color="text.link" fontWeight={600}>
+            <Link href="/terms" color="text.link" fontWeight={500}>
               {t.review.termsLink}
             </Link>
             {termsAfter}

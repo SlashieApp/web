@@ -128,7 +128,7 @@ export const WithTabListAside: Story = {
       {...args}
       tabListAside={
         <Card layout="section" density="compact" maxW="sm">
-          <Text fontWeight={700}>Send a quote</Text>
+          <Text fontWeight={500}>Send a quote</Text>
         </Card>
       }
     >
@@ -250,7 +250,7 @@ export const Sticky: Story = {
         px={4}
         sticky
         stickyHeader={
-          <Text px={1} py={3} fontWeight={700}>
+          <Text px={1} py={3} fontWeight={500}>
             Fix leaking kitchen tap
           </Text>
         }
@@ -376,7 +376,7 @@ export const TabListAsideMobile: Story = {
       {...args}
       tabListAside={
         <Card layout="section" density="compact" maxW="sm">
-          <Text fontWeight={700}>Send a quote</Text>
+          <Text fontWeight={500}>Send a quote</Text>
         </Card>
       }
     >

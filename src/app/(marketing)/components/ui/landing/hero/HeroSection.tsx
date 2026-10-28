@@ -61,9 +61,9 @@ export function HeroSection({ copy, ctas }: HeroSectionProps) {
             as="h1"
             id="landing-hero-heading"
             fontFamily="display"
-            fontWeight={800}
+            fontWeight={500}
             lineHeight={1.05}
-            letterSpacing="-0.03em"
+            letterSpacing="-0.045em"
             fontSize="clamp(2.5rem, 6vw, 4.5rem)"
             {...riseIn(0)}
           >
@@ -93,7 +93,7 @@ export function HeroSection({ copy, ctas }: HeroSectionProps) {
             flexWrap="wrap"
             justify="center"
             fontSize="sm"
-            fontWeight={600}
+            fontWeight={500}
             color="text.muted"
             {...riseIn(240)}
           >
@@ -114,7 +114,7 @@ export function HeroSection({ copy, ctas }: HeroSectionProps) {
 
           <Text
             fontSize="sm"
-            fontWeight={600}
+            fontWeight={500}
             color="text.link"
             {...riseIn(300)}
           >

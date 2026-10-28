@@ -86,8 +86,6 @@ export function AccountRestoreScreen({
         p={{ base: 6, md: 8 }}
         bg="bg.surface"
         borderRadius="xl"
-        borderWidth="1px"
-        borderColor="border.default"
         boxShadow="e3"
       >
         <Logo />

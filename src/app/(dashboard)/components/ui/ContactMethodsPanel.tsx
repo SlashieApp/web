@@ -48,7 +48,7 @@ export function ContactMethodsPanel({
       <ContactRows onContactUpdated={onContactUpdated} />
 
       {ready ? (
-        <Text fontSize="sm" fontWeight={600} color="text.link">
+        <Text fontSize="sm" fontWeight={500} color="text.link">
           {requirePhone ? t.readyPhone : t.readyAny}
         </Text>
       ) : (

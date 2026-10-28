@@ -14,7 +14,7 @@ import Image from 'next/image'
 import { useState } from 'react'
 import { LuUser } from 'react-icons/lu'
 
-import { sdlFocusRing, sdlMotion } from '@/theme/styles'
+import { sdlFigure, sdlFocusRing, sdlMotion } from '@/theme/styles'
 
 /**
  * SDL Avatar. Rounded list/profile avatar with load fallbacks:
@@ -300,7 +300,7 @@ export function Avatar({
       {avatar}
       <Text
         fontSize="sm"
-        fontWeight={600}
+        fontWeight={500}
         color="text.muted"
         truncate
         {...labelProps}
@@ -357,7 +357,7 @@ export function AvatarGroup({ items, max = 4, size = 'md' }: AvatarGroupProps) {
           alignItems="center"
           justifyContent="center"
           fontSize={avatarFontSize[sdlSize]}
-          fontWeight={600}
+          {...sdlFigure}
           flexShrink={0}
         >
           {`+${overflow}`}

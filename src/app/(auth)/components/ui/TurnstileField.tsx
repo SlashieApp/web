@@ -169,7 +169,7 @@ export function TurnstileField({
         as="label"
         id="turnstile-label"
         fontSize="sm"
-        fontWeight={600}
+        fontWeight={500}
         color="text.default"
         mb={2}
         display="block"

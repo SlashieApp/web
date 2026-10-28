@@ -171,7 +171,9 @@ function PersistentTaskMap() {
       data-map-task-count={liveProps.tasks.length}
       data-map-loaded={liveProps.tasksLoaded ? '1' : '0'}
       css={{
-        background: 'linear-gradient(135deg, #EEF3F0 0%, #DCE6E0 100%)',
+        // A neutral placeholder while the map loads: bg.subtle into border.default.
+        background:
+          'linear-gradient(135deg, var(--chakra-colors-bg-subtle) 0%, var(--chakra-colors-border-default) 100%)',
         ...mapFadeOverlayCss(overlaySurface),
         ...overlayWatermarkCss(),
       }}

@@ -28,7 +28,7 @@ export function BillingQuoteMeter({
   return (
     <Stack gap={2}>
       <HStack justify="space-between" align="baseline" gap={3}>
-        <Text fontSize="sm" fontWeight={600} color="text.default">
+        <Text fontSize="sm" fontWeight={500} color="text.default">
           {t.label}
         </Text>
         <Text fontSize="sm" color="text.muted">

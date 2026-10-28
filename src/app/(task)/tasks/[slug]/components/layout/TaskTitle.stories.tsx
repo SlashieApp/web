@@ -73,7 +73,7 @@ export const Default: Story = {
     })
     const style = getComputedStyle(h1)
     expect(style.fontSize).toBe('34px')
-    expect(style.fontWeight).toBe('700')
+    expect(style.fontWeight).toBe('500')
     // No toggle on a short title.
     expect(within(h1).queryByRole('button')).toBeNull()
     expect(h1.querySelector('[aria-expanded]')).toBeNull()

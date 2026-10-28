@@ -24,6 +24,8 @@ export type InputProps = ChakraInputProps & {
   endElement?: ReactNode
   /** Props merged onto the outer bordered container. */
   rootProps?: Omit<React.ComponentProps<typeof Box>, 'children'>
+  /** A search field is a pill; every other field has 8px corners. */
+  pill?: boolean
 }
 
 /**
@@ -36,6 +38,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
       startElement,
       endElement,
       rootProps,
+      pill = false,
       disabled,
       required,
       id,
@@ -58,11 +61,11 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
         gap={1}
         w="full"
         minH="44px"
-        borderRadius="md"
+        borderRadius={pill ? 'full' : 'md'}
         borderWidth="1px"
-        borderColor="border.default"
+        borderColor="border.strong"
         bg="bg.surface"
-        pl={3}
+        pl={pill ? 4 : 3}
         pr={3}
         {...formControlShellInteraction}
         {...formControlInvalidShellProps(invalid)}

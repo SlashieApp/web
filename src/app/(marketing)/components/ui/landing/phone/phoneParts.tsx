@@ -63,8 +63,6 @@ export function PhoneTabBar({
       gap={0}
       justify="space-between"
       borderRadius="16px"
-      borderWidth="1px"
-      borderColor="border.default"
       bg="bg.surface"
       boxShadow={sdlElevation.e3}
       aria-hidden
@@ -95,7 +93,7 @@ export function PhoneTabBar({
               >
                 {icon}
               </Box>
-              <Text fontSize="10px" fontWeight={700} color="text.muted">
+              <Text fontSize="10px" fontWeight={500} color="text.muted">
                 {copy[key]}
               </Text>
             </Box>
@@ -126,7 +124,8 @@ export function PhoneTabBar({
                   bg="status.success.solid"
                   color="text.onGreen"
                   fontSize="9px"
-                  fontWeight={800}
+                  fontWeight={600}
+                  fontVariantNumeric="tabular-nums"
                   display="flex"
                   alignItems="center"
                   justifyContent="center"
@@ -135,7 +134,7 @@ export function PhoneTabBar({
                 </Box>
               ) : null}
             </Box>
-            <Text fontSize="10px" fontWeight={700} color="inherit">
+            <Text fontSize="10px" fontWeight={500} color="inherit">
               {copy[key]}
             </Text>
           </Box>
@@ -216,7 +215,7 @@ export function InitialAvatar({
       alignItems="center"
       justifyContent="center"
       fontSize={`${Math.round(size * 0.36)}px`}
-      fontWeight={800}
+      fontWeight={500}
       aria-hidden
     >
       {initials}
@@ -263,7 +262,7 @@ export function MetaChip({ children, ...props }: TextProps) {
       borderWidth="1px"
       borderColor="border.default"
       fontSize="12px"
-      fontWeight={600}
+      fontWeight={500}
       color="text.default"
       {...props}
     >
@@ -298,7 +297,7 @@ export function DemoPrimary({ children, ...props }: BoxProps) {
       bg="action.primary"
       color="text.onGreen"
       fontSize="15px"
-      fontWeight={700}
+      fontWeight={500}
       display="flex"
       alignItems="center"
       justifyContent="center"

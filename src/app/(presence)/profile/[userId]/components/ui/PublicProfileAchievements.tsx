@@ -85,7 +85,13 @@ export function PublicProfileAchievements({
       css={{ scrollMarginTop: '5.5rem' }}
     >
       <Stack gap={1}>
-        <Text as="h2" fontSize="xl" fontWeight={700} color="text.default">
+        <Text
+          as="h2"
+          fontSize="xl"
+          fontWeight={500}
+          letterSpacing="-0.015em"
+          color="text.default"
+        >
           {t.heading}
         </Text>
         <HStack gap={1.5} color="text.muted" align="flex-start">
@@ -258,7 +264,7 @@ function MonthGrid({
 
   return (
     <Stack gap={2} aria-label={label}>
-      <Text fontSize="sm" fontWeight={700}>
+      <Text fontSize="sm" fontWeight={500}>
         {title}
       </Text>
       <SimpleGrid columns={7} gap={1}>
@@ -336,7 +342,7 @@ function YearCounts({
             borderColor="border.default"
             bg={count > 0 ? 'status.success.soft' : 'bg.surface'}
           >
-            <Text fontSize="sm" fontWeight={600}>
+            <Text fontSize="sm" fontWeight={500}>
               {label}
             </Text>
             <Text

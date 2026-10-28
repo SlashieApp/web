@@ -199,12 +199,12 @@ function PhotoSection() {
             <Box
               boxSize="88px"
               borderRadius="full"
-              bg="status.success.soft"
-              color="status.success.fg"
+              bg="bg.subtle"
+              color="text.muted"
               display="flex"
               alignItems="center"
               justifyContent="center"
-              fontWeight={800}
+              fontWeight={500}
               fontSize="2xl"
               overflow="hidden"
               flexShrink={0}
@@ -330,7 +330,7 @@ function HeadlineSection() {
           minH="44px"
           px={2}
           color="text.link"
-          fontWeight={600}
+          fontWeight={500}
           whiteSpace="normal"
           textAlign="left"
           onClick={() => patchForm({ tagline: suggestion })}
@@ -423,7 +423,7 @@ function PreviewSection() {
   const { t } = useSetupField()
   return (
     <Stack gap={2}>
-      <Text as="h2" fontSize="md" fontWeight={700} color="text.default">
+      <Text as="h2" fontSize="md" fontWeight={500} color="text.default">
         {t.review.previewTitle}
       </Text>
       <WorkerSetupProfilePreview />

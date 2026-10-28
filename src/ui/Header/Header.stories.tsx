@@ -471,7 +471,7 @@ export const AllVariants: Story = {
       <Stack gap={8} p={4}>
         {rows.map((row) => (
           <Stack key={row.label} gap={2}>
-            <Text fontSize="xs" fontWeight={700} color="text.muted">
+            <Text fontSize="xs" fontWeight={500} color="text.muted">
               {row.label}
             </Text>
             <Box

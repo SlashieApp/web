@@ -445,9 +445,7 @@ function ClickDropdown({
           zIndex={50}
           w={width}
           bg="bg.surface"
-          borderWidth="1px"
-          borderColor="border.default"
-          borderRadius="lg"
+          borderRadius="xl"
           boxShadow="e3"
           p={1}
           overflow="hidden"
@@ -591,10 +589,8 @@ function HoverDropdown({
             aria-label={contentLabel}
             aria-hidden={closing}
             bg="bg.surface"
-            borderWidth="1px"
-            borderColor="border.default"
-            borderRadius="lg"
-            boxShadow="e4"
+            borderRadius="xl"
+            boxShadow="e3"
             py={2}
             px={1}
             minW="200px"

@@ -122,6 +122,7 @@ export function SearchScreen({
           gap="12px"
           alignItems="center"
           p="12px"
+          borderWidth={0}
           boxShadow={sdlElevation.e3}
           css={{
             animation: 'rise-in 360ms cubic-bezier(0.2, 0, 0, 1) both',
@@ -142,7 +143,7 @@ export function SearchScreen({
             <LuSprout size={28} />
           </Box>
           <Stack gap="2px" flex={1} minW={0}>
-            <Text fontSize="15px" fontWeight={700} lineClamp={1}>
+            <Text fontSize="15px" fontWeight={500} lineClamp={1}>
               {task.title}
             </Text>
             <HStack gap="4px" color="text.muted" fontSize="13px">
@@ -155,7 +156,12 @@ export function SearchScreen({
             </HStack>
           </Stack>
           <Stack gap="6px" align="flex-end" flexShrink={0}>
-            <Text fontSize="18px" fontWeight={800} color="status.success.fg">
+            <Text
+              fontSize="18px"
+              fontWeight={600}
+              fontVariantNumeric="tabular-nums"
+              color="status.success.fg"
+            >
               {task.price}
             </Text>
             {variant === 'worker' ? (
@@ -166,7 +172,7 @@ export function SearchScreen({
                 bg="action.primary"
                 color="text.onGreen"
                 fontSize="12px"
-                fontWeight={700}
+                fontWeight={500}
               >
                 {copy.search.sendQuote}
               </Box>

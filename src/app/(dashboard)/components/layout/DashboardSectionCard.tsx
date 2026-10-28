@@ -65,7 +65,7 @@ export function DashboardSectionCard({
               <Heading
                 as="h2"
                 fontSize="md"
-                fontWeight={600}
+                letterSpacing="0"
                 lineHeight="short"
               >
                 {title}

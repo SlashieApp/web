@@ -27,7 +27,7 @@ import { formatMessage } from '@/i18n/loadPageI11n'
 import { LOCALE_LABELS } from '@/i18n/locales'
 import { useI11n } from '@/i18n/useI11n'
 import { PAGE_CONTAINER_MAX_W, PAGE_GUTTER_X } from '@/theme/pageContainer'
-import { sdlFocusRing, sdlMotion } from '@/theme/styles'
+import { sdlEyebrow, sdlFocusRing, sdlMotion } from '@/theme/styles'
 import { openCookieSettings } from '@/utils/analytics'
 import { APP_HOME, SAFETY_HREF } from '@/utils/appRoutes'
 
@@ -39,10 +39,11 @@ import messages from './i11n.json'
 /**
  * SDL site footer (cross-route chrome).
  *
- * - Default: tonal soft-green wash; brand block (tagline, language switch,
- *   the only language control guests have on phones, and social icons),
- *   then Product / Workers / Company / Support / Legal: columns on desktop,
- *   accordions below `lg` (FE-72 redesign). Then the company line.
+ * - Default: a neutral band (`bg.subtle`, no green wash); brand block
+ *   (tagline, language switch, the only language control guests have on
+ *   phones, and social icons), then Product / Workers / Company / Support /
+ *   Legal: columns on desktop, accordions below `lg` (FE-72 redesign). Then
+ *   the company line.
  * - Minimal: compact copyright + legal row (legal pages, dashboard shells).
  */
 export type UiFooterVariant = 'default' | 'minimal'
@@ -87,14 +88,7 @@ const externalLinkProps = {
 
 function ColumnLabel({ children }: { children: string }) {
   return (
-    <Text
-      fontSize="xs"
-      fontWeight={700}
-      letterSpacing="0.12em"
-      textTransform="uppercase"
-      color="text.muted"
-      mb={1}
-    >
+    <Text {...sdlEyebrow} mb={1}>
       {children}
     </Text>
   )
@@ -223,20 +217,12 @@ export function Footer({
       as="footer"
       position="relative"
       overflow="hidden"
-      bg={variant === 'minimal' ? 'bg.canvas' : 'status.success.soft'}
+      bg={variant === 'minimal' ? 'bg.canvas' : 'bg.subtle'}
       borderTopWidth="1px"
       borderColor="border.default"
       py={variant === 'minimal' ? 6 : { base: 10, md: 12 }}
       {...boxProps}
     >
-      {variant === 'default' ? (
-        <Box
-          position="absolute"
-          inset={0}
-          aria-hidden
-          bgImage="radial-gradient(36rem 18rem at 8% 0%, rgba(0, 220, 130, 0.12) 0%, transparent 70%)"
-        />
-      ) : null}
       <Container
         maxW={PAGE_CONTAINER_MAX_W}
         px={PAGE_GUTTER_X}
@@ -331,7 +317,7 @@ export function Footer({
                       minH="52px"
                       cursor="pointer"
                       fontSize="sm"
-                      fontWeight={700}
+                      fontWeight={500}
                       color="text.default"
                       _focusVisible={sdlFocusRing}
                     >
@@ -409,7 +395,7 @@ function FooterLinkButton({
       display="inline-flex"
       alignItems="center"
       minH={{ base: '44px', md: 'auto' }}
-      fontWeight={600}
+      fontWeight={500}
       fontSize="sm"
       color="text.default"
       textAlign="start"
@@ -455,7 +441,7 @@ function FooterLink({
     <Link
       href={href}
       tone="muted"
-      fontWeight={600}
+      fontWeight={500}
       fontSize="sm"
       color="text.default"
       // 44px tap targets on phones (the stack gap closes on base to match).
@@ -493,7 +479,7 @@ function FooterLanguageButton({
       borderColor="border.default"
       bg="bg.surface"
       fontSize="sm"
-      fontWeight={600}
+      fontWeight={500}
       color="text.default"
       cursor="pointer"
       _hover={{ bg: 'bg.subtle' }}

@@ -51,10 +51,12 @@ const cellSizes: Record<OtpInputSize, SystemStyleObject> = {
 const cellStyles: SystemStyleObject = {
   ...formControlFieldInteraction,
   textAlign: 'center',
-  fontWeight: 700,
+  // A code: Geist Mono at 500.
+  fontFamily: 'mono',
+  fontWeight: 500,
   borderRadius: 'md',
   borderWidth: '1px',
-  borderColor: 'border.default',
+  borderColor: 'border.strong',
   bg: 'bg.surface',
   color: 'text.default',
   px: 0,
@@ -260,7 +262,7 @@ export const OtpInput = React.forwardRef<HTMLDivElement, OtpInputProps>(
         <HStack gap={2} justify="center" w="full">
           {firstGroup.map(renderCell)}
           {length > 3 ? (
-            <Text color="text.muted" fontWeight={600} px={1} aria-hidden>
+            <Text color="text.muted" fontWeight={500} px={1} aria-hidden>
               –
             </Text>
           ) : null}

@@ -84,7 +84,7 @@ function EditTaskGroup({
       borderTopWidth={first ? 0 : '1px'}
       borderColor="border.default"
     >
-      <Heading as="h2" id={id} fontSize="lg" fontWeight={700}>
+      <Heading as="h2" id={id} fontSize="lg" letterSpacing="-0.01em">
         {title}
       </Heading>
       {children}

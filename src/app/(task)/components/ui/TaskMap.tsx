@@ -254,7 +254,7 @@ export function TaskMap(props: TaskMapProps) {
       >
         <Text color="text.muted" fontSize="sm" textAlign="center">
           Set{' '}
-          <Text as="span" fontWeight={700} color="text.default">
+          <Text as="span" fontWeight={500} color="text.default">
             NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN
           </Text>{' '}
           in your environment to load the map.

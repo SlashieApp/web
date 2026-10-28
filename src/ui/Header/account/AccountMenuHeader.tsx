@@ -29,7 +29,7 @@ export function AccountMenuHeader({
         <Stack gap={0.5} minW={0} flex={1} align="flex-start">
           <Text
             fontSize="sm"
-            fontWeight={700}
+            fontWeight={500}
             color="text.default"
             truncate
             w="full"
@@ -43,7 +43,7 @@ export function AccountMenuHeader({
             href="/profile"
             tone="emphasis"
             fontSize="xs"
-            fontWeight={600}
+            fontWeight={500}
             color="text.link"
             onClick={onViewProfile}
           >

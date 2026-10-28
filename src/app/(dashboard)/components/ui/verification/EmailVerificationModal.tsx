@@ -70,14 +70,14 @@ export function EmailVerificationModal({
         hideFooter={verified}
       >
         {verified ? (
-          <Text fontSize="sm" color="text.link" fontWeight={600}>
+          <Text fontSize="sm" color="text.link" fontWeight={500}>
             {t.verified}
           </Text>
         ) : (
           <>
             <Text fontSize="sm" color="text.muted" lineHeight="tall">
               {before}
-              <Text as="span" fontWeight={600} color="text.default">
+              <Text as="span" fontWeight={500} color="text.default">
                 {me.email}
               </Text>
               {after}
@@ -93,7 +93,7 @@ export function EmailVerificationModal({
             <Link
               href={'/verify-email/sent'}
               fontSize="sm"
-              fontWeight={600}
+              fontWeight={500}
               color="text.link"
               _hover={{ textDecoration: 'none', color: 'action.primaryHover' }}
             >

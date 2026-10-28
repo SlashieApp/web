@@ -50,7 +50,7 @@ export function TaskQuoteReviewStep({ photoUrls }: TaskQuoteReviewStepProps) {
   return (
     <Stack gap={5}>
       <Stack gap={2}>
-        <Text fontWeight={700} fontSize="sm" color="text.link">
+        <Text fontWeight={500} fontSize="sm" color="text.link">
           {copy.review.price}
         </Text>
         <Text fontSize="md" color="text.link">
@@ -60,7 +60,7 @@ export function TaskQuoteReviewStep({ photoUrls }: TaskQuoteReviewStepProps) {
 
       {times.length > 0 ? (
         <Stack gap={2}>
-          <Text fontWeight={700} fontSize="sm" color="text.link">
+          <Text fontWeight={500} fontSize="sm" color="text.link">
             {copy.proposedTimes}
           </Text>
           {times.map((label) => (
@@ -72,7 +72,7 @@ export function TaskQuoteReviewStep({ photoUrls }: TaskQuoteReviewStepProps) {
       ) : null}
 
       <Stack gap={2}>
-        <Text fontWeight={700} fontSize="sm" color="text.link">
+        <Text fontWeight={500} fontSize="sm" color="text.link">
           {copy.review.message}
         </Text>
         <Text fontSize="sm" color="text.link" whiteSpace="pre-wrap">
@@ -82,7 +82,7 @@ export function TaskQuoteReviewStep({ photoUrls }: TaskQuoteReviewStepProps) {
 
       {photoUrls.length > 0 ? (
         <Stack gap={2}>
-          <Text fontWeight={700} fontSize="sm" color="text.link">
+          <Text fontWeight={500} fontSize="sm" color="text.link">
             {copy.review.photos}
           </Text>
           <HStack gap={2} flexWrap="wrap">

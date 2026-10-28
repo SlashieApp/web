@@ -129,7 +129,7 @@ export function WorkerSetupCategoryTiles({
                 />
               </VisuallyHidden>
               <Icon size={18} strokeWidth={2} aria-hidden />
-              <Text as="span" fontSize="sm" fontWeight={600} lineHeight="short">
+              <Text as="span" fontSize="sm" fontWeight={500} lineHeight="short">
                 {trades[slug].label}
               </Text>
             </Tile>

@@ -22,7 +22,7 @@ export function SearchResultsListTitle() {
     <Text
       as="h2"
       fontSize="sm"
-      fontWeight={600}
+      fontWeight={500}
       color="text.default"
       letterSpacing="-0.01em"
       flexShrink={0}

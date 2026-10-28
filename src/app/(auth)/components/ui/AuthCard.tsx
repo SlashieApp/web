@@ -69,9 +69,9 @@ export function AuthCard({
               as="h1"
               fontFamily="heading"
               fontSize={{ base: '2xl', lg: '3xl' }}
-              fontWeight={700}
+              fontWeight={500}
               lineHeight="1.2"
-              letterSpacing="-0.01em"
+              letterSpacing={{ base: '-0.02em', lg: '-0.025em' }}
               color="text.default"
             >
               {title}

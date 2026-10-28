@@ -42,7 +42,7 @@ function WorkersEmptyState() {
       <Stack align="center" textAlign="center" gap={3} py={6} px={2} w="full">
         <SpotIllustration variant="quotes" width={120} />
         <Stack gap={1} align="center">
-          <Text fontSize="lg" fontWeight={600} color="text.default">
+          <Text fontSize="lg" fontWeight={500} color="text.default">
             {t.emptyTitle}
           </Text>
           <Text fontSize="sm" color="text.muted" maxW="360px">
@@ -100,8 +100,7 @@ function WorkersResultsTitle() {
       <Heading
         as="h2"
         fontSize={{ base: 'lg', md: 'xl' }}
-        fontWeight={700}
-        letterSpacing="-0.02em"
+        letterSpacing={{ base: '-0.01em', md: '-0.015em' }}
         color="text.default"
       >
         {formatWorkersListTitle(workers.length, referenceLocation.label)}
@@ -126,7 +125,7 @@ function WorkersResultsTitle() {
               bg="action.primary"
               color="text.onGreen"
               fontSize="xs"
-              fontWeight={700}
+              fontWeight={500}
               boxShadow="none"
               _hover={{ bg: 'action.primaryHover', color: 'text.onGreen' }}
               onClick={openFilters}

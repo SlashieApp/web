@@ -134,7 +134,7 @@ export function BillingScreen() {
         <Text fontSize="sm" color="text.muted">
           {t.paymentNote}
         </Text>
-        <Link href="/pricing" fontSize="sm" fontWeight={600} color="text.link">
+        <Link href="/pricing" fontSize="sm" fontWeight={500} color="text.link">
           {t.comparePlans}
         </Link>
       </Stack>

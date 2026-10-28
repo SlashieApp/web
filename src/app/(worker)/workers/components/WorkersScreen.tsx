@@ -33,7 +33,7 @@ function WorkersDirectory() {
             pointerEvents="none"
             css={{
               background:
-                'linear-gradient(to bottom, transparent 45%, rgba(247, 249, 248, 0.72) 78%, var(--chakra-colors-bg-canvas, #F7F9F8) 100%)',
+                'linear-gradient(to bottom, transparent 45%, rgba(250, 250, 250, 0.72) 78%, var(--chakra-colors-bg-canvas, #FAFAFA) 100%)',
             }}
           />
           <WorkersBackButton />

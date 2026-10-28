@@ -8,8 +8,10 @@ import {
 } from '@chakra-ui/react'
 
 /**
- * SDL Badge. Status is never signalled by color alone — pass `dot` so every
- * status chip shows a dot + label.
+ * SDL Badge, the tag: a pill with a 12px 500 label and a 1px border from its
+ * family (`status.<family>.border`; neutral uses `border.default`). Categories
+ * are neutral; green is for state (Open, Quoted, Accepted). Status is never
+ * signalled by color alone: pass `dot` so every status chip shows a dot + label.
  */
 export type UiBadgeVariant =
   | 'brand'
@@ -24,6 +26,7 @@ export type UiBadgeVariant =
   | 'blue'
 
 export type UiBadgeSize = 'sm' | 'lg'
+/** Both shapes are a pill since the tone refresh; kept so call sites need no change. */
 export type UiBadgeShape = 'default' | 'pill'
 
 export type UiBadgeProps = Omit<BadgeProps, 'variant' | 'size'> & {
@@ -59,7 +62,7 @@ function familyStyles(family: SdlFamily): SystemStyleObject {
   return {
     bg: `status.${family}.soft`,
     color: `status.${family}.fg`,
-    borderColor: `status.${family}.soft`,
+    borderColor: `status.${family}.border`,
   }
 }
 
@@ -74,14 +77,14 @@ const badgeSizes: Record<UiBadgeSize, SystemStyleObject> = {
 }
 
 export function Badge({
-  variant = 'brand',
+  variant = 'neutral',
   size = 'sm',
-  shape = 'default',
+  shape: _shape,
   dot = false,
-  borderRadius,
+  borderRadius = 'full',
   borderWidth = '1px',
   fontFamily = 'body',
-  fontWeight = 600,
+  fontWeight = 500,
   letterSpacing = 'normal',
   textTransform = 'none',
   children,
@@ -93,7 +96,7 @@ export function Badge({
       display="inline-flex"
       alignItems="center"
       lineHeight="1.35"
-      borderRadius={borderRadius ?? (shape === 'pill' ? 'full' : 'md')}
+      borderRadius={borderRadius}
       borderWidth={borderWidth}
       fontFamily={fontFamily}
       fontWeight={fontWeight}

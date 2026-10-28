@@ -57,7 +57,7 @@ export function PricingTeaser({
                 as="h2"
                 fontFamily="display"
                 fontSize={{ base: '28px', md: '36px' }}
-                letterSpacing="-0.01em"
+                letterSpacing={{ base: '-0.025em', md: '-0.03em' }}
               >
                 {copy.heading}
               </Heading>
@@ -84,10 +84,15 @@ export function PricingTeaser({
                 textAlign="center"
                 align="center"
               >
-                <Text fontSize="sm" fontWeight={700} color="text.muted">
+                <Text fontSize="sm" fontWeight={500} color="text.muted">
                   {copy.freePlanLabel}
                 </Text>
-                <Heading as="h3" fontSize="24px" fontWeight={600}>
+                <Heading
+                  as="h3"
+                  fontSize="24px"
+                  fontWeight={500}
+                  letterSpacing="-0.02em"
+                >
                   {pricing.freeHeadline}
                 </Heading>
                 <Text fontSize="sm" color="text.muted">
@@ -109,11 +114,16 @@ export function PricingTeaser({
                 align="center"
                 position="relative"
               >
-                <HStack gap={1.5} color="accent.premium" fontWeight={700}>
+                <HStack gap={1.5} color="accent.premium" fontWeight={500}>
                   <LuSparkles size={16} aria-hidden />
                   <Text fontSize="sm">{pricing.productName}</Text>
                 </HStack>
-                <Heading as="h3" fontSize="24px" fontWeight={600}>
+                <Heading
+                  as="h3"
+                  fontSize="24px"
+                  fontWeight={500}
+                  letterSpacing="-0.02em"
+                >
                   {pricing.headline}
                 </Heading>
                 <Text fontSize="sm" color="text.muted">

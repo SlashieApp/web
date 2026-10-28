@@ -118,7 +118,7 @@ export function LoginPanel({
       footer={
         <>
           {t.registerPrompt}{' '}
-          <Link href={registerHref} fontWeight={700} color="text.link">
+          <Link href={registerHref} fontWeight={500} color="text.link">
             {t.registerLink}
           </Link>
         </>
@@ -160,7 +160,7 @@ export function LoginPanel({
                 href="/forgot-password"
                 alignSelf="flex-end"
                 fontSize="sm"
-                fontWeight={600}
+                fontWeight={500}
                 color="text.link"
                 onClick={() => stashResetEmail(emailValue ?? '')}
               >

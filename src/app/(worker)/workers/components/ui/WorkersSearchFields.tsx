@@ -7,7 +7,7 @@ import { LuCheck, LuLocateFixed, LuSearch } from 'react-icons/lu'
 import { useTaskBrowseData } from '@/app/(task)/context/TaskBrowseProvider'
 import { formatMessage } from '@/i18n/loadPageI11n'
 import { useI11n } from '@/i18n/useI11n'
-import { sdlFocusRing } from '@/theme/styles'
+import { sdlEyebrow, sdlFigure, sdlFocusRing } from '@/theme/styles'
 import { Button, Input, Slider } from '@ui'
 
 import { useWorkerSearch } from '../../context/WorkerSearchProvider'
@@ -17,13 +17,7 @@ import {
 } from '../../helpers/workerSearchHelpers'
 import bag from '../../i11n.json'
 
-export const WORKERS_FILTER_LABEL = {
-  fontSize: 'xs',
-  fontWeight: 700,
-  letterSpacing: '0.06em',
-  color: 'text.muted',
-  textTransform: 'uppercase' as const,
-}
+export const WORKERS_FILTER_LABEL = sdlEyebrow
 
 export function WorkersAreaInput() {
   const t = useI11n(bag)
@@ -36,6 +30,7 @@ export function WorkersAreaInput() {
 
   return (
     <Input
+      pill
       startElement={
         <Box as="span" aria-hidden display="inline-flex">
           <LuSearch size={18} strokeWidth={2} />
@@ -54,7 +49,6 @@ export function WorkersAreaInput() {
           h={8}
           px={0}
           py={0}
-          borderRadius="lg"
           variant="ghost"
           color="text.muted"
           _hover={{ bg: 'bg.subtle', color: 'text.default' }}
@@ -91,6 +85,7 @@ export function WorkersSkillsInput() {
 
   return (
     <Input
+      pill
       startElement={
         <Box as="span" aria-hidden display="inline-flex">
           <LuSearch size={18} strokeWidth={2} />
@@ -138,7 +133,7 @@ export function WorkersDistanceControl({
       <HStack gap={2} flex="0 1 200px" minW="140px" maxW="220px" align="center">
         <Text
           fontSize="sm"
-          fontWeight={700}
+          {...sdlFigure}
           color="text.link"
           whiteSpace="nowrap"
           flexShrink={0}
@@ -158,7 +153,7 @@ export function WorkersDistanceControl({
         <Text {...WORKERS_FILTER_LABEL} mb={0}>
           {t.distanceLabel}
         </Text>
-        <Text fontSize="sm" fontWeight={700} color="text.link">
+        <Text fontSize="sm" {...sdlFigure} color="text.link">
           {valueLabel}
         </Text>
       </HStack>

@@ -35,6 +35,8 @@ import { Link } from '../Link'
  * - >=44px hit area (nav tiles are 56/60px; default enforces a 44px minimum).
  * - Transitions via `sdlMotion` (color/background). Pointer-down scales the
  *   control ~0.97 in 100ms; reduced motion skips the scale.
+ * - Round at every size; the outline variant has a 1px `border.strong` hairline
+ *   that steps to `border.hover` on hover.
  */
 
 /** Nav: icon (and optional caption) inside a route link. */
@@ -52,6 +54,12 @@ const ghostSurfaceHover = {
   bg: 'status.success.soft',
   color: 'text.default',
 } satisfies SystemStyleObject
+
+/** Outline variant: the hairline, and its hover (default shape). */
+const outlineBorder = {
+  borderColor: 'border.strong',
+} satisfies SystemStyleObject
+const outlineHover = { borderColor: 'border.hover' } satisfies SystemStyleObject
 
 function navIconSurfaceInteraction(active: boolean) {
   const surface = {
@@ -140,7 +148,7 @@ export const IconButton = React.forwardRef<HTMLButtonElement, IconButtonProps>(
                 <Text
                   w="full"
                   fontSize="xs"
-                  fontWeight={700}
+                  fontWeight={500}
                   color={active ? 'status.success.fg' : 'text.muted'}
                   textAlign="center"
                   lineHeight="short"
@@ -162,7 +170,13 @@ export const IconButton = React.forwardRef<HTMLButtonElement, IconButtonProps>(
       css,
       ...rest
     } = props
-    const hoverStyles = _hover ?? (variant === 'ghost' ? ghostSurfaceHover : {})
+    const hoverStyles =
+      _hover ??
+      (variant === 'ghost'
+        ? ghostSurfaceHover
+        : variant === 'outline'
+          ? outlineHover
+          : {})
 
     return (
       <ChakraIconButton
@@ -172,6 +186,7 @@ export const IconButton = React.forwardRef<HTMLButtonElement, IconButtonProps>(
         minW="44px"
         minH="44px"
         color="text.default"
+        {...(variant === 'outline' ? outlineBorder : null)}
         _hover={hoverStyles}
         _focusVisible={sdlFocusRing}
         _disabled={{ color: 'text.subtle', cursor: 'not-allowed' }}

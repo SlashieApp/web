@@ -37,7 +37,7 @@ export function WorkerQuoteScreen({
         <Box display="inline-flex" aria-hidden>
           <LuX size={22} />
         </Box>
-        <Text fontSize="16px" fontWeight={700}>
+        <Text fontSize="16px" fontWeight={500}>
           {t.header}
         </Text>
         <Box w="22px" />
@@ -45,7 +45,7 @@ export function WorkerQuoteScreen({
 
       <Stack gap="12px" p="16px" flex={1}>
         <DemoCard style={enterStyle(entered, 0)}>
-          <Text fontSize="16px" fontWeight={800}>
+          <Text fontSize="16px" fontWeight={500}>
             {task.title}
           </Text>
           <HStack mt="4px" gap="4px" fontSize="13px" color="text.muted">
@@ -57,7 +57,7 @@ export function WorkerQuoteScreen({
           <Text
             mt="8px"
             fontSize="13px"
-            fontWeight={700}
+            fontWeight={500}
             color="status.success.fg"
           >
             {formatMessage(t.budget, { price: task.price })}
@@ -65,7 +65,7 @@ export function WorkerQuoteScreen({
         </DemoCard>
 
         <DemoCard style={enterStyle(entered, 1)}>
-          <Text fontSize="13px" fontWeight={700} color="text.muted" mb="6px">
+          <Text fontSize="13px" fontWeight={500} color="text.muted" mb="6px">
             {t.priceLabel}
           </Text>
           <Box
@@ -75,14 +75,15 @@ export function WorkerQuoteScreen({
             borderWidth="1.5px"
             borderColor="border.focus"
             fontSize="26px"
-            fontWeight={800}
+            fontWeight={600}
+            fontVariantNumeric="tabular-nums"
           >
             {t.price}
           </Box>
         </DemoCard>
 
         <DemoCard style={enterStyle(entered, 2)}>
-          <Text fontSize="13px" fontWeight={700} color="text.muted" mb="6px">
+          <Text fontSize="13px" fontWeight={500} color="text.muted" mb="6px">
             {t.messageLabel}
           </Text>
           <Box
@@ -130,7 +131,7 @@ export function WorkerQuoteScreen({
               <LuCheck size={20} aria-hidden />
             </Box>
             <Stack gap={0}>
-              <Text fontSize="15px" fontWeight={700}>
+              <Text fontSize="15px" fontWeight={500}>
                 {t.sentTitle}
               </Text>
               <Text fontSize="13px" color="text.muted">

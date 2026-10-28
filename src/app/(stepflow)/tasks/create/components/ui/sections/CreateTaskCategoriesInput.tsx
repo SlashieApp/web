@@ -103,7 +103,7 @@ export function CreateTaskCategoriesInput({
                 bg="status.success.soft"
                 color="status.success.fg"
                 fontSize="sm"
-                fontWeight={600}
+                fontWeight={500}
               >
                 <Text as="span">
                   {taskCategoryDisplayLabel(category) ?? category}
@@ -172,7 +172,7 @@ export function CreateTaskCategoriesInput({
 
         {suggestions.length > 0 ? (
           <Box pt={3}>
-            <Text fontSize="xs" fontWeight={600} color="text.muted" pb={1.5}>
+            <Text fontSize="xs" fontWeight={500} color="text.muted" pb={1.5}>
               {f.suggestions}
             </Text>
             <Wrap gap={1.5}>
@@ -189,7 +189,7 @@ export function CreateTaskCategoriesInput({
                   minH="44px"
                   borderRadius="full"
                   borderWidth="1px"
-                  borderColor="border.default"
+                  borderColor="border.strong"
                   bg="bg.surface"
                   color="text.muted"
                   fontSize="sm"

@@ -20,7 +20,7 @@ export function TaskQuoteVisibilityCallout() {
         <LuEye size={20} aria-hidden />
       </Box>
       <Stack gap={1}>
-        <Text fontSize="sm" fontWeight={600} color="status.success.fg">
+        <Text fontSize="sm" fontWeight={500} color="status.success.fg">
           {t.title}
         </Text>
         <Text fontSize="sm" color="text.muted">

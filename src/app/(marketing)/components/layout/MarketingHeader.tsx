@@ -50,7 +50,7 @@ function SkipLink({ label }: { label: string }) {
       bg="bg.surface"
       color="text.default"
       fontSize="sm"
-      fontWeight={600}
+      fontWeight={500}
       borderRadius="md"
       boxShadow="e3"
       transform="translateY(-300%)"
@@ -81,7 +81,7 @@ const drawerLinkProps = {
   borderWidth: 0,
   borderRadius: 'md',
   fontSize: 'sm',
-  fontWeight: 600,
+  fontWeight: 500,
   color: 'text.default',
   _hover: { bg: 'status.success.soft', textDecoration: 'none' },
 } as const
@@ -238,7 +238,7 @@ function MarketingNavigation({
                 {...navLinkProps}
                 aria-current={active ? 'page' : undefined}
                 // Weight + color: the active page is never colour-alone.
-                fontWeight={active ? 700 : 600}
+                fontWeight={active ? 600 : 500}
                 color={active ? 'text.link' : 'text.default'}
               >
                 {copy[link.key]}
@@ -315,7 +315,7 @@ function MarketingNavigation({
                 {...drawerLinkProps}
                 aria-current={active ? 'page' : undefined}
                 color={active ? 'text.link' : 'text.default'}
-                fontWeight={active ? 700 : 600}
+                fontWeight={active ? 600 : 500}
                 onClick={() => setMobileMenuOpen(false)}
               >
                 {copy[link.key]}

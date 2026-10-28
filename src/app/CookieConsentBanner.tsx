@@ -53,8 +53,6 @@ export function CookieConsentBanner() {
       bottom={0}
       zIndex="banner"
       bg="bg.canvas"
-      borderTopWidth="1px"
-      borderColor="border.default"
       py={{ base: 4, md: 5 }}
       boxShadow="e3"
     >

@@ -15,6 +15,7 @@ import { LuGithub, LuLinkedin } from 'react-icons/lu'
 import { SLASHIE_GITHUB_URL, SLASHIE_LINKEDIN_URL } from '@/content/social'
 import type { AppLocale } from '@/i18n/locales'
 import { withLocale } from '@/i18n/navigation'
+import { sdlFigure } from '@/theme/styles'
 import { Button, Card, Link } from '@ui'
 
 import { Reveal } from '../../components/ui/landing/Reveal'
@@ -31,7 +32,7 @@ function SectionHeading({ children }: { children: ReactNode }) {
       as="h2"
       fontFamily="display"
       fontSize={{ base: '28px', md: '36px' }}
-      letterSpacing="-0.02em"
+      letterSpacing={{ base: '-0.025em', md: '-0.03em' }}
     >
       {children}
     </Heading>
@@ -51,10 +52,10 @@ function Steps({ title, steps }: { title: string; steps: readonly string[] }) {
               justifyContent="center"
               boxSize="24px"
               borderRadius="full"
-              bg="status.success.soft"
-              color="status.success.fg"
+              bg="bg.subtle"
+              color="text.muted"
               fontSize="xs"
-              fontWeight={700}
+              {...sdlFigure}
               flexShrink={0}
               aria-hidden
             >
@@ -118,21 +119,14 @@ export function AboutScreen({
 
   return (
     <>
-      <Box
-        as="section"
-        bgGradient="to-b"
-        gradientFrom="status.success.soft"
-        gradientTo="bg.canvas"
-        pt={{ base: 12, md: 20 }}
-        pb={{ base: 10, md: 14 }}
-      >
+      <Box as="section" pt={{ base: 12, md: 20 }} pb={{ base: 10, md: 14 }}>
         <Container>
           <Stack gap={4} maxW="3xl">
             <Heading
               as="h1"
               fontFamily="display"
               fontSize={{ base: '40px', md: '56px' }}
-              letterSpacing="-0.03em"
+              letterSpacing={{ base: '-0.035em', md: '-0.04em' }}
               lineHeight="1.05"
             >
               {copy.hero.heading}

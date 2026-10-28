@@ -200,7 +200,6 @@ export function Drawer({
           colorPalette="green"
           bg="bg.surface"
           color="text.default"
-          borderColor="border.default"
           boxShadow="e4"
           display="flex"
           flexDirection="column"
@@ -233,7 +232,8 @@ export function Drawer({
                 <DrawerTitle
                   fontFamily="body"
                   fontSize="20px"
-                  fontWeight={600}
+                  fontWeight={500}
+                  letterSpacing="-0.015em"
                   color="text.default"
                   lineHeight="short"
                   flex={1}

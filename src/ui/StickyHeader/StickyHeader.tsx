@@ -100,7 +100,8 @@ const TITLE_LINE_HEIGHT = 1.2
 const TITLE_STYLE = {
   fontFamily: 'heading',
   fontSize: `${TITLE_PX}px`,
-  fontWeight: 700,
+  fontWeight: 500,
+  letterSpacing: '-0.03em',
   lineHeight: String(TITLE_LINE_HEIGHT),
   color: 'text.default',
   overflowWrap: 'anywhere',
@@ -156,7 +157,7 @@ const TitleClampContext = createContext<TitleClamp>({
 })
 
 /**
- * The page's one h1, in the big title's look (34px, bold). `StickyHeader`
+ * The page's one h1, in the big title's look (34px, 500). `StickyHeader`
  * draws it itself on an ordinary page; a page whose title rests lower (task
  * details, a public profile) renders it where it belongs, and the header
  * finds it there to collapse it into the bar. On its own it is a plain
@@ -398,7 +399,8 @@ export function StickyHeader({
               right={`${barTitleRight(chips, Boolean(option))}px`}
               fontFamily="heading"
               fontSize={`${BAR_TITLE_PX}px`}
-              fontWeight={600}
+              fontWeight={500}
+              letterSpacing="-0.01em"
               lineHeight="24px"
               color="text.default"
               truncate

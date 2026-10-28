@@ -26,15 +26,16 @@ const storyApolloClient = new ApolloClient({
   link: new ApolloLink(() => new Observable(() => {})),
 })
 
-/** Mirrors `next/font` CSS variables from `app/layout.tsx` so theme `fonts.heading` / `fonts.body` resolve in Storybook. */
-const storybookFontRootStyle = {
+/**
+ * The story canvas. The `next/font` variables (`--font-geist`, `--font-geist-mono`)
+ * that theme `fonts.heading` / `fonts.body` resolve are set on `:root` in
+ * `preview-head.html`, as the app sets them on `<html>`.
+ */
+const storyCanvasStyle = {
   minHeight: '100%',
   // Canvas uses the SDL `bg.canvas` role so every story sits on the themed surface.
   background: 'var(--chakra-colors-bg-canvas)',
   color: 'var(--chakra-colors-text-default)',
-  '--font-plus-jakarta':
-    '"Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif',
-  '--font-inter': '"Inter", ui-sans-serif, system-ui, sans-serif',
 } as CSSProperties
 
 /** A media query answer that matches, for {@link TOUCH_SCREEN_QUERY}. */
@@ -138,7 +139,7 @@ const preview: Preview = {
             <CameraSourceContext.Provider
               value={storyCameras[context.parameters.camera ?? 'live']}
             >
-              <div style={storybookFontRootStyle}>
+              <div style={storyCanvasStyle}>
                 <Story />
               </div>
             </CameraSourceContext.Provider>

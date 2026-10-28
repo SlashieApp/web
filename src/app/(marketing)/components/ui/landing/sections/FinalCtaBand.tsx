@@ -29,10 +29,10 @@ export function FinalCtaBand({
             <Heading
               as="h2"
               fontFamily="display"
-              fontWeight={800}
+              fontWeight={500}
               fontSize={{ base: '34px', md: '52px' }}
               lineHeight={1.08}
-              letterSpacing="-0.025em"
+              letterSpacing="-0.035em"
             >
               {copy.heading}
             </Heading>

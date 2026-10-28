@@ -104,7 +104,7 @@ function DeleteBlockedDialog({
           <Box as="li" key={blocker.orderId} mb={1.5}>
             <Link
               href={taskOrderSectionHref(blocker.taskId)}
-              fontWeight={700}
+              fontWeight={500}
               color="text.link"
             >
               {formatMessage(t.deleteBlockedBooking, { number: index + 1 })}
@@ -216,7 +216,7 @@ function DeleteConfirmDialog({
       }
     >
       <Stack gap={2}>
-        <Text color="text.default" fontWeight={600}>
+        <Text color="text.default" fontWeight={500}>
           {t.deleteIntro}
         </Text>
         <Box
@@ -260,7 +260,7 @@ function DeleteConfirmDialog({
             ) : null}
           </Stack>
         ) : (
-          <Text fontSize="sm" color="status.success.fg" fontWeight={600}>
+          <Text fontSize="sm" color="status.success.fg" fontWeight={500}>
             {t.deleteReauthDone}
           </Text>
         )}
@@ -277,7 +277,7 @@ function DeleteConfirmDialog({
         >
           <Text>{error.text}</Text>
           {error.kind === 'liveOrders' ? (
-            <Link href={MY_TASKS_HREF} fontWeight={700} color="inherit">
+            <Link href={MY_TASKS_HREF} fontWeight={500} color="inherit">
               {t.deleteLiveOrdersLink}
             </Link>
           ) : null}

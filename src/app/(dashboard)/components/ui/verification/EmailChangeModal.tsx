@@ -106,7 +106,7 @@ export function EmailChangeModal({
     >
       <Text fontSize="sm" color="text.muted" lineHeight="tall">
         {before}
-        <Text as="span" fontWeight={600} color="text.default">
+        <Text as="span" fontWeight={500} color="text.default">
           {me.email}
         </Text>
         {after}

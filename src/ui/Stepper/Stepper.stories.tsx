@@ -205,13 +205,13 @@ export const AllVariants: Story = {
   render: () => (
     <Stack direction={{ base: 'column', md: 'row' }} gap={8} align="flex-start">
       <Stack gap={2} maxW="280px">
-        <Text fontSize="xs" fontWeight={700} color="text.muted">
+        <Text fontSize="xs" fontWeight={500} color="text.muted">
           Start
         </Text>
         <Stepper steps={workerSetupSteps} activeSubStepId="profile.details" />
       </Stack>
       <Stack gap={2} maxW="280px">
-        <Text fontSize="xs" fontWeight={700} color="text.muted">
+        <Text fontSize="xs" fontWeight={500} color="text.muted">
           In progress
         </Text>
         <Stepper
@@ -226,7 +226,7 @@ export const AllVariants: Story = {
         />
       </Stack>
       <Stack gap={2} maxW="280px">
-        <Text fontSize="xs" fontWeight={700} color="text.muted">
+        <Text fontSize="xs" fontWeight={500} color="text.muted">
           Flat (no sub-steps)
         </Text>
         <Stepper

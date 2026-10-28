@@ -105,6 +105,7 @@ export function TaskLocationSearchBar({
   const t = useI11n(bag).location
   return (
     <Input
+      pill
       value={value}
       onChange={(e: ChangeEvent<HTMLInputElement>) => onChange(e.target.value)}
       onBlur={onSearch}
@@ -137,7 +138,6 @@ export function TaskLocationSearchBar({
           h={8}
           px={0}
           py={0}
-          borderRadius="lg"
           variant="ghost"
           color="text.muted"
           loading={locating}

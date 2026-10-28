@@ -72,15 +72,7 @@ export function ProfileContactBar(props: ProfileContactProps) {
       maxW={MOBILE_BOTTOM_NAV_MAX_W}
       mx="auto"
     >
-      <Stack
-        gap={2}
-        p={3}
-        bg="bg.surface"
-        borderWidth="1px"
-        borderColor="border.default"
-        borderRadius="xl"
-        boxShadow="e3"
-      >
+      <Stack gap={2} p={3} bg="bg.surface" borderRadius="xl" boxShadow="e3">
         <Text fontSize="xs" color="text.muted" textAlign="center">
           {copy.helper}
         </Text>

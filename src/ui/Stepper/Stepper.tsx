@@ -12,7 +12,7 @@ import {
 import type { ReactNode } from 'react'
 import { LuCheck, LuChevronDown, LuChevronRight } from 'react-icons/lu'
 
-import { sdlFocusRing, sdlMotion } from '@/theme/styles'
+import { sdlFigure, sdlFocusRing, sdlMotion } from '@/theme/styles'
 
 export type StepperSubStep = {
   id: string
@@ -63,7 +63,7 @@ function StepNumber({
       alignItems="center"
       justifyContent="center"
       fontSize="sm"
-      fontWeight={700}
+      {...sdlFigure}
       flexShrink={0}
       // GREEN-INK: active green fill pairs with `text.onGreen` ink, never white.
       bg={
@@ -162,7 +162,7 @@ export function Stepper({
             <Text
               flex={1}
               fontSize="sm"
-              fontWeight={isActiveMajor ? 700 : 600}
+              fontWeight={500}
               color={isActiveMajor ? 'text.default' : 'text.muted'}
             >
               {major.label}
@@ -221,7 +221,7 @@ export function Stepper({
                 pl="14px"
                 ml="13px"
                 borderLeftWidth="2px"
-                borderColor="status.success.solid"
+                borderColor="accent.active"
                 pb={2}
               >
                 {subSteps.map((sub) => {

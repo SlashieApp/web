@@ -1,6 +1,7 @@
 import { Box, Heading, Stack, Text } from '@chakra-ui/react'
 import type { ReactNode } from 'react'
 
+import { sdlFigure } from '@/theme/styles'
 import { Logo } from '@ui'
 
 /** Branded full-page message for the root 404 and error screens. */
@@ -35,8 +36,6 @@ export function StatusScreen({
         p={{ base: 6, md: 8 }}
         bg="bg.surface"
         borderRadius="xl"
-        borderWidth="1px"
-        borderColor="border.default"
         boxShadow="e3"
       >
         <Logo />
@@ -44,9 +43,10 @@ export function StatusScreen({
           <Text
             fontFamily="display"
             fontSize="5xl"
-            fontWeight={800}
+            {...sdlFigure}
+            letterSpacing="-0.035em"
             lineHeight={1}
-            color="text.link"
+            color="text.muted"
             aria-hidden
           >
             {code}

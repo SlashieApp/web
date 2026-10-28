@@ -150,7 +150,7 @@ export function SlideToConfirm({
         pl={`${THUMB_PX}px`}
         pr={4}
         fontSize="sm"
-        fontWeight={700}
+        fontWeight={500}
         color="status.success.fg"
         textAlign="center"
         pointerEvents="none"

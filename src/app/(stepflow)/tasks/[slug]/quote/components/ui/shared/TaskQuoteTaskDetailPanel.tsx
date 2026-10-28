@@ -44,7 +44,7 @@ export function TaskQuoteTaskDetailPanel({
       <Link
         href={backHref}
         fontSize="sm"
-        fontWeight={600}
+        fontWeight={500}
         color="text.link"
         display="inline-flex"
         alignItems="center"
@@ -57,13 +57,7 @@ export function TaskQuoteTaskDetailPanel({
       </Link>
 
       <Stack gap={3}>
-        <Heading
-          size="lg"
-          fontWeight={800}
-          lineHeight="short"
-          letterSpacing="-0.02em"
-          color="text.default"
-        >
+        <Heading size="lg" lineHeight="short" color="text.default">
           {task.title}
         </Heading>
         {task.description?.trim() ? (

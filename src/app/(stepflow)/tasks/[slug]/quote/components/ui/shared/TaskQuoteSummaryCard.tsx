@@ -74,16 +74,10 @@ export function TaskQuoteSummaryCard() {
           />
         </PhotoButton>
       ) : (
-        <Box
-          w="72px"
-          h="72px"
-          rounded="lg"
-          bg="status.success.soft"
-          flexShrink={0}
-        />
+        <Box w="72px" h="72px" rounded="lg" bg="bg.subtle" flexShrink={0} />
       )}
       <Stack gap={1} minW={0}>
-        <Text fontWeight={700} fontSize="sm" lineClamp={2} color="text.link">
+        <Text fontWeight={500} fontSize="sm" lineClamp={2} color="text.link">
           {task.title}
         </Text>
         {locationLine ? (
@@ -99,7 +93,7 @@ export function TaskQuoteSummaryCard() {
           {when}
         </Text>
         {kind ? (
-          <Text fontSize="xs" fontWeight={600} color="text.link">
+          <Text fontSize="xs" fontWeight={500} color="text.link">
             {kind}
           </Text>
         ) : null}

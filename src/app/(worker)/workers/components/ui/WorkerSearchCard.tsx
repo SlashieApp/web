@@ -97,7 +97,7 @@ export function WorkerSearchCard({
         transitionProperty="background-color, border-color, box-shadow"
         transitionDuration={sdlMotion.duration.base}
         transitionTimingFunction={sdlMotion.easing.standard}
-        _hover={{ boxShadow: 'e3' }}
+        _hover={{ boxShadow: 'e2' }}
       >
         <Box
           position="relative"
@@ -118,8 +118,8 @@ export function WorkerSearchCard({
             <Center h="full">
               <Text
                 fontSize="3xl"
-                fontWeight={700}
-                letterSpacing="-0.03em"
+                fontWeight={500}
+                letterSpacing="-0.025em"
                 color="text.muted"
               >
                 {portraitInitials(name)}

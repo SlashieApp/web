@@ -56,14 +56,14 @@ export function ForgotPasswordSentPanel() {
       description={
         <>
           {t.descriptionPrefix}{' '}
-          <Text as="span" fontWeight={700} color="text.default">
+          <Text as="span" fontWeight={500} color="text.default">
             {email}
           </Text>
           {t.descriptionSuffix}
         </>
       }
       footer={
-        <Link href="/login" fontWeight={700} color="text.link">
+        <Link href="/login" fontWeight={500} color="text.link">
           {shared.backToLogin}
         </Link>
       }

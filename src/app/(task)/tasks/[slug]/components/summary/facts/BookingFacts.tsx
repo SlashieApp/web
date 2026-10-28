@@ -240,7 +240,7 @@ function OrderRecordTimeline({ steps }: { steps: OrderTimelineStep[] }) {
               <StepIcon />
             </Flex>
             <Stack gap={0.5} flex={1} minW={0}>
-              <Text fontSize="sm" fontWeight={700} color="text.default">
+              <Text fontSize="sm" fontWeight={500} color="text.default">
                 {step.label}
               </Text>
               {step.at ? (
@@ -285,7 +285,7 @@ function ReviewBlock({
   return (
     <Stack gap={2}>
       <HStack justify="space-between" gap={3} align="center">
-        <Text fontSize="sm" fontWeight={700} color="text.default">
+        <Text fontSize="sm" fontWeight={500} color="text.default">
           {label}
         </Text>
         <RatingStars value={review.stars} label={label} size="sm" />

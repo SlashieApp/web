@@ -1,18 +1,20 @@
 import type { Metadata, Viewport } from 'next'
-import { Inter, Plus_Jakarta_Sans } from 'next/font/google'
+import { Geist, Geist_Mono } from 'next/font/google'
 import './globals.css'
 import { getRequestLocale } from '@/i18n/getRequestLocale'
 import { htmlLang } from '@/i18n/locales'
 import { BRAND_PRIMARY } from '@/theme/brand'
 import { Providers } from './providers'
 
-const inter = Inter({
-  variable: '--font-inter',
+// The variables go on <html>, not <body>: Chakra resolves its font tokens
+// (`--chakra-fonts-body`, `-heading`, `-display`, `-mono`) on <html> (FE-468).
+const geist = Geist({
+  variable: '--font-geist',
   subsets: ['latin'],
 })
 
-const plusJakartaSans = Plus_Jakarta_Sans({
-  variable: '--font-plus-jakarta',
+const geistMono = Geist_Mono({
+  variable: '--font-geist-mono',
   subsets: ['latin'],
 })
 
@@ -42,8 +44,12 @@ export default async function RootLayout({
   const locale = await getRequestLocale()
 
   return (
-    <html lang={htmlLang(locale)} suppressHydrationWarning>
-      <body className={`${inter.variable} ${plusJakartaSans.variable}`}>
+    <html
+      lang={htmlLang(locale)}
+      className={`${geist.variable} ${geistMono.variable}`}
+      suppressHydrationWarning
+    >
+      <body>
         <Providers>{children}</Providers>
       </body>
     </html>

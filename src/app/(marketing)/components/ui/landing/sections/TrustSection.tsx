@@ -16,8 +16,6 @@ export function TrustSection({ points }: { points: readonly string[] }) {
           p={{ base: 6, md: 8 }}
           bg="bg.surface"
           borderRadius="2xl"
-          borderWidth="1px"
-          borderColor="border.default"
           boxShadow="e3"
           templateColumns={{
             base: '1fr',
@@ -46,7 +44,7 @@ export function TrustSection({ points }: { points: readonly string[] }) {
                 </Box>
                 <Text
                   fontSize="sm"
-                  fontWeight={600}
+                  fontWeight={500}
                   color="text.default"
                   lineHeight="tall"
                 >

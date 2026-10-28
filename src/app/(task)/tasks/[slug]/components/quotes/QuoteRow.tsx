@@ -121,14 +121,14 @@ export function QuoteRow({
             {profileHref ? (
               <Link
                 href={profileHref}
-                fontWeight={600}
+                fontWeight={500}
                 color="text.default"
                 truncate
               >
                 {name}
               </Link>
             ) : (
-              <Text fontWeight={600} color="text.default" truncate>
+              <Text fontWeight={500} color="text.default" truncate>
                 {name}
               </Text>
             )}
@@ -168,7 +168,7 @@ export function QuoteRow({
         {priceLabel ? (
           <Text
             flexShrink={0}
-            fontWeight={700}
+            fontWeight={600}
             fontSize="lg"
             lineHeight="short"
             color="text.default"
@@ -248,7 +248,7 @@ function QuoteAvatar({
       alignItems="center"
       justifyContent="center"
       color="white"
-      fontWeight={700}
+      fontWeight={500}
       fontSize="sm"
       letterSpacing="0.02em"
       overflow="hidden"

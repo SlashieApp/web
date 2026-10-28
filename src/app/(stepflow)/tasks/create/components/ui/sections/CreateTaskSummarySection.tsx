@@ -72,7 +72,7 @@ function Row({
       _first={{ borderTopWidth: 0, pt: 0 }}
     >
       <Stack gap={0.5} flex={1} minW={0}>
-        <Text fontSize="xs" fontWeight={600} color="text.muted">
+        <Text fontSize="xs" fontWeight={500} color="text.muted">
           {label}
         </Text>
         <Box fontSize="sm" color="text.default">
@@ -156,7 +156,7 @@ export function CreateTaskSummarySection({
       borderColor="border.default"
       bg="bg.subtle"
     >
-      <Text as="h2" fontSize="md" fontWeight={700} pb={3}>
+      <Text as="h2" fontSize="md" fontWeight={500} pb={3}>
         {s.heading}
       </Text>
       <Row
@@ -164,7 +164,7 @@ export function CreateTaskSummarySection({
         editLabel={editLabel('details')}
         onEdit={() => onEdit('details')}
       >
-        <Text fontWeight={600}>{summary.title}</Text>
+        <Text fontWeight={500}>{summary.title}</Text>
         <Text color="text.muted" lineClamp={2}>
           {summary.description}
         </Text>

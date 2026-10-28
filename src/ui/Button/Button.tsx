@@ -16,7 +16,9 @@ import {
 /**
  * SDL Button. Variants: primary | secondary | ghost | danger | premium.
  * Legacy variant names (outline/subtle/tertiary/success) are accepted as aliases
- * during migration and resolve to an SDL variant below.
+ * during migration and resolve to an SDL variant below. Every size and variant
+ * is a pill with a 500 label; secondary is white with a 1px `border.strong`
+ * hairline and no shadow, and its border steps to `border.hover` on hover.
  *
  * GREEN-INK + AA: solid fills (primary/danger) pair with `text.onGreen` ink, which
  * is mode-invariant and passes WCAG AA on green (10.2:1) and red (4.95:1). Premium
@@ -101,8 +103,7 @@ function variantStyles(variant: SdlVariant): SystemStyleObject {
         color: 'text.default',
         borderWidth: '1px',
         borderColor: 'border.strong',
-        boxShadow: 'e1',
-        _hover: { bg: 'bg.subtle' },
+        _hover: { bg: 'bg.surface', borderColor: 'border.hover' },
         _active: { bg: 'bg.subtle' },
         _focusVisible: sdlFocusRing,
         _disabled: { ...disabledSolid, bg: 'bg.surface' },
@@ -151,9 +152,9 @@ export function Button(props: UiButtonProps) {
   const {
     variant = 'primary',
     size = 'md',
-    borderRadius = 'md',
+    borderRadius = 'full',
     fontFamily = 'body',
-    fontWeight = 600,
+    fontWeight = 500,
     css,
     ...restProps
   } = props

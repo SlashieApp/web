@@ -690,7 +690,7 @@ export function CreateTaskScreen({
           maxW="full"
         >
           <LuMapPin size={14} aria-hidden />
-          <Text fontSize="sm" fontWeight={600} lineClamp={1}>
+          <Text fontSize="sm" fontWeight={500} lineClamp={1}>
             {bandArea
               ? formatMessage(t.band.near, { area: bandArea })
               : t.location.areaPending}

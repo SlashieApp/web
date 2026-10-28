@@ -46,7 +46,7 @@ export function AccountSuspendedBanner() {
           <Text
             fontSize="sm"
             color="status.warning.fg"
-            fontWeight={600}
+            fontWeight={500}
             lineHeight="tall"
             textAlign="center"
           >
@@ -54,7 +54,7 @@ export function AccountSuspendedBanner() {
             <Link
               href={mailto}
               fontSize="sm"
-              fontWeight={700}
+              fontWeight={500}
               color="text.link"
               _hover={{ textDecoration: 'underline' }}
             >

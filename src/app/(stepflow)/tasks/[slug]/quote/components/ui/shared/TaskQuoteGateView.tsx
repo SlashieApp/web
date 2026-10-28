@@ -23,7 +23,7 @@ function BackToTaskLink({ href }: { href: string }) {
     <Link
       href={href}
       fontSize="sm"
-      fontWeight={600}
+      fontWeight={500}
       color="text.link"
       display="inline-flex"
       alignItems="center"
@@ -58,7 +58,8 @@ export function TaskQuoteGateView({
         <Text
           as="h1"
           fontSize={{ base: '2xl', md: '3xl' }}
-          fontWeight={800}
+          fontWeight={500}
+          letterSpacing={{ base: '-0.02em', md: '-0.025em' }}
           color="text.default"
         >
           {title}

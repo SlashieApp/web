@@ -180,16 +180,15 @@ function actionHref(row: MyTaskHubRow, action: MyTaskAction): string {
 function TitleLink({
   row,
   fontSize,
-  fontWeight,
 }: {
   row: MyTaskHubRow
   fontSize: 'md' | 'lg'
-  fontWeight: number
 }) {
   return (
     <Text
       fontSize={fontSize}
-      fontWeight={fontWeight}
+      fontWeight={500}
+      letterSpacing={fontSize === 'lg' ? '-0.01em' : undefined}
       color="text.default"
       lineHeight="1.3"
       lineClamp={2}
@@ -324,7 +323,7 @@ export function MyTaskCard({ row, layout }: MyTaskCardProps) {
         <HStack gap={3} flex="1 1 12rem" minW={0}>
           <RowThumbnail row={row} />
           <Stack gap={0.5} flex={1} minW={0}>
-            <TitleLink row={row} fontSize="md" fontWeight={600} />
+            <TitleLink row={row} fontSize="md" />
             {line ? (
               <Text fontSize="sm" color="text.muted" lineClamp={2}>
                 {line}
@@ -347,7 +346,8 @@ export function MyTaskCard({ row, layout }: MyTaskCardProps) {
           {day ? (
             <Text
               fontSize="lg"
-              fontWeight={700}
+              fontWeight={500}
+              letterSpacing="-0.01em"
               color={
                 row.when?.day === 'overdue'
                   ? 'status.danger.fg'
@@ -358,11 +358,7 @@ export function MyTaskCard({ row, layout }: MyTaskCardProps) {
               {day}
             </Text>
           ) : null}
-          <TitleLink
-            row={row}
-            fontSize={day ? 'md' : 'lg'}
-            fontWeight={day ? 600 : 700}
-          />
+          <TitleLink row={row} fontSize={day ? 'md' : 'lg'} />
           {line ? (
             <Text fontSize="sm" color="text.muted">
               {line}

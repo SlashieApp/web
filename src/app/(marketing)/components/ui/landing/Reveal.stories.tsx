@@ -15,7 +15,7 @@ function SampleCard({ title }: { title: string }) {
       p={5}
       maxW="sm"
     >
-      <Text fontWeight={700}>{title}</Text>
+      <Text fontWeight={500}>{title}</Text>
       <Text fontSize="sm" color="text.muted">
         Fades in and rises a little as it scrolls into view.
       </Text>

@@ -11,7 +11,7 @@ import { formatMessage } from '@/i18n/loadPageI11n'
 import { useI11n } from '@/i18n/useI11n'
 import { Badge, Card, IconButton, Link, Thumbnail } from '@ui'
 
-import { sdlFocusRing, sdlMotion } from '@/theme/styles'
+import { sdlFigure, sdlFocusRing, sdlMotion } from '@/theme/styles'
 import {
   taskCardLayout,
   taskCardMetaMinHeight,
@@ -33,11 +33,12 @@ const BADGE_ROW_FADE = {
     'linear-gradient(to right, #000 calc(100% - 1.5rem), transparent)',
 } as const
 
+/** The price and a lead time are figures: 600 with tabular figures, in ink. */
 const META_PART_STYLE = {
-  budget: { fontWeight: 800, color: 'text.link' },
+  budget: { ...sdlFigure, color: 'text.default' },
   muted: { fontWeight: 500, color: 'text.muted' },
-  lead: { fontWeight: 700, color: 'text.default' },
-  overdue: { fontWeight: 700, color: 'status.danger.fg' },
+  lead: { ...sdlFigure, color: 'text.default' },
+  overdue: { ...sdlFigure, color: 'status.danger.fg' },
 } as const
 
 function metaPartStyle(
@@ -64,11 +65,11 @@ export type TaskCardTask = {
   distanceLabel?: string
   /** Compact schedule line, e.g. "Flexible" / "Tomorrow". */
   timingLabel?: string
-  /** `lead` puts the timing first in bold (a booked job); `overdue` also turns it red. */
+  /** `lead` puts the timing first as a figure (a booked job); `overdue` also turns it red. */
   timingTone?: 'lead' | 'overdue'
   /** Quote-count line, e.g. "5 quotes" (owner/worker lists only). */
   quotesLabel?: string
-  /** What the task asks of you now, in bold in place of `quotesLabel` (My Tasks). */
+  /** What the task asks of you now, in ink in place of `quotesLabel` (My Tasks). */
   askLabel?: string
   /** Public views line from GraphQL (`task.views`); fallback when quotes are unavailable. */
   viewsLabel?: string
@@ -248,7 +249,7 @@ function TaskCardBrowse(props: TaskCardBrowseProps) {
       position="relative"
       maxW="full"
       bg="bg.surface"
-      boxShadow={isExpanded ? 'e3' : 'e1'}
+      boxShadow={isExpanded ? 'e2' : 'e1'}
       transitionProperty="background-color, box-shadow, transform, border-color"
       transitionDuration={sdlMotion.duration.base}
       transitionTimingFunction={sdlMotion.easing.standard}
@@ -256,7 +257,7 @@ function TaskCardBrowse(props: TaskCardBrowseProps) {
       // hover, focus or selection.
       css={
         props.menu
-          ? { _hover: { boxShadow: onActivate ? 'e3' : undefined } }
+          ? { _hover: { boxShadow: onActivate ? 'e2' : undefined } }
           : {
               '& [data-task-card-options]': {
                 opacity: 0,
@@ -265,7 +266,7 @@ function TaskCardBrowse(props: TaskCardBrowseProps) {
                 transitionTimingFunction: sdlMotion.easing.standard,
               },
               _hover: {
-                boxShadow: onActivate ? 'e3' : undefined,
+                boxShadow: onActivate ? 'e2' : undefined,
                 '& [data-task-card-options]': { opacity: 1 },
               },
               _focusWithin: {
@@ -329,14 +330,20 @@ function TaskCardBrowse(props: TaskCardBrowseProps) {
                     </Badge>
                   ))}
                   {categories.map((category) => (
-                    <Badge key={category} shape="pill" flexShrink={0}>
+                    <Badge
+                      key={category}
+                      shape="pill"
+                      variant="neutral"
+                      flexShrink={0}
+                    >
                       {category}
                     </Badge>
                   ))}
                 </HStack>
                 <Text
                   fontSize="md"
-                  fontWeight={700}
+                  fontWeight={500}
+                  letterSpacing="-0.01em"
                   color="text.default"
                   lineHeight={taskCardLayout.titleLineHeight}
                   lineClamp={taskCardLayout.titleLines}
@@ -388,7 +395,7 @@ function TaskCardBrowse(props: TaskCardBrowseProps) {
               {askLabel ? (
                 <Text
                   fontSize="sm"
-                  fontWeight={700}
+                  fontWeight={500}
                   color="text.default"
                   lineClamp={2}
                 >
@@ -397,7 +404,7 @@ function TaskCardBrowse(props: TaskCardBrowseProps) {
               ) : quotesLabel ? (
                 <Text
                   fontSize="xs"
-                  fontWeight={600}
+                  {...sdlFigure}
                   color="text.muted"
                   lineClamp={1}
                 >

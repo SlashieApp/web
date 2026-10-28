@@ -99,7 +99,7 @@ export function PhoneMap(props: BoxProps) {
             y={label.y}
             textAnchor="middle"
             fontSize="10"
-            fontWeight="700"
+            fontWeight="500"
             letterSpacing="1.4"
             fill={color('text-subtle')}
           >
@@ -136,7 +136,8 @@ export function PricePin({
         borderWidth="2px"
         borderColor={selected ? 'action.primary' : 'transparent'}
         fontSize="16px"
-        fontWeight={800}
+        fontWeight={600}
+        fontVariantNumeric="tabular-nums"
         lineHeight={1.2}
         boxShadow={selected ? sdlElevation.e3 : sdlElevation.e2}
         transform={selected ? 'scale(1.08)' : 'none'}

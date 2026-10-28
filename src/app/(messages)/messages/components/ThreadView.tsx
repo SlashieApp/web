@@ -359,7 +359,7 @@ export function ThreadView({ threadId }: { threadId: string | null }) {
     return (
       <Centered>
         <Stack gap={1} role={config.retry ? 'alert' : undefined}>
-          <Text fontSize="sm" fontWeight={config.body ? 700 : 400}>
+          <Text fontSize="sm" fontWeight={config.body ? 500 : 400}>
             {t[config.title]}
           </Text>
           {config.body ? (
@@ -374,7 +374,7 @@ export function ThreadView({ threadId }: { threadId: string | null }) {
               {t.retry}
             </Button>
           ) : null}
-          <Link href="/messages" fontSize="sm" fontWeight={600}>
+          <Link href="/messages" fontSize="sm" fontWeight={500}>
             {t.back}
           </Link>
         </HStack>
@@ -426,7 +426,7 @@ export function ThreadView({ threadId }: { threadId: string | null }) {
                   alignSelf="center"
                   pt={2}
                   fontSize="xs"
-                  fontWeight={600}
+                  fontWeight={500}
                   color="text.muted"
                 >
                   {row.label}

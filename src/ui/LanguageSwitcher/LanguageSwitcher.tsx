@@ -102,7 +102,8 @@ export function LanguageSwitcher({
               <DialogTitle
                 fontFamily="body"
                 fontSize="xl"
-                fontWeight={700}
+                fontWeight={500}
+                letterSpacing="-0.015em"
                 color="text.default"
                 lineHeight="short"
               >
@@ -157,10 +158,10 @@ export function LanguageSwitcher({
                       }}
                     >
                       <Stack gap={0} align="flex-start" flex={1} minW={0}>
-                        <Text fontSize="md" fontWeight={selected ? 700 : 600}>
+                        <Text fontSize="md" fontWeight={selected ? 600 : 500}>
                           {meta.native}
                         </Text>
-                        <Text fontSize="sm" color="text.muted" fontWeight={600}>
+                        <Text fontSize="sm" color="text.muted" fontWeight={500}>
                           {meta.short}
                         </Text>
                       </Stack>

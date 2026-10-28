@@ -337,7 +337,7 @@ function PreviewBody({
         {broken ? (
           <Stack align="center" gap={2} color="text.onInvertedMuted">
             <LuImageOff size={40} aria-hidden />
-            <Text fontSize="sm" fontWeight={600}>
+            <Text fontSize="sm" fontWeight={500}>
               {t.unavailable}
             </Text>
           </Stack>

@@ -6,6 +6,7 @@ import { useCallback } from 'react'
 import { useForm } from 'react-hook-form'
 
 import { useI11n } from '@/i18n/useI11n'
+import { sdlEyebrow } from '@/theme/styles'
 
 import { Avatar } from '../Avatar/Avatar'
 import { FormField } from '../FormField/FormField'
@@ -93,15 +94,7 @@ export function ReportDialog({
           borderRadius="md"
           bg="bg.subtle"
         >
-          <Text
-            fontSize="xs"
-            fontWeight={700}
-            letterSpacing="0.06em"
-            textTransform="uppercase"
-            color="text.muted"
-          >
-            {reportKindPhrases(kind, t).subject}
-          </Text>
+          <Text {...sdlEyebrow}>{reportKindPhrases(kind, t).subject}</Text>
           <HStack align="start" gap={3} minW={0}>
             {kind === 'review' || kind === 'message' ? null : kind ===
               'worker' ? (
@@ -121,7 +114,7 @@ export function ReportDialog({
             )}
             <Stack gap={0.5} minW={0}>
               <Text
-                fontWeight={700}
+                fontWeight={500}
                 fontSize="sm"
                 color="text.default"
                 lineClamp={2}

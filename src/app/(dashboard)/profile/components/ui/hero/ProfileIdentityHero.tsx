@@ -40,13 +40,7 @@ export function ProfileIdentityHero({
   const joined = joinMonthYear(me.createdAt)
 
   return (
-    <Card
-      layout="section"
-      framed
-      p={{ base: 4, md: 5 }}
-      bg="status.success.soft"
-      borderColor="status.success.border"
-    >
+    <Card layout="section" framed p={{ base: 4, md: 5 }} bg="bg.subtle">
       <HStack
         gap={4}
         align="center"
@@ -74,7 +68,11 @@ export function ProfileIdentityHero({
             )}
           </Stack>
           <Stack gap={1} minW={0}>
-            <Heading as="h2" fontSize={{ base: 'xl', md: '2xl' }}>
+            <Heading
+              as="h2"
+              fontSize={{ base: 'xl', md: '2xl' }}
+              letterSpacing={{ base: '-0.015em', md: '-0.02em' }}
+            >
               {name}
             </Heading>
             <HStack gap={2} flexWrap="wrap" color="text.muted">

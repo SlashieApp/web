@@ -14,6 +14,7 @@ import { type ReactNode, useEffect, useRef } from 'react'
 import { LuPointer } from 'react-icons/lu'
 
 import { PAGE_CONTAINER_MAX_W, PAGE_GUTTER_X } from '@/theme/pageContainer'
+import { sdlEyebrow, sdlFigure } from '@/theme/styles'
 
 import { STICKY_PHONE_W, StepPhone, StickyPhone } from '../phone/PhoneDemo'
 import { PHONE_ASPECT } from '../phone/PhoneFrame'
@@ -134,7 +135,7 @@ function StepBlock({
       <Stack gap={3} maxW="30rem">
         <Text
           fontSize="sm"
-          fontWeight={800}
+          {...sdlFigure}
           letterSpacing="0.08em"
           color="text.link"
         >
@@ -143,10 +144,10 @@ function StepBlock({
         <Heading
           as="h3"
           fontFamily="display"
-          fontWeight={700}
+          fontWeight={500}
           fontSize={{ base: '26px', lg: '34px' }}
           lineHeight={1.15}
-          letterSpacing="-0.015em"
+          letterSpacing={{ base: '-0.02em', lg: '-0.03em' }}
         >
           {step.title}
         </Heading>
@@ -162,7 +163,7 @@ function StepBlock({
             gap={2}
             mt={2}
             fontSize="sm"
-            fontWeight={600}
+            fontWeight={500}
             color="text.link"
           >
             <LuPointer size={16} aria-hidden />
@@ -191,23 +192,15 @@ function ActIntro({
 }) {
   return (
     <Stack gap={2} mb={{ base: 4, lg: 8 }}>
-      <Text
-        fontSize="sm"
-        fontWeight={700}
-        textTransform="uppercase"
-        letterSpacing="0.12em"
-        color="text.muted"
-      >
-        {eyebrow}
-      </Text>
+      <Text {...sdlEyebrow}>{eyebrow}</Text>
       <Heading
         as="h2"
         id={id}
         fontFamily="display"
-        fontWeight={800}
+        fontWeight={500}
         fontSize={{ base: '32px', lg: '44px' }}
         lineHeight={1.1}
-        letterSpacing="-0.02em"
+        letterSpacing={{ base: '-0.025em', lg: '-0.035em' }}
       >
         {heading}
       </Heading>

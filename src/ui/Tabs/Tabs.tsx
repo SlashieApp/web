@@ -329,9 +329,9 @@ function TabsBase({
                       pb={2}
                       fontFamily="body"
                       fontSize="sm"
-                      fontWeight={600}
+                      fontWeight={500}
                       lineHeight="1.2"
-                      color={selected ? 'text.default' : 'text.muted'}
+                      color={selected ? 'text.default' : 'text.subtle'}
                       cursor={tab.disabled ? 'not-allowed' : 'pointer'}
                       opacity={tab.disabled ? 0.5 : 1}
                       bg="transparent"
@@ -361,7 +361,7 @@ function TabsBase({
                   )
                 })}
 
-                {/* Sliding active indicator (brand moment). */}
+                {/* Sliding active indicator: green 600, never green 400. */}
                 {indicator ? (
                   <Box
                     aria-hidden
@@ -369,7 +369,7 @@ function TabsBase({
                     bottom="-1px"
                     height="2px"
                     borderRadius="full"
-                    bg="action.primary"
+                    bg="accent.active"
                     style={{
                       left: indicator.x,
                       width: indicator.w,

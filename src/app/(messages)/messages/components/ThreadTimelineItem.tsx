@@ -52,7 +52,7 @@ function FlashCard({
         </Box>
       ) : null}
       <HStack justify="space-between" align="baseline" gap={3}>
-        <Text fontWeight={700} fontSize="sm">
+        <Text fontWeight={500} fontSize="sm">
           {item.title}
         </Text>
         <Text fontSize="xs" color="text.muted" flexShrink={0}>
@@ -110,7 +110,7 @@ function FlashLine({
       textAlign="center"
     >
       <Text fontSize="xs" color="text.muted">
-        <Text as="span" fontWeight={700} color="text.default">
+        <Text as="span" fontWeight={500} color="text.default">
           {item.title}
         </Text>
         {price ? ` · ${price}` : null}
@@ -123,7 +123,7 @@ function FlashLine({
         </Text>
       ) : null}
       {action?.kind === 'review' ? (
-        <Link href={action.href} fontSize="xs" fontWeight={600}>
+        <Link href={action.href} fontSize="xs" fontWeight={500}>
           {t.leaveReview}
         </Link>
       ) : null}

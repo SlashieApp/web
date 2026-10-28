@@ -31,7 +31,7 @@ function Price({ children }: { children: string }) {
     <Text
       as="span"
       fontSize="sm"
-      fontWeight={700}
+      fontWeight={600}
       flexShrink={0}
       fontVariantNumeric="tabular-nums"
     >
@@ -78,7 +78,7 @@ function MyQuote() {
   return (
     <Stack gap={0.5}>
       <HStack gap={2} flexWrap="wrap">
-        <Text fontSize="sm" fontWeight={600}>
+        <Text fontSize="sm" fontWeight={500}>
           {t.pin.yourQuote}
         </Text>
         {myQuote.price ? <Price>{formatPrice(myQuote.price)}</Price> : null}
@@ -195,7 +195,7 @@ export function ThreadPin({
         <HStack columnGap={2} rowGap={1} flexWrap="wrap">
           {pill}
           {summary ? (
-            <Text fontSize="sm" fontWeight={600}>
+            <Text fontSize="sm" fontWeight={500}>
               {summary}
             </Text>
           ) : null}

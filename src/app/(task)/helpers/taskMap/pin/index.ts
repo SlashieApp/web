@@ -96,7 +96,7 @@ export function referenceMarkerElement(): HTMLDivElement {
     color: PIN.white,
     fontFamily: PIN_FONT,
     fontSize: '12px',
-    fontWeight: '800',
+    fontWeight: '600',
     lineHeight: '1.2',
     whiteSpace: 'nowrap',
     boxShadow: PIN.shadow,

@@ -27,10 +27,10 @@ function StoreBadge({ icon, store }: { icon: ReactNode; store: string }) {
         {icon}
       </Text>
       <Stack gap={0}>
-        <Text fontSize="2xs" fontWeight={600} lineHeight="short">
+        <Text fontSize="2xs" fontWeight={500} lineHeight="short">
           {t.comingSoon}
         </Text>
-        <Text fontSize="md" fontWeight={700} lineHeight="short">
+        <Text fontSize="md" fontWeight={500} lineHeight="short">
           {store}
         </Text>
       </Stack>

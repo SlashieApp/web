@@ -1,6 +1,7 @@
 import { HStack, Stack } from '@chakra-ui/react'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { LuPlus } from 'react-icons/lu'
+import { expect, waitFor, within } from 'storybook/test'
 
 import { Button, type UiButtonVariant } from './Button'
 
@@ -89,6 +90,53 @@ export const Sizes: Story = {
       <Button size="lg">Large</Button>
     </HStack>
   ),
+}
+
+/** Shape: every size and variant is a pill with a 500 label. */
+export const Shape: Story = {
+  render: () => (
+    <Stack gap={3}>
+      {(['sm', 'md', 'lg'] as const).map((size) => (
+        <HStack key={size} gap={3} flexWrap="wrap" alignItems="center">
+          {SDL_VARIANTS.map((variant) => (
+            <Button key={variant} variant={variant} size={size}>
+              {`${variant} ${size}`}
+            </Button>
+          ))}
+        </HStack>
+      ))}
+    </Stack>
+  ),
+  play: async ({ canvasElement }) => {
+    for (const button of within(canvasElement).getAllByRole('button')) {
+      const style = getComputedStyle(button)
+      await expect(style.borderTopLeftRadius).toBe('9999px')
+      await expect(style.fontWeight).toBe('500')
+    }
+  },
+}
+
+/** Secondary hover, forced with `data-hover`: the hairline steps from `border.strong` to `border.hover`. */
+export const SecondaryHover: Story = {
+  render: () => (
+    <HStack gap={3}>
+      <Button variant="secondary">Rest</Button>
+      <Button variant="secondary" data-hover>
+        Hover
+      </Button>
+    </HStack>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(
+      getComputedStyle(canvas.getByText('Rest')).borderTopColor,
+    ).toBe('rgb(212, 212, 216)')
+    await waitFor(() =>
+      expect(getComputedStyle(canvas.getByText('Hover')).borderTopColor).toBe(
+        'rgb(161, 161, 170)',
+      ),
+    )
+  },
 }
 
 /** States across the primary variant. Tab to a button to see the focus ring. */

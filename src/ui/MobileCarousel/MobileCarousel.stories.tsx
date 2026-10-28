@@ -44,7 +44,7 @@ function DemoCarousel({
             css={{ touchAction: 'pan-y' }}
           >
             <Card isActive={state.isActive} p={5} minH="120px">
-              <Text fontWeight={700}>{item.title}</Text>
+              <Text fontWeight={500}>{item.title}</Text>
               <Text fontSize="sm" color="text.muted">
                 {state.isCentered ? 'Centered: tap to open' : 'Tap to snap'}
               </Text>

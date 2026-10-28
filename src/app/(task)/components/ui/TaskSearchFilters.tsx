@@ -44,7 +44,7 @@ export function FilterChip({
         bg: 'bg.surface',
         color: 'text.default',
         borderWidth: '1px',
-        borderColor: 'border.default',
+        borderColor: 'border.strong',
         _hover: { bg: 'bg.subtle' },
       }
   return (
@@ -58,7 +58,7 @@ export function FilterChip({
         borderRadius="full"
         borderRightRadius={active ? 0 : 'full'}
         fontSize="xs"
-        fontWeight={700}
+        fontWeight={500}
         boxShadow="none"
         aria-expanded={expanded}
         aria-controls={panelId}
@@ -177,7 +177,7 @@ export function TaskSearchFilters() {
             px={2}
             borderRadius="full"
             fontSize="xs"
-            fontWeight={700}
+            fontWeight={500}
             color="text.muted"
             onClick={() => {
               setPicking(false)
@@ -196,7 +196,7 @@ export function TaskSearchFilters() {
           minW={0}
           aria-label={t.dateChip}
           p={3}
-          borderRadius="lg"
+          borderRadius="xl"
           borderWidth="1px"
           borderColor="border.default"
           bg="bg.surface"
@@ -284,7 +284,7 @@ export function TaskSearchFilters() {
           minW={0}
           aria-label={t.budgetChip}
           p={3}
-          borderRadius="lg"
+          borderRadius="xl"
           borderWidth="1px"
           borderColor="border.default"
           bg="bg.surface"

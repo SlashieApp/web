@@ -52,7 +52,7 @@ export function ThreadBottomPin({
       borderColor="border.default"
       aria-live="polite"
     >
-      <Text fontSize="sm" fontWeight={700}>
+      <Text fontSize="sm" fontWeight={500}>
         {lines.headline}
       </Text>
       {config.subline && lines.subline ? (

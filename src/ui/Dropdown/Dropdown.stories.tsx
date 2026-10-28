@@ -422,7 +422,7 @@ export const AllVariants: Story = {
   render: () => (
     <Stack gap={10} py={6}>
       <Stack gap={3}>
-        <Text fontSize="sm" fontWeight={700} color="text.default">
+        <Text fontSize="sm" fontWeight={500} color="text.default">
           Click mode
         </Text>
         <HStack gap={12} align="flex-start" minH="180px">
@@ -448,7 +448,7 @@ export const AllVariants: Story = {
       </Stack>
 
       <Stack gap={3}>
-        <Text fontSize="sm" fontWeight={700} color="text.default">
+        <Text fontSize="sm" fontWeight={500} color="text.default">
           Hover mode
         </Text>
         <HStack gap={12} align="flex-start" minH="160px">

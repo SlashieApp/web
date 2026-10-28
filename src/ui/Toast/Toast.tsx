@@ -76,8 +76,6 @@ export function Toast({ toast, ...rootProps }: UiToastProps) {
       width={{ md: 'sm' }}
       bg="bg.surface"
       color="text.default"
-      borderWidth="1px"
-      borderColor="border.default"
       borderRadius="lg"
       boxShadow="e3"
       gap="3"
@@ -103,7 +101,7 @@ export function Toast({ toast, ...rootProps }: UiToastProps) {
           <ChakraToast.Title
             color="text.default"
             fontSize="sm"
-            fontWeight={600}
+            fontWeight={500}
             lineHeight={FIRST_LINE}
           >
             {toast.title}
@@ -123,7 +121,7 @@ export function Toast({ toast, ...rootProps }: UiToastProps) {
       {toast.action ? (
         <ChakraToast.ActionTrigger
           color="text.link"
-          fontWeight={600}
+          fontWeight={500}
           fontSize="sm"
         >
           {toast.action.label}

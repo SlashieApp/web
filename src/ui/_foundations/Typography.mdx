@@ -9,27 +9,40 @@ import { sdlTypeScale } from '@/theme/styles'
 The SDL type scale. Every role below is **read live from `sdlTypeScale`** in
 `src/theme/styles.ts`, so this page can never drift from the code. Components
 should reference these roles rather than hardcoding `fontSize` / `lineHeight` /
-`fontWeight` values.
+`fontWeight` / `letterSpacing` values.
 
-**Font families** resolve from the Chakra theme (`src/theme/chakraSystem.ts`):
+**Font families** resolve from the Chakra theme (`src/theme/chakraSystem.ts`),
+from the `--font-geist` and `--font-geist-mono` variables that next/font sets on
+`<html>`:
 
-- **Display & headings** use the `heading` family (Plus Jakarta Sans).
-- **Body, label & UI text** use the `body` family (Inter).
-- **Mono** uses the `mono` family (SF Mono / JetBrains Mono) for codes and IDs.
+- **Display, headings, body, label & UI text** use Geist (`display`, `heading`
+  and `body` are one family).
+- **Mono** uses Geist Mono for codes and IDs.
+
+Every heading is **500** with tight tracking, and nothing is heavier than 500.
+Prices, counts and other figures are **600 with tabular figures** (`sdlFigure` in
+`src/theme/styles.ts`). The Chakra `Heading` takes weight 500 and tracking by
+size: up to 16px none, 18px -0.01em, 20px -0.015em, 24px -0.02em, 28px -0.025em,
+34 to 36px -0.03em, 44px and up -0.035em.
 
 All specimens render with SDL semantic color roles (`text.default`, `text.muted`),
 so they reflect the active light/dark theme.
 
 export const ROLE_META = {
-  'display-lg': { family: 'heading', use: 'Marketing / hero display.' },
-  'heading-xl': { family: 'heading', use: 'Page title (H1).' },
+  'display-2xl': { family: 'display', use: 'Hero headline. 44/46 on a phone.' },
+  'display-xl': { family: 'display', use: 'Marketing display.' },
+  'display-lg': { family: 'display', use: 'Marketing section title.' },
+  'heading-xl': { family: 'heading', use: 'Page title, the page header’s big title (H1).' },
   'heading-lg': { family: 'heading', use: 'Section heading (H2).' },
   'heading-md': { family: 'heading', use: 'Subsection / card title (H3).' },
+  'heading-sm': { family: 'heading', use: 'Small title, the page header’s bar title.' },
   'text-lg': { family: 'body', use: 'Lead paragraph / emphasis body.' },
   'text-md': { family: 'body', use: 'Default body copy.' },
   'text-sm': { family: 'body', use: 'Secondary body / dense rows.' },
   'text-xs': { family: 'body', use: 'Captions, metadata, footnotes.' },
   'label-md': { family: 'body', use: 'Form labels, buttons, tabs.' },
+  'label-sm': { family: 'body', use: 'Small labels.' },
+  eyebrow: { family: 'body', use: 'Quiet uppercase label above a heading, in text.subtle.' },
   'mono-sm': { family: 'mono', use: 'Codes, IDs, numeric tokens.' },
 }
 
@@ -54,13 +67,14 @@ export const Specimen = ({ role }) => {
         <Text
           fontFamily="mono"
           fontSize="12px"
-          fontWeight={600}
+          fontWeight={500}
           color="text.default"
         >
           {role}
         </Text>
         <Text fontFamily="mono" fontSize="12px" color="text.muted">
-          {scale.fontSize} / {scale.lineHeight} / {scale.fontWeight} · {meta.family}
+          {scale.fontSize} / {scale.lineHeight} / {scale.fontWeight} / {scale.letterSpacing}
+          {scale.phone ? ` (phone ${scale.phone.fontSize} / ${scale.phone.lineHeight})` : ''} · {meta.family}
         </Text>
       </Flex>
       <Text fontSize="12px" color="text.subtle" mb={2}>
@@ -71,7 +85,9 @@ export const Specimen = ({ role }) => {
         fontSize={scale.fontSize}
         lineHeight={scale.lineHeight}
         fontWeight={scale.fontWeight}
-        color="text.default"
+        letterSpacing={scale.letterSpacing}
+        textTransform={scale.textTransform}
+        color={role === 'eyebrow' ? 'text.subtle' : 'text.default'}
       >
         {SAMPLE}
       </Text>
@@ -100,6 +116,7 @@ export const ScaleTable = () => (
           <Box as="th" py={2} pr={4}>Size</Box>
           <Box as="th" py={2} pr={4}>Line height</Box>
           <Box as="th" py={2} pr={4}>Weight</Box>
+          <Box as="th" py={2} pr={4}>Tracking</Box>
           <Box as="th" py={2} pr={4}>Family</Box>
           <Box as="th" py={2}>Use</Box>
         </Box>
@@ -108,9 +125,10 @@ export const ScaleTable = () => (
         {Object.entries(sdlTypeScale).map(([role, scale]) => (
           <Box as="tr" key={role} borderTopWidth="1px" borderColor="border.default">
             <Box as="td" py={2} pr={4} fontFamily="mono" fontSize="12px">{role}</Box>
-            <Box as="td" py={2} pr={4}>{scale.fontSize}</Box>
-            <Box as="td" py={2} pr={4}>{scale.lineHeight}</Box>
+            <Box as="td" py={2} pr={4}>{scale.fontSize}{scale.phone ? ` (phone ${scale.phone.fontSize})` : ''}</Box>
+            <Box as="td" py={2} pr={4}>{scale.lineHeight}{scale.phone ? ` (${scale.phone.lineHeight})` : ''}</Box>
             <Box as="td" py={2} pr={4}>{scale.fontWeight}</Box>
+            <Box as="td" py={2} pr={4}>{scale.letterSpacing}</Box>
             <Box as="td" py={2} pr={4}>{ROLE_META[role].family}</Box>
             <Box as="td" py={2} color="text.muted">{ROLE_META[role].use}</Box>
           </Box>

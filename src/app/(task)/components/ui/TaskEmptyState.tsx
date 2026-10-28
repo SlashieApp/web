@@ -23,6 +23,7 @@ export function TaskEmptyState() {
       mx="auto"
       maxW="full"
       p={{ base: 6, md: 7 }}
+      borderWidth={0}
       boxShadow="e3"
       pointerEvents="auto"
     >

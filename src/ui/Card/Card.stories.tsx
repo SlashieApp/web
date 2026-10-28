@@ -48,7 +48,7 @@ export const Default: Story = {
   render: (args) => (
     <Card {...args}>
       <Stack gap={1}>
-        <Text fontWeight={700} color="text.default">
+        <Text fontWeight={500} color="text.default">
           Fix leaking kitchen tap
         </Text>
         <Text fontSize="sm" color="text.muted">
@@ -166,7 +166,7 @@ export const Interactive: Story = {
   render: (args) => (
     <Card {...args}>
       <Stack gap={1}>
-        <Text fontWeight={700} color="text.default">
+        <Text fontWeight={500} color="text.default">
           Fix leaking kitchen tap
         </Text>
         <Text fontSize="sm" color="text.muted">
@@ -195,7 +195,7 @@ export const WithStatus: Story = {
   render: () => (
     <Card layout="section" maxW="sm">
       <HStack justify="space-between">
-        <Text fontWeight={700} color="text.default">
+        <Text fontWeight={500} color="text.default">
           Garden tidy-up
         </Text>
         <Badge variant="success" dot shape="pill">
@@ -218,7 +218,7 @@ export const CustomHeader: Story = {
       maxW="sm"
       header={
         <HStack justify="space-between">
-          <Text fontWeight={800} color="text.default">
+          <Text fontWeight={600} color="text.default">
             Slashie Unlimited
           </Text>
           <Badge variant="success" dot>
@@ -299,7 +299,7 @@ export const AllVariants: Story = {
   render: () => (
     <Stack gap={5} maxW="md">
       <Card>
-        <Text fontWeight={700} color="text.default">
+        <Text fontWeight={500} color="text.default">
           Default wrapper
         </Text>
       </Card>
@@ -313,7 +313,7 @@ export const AllVariants: Story = {
         </Text>
       </Card>
       <Card interactive>
-        <Text fontWeight={700} color="text.default">
+        <Text fontWeight={500} color="text.default">
           Interactive (hover + focus ring)
         </Text>
       </Card>

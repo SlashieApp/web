@@ -142,7 +142,8 @@ export function TaskSummary() {
             <Heading
               as="h2"
               fontSize="lg"
-              fontWeight={700}
+              fontWeight={500}
+              letterSpacing="-0.01em"
               lineHeight="short"
               color="text.default"
             >

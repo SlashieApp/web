@@ -23,8 +23,9 @@ import type {
 } from '../../helpers/publicProfileModel'
 import bag from '../../i11n.json'
 
+/** A neutral cover band: `bg.subtle` into `border.default` and back. */
 const COVER =
-  'linear-gradient(115deg, var(--chakra-colors-status-success-soft) 0%, var(--chakra-colors-status-success-border) 58%, var(--chakra-colors-status-success-soft) 100%)'
+  'linear-gradient(115deg, var(--chakra-colors-bg-subtle) 0%, var(--chakra-colors-border-default) 58%, var(--chakra-colors-bg-subtle) 100%)'
 
 export type PublicProfileHeroProps = {
   model: Pick<
@@ -89,9 +90,9 @@ export function PublicProfileHero({
             <Heading
               as={nameAs}
               fontSize={{ base: '2xl', md: '3xl' }}
-              fontWeight={700}
+              fontWeight={500}
               lineHeight="1.2"
-              letterSpacing="-0.01em"
+              letterSpacing={{ base: '-0.02em', md: '-0.025em' }}
               color="text.default"
               overflowWrap="anywhere"
             >
@@ -120,7 +121,7 @@ export function PublicProfileHero({
           </Badge>
         </HStack>
         {model.headline ? (
-          <Text fontWeight={600} color="text.default">
+          <Text fontWeight={500} color="text.default">
             {model.headline}
           </Text>
         ) : null}
@@ -180,7 +181,7 @@ function StatValue({ children }: { children: ReactNode }) {
     <Text
       fontFamily="heading"
       fontSize="lg"
-      fontWeight={700}
+      fontWeight={600}
       lineHeight="1.2"
       color="text.default"
       fontVariantNumeric="tabular-nums"

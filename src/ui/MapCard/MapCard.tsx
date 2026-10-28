@@ -59,7 +59,7 @@ export function MapCard({
   return (
     <Box
       w="full"
-      borderRadius="lg"
+      borderRadius="xl"
       overflow="hidden"
       borderWidth="1px"
       borderColor="border.default"

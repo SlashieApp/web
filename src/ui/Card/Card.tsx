@@ -17,6 +17,8 @@ import {
   mergeSdlPressCss,
   sdlCard,
   sdlCardSurface,
+  sdlEyebrow,
+  sdlFigure,
   sdlFocusRing,
   sdlMotion,
   sdlTransitionWithPress,
@@ -141,17 +143,7 @@ function CardTitleBlock({
       <Stack gap={1}>
         {eyebrow || (!heading && headingAccessory) ? (
           <HStack gap={2} align="center" flexWrap="wrap">
-            {eyebrow ? (
-              <Text
-                fontSize="xs"
-                fontWeight={500}
-                color="text.muted"
-                letterSpacing="0.06em"
-                textTransform="uppercase"
-              >
-                {eyebrow}
-              </Text>
-            ) : null}
+            {eyebrow ? <Text {...sdlEyebrow}>{eyebrow}</Text> : null}
             {!heading ? headingAccessory : null}
           </HStack>
         ) : null}
@@ -161,6 +153,7 @@ function CardTitleBlock({
               as="h3"
               fontSize={{ base: '16px', md: '20px' }}
               fontWeight={500}
+              letterSpacing={{ base: '0', md: '-0.015em' }}
               color="text.default"
               lineHeight="short"
             >
@@ -287,7 +280,7 @@ export function Card({
           {metric ? (
             <Text
               fontSize="lg"
-              fontWeight={600}
+              {...sdlFigure}
               color="text.default"
               lineHeight="short"
             >

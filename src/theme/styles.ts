@@ -1,15 +1,34 @@
 import type { SystemStyleObject } from '@chakra-ui/react'
 
 /**
- * SDL elevation scale (light mode). Dark mode prefers a lighter surface + 1px
- * border over heavy shadow; components handle that via `border.default`.
+ * SDL elevation scale (light mode): a hairline first, then the least shadow
+ * that does the job, in ink at low alpha. `e3` and `e4` carry their own 1px
+ * ring, so a surface that uses them has no border of its own. Dark mode prefers
+ * a lighter surface + 1px border over heavy shadow; components handle that via
+ * `border.default`.
+ *
+ *   e1  cards at rest (with a 1px `border.default`)
+ *   e2  hover, raised
+ *   e3  floating chrome, menus, popovers (ring, no border)
+ *   e4  drawers, sheets (ring, no border)
+ *   e5  dialogs
  */
 export const sdlElevation = {
-  e1: '0 1px 2px rgba(10, 21, 18, 0.06)',
-  e2: '0 2px 8px rgba(10, 21, 18, 0.08)',
-  e3: '0 8px 24px rgba(10, 21, 18, 0.10)',
-  e4: '0 16px 40px rgba(10, 21, 18, 0.14)',
-  e5: '0 24px 64px rgba(10, 21, 18, 0.18)',
+  e1: '0 1px 2px rgba(10, 21, 18, 0.04), 0 2px 10px rgba(10, 21, 18, 0.05)',
+  e2: '0 2px 4px rgba(10, 21, 18, 0.05), 0 6px 16px rgba(10, 21, 18, 0.07)',
+  e3: '0 0 0 1px rgba(10, 21, 18, 0.06), 0 8px 24px rgba(10, 21, 18, 0.08)',
+  e4: '0 0 0 1px rgba(10, 21, 18, 0.04), 0 16px 40px rgba(10, 21, 18, 0.12)',
+  e5: '0 25px 50px -12px rgba(10, 21, 18, 0.25)',
+} as const
+
+/**
+ * Font stacks. `--font-geist` and `--font-geist-mono` are set on `<html>` by
+ * next/font (`src/app/layout.tsx`), where Chakra resolves its font tokens.
+ * Geist has no CJK glyphs, so zh-HK falls back to the system font.
+ */
+export const sdlFonts = {
+  sans: 'var(--font-geist), "Geist", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif',
+  mono: 'var(--font-geist-mono), "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace',
 } as const
 
 /** SDL motion. Animate transform/opacity only; honor prefers-reduced-motion. */
@@ -31,21 +50,118 @@ export const sdlMotion = {
   },
 } as const
 
-/** SDL type scale — role → size/line-height/weight. Consumed by Text/Heading + docs. */
+/** One step of the type scale. */
+type SdlTypeStep = {
+  fontSize: string
+  lineHeight: string
+  fontWeight: 400 | 500
+  letterSpacing: string
+  textTransform?: 'uppercase'
+  /** Size and line height below `md`, when a phone differs. */
+  phone?: { fontSize: string; lineHeight: string }
+}
+
+/**
+ * SDL type scale: role → size / line height / weight / tracking (tone refresh,
+ * Train 1). Every heading is 500 and none is heavier. Prices, counts and other
+ * figures are 600 with tabular figures where they are set, not in a role.
+ * Consumed by Chakra `textStyles` + docs. The eyebrow's colour is `text.subtle`,
+ * set where it is used.
+ */
 export const sdlTypeScale = {
-  'display-xl': { fontSize: '48px', lineHeight: '1.1', fontWeight: 700 },
-  'display-lg': { fontSize: '36px', lineHeight: '1.15', fontWeight: 700 },
-  'heading-xl': { fontSize: '28px', lineHeight: '1.2', fontWeight: 600 },
-  'heading-lg': { fontSize: '24px', lineHeight: '1.25', fontWeight: 600 },
-  'heading-md': { fontSize: '20px', lineHeight: '1.3', fontWeight: 600 },
-  'heading-sm': { fontSize: '18px', lineHeight: '1.35', fontWeight: 600 },
-  'text-lg': { fontSize: '18px', lineHeight: '1.55', fontWeight: 400 },
-  'text-md': { fontSize: '16px', lineHeight: '1.5', fontWeight: 400 },
-  'text-sm': { fontSize: '14px', lineHeight: '1.45', fontWeight: 400 },
-  'text-xs': { fontSize: '12px', lineHeight: '1.35', fontWeight: 500 },
-  'label-md': { fontSize: '14px', lineHeight: '1.2', fontWeight: 600 },
-  'mono-sm': { fontSize: '14px', lineHeight: '1.5', fontWeight: 500 },
-} as const
+  'display-2xl': {
+    fontSize: '72px',
+    lineHeight: '72px',
+    fontWeight: 500,
+    letterSpacing: '-0.045em',
+    phone: { fontSize: '44px', lineHeight: '46px' },
+  },
+  'display-xl': {
+    fontSize: '56px',
+    lineHeight: '58px',
+    fontWeight: 500,
+    letterSpacing: '-0.04em',
+  },
+  'display-lg': {
+    fontSize: '44px',
+    lineHeight: '48px',
+    fontWeight: 500,
+    letterSpacing: '-0.035em',
+  },
+  'heading-xl': {
+    fontSize: '34px',
+    lineHeight: '41px',
+    fontWeight: 500,
+    letterSpacing: '-0.03em',
+  },
+  'heading-lg': {
+    fontSize: '24px',
+    lineHeight: '30px',
+    fontWeight: 500,
+    letterSpacing: '-0.02em',
+  },
+  'heading-md': {
+    fontSize: '20px',
+    lineHeight: '26px',
+    fontWeight: 500,
+    letterSpacing: '-0.015em',
+  },
+  'heading-sm': {
+    fontSize: '18px',
+    lineHeight: '24px',
+    fontWeight: 500,
+    letterSpacing: '-0.01em',
+  },
+  'text-lg': {
+    fontSize: '18px',
+    lineHeight: '28px',
+    fontWeight: 400,
+    letterSpacing: '0',
+  },
+  'text-md': {
+    fontSize: '16px',
+    lineHeight: '24px',
+    fontWeight: 400,
+    letterSpacing: '0',
+  },
+  'text-sm': {
+    fontSize: '14px',
+    lineHeight: '21px',
+    fontWeight: 400,
+    letterSpacing: '0',
+  },
+  'text-xs': {
+    fontSize: '12px',
+    lineHeight: '16px',
+    fontWeight: 500,
+    letterSpacing: '0',
+  },
+  'label-md': {
+    fontSize: '14px',
+    lineHeight: '17px',
+    fontWeight: 500,
+    letterSpacing: '0',
+  },
+  'label-sm': {
+    fontSize: '12px',
+    lineHeight: '14px',
+    fontWeight: 500,
+    letterSpacing: '0.02em',
+  },
+  eyebrow: {
+    fontSize: '12px',
+    lineHeight: '16px',
+    fontWeight: 500,
+    letterSpacing: '0.08em',
+    textTransform: 'uppercase',
+  },
+  'mono-sm': {
+    fontSize: '14px',
+    lineHeight: '21px',
+    fontWeight: 500,
+    letterSpacing: '0',
+  },
+} as const satisfies Record<string, SdlTypeStep>
 export type SdlTypeRole = keyof typeof sdlTypeScale
 
 /** SDL spacing scale (px), 4px base. Mirrors Chakra default spacing tokens. */
@@ -97,19 +213,41 @@ export const sdlCardSurface: SystemStyleObject = {
   boxShadow: sdlCard.shadow,
 }
 
-/** Same surface, lifted for chrome that floats over the map. */
+/**
+ * Same surface, lifted for chrome that floats over the map. `e3` carries its own
+ * 1px ring, so it has no border of its own.
+ */
 export const sdlOverlaySurface: SystemStyleObject = {
   ...sdlCardSurface,
+  borderWidth: 0,
   boxShadow: sdlCard.overlayShadow,
 }
 
 /**
- * Support-copy colors that must meet WCAG AA on their paired surfaces.
- * `chakraSystem` semantic tokens consume these; do not re-type the hex.
+ * Prices, counts and other figures: weight 600 with tabular figures. Spread it
+ * onto the `Text` that holds the number.
+ */
+export const sdlFigure = {
+  fontWeight: 600,
+  fontVariantNumeric: 'tabular-nums',
+} as const satisfies SystemStyleObject
+
+/**
+ * The eyebrow: a small uppercase label above a heading (12/16, 500, +0.08em),
+ * in `text.subtle`. The `eyebrow` text style cannot carry a colour.
+ */
+export const sdlEyebrow = {
+  textStyle: 'eyebrow',
+  color: 'text.subtle',
+} as const satisfies SystemStyleObject
+
+/**
+ * Support-copy colors on dark surfaces that must meet WCAG AA on their paired
+ * surfaces. `chakraSystem` semantic tokens consume these; do not re-type the
+ * hex. (Light support copy is the `text.subtle` role: `#6B6B74`, AA on white,
+ * `#FAFAFA` and `#F4F4F5`.)
  */
 export const sdlTextAa = {
-  /** ≥4.5:1 on `bg.canvas` / `bg.surface` (light). */
-  lightSubtle: '#5F6A65',
   /** ≥4.5:1 on `bg.inverted` / `bg.invertedSurface`. */
   invertedMuted: '#C7CECB',
   onBrandMuted: 'rgba(255, 255, 255, 0.88)',
@@ -148,13 +286,15 @@ export const sdlFocusRing: SystemStyleObject = {
   outlineOffset: '2px',
 }
 
-/** Bordered form shells (`Input`, `Select`) — SDL inputs. */
+/**
+ * Bordered form shells (`Input`, `Select`). SDL inputs: 8px corners, a 1px
+ * `border.strong` hairline and no shadow; the border steps to `border.hover`.
+ */
 export const formControlShellInteraction = {
-  boxShadow: 'e1',
   transitionProperty: 'border-color, box-shadow',
   transitionDuration: sdlMotion.duration.moderate,
   _hover: {
-    borderColor: 'border.strong',
+    borderColor: 'border.hover',
   },
   _focusWithin: {
     borderColor: 'border.focus',
@@ -306,15 +446,14 @@ export function mergeSdlPressCss(
   }
 }
 
-/** Standalone bordered field (`Textarea`, `OtpInput`). */
+/** Standalone bordered field (`Textarea`, `OtpInput`), as the shell above. */
 export const formControlFieldInteraction = {
   outline: 'none',
-  boxShadow: 'e1',
   fontSize: '16px',
   transitionProperty: 'border-color, box-shadow',
   transitionDuration: sdlMotion.duration.moderate,
   _hover: {
-    borderColor: 'border.strong',
+    borderColor: 'border.hover',
   },
   _focus: focusRingless,
   _focusVisible: {

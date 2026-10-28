@@ -141,10 +141,11 @@ export const Top: Story = {
     const bar = part(canvasElement, 'bar')
     const h1 = heading(canvasElement)
     near(bar.getBoundingClientRect().height, BAR_H)
-    // The big title: 34px, bold, 8px under the bar, on the content's left edge.
+    // The big title: 34px, 500, -0.03em, 8px under the bar, on the content's left edge.
     const style = getComputedStyle(h1)
     expect(style.fontSize).toBe('34px')
-    expect(style.fontWeight).toBe('700')
+    expect(style.fontWeight).toBe('500')
+    near(Number.parseFloat(style.letterSpacing), 34 * -0.03)
     near(Number.parseFloat(style.lineHeight), 34 * 1.2)
     near(
       h1.getBoundingClientRect().top,
@@ -227,7 +228,8 @@ export const Collapsed: Story = {
     expect(getComputedStyle(part(canvasElement, 'traveller')).opacity).toBe('0')
     const style = getComputedStyle(barTitle)
     expect(style.fontSize).toBe('18px')
-    expect(style.fontWeight).toBe('600')
+    expect(style.fontWeight).toBe('500')
+    near(Number.parseFloat(style.letterSpacing), 18 * -0.01)
     expect(style.lineHeight).toBe('24px')
     // 40px in from the content's left edge, centred in the 56px row.
     const box = barTitle.getBoundingClientRect()
@@ -795,7 +797,7 @@ export const LongTitleClamped: Story = {
     // Still the one h1, in the title's look.
     await expect(canvas.getAllByRole('heading')).toHaveLength(1)
     expect(getComputedStyle(toggle).fontSize).toBe('34px')
-    expect(getComputedStyle(toggle).fontWeight).toBe('700')
+    expect(getComputedStyle(toggle).fontWeight).toBe('500')
     near(Number.parseFloat(getComputedStyle(toggle).lineHeight), TITLE_LINE)
     // A toggle that is closed.
     await expect(toggle).toHaveAttribute('aria-expanded', 'false')

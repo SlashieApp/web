@@ -13,6 +13,8 @@ the live `var(--chakra-colors-…)` CSS variable, primitives mirror the scale in
 so the docs cannot drift from the shipped tokens.
 
 1. **Primitives** (`tokens.colors.{green,neutral,plum,status}`) — the raw scale values.
+   The neutral ramp is zinc (the tone refresh, Train 1); green, plum, the status
+   families and the ink `#0A1512` are unchanged.
 2. **Semantic roles** (`semanticTokens.colors.{bg,text,border,action,accent,status}`) —
    the **only** thing components and pages reference. Never reference a primitive
    (`green.400`) or a raw hex in feature code.
@@ -28,9 +30,20 @@ semantic role _values_ differ. Both modes are rendered side-by-side below.
   never white. The same applies to solid danger fills.
 - **Status is never color alone.** Pair a dot/icon + label (use the Badge `dot`
   prop). Domain status chips compose `Badge` outside `@ui`.
-- **Support copy is AA.** `text.subtle`, `text.onInvertedMuted`, and
-  `text.onBrandMuted` / `onBrandSubtle` are sized for WCAG AA on their paired
-  surfaces (`sdlTextAa` in `src/theme/styles.ts`).
+- **Support copy is AA.** `text.subtle` (`#6B6B74`) is AA on white, `#FAFAFA` and
+  `#F4F4F5`, so placeholders, eyebrows and inactive tabs use it on any light
+  surface. `text.onInvertedMuted` and `text.onBrandMuted` / `onBrandSubtle` are
+  sized for WCAG AA on their dark surfaces (`sdlTextAa` in `src/theme/styles.ts`).
+- **Where green goes, and where it stops.** Green goes on the main action of a
+  screen, links and text actions (`text.link`, green 800), focus rings, active
+  bars and state icons (`border.focus` / `accent.active`, green 600, 3.2:1 on
+  white), map pins, success, and selected chips, toggles and radios. It stops at
+  section backgrounds, washes and gradients, the footer, decorative props, step
+  numbers, categories and big labels, and a second green button on one screen.
+  Green 400 (`#00DC82`) is 1.8:1 on white: fills only, never text or a thin line.
+- **Tags.** A tag has a 1px border from its family (`status.<family>.border`).
+  Categories are neutral (`bg.subtle`, `border.default`, `text.muted`); green is
+  for state.
 
 ## Palette
 

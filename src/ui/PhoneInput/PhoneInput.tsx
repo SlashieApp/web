@@ -3,7 +3,7 @@
 import { Box, HStack, Text } from '@chakra-ui/react'
 import type { ReactNode } from 'react'
 
-import { sdlMotion } from '@/theme/styles'
+import { sdlFigure, sdlMotion } from '@/theme/styles'
 import {
   DEFAULT_CALLING_CODE,
   combinePhoneParts,
@@ -53,7 +53,7 @@ function DialPrefix({ disabled }: { disabled: boolean }) {
       /* TODO(sdl): verify role — `badgeBg` maps to status.success.soft, but a
          dialling-code prefix is neutral chrome (not a status), so it uses the
          subtle surface to match the sibling Input shell. */
-      borderColor="border.default"
+      borderColor="border.strong"
       bg="bg.subtle"
       color="text.muted"
       transitionProperty="border-color, background-color, color"
@@ -62,7 +62,7 @@ function DialPrefix({ disabled }: { disabled: boolean }) {
       opacity={disabled ? 0.6 : 1}
       aria-hidden
     >
-      <Text fontSize="sm" fontWeight={600} whiteSpace="nowrap">
+      <Text fontSize="sm" {...sdlFigure} whiteSpace="nowrap">
         {DEFAULT_CALLING_CODE}
       </Text>
     </Box>

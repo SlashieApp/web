@@ -19,7 +19,7 @@ function BlankScreen() {
       gap={1}
       bg="bg.canvas"
     >
-      <Text fontWeight={700}>375 x 812 screen</Text>
+      <Text fontWeight={500}>375 x 812 screen</Text>
       <Text fontSize="sm" color="text.muted">
         Scaled to the width of the frame
       </Text>

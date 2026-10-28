@@ -33,7 +33,12 @@ function StatusBar() {
       color="text.default"
       aria-hidden
     >
-      <Text fontSize="16px" fontWeight={700} letterSpacing="-0.01em">
+      <Text
+        fontSize="16px"
+        fontWeight={600}
+        fontVariantNumeric="tabular-nums"
+        letterSpacing="-0.01em"
+      >
         9:41
       </Text>
       <Box

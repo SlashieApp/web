@@ -2,7 +2,7 @@ import { Meta } from '@storybook/addon-docs/blocks'
 import { Box, ChakraProvider, Stack, Text } from '@chakra-ui/react'
 
 import { darkSystem, lightSystem } from '@/theme/chakraSystem'
-import { sdlElevation, sdlMotion, sdlRadii, sdlSpace } from '@/theme/styles'
+import { sdlElevation, sdlEyebrow, sdlMotion, sdlRadii, sdlSpace } from '@/theme/styles'
 
 <Meta title="Foundations/Elevation" />
 
@@ -11,8 +11,12 @@ import { sdlElevation, sdlMotion, sdlRadii, sdlSpace } from '@/theme/styles'
 SDL ships a single elevation scale, `sdlElevation` (`e1`–`e5`), exported from
 `@/theme/styles` and registered as Chakra `shadows` tokens in
 `src/theme/chakraSystem.ts`. Reference elevation by token (`boxShadow="e3"`),
-never as a raw `box-shadow` string in feature code. The legacy
-`xs/sm/md/lg/xl` shadow names are kept as aliases of `e1`–`e5` during migration.
+never as a raw `box-shadow` string in feature code. Chakra's own `xs/sm/md/lg/xl`
+shadow names are its defaults, not aliases of `e1`–`e5`: use `e1`–`e5`.
+
+A hairline first, then the least shadow that does the job, in ink at low alpha.
+`e3` and `e4` carry their own 1px ring, so a surface that uses them has no border
+of its own.
 
 Every value below is read live from the theme modules, so this page cannot
 drift from code.
@@ -20,18 +24,21 @@ drift from code.
 export const LEVELS = Object.keys(sdlElevation)
 
 export const USAGE = {
-  e1: 'Resting cards (task, auth, dashboard). The default surface lift.',
-  e2: 'Hover/raised cards, sticky bars, featured pricing.',
-  e3: 'Map overlays, dropdowns, menus, floating chrome.',
-  e4: 'Dialogs, drawers, sheets.',
-  e5: 'Toasts and transient overlays that float above everything.',
+  e1: 'Cards at rest, with a 1px border.default hairline.',
+  e2: 'Hover and raised cards, sticky bars, featured pricing.',
+  e3: 'Floating chrome, menus, popovers, map overlays. A ring, no border.',
+  e4: 'Drawers and sheets. A ring, no border.',
+  e5: 'Dialogs.',
 }
+
+{/* Only e1 and e2 sit on a border: e3 and e4 draw their own ring, e5 is a lift. */}
+export const WITH_BORDER = ['e1', 'e2']
 
 export const ElevationCard = ({ level }) => (
   <Box
     bg="bg.surface"
     color="text.default"
-    borderWidth="1px"
+    borderWidth={WITH_BORDER.includes(level) ? '1px' : 0}
     borderColor="border.default"
     borderRadius={`${sdlRadii.lg}px`}
     boxShadow={level}
@@ -40,7 +47,7 @@ export const ElevationCard = ({ level }) => (
     transitionDuration={sdlMotion.duration.moderate}
     transitionTimingFunction={sdlMotion.easing.standard}
   >
-    <Text fontWeight={600} fontSize="md">
+    <Text fontWeight={500} fontSize="md">
       {level}
     </Text>
     <Text color="text.muted" fontSize="sm" mt={`${sdlSpace[1]}px`}>
@@ -70,14 +77,7 @@ export const ModeColumn = ({ mode, system }) => (
       borderRadius={`${sdlRadii.xl}px`}
       p={`${sdlSpace[6]}px`}
     >
-      <Text
-        color="text.muted"
-        fontSize="xs"
-        fontWeight={600}
-        textTransform="uppercase"
-        letterSpacing="0.08em"
-        mb={`${sdlSpace[4]}px`}
-      >
+      <Text {...sdlEyebrow} mb={`${sdlSpace[4]}px`}>
         {mode}
       </Text>
       <Stack gap={`${sdlSpace[4]}px`}>
@@ -108,9 +108,9 @@ Every card-shaped surface uses `sdlCard` from `@/theme/styles`:
 | --- | --- | --- | --- |
 | Rest | `lg` | `e1` | Task cards, auth form cards, dashboard sections |
 | Raised | `lg` | `e2` | Hover, selected, featured plan |
-| Overlay | `lg` | `e3` | Map empty state, browse filters, search-this-area |
+| Overlay | `lg` | `e3` (a ring, no border) | Map empty state, browse filters, search-this-area |
 
-`<Card>` applies the rest recipe. Feature `Box` shells should spread `sdlCardSurface` or `sdlOverlaySurface` instead of inventing a second radius.
+`<Card>` applies the rest recipe. Feature `Box` shells should spread `sdlCardSurface` or `sdlOverlaySurface` instead of inventing a second radius. `sdlOverlaySurface` has no border, because `e3` carries its own ring.
 
 ## Dark mode: prefer border over heavy shadow
 
@@ -156,11 +156,7 @@ above transition over `{sdlMotion.duration.moderate}` using the
               key={head}
               as="th"
               textAlign="left"
-              fontSize="xs"
-              fontWeight={600}
-              color="text.muted"
-              textTransform="uppercase"
-              letterSpacing="0.06em"
+              {...sdlEyebrow}
               p={`${sdlSpace[3]}px`}
             >
               {head}

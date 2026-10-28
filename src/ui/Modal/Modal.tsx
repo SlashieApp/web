@@ -207,7 +207,8 @@ export function Modal({
               <DialogTitle
                 fontFamily="body"
                 fontSize="20px"
-                fontWeight={600}
+                fontWeight={500}
+                letterSpacing="-0.015em"
                 color="text.default"
                 lineHeight="short"
                 flex={1}

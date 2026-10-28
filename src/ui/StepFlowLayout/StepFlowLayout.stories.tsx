@@ -73,7 +73,7 @@ function DemoStepper({ activeIndex }: { activeIndex: number }) {
               alignItems="center"
               justifyContent="center"
               fontSize="xs"
-              fontWeight={700}
+              fontWeight={500}
               bg={done ? 'action.primary' : active ? 'bg.surface' : 'bg.subtle'}
               color={done ? 'text.onGreen' : 'text.muted'}
               borderWidth={done ? 0 : '1px'}
@@ -109,10 +109,10 @@ function DemoAside() {
       boxShadow="e1"
       h="fit-content"
     >
-      <Text fontSize="xs" fontWeight={700} color="text.muted">
+      <Text fontSize="xs" fontWeight={500} color="text.muted">
         YOU ARE QUOTING ON
       </Text>
-      <Text fontWeight={700}>Mount bookshelf on living room wall</Text>
+      <Text fontWeight={500}>Mount bookshelf on living room wall</Text>
       <Text fontSize="sm" color="text.muted">
         Westminster, London · Budget £120
       </Text>
@@ -164,10 +164,10 @@ const demoMobileTop = (
     borderBottomWidth="1px"
     borderColor="border.default"
   >
-    <Text fontSize="xs" fontWeight={700} color="text.muted">
+    <Text fontSize="xs" fontWeight={500} color="text.muted">
       YOU ARE QUOTING ON
     </Text>
-    <Text fontSize="sm" fontWeight={700}>
+    <Text fontSize="sm" fontWeight={500}>
       Mount bookshelf on living room wall
     </Text>
     <Text fontSize="xs" color="text.muted">

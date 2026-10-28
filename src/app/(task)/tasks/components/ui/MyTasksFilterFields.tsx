@@ -33,7 +33,7 @@ function Group({ label, children }: { label: string; children: ReactNode }) {
         p={0}
         mb={2}
         fontSize="sm"
-        fontWeight={700}
+        fontWeight={500}
         color="text.default"
       >
         {label}

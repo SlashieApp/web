@@ -28,7 +28,7 @@ export const SpaceScale = () => (
           flexShrink={0}
           fontFamily="mono"
           fontSize="sm"
-          fontWeight={600}
+          fontWeight={500}
           color="text.default"
         >
           {token}
@@ -72,7 +72,7 @@ export const SpaceInContext = () => (
     style={{ padding: `${sdlSpace[6]}px` }}
   >
     <Stack style={{ gap: `${sdlSpace[3]}px` }}>
-      <Text fontSize="md" fontWeight={600} color="text.default">
+      <Text fontSize="md" fontWeight={500} color="text.default">
         Padded surface
       </Text>
       <Text fontSize="sm" color="text.muted">
@@ -89,6 +89,14 @@ export const SpaceInContext = () => (
 SDL corner radii. Use `borderRadius="md|lg|xl|2xl|full"` (the Chakra radii tokens), which
 map to the pixel values below. `full` produces pills and circular avatars.
 
+| Element | Radius |
+| --- | --- |
+| Buttons (every size and variant), icon buttons, chips, tags, badges, search fields, map price pins | pill (`full`) |
+| Inputs, selects, text areas, phone and code inputs | 8 (`md`) |
+| Cards (task, quote, profile, section) | 12 (`lg`) |
+| Panels, map cards, dropdown panels | 16 (`xl`) |
+| Sheets and dialogs | 20 (`2xl`) |
+
 export const RadiusSwatches = () => (
   <HStack gap={6} flexWrap="wrap" align="flex-start">
     {Object.entries(sdlRadii).map(([token, px]) => {
@@ -102,7 +110,7 @@ export const RadiusSwatches = () => (
             borderColor="border.strong"
             borderRadius={token}
           />
-          <Text fontFamily="mono" fontSize="sm" fontWeight={600} color="text.default">
+          <Text fontFamily="mono" fontSize="sm" fontWeight={500} color="text.default">
             {token}
           </Text>
           <Text fontFamily="mono" fontSize="xs" color="text.muted">
@@ -118,8 +126,8 @@ export const RadiusSwatches = () => (
 
 ### Radius in context
 
-The `full` radius applied to a green pill. Per the SDL green-ink rule, any green fill
-pairs with `text.onGreen` ink, never white.
+The `full` radius applied to a green pill, the `md` radius on an input and the `lg` radius
+on a card. Per the SDL green-ink rule, any green fill pairs with `text.onGreen` ink, never white.
 
 export const RadiusInContext = () => (
   <HStack gap={4} flexWrap="wrap">
@@ -130,9 +138,22 @@ export const RadiusInContext = () => (
       bg="action.primary"
       color="text.onGreen"
       fontSize="sm"
-      fontWeight={600}
+      fontWeight={500}
     >
       Pill (full)
+    </Box>
+    <Box
+      px={4}
+      py={2}
+      borderRadius="md"
+      bg="bg.surface"
+      borderWidth="1px"
+      borderColor="border.strong"
+      color="text.default"
+      fontSize="sm"
+      fontWeight={500}
+    >
+      Input (md)
     </Box>
     <Box
       px={4}
@@ -143,7 +164,7 @@ export const RadiusInContext = () => (
       borderColor="border.default"
       color="text.default"
       fontSize="sm"
-      fontWeight={600}
+      fontWeight={500}
     >
       Card (lg)
     </Box>

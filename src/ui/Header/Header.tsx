@@ -18,6 +18,7 @@ import { useMessagesOptional } from '@/app/(messages)/messages/context/MessagesP
 import { formatMessage } from '@/i18n/loadPageI11n'
 import { useI11n } from '@/i18n/useI11n'
 import { PAGE_CONTAINER_MAX_W, PAGE_GUTTER_X } from '@/theme/pageContainer'
+import { sdlFigure } from '@/theme/styles'
 import {
   APP_HOME,
   WORKER_SEARCH_HREF,
@@ -88,7 +89,7 @@ function DesktopPrimaryNav({ signedIn }: { signedIn: boolean }) {
 
   const linkProps = {
     fontSize: 'sm',
-    fontWeight: 600,
+    fontWeight: 500,
     px: 2,
     py: 1,
     borderRadius: 'md',
@@ -138,7 +139,7 @@ function DesktopPrimaryNav({ signedIn }: { signedIn: boolean }) {
                 px={1}
                 borderRadius="full"
                 fontSize="10px"
-                fontWeight={700}
+                {...sdlFigure}
                 bg="status.success.solid"
                 color="text.onGreen"
                 justifyContent="center"

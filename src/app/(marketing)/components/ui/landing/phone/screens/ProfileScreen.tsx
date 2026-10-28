@@ -16,10 +16,10 @@ import { enterStyle, useDemoBeat } from '../useDemoBeat'
 function Stat({ value, label }: { value: React.ReactNode; label: string }) {
   return (
     <Stack gap={0} flex={1} align="center">
-      <Text fontSize="18px" fontWeight={800}>
+      <Text fontSize="18px" fontWeight={600} fontVariantNumeric="tabular-nums">
         {value}
       </Text>
-      <Text fontSize="11px" color="text.muted" fontWeight={600}>
+      <Text fontSize="11px" color="text.muted" fontWeight={500}>
         {label}
       </Text>
     </Stack>
@@ -55,7 +55,7 @@ export function ProfileScreen({
             <InitialAvatar initials={t.initials} size={80} />
           </Box>
           <HStack gap="6px">
-            <Text fontSize="21px" fontWeight={800}>
+            <Text fontSize="21px" fontWeight={500}>
               {t.name}
             </Text>
             <Box color="status.success.fg" display="inline-flex">
@@ -99,14 +99,14 @@ export function ProfileScreen({
               bg="status.success.soft"
               color="status.success.fg"
               fontSize="12px"
-              fontWeight={700}
+              fontWeight={500}
             >
               {skill}
             </Box>
           ))}
         </HStack>
 
-        <Text fontSize="16px" fontWeight={800} style={enterStyle(entered, 3)}>
+        <Text fontSize="16px" fontWeight={500} style={enterStyle(entered, 3)}>
           {t.reviewsTitle}
         </Text>
         {shown.map((review, index) => (
@@ -123,7 +123,7 @@ export function ProfileScreen({
             }
           >
             <HStack justify="space-between">
-              <Text fontSize="13px" fontWeight={700}>
+              <Text fontSize="13px" fontWeight={500}>
                 {review.author}
               </Text>
               <Stars filled={5} size={11} />
@@ -146,7 +146,7 @@ export function ProfileScreen({
                 alignItems="center"
                 justifyContent="center"
                 fontSize="14px"
-                fontWeight={700}
+                fontWeight={500}
               >
                 {t.seeAll}
               </Box>

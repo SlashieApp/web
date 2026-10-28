@@ -117,7 +117,7 @@ function WorkerTodos({
       as="section"
       aria-label={t.todosTitle}
     >
-      <Text fontSize="sm" fontWeight={700}>
+      <Text fontSize="sm" fontWeight={500}>
         {t.todosTitle}
       </Text>
       {todos.map((todo) => {

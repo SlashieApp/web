@@ -30,7 +30,7 @@ import { budgetKindLabel } from '@/app/(task)/tasks/[slug]/helpers/taskDetailUti
 import detailBag from '@/app/(task)/tasks/[slug]/i11n.json'
 import { formatMessage } from '@/i18n/loadPageI11n'
 import { useI11n } from '@/i18n/useI11n'
-import { sdlMotion } from '@/theme/styles'
+import { sdlFigure, sdlMotion } from '@/theme/styles'
 import { formatPounds, formatRelativePosted } from '@/utils/dashboardHelpers'
 import { isOrderClosed, taskOrderSectionHref } from '@/utils/orderHelpers'
 import { taskPublicLocationLabel } from '@/utils/taskLocationDisplay'
@@ -116,7 +116,7 @@ export function TaskCardWorkerQuote({
           >
             <Stack gap={2} minW={0} flex={1}>
               {categoryLabel ? (
-                <Badge variant="blue" size="sm" alignSelf="flex-start">
+                <Badge variant="neutral" size="sm" alignSelf="flex-start">
                   {categoryLabel}
                 </Badge>
               ) : null}
@@ -135,14 +135,14 @@ export function TaskCardWorkerQuote({
               <HStack gap={2} flexWrap="wrap" align="center">
                 <MetaItem icon={<LuWallet size={14} />}>
                   Your quote{' '}
-                  <Text as="span" fontWeight={700} color="text.default">
+                  <Text as="span" {...sdlFigure} color="text.default">
                     {quotePence != null && quotePence > 0
                       ? formatPounds(quotePence)
                       : '—'}
                   </Text>
                 </MetaItem>
                 {priceKindLabel ? (
-                  <Badge variant="success" size="sm">
+                  <Badge variant="neutral" size="sm">
                     {priceKindLabel}
                   </Badge>
                 ) : null}
@@ -222,7 +222,7 @@ export function TaskCardWorkerQuote({
                   </Box>
                   <Stack gap={0} minW={0}>
                     {scheduleLabel ? (
-                      <Text fontSize="sm" fontWeight={700} color="text.default">
+                      <Text fontSize="sm" {...sdlFigure} color="text.default">
                         {scheduleLabel}
                       </Text>
                     ) : null}
@@ -303,13 +303,13 @@ function WorkerQuoteMessagePanel({
   return (
     <Box
       borderRadius="lg"
-      bg="status.success.soft"
+      bg="bg.subtle"
       px={4}
       py={3}
       h="full"
       minH={{ md: '120px' }}
     >
-      <Text fontSize="sm" fontWeight={700} color="text.default" mb={2}>
+      <Text fontSize="sm" fontWeight={500} color="text.default" mb={2}>
         Your message
       </Text>
       <Text fontSize="sm" color="text.muted" lineHeight="tall">
@@ -333,7 +333,7 @@ function WorkerQuoteProgressTimeline({
               <ProgressStepDot done={step.done} />
               <Text
                 fontSize="xs"
-                fontWeight={700}
+                fontWeight={500}
                 color={step.done ? 'text.default' : 'text.muted'}
                 textAlign="center"
               >

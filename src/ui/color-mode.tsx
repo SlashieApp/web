@@ -27,7 +27,7 @@ function ColorModeBaseBgSync() {
     (node: HTMLSpanElement | null) => {
       if (!node || typeof document === 'undefined') return
       document.body.style.backgroundColor =
-        'var(--chakra-colors-bg-canvas, #F7F9F8)'
+        'var(--chakra-colors-bg-canvas, #FAFAFA)'
     },
     [],
   )

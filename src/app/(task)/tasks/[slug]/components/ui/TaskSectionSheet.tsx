@@ -64,7 +64,7 @@ export function TaskSectionSheet({
           {icon}
         </Box>
         <Stack gap={0} flex={1} minW={0}>
-          <Text fontWeight={600} color="text.default">
+          <Text fontWeight={500} color="text.default">
             {title}
           </Text>
           {summary ? (

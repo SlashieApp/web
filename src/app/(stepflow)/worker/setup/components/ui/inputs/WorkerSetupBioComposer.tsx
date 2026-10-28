@@ -75,7 +75,7 @@ export function WorkerSetupBioComposer({
               minH="44px"
               borderRadius="full"
               borderWidth="1px"
-              borderColor="border.default"
+              borderColor="border.strong"
               bg="bg.surface"
               color="text.muted"
               fontSize="sm"
@@ -135,7 +135,7 @@ export function WorkerSetupBioComposer({
           </Box>
           <Text
             fontSize="xs"
-            fontWeight={600}
+            fontWeight={500}
             color={
               quality.tone === 'success' ? 'status.success.fg' : 'text.muted'
             }
@@ -155,7 +155,7 @@ export function WorkerSetupBioComposer({
             gap={1}
             minH="44px"
             fontSize="sm"
-            fontWeight={600}
+            fontWeight={500}
             color="text.link"
             bg="transparent"
             cursor="pointer"

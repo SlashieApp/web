@@ -10,7 +10,7 @@ import { enterStyle, useDemoBeat, useTypewriter } from '../useDemoBeat'
 
 function FieldLabel({ children }: { children: string }) {
   return (
-    <Text fontSize="13px" fontWeight={700} color="text.muted" mb="6px">
+    <Text fontSize="13px" fontWeight={500} color="text.muted" mb="6px">
       {children}
     </Text>
   )
@@ -44,7 +44,7 @@ export function PostScreen({
         <Box color="text.default" display="inline-flex" aria-hidden>
           <LuX size={22} aria-hidden />
         </Box>
-        <Text fontSize="16px" fontWeight={700}>
+        <Text fontSize="16px" fontWeight={500}>
           {t.header}
         </Text>
         <Box w="22px" />
@@ -61,7 +61,7 @@ export function PostScreen({
             borderWidth="1.5px"
             borderColor={typing ? 'border.focus' : 'border.default'}
             fontSize="15px"
-            fontWeight={600}
+            fontWeight={500}
           >
             {title}
             {typing ? (
@@ -118,7 +118,7 @@ export function PostScreen({
               />
             </Box>
           </Box>
-          <HStack mt="8px" gap="6px" fontSize="14px" fontWeight={600}>
+          <HStack mt="8px" gap="6px" fontSize="14px" fontWeight={500}>
             <LuMapPin size={14} aria-hidden />
             <Text>{t.whereValue}</Text>
           </HStack>
@@ -136,7 +136,7 @@ export function PostScreen({
               borderColor="status.success.border"
               color="status.success.fg"
               fontSize="13px"
-              fontWeight={700}
+              fontWeight={500}
             >
               {t.whenValue}
             </Box>
@@ -147,7 +147,7 @@ export function PostScreen({
               borderWidth="1px"
               borderColor="border.default"
               fontSize="13px"
-              fontWeight={600}
+              fontWeight={500}
               color="text.muted"
             >
               {t.whenOther}
@@ -158,7 +158,11 @@ export function PostScreen({
         <DemoCard style={enterStyle(entered, 3)}>
           <HStack justify="space-between">
             <FieldLabel>{t.budgetLabel}</FieldLabel>
-            <Text fontSize="22px" fontWeight={800}>
+            <Text
+              fontSize="22px"
+              fontWeight={600}
+              fontVariantNumeric="tabular-nums"
+            >
               {t.budgetValue}
             </Text>
           </HStack>
@@ -204,7 +208,7 @@ export function PostScreen({
               <LuCheck size={20} aria-hidden />
             </Box>
             <Stack gap={0}>
-              <Text fontSize="15px" fontWeight={700}>
+              <Text fontSize="15px" fontWeight={500}>
                 {t.postedTitle}
               </Text>
               <Text fontSize="13px" color="text.muted">

@@ -247,7 +247,7 @@ function ProfilePage({
               px={4}
               py={2}
             >
-              <Text fontWeight={600} color="status.success.fg">
+              <Text fontWeight={500} color="status.success.fg">
                 {t.owner.bar}
               </Text>
               <Button asChild size="sm" minH="44px" variant="secondary">
@@ -274,7 +274,7 @@ function ProfilePage({
                   <LuEyeOff size={18} />
                 </Box>
                 <Stack gap={0.5}>
-                  <Text fontWeight={700} color="text.default">
+                  <Text fontWeight={500} color="text.default">
                     {t.owner.hidden.title}
                   </Text>
                   <Text fontSize="sm" color="text.muted">

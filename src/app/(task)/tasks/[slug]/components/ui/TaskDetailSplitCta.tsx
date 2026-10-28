@@ -3,6 +3,7 @@
 import { Box, HStack, Stack, Text } from '@chakra-ui/react'
 import type { ReactNode } from 'react'
 
+import { sdlEyebrow, sdlFigure } from '@/theme/styles'
 import { Button, Link } from '@ui'
 
 export type TaskDetailSplitCtaProps = {
@@ -36,8 +37,6 @@ export function TaskDetailSplitCta({
       maxW="full"
       minW={0}
       bg="bg.surface"
-      borderWidth="1px"
-      borderColor="border.default"
       borderRadius="xl"
       boxShadow="e3"
       overflow="hidden"
@@ -50,16 +49,7 @@ export function TaskDetailSplitCta({
         py={2.5}
         justify="center"
       >
-        <Text
-          fontSize="xs"
-          fontWeight={500}
-          color="text.muted"
-          letterSpacing="0.06em"
-          textTransform="uppercase"
-          lineHeight="short"
-        >
-          {eyebrow}
-        </Text>
+        <Text {...sdlEyebrow}>{eyebrow}</Text>
         <HStack
           columnGap={2}
           rowGap={0}
@@ -69,7 +59,7 @@ export function TaskDetailSplitCta({
         >
           <Text
             fontSize="lg"
-            fontWeight={700}
+            {...sdlFigure}
             color="text.default"
             lineHeight="short"
             flexShrink={0}

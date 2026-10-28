@@ -53,7 +53,7 @@ export function DetailRow({
         </Text>
       </Box>
       <Stack gap={0.5} flex="1" minW={0}>
-        <Box fontSize="sm" fontWeight={600} color="text.default">
+        <Box fontSize="sm" fontWeight={500} color="text.default">
           {children}
         </Box>
         {subLine ? (

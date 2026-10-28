@@ -301,7 +301,7 @@ function CameraSession({
         {step === 'starting' ? (
           <Stack position="absolute" align="center" gap={3}>
             <Spinner size="lg" color="text.onInverted" aria-hidden />
-            <Text fontWeight={600}>{t.starting}</Text>
+            <Text fontWeight={500}>{t.starting}</Text>
           </Stack>
         ) : null}
         {step === 'review' ? (
@@ -327,7 +327,7 @@ function CameraSession({
             textAlign="center"
           >
             <LuCameraOff size={40} aria-hidden />
-            <Text fontWeight={600}>{failure}</Text>
+            <Text fontWeight={500}>{failure}</Text>
             <Stack w="full" gap={3}>
               {step === 'blocked' ? (
                 <Button ref={mainRef} size="lg" onClick={allowCamera}>
