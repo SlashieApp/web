@@ -1,4 +1,5 @@
 import {
+  BRAND_INK,
   BRAND_PRIMARY,
   BRAND_PRIMARY_HOVER,
   BRAND_PRIMARY_SOFT_BG,
@@ -25,6 +26,11 @@ export const PIN = {
    * 1.8:1 on white, a fill only (FE-469), so it stays on the dot and ring.
    */
   greenText: brandPrimary[800],
+  /**
+   * Label on a green fill (the "You" pill, the cluster count): ink, as
+   * `text.onGreen`. White on green 400 is 1.8:1 and is never used.
+   */
+  ink: BRAND_INK,
   /* Raw Mapbox/DOM consumer — hexes match `text.muted` / `border.default`. */
   textMuted: '#52525B',
   border: '#E4E4E7',

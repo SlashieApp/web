@@ -82,7 +82,8 @@ export function referenceMarkerElement(): HTMLDivElement {
     boxShadow: '0 0 0 2px rgba(0,220,130,0.35), 0 2px 8px rgba(10,21,18,0.25)',
   })
 
-  // Same pill chrome as the task price pill, inverted: green fill, white text.
+  // Same pill chrome as the task price pill, inverted: green fill, ink label
+  // (500, as the app). White on green 400 is 1.8:1, so it is never used.
   const pill = document.createElement('div')
   pill.textContent = 'You'
   Object.assign(pill.style, {
@@ -93,10 +94,10 @@ export function referenceMarkerElement(): HTMLDivElement {
     padding: '4px 10px',
     borderRadius: '999px',
     background: PIN.green,
-    color: PIN.white,
+    color: PIN.ink,
     fontFamily: PIN_FONT,
     fontSize: '12px',
-    fontWeight: '600',
+    fontWeight: '500',
     lineHeight: '1.2',
     whiteSpace: 'nowrap',
     boxShadow: PIN.shadow,

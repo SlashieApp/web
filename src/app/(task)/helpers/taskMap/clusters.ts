@@ -140,7 +140,7 @@ function mountClusterStyles() {
   document.head.appendChild(style)
 }
 
-/** Count bubble for a cluster: brand circle, white ring, no price. */
+/** Count bubble for a cluster: brand circle, white ring, ink count, no price. */
 export function clusterMarkerElement(
   count: number,
   onActivate: () => void,
@@ -167,7 +167,7 @@ export function clusterMarkerElement(
     borderRadius: '50%',
     border: `3px solid ${PIN.white}`,
     background: PIN.green,
-    color: PIN.white,
+    color: PIN.ink,
     boxShadow: PIN.shadowExpanded,
     fontFamily: PIN_FONT,
     fontSize: `${CLUSTER_FONT_PX[size]}px`,

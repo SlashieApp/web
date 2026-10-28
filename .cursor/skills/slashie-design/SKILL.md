@@ -118,8 +118,8 @@ Use strong hierarchy:
 
 ### Buttons
 
-- Primary: green filled button with white text.
-- Secondary: quiet white, outlined, or pale green treatment.
+- Primary: green filled pill with an ink label (`text.onGreen`), never white.
+- Secondary: white pill with a 1px `border.strong` outline and an ink label.
 - Ghost: text/icon-only action.
 - Icon: compact circular or square action.
 
