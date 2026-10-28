@@ -89,7 +89,7 @@ One header for Account, Plan & billing, Pricing, Terms, Privacy, Cookies, Safety
 - **Bar:** one 56px row that sticks to the top of the page (`stickyTop` under the marketing header; the app shell's pane is already under the app header). Its row lines up with the page's column and gutters (16 / 24 / 32), its fill is the page's own colour, with no rule or shadow. Back is on the left at every width (a 44px box, the 24px glyph on the content's left edge); a page's own icon button goes on the right (`option`, such as the task options). Labelled buttons stay in the page.
 - **Big title:** under the bar, 34px, 700, line height 1.2, the page's one h1, 8px under the bar, then the description. As the page scrolls it moves up and shrinks to 18px beside Back over 48px of scroll, and over the last quarter cross-fades into the bar's one-line copy (18px, 600, ellipsis, hidden from screen readers). Scrolling back up reverses it; with `prefers-reduced-motion` nothing interpolates and the copy shows at once 48px in.
 - **Over a map or cover (`overMedia`: task details, a public profile):** the bar floats over it with Back and the option button in the frosted overlay look (`HEADER_OVERLAY_BUTTON`), transparent until the title reaches it, then fading to the page colour. The title rests lower, under the map or cover: the page renders it with `StickyHeaderTitle`, and the header finds it.
-- **Tab order:** Back, the page, then the option button.
+- **Tab and reading order:** follows the bar's row: Back, the option button (when the page has one), then the page, big title first. The bar's one-line copy is hidden from screen readers.
 
 
 ---

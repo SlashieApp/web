@@ -47,7 +47,8 @@ export type StickyHeaderProps = {
   /**
    * The page's own icon button for the bar's right (such as the task options).
    * It is a 44px box; spread `HEADER_ICON_BUTTON` (or `HEADER_OVERLAY_BUTTON`
-   * over a map) onto it for its 24px glyph and look.
+   * over a map) onto it for its 24px glyph and look. It comes right after Back
+   * in the tab and reading order.
    */
   option?: ReactNode
   /** The page's own background colour, which the bar is painted in. */
@@ -176,9 +177,10 @@ function BarRow({
 /**
  * The page header (FE-458), one for every page: a bar one row (56px) tall that
  * sticks to the top of the page, and under it the big title, which collapses
- * into the bar as the page scrolls. It wraps the page, so that Back comes
- * first in the tab order, the page next and the option button last, and so
- * that the column its bar sticks in is as tall as the page.
+ * into the bar as the page scrolls. It wraps the page, so that the column its
+ * bar sticks in is as tall as the page, and so that the tab and reading order
+ * follow the bar's row: Back, the option button, then the page (the big title
+ * first).
  *
  * Open: Back alone in the bar, the 34px h1 under it, then the description.
  * Scrolled: the title shrinks to 18px and moves up beside Back (see
@@ -289,6 +291,37 @@ export function StickyHeader({
         </BarRow>
       </Box>
 
+      {/* The option button sits on the bar's row, so it follows Back in the tab
+          and reading order, ahead of the page. It is a layer of its own so
+          that it stays above the page and the title moving into the bar. */}
+      {option ? (
+        <Box
+          gridArea="1 / 1"
+          alignSelf="start"
+          position="sticky"
+          top={topFor(stickyTop)}
+          zIndex={13}
+          h={`${BAR_H}px`}
+          w="full"
+          pointerEvents="none"
+        >
+          <BarRow {...column}>
+            <Box
+              position="absolute"
+              top={buttonTop}
+              right={overhang}
+              boxSize={`${BUTTON_BOX}px`}
+              display="flex"
+              alignItems="center"
+              justifyContent="center"
+              pointerEvents="auto"
+            >
+              {option}
+            </Box>
+          </BarRow>
+        </Box>
+      ) : null}
+
       <Box gridArea="1 / 1" minW={0} pt={overMedia ? 0 : `${BAR_H}px`}>
         {hasTitle && !overMedia ? (
           <Box
@@ -328,35 +361,6 @@ export function StickyHeader({
           {...TITLE_STYLE}
         >
           {title}
-        </Box>
-      ) : null}
-
-      {/* The option button comes after the page in the tab order. */}
-      {option ? (
-        <Box
-          gridArea="1 / 1"
-          alignSelf="start"
-          position="sticky"
-          top={topFor(stickyTop)}
-          zIndex={13}
-          h={`${BAR_H}px`}
-          w="full"
-          pointerEvents="none"
-        >
-          <BarRow {...column}>
-            <Box
-              position="absolute"
-              top={buttonTop}
-              right={overhang}
-              boxSize={`${BUTTON_BOX}px`}
-              display="flex"
-              alignItems="center"
-              justifyContent="center"
-              pointerEvents="auto"
-            >
-              {option}
-            </Box>
-          </BarRow>
         </Box>
       ) : null}
     </Box>

@@ -400,15 +400,22 @@ export const WithOption: Story = {
     const paneBox = pane(canvasElement).getBoundingClientRect()
     const glyph = option.querySelector('svg') as SVGElement
     near(glyph.getBoundingClientRect().right, paneBox.right - GUTTER)
-    // Focus order: Back, then the page, then the option button.
+    // Focus order follows the bar's row: Back, the option button, then the page.
     const back = canvas.getByRole('button', { name: 'Go back' })
     back.focus()
+    await userEvent.tab()
+    expect(document.activeElement).toBe(option)
     await userEvent.tab()
     expect(document.activeElement).toBe(
       canvas.getByRole('link', { name: 'A link in the page' }),
     )
-    await userEvent.tab()
-    expect(document.activeElement).toBe(option)
+    // Reading order the same: Back, the option button, then the big title.
+    const following = (from: Element, to: Element) =>
+      Boolean(
+        from.compareDocumentPosition(to) & Node.DOCUMENT_POSITION_FOLLOWING,
+      )
+    expect(following(back, option)).toBe(true)
+    expect(following(option, heading(canvasElement))).toBe(true)
     // Collapsed, the bar's copy stops 8px before the option button's box.
     await scrollTo(canvasElement, 400)
     const barTitle = part(canvasElement, 'bar-title')

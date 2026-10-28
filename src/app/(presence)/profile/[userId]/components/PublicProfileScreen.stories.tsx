@@ -205,16 +205,22 @@ export const HeaderOverCover: Story = {
       barTitle(canvasElement).closest('[aria-hidden="true"]'),
     ).not.toBeNull()
     await expect(getComputedStyle(barTitle(canvasElement)).opacity).toBe('0')
-    // Focus order: Back, then the page, then the ⋯ menu.
+    // Focus order follows the bar's row: Back, the ⋯ menu, then the page,
+    // whose first stop is Save beside the photo.
     back.focus()
-    const stops: Element[] = []
-    for (let step = 0; step < 40; step += 1) {
-      await userEvent.tab()
-      if (document.activeElement) stops.push(document.activeElement)
-      if (document.activeElement === more) break
-    }
-    await expect(stops.at(-1)).toBe(more)
-    await expect(stops.length).toBeGreaterThan(2)
+    await userEvent.tab()
+    await expect(document.activeElement).toBe(more)
+    await userEvent.tab()
+    await expect(document.activeElement).toBe(save)
+    // Reading order the same: Back, the ⋯ menu, then the page and the name.
+    const name = canvas.getByRole('heading', { name: 'Alex Morgan', level: 1 })
+    const follows = (from: Element, to: Element) =>
+      Boolean(
+        from.compareDocumentPosition(to) & Node.DOCUMENT_POSITION_FOLLOWING,
+      )
+    await expect(follows(back, more)).toBe(true)
+    await expect(follows(more, save)).toBe(true)
+    await expect(follows(more, name)).toBe(true)
   },
 }
 

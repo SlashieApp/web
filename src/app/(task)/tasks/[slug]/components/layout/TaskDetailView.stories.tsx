@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
-import { expect, waitFor, within } from 'storybook/test'
+import { expect, userEvent, waitFor, within } from 'storybook/test'
 
 import { withTaskDetailStory } from '../../helpers/taskDetailStoryDecorator'
 import { withTaskDetailPending } from '../../helpers/taskDetailStoryExtras'
@@ -57,6 +57,20 @@ async function expectBar(canvasElement: HTMLElement) {
   }
 }
 
+/** Focus and reading order follow the bar's row: Back, the options menu, then the page and its title. */
+async function expectBarOrder(canvasElement: HTMLElement) {
+  const canvas = within(canvasElement)
+  const back = await canvas.findByRole('button', { name: 'Go back' })
+  const options = await canvas.findByRole('button', { name: 'Task options' })
+  back.focus()
+  await userEvent.tab()
+  await expect(document.activeElement).toBe(options)
+  const title = await expectTitle(canvasElement)
+  await expect(
+    options.compareDocumentPosition(title) & Node.DOCUMENT_POSITION_FOLLOWING,
+  ).toBeTruthy()
+}
+
 /** Past the title: the bar is still at the top, the title is in it. */
 async function expectCollapsed(canvasElement: HTMLElement) {
   window.scrollTo(0, 2000)
@@ -79,6 +93,7 @@ export const Desktop: Story = {
   play: async ({ canvasElement }) => {
     await expectTitle(canvasElement)
     await expectBar(canvasElement)
+    await expectBarOrder(canvasElement)
   },
 }
 
@@ -109,6 +124,7 @@ export const Phone: Story = {
   play: async ({ canvasElement }) => {
     await expectTitle(canvasElement)
     await expectBar(canvasElement)
+    await expectBarOrder(canvasElement)
   },
 }
 
