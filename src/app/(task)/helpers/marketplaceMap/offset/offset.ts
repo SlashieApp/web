@@ -71,10 +71,18 @@ export function offsetPaddingForViewport(
   height: number,
   variant: OffsetMapVariant = 'exact',
   pillHeight: number = APPROX_PILL_ONE_LINE_PX,
+  /** Where the page starts (banners, header); the frame's default until measured. */
+  topInset?: number,
 ): OffsetPadding {
   // The privacy circle has its own window, beside its pill (FE-472).
   if (variant === 'approximate') {
-    return approxCircleFrame({ viewport, width, height, pillHeight }).padding
+    return approxCircleFrame({
+      viewport,
+      width,
+      height,
+      pillHeight,
+      topInset,
+    }).padding
   }
   if (viewport === 'web') return offsetPaddingForWeb(width, height, variant)
   if (viewport === 'tablet') return offsetPaddingForTablet(width, height)
@@ -87,6 +95,8 @@ export function marketplaceMapViewPadding(
   variant: OffsetMapVariant,
   /** The approximate pill's measured height; one line until measured. */
   pillHeight?: number,
+  /** Where the page starts (banners, header), measured by the host. */
+  topInset?: number,
 ): OffsetPadding | undefined {
   if (width <= 0 || height <= 0) return undefined
   return offsetPaddingForViewport(
@@ -95,5 +105,6 @@ export function marketplaceMapViewPadding(
     height,
     variant,
     pillHeight,
+    topInset,
   )
 }

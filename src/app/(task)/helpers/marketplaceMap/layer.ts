@@ -118,10 +118,11 @@ export function resolveMarketplaceMapLayer(input: {
             zoom: input.approxZoom,
           }
         : null,
+    // An approximate viewer's map says so. While the viewer is not known (or
+    // the map draws nothing for them) it carries no label at all: the browse
+    // one ("tasks near the search area") describes a map that is not there.
     mapAriaLabel:
-      confirmed?.access === 'approximate'
-        ? confirmed.approxLabel
-        : props.mapAriaLabel,
+      confirmed?.access === 'approximate' ? confirmed.approxLabel : '',
   })
 
   if (published.source === 'browse') {

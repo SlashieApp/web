@@ -81,6 +81,10 @@ describe('task map camera', () => {
     )
     expect(now).toContain('syncReferenceMarker()')
     expect(now).toContain('syncMarkers()')
+    // The cluster count bubbles are other tasks' public points: DOM, so they
+    // go now too, and the next view is recomputed.
+    expect(now).toContain('clearClusterMarkers()')
+    expect(now).toContain("lastClusterViewSig = ''")
     expect(now).toContain('navRoute.clearRoute({ force: true })')
     expect(now).toContain('syncApproxZone()')
   })

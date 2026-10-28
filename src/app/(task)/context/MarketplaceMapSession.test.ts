@@ -7,32 +7,16 @@ import { describe, expect, it } from 'vitest'
 const dir = dirname(fileURLToPath(import.meta.url))
 const src = readFileSync(join(dir, 'MarketplaceMapSession.tsx'), 'utf8')
 
-/** Source guards for the host's default deny and the approximate pill (FE-472). */
-describe('MarketplaceMapHost, approximate area', () => {
-  it('keys the default deny on the detail path, not on the focus alone', () => {
-    expect(src).toContain('confirmedTaskLocationAccess({')
-    expect(src).toContain('onDetailPath,')
-    expect(src).toContain('locationAccess: taskAccess')
-    expect(src).toContain('const onDetailPath = isTaskDetailPath(pathname)')
-  })
-
-  it('resets the confirmation on prepareBrowse and clearFocus, and keeps only the same task on prepareDetail', () => {
-    const prepareBrowse = src.slice(
-      src.indexOf('prepareBrowse: () => {'),
-      src.indexOf('clearFocus: () => {'),
-    )
-    expect(prepareBrowse).toContain('taskAccess: null')
-    const clearFocus = src.slice(
-      src.indexOf('clearFocus: () => {'),
-      src.indexOf('setTaskAccess: (access) => {'),
-    )
-    expect(clearFocus).toContain('taskAccess: null')
-    expect(clearFocus).toContain('prev.taskAccess')
-    const prepareDetail = src.slice(
-      src.indexOf('prepareDetail: (taskId) => {'),
-      src.indexOf('prepareBrowse: () => {'),
-    )
-    expect(prepareDetail).toContain('prev.taskAccess?.taskId === taskId')
+/**
+ * The host's state and what it draws are tested where they run
+ * (`helpers/marketplaceMap/session.test.ts`). These guard what only the
+ * component does: wiring and markup, which have no test renderer here.
+ */
+describe('MarketplaceMapHost, approximate area (FE-472)', () => {
+  it('keeps its state with the tested reducer and draws what the tested view returns', () => {
+    expect(src).toContain('useReducer(')
+    expect(src).toContain('marketplaceMapReducer')
+    expect(src).toContain('resolveMarketplaceMapHost({')
   })
 
   it('clears the confirmation when the binder goes', () => {
@@ -40,13 +24,26 @@ describe('MarketplaceMapHost, approximate area', () => {
     expect(src).toContain('() => () => dispatch?.setTaskAccess(null)')
   })
 
-  it('frames the circle from the measured pill and fits its zoom to the window', () => {
+  it('frames the circle from the measured pill and the measured top of the page', () => {
+    expect(src).toContain('useApproxPillHeightRef')
+    expect(src).toContain("node.closest('main')")
+    expect(src).toContain('scroller.getBoundingClientRect().top')
     expect(src).toContain(
-      "approximate ? 'approximate' : (published?.variant ?? 'exact')",
+      'resolveMarketplaceMapHost({ state, pathname, size, topInset })',
     )
-    expect(src).toContain('approxCircleFrame({')
-    expect(src).toContain('approxCircleZoom(confirmedAccess.center.lat')
-    expect(src).toContain('approxPillH ?? APPROX_PILL_ONE_LINE_PX')
+  })
+
+  it('measures the top of the page at rest, and lets a change settle before the camera follows', () => {
+    expect(src).toContain('scroller.scrollTop > 1')
+    expect(src).toContain('TOP_INSET_SETTLE_MS')
+    expect(src).toContain('setTopInset((prev) => (prev == null ? next : prev))')
+  })
+
+  it('hides the markers a Search canvas left, in the commit that stops drawing pins', () => {
+    expect(src).toContain(
+      "const hideStaleMarkers = onDetailPath && liveProps.taskPinMode === 'none'",
+    )
+    expect(src).toContain("'& .mapboxgl-marker': { display: 'none' }")
   })
 
   it('puts the wide pill in the fixed map layer, in the right half, and lets gestures through', () => {

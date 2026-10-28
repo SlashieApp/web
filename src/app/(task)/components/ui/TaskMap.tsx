@@ -310,6 +310,11 @@ export function TaskMap(props: TaskMapProps) {
         w="full"
         h="full"
         aria-label={props.mapAriaLabel ?? 'Map of tasks near the search area'}
+        // A name needs a role to be announced: Mapbox puts only its own
+        // "Map" label on the canvas inside. A page that sets its own label
+        // (task detail's approximate area) gets a group; Search keeps today's
+        // markup.
+        role={props.mapAriaLabel ? 'group' : undefined}
       />
     </Box>
   )

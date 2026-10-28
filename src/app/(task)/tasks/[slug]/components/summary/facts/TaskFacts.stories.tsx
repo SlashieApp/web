@@ -388,6 +388,52 @@ export const LocationPendingQuote: Story = {
   },
 }
 
+/** Signed in, not the poster, no quote: the town, never the address. */
+export const LocationSignedInNonParty: Story = {
+  ...fact(LocationFact, { viewer: 'nonWorker' }),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await canvas.findByText('Near Westminster')
+    await expect(canvas.queryByText(/12 Example Street/)).toBeNull()
+  },
+}
+
+/** An accepted quote and no order yet: the address is already the worker's. */
+export const LocationExactAcceptedQuoteNoOrder: Story = {
+  ...fact(LocationFact, {
+    viewer: 'worker',
+    task: bookedTask,
+  }),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await canvas.findByText('12 Example Street, London SW1A 1AA')
+    await expect(canvas.queryByText(/^Near /)).toBeNull()
+  },
+}
+
+/**
+ * Booked once, then the owner reopened the task (quote CLOSED, the old order
+ * CANCELLED, the task OPEN): back to the town, no address and no Open in Maps.
+ */
+export const LocationExBookedWorkerAfterReopen: Story = {
+  ...fact(LocationFact, {
+    viewer: 'worker',
+    task: storyTaskDetail({
+      status: TaskStatus.Open,
+      quotes: [storyTaskQuote({ status: QuoteStatus.Closed })],
+    }),
+    order: storyTaskOrder({ status: OrderStatus.Cancelled }),
+  }),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await canvas.findByText('Near Westminster')
+    await expect(canvas.queryByText(/12 Example Street/)).toBeNull()
+    await expect(
+      canvas.queryByRole('link', { name: 'Open in Maps' }),
+    ).toBeNull()
+  },
+}
+
 /** The owner sees the full address and what workers see until they accept. */
 export const LocationExactOwner: Story = {
   ...fact(LocationFact, { viewer: 'owner' }),

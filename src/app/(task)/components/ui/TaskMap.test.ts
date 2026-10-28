@@ -118,3 +118,15 @@ describe('search mobile map chrome', () => {
     expect(src).not.toContain('minW="85%"')
   })
 })
+
+describe('the map container’s accessible name (FE-472)', () => {
+  it('gives a page’s own label a role, so it is announced; Search keeps its markup', () => {
+    const src = readFileSync(join(dir, 'TaskMap.tsx'), 'utf8')
+    // Mapbox labels only the canvas inside ("Map"); a name on a bare div is
+    // not exposed, so a label a page sets goes with a group role.
+    expect(src).toContain("role={props.mapAriaLabel ? 'group' : undefined}")
+    expect(src).toContain(
+      "aria-label={props.mapAriaLabel ?? 'Map of tasks near the search area'}",
+    )
+  })
+})

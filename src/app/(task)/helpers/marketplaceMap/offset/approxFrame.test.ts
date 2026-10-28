@@ -4,11 +4,14 @@ import { fileURLToPath } from 'node:url'
 
 import { describe, expect, it } from 'vitest'
 
+import { HEADER_MIN_HEIGHT } from '@/ui/Header/shell/headerShell'
+
 import { TASK_ZONE_RADIUS_M } from '../../taskMap/zoneCircle'
 import {
   APPROX_CIRCLE_MAX_DIAMETER_PX,
   APPROX_PILL_ONE_LINE_PX,
   COMPACT_CHROME_OVERLAP_PX,
+  WEB_APP_HEADER_PX,
   approxCircleFrame,
   approxCircleZoom,
 } from './approxFrame'
@@ -191,6 +194,91 @@ describe('approxCircleFrame, wide', () => {
       pillHeight: ONE_LINE,
     })
     expect(tiny.diameterPx).toBe(0)
+  })
+})
+
+describe('the wide frame on a short window', () => {
+  // The window between the pill (fixed under the bar) and the content top
+  // (0.66 of the height) is all the circle gets (spec: D = min(100, window)).
+  // On a short laptop it is small, then nothing; the controller's zoom floor
+  // (MAP_MIN_ZOOM 10) is what keeps a circle on screen after that.
+  const diameterAt = (width: number, height: number) =>
+    approxCircleFrame({
+      viewport: 'web',
+      width,
+      height,
+      pillHeight: ONE_LINE,
+    }).diameterPx
+
+  it('gives a typical 1366 x 768 laptop window 81 px, and 1366 x 650 only 41', () => {
+    expect(diameterAt(1920, 950)).toBe(100)
+    expect(diameterAt(1366, 768)).toBe(81)
+    expect(diameterAt(1440, 700)).toBe(58)
+    expect(diameterAt(1366, 650)).toBe(41)
+    expect(diameterAt(1280, 600)).toBe(24)
+  })
+
+  it('has no window at all under about 520 px tall, and the zoom stays finite', () => {
+    const f = approxCircleFrame({
+      viewport: 'web',
+      width: 1100,
+      height: 500,
+      pillHeight: ONE_LINE,
+    })
+    expect(f.window.bottom).toBeLessThan(f.window.top)
+    expect(f.diameterPx).toBe(0)
+    expect(Number.isFinite(approxCircleZoom(LONDON, f.diameterPx))).toBe(true)
+  })
+
+  it('the controller clamps the zoom, so the circle never vanishes entirely', () => {
+    const controller = readFileSync(
+      join(dir, '../../taskMap/controller.ts'),
+      'utf8',
+    )
+    expect(controller).toContain('const MAP_MIN_ZOOM = 10')
+    expect(controller).toContain(
+      'Math.min(MAP_MAX_ZOOM, Math.max(MAP_MIN_ZOOM, zone.zoom))',
+    )
+    // At zoom 10 in London 800 m are about 17 px wide.
+    expect(circleWidthPx(10, LONDON, 400)).toBeCloseTo(16.8, 1)
+  })
+})
+
+describe('the page’s top (status banners, the header)', () => {
+  it('derives the wide header height from the shared shell: its minimum plus two borders', () => {
+    expect(HEADER_MIN_HEIGHT.md).toBe('64px')
+    expect(WEB_APP_HEADER_PX).toBe(
+      Number.parseInt(HEADER_MIN_HEIGHT.md, 10) + 2,
+    )
+    expect(WEB_APP_HEADER_PX).toBe(66)
+  })
+
+  it('moves the whole compact column down by a banner above the page', () => {
+    const none = marketplaceMapViewPadding(390, 844, 'approximate')
+    const banner = marketplaceMapViewPadding(
+      390,
+      844,
+      'approximate',
+      ONE_LINE,
+      45,
+    )
+    expect(none).toEqual({ top: 4, bottom: 738, left: 0, right: 0 })
+    // 45 px of banner: the window starts 45 lower, and so does its bottom.
+    expect(banner).toEqual({ top: 49, bottom: 738 - 45, left: 0, right: 0 })
+  })
+
+  it('moves the wide window down with the bar, and keeps the content top where it is', () => {
+    const none = marketplaceMapViewPadding(1366, 900, 'approximate')
+    const banner = marketplaceMapViewPadding(
+      1366,
+      900,
+      'approximate',
+      ONE_LINE,
+      WEB_APP_HEADER_PX + 45,
+    )
+    expect(none?.top).toBe(168)
+    expect(banner?.top).toBe(168 + 45)
+    expect(banner?.bottom).toBe(none?.bottom)
   })
 })
 

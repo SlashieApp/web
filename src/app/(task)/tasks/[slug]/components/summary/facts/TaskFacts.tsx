@@ -413,13 +413,15 @@ export function LocationFact() {
   const label = task
     ? taskDetailLocationLabel({ task, myOrder, showExactLocation: exact })
     : seed?.location
-  const lat = myOrder?.snapshot.location?.lat
-  const lng = myOrder?.snapshot.location?.lng
+  // Directions to the booked address: only inside the exact branch.
+  const lat = exact ? myOrder?.snapshot.location?.lat : undefined
+  const lng = exact ? myOrder?.snapshot.location?.lng : undefined
   const mapsHref =
     typeof lat === 'number' && typeof lng === 'number'
       ? mapsDirectionsUrl(lat, lng)
       : null
-  // FE-70: the poster is told what workers see before acceptance.
+  // FE-70: the poster is told what workers see before acceptance. `exact` is
+  // the poster or the accepted worker; `isOwner` tells them apart.
   const note =
     !myOrder && exact && permissions.isOwner
       ? t.details.locationOwnerNote

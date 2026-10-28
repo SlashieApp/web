@@ -13,6 +13,7 @@
  * lengths are CSS px.
  */
 
+import { HEADER_MIN_HEIGHT } from '@/ui/Header/shell/headerShell'
 import { BAR_H } from '@/ui/StickyHeader/headerCollapse'
 
 import { TASK_ZONE_RADIUS_M } from '../../taskMap/zoneCircle'
@@ -37,11 +38,17 @@ export const APPROX_PILL_BELOW_BAR_PX = 8
 /** Wide: the circle window ends this far above the content. */
 export const APPROX_CIRCLE_ABOVE_CONTENT_PX = 12
 
+/** The app header's top and bottom borders (`borderWidth="1px"` in `Header`). */
+const WEB_APP_HEADER_BORDERS_PX = 2
+
 /**
- * Web from lg: the app header over the page (its 64px minimum height and two
- * 1px borders, measured at 66), above the 56px bar.
+ * Web from lg: the app header over the page (its minimum height from the
+ * shared shell plus its two borders, 66 measured), above the 56px bar. The
+ * host measures the real top of the page and passes it as `topInset`; this is
+ * what the frame uses until it has (a story, the first render).
  */
-export const WEB_APP_HEADER_PX = 66
+export const WEB_APP_HEADER_PX =
+  Number.parseInt(HEADER_MIN_HEIGHT.md, 10) + WEB_APP_HEADER_BORDERS_PX
 
 /** The pill on one line (it is `min-height` 32 px). Two lines are taller. */
 export const APPROX_PILL_ONE_LINE_PX = 32
@@ -72,8 +79,10 @@ export type ApproxFrameInput = {
   /** The pill's height: one line is `APPROX_PILL_ONE_LINE_PX`, two lines are taller. */
   pillHeight: number
   /**
-   * Space above the bar: compact, the safe-area inset (0 on web); wide, the
-   * app header above the bar (`WEB_APP_HEADER_PX` on web).
+   * Where the page starts, from the top of the viewport: the app's status
+   * banners (an unverified email, a suspension) and, from lg, the header too.
+   * Compact: the banners' height (the safe-area inset in the app), 0 with
+   * none. Wide: banners plus the header, `WEB_APP_HEADER_PX` with no banner.
    */
   topInset?: number
 }

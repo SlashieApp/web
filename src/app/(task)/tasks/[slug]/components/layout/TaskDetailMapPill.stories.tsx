@@ -1,9 +1,14 @@
 import { Box } from '@chakra-ui/react'
+import { OrderStatus, QuoteStatus, TaskStatus } from '@codegen/schema'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { expect, within } from 'storybook/test'
 
 import { withTaskDetailStory } from '../../helpers/taskDetailStoryDecorator'
-import { storyTaskOrder } from '../../helpers/taskDetailStoryFixtures'
+import {
+  storyTaskDetail,
+  storyTaskOrder,
+  storyTaskQuote,
+} from '../../helpers/taskDetailStoryFixtures'
 import { TaskDetailMapPill } from './TaskDetailMapPill'
 
 const PILL = 'Approximate area. Exact address after booking.'
@@ -131,5 +136,66 @@ export const BookedWorkerExact: Story = {
   play: async ({ canvasElement }) => {
     await new Promise((resolve) => setTimeout(resolve, 600))
     await expect(within(canvasElement).queryByText(PILL)).toBeNull()
+  },
+}
+
+// The wiring from the real provider to the pill: who is the viewer (their own
+// quote, their own order), not a hand-built input. The rule is tested on its
+// own in taskLocationAccess.test.ts; these show the page applies it.
+
+/** Signed in, not the poster, no quote on the task: the pill. */
+export const SignedInNonParty: Story = {
+  ...phone,
+  decorators: [
+    withTaskDetailStory({ viewer: 'nonWorker' }, { maxWidth: '100%' }),
+  ],
+  play: async ({ canvasElement }) => {
+    await within(canvasElement).findByText(PILL)
+  },
+}
+
+/** The quote is accepted and the order is not there yet: exact already, no pill. */
+export const WorkerAcceptedQuoteNoOrder: Story = {
+  ...phone,
+  decorators: [
+    withTaskDetailStory(
+      {
+        viewer: 'worker',
+        task: storyTaskDetail({
+          status: TaskStatus.Awarded,
+          quotes: [storyTaskQuote({ status: QuoteStatus.Accepted })],
+        }),
+      },
+      { maxWidth: '100%' },
+    ),
+  ],
+  play: async ({ canvasElement }) => {
+    await new Promise((resolve) => setTimeout(resolve, 600))
+    await expect(within(canvasElement).queryByText(PILL)).toBeNull()
+  },
+}
+
+/**
+ * Booked once, then the owner reopened the task (quote CLOSED, the old order
+ * CANCELLED, the task OPEN): the old booking no longer gives the address, so
+ * the pill is back.
+ */
+export const ExBookedWorkerAfterReopen: Story = {
+  ...phone,
+  decorators: [
+    withTaskDetailStory(
+      {
+        viewer: 'worker',
+        task: storyTaskDetail({
+          status: TaskStatus.Open,
+          quotes: [storyTaskQuote({ status: QuoteStatus.Closed })],
+        }),
+        order: storyTaskOrder({ status: OrderStatus.Cancelled }),
+      },
+      { maxWidth: '100%' },
+    ),
+  ],
+  play: async ({ canvasElement }) => {
+    await within(canvasElement).findByText(PILL)
   },
 }

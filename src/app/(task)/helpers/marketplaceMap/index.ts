@@ -16,6 +16,7 @@ export {
 export {
   APPROX_CIRCLE_MAX_DIAMETER_PX,
   APPROX_PILL_ONE_LINE_PX,
+  WEB_APP_HEADER_PX,
   approxCircleFrame,
   approxCircleZoom,
 } from './offset/approxFrame'
@@ -81,3 +82,16 @@ export type {
   MarketplaceMapPublishedLayer,
   TaskLocationMapAccess,
 } from './layer'
+
+export {
+  INITIAL_MARKETPLACE_MAP_STATE,
+  framingTaskIdFor,
+  marketplaceMapReducer,
+  resolveMarketplaceMapHost,
+  sameTaskAccess,
+} from './session'
+export type {
+  MarketplaceMapAction,
+  MarketplaceMapHostView,
+  MarketplaceMapState,
+} from './session'

@@ -771,15 +771,20 @@ export function createTaskMapController(args: {
 
   /**
    * No pins at all on the detail camera (an approximate viewer, or one not
-   * known yet, FE-472) must not wait for the style: pins, the You marker and a
-   * route are things a stale browse layer left on screen, and a wait for
-   * `idle` (tiles loading after a fly) is how long they would stay. Markers
-   * are DOM, so they go now; the circle and its camera do not need the tiles
-   * either.
+   * known yet, FE-472) must not wait for the style: pins, the You marker, the
+   * cluster count bubbles and a route are things a stale browse layer left on
+   * screen, and a wait for `idle` (tiles loading after a fly) is how long they
+   * would stay. Markers (the count bubbles too) are DOM, so they go now; the
+   * circle and its camera do not need the tiles either.
    */
   const syncNoPinsNow = () => {
     syncReferenceMarker()
     syncMarkers()
+    // Other tasks' public points, as count bubbles. The render handler
+    // (`applyClusterView`) would clear them on the next frame; this does not
+    // wait for one.
+    clearClusterMarkers()
+    lastClusterViewSig = ''
     if (lastRouteKey !== '') {
       lastRouteKey = ''
       navRoute.clearRoute({ force: true })

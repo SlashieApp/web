@@ -9,6 +9,7 @@ import {
   useContext,
   useLayoutEffect,
   useMemo,
+  useReducer,
   useRef,
   useState,
 } from 'react'
@@ -18,41 +19,21 @@ import { HEADER_BAR_H } from '@/ui/StickyHeader'
 import { ApproximateAreaPill } from '../components/ui/ApproximateAreaPill'
 import { TaskMap, type TaskMapProps } from '../components/ui/TaskMap'
 import {
-  APPROX_PILL_ONE_LINE_PX,
+  INITIAL_MARKETPLACE_MAP_STATE,
   type MarketplaceMapPublishedLayer,
+  type MarketplaceMapState,
   type TaskLocationMapAccess,
-  approxCircleFrame,
-  approxCircleZoom,
-  confirmedTaskLocationAccess,
   mapFadeOverlayCss,
-  marketplaceMapViewPadding,
-  marketplaceMapViewport,
+  marketplaceMapReducer,
   overlayCtrlBottomOffset,
   overlaySurfaceForSession,
   overlayWatermarkCss,
-  publishedMarketplaceLayerSig,
-  resolveMarketplaceMapLayer,
+  resolveMarketplaceMapHost,
 } from '../helpers/marketplaceMap'
 import {
   isPersistentMarketplaceMapPath,
   isSearchBrowsePath,
-  isTaskDetailPath,
-  taskIdFromDetailPath,
 } from '../helpers/openTaskDetailFromBrowse'
-
-type MarketplaceMapState = {
-  published: MarketplaceMapPublishedLayer | null
-  focusTaskId: string | null
-  overlayAhead: 'search' | null
-  /**
-   * What the task-detail binder confirmed about the viewer of one task
-   * (FE-472). Until it says `exact` for the framed task, the map draws no pin,
-   * route or You marker for it.
-   */
-  taskAccess: TaskLocationMapAccess | null
-  /** The compact approximate pill's measured height; null until it is on screen. */
-  approxPillH: number | null
-}
 
 type MarketplaceMapDispatch = {
   publish: (layer: MarketplaceMapPublishedLayer) => void
@@ -64,28 +45,9 @@ type MarketplaceMapDispatch = {
 }
 
 const DispatchContext = createContext<MarketplaceMapDispatch | null>(null)
-const StateContext = createContext<MarketplaceMapState>({
-  published: null,
-  focusTaskId: null,
-  overlayAhead: null,
-  taskAccess: null,
-  approxPillH: null,
-})
-
-function sameTaskAccess(
-  a: TaskLocationMapAccess | null,
-  b: TaskLocationMapAccess | null,
-): boolean {
-  if (a === b) return true
-  if (!a || !b) return false
-  return (
-    a.taskId === b.taskId &&
-    a.access === b.access &&
-    a.approxLabel === b.approxLabel &&
-    a.center?.lat === b.center?.lat &&
-    a.center?.lng === b.center?.lng
-  )
-}
+const StateContext = createContext<MarketplaceMapState>(
+  INITIAL_MARKETPLACE_MAP_STATE,
+)
 
 function MarketplaceMapStateProvider({
   children,
@@ -172,95 +134,79 @@ export function useApproxPillHeightRef() {
   )
 }
 
+/**
+ * How long a measured change in where the page starts must hold before the
+ * circle's window follows it. The header slot slides away and back as the
+ * page scrolls, and its banners come and go: the camera follows the settled
+ * value, not every frame of that motion.
+ */
+const TOP_INSET_SETTLE_MS = 200
+
 function PersistentTaskMap() {
   const pathname = usePathname() ?? ''
-  const { published, focusTaskId, overlayAhead, taskAccess, approxPillH } =
-    useContext(StateContext)
+  const state = useContext(StateContext)
+  const { published, overlayAhead } = state
   const [size, setSize] = useState(() =>
     typeof window === 'undefined'
       ? { w: 0, h: 0 }
       : { w: window.innerWidth, h: window.innerHeight },
   )
+  // Where the page starts, from the top of the viewport (FE-472): the app's
+  // status banners (and from lg the header) sit above `main`, and the map is
+  // fixed under them. Null until measured; the frame's defaults cover that.
+  const [topInset, setTopInset] = useState<number | null>(null)
   const observerRef = useRef<ResizeObserver | null>(null)
+  const insetTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const heldPropsRef = useRef<TaskMapProps | null>(null)
 
   const onShellRef = useCallback((node: HTMLDivElement | null) => {
     observerRef.current?.disconnect()
     observerRef.current = null
+    if (insetTimerRef.current) clearTimeout(insetTimerRef.current)
+    insetTimerRef.current = null
     if (!node) return
-    const apply = () => setSize({ w: node.offsetWidth, h: node.offsetHeight })
+    const scroller = node.closest('main')
+    const apply = () => {
+      setSize({ w: node.offsetWidth, h: node.offsetHeight })
+      // Only at rest: scrolled down, the compact header slot is tucked away
+      // and the page's resting top is not what is on screen.
+      if (!scroller || scroller.scrollTop > 1) return
+      const next = Math.round(scroller.getBoundingClientRect().top)
+      if (insetTimerRef.current) clearTimeout(insetTimerRef.current)
+      insetTimerRef.current = setTimeout(() => {
+        insetTimerRef.current = null
+        setTopInset(next)
+      }, TOP_INSET_SETTLE_MS)
+      // The first measure applies at once, so the first camera is right.
+      setTopInset((prev) => (prev == null ? next : prev))
+    }
     apply()
     if (typeof ResizeObserver === 'undefined') return
     const observer = new ResizeObserver(apply)
     observer.observe(node)
+    if (scroller) observer.observe(scroller)
     observerRef.current = observer
   }, [])
 
   const show = isPersistentMarketplaceMapPath(pathname)
-  const onDetailPath = isTaskDetailPath(pathname)
-  const framingTaskId = focusTaskId ?? taskIdFromDetailPath(pathname)
-  const viewport = marketplaceMapViewport(size.w)
-  const publishedDetail = published?.cameraMode === 'detail'
+  const { onDetailPath, viewport, confirmedAccess, approxFrame, mapProps } =
+    resolveMarketplaceMapHost({ state, pathname, size, topInset })
   const overlaySurface = overlaySurfaceForSession({
     onSearchPath: isSearchBrowsePath(pathname),
     onDetailPath,
     overlayAhead,
   })
-  // Who the binder confirmed for the framed task. Default deny: anything but
-  // `exact` draws no pin; `approximate` draws the circle and its pill.
-  const confirmedAccess = confirmedTaskLocationAccess({
-    onDetailPath,
-    framingTaskId,
-    locationAccess: taskAccess,
-  })
-  const approximate = confirmedAccess?.access === 'approximate'
-  const pillHeight = approxPillH ?? APPROX_PILL_ONE_LINE_PX
-  const viewPadding =
-    publishedDetail || Boolean(framingTaskId)
-      ? marketplaceMapViewPadding(
-          size.w,
-          size.h,
-          approximate ? 'approximate' : (published?.variant ?? 'exact'),
-          pillHeight,
-        )
-      : undefined
-  const approxFrame =
-    approximate && size.w > 0 && size.h > 0
-      ? approxCircleFrame({
-          viewport,
-          width: size.w,
-          height: size.h,
-          pillHeight,
-        })
-      : null
-  const approxZoom =
-    approxFrame && confirmedAccess?.center
-      ? approxCircleZoom(confirmedAccess.center.lat, approxFrame.diameterPx)
-      : undefined
-
-  const resolved = resolveMarketplaceMapLayer({
-    published,
-    focusTaskId: framingTaskId,
-    viewPadding,
-    viewport,
-    onDetailPath,
-    locationAccess: taskAccess,
-    approxZoom,
-  })
-  const mapProps =
-    resolved && onDetailPath && published?.source === 'browse'
-      ? {
-          ...resolved,
-          mapInteractions: false,
-          onSelectTask: undefined,
-          onSearchThisAreaConfirm: undefined,
-        }
-      : resolved
+  const publishedDetail = published?.cameraMode === 'detail'
 
   if (mapProps) heldPropsRef.current = mapProps
   const liveProps = mapProps ?? heldPropsRef.current
 
   if (!show || !liveProps) return null
+
+  // On a task page with no pins to draw (an approximate viewer, or one not
+  // known yet) the markers a Search canvas left on screen go in this same
+  // commit; the controller removes them a frame later.
+  const hideStaleMarkers = onDetailPath && liveProps.taskPinMode === 'none'
 
   return (
     <Box
@@ -286,6 +232,9 @@ function PersistentTaskMap() {
           'linear-gradient(135deg, var(--chakra-colors-bg-subtle) 0%, var(--chakra-colors-border-default) 100%)',
         ...mapFadeOverlayCss(overlaySurface),
         ...overlayWatermarkCss(),
+        ...(hideStaleMarkers
+          ? { '& .mapboxgl-marker': { display: 'none' } }
+          : {}),
       }}
     >
       <TaskMap
@@ -330,74 +279,20 @@ function PersistentTaskMap() {
 export function MarketplaceMapHost({ children }: { children: ReactNode }) {
   const pathname = usePathname() ?? ''
   const overMap = isPersistentMarketplaceMapPath(pathname)
-  const [state, setState] = useState<MarketplaceMapState>({
-    published: null,
-    focusTaskId: null,
-    overlayAhead: null,
-    taskAccess: null,
-    approxPillH: null,
-  })
+  const [state, send] = useReducer(
+    marketplaceMapReducer,
+    INITIAL_MARKETPLACE_MAP_STATE,
+  )
 
   const dispatch = useMemo<MarketplaceMapDispatch>(
     () => ({
-      publish: (layer) => {
-        setState((prev) => {
-          if (
-            prev.published &&
-            publishedMarketplaceLayerSig(prev.published) ===
-              publishedMarketplaceLayerSig(layer)
-          ) {
-            return prev
-          }
-          return {
-            ...prev,
-            published: layer,
-            overlayAhead: layer.source === 'browse' ? null : prev.overlayAhead,
-          }
-        })
-      },
-      prepareDetail: (taskId) => {
-        setState((prev) => ({
-          ...prev,
-          focusTaskId: taskId,
-          overlayAhead: null,
-          // A confirmation for another task never unlocks this one.
-          taskAccess:
-            prev.taskAccess?.taskId === taskId ? prev.taskAccess : null,
-        }))
-      },
-      prepareBrowse: () => {
-        setState((prev) => ({
-          ...prev,
-          overlayAhead: 'search',
-          focusTaskId: null,
-          taskAccess: null,
-        }))
-      },
-      clearFocus: () => {
-        setState((prev) =>
-          prev.focusTaskId || prev.overlayAhead || prev.taskAccess
-            ? {
-                ...prev,
-                focusTaskId: null,
-                overlayAhead: null,
-                taskAccess: null,
-              }
-            : prev,
-        )
-      },
-      setTaskAccess: (access) => {
-        setState((prev) =>
-          sameTaskAccess(prev.taskAccess, access)
-            ? prev
-            : { ...prev, taskAccess: access },
-        )
-      },
-      setApproxPillHeight: (height) => {
-        setState((prev) =>
-          prev.approxPillH === height ? prev : { ...prev, approxPillH: height },
-        )
-      },
+      publish: (layer) => send({ type: 'publish', layer }),
+      prepareDetail: (taskId) => send({ type: 'prepareDetail', taskId }),
+      prepareBrowse: () => send({ type: 'prepareBrowse' }),
+      clearFocus: () => send({ type: 'clearFocus' }),
+      setTaskAccess: (access) => send({ type: 'setTaskAccess', access }),
+      setApproxPillHeight: (height) =>
+        send({ type: 'setApproxPillHeight', height }),
     }),
     [],
   )
