@@ -49,3 +49,4 @@ schema.graphql
 # storybook
 /storybook-static/
 
+.claude/launch.json
