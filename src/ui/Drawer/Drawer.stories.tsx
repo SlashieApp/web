@@ -120,7 +120,11 @@ async function findOpenDialog(canvasElement: HTMLElement, name: string) {
 
 /** Play for open stories: the dialog is on screen without any interaction. */
 async function expectOpen(canvasElement: HTMLElement, name: string) {
-  await findOpenDialog(canvasElement, name)
+  const dialog = await findOpenDialog(canvasElement, name)
+  // `e4` carries its own 1px ring, so the sheet has no border of its own.
+  const style = getComputedStyle(dialog)
+  await expect(style.borderTopWidth).toBe('0px')
+  await expect(style.boxShadow).toContain('0px 0px 0px 1px')
 }
 
 const middle = (element: Element) => {

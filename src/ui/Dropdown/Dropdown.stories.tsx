@@ -288,6 +288,16 @@ export const OpenState: Story = {
         name: 'Profile',
       }),
     ).toBeVisible()
+    // A dropdown panel is 16px, and `e3` carries its own 1px ring, so it has
+    // no border of its own.
+    const panel = canvasElement.ownerDocument.getElementById(
+      trigger.getAttribute('aria-controls') ?? '',
+    )
+    if (!panel) throw new Error('No menu panel')
+    const style = getComputedStyle(panel)
+    await expect(style.borderTopLeftRadius).toBe('16px')
+    await expect(style.borderTopWidth).toBe('0px')
+    await expect(style.boxShadow).toContain('0px 0px 0px 1px')
   },
 }
 

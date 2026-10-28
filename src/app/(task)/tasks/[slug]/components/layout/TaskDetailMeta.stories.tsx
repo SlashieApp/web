@@ -30,7 +30,12 @@ function localDay(offsetDays = 0) {
 export const Default: Story = {
   decorators: [withTaskDetailStory({ viewer: 'owner' })],
   play: async ({ canvasElement }) => {
-    await within(canvasElement).findByText('Alex Chen')
+    const chip = await within(canvasElement).findByText('Alex Chen')
+    // A chip: a pill with a 1px `border.strong` hairline.
+    const style = getComputedStyle(chip)
+    await expect(style.borderTopLeftRadius).toBe('9999px')
+    await expect(style.borderTopWidth).toBe('1px')
+    await expect(style.borderTopColor).toBe('rgb(212, 212, 216)')
   },
 }
 

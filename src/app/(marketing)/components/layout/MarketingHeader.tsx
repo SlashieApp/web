@@ -5,7 +5,6 @@ import {
   type BoxProps,
   Container,
   HStack,
-  IconButton,
   Image,
   Stack,
   Text,
@@ -23,7 +22,7 @@ import { useOpenFeedbackDialog } from '@/ui/FeedbackDialog/FeedbackDialogProvide
 import { HEADER_MIN_HEIGHT, HeaderToolbarSeparator } from '@/ui/Header'
 import { APP_HOME, MARKETING_HOME } from '@/utils/appRoutes'
 import { openAppOnAndroid } from '@/utils/nativeApp'
-import { Button, Drawer, Link } from '@ui'
+import { Button, Drawer, IconButton, Link } from '@ui'
 
 import chromeMessages from '../../i11n.chrome.json'
 

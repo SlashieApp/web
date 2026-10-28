@@ -1,6 +1,7 @@
 import { Box, Stack } from '@chakra-ui/react'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { LuEye, LuLock, LuMail, LuSearch } from 'react-icons/lu'
+import { expect, within } from 'storybook/test'
 
 import { FormField } from '../FormField'
 import { IconButton } from '../IconButton/IconButton'
@@ -164,6 +165,28 @@ export const ErrorState: Story = {
       />
     </FormField>
   ),
+}
+
+/** Shape: a field has 8px corners and a 1px `border.strong` hairline on white; a search field (`pill`) is a pill. */
+export const Shape: Story = {
+  render: () => (
+    <Stack gap={3} maxW="320px">
+      <Input aria-label="Name" placeholder="Name" />
+      <Input pill aria-label="Search" placeholder="Search" />
+    </Stack>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const field = canvas.getByLabelText('Name').parentElement
+    const search = canvas.getByLabelText('Search').parentElement
+    if (!field || !search) throw new Error('No field shell')
+    const style = getComputedStyle(field)
+    await expect(style.borderTopLeftRadius).toBe('8px')
+    await expect(style.borderTopWidth).toBe('1px')
+    await expect(style.borderTopColor).toBe('rgb(212, 212, 216)')
+    await expect(style.backgroundColor).toBe('rgb(255, 255, 255)')
+    await expect(getComputedStyle(search).borderTopLeftRadius).toBe('9999px')
+  },
 }
 
 /** Overview: the field across its key states. */

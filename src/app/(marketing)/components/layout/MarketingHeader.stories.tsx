@@ -143,6 +143,12 @@ export const LandingScrolled: Story = {
 export const Mobile: Story = {
   globals: { viewport: { value: 'mobile1', isRotated: false } },
   parameters: { nextjs: { navigation: { pathname: '/pricing' } } },
+  play: async ({ canvasElement }) => {
+    const menu = within(canvasElement).getByRole('button', { name: 'Menu' })
+    // An icon button is round (the ui IconButton), 44px.
+    await expect(getComputedStyle(menu).borderTopLeftRadius).toBe('9999px')
+    await expect(menu.getBoundingClientRect().height).toBe(44)
+  },
 }
 
 /** Left edge of the text inside `element` (its box has padding of its own). */

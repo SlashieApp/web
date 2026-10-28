@@ -59,6 +59,8 @@ export function MetaPill({
     px: 2.5,
     py: 1,
     borderRadius: 'full',
+    borderWidth: '1px',
+    borderColor: 'border.strong',
     bg: 'bg.subtle',
     color: 'text.default',
     fontSize: 'sm',
