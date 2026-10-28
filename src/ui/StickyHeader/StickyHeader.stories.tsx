@@ -194,10 +194,10 @@ export const PartWay: Story = {
     const box = moving.getBoundingClientRect()
     near(box.left, expected.x)
     near(box.top, expected.y)
-    near(
-      box.width,
-      heading(canvasElement).getBoundingClientRect().width * titleScale(p),
-    )
+    const h1Box = heading(canvasElement).getBoundingClientRect()
+    near(box.width, h1Box.width * titleScale(p))
+    // The copy wraps as the heading does, so it is as tall as it, scaled.
+    near(box.height, h1Box.height * titleScale(p))
     // The page's own h1 steps aside for the moving copy; it is still the one heading.
     expect(getComputedStyle(heading(canvasElement)).opacity).toBe('0')
     expect(getComputedStyle(moving).opacity).toBe('1')
@@ -280,6 +280,13 @@ export const LongWrappingTitle: Story = {
     // Several lines at the top, in the column.
     expect(h1.getBoundingClientRect().height).toBeGreaterThan(34 * 1.2 * 3)
     near(h1.getBoundingClientRect().width, 22 * 16, 1)
+    // The moving copy wraps on the same lines as the heading.
+    await scrollTo(canvasElement, 12)
+    const copy = part(canvasElement, 'traveller').getBoundingClientRect()
+    near(
+      copy.height,
+      h1.getBoundingClientRect().height * titleScale(collapseProgress(12, 0)),
+    )
     await scrollTo(canvasElement, 400)
     const barTitle = part(canvasElement, 'bar-title')
     expect(getComputedStyle(barTitle).textOverflow).toBe('ellipsis')

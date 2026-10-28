@@ -75,12 +75,22 @@ Routes are already grouped by Next.js route groups, which align to shells:
 | `src/app/(auth)`: `/login`, `/register`, verify | Marketing (auth) | Logo row with a back arrow (Log in only when something is behind it), centered card, legal links |
 | `src/app/(task)` — `/search`, `/tasks` (My Tasks hub), `/tasks/[slug]` | Discovery / My Tasks / Task detail | Map browse on `/search`; hub list on `/tasks`; mobile bottom dock (4); detail = header + quote sidebar |
 | `src/app/(stepflow)` — `/tasks/create`, `/tasks/[slug]/quote`, `/tasks/[slug]/review`, `/worker/setup` | StepFlow | Own route-group `layout.tsx`, no app `Header` / `Dock` (FE-78). Every flow uses `StepFlowHeader`; quote, review, edit and worker setup (six screens, the standard phone body, FE-296) use `StepFlowLayout`; create uses its map variant `CreateTaskMapLayout` (full-screen map, then the band) with the same heading, progress and action bar (FE-295) |
-| `src/app/(dashboard)`: `/profile`, `/account`, `/billing` | Settings | App header, no bottom nav; sticky page header (h1 = menu label, Back on phones) |
+| `src/app/(dashboard)`: `/profile`, `/account`, `/billing` | Settings | App header, no bottom nav; the page header (FE-458, below): h1 = menu label, Back at every width |
 | `src/app/(worker)`: `/workers` (and the `/workers/[id]` redirect to `/profile/[userId]`) | App | Header chrome; below lg no bottom nav and a back arrow over the map (setup lives under `(stepflow)`) |
 
 **Active-nav rule:** active state uses green accent; icon + label aligned.
 
-**Nav-page rule (FE-445):** below lg the bottom nav shows on its own pages only: Search, My tasks and Messages. Every other page has a back arrow (Close on a step flow) and no bottom nav (`shouldHideMobileNav`). The public pages (Pricing, Terms, Privacy, Cookies, Safety) keep the website header and its back arrow. Back goes to the page before, or with nothing behind it to Search signed in and the home page for a visitor (`useGoBack`).
+**Nav-page rule (FE-445):** below lg the bottom nav shows on its own pages only: Search, My tasks and Messages. Every other page has a back arrow (Close on a step flow) and no bottom nav (`shouldHideMobileNav`). The public pages (Pricing, Terms, Privacy, Cookies, Safety) keep the website header, and the page header's bar carries their back arrow. Back goes to the page before, or with nothing behind it to Search signed in and the home page for a visitor (`useGoBack`).
+
+### Page header (FE-458)
+
+One header for Account, Plan & billing, Pricing, Terms, Privacy, Cookies, Safety, Profile, admin notifications, task details and a public profile: `StickyHeader` (`@ui`), which wraps the page. The same numbers drive the app's header (FE-459); they live in `src/ui/StickyHeader/headerCollapse.ts`.
+
+- **Bar:** one 56px row that sticks to the top of the page (`stickyTop` under the marketing header; the app shell's pane is already under the app header). Its row lines up with the page's column and gutters (16 / 24 / 32), its fill is the page's own colour, with no rule or shadow. Back is on the left at every width (a 44px box, the 24px glyph on the content's left edge); a page's own icon button goes on the right (`option`, such as the task options). Labelled buttons stay in the page.
+- **Big title:** under the bar, 34px, 700, line height 1.2, the page's one h1, 8px under the bar, then the description. As the page scrolls it moves up and shrinks to 18px beside Back over 48px of scroll, and over the last quarter cross-fades into the bar's one-line copy (18px, 600, ellipsis, hidden from screen readers). Scrolling back up reverses it; with `prefers-reduced-motion` nothing interpolates and the copy shows at once 48px in.
+- **Over a map or cover (`overMedia`: task details, a public profile):** the bar floats over it with Back and the option button in the frosted overlay look (`HEADER_OVERLAY_BUTTON`), transparent until the title reaches it, then fading to the page colour. The title rests lower, under the map or cover: the page renders it with `StickyHeaderTitle`, and the header finds it.
+- **Tab order:** Back, the page, then the option button.
+
 
 ---
 

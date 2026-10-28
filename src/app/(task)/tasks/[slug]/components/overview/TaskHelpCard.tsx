@@ -9,7 +9,7 @@ import { TaskOverflowActions, useTaskDialogs } from '../layout/TaskOverflowMenu'
 
 /**
  * Desktop Help & actions card: the view's booking actions, then the task
- * ones. Compact uses the sticky title overflow.
+ * ones. The page header's options menu holds the same at every width.
  */
 export function TaskHelpCard() {
   const t = useI11n(bag)

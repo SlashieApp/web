@@ -24,7 +24,7 @@ import { TaskHelpOverflowTrigger } from './TaskOverflowMenu'
  * The task options menu: a popover on web, a bottom sheet on phones. It holds
  * the view's booking actions, then share, edit or repost, safety, help,
  * report and cancel. Booking actions open dialogs that outlive the menu.
- * Shown through its three-dots trigger, as the sticky title uses it.
+ * Shown through its three-dots trigger, as the page header's bar uses it.
  */
 const meta = {
   title: 'Task detail/Layout/TaskOverflowMenu',

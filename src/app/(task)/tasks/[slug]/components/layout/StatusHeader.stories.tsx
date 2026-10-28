@@ -35,7 +35,7 @@ const meta = {
 export default meta
 type Story = StoryObj<typeof meta>
 
-/** Phone: the 300px map band above the sticky title. */
+/** Phone: the 300px map band above the title. */
 export const Phone: Story = {
   globals: { viewport: { value: 'mobile1' } },
 }

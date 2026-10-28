@@ -1,8 +1,8 @@
 # Pricing views
 
-`/pricing` shows the title bar (FE-420, FE-449: Back and a large "Membership"
-that shrinks into the bar on scroll, as Account and Plan & billing do; it is
-the page's one h1), the header ("Simple plans. Clear quotes.", an h2), the two
+`/pricing` shows the page header (FE-458: Back and a large "Membership" that
+shrinks into the bar on scroll, as Account and Plan & billing do; it is the
+page's one h1), the header ("Simple plans. Clear quotes.", an h2), the two
 plan cards (Free and Slashie Unlimited) and the FAQ. The cards depend on who's looking, so they come from
 one view at a time. `getPricingView({ available, session, worker })` picks it, each view
 has one config file in this folder (which card is "Your plan", whether

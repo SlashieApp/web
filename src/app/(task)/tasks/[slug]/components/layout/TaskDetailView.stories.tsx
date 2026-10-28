@@ -3,6 +3,7 @@ import { expect, waitFor, within } from 'storybook/test'
 
 import { withTaskDetailStory } from '../../helpers/taskDetailStoryDecorator'
 import { withTaskDetailPending } from '../../helpers/taskDetailStoryExtras'
+import { storyTaskDetail } from '../../helpers/taskDetailStoryFixtures'
 import { TaskDetailView } from './TaskDetailView'
 
 /**
@@ -118,6 +119,47 @@ export const PhoneScrolled: Story = {
     await expectTitle(canvasElement)
     await expectCollapsed(canvasElement)
     await expectBar(canvasElement)
+  },
+}
+
+const LONG_TITLE =
+  'Mount a floating bookshelf, three picture rails and a TV bracket across the living room and hallway before the weekend'
+
+/** Phone, a long title: it wraps under the map, then ends as one line with an ellipsis in the bar. */
+export const PhoneLongTitle: Story = {
+  globals: { viewport: { value: 'mobile1' } },
+  decorators: [
+    withTaskDetailStory(
+      { viewer: 'owner', task: storyTaskDetail({ title: LONG_TITLE }) },
+      { maxWidth: '100%' },
+    ),
+  ],
+  play: async ({ canvasElement }) => {
+    const h1 = await within(canvasElement).findByRole(
+      'heading',
+      { level: 1, name: LONG_TITLE },
+      { timeout: 4000 },
+    )
+    // Several lines at the top...
+    await expect(h1.getBoundingClientRect().height).toBeGreaterThan(
+      34 * 1.2 * 2,
+    )
+    await expectBar(canvasElement)
+    // ...and one line, cut off, once it has collapsed into the bar.
+    window.scrollTo(0, 2000)
+    await waitFor(() =>
+      expect(getComputedStyle(barTitle(canvasElement)).opacity).toBe('1'),
+    )
+    const copy = barTitle(canvasElement)
+    await expect(getComputedStyle(copy).textOverflow).toBe('ellipsis')
+    await expect(copy.scrollWidth).toBeGreaterThan(copy.clientWidth)
+    // It stops short of the options button.
+    const options = within(canvasElement).getByRole('button', {
+      name: 'Task options',
+    })
+    await expect(copy.getBoundingClientRect().right).toBeLessThanOrEqual(
+      options.getBoundingClientRect().left - 7,
+    )
   },
 }
 

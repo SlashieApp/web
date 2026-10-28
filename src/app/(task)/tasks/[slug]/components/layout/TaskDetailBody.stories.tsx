@@ -480,7 +480,7 @@ export const OwnerPreviewAsGuest: Story = {
 
 // --------------------------------------------------------------- phone
 
-/** Phone, loading: map band, sticky title and skeleton summary. */
+/** Phone, loading: map band, the bar, skeleton title and skeleton summary. */
 export const PhoneLoading: Story = {
   ...phone,
   decorators: [withTaskDetailPending('loading')],
