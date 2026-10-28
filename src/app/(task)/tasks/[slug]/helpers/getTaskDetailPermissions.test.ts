@@ -127,7 +127,6 @@ describe('getTaskDetailPermissions', () => {
     })
 
     expect(permissions.canSubmitQuote).toBe(true)
-    expect(permissions.showFullAddress).toBe(false)
   })
 
   it('worker with a pending quote can edit it', () => {
@@ -262,7 +261,6 @@ describe('getTaskDetailPermissions', () => {
     expect(permissions.isOrderWorker).toBe(true)
     expect(permissions.isOrderActive).toBe(true)
     expect(permissions.showOrderActions).toBe(true)
-    expect(permissions.showFullAddress).toBe(true)
   })
 
   it('keeps booking tools for reschedule, cancel requests, and CONFLICT', () => {
@@ -293,7 +291,6 @@ describe('getTaskDetailPermissions', () => {
     })
 
     expect(permissions.showOrderActions).toBe(true)
-    expect(permissions.showFullAddress).toBe(true)
     expect(permissions.canRepostTask).toBe(false)
   })
 
@@ -392,7 +389,6 @@ describe('getTaskDetailPermissions', () => {
     })
 
     expect(permissions.canSubmitQuote).toBe(false)
-    expect(permissions.showFullAddress).toBe(false)
   })
 })
 

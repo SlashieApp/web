@@ -48,7 +48,6 @@ import {
   formatTaskBudgetPaymentMethodLabel,
   taskBudgetDisplayLine,
   taskDetailLocationLabel,
-  taskDetailShowsExactLocation,
 } from '../../../helpers/taskDetailUtils'
 import bag from '../../../i11n.json'
 
@@ -464,12 +463,9 @@ function mapsDirectionsUrl(lat: number, lng: number): string {
  * the poster and the booked worker (who also gets Open in Maps).
  */
 export function LocationFact() {
-  const { task, seed, myOrder, permissions } = useTaskDetail()
+  const { task, seed, myOrder, permissions, locationAccess } = useTaskDetail()
   const t = useI11n(bag)
-  const exact = taskDetailShowsExactLocation({
-    myOrder,
-    showFullAddress: permissions.showFullAddress,
-  })
+  const exact = locationAccess === 'exact'
   const label = task
     ? taskDetailLocationLabel({ task, myOrder, showExactLocation: exact })
     : seed?.location

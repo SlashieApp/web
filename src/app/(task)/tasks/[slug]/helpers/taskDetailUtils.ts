@@ -300,23 +300,23 @@ export function taskHasAcceptedQuote(task: TaskDetailRecord): boolean {
   return task.quotes.some((q) => q.status === QuoteStatus.Accepted)
 }
 
-/** Exact street address for viewers allowed to see the booked location. */
-export function taskDetailShowsExactLocation(input: {
-  myOrder?: OrderItem | null
-  showFullAddress: boolean
-}): boolean {
-  if (input.myOrder) return true
-  return input.showFullAddress
-}
-
+/**
+ * Where the map draws this task. The order's snapshot is the booked address,
+ * so it only counts when the viewer is allowed the exact location
+ * (`taskLocationAccess`); everyone else gets `location` as the API returned
+ * it (the fixed public point), never re-derived on the client.
+ */
 export function taskDetailMapCoordinates(
   task: TaskDetailRecord,
-  myOrder?: OrderItem | null,
+  myOrder: OrderItem | null | undefined,
+  showExactLocation: boolean,
 ): { lat: number; lng: number } | null {
-  const orderLat = parseCoord(myOrder?.snapshot?.location?.lat)
-  const orderLng = parseCoord(myOrder?.snapshot?.location?.lng)
-  if (orderLat != null && orderLng != null) {
-    return { lat: orderLat, lng: orderLng }
+  if (showExactLocation) {
+    const orderLat = parseCoord(myOrder?.snapshot?.location?.lat)
+    const orderLng = parseCoord(myOrder?.snapshot?.location?.lng)
+    if (orderLat != null && orderLng != null) {
+      return { lat: orderLat, lng: orderLng }
+    }
   }
   return taskMapCoordinates(task)
 }
@@ -326,18 +326,18 @@ export function taskDetailLocationLabel(input: {
   myOrder?: OrderItem | null
   showExactLocation: boolean
 }): string {
+  if (!input.showExactLocation) {
+    return taskPublicLocationLabel(input.task) || 'Approximate area'
+  }
   if (input.myOrder) {
     return orderLocationLabel(input.myOrder)
   }
-  if (input.showExactLocation) {
-    return (
-      input.task.location?.address?.trim() ||
-      input.task.location?.name?.trim() ||
-      taskPublicLocationLabel(input.task) ||
-      'Address shared when your quote is accepted'
-    )
-  }
-  return taskPublicLocationLabel(input.task) || 'Approximate area'
+  return (
+    input.task.location?.address?.trim() ||
+    input.task.location?.name?.trim() ||
+    taskPublicLocationLabel(input.task) ||
+    'Address shared when your quote is accepted'
+  )
 }
 
 export type OrderCounterpart = {

@@ -95,7 +95,6 @@ export type TaskDetailPermissions = {
    * status and actions.
    */
   showOrderActions: boolean
-  showFullAddress: boolean
   canCancelTask: boolean
   canEditTask: boolean
   /**
@@ -191,8 +190,6 @@ export function getTaskDetailPermissions(
       !isFrozen,
   )
 
-  const showFullAddress = Boolean(isOwner || isOrderWorker)
-
   const canCancelTask = Boolean(isOwner && isOpen && !isSuspended)
 
   const canEditTask = Boolean(isOwner && isOpen && !isSuspended)
@@ -226,7 +223,6 @@ export function getTaskDetailPermissions(
     showOwnerQuoteList,
     canAcceptQuote,
     showOrderActions,
-    showFullAddress,
     canCancelTask,
     canEditTask,
     canRepostTask,

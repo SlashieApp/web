@@ -12,6 +12,7 @@ import type { TaskDetailPermissions } from '../helpers/getTaskDetailPermissions'
 import type { TaskDetailMainCtaModel } from '../helpers/taskDetailMainCtaModel'
 import type { TaskDetailTab } from '../helpers/taskDetailTabs'
 import type { TaskDetailRecord } from '../helpers/taskDetailUtils'
+import type { TaskLocationAccess } from '../helpers/taskLocationAccess'
 import type { TaskDetailViewName } from '../views'
 
 export type TaskDetailData = {
@@ -38,6 +39,12 @@ export type TaskDetailData = {
    * Status-dependent UI should render loading placeholders until then.
    */
   statusReady: boolean
+  /**
+   * What this viewer may see of the task's location (`taskLocationAccess`):
+   * the one answer the map, the location row, the chip, the maps link and the
+   * poster note all read.
+   */
+  locationAccess: TaskLocationAccess
   /** The quotes list is part of Task.gql; true during its first client load. */
   quotesLoading: boolean
   me: MeQuery['me'] | null

@@ -63,6 +63,10 @@ import {
   writeTaskDetailHash,
 } from '@/app/(task)/tasks/[slug]/helpers/taskDetailTabs'
 import type { TaskDetailRecord } from '@/app/(task)/tasks/[slug]/helpers/taskDetailUtils'
+import {
+  taskLocationAccess,
+  workerOrderStatus,
+} from '@/app/(task)/tasks/[slug]/helpers/taskLocationAccess'
 import { taskQueryVariables } from '@/app/(task)/tasks/[slug]/helpers/taskQueryVariables'
 import {
   availablePrimaryAction,
@@ -973,6 +977,17 @@ export function TaskDetailProvider({
     clientTaskLoaded && (!isAuthenticated || !meLoadingResolved),
   )
 
+  const locationAccess = taskLocationAccess({
+    guestView: !isAuthenticated,
+    // Signed out is ready once the task has loaded; signed in waits for the
+    // confirmed viewer (their quote, order and me).
+    viewerReady: isAuthenticated ? statusReady : Boolean(task),
+    meId: me?.id,
+    posterId: task?.poster?.id,
+    myQuoteStatus: myQuote?.status,
+    myOrderStatus: workerOrderStatus(myOrder, me?.id),
+  })
+
   const resolvedTab = explicitTab ?? TASK_DETAIL_TAB.overview
   const activeTab = resolvedTab
 
@@ -1064,6 +1079,7 @@ export function TaskDetailProvider({
       orderLoading,
       viewerLoading,
       statusReady,
+      locationAccess,
       quotesLoading,
       me,
       meLoading: meLoadingResolved,
@@ -1120,6 +1136,7 @@ export function TaskDetailProvider({
       orderLoading,
       viewerLoading,
       statusReady,
+      locationAccess,
       quotesLoading,
       me,
       meLoadingResolved,

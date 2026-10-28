@@ -25,7 +25,8 @@ import {
  * and the current camera) instead of publishing a replacement layer.
  */
 export function TaskDetailMapBinder() {
-  const { task, taskId, permissions, myOrder, me } = useTaskDetail()
+  const { task, taskId, permissions, myOrder, me, locationAccess } =
+    useTaskDetail()
   const { published, focusTaskId } = useMarketplaceMapState()
   const fromSearch =
     typeof window === 'undefined'
@@ -40,7 +41,11 @@ export function TaskDetailMapBinder() {
 
   const layer = useMemo<MarketplaceMapPublishedLayer | null>(() => {
     if (keepBrowse || !task) return null
-    const coords = taskDetailMapCoordinates(task, myOrder)
+    const coords = taskDetailMapCoordinates(
+      task,
+      myOrder,
+      locationAccess === 'exact',
+    )
     const lat = coords?.lat
     const lng = coords?.lng
     if (lat == null || lng == null) return null
@@ -77,7 +82,7 @@ export function TaskDetailMapBinder() {
         mapAriaLabel: 'Map of this task location',
       },
     }
-  }, [keepBrowse, task, permissions.isOwner, myOrder, me?.id])
+  }, [keepBrowse, task, permissions.isOwner, myOrder, me?.id, locationAccess])
 
   usePublishMarketplaceMap(layer)
 

@@ -58,7 +58,11 @@ export function taskDetailLocationTag(input: {
 }): TaskDetailLinkTag | null {
   const label = taskDetailLocationTown(taskDetailLocationLabel(input))
   if (!label) return null
-  const coords = taskDetailMapCoordinates(input.task, input.myOrder)
+  const coords = taskDetailMapCoordinates(
+    input.task,
+    input.myOrder,
+    input.showExactLocation,
+  )
   return {
     label,
     href: coords ? buildSearchUrl({ lat: coords.lat, lng: coords.lng }) : null,

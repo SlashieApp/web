@@ -23,7 +23,6 @@ import {
   taskDetailOwnerTag,
   taskDetailTimeTag,
 } from '../../helpers/taskDetailMetaTags'
-import { taskDetailShowsExactLocation } from '../../helpers/taskDetailUtils'
 import bag from '../../i11n.json'
 
 const DATE_LOCALE = {
@@ -187,7 +186,7 @@ function dragScroll(node: HTMLDivElement | null) {
  * and owner navigate.
  */
 export function TaskDetailMeta() {
-  const { task, myOrder, permissions } = useTaskDetail()
+  const { task, myOrder, locationAccess } = useTaskDetail()
   const t = useI11n(bag)
   const locale = useLocale()
 
@@ -196,10 +195,7 @@ export function TaskDetailMeta() {
   const location = taskDetailLocationTag({
     task,
     myOrder,
-    showExactLocation: taskDetailShowsExactLocation({
-      myOrder,
-      showFullAddress: permissions.showFullAddress,
-    }),
+    showExactLocation: locationAccess === 'exact',
   })
   const time = taskDetailTimeTag(
     task,
