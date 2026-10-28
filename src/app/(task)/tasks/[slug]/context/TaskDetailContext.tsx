@@ -8,11 +8,11 @@ import type { OrderCloseView, OrderItem } from '@/utils/orderHelpers'
 import type { TimeSlotDraft } from '@/utils/timeSlots'
 
 import type { TaskCardTask } from '@/app/(task)/components/ui/TaskCard'
+import type { TaskLocationAccess } from '@/app/(task)/helpers/taskLocationAccess'
 import type { TaskDetailPermissions } from '../helpers/getTaskDetailPermissions'
 import type { TaskDetailMainCtaModel } from '../helpers/taskDetailMainCtaModel'
 import type { TaskDetailTab } from '../helpers/taskDetailTabs'
 import type { TaskDetailRecord } from '../helpers/taskDetailUtils'
-import type { TaskLocationAccess } from '../helpers/taskLocationAccess'
 import type { TaskDetailViewName } from '../views'
 
 export type TaskDetailData = {

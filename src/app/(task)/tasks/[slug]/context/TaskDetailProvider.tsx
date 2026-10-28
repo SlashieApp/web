@@ -63,10 +63,6 @@ import {
   writeTaskDetailHash,
 } from '@/app/(task)/tasks/[slug]/helpers/taskDetailTabs'
 import type { TaskDetailRecord } from '@/app/(task)/tasks/[slug]/helpers/taskDetailUtils'
-import {
-  taskLocationAccess,
-  workerOrderStatus,
-} from '@/app/(task)/tasks/[slug]/helpers/taskLocationAccess'
 import { taskQueryVariables } from '@/app/(task)/tasks/[slug]/helpers/taskQueryVariables'
 import {
   availablePrimaryAction,
@@ -107,6 +103,10 @@ import { useOrderReviewState } from '../helpers/useOrderReviewState'
 
 import { useMessagesOptional } from '@/app/(messages)/messages/context/MessagesProvider'
 import { taskHandoffFor } from '@/app/(task)/helpers/taskCardHandoff'
+import {
+  taskLocationAccess,
+  workerOrderStatus,
+} from '@/app/(task)/helpers/taskLocationAccess'
 import { MESSAGES_HREF } from '@ui'
 import { TaskDetailViewCapture } from '../components/analytics/TaskDetailViewCapture'
 import { type OrderAction, TaskDetailContext } from './TaskDetailContext'
