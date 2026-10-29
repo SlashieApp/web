@@ -109,7 +109,7 @@ const WIDE: Record<FormationName, Formation> = {
   gather: {
     toolbox: pose(-0.37, 0.05, 0, 0.45, 0.5, 0.08, 0.63),
     boxes: pose(0.37, 0.05, 0, 0.35, -0.5, 0, 0.6),
-    pin: pose(0.41, -0.14, 0.5, 0.1, 0.3, -0.15, 0.46),
+    pin: pose(0.42, -0.08, 0.5, 0.1, 0.3, -0.15, 0.46),
   },
 }
 
@@ -199,9 +199,9 @@ export const PROP_REACH: Record<
   SceneObjectId,
   { halfWidth: number; above: number; below: number }
 > = {
-  toolbox: { halfWidth: 1.25, above: 1.1, below: 1.2 },
-  boxes: { halfWidth: 1.15, above: 0.75, below: 1.2 },
-  pin: { halfWidth: 0.6, above: 0.85, below: 1.2 },
+  toolbox: { halfWidth: 1.25, above: 1.35, below: 1.2 },
+  boxes: { halfWidth: 1.15, above: 0.85, below: 1.2 },
+  pin: { halfWidth: 0.6, above: 0.9, below: 1.2 },
 }
 
 /**

@@ -687,7 +687,11 @@ holds every pose to that).
   reads the footer's top edge once a frame while the close is the stage and
   `closeLiftPx` lifts the whole formation together (so the pin stays under the
   boxes), by the most any prop needs to keep its shadow 24px clear of the
-  footer, and never so far that the highest goes up under the header.
+  footer, and never so far that the highest goes up under the header. The
+  window between the two is about 370px at 1366 x 900, so the whole formation
+  fits there (a test holds that for 1366, 1440 and 1536 wide); on a screen
+  shorter than about 800px the header wins and the pin's shadow can still meet
+  the footer's edge.
 - **The step object** (`FOCUS_FOR_STAGE`) comes forward and grows 20% where it
   is, on wide screens only. Nearer the camera a prop drifts outward, so its x
   and y are scaled back to keep its spot on the screen (a unit test holds this).

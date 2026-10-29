@@ -440,6 +440,26 @@ describe('closeLiftPx', () => {
     }
   })
 
+  it('fits the close between the header and the footer on a laptop screen', () => {
+    // The footer is about 466px tall, so at the end of the page its top edge is
+    // that far up from the screen's foot. Both the review's 1366 x 900 and a 1440
+    // x 900 leave room for the whole formation: nothing under the header (the
+    // hammer was cut by it before the pin's low pose and the toolbox's height
+    // were allowed for), nothing under the footer.
+    for (const width of [1366, 1440, 1536]) {
+      const footerTop = 900 - 466
+      const lift = at(false, width, 900, footerTop)
+      for (const { id, top, bottom } of extents(false, width, 900, lift)) {
+        expect(top, `${id} at ${width}`).toBeGreaterThanOrEqual(
+          64 + HEADER_MARGIN_PX - 1e-6,
+        )
+        expect(bottom, `${id} at ${width}`).toBeLessThanOrEqual(
+          footerTop - FOOTER_MARGIN_PX + 1e-6,
+        )
+      }
+    }
+  })
+
   it('lifts the props together, so the formation keeps its shape', () => {
     // One number for the whole close: the pin stays under the boxes.
     const before = extents(false, 1366, 900, 0)
