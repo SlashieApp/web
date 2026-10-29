@@ -27,7 +27,7 @@ export function LandingBackdrop() {
 
   useEffect(() => {
     // Same split as the story layout: below `lg` the phone is inline and the
-    // scene shows three objects.
+    // scene shows two objects.
     const query = window.matchMedia(`(max-width: ${WEB_MIN_PX - 1}px)`)
     const sync = () => setCompact(query.matches)
     sync()

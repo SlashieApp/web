@@ -1,6 +1,7 @@
 import { Box } from '@chakra-ui/react'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { useEffect } from 'react'
+import { expect, waitFor } from 'storybook/test'
 
 import {
   STORY_STAGES,
@@ -16,7 +17,7 @@ function SceneFrame({
 }: {
   stage: StoryStage
   compact: boolean
-  /** No mint wash: used to render the still poster with a clear background. */
+  /** No ground at all: used to render the still poster with a clear background. */
   transparent?: boolean
 }) {
   useEffect(() => {
@@ -26,9 +27,8 @@ function SceneFrame({
     <Box
       position="fixed"
       inset={0}
-      bgGradient={transparent ? undefined : 'to-b'}
-      gradientFrom="status.success.soft"
-      gradientTo="bg.canvas"
+      // The page's own ground: white, as the backdrop paints it.
+      bg={transparent ? undefined : 'bg.surface'}
     >
       <LandingScene compact={compact} dprMax={2} />
     </Box>
@@ -43,51 +43,57 @@ const meta = {
   argTypes: {
     stage: { control: 'select', options: STORY_STAGES },
   },
+  // Every formation draws a canvas (WebGL context, the models and the lights).
+  play: ({ canvasElement }) =>
+    waitFor(
+      () => expect(canvasElement.querySelector('canvas')).not.toBeNull(),
+      { timeout: 15000 },
+    ),
 } satisfies Meta<typeof SceneFrame>
 
 export default meta
 type Story = StoryObj<typeof meta>
 
-/** Hero formation: the six objects around where the hero phone sits. */
+/** Hero formation: the three objects at the sides of the hero text. */
 export const Hero: Story = {}
 
-/** Customer act formation (the Quotes step): objects on the right half, boxes pulled in. */
+/** Customer act formation (the Quotes step): objects down the right edge, beside the phone, the boxes brought forward. */
 export const CustomerAct: Story = { args: { stage: 'quotes' } }
 
-/** Worker act formation (the Send a quote step): tools forward, screwdriver pulled in. */
+/** Worker act formation (the Send a quote step): the objects change places and the boxes come forward. */
 export const WorkerAct: Story = { args: { stage: 'workerQuote' } }
 
-/** Scatter formation (trust and pricing): objects busy on the right, peeking in left. */
+/** Scatter formation (trust and pricing, under opaque panels): objects wait at the right edge. */
 export const Scatter: Story = { args: { stage: 'trust' } }
 
-/** Gather formation (the final call to action): objects around the CTA band. */
+/** Gather formation (the final call to action): objects either side of the call, outside its column. */
 export const Gather: Story = { args: { stage: 'cta' } }
 
-/** Phones: three objects hugging the edges. */
+/** Phones: two objects hugging the edges of the hero. */
 export const Compact: Story = {
   args: { compact: true },
   parameters: { viewport: { defaultViewport: 'mobile1' } },
 }
 
-/** Phone, customer act: three small objects peek in from the edges beside the steps. */
+/** Phone, customer act: two small objects peek in from the edges beside the steps. */
 export const CompactCustomerAct: Story = {
   args: { stage: 'quotes', compact: true },
   globals: { viewport: { value: 'mobile1', isRotated: false } },
 }
 
-/** Phone, worker act: the three objects swap sides with the customer act. */
+/** Phone, worker act: the two objects swap sides with the customer act. */
 export const CompactWorkerAct: Story = {
   args: { stage: 'workerQuote', compact: true },
   globals: { viewport: { value: 'mobile1', isRotated: false } },
 }
 
-/** Phone, scatter (trust and pricing): objects only peek in at the far edges. */
+/** Phone, scatter (trust and pricing): objects only peek in at the far edges, under opaque panels. */
 export const CompactScatter: Story = {
   args: { stage: 'trust', compact: true },
   globals: { viewport: { value: 'mobile1', isRotated: false } },
 }
 
-/** Phone, gather (final call to action): the three objects frame the band. */
+/** Phone, gather (final call to action): the two objects frame the heading. */
 export const CompactGather: Story = {
   args: { stage: 'cta', compact: true },
   globals: { viewport: { value: 'mobile1', isRotated: false } },
@@ -96,7 +102,7 @@ export const CompactGather: Story = {
 /** Source for the hero's still poster (`public/images/landing/`), wide, transparent. */
 export const PosterWide: Story = { args: { transparent: true } }
 
-/** Source for the hero's still poster, phone size: compact objects, transparent. */
+/** Source for the hero's still poster, phone size: the two compact objects, transparent. */
 export const PosterCompact: Story = {
   args: { transparent: true, compact: true },
   parameters: { viewport: { defaultViewport: 'mobile1' } },

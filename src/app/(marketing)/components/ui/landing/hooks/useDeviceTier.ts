@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react'
 /**
  * Adaptive quality tier for the landing's 3D scene.
  * - `off`: prefers-reduced-motion or no WebGL: no canvas, the still poster.
- * - `low`: three objects, lower pixel ratio.
+ * - `low`: two objects, lower pixel ratio.
  * - `mid` / `high`: the full scene (`high` = desktop-class hardware).
  */
 export type DeviceTier = 'high' | 'mid' | 'low' | 'off'

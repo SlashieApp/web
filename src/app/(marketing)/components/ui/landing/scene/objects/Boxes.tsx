@@ -1,69 +1,68 @@
 'use client'
 
-import { RoundedBox } from '@react-three/drei'
-
-import { Cardboard, Plastic } from '../materials'
-import { SCENE_COLORS } from '../scenePalette'
+import { BevelBox, Matte } from '../materials'
+import { SCENE_COLORS, type SceneColor } from '../scenePalette'
 
 type Vec3 = [number, number, number]
 
-/** One cardboard box sealed with green tape over the top and down the sides. */
-function TapedBox({
+/**
+ * One plain box with a thin lid seam. `strap` adds the green strap: a band
+ * over the top and down the front and back, the one green part of the stack.
+ */
+function Box({
   size,
   position,
   rotation,
+  color,
+  strap = false,
 }: {
   size: Vec3
   position: Vec3
   rotation: Vec3
+  color: SceneColor
+  strap?: boolean
 }) {
   const [w, h, d] = size
-  const tapeDrop = h * 0.36
   return (
     <group position={position} rotation={rotation}>
-      <RoundedBox args={size} radius={0.04} smoothness={3}>
-        <Cardboard />
-      </RoundedBox>
-      <mesh position={[0, h / 2 + 0.006, 0]}>
-        <boxGeometry args={[0.17, 0.012, d + 0.012]} />
-        <Plastic color={SCENE_COLORS.plasticLight} />
-      </mesh>
-      {[1, -1].map((side) => (
-        <mesh
-          key={side}
-          position={[0, h / 2 - tapeDrop / 2, (side * (d + 0.012)) / 2]}
-        >
-          <boxGeometry args={[0.17, tapeDrop, 0.012]} />
-          <Plastic color={SCENE_COLORS.plasticLight} />
-        </mesh>
-      ))}
-      {/* Flap seam either side of the tape. */}
+      <BevelBox args={size} bevel={0.04} color={color} />
+      {/* Flap seam across the lid. */}
       <mesh position={[0, h / 2 + 0.002, 0]}>
         <boxGeometry args={[w * 0.94, 0.004, 0.012]} />
-        <Cardboard color={SCENE_COLORS.cardboardDark} />
+        <Matte color={SCENE_COLORS.neutral400} />
       </mesh>
+      {strap ? (
+        <mesh>
+          <boxGeometry args={[0.17, h + 0.012, d + 0.012]} />
+          <Matte color={SCENE_COLORS.accent} />
+        </mesh>
+      ) : null}
     </group>
   )
 }
 
-/** A small stack of moving boxes. */
+/** A small stack of three boxes, white and zinc, strapped in green on top. */
 export function Boxes() {
   return (
     <group>
-      <TapedBox
+      <Box
         size={[1, 0.72, 0.82]}
         position={[-0.34, -0.3, 0]}
         rotation={[0, 0.25, 0]}
+        color={SCENE_COLORS.white}
       />
-      <TapedBox
+      <Box
         size={[0.86, 0.66, 0.74]}
         position={[0.56, -0.33, -0.1]}
         rotation={[0, -0.35, 0]}
+        color={SCENE_COLORS.neutral300}
       />
-      <TapedBox
+      <Box
         size={[0.78, 0.58, 0.66]}
         position={[0.04, 0.34, 0.02]}
         rotation={[0, -0.1, 0]}
+        color={SCENE_COLORS.neutral200}
+        strap
       />
     </group>
   )

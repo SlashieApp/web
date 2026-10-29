@@ -1,24 +1,29 @@
 /**
  * WebGL colours for the landing objects. WebGL can't read Chakra tokens, so
- * this is the one sanctioned place for raw hex on the landing: greens mirror
- * the SDL green scale (`src/theme/chakraSystem.ts`); the rest are material
- * colours (cardboard, wood, metal, mop) that have no UI token.
+ * this is the one sanctioned place for raw hex on the landing (the unit test
+ * `scenePalette.test.ts` keeps it that way).
+ *
+ * The props are white and zinc with one green part each (tone refresh, train
+ * 2). The zincs mirror the SDL neutral ramp (`src/theme/chakraSystem.ts`) and
+ * the green is the brand fill, `green.400`. No cardboard, wood or metal tones.
  */
 export const SCENE_COLORS = {
-  /** green.600: main glossy plastic. */
-  plastic: '#02A567',
-  /** green.500: tape, stripes, highlights. */
-  plasticLight: '#00C275',
-  /** green.800: handles, grips, trims. */
-  plasticDark: '#05683F',
-  /** green.900: bucket interior. */
-  plasticDeep: '#053D27',
-  cardboard: '#CFA06A',
-  cardboardDark: '#B9874F',
-  wood: '#C9935A',
-  metal: '#C9D1CE',
-  /** Mop strands and roller sleeve. */
-  fabric: '#F3F1EA',
-  /** neutral.900 at low opacity: blob shadows. */
-  shadow: '#0A1512',
+  /** neutral.0: the lightest planes. */
+  white: '#FFFFFF',
+  /** neutral.200: main bodies. */
+  neutral200: '#E4E4E7',
+  /** neutral.300: second bodies, shafts. */
+  neutral300: '#D4D4D8',
+  /** neutral.400: seams and fine tools. */
+  neutral400: '#A1A1AA',
+  /** neutral.500: latches, posts, handles. */
+  neutral500: '#71717A',
+  /** The ink of the scene (zinc 800): the hammer head and little else. */
+  ink: '#27272A',
+  /** green.400: the one green part of each object. A fill, never a line. */
+  accent: '#00DC82',
+  /** Ink at low opacity: blob shadows. */
+  shadow: '#27272A',
 } as const
+
+export type SceneColor = (typeof SCENE_COLORS)[keyof typeof SCENE_COLORS]

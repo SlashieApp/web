@@ -1,8 +1,8 @@
 # Slashie marketing landing
 
 `/home`: a scroll story that introduces Slashie. A fixed white page with
-floating real-time 3D objects (toolbox, mop bucket, boxes, paint roller,
-screwdriver, map pin) sits behind a server-rendered narrative, and an HTML
+floating real-time 3D props (a toolbox, boxes and a map pin) sits behind a
+server-rendered narrative, and an HTML
 phone demos the real app as you scroll (pinned beside the steps on desktop,
 inline in each step below `lg`). Lives inside the production app
 (Chakra v3 + SDL tokens): **no Tailwind, no styling-system fork** (FE-205).
@@ -19,13 +19,14 @@ bun run build
 
 | Stage | Copy (`landing.story`) | Phone screen | 3D formation |
 | --- | --- | --- | --- |
-| `hero` | hero heading + search CTA, then (until the first step) the map panel and the bento | Search (customer) | `hero`: left and right edges |
-| `post` · `quotes` · `chat` · `hire` · `review` | customer act | Post · Quotes · Chat · Hire · Review | `customer`: right half |
-| `workerFind` · `workerQuote` · `workerProfile` | worker act | Search (worker) · Quote form · Profile | `worker`: tools forward |
-| `trust` · `pricing` | the trust row, live pricing | (phone has left) | `scatter`: right side |
-| `cta` | Post a task / Become a worker | | `gather`: around the CTA |
+| `hero` | hero heading + search CTA, then (until the first step) the map panel and the bento | Search (customer) | `hero`: toolbox and boxes flank the text, the pin top right |
+| `post` · `quotes` · `chat` · `hire` · `review` | customer act | Post · Quotes · Chat · Hire · Review | `customer`: down the right edge |
+| `workerFind` · `workerQuote` · `workerProfile` | worker act | Search (worker) · Quote form · Profile | `worker`: the same edge, the props change places |
+| `trust` · `pricing` | the trust row, live pricing | (phone has left) | `scatter`: waits at the right edge, under the opaque panels |
+| `cta` | Post a task / Become a worker | | `gather`: either side of the call |
 
-Each step also pulls one "focus" object beside the phone (`formations.ts`).
+Each step also brings one "focus" prop forward, in place (`formations.ts`). See
+3D props.
 
 ## Architecture
 
@@ -52,9 +53,12 @@ components/ui/landing/
     phoneParts.tsx           tab bar, hotspot, avatar, card, primary button
   scene/
     LandingBackdrop.tsx      fixed white page + lazy three.js scene (next/dynamic, ssr: false)
-    LandingScene.tsx         Canvas, lightformer reflections, damped formation moves
-    formations.ts            poses per formation (viewport fractions), unit-tested
-    objects/*                procedural models (drei RoundedBox, lathe/extrude/tube geometry)
+    LandingScene.tsx         Canvas, damped formation moves, blob shadows
+    SceneLights.tsx          the neutral light rig (the object stories use it too)
+    formations.ts            poses per formation (viewport fractions), the wide x limit, unit-tested
+    materials.tsx            Matte (flat shaded) and BevelBox, the low-poly building block
+    scenePalette.ts          the one place for raw hex (white, zinc, ink, one green; unit-tested)
+    objects/*                the three low-poly models: Toolbox, Boxes, MapPin
     HeroObjectsPoster.tsx    still render of the hero objects (public/images/landing/)
   showcase/
     MapShowcase.tsx          the map panel: drawn map, price pins, the selected task's card
@@ -408,6 +412,79 @@ call's Post a task goes: register, then on to `/tasks/create`.
   200ms fade. Reduced motion (read with `matchMedia`, so a story can set it): it
   fades without any rise (no `transform` at all). It is not printed.
 
+## 3D props
+
+The real-time scene (`scene/LandingScene.tsx`, three.js through react-three-fiber)
+keeps its device tiers, its no-WebGL path and its stage API (`storyState`); what
+it draws changed. Three props on laptops and up (a toolbox, boxes and a map pin)
+and two below `lg` (the pin and the toolbox, `COMPACT_OBJECTS`), at about 70% of
+the size the six-object scene had (the hero toolbox went from scale 1 to 0.7,
+the boxes from 0.95 to 0.67, the pin from 0.8 to 0.56; `formations.test.ts`
+holds every pose to that).
+
+- **Low-poly, flat shaded.** Every model is plain bevelled boxes (`BevelBox`: a
+  drei `RoundedBox` with one two-facet chamfer and no smoothing) and a few
+  8-sided cylinders; the pin is a teardrop extruded from a 10-segment outline
+  with an 8-sided hole. The one material is `Matte` (`flatShading`, rough, no
+  clearcoat), so each face takes one tone from the light.
+- **White and zinc, one green part each** (`scenePalette.ts`, the only raw hex;
+  `scenePalette.test.ts` checks the colours and that nothing else holds a hex):
+  `#FFFFFF`, `#E4E4E7`, `#D4D4D8`, `#A1A1AA`, `#71717A`, the scene's ink
+  `#27272A` and the brand green 400 `#00DC82`. No cardboard, wood or metal
+  tones. The green is a fill, never a line: the toolbox's carry grip, the strap
+  over the top box, the disc in the pin's hole.
+- **Light.** `SceneLights`: a white-to-zinc hemisphere light, one key light from
+  the upper right and a faint fill. There is no environment map any more (the
+  props are matte), and the old mint-tinted lightformer is gone. The blob
+  shadows are ink at low opacity.
+- **Formations** (`formations.ts`, poses as fractions of the visible viewport):
+  `hero` puts the toolbox and the boxes either side of the search, level with
+  it, and the pin top right; below `lg` the text fills the width, so the two
+  props sit either side of the "See how it works" row, under the trust row and
+  above the map panel. The hero's text and the panel under it are a fixed
+  number of pixels from the top of the page, so `poseFor` takes the screen's
+  height and keeps the hero formation its distance from the top (a tall screen
+  would otherwise carry the props down behind the panel); every other
+  formation is a plain fraction. `customer` and `worker` run the props down the
+  right edge, the strip beside the pinned phone (they peek out from behind it
+  on a laptop and sit in the margin beside it on a wide screen), and swap
+  places between the acts; below `lg` they peek in at the edges beside the
+  inline phone. `scatter` (trust and pricing, under opaque panels) waits at the
+  same edge; `gather` (the close) puts the toolbox and the boxes either side of
+  the call, outside its 40rem column, and the pin low on the right. Nothing
+  sits between the steps and the phone: there is no room there at `lg`.
+- **The step object** (`FOCUS_FOR_STAGE`) comes forward and grows 20% where it
+  is, on wide screens only. Nearer the camera a prop drifts outward, so its x
+  and y are scaled back to keep its spot on the screen (a unit test holds this).
+  The flat pin sways about its pose from step to step instead of turning, so it
+  is never edge-on.
+- **On wide screens** `limitX` holds every prop within 555px of the screen's
+  centre (the page column is 80rem, and its rails are 640px out), so on a 1920
+  screen the props stay with the page instead of floating in the margin.
+- **Clear of text.** Checked on the live page (`next dev`) by diffing a
+  screenshot with the canvas on against one with it hidden and counting prop
+  pixels under any text, plus 4px: no overlap in the hero and the close at 320,
+  360, 390, 430, 600, 768, 1023, 1024, 1100, 1280, 1366, 1440, 1536, 1920 and
+  2560 wide, and none in the act steps measured: all eight at 390, every step
+  but Get booked at 1024, Post, Quotes and Send a quote at 320, 360 and 430,
+  Quotes and Send a quote at 768, 1023 and 1366, and Quotes, Find work, Send a
+  quote and Get booked at 1280, 1440 and 1920. The scene is a fixed layer under
+  scrolling text, so a clean result is for the moment a stage arrives (the
+  section mid-screen). On a phone, where the text fills the width, the props
+  are only slivers at the edges (they peek in beside the inline phone and
+  either side of the close's heading), and as the page scrolls an edge may pass
+  behind a line. The props are light (white to zinc 300), so that still reads
+  at AA for `text.default` and `text.muted`.
+- **Deleted:** the mop bucket, the paint roller and the screwdriver (no
+  formation uses them), the cardboard, wood, metal and fabric materials, and the
+  lightformer environment. The device tiers (`useDeviceTier`: reduced motion or
+  no WebGL gives no canvas and the still poster), `LandingBackdrop` and
+  `HeroObjectsPoster` are as they were; only the poster images are new.
+- **Stories:** `SceneObjects` (the three models alone), `LandingScene` (every
+  formation, wide and compact, plus `PosterWide` and `PosterCompact`),
+  `LandingBackdrop` (desktop, phone, low-end, reduced motion) and
+  `HeroObjectsPoster`. They sit on the page's white, not the old mint wash.
+
 ## Behaviour by device
 
 - **Desktop (`lg`+):** the index, the steps and one phone (see How it works).
@@ -415,8 +492,8 @@ call's Post a task goes: register, then on to `/tasks/create`.
   pins at mid-screen and lets go when the last step ends.
 - **Below `lg`:** no pinned phone. The index is a row under the header; each
   step is its text followed by its own phone, which plays once a third of it is
-  on screen and resets only after it has left. The scene shows three objects
-  (`COMPACT_OBJECTS`).
+  on screen and resets only after it has left. The scene shows two props
+  (`COMPACT_OBJECTS`: the pin and the toolbox).
 - **Reduced motion / no WebGL / no JS:** no canvas. The hero shows the still
   poster and phone screens show their finished state. Every transition inside
   the phone is zeroed by `PhoneFrame`; the index does not animate.
@@ -426,14 +503,17 @@ call's Post a task goes: register, then on to `/tasks/create`.
 The poster is rendered from the `PosterWide` / `PosterCompact` stories of
 `LandingScene` (transparent background). Re-render it after changing the
 hero formation or the models: screenshot those stories headlessly (e.g.
-Playwright with `omitBackground: true` at 1440x900 and 390x844, 1.5x) and save
-WebP files to `public/images/landing/hero-objects-{wide,compact}.webp`.
+Playwright with `omitBackground: true` at 1440x900 and 390x844, 1.5x, with the
+page, `body` and `#storybook-root` backgrounds cleared) and save WebP files to
+`public/images/landing/hero-objects-{wide,compact}.webp`. Look at both before
+committing: the objects should sit where the live scene puts them.
 
 ## Brand tokens
 
 UI references SDL semantic tokens only (`src/theme/chakraSystem.ts`). WebGL
-can't read tokens, so `scene/scenePalette.ts` mirrors the SDL greens plus the
-material colours (cardboard, wood, metal, fabric): the only raw hex here.
+can't read tokens, so `scene/scenePalette.ts` mirrors the SDL neutral ramp
+(white and four zincs), the scene's ink and the brand green 400: the only raw
+hex here (`scenePalette.test.ts` fails on any other).
 **Green-ink rule:** green fills use dark ink text, never white.
 
 ## Deliberate calls
@@ -441,7 +521,8 @@ material colours (cardboard, wood, metal, fabric): the only raw hex here.
 - Phone screens are lightweight replicas styled with SDL tokens, not the app
   components (those pull in Apollo, auth and routing). Keep them close to the
   real UI when the app changes: bottom bar, price pins, task detail, thread.
-- The 3D tone mapping is Khronos PBR Neutral (ACES greyed the greens).
-- No HDR environment file is fetched: reflections come from drei lightformers.
+- The 3D tone mapping is Khronos PBR Neutral (ACES greyed the green).
+- No environment map: the props are matte, so they have no reflections to
+  build one for. A hemisphere light and two directional lights do the work.
 - Demo people, tasks and prices are fictional and live in the i11n bag
   (`landing.phone`), in English and Traditional Chinese.

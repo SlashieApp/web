@@ -1,31 +1,28 @@
 'use client'
 
-import { Environment, Float, Lightformer } from '@react-three/drei'
+import { Float } from '@react-three/drei'
 import { Canvas, useFrame } from '@react-three/fiber'
 import { type ComponentType, useMemo, useRef } from 'react'
 import { CanvasTexture, type Group, MathUtils, NeutralToneMapping } from 'three'
 
 import { storyState } from '../story/storyState'
+import { SceneLights } from './SceneLights'
 import {
+  CAMERA_Z,
   COMPACT_OBJECTS,
   SCENE_OBJECTS,
   type SceneObjectId,
+  limitX,
   poseFor,
 } from './formations'
 import { Boxes } from './objects/Boxes'
 import { MapPin } from './objects/MapPin'
-import { MopBucket } from './objects/MopBucket'
-import { PaintRoller } from './objects/PaintRoller'
-import { Screwdriver } from './objects/Screwdriver'
 import { Toolbox } from './objects/Toolbox'
 import { SCENE_COLORS } from './scenePalette'
 
 const MODELS: Record<SceneObjectId, ComponentType> = {
   toolbox: Toolbox,
-  bucket: MopBucket,
   boxes: Boxes,
-  roller: PaintRoller,
-  screwdriver: Screwdriver,
   pin: MapPin,
 }
 
@@ -82,8 +79,8 @@ function SceneObject({
     const turn = turnRef.current
     const shade = shadowRef.current
     if (!group || !turn || !shade) return
-    const target = poseFor(id, storyState.stage, compact)
-    const { width, height } = state.viewport
+    const target = poseFor(id, storyState.stage, compact, state.size.height)
+    const { width, height, factor } = state.viewport
     // Sizes follow the viewport height (perspective camera), so keep wide
     // formations from crowding the centre on less-wide windows.
     const fit = compact ? 1 : Math.min(1, width / height / WIDE_ASPECT)
@@ -91,7 +88,11 @@ function SceneObject({
     // A gentle drift tied to scroll, out of phase per object.
     const drift =
       Math.sin(window.scrollY / window.innerHeight + index * 1.7) * 0.12
-    const x = target.x * width
+    // On wide screens the props stay inside the page column. The limit is on
+    // where a prop appears (px from the centre), so a prop nearer the camera,
+    // which the perspective pushes outward, is held at the same line.
+    const near = CAMERA_Z / (CAMERA_Z - target.z)
+    const x = limitX(target.x * width * factor * near, compact) / near / factor
     const y = target.y * height + drift
     if (!placed.current) {
       // First frame: start in place (the poster underneath shows the same).
@@ -194,40 +195,7 @@ function SceneContents({
   const ids = compact ? COMPACT_OBJECTS : SCENE_OBJECTS
   return (
     <>
-      <ambientLight intensity={0.55} />
-      <directionalLight position={[4, 6, 8]} intensity={1.5} />
-      <directionalLight position={[-5, -2, 4]} intensity={0.35} />
-      {/* Studio reflections for the glossy plastic. Built from lightformers,
-          so no HDR file is fetched. */}
-      <Environment resolution={128} frames={1}>
-        <Lightformer
-          form="rect"
-          intensity={2.2}
-          position={[0, 5, 4]}
-          scale={[10, 4, 1]}
-        />
-        <Lightformer
-          form="rect"
-          intensity={1.1}
-          position={[-6, 0, 2]}
-          rotation-y={Math.PI / 2}
-          scale={[6, 6, 1]}
-          color="#E7FBF0"
-        />
-        <Lightformer
-          form="rect"
-          intensity={0.8}
-          position={[6, -1, 2]}
-          rotation-y={-Math.PI / 2}
-          scale={[6, 6, 1]}
-        />
-        <Lightformer
-          form="circle"
-          intensity={1.4}
-          position={[2, 3, 6]}
-          scale={1.5}
-        />
-      </Environment>
+      <SceneLights />
       <ReadySignal onReady={onReady} />
       <PointerRig>
         {ids.map((id, index) => (
@@ -245,7 +213,7 @@ function SceneContents({
 }
 
 export type LandingSceneProps = {
-  /** Three small objects instead of six (phones, portrait, low-end). */
+  /** Two small objects instead of three (phones, portrait, low-end). */
   compact: boolean
   dprMax: number
   /** Fires once the scene has drawn (to fade out the hero poster). */
@@ -261,11 +229,11 @@ export default function LandingScene({
   return (
     <Canvas
       dpr={[1, dprMax]}
-      camera={{ position: [0, 0, 12], fov: 32 }}
+      camera={{ position: [0, 0, CAMERA_Z], fov: 32 }}
       gl={{ antialias: true, alpha: true, powerPreference: 'high-performance' }}
       style={{ pointerEvents: 'none' }}
       onCreated={({ gl }) => {
-        // Khronos PBR Neutral keeps the SDL greens saturated (ACES greys them).
+        // Khronos PBR Neutral keeps the brand green saturated (ACES greys it).
         gl.toneMapping = NeutralToneMapping
       }}
       aria-hidden

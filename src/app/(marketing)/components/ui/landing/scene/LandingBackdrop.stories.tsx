@@ -80,9 +80,11 @@ async function expectLiveScene(canvasElement: HTMLElement) {
   )
 }
 
-/** Desktop-class device on a wide screen: the white page and the full six-object scene. */
+/** Desktop-class device on a wide screen: the white page and the full three-object scene. */
 export const Desktop: Story = {
-  decorators: [caption('Desktop device, wide screen: the full scene')],
+  decorators: [
+    caption('Desktop device, wide screen: the full scene, three objects'),
+  ],
   beforeEach: () => {
     setStoryStage('hero')
     return emulateDevice({ cores: 8, memory: 8 })
@@ -90,9 +92,9 @@ export const Desktop: Story = {
   play: ({ canvasElement }) => expectLiveScene(canvasElement),
 }
 
-/** Phone width: the scene switches to its three small compact objects. */
+/** Phone width: the scene switches to its two small compact objects. */
 export const Phone: Story = {
-  decorators: [caption('Phone width: three compact objects')],
+  decorators: [caption('Phone width: two compact objects')],
   globals: { viewport: { value: 'mobile1', isRotated: false } },
   beforeEach: () => {
     setStoryStage('hero')

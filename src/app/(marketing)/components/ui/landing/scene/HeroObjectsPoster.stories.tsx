@@ -10,7 +10,7 @@ import { HeroObjectsPoster } from './HeroObjectsPoster'
 /**
  * Story-only: the poster as the hero places it. It sits in a positioned hero
  * block just under a header bar and reaches up behind the header, over the
- * mint wash, to cover one full screen height.
+ * page's white, to cover one full screen height.
  */
 const withHeroBlock: Decorator = (Story) => (
   <Box
@@ -18,9 +18,7 @@ const withHeroBlock: Decorator = (Story) => (
     isolation="isolate"
     overflow="hidden"
     h="100vh"
-    bgGradient="to-b"
-    gradientFrom="status.success.soft"
-    gradientTo="bg.canvas"
+    bg="bg.surface"
   >
     <Box
       h={HEADER_MIN_HEIGHT}
@@ -44,10 +42,10 @@ const meta = {
 export default meta
 type Story = StoryObj<typeof meta>
 
-/** Wide screen, live scene not drawn yet: the wide still of the six hero objects. */
+/** Wide screen, live scene not drawn yet: the wide still of the three hero objects. */
 export const Wide: Story = {}
 
-/** Phone width: the browser picks the compact still (three objects). */
+/** Phone width: the browser picks the compact still (two objects). */
 export const Compact: Story = {
   globals: { viewport: { value: 'mobile1', isRotated: false } },
 }
