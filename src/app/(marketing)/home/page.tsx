@@ -13,6 +13,10 @@ import { withLocale } from '@/i18n/navigation'
 import { Footer } from '@/ui'
 import { MARKETING_HOME } from '@/utils/appRoutes'
 
+import {
+  MarketingFrame,
+  SectionRule,
+} from '../components/layout/MarketingFrame'
 import { LenisRoot } from '../components/ui/landing/LenisRoot'
 import { HeroSection } from '../components/ui/landing/hero/HeroSection'
 import { LandingBackdrop } from '../components/ui/landing/scene/LandingBackdrop'
@@ -41,8 +45,10 @@ export async function generateMetadata() {
 
 /**
  * Marketing landing at `/home`: a scroll story (hero, customer act, worker
- * act, trust, pricing, close) over a fixed mint backdrop with floating 3D
- * objects, and a demo phone that follows the story. All copy is
+ * act, trust, pricing, close) on a white page with floating 3D objects, and a
+ * demo phone that follows the story. The sections sit in the marketing frame
+ * (rails down the content column from `lg`, a full-width rule between
+ * sections); the footer is its own band under it. All copy is
  * server-rendered (SEO + no-JS legible); the scene, phone motion and scroll
  * tracking are client layers on top. Root `/` auth-redirects guests here
  * and signed-in users to `/search`.
@@ -94,34 +100,39 @@ export default async function MarketingHomePage() {
       <LenisRoot />
       <LandingBackdrop />
       <Box position="relative" zIndex={1}>
-        <LandingStory
-          hero={
-            <HeroSection
-              copy={landing.hero}
-              ctas={{ seeHowItWorks: ctas.seeHowItWorks }}
+        <MarketingFrame>
+          <LandingStory
+            hero={
+              <HeroSection
+                copy={landing.hero}
+                ctas={{ seeHowItWorks: ctas.seeHowItWorks }}
+              />
+            }
+            story={landing.story}
+            phone={landing.phone}
+          />
+          <SectionRule />
+          <StoryStageMarker stage="trust">
+            <TrustSection points={landing.trust.points} />
+          </StoryStageMarker>
+          <SectionRule />
+          <StoryStageMarker stage="pricing">
+            <PricingTeaser
+              copy={landing.pricingTeaser}
+              pricing={landingPricing}
+              ctaLabel={ctas.viewPricing}
+              pricingHref={hrefs.pricing}
             />
-          }
-          story={landing.story}
-          phone={landing.phone}
-        />
-        <StoryStageMarker stage="trust">
-          <TrustSection points={landing.trust.points} />
-        </StoryStageMarker>
-        <StoryStageMarker stage="pricing">
-          <PricingTeaser
-            copy={landing.pricingTeaser}
-            pricing={landingPricing}
-            ctaLabel={ctas.viewPricing}
-            pricingHref={hrefs.pricing}
-          />
-        </StoryStageMarker>
-        <StoryStageMarker stage="cta">
-          <FinalCtaBand
-            copy={landing.finalCta}
-            primary={{ label: ctas.postTask, href: hrefs.postTask }}
-            secondary={{ label: ctas.becomeWorker, href: hrefs.becomeWorker }}
-          />
-        </StoryStageMarker>
+          </StoryStageMarker>
+          <SectionRule />
+          <StoryStageMarker stage="cta">
+            <FinalCtaBand
+              copy={landing.finalCta}
+              primary={{ label: ctas.postTask, href: hrefs.postTask }}
+              secondary={{ label: ctas.becomeWorker, href: hrefs.becomeWorker }}
+            />
+          </StoryStageMarker>
+        </MarketingFrame>
         <Footer />
       </Box>
       <StoryTracker />

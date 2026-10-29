@@ -1,6 +1,7 @@
 import { Box, Container, Grid, HStack, Text } from '@chakra-ui/react'
 import { LuCheck } from 'react-icons/lu'
 
+import { SECTION_PY } from '@/app/(marketing)/components/layout/MarketingFrame'
 import { Reveal } from '../Reveal'
 
 /**
@@ -10,7 +11,7 @@ import { Reveal } from '../Reveal'
  */
 export function TrustSection({ points }: { points: readonly string[] }) {
   return (
-    <Box as="section" py={{ base: 10, md: 16 }}>
+    <Box as="section" py={SECTION_PY}>
       <Container>
         <Grid
           p={{ base: 6, md: 8 }}

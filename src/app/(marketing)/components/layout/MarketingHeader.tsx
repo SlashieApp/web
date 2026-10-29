@@ -367,9 +367,10 @@ export type MarketingHeaderProps = Omit<BoxProps, 'children'>
 
 /**
  * Sticky marketing header. On the landing (`/home`) it starts transparent
- * over the mint backdrop and solidifies to the standard light surface once
- * scrolled. Text colours are the same either way, so this is safe from the
- * first server paint. Other marketing routes always get the solid header.
+ * over the white page and solidifies to white once scrolled. Text colours are
+ * the same either way, so this is safe from the first server paint. Other
+ * marketing routes always get the solid header, on the canvas colour their
+ * pages still use until they take the marketing frame.
  */
 export function MarketingHeader(props: MarketingHeaderProps) {
   const pathname = usePathname()
@@ -395,7 +396,9 @@ export function MarketingHeader(props: MarketingHeaderProps) {
         as="header"
         zIndex={30}
         overflow="visible"
-        bg={transparent ? 'transparent' : 'bg.canvas'}
+        bg={
+          transparent ? 'transparent' : isLanding ? 'bg.surface' : 'bg.canvas'
+        }
         color="text.default"
         borderWidth="1px"
         borderColor={transparent ? 'transparent' : 'border.default'}

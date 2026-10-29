@@ -80,7 +80,7 @@ async function expectLiveScene(canvasElement: HTMLElement) {
   )
 }
 
-/** Desktop-class device on a wide screen: mint wash and the full six-object scene. */
+/** Desktop-class device on a wide screen: the white page and the full six-object scene. */
 export const Desktop: Story = {
   decorators: [caption('Desktop device, wide screen: the full scene')],
   beforeEach: () => {
@@ -111,8 +111,19 @@ export const LowEndDevice: Story = {
   play: ({ canvasElement }) => expectLiveScene(canvasElement),
 }
 
-/** Reduced motion: no canvas, only the mint wash (the hero shows a still poster). */
+/** Reduced motion: no canvas, only the white page (`bg.surface`, no mint wash); the hero shows a still poster. */
 export const ReducedMotion: Story = {
-  decorators: [caption('Reduced motion: the wash only, no 3D scene')],
+  decorators: [caption('Reduced motion: the white page only, no 3D scene')],
   beforeEach: () => emulateReducedMotion(true),
+  play: ({ canvasElement }) => {
+    expect(canvasElement.querySelector('canvas')).toBeNull()
+    // The backdrop is the one fixed layer on the page.
+    const backdrop = [...canvasElement.querySelectorAll('div')].find(
+      (element) => getComputedStyle(element).position === 'fixed',
+    )
+    expect(backdrop).toBeDefined()
+    const style = getComputedStyle(backdrop as HTMLElement)
+    expect(style.backgroundColor).toBe('rgb(255, 255, 255)')
+    expect(style.backgroundImage).toBe('none')
+  },
 }

@@ -12,6 +12,7 @@ import { LuSparkles } from 'react-icons/lu'
 
 import { Button } from '@ui'
 
+import { SECTION_PY } from '@/app/(marketing)/components/layout/MarketingFrame'
 import { Reveal } from '../Reveal'
 
 export type LandingPricing = {
@@ -48,7 +49,7 @@ export function PricingTeaser({
   pricingHref: string
 }) {
   return (
-    <Box as="section" py={{ base: 16, md: 24 }}>
+    <Box as="section" py={SECTION_PY}>
       <Container>
         <Stack gap={{ base: 8, md: 10 }} maxW="4xl">
           <Reveal>

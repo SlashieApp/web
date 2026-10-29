@@ -13,9 +13,10 @@ import { setSceneReady } from '../story/storyState'
 const LandingScene = dynamic(() => import('./LandingScene'), { ssr: false })
 
 /**
- * Fixed layer behind the whole landing: the mint wash, and on capable
- * devices the floating 3D objects. Reduced motion, no WebGL and no JS keep
- * just the wash (the hero carries a still poster of the objects).
+ * Fixed layer behind the whole landing: the white page (`bg.surface`, no mint
+ * wash), and on capable devices the floating 3D objects. Reduced motion, no
+ * WebGL and no JS keep just the white (the hero carries a still poster of the
+ * objects).
  */
 export function LandingBackdrop() {
   const tier = useDeviceTier()
@@ -42,10 +43,7 @@ export function LandingBackdrop() {
       inset={0}
       zIndex={0}
       pointerEvents="none"
-      bgGradient="to-b"
-      gradientFrom="status.success.soft"
-      gradientVia="bg.canvas"
-      gradientTo="bg.canvas"
+      bg="bg.surface"
       aria-hidden
     >
       {live ? (

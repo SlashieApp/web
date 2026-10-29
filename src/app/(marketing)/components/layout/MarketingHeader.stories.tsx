@@ -32,16 +32,16 @@ const suspendedMe: MeSnapshot = {
   worker: null,
 }
 
-/** Mint wash behind the transparent landing header, like `LandingBackdrop`. */
-const withMintBackdrop: Decorator = (Story) => (
-  <Box bg="status.success.soft" minH="240px">
+/** White page behind the transparent landing header, like `LandingBackdrop`. */
+const withLandingBackdrop: Decorator = (Story) => (
+  <Box bg="bg.surface" minH="240px">
     <Story />
   </Box>
 )
 
 /** Gives the page room to scroll so the landing header can solidify. */
 const withScrollRoom: Decorator = (Story) => (
-  <Box bg="status.success.soft">
+  <Box bg="bg.surface">
     <Story />
     <Box h="200vh" />
   </Box>
@@ -118,22 +118,22 @@ export const AboutActive: Story = {
 /** Landing at the top of the page: transparent over the backdrop, quiet Get started. */
 export const LandingTop: Story = {
   parameters: { nextjs: { navigation: { pathname: '/home' } } },
-  decorators: [withMintBackdrop],
+  decorators: [withLandingBackdrop],
   play: async ({ canvasElement }) => {
     await expect(headerBackground(canvasElement)).toBe('rgba(0, 0, 0, 0)')
   },
 }
 
-/** Landing after scrolling past 24px: the header solidifies and Get started turns primary. */
+/** Landing after scrolling past 24px: the header solidifies to the white page and Get started turns primary. */
 export const LandingScrolled: Story = {
   parameters: { nextjs: { navigation: { pathname: '/home' } } },
   decorators: [withScrollRoom],
   beforeEach: () => () => window.scrollTo(0, 0),
   play: async ({ canvasElement }) => {
     window.scrollTo(0, 200)
+    // The landing is a white page: the solid header ends white, not the canvas.
     await waitFor(
-      () =>
-        expect(headerBackground(canvasElement)).not.toBe('rgba(0, 0, 0, 0)'),
+      () => expect(headerBackground(canvasElement)).toBe('rgb(255, 255, 255)'),
       { timeout: 3000 },
     )
   },
@@ -198,7 +198,7 @@ export const MobileMenuOpen: Story = {
 export const MobileLanding: Story = {
   globals: { viewport: { value: 'mobile1', isRotated: false } },
   parameters: { nextjs: { navigation: { pathname: '/home' } } },
-  decorators: [withMintBackdrop],
+  decorators: [withLandingBackdrop],
   play: async ({ canvasElement }) => {
     await expect(
       within(canvasElement).queryByRole('button', { name: 'Menu' }),

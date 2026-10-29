@@ -3,6 +3,7 @@ import NextLink from 'next/link'
 
 import { Button } from '@ui'
 
+import { SECTION_PY } from '@/app/(marketing)/components/layout/MarketingFrame'
 import { Magnetic } from '../Magnetic'
 import { Reveal } from '../Reveal'
 
@@ -22,7 +23,7 @@ export function FinalCtaBand({
   secondary: CtaLink
 }) {
   return (
-    <Container as="section" py={{ base: 20, md: 32 }}>
+    <Container as="section" py={SECTION_PY}>
       <Reveal>
         <Stack align="center" textAlign="center" gap={6} maxW="40rem" mx="auto">
           <Stack gap={3}>

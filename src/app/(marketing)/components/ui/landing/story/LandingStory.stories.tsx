@@ -2,6 +2,7 @@ import { Box } from '@chakra-ui/react'
 import type { Decorator, Meta, StoryObj } from '@storybook/nextjs-vite'
 import { expect, waitFor, within } from 'storybook/test'
 
+import { MarketingFrame } from '@/app/(marketing)/components/layout/MarketingFrame'
 import messages from '@/app/(marketing)/i11n.json'
 import { formatMessage } from '@/i18n/loadPageI11n'
 
@@ -15,8 +16,9 @@ const { ctas } = messages.en.common
 
 /**
  * Story-only: the page around the story, as `home/page.tsx` builds it but
- * without the WebGL scene: a fixed mint wash behind, the story above it, and
- * the tracker that publishes the active step.
+ * without the WebGL scene: the fixed white page behind, the story above it in
+ * the marketing frame (rails from `lg`), and the tracker that publishes the
+ * active step.
  */
 const withLandingPage: Decorator = (Story) => (
   <Box position="relative" isolation="isolate">
@@ -25,14 +27,13 @@ const withLandingPage: Decorator = (Story) => (
       inset={0}
       zIndex={0}
       pointerEvents="none"
-      bgGradient="to-b"
-      gradientFrom="status.success.soft"
-      gradientVia="bg.canvas"
-      gradientTo="bg.canvas"
+      bg="bg.surface"
       aria-hidden
     />
     <Box position="relative" zIndex={1}>
-      <Story />
+      <MarketingFrame>
+        <Story />
+      </MarketingFrame>
     </Box>
     <StoryTracker />
   </Box>

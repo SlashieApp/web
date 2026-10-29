@@ -2,7 +2,7 @@ import { Box, Stack, Text } from '@chakra-ui/react'
 import type { Decorator, Meta, StoryObj } from '@storybook/nextjs-vite'
 import { expect, waitFor, within } from 'storybook/test'
 
-import { Reveal } from './Reveal'
+import { REVEAL_MS, REVEAL_RISE_PX, Reveal } from './Reveal'
 
 /** Story-only content: a surface card, the kind of block Reveal wraps. */
 function SampleCard({ title }: { title: string }) {
@@ -17,7 +17,7 @@ function SampleCard({ title }: { title: string }) {
     >
       <Text fontWeight={500}>{title}</Text>
       <Text fontSize="sm" color="text.muted">
-        Fades in and rises a little as it scrolls into view.
+        Fades in and rises 8px as it scrolls into view.
       </Text>
     </Box>
   )
@@ -80,17 +80,34 @@ export const Default: Story = {
   },
 }
 
-/** Below the fold: hidden after hydration, then fades in as it enters the viewport. */
+/**
+ * Below the fold: hidden after hydration, 8px low, then fades in and rises into
+ * place over 400ms on the decelerate curve as it enters the viewport. It plays
+ * once: scrolling away and back leaves it in place.
+ */
 export const BelowTheFold: Story = {
   decorators: [withScrollSpacer],
   beforeEach: () => emulateReducedMotion(false),
   play: async ({ canvasElement }) => {
     const reveal = within(canvasElement).getByTestId('reveal')
     await expect(reveal.style.opacity).toBe('0')
+    await expect(reveal.style.transform).toBe(`translateY(${REVEAL_RISE_PX}px)`)
+    await expect(REVEAL_RISE_PX).toBe(8)
+    await expect(REVEAL_MS).toBe(400)
+    await expect(reveal.style.transition).toContain(`opacity ${REVEAL_MS}ms`)
+    await expect(reveal.style.transition).toContain(
+      `transform ${REVEAL_MS}ms cubic-bezier(0, 0, 0, 1)`,
+    )
     reveal.scrollIntoView({ block: 'center' })
     await waitFor(() => expect(reveal.style.opacity).toBe('1'), {
       timeout: 3000,
     })
+    // Settled: no transform left behind.
+    await expect(reveal.style.transform).toBe('none')
+    // Once: leaving the viewport does not hide it again.
+    window.scrollTo(0, 0)
+    await new Promise((resolve) => setTimeout(resolve, 150))
+    await expect(reveal.style.opacity).toBe('1')
   },
 }
 
