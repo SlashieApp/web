@@ -106,7 +106,7 @@ export function WorkerQuoteScreen({
           right="16px"
           top="62px"
           zIndex={3}
-          css={{ animation: 'rise-in 380ms cubic-bezier(0.2, 0, 0, 1) both' }}
+          css={{ animation: 'fade-rise 380ms cubic-bezier(0.2, 0, 0, 1) both' }}
         >
           <DemoCard
             display="flex"

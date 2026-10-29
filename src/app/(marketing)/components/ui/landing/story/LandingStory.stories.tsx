@@ -262,6 +262,30 @@ export const Phone: Story = {
   },
 }
 
+/**
+ * Below lg the index is a row right above the first act's head: the head keeps
+ * 32px under the row's closing hairline, like every other head has room, rather
+ * than touching it.
+ */
+async function expectRoomUnderTheIndex(canvasElement: HTMLElement) {
+  const index = getIndex(canvasElement).getBoundingClientRect()
+  const eyebrow = within(canvasElement).getByText(story.customer.eyebrow)
+  const gap = eyebrow.getBoundingClientRect().top - index.bottom
+  await expect(gap).toBeGreaterThanOrEqual(32)
+}
+
+/** Phone width: the first act's head has room under the index row. */
+export const PhoneRoomUnderTheIndex: Story = {
+  globals: { viewport: { value: 'mobile1', isRotated: false } },
+  play: ({ canvasElement }) => expectRoomUnderTheIndex(canvasElement),
+}
+
+/** Tablet width (below lg): the same room, where the row used to sit 9px above the head. */
+export const TabletRoomUnderTheIndex: Story = {
+  globals: { viewport: { value: 'tablet', isRotated: false } },
+  play: ({ canvasElement }) => expectRoomUnderTheIndex(canvasElement),
+}
+
 /** Below lg, scrolled to the quotes step: its inline phone is in view and plays. */
 export const PhoneQuotesStep: Story = {
   globals: { viewport: { value: 'mobile1', isRotated: false } },

@@ -120,7 +120,7 @@ export function ProfileScreen({
               index === 0
                 ? undefined
                 : {
-                    animation: `rise-in 360ms cubic-bezier(0.2, 0, 0, 1) ${index * 90}ms both`,
+                    animation: `fade-rise 360ms cubic-bezier(0.2, 0, 0, 1) ${index * 90}ms both`,
                   }
             }
           >

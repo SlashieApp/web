@@ -207,15 +207,11 @@ const sharedTheme = {
       },
     },
     keyframes: {
-      /** Marketing entrance: fade + rise. Pair with a reduced-motion override. */
-      'rise-in': {
-        from: { opacity: '0', transform: 'translateY(28px)' },
-        to: { opacity: '1', transform: 'translateY(0)' },
-      },
       /**
        * Marketing entrance, tone train 2: a fade with an 8px rise (the same rise
        * as the landing `Reveal`). Run it 400ms on `sdlMotion.easing.decelerate`,
-       * once, and pair it with a reduced-motion override.
+       * once, and pair it with a reduced-motion override. (It replaces the old
+       * `rise-in`, a 28px rise that only the landing phone demo used.)
        */
       'fade-rise': {
         from: { opacity: '0', transform: 'translateY(8px)' },

@@ -26,7 +26,9 @@ export function PostScreen({
   active: boolean
   intro?: boolean
 }) {
-  const { entered, done, trigger, reduced } = useDemoBeat(active, intro)
+  // Reduced motion rests the form un-played (not on the toast that covers its
+  // first field), with the hotspot still tappable.
+  const { entered, done, trigger, reduced } = useDemoBeat(active, intro, false)
   const title = useTypewriter(copy.post.whatValue, entered, reduced)
   const typing = title.length < copy.post.whatValue.length
   const t = copy.post
@@ -195,7 +197,7 @@ export function PostScreen({
           right="16px"
           top="62px"
           zIndex={3}
-          css={{ animation: 'rise-in 380ms cubic-bezier(0.2, 0, 0, 1) both' }}
+          css={{ animation: 'fade-rise 380ms cubic-bezier(0.2, 0, 0, 1) both' }}
         >
           <DemoCard
             display="flex"

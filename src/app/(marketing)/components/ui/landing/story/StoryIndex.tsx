@@ -187,6 +187,13 @@ function GroupItems({
                   '@media (prefers-reduced-motion: reduce)': {
                     transition: 'none',
                   },
+                  // Forced colours (Windows high contrast) paint every
+                  // background Canvas, which would hide the bar and leave the
+                  // active label the same as the rest: take the system
+                  // highlight instead.
+                  '@media (forced-colors: active)': {
+                    backgroundColor: 'Highlight',
+                  },
                 }}
               />
             </Anchor>

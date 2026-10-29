@@ -131,7 +131,8 @@ The one centred section (`hero/HeroSection.tsx`), built from tokens only:
   seam, and it is painted under the still poster.
 - The entrance is the `fade-rise` keyframe (a fade with an 8px rise, 400ms on
   the decelerate curve, once, staggered 60ms); reduced motion turns it off. The
-  older `rise-in` keyframe (28px) still serves the phone screens.
+  phone screens use it too (the old 28px `rise-in` keyframe is gone: the phone
+  was its only user, and the spec's reveal is 8px).
 
 ## Map panel
 
@@ -275,8 +276,11 @@ hero's "See how it works" lands it under the sticky header).
   hairline with the active label's 2px green 600 bar over it), a row below it
   that sticks right under the header, full width, scrolls sideways when the
   labels do not fit and keeps the active label in view (the bar is then an
-  underline). The active label is `text.default` and the rest `text.subtle`, all
-  at 500. It reads the stage from the story tracker (`useStoryStage`), so it
+  underline). Below `lg` the first act's head has 32px of room under the row.
+  The active label is `text.default` and the rest `text.subtle`, all
+  at 500. In Windows high contrast (forced colours) the bar's background would be
+  painted Canvas and the active label would look like the rest, so the bar takes
+  the system `Highlight`. It reads the stage from the story tracker (`useStoryStage`), so it
   always agrees with the phone, and each label links to its row
   (`#how-it-works-<stage>`; `scroll-margin-top` lands the row across the middle
   of the screen from `lg`, and under the index row below it, so the linked step
@@ -293,6 +297,18 @@ hero's "See how it works" lands it under the sticky header).
   column) and the empty spacer it started in are gone: the hero no longer holds
   a phone. The phone starts on the search screen (`hero` stage) until the first
   step is under the middle line.
+- **Motion in the phone.** Every entrance in the phone is the 8px `fade-rise`
+  (the screens' own CSS animations) or `enterStyle` (a transition of opacity and
+  an 8px rise, staggered 70ms; the explicit longer distances are the app's own
+  sheets and nav). `PhoneFrame` zeroes every transition and animation inside it
+  under `prefers-reduced-motion` (`animation-duration: 0ms !important`, one
+  iteration), so no screen needs its own guard: nothing in the phone moves under
+  reduced motion. The post screen is the one whose finished state covers its
+  content (the "Task posted" toast sits over the first field), so under reduced
+  motion it rests in its starting state, with the form showing and the hotspot a
+  still green 600 ring (not a pulse), rather than on the finished state; a tap
+  plays the result (`useDemoBeat(active, intro, false)`). Every other screen
+  still jumps to its finished state.
 - **The phone's screens** follow the product after Train 1: neutral tiles and
   avatars (no mint), the drawn map in neutral tokens, price pins as pills
   (hairline, green 800 price; the selected one green 400 with an ink price),

@@ -17,22 +17,43 @@ export type DemoBeat = {
 }
 
 /**
+ * The state reduced motion rests a screen in: everything entered, and the beat
+ * played (`done`) unless `jumpToDone` is false.
+ */
+export function reducedBeat(jumpToDone: boolean): {
+  entered: boolean
+  done: boolean
+} {
+  return { entered: true, done: jumpToDone }
+}
+
+/**
  * One screen's little script: items enter, then the beat plays on tap or
  * after a pause. Leaving the screen (`active` false) resets it, so it plays
  * again next time. Reduced motion jumps straight to the finished state.
  *
  * `intro` false starts already entered: use it for whatever is on screen at
  * first paint, so server HTML and no-JS visitors see the content.
+ *
+ * `jumpToDone` false is for a screen whose finished state covers its own
+ * content (the post screen's toast sits over its first field): under reduced
+ * motion it rests in its starting state instead, entered but not played, with
+ * its hotspot still there to tap.
  */
-export function useDemoBeat(active: boolean, intro = true): DemoBeat {
+export function useDemoBeat(
+  active: boolean,
+  intro = true,
+  jumpToDone = true,
+): DemoBeat {
   const reduced = Boolean(useReducedMotion())
   const [entered, setEntered] = useState(!intro)
   const [done, setDone] = useState(false)
 
   useEffect(() => {
     if (reduced) {
-      setEntered(true)
-      setDone(true)
+      const rest = reducedBeat(jumpToDone)
+      setEntered(rest.entered)
+      setDone(rest.done)
       return
     }
     if (!active) {
@@ -46,7 +67,7 @@ export function useDemoBeat(active: boolean, intro = true): DemoBeat {
       window.clearTimeout(enter)
       window.clearTimeout(play)
     }
-  }, [active, reduced])
+  }, [active, reduced, jumpToDone])
 
   const trigger = useCallback(() => {
     setEntered(true)
@@ -92,11 +113,15 @@ export function useTypewriter(
   return count === null ? text : text.slice(0, count)
 }
 
-/** Staggered entrance for the nth item of a screen (transform + opacity only). */
+/**
+ * Staggered entrance for the nth item of a screen (transform + opacity only):
+ * a fade with an 8px rise, like every other reveal on the page. (Under reduced
+ * motion `PhoneFrame` zeroes every transition and animation inside the phone.)
+ */
 export function enterStyle(
   entered: boolean,
   index: number,
-  distance = 14,
+  distance = 8,
 ): CSSProperties {
   return {
     opacity: entered ? 1 : 0,

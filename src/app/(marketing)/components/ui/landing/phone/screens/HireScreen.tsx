@@ -89,7 +89,9 @@ export function HireScreen({
             bg="status.success.soft"
             borderWidth="1px"
             borderColor="status.success.border"
-            css={{ animation: 'rise-in 360ms cubic-bezier(0.2, 0, 0, 1) both' }}
+            css={{
+              animation: 'fade-rise 360ms cubic-bezier(0.2, 0, 0, 1) both',
+            }}
           >
             <Box
               w="36px"

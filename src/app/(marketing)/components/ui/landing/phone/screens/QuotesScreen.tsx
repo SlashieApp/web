@@ -63,7 +63,7 @@ function QuoteRow({
           fontSize="12px"
           fontWeight={500}
           color="text.muted"
-          css={{ animation: 'rise-in 320ms cubic-bezier(0.2, 0, 0, 1) both' }}
+          css={{ animation: 'fade-rise 320ms cubic-bezier(0.2, 0, 0, 1) both' }}
         >
           <Text>{formatMessage(copy.jobs, { count: quote.jobs })}</Text>
           <Text aria-hidden>·</Text>

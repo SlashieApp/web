@@ -152,7 +152,8 @@ const HotspotButton = chakra('button')
  * The screen's one tappable beat. A real button (keyboard and screen
  * readers work); the pulsing ring says "tap me" until the beat has played. The
  * ring is a line, so it is green 600 (green 400 is for fills) and it takes the
- * button's corners.
+ * button's corners. Under reduced motion it does not pulse but stays as a still
+ * ring, so "tap the glowing part of the phone" still has something to point at.
  */
 export function Hotspot({
   label,
@@ -192,6 +193,12 @@ export function Hotspot({
           borderColor="accent.active"
           pointerEvents="none"
           animation="tap-pulse 1.6s cubic-bezier(0.2, 0, 0, 1) infinite"
+          css={{
+            '@media (prefers-reduced-motion: reduce)': {
+              animation: 'none',
+              opacity: 0.8,
+            },
+          }}
           aria-hidden
         />
       ) : null}

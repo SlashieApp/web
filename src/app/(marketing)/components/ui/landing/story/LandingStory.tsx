@@ -257,7 +257,9 @@ export function LandingStory({
                 label={story.index.label}
                 groups={buildIndexGroups(story.index)}
               />
-              <Box minW={0}>
+              {/* Below lg the index is a row right above the first head: give
+                  the head the room every other head has. */}
+              <Box minW={0} pt={{ base: 8, lg: 0 }}>
                 <Act
                   icon={LuUser}
                   eyebrow={customer.eyebrow}

@@ -125,7 +125,7 @@ export function SearchScreen({
           borderWidth={0}
           boxShadow={sdlElevation.e3}
           css={{
-            animation: 'rise-in 360ms cubic-bezier(0.2, 0, 0, 1) both',
+            animation: 'fade-rise 360ms cubic-bezier(0.2, 0, 0, 1) both',
           }}
         >
           <Box

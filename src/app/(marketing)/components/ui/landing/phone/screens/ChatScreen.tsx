@@ -186,7 +186,9 @@ export function ChatScreen({
           <Box
             alignSelf="flex-end"
             maxW="78%"
-            css={{ animation: 'rise-in 300ms cubic-bezier(0.2, 0, 0, 1) both' }}
+            css={{
+              animation: 'fade-rise 300ms cubic-bezier(0.2, 0, 0, 1) both',
+            }}
           >
             <Bubble mine>{t.sent}</Bubble>
           </Box>
@@ -196,7 +198,9 @@ export function ChatScreen({
           <Box
             alignSelf="flex-start"
             maxW="78%"
-            css={{ animation: 'rise-in 300ms cubic-bezier(0.2, 0, 0, 1) both' }}
+            css={{
+              animation: 'fade-rise 300ms cubic-bezier(0.2, 0, 0, 1) both',
+            }}
           >
             <Bubble mine={false}>{t.reply}</Bubble>
           </Box>

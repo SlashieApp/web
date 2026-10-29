@@ -127,7 +127,9 @@ export function ReviewScreen({
             color="status.success.fg"
             fontSize="14px"
             fontWeight={500}
-            css={{ animation: 'rise-in 320ms cubic-bezier(0.2, 0, 0, 1) both' }}
+            css={{
+              animation: 'fade-rise 320ms cubic-bezier(0.2, 0, 0, 1) both',
+            }}
           >
             <LuCheck size={16} aria-hidden />
             <Text>{t.thanks}</Text>
