@@ -498,15 +498,26 @@ call's Post a task goes: register, then on to `/tasks/create`.
   way down the page is right at once, because the observer reports every target
   when it starts. The pill is hidden from the server render and after hydration
   the visitor's scroll shows it, so there is no flash.
-- **Where it sits.** `position: fixed`, centred, `16px` above the bottom edge or
-  above whatever is there: `calc(max(env(safe-area-inset-bottom, 0px),
-  var(--cookie-banner-height, 0px)) + 16px)`. The cookie banner publishes its own
-  height as `--cookie-banner-height` on `<html>` while it is open and removes it
-  when it closes (`src/app/cookieBannerLayout.ts`, set by `CookieConsentBanner`
-  with a ref callback and a ResizeObserver), so the pill sits above the banner
-  and never covers it; it also stacks below it (`zIndex` 2 in the page, the banner
-  is `banner`, 1200). The row spans the screen with `pointer-events: none`, so
-  only the pill takes a tap.
+- **Where it sits.** `position: fixed`, centred, `16px` above the bottom edge
+  and above the phone's safe area (`calc(env(safe-area-inset-bottom, 0px) +
+  16px)`). The row spans the screen with `pointer-events: none`, so only the pill
+  takes a tap.
+- **It waits for the cookie banner.** While the banner is open (a first visit)
+  the pill is held back: the banner takes about 180px of a phone's foot, and
+  the pill above it sat on the step titles and body text at most scroll
+  positions (headings such as "Find work nearby" were unreadable under it). The
+  banner marks `<html>` with `data-cookie-banner-open` while it is open (and
+  publishes `--cookie-banner-height`, `src/app/cookieBannerLayout.ts`, set by
+  `CookieConsentBanner` with a ref callback and a ResizeObserver), and the pill's
+  shown state is `:not(html[data-cookie-banner-open] *)`, so this is CSS alone:
+  the pill stays out of sight and out of the tab order, and fades in once the
+  visitor has answered, if they are past the hero. The design is unchanged
+  (ink pill, bottom centre); the page's own green Post a task is the way in
+  until then. While the pill is shown `globals.css` also gives `<html>` 76px of
+  bottom scroll padding (the pill's 44px, its 16px gap and 16px of air), so a
+  control that takes keyboard focus is not left under it; the open banner has its
+  own padding (see Frame and rhythm). The row is above the sections' stacking
+  (`zIndex` 2) and below the banner (`banner`, 1200).
 - **The pill.** A `Button` (`asChild`, so one `a`): 44px, fully round, a 500 label
   and an 18px arrow (decorative, `aria-hidden`), `e3` for floating chrome. Ink is
   `text.default` with a `bg.surface` label, the pair the app already uses for an

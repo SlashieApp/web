@@ -12,7 +12,10 @@ import {
 } from '@/utils/analytics'
 import { Button, Link } from '@ui'
 
-import { COOKIE_BANNER_HEIGHT_VAR } from './cookieBannerLayout'
+import {
+  COOKIE_BANNER_HEIGHT_VAR,
+  COOKIE_BANNER_OPEN_ATTR,
+} from './cookieBannerLayout'
 import bag from './i11n.json'
 
 /**
@@ -27,8 +30,10 @@ import bag from './i11n.json'
  * wants rejecting to be as easy and prominent as accepting.
  *
  * While it is open it publishes its height as `--cookie-banner-height` on
- * `<html>` (see `cookieBannerLayout`), so fixed controls at the bottom of the
- * screen, such as the landing's floating "Post a task" pill, sit above it.
+ * `<html>`, and marks `<html>` with `data-cookie-banner-open` (see
+ * `cookieBannerLayout`): the page keeps focus and scrolled-to cards above it
+ * (`scroll-padding-bottom`), and the landing's floating "Post a task" pill
+ * waits until the banner is answered.
  */
 export function CookieConsentBanner() {
   const t = useI11n(bag).cookieBanner
@@ -42,11 +47,13 @@ export function CookieConsentBanner() {
     const publish = () =>
       root.style.setProperty(COOKIE_BANNER_HEIGHT_VAR, `${node.offsetHeight}px`)
     publish()
+    root.setAttribute(COOKIE_BANNER_OPEN_ATTR, '')
     const observer = new ResizeObserver(publish)
     observer.observe(node)
     return () => {
       observer.disconnect()
       root.style.removeProperty(COOKIE_BANNER_HEIGHT_VAR)
+      root.removeAttribute(COOKIE_BANNER_OPEN_ATTR)
     }
   }, [])
 

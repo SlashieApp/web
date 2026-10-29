@@ -26,6 +26,14 @@ html {
   scroll-behavior: smooth;
 }
 
+/* The landing's floating Post a task pill (44px, 16px above the edge) is shown
+   only with the cookie banner closed: keep focus clear of it as well. */
+html:not([data-cookie-banner-open]):has(
+    [data-floating-post-pill][data-visible="true"]
+  ) {
+  scroll-padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 76px);
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;

@@ -4,7 +4,7 @@ import { expect, userEvent, waitFor, within } from 'storybook/test'
 
 import messages from '@/app/(marketing)/i11n.json'
 import { CookieConsentBanner } from '@/app/CookieConsentBanner'
-import { COOKIE_BANNER_HEIGHT_VAR } from '@/app/cookieBannerLayout'
+import { COOKIE_BANNER_OPEN_ATTR } from '@/app/cookieBannerLayout'
 
 import {
   FLOATING_PILL_GAP_PX,
@@ -352,40 +352,46 @@ const withCookieBanner: Decorator = (Story) => (
 )
 
 /**
- * The cookie banner is open (first visit): the pill sits above it, never over
- * it, 16px clear of its top edge. The banner publishes its height on `<html>`;
- * it is gone again when the banner is not open.
+ * The cookie banner is open (first visit): the pill waits, so it never sits on
+ * the page's text above a banner that already takes the foot of a phone. The
+ * watch has the pill marked shown (the hero is behind), but it stays out of
+ * sight and out of the tab order; once the banner is answered it fades in 16px
+ * above the bottom edge.
  */
-export const AboveTheCookieBanner: Story = {
+export const WaitsForTheCookieBanner: Story = {
   decorators: [withCookieBanner],
   globals: { viewport: { value: 'mobile1', isRotated: false } },
   beforeEach: () => stubLocalStorage(),
   play: async ({ canvasElement, args }) => {
     const root = canvasElement.ownerDocument.documentElement
-    const banner = await within(canvasElement).findByRole('region', {
-      name: 'Cookie consent',
-    })
-    await waitFor(() =>
-      expect(root.style.getPropertyValue(COOKIE_BANNER_HEIGHT_VAR)).toBe(
-        `${banner.offsetHeight}px`,
-      ),
-    )
+    const canvas = within(canvasElement)
+    const banner = await canvas.findByRole('region', { name: 'Cookie consent' })
+    await waitFor(() => expect(root).toHaveAttribute(COOKIE_BANNER_OPEN_ATTR))
 
     await scrollTo(window.innerHeight * 1.5)
+    const pill = pillOf(canvasElement)
+    await waitFor(() => expect(pill).toHaveAttribute('data-visible', 'true'), {
+      timeout: 3000,
+    })
+    // Marked shown, yet faded out, hidden and not a tab stop while the banner
+    // is open.
+    await settled(pill, '0')
+    await waitFor(() =>
+      expect(getComputedStyle(pill).visibility).toBe('hidden'),
+    )
+    await expect(canvas.queryByRole('link', { name: args.label })).toBeNull()
+
+    // The visitor answers the banner: it leaves, and the pill comes in.
+    await userEvent.click(
+      within(banner).getByRole('button', { name: 'Essential only' }),
+    )
+    await waitFor(() =>
+      expect(root).not.toHaveAttribute(COOKIE_BANNER_OPEN_ATTR),
+    )
     const link = await expectShown(canvasElement, args.label)
-    const pillBox = box(link)
-    const bannerBox = box(banner)
-    await expect(pillBox.bottom).toBeLessThanOrEqual(bannerBox.top)
     await expect(
-      Math.abs(bannerBox.top - pillBox.bottom - FLOATING_PILL_GAP_PX),
+      Math.abs(window.innerHeight - box(link).bottom - FLOATING_PILL_GAP_PX),
     ).toBeLessThan(1.5)
-    // And not under it either: the pill is the first thing at its own centre.
-    const centre = {
-      x: (pillBox.left + pillBox.right) / 2,
-      y: (pillBox.top + pillBox.bottom) / 2,
-    }
-    const hit = canvasElement.ownerDocument.elementFromPoint(centre.x, centre.y)
-    await expect(link.contains(hit)).toBe(true)
   },
 }
 

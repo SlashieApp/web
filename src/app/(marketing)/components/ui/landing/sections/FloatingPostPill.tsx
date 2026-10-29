@@ -5,7 +5,7 @@ import NextLink from 'next/link'
 import { useCallback, useState, useSyncExternalStore } from 'react'
 import { LuArrowRight } from 'react-icons/lu'
 
-import { COOKIE_BANNER_HEIGHT_VAR } from '@/app/cookieBannerLayout'
+import { COOKIE_BANNER_OPEN_ATTR } from '@/app/cookieBannerLayout'
 import { sdlMotion } from '@/theme/styles'
 import { Button } from '@ui'
 
@@ -17,18 +17,18 @@ import {
 
 /** How far the pill rises while it fades in (none under reduced motion). */
 export const FLOATING_PILL_RISE_PX = 16
-/** The gap between the pill and the bottom of the screen (or the banner). */
+/** The gap between the pill and the bottom of the screen. */
 export const FLOATING_PILL_GAP_PX = 16
 
 const ENTER_MS = 400
 const EXIT_MS = 200
 
-/**
- * Above the bottom edge by the gap, and above whatever sits there: the phone's
- * safe area (home indicator) or the open cookie banner, whichever is taller.
- * The banner publishes its height on `<html>` (`cookieBannerLayout`).
- */
-const BOTTOM = `calc(max(env(safe-area-inset-bottom, 0px), var(${COOKIE_BANNER_HEIGHT_VAR}, 0px)) + ${FLOATING_PILL_GAP_PX}px)`
+/** Above the bottom edge by the gap, and above the phone's safe area (home indicator). */
+const BOTTOM = `calc(env(safe-area-inset-bottom, 0px) + ${FLOATING_PILL_GAP_PX}px)`
+
+/** The shown state: marked shown and no cookie banner open on `<html>`, or focus inside. */
+const SHOWN =
+  `&[data-visible="true"]:not(html[${COOKIE_BANNER_OPEN_ATTR}] *), &:focus-within` as const
 
 const REDUCED_MOTION_QUERY = '(prefers-reduced-motion: reduce)'
 
@@ -52,6 +52,12 @@ function usePrefersReducedMotion(): boolean {
  * something nobody can see. Shown, it fades in and rises 16px over 400ms on
  * the decelerate curve; reduced motion fades without the rise. It stays shown
  * while it holds focus, so scrolling on never pulls it from under the keyboard.
+ *
+ * While the cookie banner is open (a first visit) the pill waits: the banner
+ * takes about 180px of a phone's foot, and a pill above it would sit on the
+ * page's step titles and text at most scroll positions. The banner marks
+ * `<html>` while it is open (`cookieBannerLayout`), so this is CSS alone; the
+ * pill fades in once the banner is answered, if the visitor is past the hero.
  */
 function motionCss(reduced: boolean): SystemStyleObject {
   const out = (property: string) =>
@@ -68,7 +74,9 @@ function motionCss(reduced: boolean): SystemStyleObject {
       ...(reduced ? [] : [out('transform')]),
       `visibility 0s linear ${EXIT_MS}ms`,
     ].join(', '),
-    '&[data-visible="true"], &:focus-within': {
+    // Shown when the watch says so and the banner is not open, or while it
+    // holds focus.
+    [SHOWN]: {
       visibility: 'visible',
       opacity: 1,
       transform: 'none',
@@ -96,8 +104,9 @@ export type FloatingPostPillProps = {
  * fixed to the bottom centre of the screen with the page's post label and an
  * arrow, linking to where the page's post action goes. It shows once the hero
  * is out of view and hides while the final call to action or the footer is in
- * view (both offer the same action), and it never covers the cookie banner:
- * it sits above it. No counters, no social proof.
+ * view (both offer the same action), and it waits while the cookie banner is
+ * open instead of sitting on the page's text above it. No counters, no social
+ * proof.
  *
  * It is one link named by its label (the arrow is decorative), in the tab
  * order while shown. Ink is `text.default` with a `bg.surface` label, the pair

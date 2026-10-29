@@ -9,7 +9,17 @@ import {
 } from '@/utils/analytics'
 
 import { CookieConsentBanner } from './CookieConsentBanner'
-import { COOKIE_BANNER_HEIGHT_VAR } from './cookieBannerLayout'
+import {
+  COOKIE_BANNER_HEIGHT_VAR,
+  COOKIE_BANNER_OPEN_ATTR,
+} from './cookieBannerLayout'
+
+/** Whether the banner has marked `<html>` as open (the floating pill waits on it). */
+function markedOpen(canvasElement: HTMLElement) {
+  return canvasElement.ownerDocument.documentElement.hasAttribute(
+    COOKIE_BANNER_OPEN_ATTR,
+  )
+}
 
 /** The height the banner published on `<html>` for fixed controls to clear (empty when it is closed). */
 function publishedHeight(canvasElement: HTMLElement) {
@@ -73,8 +83,9 @@ type Story = StoryObj<typeof meta>
 
 /**
  * First visit, no stored choice: the banner is pinned to the bottom of the
- * screen and publishes its height (`--cookie-banner-height` on `<html>`), so
- * fixed controls such as the landing's floating pill sit above it.
+ * screen and publishes its height (`--cookie-banner-height` on `<html>`) and
+ * marks `<html>` open (`data-cookie-banner-open`): the page keeps scrolled-to
+ * controls above it, and the landing's floating pill waits until it is answered.
  */
 export const Default: Story = {
   play: async ({ canvasElement }) => {
@@ -85,6 +96,7 @@ export const Default: Story = {
     await waitFor(() =>
       expect(publishedHeight(canvasElement)).toBe(`${banner.offsetHeight}px`),
     )
+    await expect(markedOpen(canvasElement)).toBe(true)
   },
 }
 
@@ -120,8 +132,9 @@ export const EssentialOnlyChosen: Story = {
         ).toBeNull(),
       { timeout: 3000 },
     )
-    // Closed: nothing left to clear.
+    // Closed: nothing left to clear, and the mark is gone.
     await expect(publishedHeight(canvasElement)).toBe('')
+    await expect(markedOpen(canvasElement)).toBe(false)
   },
 }
 
