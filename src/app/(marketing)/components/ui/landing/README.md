@@ -597,6 +597,15 @@ and the view's analytics. The views (who sees which button) are unchanged:
 - **Loading and unavailable.** `loading.tsx` draws the same frame, rules and grid
   with skeletons. With no plans from the API the plans section shows the card
   (left-aligned now) and the questions are left out, as before.
+- **Without JavaScript (recorded, not changed).** `page.tsx` awaits its two fetches
+  under `loading.tsx`, so React streams the page into a hidden block that only its
+  inline swap script reveals: with JavaScript off `/pricing` shows the loading frame
+  and the footer, where the landing, `/about` and the legal pages render in full
+  (the copy is in the HTML, inside the hidden block). This predates the branch, and
+  the loading frame is what keeps the layout from jumping while the plans arrive. If
+  the spec's "all copy stays server-rendered" is to hold here too, drop
+  `pricing/loading.tsx`: the page then waits for its fetches and sends complete
+  HTML. Ryan's call.
 - **Motion.** The head and the content of each section are `Reveal`s; reduced
   motion and no JS show them as they are.
 
