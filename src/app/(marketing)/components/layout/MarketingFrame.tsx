@@ -129,6 +129,13 @@ export type SectionHeadProps = Omit<StackProps, 'children'> & {
   headingId?: string
   /** The heading's level: `h2` for a section, `h3` inside one. */
   level?: 'h1' | 'h2' | 'h3'
+  /**
+   * The heading's size. `display` (default): 34/41 on a phone, 44/48 from `lg`,
+   * the lead of a section on a page of sections. `title`: 34/41 at every width,
+   * for a section that sits under a page title of its own (the page header's
+   * title is 34/41), so the section's head never out-sizes the page's h1.
+   */
+  size?: 'display' | 'title'
   /** Supporting line(s) under the heading, in muted text. */
   body?: ReactNode
 }
@@ -136,8 +143,8 @@ export type SectionHeadProps = Omit<StackProps, 'children'> & {
 /**
  * The head of a section: left-aligned, an eyebrow (12/16, 500, +0.08em, caps,
  * `text.subtle`) with a small green 600 icon, then the heading (34/41 on a
- * phone, 44/48 from `lg`, 500), then an optional body. Without an eyebrow it is
- * just the heading and body.
+ * phone, 44/48 from `lg`, 500; 34/41 throughout with `size="title"`), then an
+ * optional body. Without an eyebrow it is just the heading and body.
  */
 export function SectionHead({
   eyebrow,
@@ -145,6 +152,7 @@ export function SectionHead({
   heading,
   headingId,
   level = 'h2',
+  size = 'display',
   body,
   ...stackProps
 }: SectionHeadProps) {
@@ -171,7 +179,11 @@ export function SectionHead({
       <Heading
         as={level}
         id={headingId}
-        textStyle={{ base: 'heading-xl', lg: 'display-lg' }}
+        textStyle={
+          size === 'title'
+            ? 'heading-xl'
+            : { base: 'heading-xl', lg: 'display-lg' }
+        }
         textWrap="balance"
       >
         {heading}

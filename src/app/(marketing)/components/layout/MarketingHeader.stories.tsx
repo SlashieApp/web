@@ -1,6 +1,7 @@
 import { Box } from '@chakra-ui/react'
 import { LoginMethod, UserLanguage } from '@codegen/schema'
 import type { Decorator, Meta, StoryObj } from '@storybook/nextjs-vite'
+import { useState } from 'react'
 import { expect, userEvent, waitFor, within } from 'storybook/test'
 
 import { type MeSnapshot, useUserStore } from '@/app/(auth)/store/user'
@@ -174,14 +175,40 @@ const getStartedBackground = (canvasElement: HTMLElement) =>
   ).backgroundColor
 
 /**
- * Story-only: a block that carries a page's green action, like the landing's
- * closing call to action (`data-final-cta`), taller than the screen so it is in
- * view wherever the story scrolls to.
+ * Story-only: a button that carries a page's green action
+ * (`data-page-green-action`, like the landing's closing Post a task), taller
+ * than the screen so it is in view wherever the story scrolls to.
  */
 const withGreenActionInView: Decorator = (Story) => (
   <Box bg="bg.surface">
     <Story />
-    <Box data-final-cta="" h="200vh" />
+    <Box data-page-green-action="" h="200vh" />
+  </Box>
+)
+
+/**
+ * Story-only: the page's green action arrives after the header, the way the
+ * pricing page streams in behind its loading frame, and is taller than the
+ * screen so it is in view wherever the story scrolls to.
+ */
+function LateGreenAction() {
+  const [arrived, setArrived] = useState(false)
+  const arrive = (node: HTMLElement | null) => {
+    if (!node) return
+    const timer = window.setTimeout(() => setArrived(true), 400)
+    return () => window.clearTimeout(timer)
+  }
+  return (
+    <Box ref={arrive} bg="bg.surface">
+      {arrived ? <Box data-page-green-action="" h="200vh" /> : null}
+    </Box>
+  )
+}
+
+const withLateGreenAction: Decorator = (Story) => (
+  <Box bg="bg.surface">
+    <Story />
+    <LateGreenAction />
   </Box>
 )
 
@@ -228,9 +255,30 @@ export const LandingScrolledAtClose: Story = {
   },
 }
 
-/** A page with no green action of its own (the pricing page, the legal pages): Get started is the screen's one green button. */
-export const GetStartedIsTheGreenOnAPageWithNone: Story = {
+/**
+ * The green action arrives after the header (a streamed page): Get started is
+ * the green one until it does, and gives way once it is on screen.
+ */
+export const GetStartedYieldsToALateGreenAction: Story = {
   parameters: { nextjs: { navigation: { pathname: '/pricing' } } },
+  decorators: [withLateGreenAction],
+  play: async ({ canvasElement }) => {
+    await waitFor(
+      () => expect(getStartedBackground(canvasElement)).toBe(GREEN_FILL),
+      { timeout: 3000 },
+    )
+    // Once the button has finished fading from green to the outline's white.
+    await waitFor(
+      () =>
+        expect(getStartedBackground(canvasElement)).toBe('rgb(255, 255, 255)'),
+      { timeout: 5000 },
+    )
+  },
+}
+
+/** A page with no green action of its own (the legal pages), or none on screen: Get started is the screen's one green button. */
+export const GetStartedIsTheGreenOnAPageWithNone: Story = {
+  parameters: { nextjs: { navigation: { pathname: '/terms' } } },
   play: async ({ canvasElement }) => {
     await waitFor(
       () => expect(getStartedBackground(canvasElement)).toBe(GREEN_FILL),

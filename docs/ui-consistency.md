@@ -68,7 +68,8 @@ and the closing call to action are centred. `/home`, `/pricing`, `/about` and th
 32em reading column) are in the frame so far (the marketing header is white on those routes,
 `FRAMED_ROUTES`); a page whose sticky page header paints an opaque bar passes `railsZIndex` so the rails
 run over it. One green fill per screen holds on marketing too: the header's Get started is secondary while the
-page's own green action (the hero's Search, the closing Post a task) is in view (`pageGreenWatch`).
+page's own green action (the hero's Search, the closing Post a task, the paid plan's action; the button carries
+`data-page-green-action`) is in view (`pageGreenWatch`), and the green one again when none is.
 
 ### Type / radius / shadow
 

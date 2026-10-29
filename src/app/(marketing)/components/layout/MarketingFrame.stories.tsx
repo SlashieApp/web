@@ -251,6 +251,43 @@ export const SectionHeadVariants: Story = {
 }
 
 /**
+ * `size="title"`: a section head under a page title of its own stays at the
+ * page title's 34/41 at every width, so it never out-sizes the page's h1; the
+ * default is 44/48 from `lg`.
+ */
+export const SectionHeadTitleSize: Story = {
+  render: () => (
+    <Container py={SECTION_PY}>
+      <Stack gap={14}>
+        <SectionHead heading={pricingTeaser.heading} headingId="lead" />
+        <SectionHead
+          heading={story.customer.heading}
+          headingId="under-a-title"
+          size="title"
+        />
+      </Stack>
+    </Container>
+  ),
+  globals: { viewport: { value: 'desktop', isRotated: false } },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const lead = getComputedStyle(
+      canvas.getByRole('heading', { level: 2, name: pricingTeaser.heading }),
+    )
+    const title = getComputedStyle(
+      canvas.getByRole('heading', {
+        level: 2,
+        name: story.customer.heading,
+      }),
+    )
+    await expect(lead.fontSize).toBe('44px')
+    await expect(title.fontSize).toBe('34px')
+    await expect(title.lineHeight).toBe('41px')
+    await expect(title.fontWeight).toBe('500')
+  },
+}
+
+/**
  * `railsZIndex`: by default the rails sit under anything positioned over the
  * page (1); a page whose sticky page header paints an opaque bar (the pricing
  * page) raises them above it so they run unbroken from the site header. They

@@ -4,7 +4,7 @@ import { join } from 'node:path'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import {
-  PAGE_GREEN_BLOCKS,
+  PAGE_GREEN_ACTIONS,
   PAGE_GREEN_ROOT_MARGIN,
   watchPageGreen,
 } from './pageGreenWatch'
@@ -26,6 +26,11 @@ class FakeObserver {
     this.targets.push(target)
   }
 
+  unobserve(target: Element) {
+    const at = this.targets.indexOf(target)
+    if (at >= 0) this.targets.splice(at, 1)
+  }
+
   disconnect() {
     this.disconnected = true
   }
@@ -35,11 +40,50 @@ class FakeObserver {
   }
 }
 
-const hero = { name: 'hero' } as unknown as Element
-const finalCta = { name: 'final cta' } as unknown as Element
+/** A stand-in for MutationObserver the test fires by hand. */
+class FakeMutations {
+  static latest: FakeMutations | null = null
+  disconnected = false
 
-const withBlocks = (blocks: Element[]) =>
-  ({ querySelectorAll: () => blocks }) as unknown as ParentNode
+  constructor(private readonly callback: (records: MutationRecord[]) => void) {
+    FakeMutations.latest = this
+  }
+
+  observe() {}
+
+  disconnect() {
+    this.disconnected = true
+  }
+
+  change(added: Node[], removed: Node[] = []) {
+    this.callback([
+      { addedNodes: added, removedNodes: removed } as unknown as MutationRecord,
+    ])
+  }
+}
+
+type Fake = Element & { isConnected: boolean }
+
+const button = (name: string): Fake =>
+  ({
+    name,
+    nodeType: 1,
+    isConnected: true,
+    matches: () => true,
+    querySelector: () => null,
+  }) as unknown as Fake
+
+const hero = button('hero search')
+const finalCta = button('close post a task')
+
+/** A page whose marked buttons the test can add to and take from. */
+function page(initial: Element[]) {
+  const buttons = [...initial]
+  const root = {
+    querySelectorAll: () => [...buttons],
+  } as unknown as ParentNode
+  return { root, buttons }
+}
 
 function observerOf() {
   const observer = FakeObserver.latest
@@ -47,69 +91,131 @@ function observerOf() {
   return observer
 }
 
+function mutationsOf() {
+  const mutations = FakeMutations.latest
+  if (!mutations) throw new Error('No mutation observer was made')
+  return mutations
+}
+
 describe('watchPageGreen', () => {
+  const stub = () => {
+    vi.stubGlobal('IntersectionObserver', FakeObserver)
+    vi.stubGlobal('MutationObserver', FakeMutations)
+  }
+
   afterEach(() => {
     vi.unstubAllGlobals()
     FakeObserver.latest = null
+    FakeMutations.latest = null
+    hero.isConnected = true
+    finalCta.isConnected = true
   })
 
-  it('watches the blocks that carry the page green action, below the header', () => {
-    vi.stubGlobal('IntersectionObserver', FakeObserver)
-    watchPageGreen({ onChange: vi.fn() }, withBlocks([hero, finalCta]))
+  it('watches the green buttons themselves, below the header', () => {
+    stub()
+    watchPageGreen({ onChange: vi.fn() }, page([hero, finalCta]).root)
     expect(observerOf().targets).toEqual([hero, finalCta])
     expect(observerOf().options?.rootMargin).toBe(PAGE_GREEN_ROOT_MARGIN)
   })
 
-  it('reports true while any block is on screen and false when none is', () => {
-    vi.stubGlobal('IntersectionObserver', FakeObserver)
+  it('reports true while any button is on screen and false when none is', () => {
+    stub()
     const changes: boolean[] = []
     watchPageGreen(
       { onChange: (inView) => changes.push(inView) },
-      withBlocks([hero, finalCta]),
+      page([hero, finalCta]).root,
     )
     const observer = observerOf()
 
-    // At the top: the hero is on screen, the close is far below.
+    // At the top: the hero's Search is on screen, the close is far below.
     observer.report(hero, true)
     observer.report(finalCta, false)
-    // Down the page: the hero has gone and nothing carries green.
+    // Down the page: the Search has gone and no green is on screen, so the
+    // header's Get started is the green one.
     observer.report(hero, false)
-    // The close comes in, then goes again.
+    // The close's pill comes in, then goes again.
     observer.report(finalCta, true)
     observer.report(finalCta, false)
 
-    // Only changes are reported.
-    expect(changes).toEqual([true, false, true, false])
+    // Only changes are reported (the first false is the start, before the
+    // observer has reported anything).
+    expect(changes).toEqual([false, true, false, true, false])
   })
 
   it('is right at once for a reload part way down the page', () => {
-    vi.stubGlobal('IntersectionObserver', FakeObserver)
+    stub()
     const onChange = vi.fn()
-    watchPageGreen({ onChange }, withBlocks([hero, finalCta]))
+    watchPageGreen({ onChange }, page([hero, finalCta]).root)
     observerOf().report(finalCta, true)
     expect(onChange).toHaveBeenLastCalledWith(true)
   })
 
-  it('reports false for a page with no such block, and watches nothing', () => {
-    vi.stubGlobal('IntersectionObserver', FakeObserver)
+  it('reports false for a page with no such button, and watches nothing', () => {
+    stub()
     const onChange = vi.fn()
-    const stop = watchPageGreen({ onChange }, withBlocks([]))
+    const stop = watchPageGreen({ onChange }, page([]).root)
     expect(onChange).toHaveBeenCalledWith(false)
-    expect(FakeObserver.latest).toBeNull()
+    expect(observerOf().targets).toEqual([])
     expect(stop).not.toThrow()
   })
 
+  it('picks up a button that arrives after the header', () => {
+    stub()
+    const changes: boolean[] = []
+    const { root, buttons } = page([])
+    watchPageGreen({ onChange: (inView) => changes.push(inView) }, root)
+
+    // The pricing page streams in behind its loading frame.
+    const plan = button('paid plan action')
+    buttons.push(plan)
+    mutationsOf().change([plan])
+    expect(observerOf().targets).toEqual([plan])
+    observerOf().report(plan, true)
+    expect(changes).toEqual([false, true])
+  })
+
+  it('ignores a change that carries no marked button', () => {
+    stub()
+    const { root, buttons } = page([hero])
+    watchPageGreen({ onChange: vi.fn() }, root)
+    const other = {
+      nodeType: 1,
+      matches: () => false,
+      querySelector: () => null,
+    } as unknown as Node
+    buttons.push(button('would be seen by a scan'))
+    mutationsOf().change([other])
+    // The scan did not run, so the new button is not observed.
+    expect(observerOf().targets).toEqual([hero])
+  })
+
+  it('lets go of a button that leaves, so it no longer holds the header quiet', () => {
+    stub()
+    const changes: boolean[] = []
+    const { root, buttons } = page([hero])
+    watchPageGreen({ onChange: (inView) => changes.push(inView) }, root)
+    observerOf().report(hero, true)
+
+    // A client navigation takes the page's hero away while it is on screen.
+    hero.isConnected = false
+    buttons.length = 0
+    mutationsOf().change([], [hero])
+    expect(observerOf().targets).toEqual([])
+    expect(changes).toEqual([false, true, false])
+  })
+
   it('stops watching on cleanup', () => {
-    vi.stubGlobal('IntersectionObserver', FakeObserver)
-    const stop = watchPageGreen({ onChange: vi.fn() }, withBlocks([hero]))
+    stub()
+    const stop = watchPageGreen({ onChange: vi.fn() }, page([hero]).root)
     stop()
     expect(observerOf().disconnected).toBe(true)
+    expect(mutationsOf().disconnected).toBe(true)
   })
 
   it('reports false, and stops cleanly, where there is no IntersectionObserver', () => {
     vi.stubGlobal('IntersectionObserver', undefined)
     const onChange = vi.fn()
-    const stop = watchPageGreen({ onChange }, withBlocks([hero]))
+    const stop = watchPageGreen({ onChange }, page([hero]).root)
     expect(onChange).toHaveBeenCalledWith(false)
     expect(stop).not.toThrow()
   })
@@ -117,25 +223,9 @@ describe('watchPageGreen', () => {
 
 describe('the hooks the header watches', () => {
   const read = (path: string) => readFileSync(join(process.cwd(), path), 'utf8')
-  const landing = 'src/app/(marketing)/components/ui/landing'
 
-  it('are on the hero and the closing call to action', () => {
-    expect(PAGE_GREEN_BLOCKS).toBe('[data-landing-hero], [data-final-cta]')
-    expect(read(`${landing}/hero/HeroSection.tsx`)).toContain(
-      'data-landing-hero=""',
-    )
-    expect(read(`${landing}/sections/FinalCtaBand.tsx`)).toContain(
-      'data-final-cta=""',
-    )
-  })
-
-  it('are the same blocks as carry a green action of their own', () => {
-    expect(read(`${landing}/hero/HeroSearchCta.tsx`)).toContain(
-      'variant="primary"',
-    )
-    expect(read(`${landing}/sections/FinalCtaBand.tsx`)).toContain(
-      'variant="primary"',
-    )
+  it('are on the green buttons, not on their sections', () => {
+    expect(PAGE_GREEN_ACTIONS).toBe('[data-page-green-action]')
   })
 
   it('is what the header reads, so its action is secondary beside them', () => {

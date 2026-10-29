@@ -17,6 +17,11 @@ body {
 html {
   /* Anchor targets land below the sticky headers (56/64px + breathing room). */
   scroll-padding-top: 80px;
+  /* A control that takes keyboard focus (or a pin that scrolls its card into
+     view) stops above the open cookie banner, not under it (WCAG 2.4.11).
+     `--cookie-banner-height` is on <html> only while the banner is open; the
+     -16px fallback makes the padding 0 when it is not, so nothing else moves. */
+  scroll-padding-bottom: calc(var(--cookie-banner-height, -16px) + 16px);
   /* Smooth in-page anchor scrolling (native, no-JS friendly). */
   scroll-behavior: smooth;
 }

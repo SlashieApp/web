@@ -97,16 +97,30 @@ section builds on it:
   curve, once. Reduced motion (and no JS) shows the content as it is.
 - **One green fill per screen, the header included.** The marketing header's
   Get started (Open in app on a phone) is the green primary only while no
-  green action of the page's own is in view. It is secondary over the hero (the
-  Search pill is the screen's green) and again at the closing call to action
-  (the green Post a task, on the landing and at the foot of `/about`);
-  `layout/pageGreenWatch.ts` watches `[data-landing-hero]` and
-  `[data-final-cta]` and the header reads it (`quiet`). On a page with neither
-  (`/pricing`, the legal pages) it is the screen's one green button. A new
-  section with a green action of its own either carries one of those hooks or
-  extends `PAGE_GREEN_BLOCKS`. This is a decision, not an accident: if Ryan
-  wants the header's green to stay beside the close, record that exception on
+  green action of the page's own is in view. It is secondary while the hero's
+  Search pill, the closing call's green Post a task (the landing and the foot
+  of `/about`) or the paid plan's action on `/pricing` is on screen;
+  `layout/pageGreenWatch.ts` watches the buttons that carry
+  `data-page-green-action` (the buttons, not the sections around them) and the
+  header reads it (`quiet`). The moment none is on screen the header's action
+  is the green one again, so no scroll position is left without a green main
+  action. On a page with no such button (the legal pages) it is the screen's
+  one green button. A button can arrive after the header (the pricing page
+  streams in behind its loading frame) or leave with its page: the watch picks
+  marked buttons up and drops them as they come and go. A new green action of a
+  page's own carries the hook. This is a decision, not an accident: if Ryan
+  wants the header's green to stay beside the page's, record that exception on
   FE-471 and drop the `pageGreen` term in `MarketingHeader`.
+- **Focus and the cookie banner.** `globals.css` gives `<html>` a
+  `scroll-padding-bottom` of the open cookie banner's height
+  (`--cookie-banner-height`, published while the banner is open) plus 16px, 0
+  when it is closed. A control that takes keyboard focus, or a pin that scrolls
+  its card into view, stops above the banner instead of under it (WCAG 2.4.11
+  Focus Not Obscured); the banner's own buttons are the last stops on the page.
+- `SectionHead` takes `size`: `display` (default) is 34/41 on a phone and 44/48
+  from `lg`; `title` is 34/41 at every width, for a section that sits under a
+  page title of its own (the page header's title is 34/41), so the section's
+  head never out-sizes the page's h1.
 
 ## Hero
 

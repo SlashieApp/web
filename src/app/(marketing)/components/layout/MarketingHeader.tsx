@@ -387,9 +387,10 @@ const FRAMED_ROUTES: readonly string[] = [
  * over the white page and solidifies to white once scrolled. Text colours are
  * the same either way, so this is safe from the first server paint. Its Get
  * started is the green primary only while the page has no green action of its
- * own in view: over the hero and at the closing call it is secondary (the
- * screen's one green fill is the page's), and on a page with neither
- * (/pricing, the legal pages) it is the screen's one green button. The other
+ * own in view: while the hero's Search, the closing Post a task or the paid
+ * plan's action is on screen it is secondary (the screen's one green fill is the
+ * page's), and with none on screen (or on a page with none, the legal pages) it
+ * is the screen's one green button. The other
  * framed routes (`FRAMED_ROUTES`, such as `/pricing` and `/about`) always get
  * the solid header, in white, as do the legal pages. Marketing routes that
  * have not taken the marketing frame yet get it on the canvas colour their
@@ -403,15 +404,15 @@ export function MarketingHeader(props: MarketingHeaderProps) {
   const isLanding = barePathname === MARKETING_HOME
   const isFramed = FRAMED_ROUTES.includes(barePathname)
   const [scrolled, setScrolled] = useState(false)
-  // The hero's Search or the closing Post a task is on screen: that is the
-  // screen's one green action, so the header's gives way (see `pageGreenWatch`).
+  // A green action of the page's own (the hero's Search, the closing Post a
+  // task, the paid plan's action) is on screen: that is the screen's one green
+  // fill, so the header's gives way (see `pageGreenWatch`). The watch follows
+  // the page's buttons as they come and go, so a route change needs nothing.
   const [pageGreen, setPageGreen] = useState(false)
-
-  useEffect(() => {
-    // A new page has new blocks to watch.
-    void barePathname
+  const watchGreen = useCallback((node: HTMLElement | null) => {
+    if (!node) return
     return watchPageGreen({ onChange: setPageGreen })
-  }, [barePathname])
+  }, [])
 
   useEffect(() => {
     if (!isLanding) return
@@ -427,6 +428,7 @@ export function MarketingHeader(props: MarketingHeaderProps) {
     <>
       <AccountSuspendedBanner />
       <Box
+        ref={watchGreen}
         as="header"
         zIndex={30}
         overflow="visible"
