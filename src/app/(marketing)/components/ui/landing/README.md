@@ -131,7 +131,10 @@ The one centred section (`hero/HeroSection.tsx`), built from tokens only:
 - The search is one 52px pill (`HeroSearchCta`, the `Input` primitive with
   `pill`: a 1px `border.strong` hairline, `border.focus` ring on focus, a
   `text.subtle` placeholder) with the green Search pill inside it. That pill is
-  the hero's only green fill; the header's Get started stays secondary over it.
+  the hero's only green fill; the header's Get started stays secondary while it
+  is on screen (the pill carries `data-page-green-action`, the header watches
+  the button, not the hero, so once it has scrolled away the header's Get
+  started is the green one).
 - The trust row is a list: a green 600 check (`accent.active`) and the text in
   `text.muted`. "See how it works" is a `text.link` text action that underlines
   on hover and focus (never green 400).

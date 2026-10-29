@@ -26,7 +26,7 @@ const HERO_SEARCH_HEIGHT = '52px'
  * green 600 `border.focus` ring) with the green Search pill inside it, on the
  * right. The placeholder is `text.subtle`. Submitting opens /search with the
  * typed text as its query (`?q=`). The Search pill is the one green fill in
- * the hero.
+ * the hero, and carries the `data-page-green-action` hook the header watches.
  */
 export function HeroSearchCta({
   placeholder,
@@ -64,6 +64,9 @@ export function HeroSearchCta({
             type="submit"
             size="md"
             variant="primary"
+            // The page's green action: the header's Get started gives way
+            // while this pill is on screen (`pageGreenWatch`).
+            data-page-green-action=""
             px={{ base: 3.5, md: 5 }}
             aria-label={submitLabel}
           >

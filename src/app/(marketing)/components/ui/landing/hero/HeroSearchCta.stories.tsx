@@ -60,6 +60,8 @@ export const Default: Story = {
     const submit = canvas.getByRole('button', { name: hero.searchSubmit })
     await expect(pill).toContainElement(submit)
     await expect(getComputedStyle(submit).backgroundColor).toBe(GREEN_400)
+    // The header's Get started yields to this pill, not to the hero around it.
+    await expect(submit).toHaveAttribute('data-page-green-action', '')
   },
 }
 

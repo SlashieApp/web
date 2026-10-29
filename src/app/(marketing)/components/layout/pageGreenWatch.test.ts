@@ -224,8 +224,14 @@ describe('watchPageGreen', () => {
 describe('the hooks the header watches', () => {
   const read = (path: string) => readFileSync(join(process.cwd(), path), 'utf8')
 
+  const landing = 'src/app/(marketing)/components/ui/landing'
+
   it('are on the green buttons, not on their sections', () => {
     expect(PAGE_GREEN_ACTIONS).toBe('[data-page-green-action]')
+    // The hero's Search pill, a primary button.
+    const search = read(`${landing}/hero/HeroSearchCta.tsx`)
+    expect(search).toContain('data-page-green-action=""')
+    expect(search).toContain('variant="primary"')
   })
 
   it('is what the header reads, so its action is secondary beside them', () => {
