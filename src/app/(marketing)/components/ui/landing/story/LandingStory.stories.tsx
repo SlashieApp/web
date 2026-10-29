@@ -127,6 +127,12 @@ export const Desktop: Story = {
     await expect(
       within(canvasElement).getAllByRole('figure', { name: phone.demoLabel }),
     ).toHaveLength(1)
+    // Every ordered list here (the index and the two acts' steps) has
+    // `list-style: none`, which drops the list in Safari with VoiceOver, so each
+    // states its role.
+    const lists = [...canvasElement.querySelectorAll('ol')]
+    await expect(lists).toHaveLength(3)
+    for (const list of lists) await expect(list).toHaveAttribute('role', 'list')
   },
 }
 

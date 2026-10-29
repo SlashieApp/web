@@ -289,7 +289,9 @@ hero's "See how it works" lands it under the sticky header).
   customers" or "For workers", then the h2 at 34/41, 44/48 from `lg`) over its
   steps. Its head belongs to the act's first step, so the phone and the index
   move to the act as soon as its head is mid-screen.
-- **Steps are hairline rows** (an `ol`; each row is an `li` with a 1px
+- **Steps are hairline rows** (an `ol`, as are the section index's list; each is
+  a `List.Root`, which states `role="list"` again because `list-style: none`
+  drops the list in Safari with VoiceOver; each row is an `li` with a 1px
   `border.default` on top, the last also below). The number is Geist Mono 12 in
   `text.subtle` (never green), the title is an h3 at 18/500 (`heading-sm`) and
   the body is 14 in `text.muted`. The first step keeps the tap hint (a green 600
@@ -330,12 +332,14 @@ hero's "See how it works" lands it under the sticky header).
   sheets and nav). `PhoneFrame` zeroes every transition and animation inside it
   under `prefers-reduced-motion` (`animation-duration: 0ms !important`, one
   iteration), so no screen needs its own guard: nothing in the phone moves under
-  reduced motion. The post screen is the one whose finished state covers its
-  content (the "Task posted" toast sits over the first field), so under reduced
-  motion it rests in its starting state, with the form showing and the hotspot a
-  still green 600 ring (not a pulse), rather than on the finished state; a tap
-  plays the result (`useDemoBeat(active, intro, false)`). Every other screen
-  still jumps to its finished state.
+  reduced motion. The post screen's finished state swaps its app bar for the
+  "Task posted" toast: the toast takes the bar's place (46px in the 52px bar,
+  over the close button and the title) and ends above the first field, so no
+  field is ever covered, with or without motion (a story measures it). Under
+  reduced motion the post screen still rests in its starting state, with the form
+  showing and the hotspot a still green 600 ring (not a pulse), rather than on
+  the finished state; a tap plays the result (`useDemoBeat(active, intro,
+  false)`). Every other screen jumps to its finished state.
 - **The phone's screens** follow the product after Train 1: neutral tiles and
   avatars (no mint), the drawn map in neutral tokens, price pins as pills
   (hairline, green 800 price; the selected one green 400 with an ink price),

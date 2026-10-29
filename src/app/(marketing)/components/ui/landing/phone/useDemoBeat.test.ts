@@ -7,8 +7,8 @@ describe('reducedBeat', () => {
     expect(reducedBeat(true)).toEqual({ entered: true, done: true })
   })
 
-  it('rests a screen whose finished state covers its content in its starting state', () => {
-    // The post screen: its toast would sit over the first field.
+  it('rests a screen that should show its starting state in that state', () => {
+    // The post screen: its finished state swaps the app bar for a toast.
     expect(reducedBeat(false)).toEqual({ entered: true, done: false })
   })
 })

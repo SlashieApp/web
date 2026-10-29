@@ -69,6 +69,24 @@ export const CustomerPinTapped: Story = {
   play: ({ canvasElement }) => tapSecondPin(canvasElement, 'hedge'),
 }
 
+/**
+ * The card's tile wears the task's own icon, the one the map panel's card gives
+ * the same task (not one plant for every task): the second task's tile differs
+ * from the first's.
+ */
+export const CardIconFollowsTheTask: Story = {
+  play: async ({ canvasElement }) => {
+    const tile = () =>
+      canvasElement.querySelector<SVGElement>('[data-search-card] svg')
+    const first = tile()?.innerHTML
+    await tapSecondPin(canvasElement, 'hedge')
+    const second = tile()?.innerHTML
+    await expect(first).toBeTruthy()
+    await expect(second).toBeTruthy()
+    await expect(second).not.toBe(first)
+  },
+}
+
 /** Worker, playing: the card carries "Send quote"; the second pin pulses. */
 export const Worker: Story = {
   args: { variant: 'worker' },

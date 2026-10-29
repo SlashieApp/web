@@ -1,6 +1,6 @@
 'use client'
 
-import { Box, Grid, HStack, Heading, Stack, Text } from '@chakra-ui/react'
+import { Box, Grid, HStack, Heading, List, Stack, Text } from '@chakra-ui/react'
 import type { ReactNode } from 'react'
 import type { IconType } from 'react-icons'
 import { LuHardHat, LuPointer, LuUser } from 'react-icons/lu'
@@ -166,7 +166,15 @@ function Act({
           </Reveal>
         </StoryStageMarker>
       ) : null}
-      <Box as="ol" m={0} p={0} mt={{ base: 8, lg: 12 }} listStyleType="none">
+      {/* `list-style: none` drops the list in Safari with VoiceOver (the steps'
+          count and order): `List.Root` states the role again. */}
+      <List.Root
+        as="ol"
+        m={0}
+        p={0}
+        mt={{ base: 8, lg: 12 }}
+        listStyleType="none"
+      >
         {steps.map(({ stage, copy }, index) => (
           <StepRow
             key={stage}
@@ -177,7 +185,7 @@ function Act({
             hint={index === 0 ? hint : undefined}
           />
         ))}
-      </Box>
+      </List.Root>
     </Box>
   )
 }

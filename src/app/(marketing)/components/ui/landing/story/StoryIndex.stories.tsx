@@ -75,6 +75,12 @@ export const Desktop: Story = {
       name: args.label,
     })
     await expect(getComputedStyle(nav).position).toBe('sticky')
+    // `list-style: none` drops the list in Safari with VoiceOver unless the
+    // role is stated: the index is a list of its eight steps.
+    const list = within(nav).getByRole('list')
+    await expect(list.tagName).toBe('OL')
+    await expect(list).toHaveAttribute('role', 'list')
+    await expect(within(list).getAllByRole('listitem')).toHaveLength(8)
     const links = within(nav).getAllByRole('link')
     await expect(links.map((link) => link.textContent)).toEqual([
       en.post,

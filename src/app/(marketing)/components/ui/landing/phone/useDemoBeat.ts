@@ -35,10 +35,10 @@ export function reducedBeat(jumpToDone: boolean): {
  * `intro` false starts already entered: use it for whatever is on screen at
  * first paint, so server HTML and no-JS visitors see the content.
  *
- * `jumpToDone` false is for a screen whose finished state covers its own
- * content (the post screen's toast sits over its first field): under reduced
- * motion it rests in its starting state instead, entered but not played, with
- * its hotspot still there to tap.
+ * `jumpToDone` false is for a screen that should rest as its starting state
+ * under reduced motion (the post screen: its finished state swaps the app bar
+ * for a toast): it rests entered but not played, with its hotspot still there
+ * to tap.
  */
 export function useDemoBeat(
   active: boolean,

@@ -1,6 +1,6 @@
 'use client'
 
-import { Box, type BoxProps, chakra } from '@chakra-ui/react'
+import { Box, type BoxProps, List, chakra } from '@chakra-ui/react'
 import { useEffect, useRef } from 'react'
 
 import { sdlMotion } from '@/theme/styles'
@@ -72,7 +72,9 @@ export function StoryIndex({
       borderColor="border.default"
       {...boxProps}
     >
-      <Box
+      {/* `list-style: none` drops the list in Safari with VoiceOver (the count
+          and the order): `List.Root` states the role again. */}
+      <List.Root
         as="ol"
         ref={listRef}
         position="relative"
@@ -99,7 +101,7 @@ export function StoryIndex({
             separated={groupIndex > 0}
           />
         ))}
-      </Box>
+      </List.Root>
     </Box>
   )
 }

@@ -1,12 +1,13 @@
 'use client'
 
 import { Box, HStack, Stack, Text } from '@chakra-ui/react'
-import { LuCrosshair, LuMapPin, LuSearch, LuSprout } from 'react-icons/lu'
+import { LuCrosshair, LuMapPin, LuSearch } from 'react-icons/lu'
 
 import { formatMessage } from '@/i18n/loadPageI11n'
 import { sdlElevation, sdlFigure } from '@/theme/styles'
 
 import { PhoneMap, PricePin } from '../PhoneMap'
+import { DEMO_TASK_ICONS } from '../demoTaskIcons'
 import type { DemoTaskId, PhoneCopy } from '../phoneCopy'
 import { DemoCard, Hotspot, PhoneTabBar } from '../phoneParts'
 import { enterStyle, useDemoBeat } from '../useDemoBeat'
@@ -42,6 +43,8 @@ export function SearchScreen({
     variant === 'worker' ? ['paint', 'wardrobe'] : ['move', 'hedge']
   const selected = done ? second : first
   const task = copy.tasks[selected]
+  // The same icon the map panel's card gives this task.
+  const TaskIcon = DEMO_TASK_ICONS[selected]
 
   return (
     <Box position="absolute" inset={0}>
@@ -118,6 +121,7 @@ export function SearchScreen({
       >
         <DemoCard
           key={selected}
+          data-search-card=""
           display="flex"
           gap="12px"
           alignItems="center"
@@ -140,7 +144,7 @@ export function SearchScreen({
             justifyContent="center"
             aria-hidden
           >
-            <LuSprout size={24} />
+            <TaskIcon size={24} />
           </Box>
           <Stack gap="2px" flex={1} minW={0}>
             <Text

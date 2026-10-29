@@ -67,3 +67,26 @@ export const Playing: Story = {}
 export const Posted: Story = {
   play: ({ canvasElement }) => postTask(canvasElement),
 }
+
+/**
+ * Posted, the toast takes the app bar's place and covers no field: it ends
+ * above the first field's label and above the title field's text, so the
+ * typed task stays readable while the toast shows.
+ */
+export const PostedToastCoversNoField: Story = {
+  play: async ({ canvasElement }) => {
+    await postTask(canvasElement)
+    const canvas = within(canvasElement)
+    const toast = canvasElement.querySelector<HTMLElement>('[data-post-toast]')
+    if (!toast) throw new Error('The posted toast is missing')
+    // The toast fades and rises in (380ms): measure it at rest.
+    await waitFor(() => expect(getComputedStyle(toast).opacity).toBe('1'))
+    const toastBottom = toast.getBoundingClientRect().bottom
+    await expect(toastBottom).toBeLessThanOrEqual(
+      canvas.getByText(copy.post.whatLabel).getBoundingClientRect().top,
+    )
+    await expect(toastBottom).toBeLessThanOrEqual(
+      canvas.getByText(copy.post.whatValue).getBoundingClientRect().top,
+    )
+  },
+}

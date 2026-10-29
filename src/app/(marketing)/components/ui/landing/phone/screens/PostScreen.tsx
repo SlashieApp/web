@@ -26,8 +26,8 @@ export function PostScreen({
   active: boolean
   intro?: boolean
 }) {
-  // Reduced motion rests the form un-played (not on the toast that covers its
-  // first field), with the hotspot still tappable.
+  // Reduced motion rests the form un-played (the toast replaces the app bar's
+  // title while it shows), with the hotspot still tappable.
   const { entered, done, trigger, reduced } = useDemoBeat(active, intro, false)
   const title = useTypewriter(copy.post.whatValue, entered, reduced)
   const typing = title.length < copy.post.whatValue.length
@@ -191,24 +191,30 @@ export function PostScreen({
       </Box>
 
       {done ? (
+        // The toast takes the app bar's place, over the title and the close
+        // button, so it never covers a field: the bar is 52px and the toast
+        // 46px, and the first field starts 16px under the bar.
         <Box
           position="absolute"
-          left="16px"
-          right="16px"
-          top="62px"
+          left="8px"
+          right="8px"
+          top="3px"
           zIndex={3}
+          data-post-toast=""
           css={{ animation: 'fade-rise 380ms cubic-bezier(0.2, 0, 0, 1) both' }}
         >
           <DemoCard
             display="flex"
-            gap="12px"
+            gap="10px"
             alignItems="center"
+            py="6px"
+            px="12px"
             bg="status.success.soft"
             borderColor="status.success.border"
           >
             <Box
-              w="36px"
-              h="36px"
+              w="32px"
+              h="32px"
               borderRadius="full"
               bg="action.primary"
               color="text.onGreen"
@@ -217,13 +223,13 @@ export function PostScreen({
               justifyContent="center"
               flexShrink={0}
             >
-              <LuCheck size={20} aria-hidden />
+              <LuCheck size={18} aria-hidden />
             </Box>
             <Stack gap={0}>
-              <Text fontSize="15px" fontWeight={500}>
+              <Text fontSize="15px" lineHeight="17px" fontWeight={500}>
                 {t.postedTitle}
               </Text>
-              <Text fontSize="13px" color="text.muted">
+              <Text fontSize="13px" lineHeight="15px" color="text.muted">
                 {t.postedBody}
               </Text>
             </Stack>
