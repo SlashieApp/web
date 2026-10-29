@@ -121,6 +121,11 @@ The one centred section (`hero/HeroSection.tsx`), built from tokens only:
 - The trust row is a list: a green 600 check (`accent.active`) and the text in
   `text.muted`. "See how it works" is a `text.link` text action that underlines
   on hover and focus (never green 400).
+- **Rhythm.** The h1 sits `SECTION_PY` under the header (56px on a phone up to
+  128px); the foot (`HERO_PB`) is a step tighter, 56 / 64 / 80 / 96px, so the
+  hero's text reads as one group above its rule (the sketch has 88 above and 72
+  below) instead of the old 32 to 40px. The extra foot is also what keeps the
+  props that sit under the link row on a phone, and their shadows, off the rule.
 - A faint radial grey (`bg.subtle` fading to nothing, `data-hero-glow`) sits
   behind the top of the page. It starts under the sticky header so there is no
   seam, and it is painted under the still poster.

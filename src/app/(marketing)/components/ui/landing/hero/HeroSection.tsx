@@ -27,6 +27,15 @@ function riseIn(delayMs: number) {
 }
 
 /**
+ * Padding under the hero's last line: 56px on a phone, 64 on a tablet, 80 on a
+ * laptop and 96 on a wide screen. The top is the frame's `SECTION_PY` (the h1
+ * sits that far under the header); the foot is a step tighter, so the hero's
+ * block reads as one group above the rule and the props that sit under the
+ * "See how it works" row on a phone keep clear of the rule.
+ */
+export const HERO_PB = { base: 14, md: 16, lg: 20, xl: 24 } as const
+
+/**
  * The faint radial grey at the top of the page: `bg.subtle` at the top edge
  * fading to nothing, so it has no seam under the header or at the hero's foot.
  */
@@ -90,7 +99,7 @@ export function HeroSection({ copy, ctas }: HeroSectionProps) {
           textAlign="center"
           gap={{ base: 5, md: 6 }}
           pt={SECTION_PY}
-          pb={{ base: 8, md: 10 }}
+          pb={HERO_PB}
           mx="auto"
           maxW="54rem"
         >

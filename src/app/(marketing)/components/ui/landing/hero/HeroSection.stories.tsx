@@ -83,6 +83,18 @@ export const Default: Story = {
   },
 }
 
+/** Wide screen: 128px above the h1 (the frame's section padding) and 96px under the last line, not the old 40px. */
+export const Desktop: Story = {
+  globals: { viewport: { value: 'desktop', isRotated: false } },
+  play: async ({ canvasElement }) => {
+    const stack = canvasElement.querySelector('h1')?.parentElement
+    if (!stack) throw new Error('The hero has no content stack')
+    const style = getComputedStyle(stack)
+    await expect(style.paddingTop).toBe('128px')
+    await expect(style.paddingBottom).toBe('96px')
+  },
+}
+
 /** Phone width: the 44/46 heading wraps balanced, the search pill stays 52px and the checks wrap under it. */
 export const Mobile: Story = {
   globals: { viewport: { value: 'mobile1', isRotated: false } },
@@ -97,6 +109,10 @@ export const Mobile: Story = {
       name: hero.searchAriaLabel,
     })
     await expect(search.parentElement?.getBoundingClientRect().height).toBe(52)
+    // 56px above and below, the phone rhythm.
+    const stack = canvas.getByRole('heading', { level: 1 }).parentElement
+    await expect(stack && getComputedStyle(stack).paddingTop).toBe('56px')
+    await expect(stack && getComputedStyle(stack).paddingBottom).toBe('56px')
   },
 }
 
