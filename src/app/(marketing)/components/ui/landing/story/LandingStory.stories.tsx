@@ -9,6 +9,7 @@ import {
 import messages from '@/app/(marketing)/i11n.json'
 import { formatMessage } from '@/i18n/loadPageI11n'
 
+import { BentoSection } from '../bento/BentoSection'
 import { HeroSection } from '../hero/HeroSection'
 import { MapShowcase } from '../showcase/MapShowcase'
 import { LandingStory } from './LandingStory'
@@ -133,13 +134,15 @@ export const PhoneQuotesStep: Story = {
 }
 
 /**
- * Story-only: the map panel between its two section rules, as `home/page.tsx`
- * passes it to the story.
+ * Story-only: the map panel and the bento, each between section rules, as
+ * `home/page.tsx` passes them to the story.
  */
-const mapPanel = (
+const showcase = (
   <>
     <SectionRule />
     <MapShowcase copy={phone} />
+    <SectionRule />
+    <BentoSection steps={story.customer.steps} phone={phone} />
     <SectionRule />
   </>
 )
@@ -151,34 +154,51 @@ function isBefore(a: Element, b: Element): boolean {
   )
 }
 
-/** Desktop with the map panel: the hero, then the panel between rules, then the first step of the story. */
-export const DesktopWithMapPanel: Story = {
-  args: { showcase: mapPanel },
+/** Story-only: the map panel and the bento, which every showcase story needs. */
+function getShowcase(canvasElement: HTMLElement): {
+  panel: Element
+  bento: Element
+} {
+  const panel = canvasElement.querySelector('[data-map-showcase]')
+  const bento = canvasElement.querySelector('[data-bento]')
+  if (!panel) throw new Error('The map panel is missing')
+  if (!bento) throw new Error('The bento is missing')
+  return { panel, bento }
+}
+
+/**
+ * Desktop with the showcase: the hero, the map panel between rules, the bento
+ * between rules, then the first step of the story.
+ */
+export const DesktopWithShowcase: Story = {
+  args: { showcase },
   globals: { viewport: { value: 'desktop', isRotated: false } },
   play: async ({ canvasElement }) => {
-    const panel = canvasElement.querySelector('[data-map-showcase]')
-    if (!panel) throw new Error('The map panel is missing')
+    const { panel, bento } = getShowcase(canvasElement)
     await expect(isBefore(getStep(canvasElement, 'hero'), panel)).toBe(true)
-    await expect(isBefore(panel, getStep(canvasElement, 'post'))).toBe(true)
-    // A rule on each side of the panel.
+    await expect(isBefore(panel, bento)).toBe(true)
+    await expect(isBefore(bento, getStep(canvasElement, 'post'))).toBe(true)
+    // A rule on each side of each: the map panel, then the bento, share the one between them.
     await expect(panel.previousElementSibling).toHaveAttribute(
       'data-section-rule',
     )
     await expect(panel.nextElementSibling).toHaveAttribute('data-section-rule')
+    await expect(bento.previousElementSibling).toBe(panel.nextElementSibling)
+    await expect(bento.nextElementSibling).toHaveAttribute('data-section-rule')
   },
 }
 
-/** Below lg with the map panel: the hero, the panel, then the inline phone and the steps. */
-export const PhoneWithMapPanel: Story = {
-  args: { showcase: mapPanel },
+/** Below lg with the showcase: the hero, the panel, the bento, then the inline phone and the steps. */
+export const PhoneWithShowcase: Story = {
+  args: { showcase },
   globals: { viewport: { value: 'mobile1', isRotated: false } },
   play: async ({ canvasElement }) => {
-    const panel = canvasElement.querySelector('[data-map-showcase]')
-    if (!panel) throw new Error('The map panel is missing')
+    const { panel, bento } = getShowcase(canvasElement)
     const [firstPhone] = within(canvasElement).getAllByRole('figure', {
       name: phone.demoLabel,
     })
-    await expect(isBefore(panel, firstPhone)).toBe(true)
+    await expect(isBefore(panel, bento)).toBe(true)
+    await expect(isBefore(bento, firstPhone)).toBe(true)
     await expect(isBefore(firstPhone, getStep(canvasElement, 'post'))).toBe(
       true,
     )

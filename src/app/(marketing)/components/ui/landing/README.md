@@ -55,6 +55,10 @@ components/ui/landing/
     MapShowcase.tsx          the map panel: drawn map, price pins, the selected task's card
     mapShowcaseModel.ts      pure: demo tasks from landing.phone, pin spots per layout, collision maths
     mapShowcaseArt.ts        pure: the drawn map's shapes (river, roads, parks, streets)
+  bento/
+    BentoSection.tsx         the bento: three hairline-divided cells, each a step and its snippet
+    BentoSnippets.tsx        the three live snippets: post form, quote rows, accepted row
+    useSnippetEntrance.ts    the snippets' once-only entrance (static | waiting | playing)
   sections/                  TrustSection · PricingTeaser · FinalCtaBand
 ```
 
@@ -138,6 +142,55 @@ formation while it passes, and the panel is opaque (`bg.canvas`).
 - **Motion:** pins ease their fill and lift over 200ms; a new card fades in with
   an 8px rise over 300ms, only after the visitor picks a pin. Reduced motion
   turns both off (the selection then cuts); the section's own reveal is `Reveal`.
+
+## Bento
+
+The bento (`bento/BentoSection.tsx`) is the customer's first three steps as
+three cells divided by hairlines: "Post a task in a minute", "Compare quotes"
+and "Hire and pay directly" (`landing.story.customer.steps`, title and body as
+they are). `home/page.tsx` passes it to `LandingStory` in the `showcase` slot,
+after the map panel, with a `SectionRule` on each side, so the order is hero,
+map panel, bento, then the phone and the acts (on both layouts). It belongs to
+no story stage, and it is opaque (`bg.surface`): the 3D scene stays behind it,
+so a prop never crosses a title or a row.
+
+- **Layout.** From `lg` the three cells sit side by side across the page column
+  (`sizes.page`), divided by 1px `border.default` lines that run from rule to
+  rule; the first cell has none, because the frame's rail is on that edge. The
+  cells share their rows (a CSS subgrid: `gridTemplateRows: subgrid`), so the
+  three panels start on one line whatever the length of the copy above them;
+  where subgrid is missing they simply start at the top of each cell. Below
+  `lg` the cells stack with a hairline between them; from `md` each sets its
+  text beside its snippet. A cell's vertical padding is the section rhythm
+  (`BENTO_CELL_PY`: 48px on a phone, 56 on a tablet, 96 from `lg`, 128 from
+  `xl`; the first and last cell are the section's padding).
+- **No head of its own.** Only the how-it-works index's labels are new strings,
+  so the section has no heading: each cell's title is an `h2`, and the section
+  landmark is named by the three of them (`aria-labelledby` with three ids).
+  Each snippet is a `figure` named by its cell's title.
+- **The snippets** (`BentoSnippets.tsx`) are lightweight replicas of the
+  product's own rows on a `bg.canvas` panel (hairline, 16px corners), fed from
+  `landing.phone`, so they add no copy. They keep to neutral tokens; green is
+  used only as state: the selected "When" chip (success tint, green 800 label),
+  the focus colour of the title field while it types, and the accepted row
+  (success tint, green 400 check with an ink glyph). Prices are ink at 600 with
+  tabular figures. There is no button to press in them that is green.
+  - *Post a task:* what, where, when and budget as the product's fields (8px
+    corners, `border.strong`). The title types itself; "When" is a real radio
+    group (native radios, so the arrow keys work).
+  - *Compare quotes:* three quote rows (avatar, name, rating, price, message).
+    The name is a `button` with `aria-expanded` (named by `phone.quotes.expand`)
+    and a pseudo-element stretches it over the card; opening one closes the
+    others, the first starts open.
+  - *Hire and pay directly:* the chosen quote with its booking, then the
+    accepted row. The check scales in on `sdlMotion.easing.emphasis`, the
+    easing the SDL keeps for confirmations.
+- **Motion.** `useSnippetEntrance` has three phases: `static` (server HTML, no
+  JS, reduced motion, or a snippet already on screen or behind the visitor at
+  hydration: the finished state, no inline styles), `waiting` (hydrated, below
+  the fold: rows held back with opacity and an 8px rise, so nothing shifts) and
+  `playing` (in view: the rows fade in with the `Reveal` rise, 70ms apart, once;
+  the title types; the check lands). The cell text uses `Reveal`.
 
 ## Behaviour by device
 
