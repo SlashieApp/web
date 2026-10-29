@@ -101,9 +101,8 @@ export const MAP_ASPECT = {
   lg: 11 / 5,
 } as const
 
-/** The page column's width (`sizes.page`, 80rem) and its side gutters, in px. */
+/** The page column's width (`sizes.page`, 80rem), in px. The map is as wide as it. */
 const PAGE_COLUMN_PX = Number.parseFloat(PAGE_CONTAINER_MAX_W_CSS) * 16
-const GUTTER_PX = { base: 16, md: 24, lg: 32 } as const
 
 /** The layout the map uses on a viewport this wide. */
 export function layoutAt(viewportWidth: number): MapLayout {
@@ -111,20 +110,15 @@ export function layoutAt(viewportWidth: number): MapLayout {
 }
 
 /**
- * The map box on a viewport this wide, in px: the page column less its
- * gutters, at the breakpoint's aspect ratio.
+ * The map box on a viewport this wide, in px: the page column, edge to edge
+ * (no gutters, no inset: the map runs between the frame's rails), at the
+ * breakpoint's aspect ratio.
  */
 export function mapSizeAt(viewportWidth: number): {
   width: number
   height: number
 } {
-  const gutter =
-    viewportWidth >= BREAKPOINT_PX.lg
-      ? GUTTER_PX.lg
-      : viewportWidth >= BREAKPOINT_PX.md
-        ? GUTTER_PX.md
-        : GUTTER_PX.base
-  const width = Math.min(viewportWidth, PAGE_COLUMN_PX) - 2 * gutter
+  const width = Math.min(viewportWidth, PAGE_COLUMN_PX)
   const aspect =
     viewportWidth >= BREAKPOINT_PX.lg
       ? MAP_ASPECT.lg
@@ -155,9 +149,10 @@ export const CHIP_ZONE_PX = {
 
 /**
  * A pin's footprint around its anchor, with room for the area label under the
- * dot: 80 wide, 48 above the anchor (the price pill and its dot) and 18 below.
+ * dot (12px caps, the longest area about 84px wide): 88 wide, 48 above the
+ * anchor (the price pill and its dot) and 20 below.
  */
-export const PIN_BOX_PX = { halfW: 40, above: 48, below: 18 } as const
+export const PIN_BOX_PX = { halfW: 44, above: 48, below: 20 } as const
 
 export type Rect = { left: number; top: number; right: number; bottom: number }
 

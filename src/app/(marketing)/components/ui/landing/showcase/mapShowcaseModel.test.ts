@@ -103,12 +103,12 @@ describe('rectsOverlap', () => {
 })
 
 describe('mapSizeAt and layoutAt', () => {
-  it('is the page column less its gutters, at the breakpoint aspect', () => {
+  it('is the page column edge to edge, at the breakpoint aspect', () => {
     const phoneMap = mapSizeAt(390)
-    expect(phoneMap.width).toBe(358)
+    expect(phoneMap.width).toBe(390)
     expect(phoneMap.width / phoneMap.height).toBeCloseTo(MAP_ASPECT.base, 5)
     const laptop = mapSizeAt(1366)
-    expect(laptop.width).toBe(1216)
+    expect(laptop.width).toBe(1280)
     expect(laptop.width / laptop.height).toBeCloseTo(MAP_ASPECT.lg, 5)
   })
 
@@ -123,6 +123,14 @@ describe('mapSizeAt and layoutAt', () => {
 })
 
 describe('pin layouts', () => {
+  it('are tabbed in reading order: top to bottom, in both layouts', () => {
+    for (const layout of ['narrow', 'wide'] as const) {
+      const ys = SHOWCASE_ORDER.map((id) => PIN_SPOTS[layout][id].y)
+      expect(ys, layout).toEqual([...ys].sort((a, b) => a - b))
+      expect(new Set(ys).size, layout).toBe(ys.length)
+    }
+  })
+
   it('place every pin on the map, with room for its pill and label', () => {
     for (const width of WIDTHS) {
       const { width: w, height: h } = mapSizeAt(width)

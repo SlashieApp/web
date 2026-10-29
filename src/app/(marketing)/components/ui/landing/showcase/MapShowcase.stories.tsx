@@ -86,14 +86,16 @@ export const Default: Story = {
     const pins = canvas.getAllByRole('button')
     await expect(pins).toHaveLength(5)
     const selected = pinFor(canvas, 'move')
-    await expect(selected).toHaveAttribute('aria-pressed', 'true')
+    // A single choice, not a toggle: the chosen pin is `aria-current`.
+    await expect(selected).toHaveAttribute('aria-current', 'true')
     const selectedPill = getComputedStyle(pillOf(selected))
     await expect(selectedPill.backgroundColor).toBe(GREEN_400)
     await expect(selectedPill.color).toBe(INK)
     await expect(Number(selectedPill.fontWeight)).toBe(600)
 
     const rest = pinFor(canvas, 'wardrobe')
-    await expect(rest).toHaveAttribute('aria-pressed', 'false')
+    await expect(rest).not.toHaveAttribute('aria-current')
+    await expect(rest).not.toHaveAttribute('aria-pressed')
     const restPill = getComputedStyle(pillOf(rest))
     await expect(restPill.backgroundColor).toBe(WHITE)
     await expect(restPill.color).toBe(GREEN_800)
@@ -130,6 +132,17 @@ export const Default: Story = {
     // The tag is neutral (grey fill), never green.
     const tag = within(card).getByText(task.area)
     await expect(getComputedStyle(tag).backgroundColor).toBe(BG_SUBTLE)
+
+    // The map runs edge to edge across the page column: no inset, no radius,
+    // no band of padding above or below it.
+    const mapBox = getMapBox(canvasElement)
+    const mapStyle = getComputedStyle(mapBox)
+    await expect(mapStyle.borderTopLeftRadius).toBe('0px')
+    await expect(mapStyle.borderTopWidth).toBe('0px')
+    const section = canvasElement.querySelector('[data-map-showcase]')
+    const sectionBox = section?.getBoundingClientRect()
+    await expect(mapBox.getBoundingClientRect().top).toBe(sectionBox?.top)
+    await expect(mapBox.getBoundingClientRect().bottom).toBe(sectionBox?.bottom)
 
     // From md the card floats over the map's bottom-left corner.
     const map = getMapBox(canvasElement).getBoundingClientRect()
@@ -179,13 +192,10 @@ export const SelectsAPin: Story = {
     await userEvent.click(pinFor(canvas, 'wardrobe'))
 
     await expect(pinFor(canvas, 'wardrobe')).toHaveAttribute(
-      'aria-pressed',
+      'aria-current',
       'true',
     )
-    await expect(pinFor(canvas, 'move')).toHaveAttribute(
-      'aria-pressed',
-      'false',
-    )
+    await expect(pinFor(canvas, 'move')).not.toHaveAttribute('aria-current')
     // The fill changes over 200ms, so read it once it has settled.
     await waitFor(() =>
       expect(
@@ -233,7 +243,14 @@ export const KeyboardSelects: Story = {
 
     await userEvent.keyboard('{Enter}')
     await expect(pinFor(canvas, 'wardrobe')).toHaveAttribute(
-      'aria-pressed',
+      'aria-current',
+      'true',
+    )
+    // Pressing the chosen pin again does nothing: it stays chosen (it is a
+    // choice, not a toggle).
+    await userEvent.keyboard('{Enter}')
+    await expect(pinFor(canvas, 'wardrobe')).toHaveAttribute(
+      'aria-current',
       'true',
     )
     await expect(getCard(canvasElement)).toHaveAttribute(
@@ -266,10 +283,13 @@ export const Mobile: Story = {
     const map = getMapBox(canvasElement).getBoundingClientRect()
     const card = getCard(canvasElement).getBoundingClientRect()
 
-    // Under the map, on the page's gutters, not floating over it.
+    // Under the map, not floating over it. The map runs edge to edge; the card
+    // sits on the page's 16px gutters under it.
     await expect(card.top).toBeGreaterThanOrEqual(map.bottom)
-    await expect(card.left).toBeCloseTo(map.left, 0)
-    await expect(card.width).toBeCloseTo(map.width, 0)
+    await expect(map.left).toBe(0)
+    await expect(map.width).toBe(canvasElement.ownerDocument.body.clientWidth)
+    await expect(card.left).toBe(16)
+    await expect(card.width).toBe(map.width - 32)
 
     for (const task of Object.keys(
       phone.tasks,
@@ -354,5 +374,91 @@ export const TraditionalChinese: Story = {
         }),
       ),
     ).toBeInTheDocument()
+  },
+}
+
+/**
+ * The pins' area labels are 12px in `text.muted` (6:1 on the map's park fill),
+ * not 11px `text.subtle` (4.1:1 on it).
+ */
+export const AreaLabelsAreReadable: Story = {
+  globals: { viewport: { value: 'desktop', isRotated: false } },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    for (const task of Object.keys(
+      phone.tasks,
+    ) as (keyof typeof phone.tasks)[]) {
+      const label = within(pinFor(canvas, task)).getByText(
+        phone.tasks[task].area,
+      )
+      const style = getComputedStyle(label)
+      await expect(style.fontSize).toBe('12px')
+      await expect(style.color).toBe(TEXT_MUTED)
+    }
+  },
+}
+
+/**
+ * On a phone the card is under the map and can be below the fold: choosing a
+ * pin from the keyboard brings the card on screen, just far enough.
+ */
+export const KeyboardChoiceBringsTheCardIntoView: Story = {
+  globals: { viewport: { value: 'mobile1', isRotated: false } },
+  decorators: [
+    (Story) => (
+      <div>
+        {/* Pushes the map down so the card is under the screen's foot. */}
+        <div style={{ height: '320px' }} />
+        <Story />
+        <div style={{ height: '200vh' }} />
+      </div>
+    ),
+  ],
+  beforeEach: () => () => window.scrollTo(0, 0),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const cardBottom = () =>
+      getCard(canvasElement).getBoundingClientRect().bottom
+    window.scrollTo(0, 0)
+    // The pin is on screen, the card is not.
+    await expect(
+      pinFor(canvas, 'move').getBoundingClientRect().bottom,
+    ).toBeLessThan(window.innerHeight)
+    await expect(cardBottom()).toBeGreaterThan(window.innerHeight)
+
+    pinFor(canvas, 'move').focus()
+    await userEvent.keyboard('{Enter}')
+    await waitFor(
+      () => expect(cardBottom()).toBeLessThanOrEqual(window.innerHeight),
+      {
+        timeout: 4000,
+      },
+    )
+    await expect(pinFor(canvas, 'move')).toHaveAttribute('aria-current', 'true')
+  },
+}
+
+/** A click does not scroll the page: only the keyboard asks for the card. */
+export const ClickDoesNotScroll: Story = {
+  globals: { viewport: { value: 'mobile1', isRotated: false } },
+  decorators: [
+    (Story) => (
+      <div>
+        <div style={{ height: '320px' }} />
+        <Story />
+        <div style={{ height: '200vh' }} />
+      </div>
+    ),
+  ],
+  beforeEach: () => () => window.scrollTo(0, 0),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    window.scrollTo(0, 0)
+    await userEvent.click(pinFor(canvas, 'wardrobe'))
+    await expect(pinFor(canvas, 'wardrobe')).toHaveAttribute(
+      'aria-current',
+      'true',
+    )
+    await expect(window.scrollY).toBe(0)
   },
 }

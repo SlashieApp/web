@@ -146,16 +146,33 @@ formation while it passes, and the panel is opaque (`bg.canvas`).
   `bg.surface` streets). No green, no mint, no network, no Mapbox. The shapes are
   data in `mapShowcaseArt.ts`; the SVG is one canvas that the map box crops
   (`slice`, centred), the river down the middle so every crop keeps it.
-- **The map box** is as wide as the page column (80rem) and keeps an aspect
-  ratio per breakpoint (9:10 on a phone, 3:2 from `sm`, 9:5 from `md`, 11:5 from
-  `lg`; `MAP_ASPECT`), so it works from 390 to 1920 wide.
+- **The map box** runs edge to edge across the page column (80rem), between the
+  frame's rails and the section rules, with no inset, radius or band of padding
+  round it (as in the approved sketch: the panel is flush; the first build had
+  an inset rounded card in a grey band, about 130px of empty grey above and
+  below). It keeps an aspect ratio per breakpoint (9:10 on a phone, 3:2 from
+  `sm`, 9:5 from `md`, 11:5 from `lg`; `MAP_ASPECT`), so it works from 390 to
+  1920 wide. On a phone a hairline closes the map and the card sits under it on
+  the page's 16px gutters.
 - **Pins** are real buttons named by `landing.phone.search.selectPin` ("Show the
-  £45 task"), with `aria-pressed` for the selection, in reading order (top to
-  bottom, both layouts). A pin is a white pill with a 1px `border.default`
-  hairline, `e1`, and the price in green 800 at 600 with tabular figures; the
-  selected one is green 400 with an ink price and `e3`. The area sits under the
-  dot as a quiet map label. Focus is a green 600 ring round the pill. Hover steps
-  the hairline to `border.hover`.
+  £45 task"). They are a single choice, not toggles (pressing the chosen pin does
+  nothing), so the chosen one carries `aria-current="true"`, not `aria-pressed`.
+  They are in the DOM, and so tabbed, top to bottom in both layouts
+  (`SHOWCASE_ORDER`, asserted by the model test): the narrow and the wide layout
+  put the pins in different places, so no single left-to-right order would hold
+  for both, and top to bottom is the reading order of a map. A pin is a white
+  pill with a 1px `border.default` hairline, `e1`, and the price in green 800 at
+  600 with tabular figures; the selected one is green 400 with an ink price and
+  `e3`. The area sits under the dot as a map label at 12px in `text.muted` (6:1
+  on the map's park fill; 11px `text.subtle` was 4.1:1 there, under AA, and under
+  the type scale's 12px floor). Focus is a green 600 ring round the pill. Hover
+  steps the hairline to `border.hover`. In Windows high contrast (forced colours)
+  the fills and the 6% scale are not drawn, so the chosen pin's pill takes a 3px
+  `Highlight` border.
+- **Keyboard.** Choosing a pin with Enter or Space brings the card on screen
+  (`scrollIntoView`, `nearest`, clear of the sticky header, instant under reduced
+  motion): from `md` the card floats at the map's foot and on a laptop-height
+  screen it can be below the fold. A click or tap does not scroll.
 - **The card** is a lightweight replica of the product's `TaskCard` (which reads
   the API and the router): `Card` (12px, hairline, `e1`), a neutral tile, a
   neutral `Badge` with the area, the title at 500 / -0.01em, the price in ink at
@@ -169,7 +186,10 @@ formation while it passes, and the panel is opaque (`bg.canvas`).
   to 1920, that no two pins touch and none sits under the card or the chip.
 - **Copy:** none added. The tag on the card is the task's area, because the
   phone bag has a category for one task only; the quote count is the bag's
-  `{count} quotes` (so "1 quotes", as the phone shows it).
+  `{count} quotes`. The string has no plural form (a new string is not allowed
+  here), so the Fulham demo task has 2 quotes in the bag, not 1, so that no card
+  or search row reads "1 quotes". If a plural-aware string is ever allowed, the
+  count can go back to 1.
 - **Motion:** pins ease their fill and lift over 200ms; a new card fades in with
   an 8px rise over 300ms, only after the visitor picks a pin. Reduced motion
   turns both off (the selection then cuts); the section's own reveal is `Reveal`.
