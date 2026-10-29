@@ -18,7 +18,7 @@ export default async function SafetyHelpPage() {
 
   return (
     <>
-      <LegalPageLayout document={copy} />
+      <LegalPageLayout document={copy} column="support" />
       <Footer variant="minimal" />
     </>
   )

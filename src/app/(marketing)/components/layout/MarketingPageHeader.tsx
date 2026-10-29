@@ -13,7 +13,7 @@ const MARKETING_HEADER_H = { base: '58px', md: '66px' } as const
 
 type MarketingPageHeaderProps = Pick<
   StickyHeaderProps,
-  'description' | 'contentMaxW' | 'contentPx' | 'background'
+  'eyebrow' | 'description' | 'contentMaxW' | 'contentPx' | 'background'
 > & {
   title: string
   /** The page under the title. */
@@ -33,6 +33,7 @@ type MarketingPageHeaderProps = Pick<
  */
 export function MarketingPageHeader({
   title,
+  eyebrow,
   description,
   contentMaxW,
   contentPx,
@@ -45,6 +46,7 @@ export function MarketingPageHeader({
   return (
     <StickyHeader
       title={title}
+      eyebrow={eyebrow}
       description={description}
       onBack={onBack}
       backAriaLabel={t.goBack}

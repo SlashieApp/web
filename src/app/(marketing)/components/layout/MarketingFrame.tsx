@@ -21,6 +21,8 @@ import { HEADER_MIN_HEIGHT } from '@/ui/Header/shell/headerShell'
  *   - `MarketingFrame`  the page's content column, with a 1px rail down each
  *                       side from `lg`.
  *   - `SectionRule`     a full-width 1px rule between two sections.
+ *   - `Eyebrow`         the small uppercase label with a green 600 icon that
+ *                       `SectionHead` and a page header's title carry.
  *   - `SectionHead`     the left-aligned head of a section: a small green
  *                       eyebrow icon, the eyebrow, the heading, an optional
  *                       body. Only the hero and the closing call to action
@@ -119,6 +121,38 @@ export function SectionRule(props: Omit<BoxProps, 'children'>) {
   )
 }
 
+export type EyebrowProps = {
+  /** A small icon before the label, drawn in green 600 (never text). */
+  icon?: IconType
+  children: ReactNode
+}
+
+/**
+ * The quiet uppercase label over a heading (12/16, 500, +0.08em, caps,
+ * `text.subtle`) with a small green 600 icon before it. `SectionHead` uses it,
+ * and so does a page header's title (the legal pages).
+ */
+export function Eyebrow({ icon: Icon, children }: EyebrowProps) {
+  return (
+    <HStack gap={2}>
+      {Icon ? (
+        <Box
+          as="span"
+          display="inline-flex"
+          color="accent.active"
+          flexShrink={0}
+          aria-hidden
+        >
+          <Icon size={16} />
+        </Box>
+      ) : null}
+      <Text as="p" {...sdlEyebrow}>
+        {children}
+      </Text>
+    </HStack>
+  )
+}
+
 export type SectionHeadProps = Omit<StackProps, 'children'> & {
   /** The small uppercase label above the heading. */
   eyebrow?: string
@@ -158,24 +192,7 @@ export function SectionHead({
 }: SectionHeadProps) {
   return (
     <Stack gap={3} align="flex-start" textAlign="start" {...stackProps}>
-      {eyebrow ? (
-        <HStack gap={2}>
-          {Icon ? (
-            <Box
-              as="span"
-              display="inline-flex"
-              color="accent.active"
-              flexShrink={0}
-              aria-hidden
-            >
-              <Icon size={16} />
-            </Box>
-          ) : null}
-          <Text as="p" {...sdlEyebrow}>
-            {eyebrow}
-          </Text>
-        </HStack>
-      ) : null}
+      {eyebrow ? <Eyebrow icon={Icon}>{eyebrow}</Eyebrow> : null}
       <Heading
         as={level}
         id={headingId}

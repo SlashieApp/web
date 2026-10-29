@@ -5,6 +5,7 @@ import type { LegalDocument } from '@/content/legal/types'
 import { PAGE_CONTAINER_MAX_W, PAGE_GUTTER_X } from '@/theme/pageContainer'
 import { Link } from '@/ui'
 
+import { type LegalColumn, LegalEyebrow } from './LegalEyebrow'
 import { MarketingFrame, SECTION_PY, SectionRule } from './MarketingFrame'
 import { MarketingPageHeader } from './MarketingPageHeader'
 
@@ -44,13 +45,24 @@ const ROW_GRID = {
 
 const ROW_PY = { base: 8, lg: 10 } as const
 
+/**
+ * What the policy section keeps under its last row: a section's worth. It keeps
+ * none above the first row: the rule under the page header is that row's
+ * hairline, and the row brings the same padding every row has, so the document
+ * does not open on a void (128px over the intro against 40px between the rows).
+ */
+const POLICY_PB = SECTION_PY
+
 const EMPTY_HEADING_CELL = (
   <Box aria-hidden display={{ base: 'none', lg: 'block' }} />
 )
 
 /**
  * Renders plain policy copy, turning email addresses into mailto links so the
- * content files stay markup-free.
+ * content files stay markup-free. A link inside a sentence is underlined at
+ * rest: green 800 against the grey body text is 1.1:1 (and 2.7:1 against the
+ * ink intro), far under the 3:1 that would let colour alone mark it
+ * (WCAG 1.4.1), so the underline is what tells the link from the text.
  */
 function linkifyEmails(paragraph: string): ReactNode[] {
   let offset = 0
@@ -61,7 +73,12 @@ function linkifyEmails(paragraph: string): ReactNode[] {
     // Odd indexes are the captured email matches; even parts are plain text
     // (strings need no key).
     return index % 2 === 1 ? (
-      <Link key={key} href={`mailto:${part}`}>
+      <Link
+        key={key}
+        href={`mailto:${part}`}
+        textDecoration="underline"
+        textUnderlineOffset="3px"
+      >
         {part}
       </Link>
     ) : (
@@ -85,8 +102,11 @@ function linkifyEmails(paragraph: string): ReactNode[] {
  */
 export function LegalPageLayout({
   document,
+  column = 'legal',
 }: {
   document: LegalDocument & { lastUpdatedLabel?: string }
+  /** The footer column the page sits in, for the eyebrow over its title. */
+  column?: LegalColumn
 }) {
   const intro = document.intro ?? []
   const hasIntro = intro.length > 0
@@ -97,6 +117,7 @@ export function LegalPageLayout({
     <MarketingFrame bg="bg.surface" railsZIndex={11}>
       <MarketingPageHeader
         title={document.title}
+        eyebrow={<LegalEyebrow column={column} />}
         description={`${document.lastUpdatedLabel ?? 'Last updated'}: ${document.lastUpdated}`}
         background="bg.surface"
         contentMaxW={PAGE_CONTAINER_MAX_W}
@@ -107,13 +128,14 @@ export function LegalPageLayout({
           as="section"
           aria-label={document.title}
           data-legal-document=""
-          py={SECTION_PY}
+          pb={POLICY_PB}
         >
           <Container>
             {hasIntro ? (
               <Box
                 data-legal-intro=""
                 {...ROW_GRID}
+                pt={ROW_PY}
                 // With no sections the intro is the whole document.
                 pb={lastIndex < 0 ? 0 : ROW_PY}
               >
@@ -140,7 +162,7 @@ export function LegalPageLayout({
                 {...ROW_GRID}
                 borderTopWidth={index === 0 && !hasIntro ? 0 : '1px'}
                 borderColor="border.default"
-                pt={index === 0 && !hasIntro ? 0 : ROW_PY}
+                pt={ROW_PY}
                 pb={index === lastIndex ? 0 : ROW_PY}
                 scrollMarginTop={ANCHOR_CLEARANCE}
               >

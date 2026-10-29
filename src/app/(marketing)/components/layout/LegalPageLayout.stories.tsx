@@ -6,6 +6,7 @@ import cookiesBag from '@/app/(marketing)/cookies/i11n.json'
 import safetyBag from '@/app/(marketing)/help/safety/i11n.json'
 import privacyBag from '@/app/(marketing)/privacy/i11n.json'
 import termsBag from '@/app/(marketing)/terms/i11n.json'
+import { LocaleProvider } from '@/i18n/LocaleProvider'
 
 import { LegalPageLayout } from './LegalPageLayout'
 
@@ -18,6 +19,7 @@ const INK = 'rgb(10, 21, 18)'
 const BORDER_DEFAULT = 'rgb(228, 228, 231)'
 const TEXT_MUTED = 'rgb(82, 82, 91)'
 const GREEN_400 = 'rgb(0, 220, 130)'
+const GREEN_600 = 'rgb(2, 165, 103)'
 /** `sizes.page`: 80rem. */
 const PAGE_PX = 1280
 
@@ -148,11 +150,14 @@ async function expectReadingColumn(canvasElement: HTMLElement) {
  * title is the one h1 and the policy one landmark named by it, each section an
  * h2; the intro, then the sections as hairline rows with the heading on the
  * left and the text in the reading column; 500-weight headings, muted body, no
- * green fill and nothing heavier than 600.
+ * green fill and nothing heavier than 600. The title carries the footer's column
+ * name as its eyebrow (`eyebrow`: "Legal", or "Support" for the safety guide)
+ * with a green 600 icon.
  */
 async function expectFramedDocument(
   canvasElement: HTMLElement,
   legal: { title: string; sections: { heading: string; id?: string }[] },
+  eyebrow = 'Legal',
 ) {
   const canvas = within(canvasElement)
   const { rails, frame, policy, intro, rows, rules } = parts(canvasElement)
@@ -170,6 +175,17 @@ async function expectFramedDocument(
       .map((heading) => heading.textContent),
   ).toEqual(legal.sections.map((section) => section.heading))
   await expect(frame.textContent).not.toContain(EM_DASH)
+
+  // The eyebrow: the footer's column name over the title, caps, with a green
+  // 600 icon before it, both on the title's left edge.
+  const title = canvas.getByRole('heading', { level: 1, name: legal.title })
+  const label = canvas.getByText(eyebrow)
+  await expect(getComputedStyle(label).textTransform).toBe('uppercase')
+  await expect(box(label).bottom).toBeLessThanOrEqual(box(title).top)
+  const icon = label.previousElementSibling as HTMLElement
+  await expect(icon).toHaveAttribute('aria-hidden', 'true')
+  await expect(getComputedStyle(icon).color).toBe(GREEN_600)
+  await expect(box(icon).left).toBe(box(title).left)
 
   // A white page; the rails bound the page column; one full-width rule sits
   // between the page header and the policy.
@@ -191,9 +207,15 @@ async function expectFramedDocument(
   // The rails run over the page header's bar, not under it.
   await expect(Number(getComputedStyle(rails).zIndex)).toBeGreaterThan(10)
 
-  // The rhythm: 128px above and below the policy.
-  await expect(getComputedStyle(policy).paddingTop).toBe('128px')
+  // The rhythm: a section's 128px under the policy; none above it, because the
+  // page's rule is the first row's hairline and the first row has the same 40px
+  // every row has (it was 128px over the intro against 40px between the rows).
+  await expect(getComputedStyle(policy).paddingTop).toBe('0px')
   await expect(getComputedStyle(policy).paddingBottom).toBe('128px')
+  const opening = (intro ?? rows[0])?.querySelector('p') as HTMLElement
+  await expect(Math.abs(box(opening).top - box(rule).bottom - 40)).toBeLessThan(
+    1,
+  )
 
   // The rows: a hairline above each (the first, with no intro, takes none:
   // the page's rule does that), square, on the white page.
@@ -205,7 +227,7 @@ async function expectFramedDocument(
     await expect(style.borderTopColor).toBe(BORDER_DEFAULT)
     await expect(style.borderTopLeftRadius).toBe('0px')
     await expect(style.backgroundColor).toBe('rgba(0, 0, 0, 0)')
-    await expect(style.paddingTop).toBe(first ? '0px' : '40px')
+    await expect(style.paddingTop).toBe('40px')
     await expect(style.paddingBottom).toBe(
       index === rows.length - 1 ? '0px' : '40px',
     )
@@ -304,10 +326,11 @@ export const PrivacyPolicy: Story = {
  * it is scrolled to.
  */
 export const SafetyGuidance: Story = {
-  args: { document: safetyBag.en },
+  args: { document: safetyBag.en, column: 'support' },
   globals: { viewport: { value: 'desktop', isRotated: false } },
   play: async ({ canvasElement }) => {
-    await expectFramedDocument(canvasElement, safetyBag.en)
+    // The safety guide sits under "Support" in the footer, not "Legal".
+    await expectFramedDocument(canvasElement, safetyBag.en, 'Support')
     await expectReadingColumn(canvasElement)
     const { rows, intro } = parts(canvasElement)
     await expect(intro?.querySelectorAll('p')).toHaveLength(2)
@@ -406,7 +429,24 @@ export const DefaultUpdatedLabel: Story = {
   },
 }
 
-/** Email addresses in the intro and body become mailto links. */
+/** Traditional Chinese chrome: the eyebrow is the footer's 法律 (and 支援 on the safety guide). */
+export const EyebrowTraditionalChinese: Story = {
+  args: { document: cookiesBag.zh_hk },
+  parameters: { nextjs: { navigation: { pathname: '/zh-hk/cookies' } } },
+  decorators: [
+    (Story) => (
+      <LocaleProvider>
+        <Story />
+      </LocaleProvider>
+    ),
+  ],
+  globals: { viewport: { value: 'desktop', isRotated: false } },
+  play: async ({ canvasElement }) => {
+    await expect(within(canvasElement).getByText('法律')).toBeVisible()
+  },
+}
+
+/** Email addresses in the intro and body become mailto links, underlined at rest. */
 export const EmailLinks: Story = {
   args: {
     document: {
@@ -430,12 +470,21 @@ export const EmailLinks: Story = {
     await expect(
       canvas.getByRole('link', { name: 'hello@example.com' }),
     ).toHaveAttribute('href', 'mailto:hello@example.com')
-    await expect(canvas.getAllByRole('link')).toHaveLength(3)
+    // Back (the page header's button) is not a link: the three are the emails.
+    const links = canvas.getAllByRole('link')
+    await expect(links).toHaveLength(3)
+    // A link inside a sentence is told from the text by more than colour (WCAG
+    // 1.4.1): green 800 on grey text is 1.1:1. Underlined at rest, same colour.
+    for (const link of links) {
+      const style = getComputedStyle(link)
+      await expect(style.textDecorationLine).toBe('underline')
+      await expect(style.color).toBe('rgb(5, 104, 63)')
+    }
   },
 }
 
 /**
- * Tablet: no rails below `lg`, 80px above and below the policy, and each row
+ * Tablet: no rails below `lg`, 80px under the policy, and each row
  * stacked, the heading over its text, in a column that is still 32em.
  */
 export const Tablet: Story = {
@@ -445,7 +494,7 @@ export const Tablet: Story = {
     const { rails, rules, policy, rows } = parts(canvasElement)
     await expect(getComputedStyle(rails).display).toBe('none')
     await expect(rules).toHaveLength(1)
-    await expect(getComputedStyle(policy).paddingTop).toBe('80px')
+    await expect(getComputedStyle(policy).paddingTop).toBe('0px')
     await expect(getComputedStyle(policy).paddingBottom).toBe('80px')
     for (const row of rows) {
       const heading = within(row).getByRole('heading', { level: 2 })
@@ -461,7 +510,7 @@ export const Tablet: Story = {
 
 /**
  * Phone width (320px, the narrowest): one column in reading order, no rails,
- * 56px above and below the policy, the heading over its text, the text filling
+ * 56px under the policy, the heading over its text, the text filling
  * the screen inside the page's 16px gutters (a phone holds fewer than 65
  * characters a line, as a phone must).
  */
@@ -472,7 +521,7 @@ export const Mobile: Story = {
     const { rails, rules, policy, rows } = parts(canvasElement)
     await expect(getComputedStyle(rails).display).toBe('none')
     await expect(rules).toHaveLength(1)
-    await expect(getComputedStyle(policy).paddingTop).toBe('56px')
+    await expect(getComputedStyle(policy).paddingTop).toBe('0px')
     await expect(getComputedStyle(policy).paddingBottom).toBe('56px')
     for (const row of rows) {
       const heading = within(row).getByRole('heading', { level: 2 })

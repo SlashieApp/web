@@ -49,6 +49,13 @@ export type StickyHeaderProps = {
    * once it has collapsed. Leave it out for a bar with just Back.
    */
   title?: string
+  /**
+   * A small label above the big title (an eyebrow, not with `overMedia`). It is
+   * part of the page, not the bar: it scrolls away, and the title collapses into
+   * the bar once it has reached it (the collapse reads where the title rests, so
+   * a title that rests lower starts later).
+   */
+  eyebrow?: ReactNode
   /** One line under the big title (not with `overMedia`). */
   description?: ReactNode
   /** Shows the back button, in the bar's left, when set. */
@@ -297,6 +304,7 @@ function BarRow({
  */
 export function StickyHeader({
   title,
+  eyebrow,
   description,
   onBack,
   backAriaLabel,
@@ -455,6 +463,7 @@ export function StickyHeader({
               px={contentPx}
               mx={contentPx == null ? undefined : 'auto'}
             >
+              {eyebrow ? <Box mb={2}>{eyebrow}</Box> : null}
               <StickyHeaderTitle>{title}</StickyHeaderTitle>
               {description ? (
                 <Text mt={2} fontSize="sm" color="text.muted" maxW="3xl">

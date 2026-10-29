@@ -245,6 +245,58 @@ export const Collapsed: Story = {
   },
 }
 
+/**
+ * An eyebrow over the title (the marketing legal pages): it rests where the
+ * title does without one, 8px under the bar, and the title under it. It is part
+ * of the page, so it scrolls away; the title collapses into the bar once it has
+ * reached it (the collapse reads where the title rests), and scrolling back
+ * puts both where they were. The eyebrow is not a heading: the h1 is still the
+ * only one.
+ */
+export const WithEyebrow: Story = {
+  ...Top,
+  args: {
+    eyebrow: (
+      <Text as="p" fontSize="12px" lineHeight="16px">
+        Legal
+      </Text>
+    ),
+  },
+  decorators: [withPane()],
+  play: async ({ canvasElement }) => {
+    await settle()
+    const canvas = within(canvasElement)
+    const bar = part(canvasElement, 'bar')
+    const label = canvas.getByText('Legal')
+    const h1 = heading(canvasElement)
+    await expect(canvas.getAllByRole('heading')).toHaveLength(1)
+    near(
+      label.getBoundingClientRect().top,
+      bar.getBoundingClientRect().bottom + TITLE_GAP,
+    )
+    // The title rests under the eyebrow, 8px below it.
+    near(
+      h1.getBoundingClientRect().top,
+      label.getBoundingClientRect().bottom + 8,
+    )
+    const resting = h1.getBoundingClientRect().top
+
+    // Scrolled well past: the title is in the bar and the eyebrow has gone
+    // under it.
+    await scrollTo(canvasElement, 600)
+    expect(getComputedStyle(part(canvasElement, 'bar-title')).opacity).toBe('1')
+    expect(getComputedStyle(part(canvasElement, 'traveller')).opacity).toBe('0')
+    expect(label.getBoundingClientRect().bottom).toBeLessThanOrEqual(
+      bar.getBoundingClientRect().bottom,
+    )
+
+    // Back at the top both are where they were.
+    await scrollTo(canvasElement, 0)
+    near(h1.getBoundingClientRect().top, resting)
+    expect(getComputedStyle(h1).opacity).toBe('1')
+  },
+}
+
 /** Scrolling back up reverses it: top again, the title back under the bar. */
 export const BackUp: Story = {
   ...Top,

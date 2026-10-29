@@ -654,11 +654,23 @@ each `page.tsx` only loads the copy and adds the footer under the frame.
 - **Page header (FE-458) stays.** The title is the page's one h1 and collapses into the bar
   as before, with "Last updated" under it. The header sits outside a `<Container>` and says
   its column and colour (`contentMaxW`, `contentPx`, `background`), as on `/pricing`.
+- **Eyebrow.** The title carries the footer's column name over it, with a small green 600
+  icon: "Legal" (法律) on `/terms`, `/privacy` and `/cookies`, "Support" (支援) on
+  `/help/safety`, which sits under Support in the footer (`LegalEyebrow`, a client
+  component reading the footer's own bag, so no string is added; the page passes
+  `column="support"`). `StickyHeader` takes an optional `eyebrow` for it (`MarketingPageHeader`
+  passes it on): the eyebrow is part of the page, so it scrolls away, and the title
+  collapses into the bar once it has reached it (the collapse reads where the title rests,
+  so a title under an eyebrow starts later, as one under a map does). The eyebrow is the
+  shared `Eyebrow` of `MarketingFrame`, which `SectionHead` uses too.
 - **The policy** is one landmark (`section`, named by the title with `aria-label`: no new
-  string) with `SECTION_PY` above and below (56px phone to 128px wide). Inside, the page's
-  column (`<Container>`) holds the intro, then each section as a hairline row: a 1px
+  string) with `SECTION_PY` under it (56px phone to 128px wide) and none above. Inside, the
+  page's column (`<Container>`) holds the intro, then each section as a hairline row: a 1px
   `border.default` above it (the first row takes none when there is no intro, the page's
-  rule does that), 32px (phone) or 40px (`lg`) above and below its content. The footer
+  rule does that), 32px (phone) or 40px (`lg`) above and below its content, the first row
+  and the intro included. The rule under the page header is the first row's hairline, so
+  the document opens 40px under it like every row, not on a 128px void (the first build
+  put the section's 128px above the intro, against 40px between the rows). The footer
   stays under the frame as its own band.
 - **Rows.** From `lg` the heading is the left column (4fr) and the text the right one
   (8fr, a 48px gap), as the teaser sets its head and content; below `lg` they stack,
@@ -667,8 +679,10 @@ each `page.tsx` only loads the copy and adds the footer under the frame.
   scroll margin that clears the marketing header and the bar (130px phone, 138px).
 - **Type.** The section heading is an h2 at `heading-lg` (24/30, 500, -0.02em, ink), the
   text `text-md` (16/24) in `text.muted`, the intro `text-lg` (18/28) in ink. Email
-  addresses are links (the content files stay markup-free). No eyebrow: an eyebrow needs a
-  string and these pages add none.
+  addresses are links (the content files stay markup-free), underlined at rest: the link
+  colour (green 800) is 1.1:1 against the grey body text and 2.7:1 against the ink intro,
+  under the 3:1 that would let colour alone tell a link in a sentence from the text (WCAG
+  1.4.1, a Level A failure axe reported on all four pages), so the underline does it.
 - **Reading column.** `LEGAL_MEASURE` is `32em`, set on every paragraph, so the text
   holds about 70 characters of English per line (65 to 75; the stories measure the real
   copy of all four documents) and about 32 of Chinese. It is in `em`, not `ch`: the width
