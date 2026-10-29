@@ -20,7 +20,7 @@ import { stripLocalePrefix } from '@/i18n/navigation'
 import { PAGE_CONTAINER_MAX_W, PAGE_GUTTER_X } from '@/theme/pageContainer'
 import { useOpenFeedbackDialog } from '@/ui/FeedbackDialog/FeedbackDialogProvider'
 import { HEADER_MIN_HEIGHT, HeaderToolbarSeparator } from '@/ui/Header'
-import { APP_HOME, MARKETING_HOME } from '@/utils/appRoutes'
+import { APP_HOME, MARKETING_HOME, SAFETY_HREF } from '@/utils/appRoutes'
 import { openAppOnAndroid } from '@/utils/nativeApp'
 import { Button, Drawer, IconButton, Link } from '@ui'
 
@@ -370,15 +370,24 @@ export type MarketingHeaderProps = Omit<BoxProps, 'children'>
  * (`bg.surface`), so their header is too. Add a route here when its page sits
  * in `MarketingFrame`; the others keep the canvas colour until then.
  */
-const FRAMED_ROUTES: readonly string[] = [MARKETING_HOME, '/pricing', '/about']
+const FRAMED_ROUTES: readonly string[] = [
+  MARKETING_HOME,
+  '/pricing',
+  '/about',
+  '/terms',
+  '/privacy',
+  '/cookies',
+  SAFETY_HREF,
+]
 
 /**
  * Sticky marketing header. On the landing (`/home`) it starts transparent
  * over the white page and solidifies to white once scrolled. Text colours are
  * the same either way, so this is safe from the first server paint. The other
  * framed routes (`FRAMED_ROUTES`, such as `/pricing` and `/about`) always get
- * the solid header, in white. Marketing routes that have not taken the
- * marketing frame yet get it on the canvas colour their pages still use.
+ * the solid header, in white, as do the legal pages. Marketing routes that
+ * have not taken the marketing frame yet get it on the canvas colour their
+ * pages still use.
  */
 export function MarketingHeader(props: MarketingHeaderProps) {
   const pathname = usePathname()

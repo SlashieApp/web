@@ -506,6 +506,45 @@ frame. The views (who sees which closing button) are unchanged: `about/views/REA
 - **Motion.** The heads and the content of each section are `Reveal`s (the title is not:
   it is the first thing on the page); reduced motion and no JS show them as they are.
 
+## Legal pages
+
+`/terms`, `/privacy`, `/cookies` and `/help/safety` (`src/app/(marketing)/<route>/`) take the
+same frame, rules and type as the landing (the spec: "the legal pages keep their reading
+column (65 to 75 characters) inside the frame"). `components/layout/LegalPageLayout.tsx`
+renders all four from their copy (`src/content/legal/*` and each route's `i11n.json`);
+each `page.tsx` only loads the copy and adds the footer under the frame.
+
+- **Frame.** A white page (`MarketingFrame bg="bg.surface"`), the rails from `lg`, and one
+  `SectionRule` under the page header. The marketing header is white on these routes
+  (`FRAMED_ROUTES`). The page header's bar is opaque and 10 deep, so the layout passes
+  `railsZIndex={11}` and the rails run unbroken from the site header, as on `/pricing`.
+- **Page header (FE-458) stays.** The title is the page's one h1 and collapses into the bar
+  as before, with "Last updated" under it. The header sits outside a `<Container>` and says
+  its column and colour (`contentMaxW`, `contentPx`, `background`), as on `/pricing`.
+- **The policy** is one landmark (`section`, named by the title with `aria-label`: no new
+  string) with `SECTION_PY` above and below (56px phone to 128px wide). Inside, the page's
+  column (`<Container>`) holds the intro, then each section as a hairline row: a 1px
+  `border.default` above it (the first row takes none when there is no intro, the page's
+  rule does that), 32px (phone) or 40px (`lg`) above and below its content. The footer
+  stays under the frame as its own band.
+- **Rows.** From `lg` the heading is the left column (4fr) and the text the right one
+  (8fr, a 48px gap), as the teaser sets its head and content; below `lg` they stack,
+  heading first. The intro sits in the text's column with the heading's cell empty. Each
+  section's `id` (the app links to `/help/safety#report`) is on the row, with a
+  scroll margin that clears the marketing header and the bar (130px phone, 138px).
+- **Type.** The section heading is an h2 at `heading-lg` (24/30, 500, -0.02em, ink), the
+  text `text-md` (16/24) in `text.muted`, the intro `text-lg` (18/28) in ink. Email
+  addresses are links (the content files stay markup-free). No eyebrow: an eyebrow needs a
+  string and these pages add none.
+- **Reading column.** `LEGAL_MEASURE` is `32em`, set on every paragraph, so the text
+  holds about 70 characters of English per line (65 to 75; the stories measure the real
+  copy of all four documents) and about 32 of Chinese. It is in `em`, not `ch`: the width
+  of a "0" in Geist is 1.4 times the average letter, so `65ch` would run to about 95
+  characters. A phone is narrower than the measure, so the text fills it inside the 16px
+  gutters (about 46 characters a line); that is as it must be.
+- **Motion.** None: a policy is read, not revealed, and a link to a section (`#report`)
+  must land on text that is already there. The page header's collapse is its own.
+
 ## 3D props
 
 The real-time scene (`scene/LandingScene.tsx`, three.js through react-three-fiber)

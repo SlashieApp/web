@@ -81,11 +81,36 @@ type Story = StoryObj<typeof meta>
 
 /**
  * Solid header on a marketing page with no nav item active. A page that has
- * not taken the marketing frame yet keeps the canvas colour.
+ * not taken the marketing frame (a route not in `FRAMED_ROUTES`) keeps the
+ * canvas colour.
  */
 export const Default: Story = {
+  parameters: { nextjs: { navigation: { pathname: '/not-framed' } } },
   play: async ({ canvasElement }) => {
     await expect(headerBackground(canvasElement)).toBe('rgb(250, 250, 250)')
+  },
+}
+
+/**
+ * On a legal page (`/terms`, `/privacy`, `/cookies`, `/help/safety`): no nav
+ * item is current, and the header is white like the page, which sits in the
+ * marketing frame (FE-471).
+ */
+export const LegalPage: Story = {
+  parameters: { nextjs: { navigation: { pathname: '/terms' } } },
+  play: async ({ canvasElement }) => {
+    await expect(headerBackground(canvasElement)).toBe('rgb(255, 255, 255)')
+    await expect(
+      within(canvasElement).getByRole('link', { name: 'Pricing' }),
+    ).not.toHaveAttribute('aria-current')
+  },
+}
+
+/** The safety page's path is two segments deep and is framed too. */
+export const SafetyPage: Story = {
+  parameters: { nextjs: { navigation: { pathname: '/help/safety' } } },
+  play: async ({ canvasElement }) => {
+    await expect(headerBackground(canvasElement)).toBe('rgb(255, 255, 255)')
   },
 }
 
