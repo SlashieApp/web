@@ -11,7 +11,7 @@ import { formatMessage } from '@/i18n/loadPageI11n'
 import { useI11n } from '@/i18n/useI11n'
 import { EVENTS, trackFlowFailed, trackFlowSucceeded } from '@/utils/analytics'
 import { showAppToast } from '@/utils/appToast'
-import { FormField, Input, Modal } from '@ui'
+import { FormField, FormStack, Input, Modal } from '@ui'
 
 import bag from './i11n.json'
 import { verificationErrorText } from './verificationError'
@@ -99,39 +99,43 @@ export function EmailChangeModal({
       open={open}
       onOpenChange={handleOpenChange}
       title={t.title}
+      description={
+        <>
+          {before}
+          <Text as="span" fontWeight={600} color="text.default">
+            {me.email}
+          </Text>
+          {after}
+        </>
+      }
       cancelLabel={cancel}
       submitLabel={t.submit}
       onSubmit={() => void submit()}
       submitLoading={loading}
     >
-      <Text fontSize="sm" color="text.muted" lineHeight="tall">
-        {before}
-        <Text as="span" fontWeight={500} color="text.default">
-          {me.email}
-        </Text>
-        {after}
-      </Text>
-      <FormField label={t.newEmail}>
-        <Input
-          type="email"
-          autoComplete="email"
-          value={newEmail}
-          onChange={(e) => setNewEmail(e.target.value)}
-        />
-      </FormField>
-      <FormField label={t.currentPassword}>
-        <Input
-          type="password"
-          autoComplete="current-password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-      </FormField>
-      {error ? (
-        <Text color="status.danger.fg" fontSize="sm" role="alert">
-          {error}
-        </Text>
-      ) : null}
+      <FormStack>
+        <FormField label={t.newEmail}>
+          <Input
+            type="email"
+            autoComplete="email"
+            value={newEmail}
+            onChange={(e) => setNewEmail(e.target.value)}
+          />
+        </FormField>
+        <FormField label={t.currentPassword}>
+          <Input
+            type="password"
+            autoComplete="current-password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+        </FormField>
+        {error ? (
+          <Text color="status.danger.fg" fontSize="sm" role="alert">
+            {error}
+          </Text>
+        ) : null}
+      </FormStack>
     </Modal>
   )
 }

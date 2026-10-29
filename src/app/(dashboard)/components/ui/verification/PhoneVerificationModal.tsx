@@ -1,7 +1,7 @@
 'use client'
 
 import { useMutation } from '@apollo/client/react'
-import { Stack, Text } from '@chakra-ui/react'
+import { Box, Text } from '@chakra-ui/react'
 import {
   LoginMethod,
   type SendPhoneVerificationMutation,
@@ -30,7 +30,15 @@ import {
   maskPhoneForDisplay,
   toE164ForApi,
 } from '@/utils/phoneNormalize'
-import { FormField, Input, Modal, OtpInput, PhoneInput } from '@ui'
+import {
+  FormField,
+  FormStack,
+  Input,
+  Modal,
+  OtpInput,
+  PhoneInput,
+  formControlHelperTextProps,
+} from '@ui'
 
 import bag from './i11n.json'
 import { verificationErrorText } from './verificationError'
@@ -232,46 +240,52 @@ export function PhoneVerificationModal({
           open={open}
           onOpenChange={handleOpenChange}
           title={title}
+          description={changing ? t.introChange : t.introAdd}
           cancelLabel={cancel}
           submitLabel={t.sendCode}
           onSubmit={() => void saveAndSendCode()}
           submitLoading={saving || sending}
           submitDisabled={rateLimited}
         >
-          <Text fontSize="sm" color="text.muted" lineHeight="tall">
-            {changing ? t.introChange : t.introAdd}
-          </Text>
-          <FormField label={t.mobileNumber}>
-            <PhoneInput
-              value={phoneDraft}
-              onChange={setPhoneDraft}
-              aria-label={t.mobileNumber}
-            />
-          </FormField>
-          <Text fontSize="xs" color="text.muted" lineHeight="tall">
-            {t.ukOnly}
-          </Text>
-          {needsPassword ? (
-            <FormField label={t.currentPassword} helperText={t.passwordHelp}>
-              <Input
-                type="password"
-                autoComplete="current-password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
+          <FormStack>
+            <FormField label={t.mobileNumber} helperText={t.ukOnly}>
+              <PhoneInput
+                value={phoneDraft}
+                onChange={setPhoneDraft}
+                aria-label={t.mobileNumber}
               />
             </FormField>
-          ) : null}
-          {error ? (
-            <Text color="status.danger.fg" fontSize="sm">
-              {error}
-            </Text>
-          ) : null}
+            {needsPassword ? (
+              <FormField label={t.currentPassword} helperText={t.passwordHelp}>
+                <Input
+                  type="password"
+                  autoComplete="current-password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                />
+              </FormField>
+            ) : null}
+            {error ? (
+              <Text color="status.danger.fg" fontSize="sm">
+                {error}
+              </Text>
+            ) : null}
+          </FormStack>
         </Modal>
       ) : (
         <Modal
           open={open}
           onOpenChange={handleOpenChange}
           title={title}
+          description={
+            <>
+              {codeBefore}
+              <Text as="span" fontWeight={600} color="text.default">
+                {maskedPhone}
+              </Text>
+              {codeAfter}
+            </>
+          }
           backLabel={t.back}
           onBack={() => {
             setStep('phone')
@@ -282,51 +296,53 @@ export function PhoneVerificationModal({
           onSubmit={() => void confirmCode()}
           submitLoading={verifying}
         >
-          <Text fontSize="sm" color="text.muted" lineHeight="tall">
-            {codeBefore}
-            <Text as="span" fontWeight={500} color="text.default">
-              {maskedPhone}
-            </Text>
-            {codeAfter}
-          </Text>
-          <Stack gap={2} align="center">
-            <OtpInput
-              key={activePhone || 'otp'}
-              value={code}
-              onChange={setCode}
-              onEnter={(value) => {
-                void confirmCode(value)
-              }}
-              onComplete={(value) => {
-                void confirmCode(value)
-              }}
-            />
-          </Stack>
-          <Text fontSize="xs" color="text.muted" lineHeight="tall">
-            {t.codeHelp}{' '}
-            <button
-              type="button"
-              style={{
-                font: 'inherit',
-                fontWeight: 500,
-                padding: 0,
-                border: 'none',
-                background: 'none',
-                cursor: rateLimited ? 'not-allowed' : 'pointer',
-              }}
-              disabled={rateLimited || sending}
-              onClick={() => {
-                if (!rateLimited && !sending) void saveAndSendCode()
-              }}
-            >
-              {t.resendCode}
-            </button>
-          </Text>
-          {error ? (
-            <Text color="status.danger.fg" fontSize="sm">
-              {error}
-            </Text>
-          ) : null}
+          <FormStack>
+            {/* The code has no label of its own: the description above says
+                what to enter. Its help line sits 4 under the boxes, like a
+                helper under any control. */}
+            <Box>
+              <OtpInput
+                key={activePhone || 'otp'}
+                value={code}
+                onChange={setCode}
+                onEnter={(value) => {
+                  void confirmCode(value)
+                }}
+                onComplete={(value) => {
+                  void confirmCode(value)
+                }}
+              />
+              <Text
+                mt="form.controlToHelper"
+                px={1}
+                {...formControlHelperTextProps}
+              >
+                {t.codeHelp}{' '}
+                <button
+                  type="button"
+                  style={{
+                    font: 'inherit',
+                    fontWeight: 500,
+                    padding: 0,
+                    border: 'none',
+                    background: 'none',
+                    cursor: rateLimited ? 'not-allowed' : 'pointer',
+                  }}
+                  disabled={rateLimited || sending}
+                  onClick={() => {
+                    if (!rateLimited && !sending) void saveAndSendCode()
+                  }}
+                >
+                  {t.resendCode}
+                </button>
+              </Text>
+            </Box>
+            {error ? (
+              <Text color="status.danger.fg" fontSize="sm">
+                {error}
+              </Text>
+            ) : null}
+          </FormStack>
         </Modal>
       )}
     </div>

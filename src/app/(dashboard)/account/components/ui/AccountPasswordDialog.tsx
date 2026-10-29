@@ -1,21 +1,19 @@
 'use client'
 
 import { useMutation } from '@apollo/client/react'
-import { Stack, Text } from '@chakra-ui/react'
-import {
-  type ChangePasswordMutation,
-  type ChangePasswordMutationVariables,
+import { Text } from '@chakra-ui/react'
+import type {
+  ChangePasswordMutation,
+  ChangePasswordMutationVariables,
   LoginMethod,
-  type SetPasswordMutation,
-  type SetPasswordMutationVariables,
+  SetPasswordMutation,
+  SetPasswordMutationVariables,
 } from '@codegen/schema'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 
-import { AppleAuthButton } from '@/app/(auth)/components/ui/AppleAuthButton'
 import { PasswordInput } from '@/app/(auth)/components/ui/AuthFields'
-import { GoogleAuthButton } from '@/app/(auth)/components/ui/GoogleAuthButton'
 import { useUserStore } from '@/app/(auth)/store/user'
 import ChangePassword from '@/app/(dashboard)/account/graphql/ChangePassword.gql'
 import SetPassword from '@/app/(dashboard)/account/graphql/SetPassword.gql'
@@ -25,7 +23,7 @@ import { useI11n } from '@/i18n/useI11n'
 import { showAppToast } from '@/utils/appToast'
 import { duringTokenSwap, setAuthToken } from '@/utils/auth'
 import { getGraphQLErrorCode } from '@/utils/graphqlErrors'
-import { FormField, Modal } from '@ui'
+import { FormField, FormStack, Modal } from '@ui'
 
 import {
   type AccountPasswordMode,
@@ -34,6 +32,7 @@ import {
   createAccountPasswordSchema,
 } from '../../accountPasswordSchema'
 import bag from '../../i11n.json'
+import { ReauthPrompt } from './ReauthPrompt'
 
 /** Where the Google / Apple re-auth buttons send the user back to (dialog reopens). */
 export const PASSWORD_REAUTH_RETURN = '/account?password=set#sign-in'
@@ -159,75 +158,69 @@ export function AccountPasswordDialog({
       open={open}
       onOpenChange={close}
       title={mode === 'change' ? t.changeTitle : t.setTitle}
+      description={
+        mode === 'set' ? formatMessage(t.setIntro, { email }) : undefined
+      }
       cancelLabel={t.cancel}
       submitLabel={t.save}
       onSubmit={() => void handleSubmit(onValid)()}
       submitLoading={loading}
       submitDisabled={needsReauth}
     >
-      {mode === 'set' ? (
-        <Text fontSize="sm">{formatMessage(t.setIntro, { email })}</Text>
-      ) : null}
-      {mode === 'change' ? (
+      <FormStack>
+        {mode === 'change' ? (
+          <FormField
+            label={t.current}
+            errorText={fieldError(errors.currentPassword?.message)}
+          >
+            <PasswordInput
+              autoComplete="current-password"
+              {...register('currentPassword')}
+            />
+          </FormField>
+        ) : null}
         <FormField
-          label={t.current}
-          errorText={fieldError(errors.currentPassword?.message)}
+          label={t.new}
+          helperText={t.hint}
+          errorText={fieldError(errors.newPassword?.message)}
         >
           <PasswordInput
-            autoComplete="current-password"
-            {...register('currentPassword')}
+            autoComplete="new-password"
+            {...register('newPassword')}
           />
         </FormField>
-      ) : null}
-      <FormField
-        label={t.new}
-        helperText={t.hint}
-        errorText={fieldError(errors.newPassword?.message)}
-      >
-        <PasswordInput
-          autoComplete="new-password"
-          {...register('newPassword')}
-        />
-      </FormField>
-      <FormField
-        label={t.confirm}
-        errorText={fieldError(errors.confirmPassword?.message)}
-      >
-        <PasswordInput
-          autoComplete="new-password"
-          {...register('confirmPassword')}
-        />
-      </FormField>
+        <FormField
+          label={t.confirm}
+          errorText={fieldError(errors.confirmPassword?.message)}
+        >
+          <PasswordInput
+            autoComplete="new-password"
+            {...register('confirmPassword')}
+          />
+        </FormField>
 
-      {error ? (
-        <Text color="status.danger.fg" fontSize="sm" role="alert">
-          {error}
-        </Text>
-      ) : null}
+        {error ? (
+          <Text color="status.danger.fg" fontSize="sm" role="alert">
+            {error}
+          </Text>
+        ) : null}
 
-      {mode === 'set' && needsReauth ? (
-        <Stack gap={3}>
-          <Text fontSize="sm">{t.reauthBody}</Text>
-          {enabledLoginMethods.includes(LoginMethod.Google) ? (
-            <GoogleAuthButton
-              next={PASSWORD_REAUTH_RETURN}
-              onSignedIn={onSignedInAgain}
-            />
-          ) : null}
-          {enabledLoginMethods.includes(LoginMethod.Apple) ? (
-            <AppleAuthButton
-              next={PASSWORD_REAUTH_RETURN}
-              onSignedIn={onSignedInAgain}
-            />
-          ) : null}
-        </Stack>
-      ) : null}
+        {mode === 'set' && needsReauth ? (
+          <ReauthPrompt
+            enabledLoginMethods={enabledLoginMethods}
+            next={PASSWORD_REAUTH_RETURN}
+            onSignedIn={onSignedInAgain}
+          >
+            {t.reauthBody}
+          </ReauthPrompt>
+        ) : null}
 
-      {mode === 'set' && signedInAgain && !needsReauth ? (
-        <Text fontSize="sm" color="status.success.fg" fontWeight={500}>
-          {t.reauthDone}
-        </Text>
-      ) : null}
+        {mode === 'set' && signedInAgain && !needsReauth ? (
+          <Text fontSize="sm" color="status.success.fg" fontWeight={500}>
+            {t.reauthDone}
+          </Text>
+        ) : null}
+      </FormStack>
     </Modal>
   )
 }

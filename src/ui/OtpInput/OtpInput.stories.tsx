@@ -3,7 +3,10 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { useState } from 'react'
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test'
 
+import { formSpace } from '@/theme/styles'
+
 import { FormField } from '../FormField'
+import { gapBelow, heightOf } from '../FormField/formGap.testing'
 import { OtpInput, type OtpInputProps } from './OtpInput'
 
 const meta = {
@@ -15,7 +18,8 @@ const meta = {
     size: {
       control: 'inline-radio',
       options: ['md', 'lg'],
-      description: 'Cell size. Both meet the 44px min touch target.',
+      description:
+        'Cell size. `md` is 44 wide and 48 tall (the form control height); `lg` is for hero screens. Both meet the 44px min touch target.',
     },
     length: {
       control: { type: 'number', min: 3, max: 8, step: 1 },
@@ -234,5 +238,35 @@ export const AllVariants: Story = {
         </Stack>
       </Stack>
     )
+  },
+}
+
+/**
+ * In a field the boxes are 48 tall like every field in a form, 8 under the
+ * label and 4 above the helper. The focus-ring padding around them takes no
+ * room, so the gaps are measured from the boxes' own edges.
+ */
+export const FormSpacing: Story = {
+  render: function FormSpacingStory() {
+    const [value, setValue] = useState('')
+    return (
+      <FormField label="Verification code" helperText="Codes last 10 minutes.">
+        <OtpInput value={value} onChange={setValue} />
+      </FormField>
+    )
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const label = canvas.getByText('Verification code', { selector: 'label' })
+    const first = canvas.getByLabelText('Digit 1 of 6')
+    const last = canvas.getByLabelText('Digit 6 of 6')
+    const helper = canvas.getByText('Codes last 10 minutes.')
+
+    await expect(gapBelow(label, first)).toBe(formSpace.labelToControl)
+    for (const cell of [first, last]) {
+      await expect(heightOf(cell)).toBe(formSpace.controlHeight)
+    }
+    await expect(first.getBoundingClientRect().width).toBe(44)
+    await expect(gapBelow(last, helper)).toBe(formSpace.controlToHelper)
   },
 }

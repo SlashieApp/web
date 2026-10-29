@@ -7,7 +7,7 @@ import { isEmailVerified } from '@/app/(auth)/helpers/emailVerification'
 import { useResendVerificationEmail } from '@/app/(auth)/helpers/useResendVerificationEmail'
 import { useUserStore } from '@/app/(auth)/store/user'
 import { useI11n } from '@/i18n/useI11n'
-import { Link, Modal } from '@ui'
+import { FormStack, Link, Modal } from '@ui'
 
 import bag from './i11n.json'
 
@@ -63,6 +63,17 @@ export function EmailVerificationModal({
         open={open}
         onOpenChange={handleOpenChange}
         title={t.title}
+        description={
+          verified ? undefined : (
+            <>
+              {before}
+              <Text as="span" fontWeight={600} color="text.default">
+                {me.email}
+              </Text>
+              {after}
+            </>
+          )
+        }
         cancelLabel={cancel}
         submitLabel={verified ? undefined : t.resend}
         onSubmit={verified ? undefined : () => void handleResend()}
@@ -74,14 +85,7 @@ export function EmailVerificationModal({
             {t.verified}
           </Text>
         ) : (
-          <>
-            <Text fontSize="sm" color="text.muted" lineHeight="tall">
-              {before}
-              <Text as="span" fontWeight={500} color="text.default">
-                {me.email}
-              </Text>
-              {after}
-            </Text>
+          <FormStack>
             {status ? (
               <Text
                 fontSize="sm"
@@ -99,7 +103,7 @@ export function EmailVerificationModal({
             >
               {t.checkInbox}
             </Link>
-          </>
+          </FormStack>
         )}
       </Modal>
     </div>

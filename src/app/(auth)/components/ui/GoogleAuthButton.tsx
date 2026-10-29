@@ -76,12 +76,15 @@ export function GoogleAuthButton({
 
   // Google draws the button at a fixed pixel width (200 to 400), so follow
   // the container: the auth card gains padding at the desktop breakpoint.
+  // The layout width (`offsetWidth`), not the bounding box: a dialog scales in
+  // when it opens, and a scaled box measures narrower, which left Google's
+  // button short of Apple's in an account dialog on a phone.
   const onContainerRef = useCallback((node: HTMLDivElement | null) => {
     resizeRef.current?.disconnect()
     resizeRef.current = null
     if (!node) return
     const measure = () => {
-      const measured = Math.floor(node.getBoundingClientRect().width)
+      const measured = node.offsetWidth
       if (measured > 0) setButtonWidth(Math.min(measured, 400))
     }
     measure()

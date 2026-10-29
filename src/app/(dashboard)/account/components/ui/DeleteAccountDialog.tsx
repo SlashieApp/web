@@ -9,10 +9,13 @@ import {
   type RequestAccountDeletionMutationVariables,
 } from '@codegen/schema'
 import { useRouter } from 'next/navigation'
-import { type FormEvent, useState } from 'react'
+import {
+  type ComponentProps,
+  type FormEvent,
+  type ReactNode,
+  useState,
+} from 'react'
 
-import { AppleAuthButton } from '@/app/(auth)/components/ui/AppleAuthButton'
-import { GoogleAuthButton } from '@/app/(auth)/components/ui/GoogleAuthButton'
 import {
   formatDeletionDate,
   loginPathAfterDeletion,
@@ -29,9 +32,43 @@ import {
   getGraphQLErrorCode,
 } from '@/utils/graphqlErrors'
 import { taskOrderSectionHref } from '@/utils/orderHelpers'
-import { Button, FormField, Input, Link, Modal } from '@ui'
+import { Button, FormField, FormStack, Input, Link, Modal } from '@ui'
 
 import bag from '../../i11n.json'
+import { ReauthPrompt } from './ReauthPrompt'
+
+/**
+ * A lead-in sentence and the list it introduces, kept together as one block:
+ * the sentence sits 8 above the list (`formSpace.labelToControl`, as a label
+ * does) and the items 8 apart. Dot bullets, indented 20.
+ */
+function LeadInList({
+  lead,
+  leadProps,
+  children,
+}: {
+  lead: ReactNode
+  leadProps?: ComponentProps<typeof Text>
+  children: ReactNode
+}) {
+  return (
+    <Stack gap="form.labelToControl">
+      <Text fontSize="sm" {...leadProps}>
+        {lead}
+      </Text>
+      <Stack
+        as="ul"
+        gap={2}
+        ps={5}
+        listStyleType="disc"
+        fontSize="sm"
+        lineHeight="tall"
+      >
+        {children}
+      </Stack>
+    </Stack>
+  )
+}
 
 /** Where the OAuth re-auth buttons send the user back to (dialog reopens). */
 export const DELETE_REAUTH_RETURN = '/account?delete=confirm'
@@ -98,10 +135,9 @@ function DeleteBlockedDialog({
         </Button>
       }
     >
-      <Text fontSize="sm">{t.deleteBlockedBody}</Text>
-      <Box as="ul" ps={5} listStyleType="disc" fontSize="sm">
+      <LeadInList lead={t.deleteBlockedBody}>
         {blockers.map((blocker, index) => (
-          <Box as="li" key={blocker.orderId} mb={1.5}>
+          <Box as="li" key={blocker.orderId}>
             <Link
               href={taskOrderSectionHref(blocker.taskId)}
               fontWeight={500}
@@ -111,7 +147,7 @@ function DeleteBlockedDialog({
             </Link>
           </Box>
         ))}
-      </Box>
+      </LeadInList>
     </Modal>
   )
 }
@@ -215,74 +251,65 @@ function DeleteConfirmDialog({
         </HStack>
       }
     >
-      <Stack gap={2}>
-        <Text color="text.default" fontWeight={500}>
-          {t.deleteIntro}
-        </Text>
-        <Box
-          as="ul"
-          ps={5}
-          listStyleType="disc"
-          fontSize="sm"
-          lineHeight="tall"
+      <FormStack>
+        <LeadInList
+          lead={t.deleteIntro}
+          leadProps={{ fontSize: 'md', fontWeight: 500, color: 'text.default' }}
         >
           {t.deletePoints.map((point) => (
-            <Box as="li" key={point} mb={1.5}>
+            <Box as="li" key={point}>
               {point}
             </Box>
           ))}
-        </Box>
-      </Stack>
+        </LeadInList>
 
-      <form id="delete-account-form" onSubmit={confirm} noValidate>
-        {hasPassword ? (
-          <FormField
-            label={t.deletePasswordLabel}
-            helperText={t.deletePasswordHelp}
-            errorText={error?.kind === 'password' ? error.text : undefined}
+        <form id="delete-account-form" onSubmit={confirm} noValidate>
+          {hasPassword ? (
+            <FormField
+              label={t.deletePasswordLabel}
+              helperText={t.deletePasswordHelp}
+              errorText={error?.kind === 'password' ? error.text : undefined}
+            >
+              <Input
+                type="password"
+                name="password"
+                autoComplete="current-password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+            </FormField>
+          ) : needsReauth ? (
+            <ReauthPrompt
+              enabledLoginMethods={enabledLoginMethods}
+              next={DELETE_REAUTH_RETURN}
+            >
+              {t.deleteReauthBody}
+            </ReauthPrompt>
+          ) : (
+            <Text fontSize="sm" color="status.success.fg" fontWeight={500}>
+              {t.deleteReauthDone}
+            </Text>
+          )}
+        </form>
+
+        {error && error.kind !== 'password' ? (
+          <Box
+            role="alert"
+            p={3}
+            borderRadius="md"
+            bg="status.danger.soft"
+            color="status.danger.fg"
+            fontSize="sm"
           >
-            <Input
-              type="password"
-              name="password"
-              autoComplete="current-password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-          </FormField>
-        ) : needsReauth ? (
-          <Stack gap={3}>
-            <Text fontSize="sm">{t.deleteReauthBody}</Text>
-            {enabledLoginMethods.includes(LoginMethod.Google) ? (
-              <GoogleAuthButton next={DELETE_REAUTH_RETURN} />
+            <Text>{error.text}</Text>
+            {error.kind === 'liveOrders' ? (
+              <Link href={MY_TASKS_HREF} fontWeight={500} color="inherit">
+                {t.deleteLiveOrdersLink}
+              </Link>
             ) : null}
-            {enabledLoginMethods.includes(LoginMethod.Apple) ? (
-              <AppleAuthButton next={DELETE_REAUTH_RETURN} />
-            ) : null}
-          </Stack>
-        ) : (
-          <Text fontSize="sm" color="status.success.fg" fontWeight={500}>
-            {t.deleteReauthDone}
-          </Text>
-        )}
-      </form>
-
-      {error && error.kind !== 'password' ? (
-        <Box
-          role="alert"
-          p={3}
-          borderRadius="md"
-          bg="status.danger.soft"
-          color="status.danger.fg"
-          fontSize="sm"
-        >
-          <Text>{error.text}</Text>
-          {error.kind === 'liveOrders' ? (
-            <Link href={MY_TASKS_HREF} fontWeight={500} color="inherit">
-              {t.deleteLiveOrdersLink}
-            </Link>
-          ) : null}
-        </Box>
-      ) : null}
+          </Box>
+        ) : null}
+      </FormStack>
     </Modal>
   )
 }

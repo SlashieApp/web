@@ -3,7 +3,19 @@ import { expect, fn, userEvent, waitFor, within } from 'storybook/test'
 
 import { withSession } from '@/app/(auth)/helpers/authStoryDecorator'
 import { storyMe } from '@/app/(auth)/helpers/authStoryFixtures'
+import { formSpace } from '@/theme/styles'
+import { gapBelow, heightOf } from '@/ui/FormField/formGap.testing'
 
+import {
+  barButton,
+  expectNoHorizontalOverflow,
+  expectPhoneWidth,
+  fieldOf,
+  labelOf,
+  openDialog,
+  phone390,
+  shellOf,
+} from '../dialogSpacing.testing'
 import { EmailChangeModal } from './EmailChangeModal'
 
 const me = storyMe({ email: 'sam@example.com' })
@@ -130,5 +142,72 @@ export const WrongPassword: Story = {
     await expect(await page.findByRole('alert')).toHaveTextContent(
       'That password is incorrect.',
     )
+  },
+}
+
+/**
+ * The spec's gaps (wiki: Foundations-Form-Spacing), measured between visible
+ * edges: the description 8 under the title, 24 to the first field, label 8,
+ * fields 20 apart, the last field 20 above the buttons; fields 48 tall.
+ */
+async function expectEmailChangeSpacing(canvasElement: HTMLElement) {
+  const { dialog, title, description, body } = await openDialog(
+    canvasElement,
+    'Change email',
+  )
+  const newEmail = fieldOf(dialog, 'New email')
+  const password = fieldOf(dialog, 'Current password')
+  const send = barButton(dialog, 'Send link')
+
+  // The intro is the dialog's description, with the current address in it.
+  await expect(description).not.toBeNull()
+  await expect(dialog).toHaveAccessibleDescription(
+    /sam@example.com stays on your account until you open it/,
+  )
+  await expect(gapBelow(title, description as HTMLElement)).toBe(
+    formSpace.titleToSubtitle,
+  )
+  await expect(gapBelow(description as HTMLElement, newEmail)).toBe(
+    formSpace.headerToBody,
+  )
+  await expect(gapBelow(newEmail, password)).toBe(formSpace.fieldGap)
+  await expect(gapBelow(password, send)).toBe(formSpace.bodyToAction)
+  for (const field of [newEmail, password]) {
+    await expect(gapBelow(labelOf(field), shellOf(field))).toBe(
+      formSpace.labelToControl,
+    )
+    await expect(heightOf(shellOf(field))).toBe(formSpace.controlHeight)
+  }
+  expectNoHorizontalOverflow(body)
+}
+
+/** Gaps: header 8 and 24, fields 20 apart, the last field 20 above the buttons. */
+export const Spacing: Story = {
+  decorators: [withSession({ me })],
+  play: ({ canvasElement }) => expectEmailChangeSpacing(canvasElement),
+}
+
+/** The same gaps at phone width. */
+export const SpacingPhone: Story = {
+  ...phone390,
+  decorators: [withSession({ me })],
+  play: async ({ canvasElement }) => {
+    expectPhoneWidth(canvasElement)
+    await expectEmailChangeSpacing(canvasElement)
+  },
+}
+
+/** A form-level error is one more field group: 20 under the last field, 20 above the buttons. */
+export const ErrorSpacing: Story = {
+  decorators: [withSession({ me })],
+  play: async ({ canvasElement }) => {
+    await submit(canvasElement, { email: 'sam@', password: 'secret' })
+    const { dialog } = await openDialog(canvasElement, 'Change email')
+    const alert = within(dialog).getByRole('alert')
+    const password = fieldOf(dialog, 'Current password')
+    const send = barButton(dialog, 'Send link')
+
+    await expect(gapBelow(password, alert)).toBe(formSpace.fieldGap)
+    await expect(gapBelow(alert, send)).toBe(formSpace.bodyToAction)
   },
 }

@@ -24,8 +24,9 @@ export type OtpInputProps = {
   disabled?: boolean
   autoFocus?: boolean
   /**
-   * Cell size. `md` keeps a 44px touch target (default); `lg` is for hero /
-   * single-field verification screens. Defaults to `md`.
+   * Cell size. `md` is 44 wide and the form control height (48) tall, like
+   * every field in a form (default); `lg` is for hero / single-field
+   * verification screens. Defaults to `md`.
    */
   size?: OtpInputSize
   /** Fires when Enter is pressed and all digits are filled. */
@@ -35,11 +36,13 @@ export type OtpInputProps = {
 }
 
 /**
- * Per-cell sizes. Both heights meet the 44px min touch target so the field is
- * comfortable on mobile; `lg` is reserved for prominent verification screens.
+ * Per-cell sizes. Both meet the 44px min touch target so the field is
+ * comfortable on mobile. `md` is as tall as the other fields in a form
+ * (`formSpace.controlHeight`, 48) and stays 44 wide so the six cells, the dash
+ * and the gaps fit a phone; `lg` is reserved for prominent verification screens.
  */
 const cellSizes: Record<OtpInputSize, SystemStyleObject> = {
-  md: { w: '44px', h: '44px', fontSize: 'lg' },
+  md: { w: '44px', h: 'form.controlHeight', fontSize: 'lg' },
   lg: { w: '52px', h: '56px', fontSize: 'xl' },
 }
 
@@ -254,7 +257,11 @@ export const OtpInput = React.forwardRef<HTMLDivElement, OtpInputProps>(
     return (
       <Box
         ref={onContainerRef}
+        // The padding leaves room for the focus ring; the negative margin takes
+        // it back out of the layout, so the gaps around the cells are measured
+        // from the cells' own edges, as the form spacing says.
         p={2}
+        m={-2}
         id={id}
         aria-describedby={controlProps['aria-describedby']}
         aria-invalid={controlProps['aria-invalid']}

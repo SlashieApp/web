@@ -9,7 +9,17 @@ import {
   withSession,
 } from '@/app/(auth)/helpers/authStoryDecorator'
 import { storyMe } from '@/app/(auth)/helpers/authStoryFixtures'
+import { formSpace } from '@/theme/styles'
+import { gapBelow, heightOf } from '@/ui/FormField/formGap.testing'
 
+import {
+  barButton,
+  bodyColumn,
+  expectNoHorizontalOverflow,
+  expectPhoneWidth,
+  openDialog,
+  phone390,
+} from '../../../components/ui/dialogSpacing.testing'
 import {
   LinkLoginMethodDialog,
   UnlinkLoginMethodDialog,
@@ -111,5 +121,127 @@ export const UnlinkLastMethod: Story = {
     await expect(
       await page(canvasElement).findByRole('alert'),
     ).toHaveTextContent('Set a password or keep your other sign-in')
+  },
+}
+
+/**
+ * Link Google: the sentence is the description (8 under the title). The
+ * provider's button is the main action: 24 under the description, 48 tall, and
+ * 20 above the Cancel bar. Only the provider being linked shows, so there is no
+ * divider and nothing under the button.
+ */
+async function expectLinkSpacing(canvasElement: HTMLElement) {
+  const { dialog, title, description, body } = await openDialog(
+    canvasElement,
+    'Link Google',
+  )
+  const button = bodyColumn(body).firstElementChild as HTMLElement
+
+  await expect(dialog).toHaveAccessibleDescription(
+    /Choose the Google account you want to sign in with/,
+  )
+  await expect(gapBelow(title, description as HTMLElement)).toBe(
+    formSpace.titleToSubtitle,
+  )
+  await expect(gapBelow(description as HTMLElement, button)).toBe(
+    formSpace.headerToBody,
+  )
+  await expect(heightOf(button)).toBe(formSpace.controlHeight)
+  await expect(gapBelow(button, barButton(dialog, 'Cancel'))).toBe(
+    formSpace.bodyToAction,
+  )
+  await expect(bodyColumn(body).children).toHaveLength(1)
+  expectNoHorizontalOverflow(body)
+}
+
+/** Link Google: description 8, the button 24 below it, 48 tall, 20 above Cancel. */
+export const LinkSpacing: Story = {
+  decorators: [api()],
+  play: ({ canvasElement }) => expectLinkSpacing(canvasElement),
+}
+
+/** The same gaps at phone width. */
+export const LinkSpacingPhone: Story = {
+  ...phone390,
+  decorators: [api()],
+  play: async ({ canvasElement }) => {
+    expectPhoneWidth(canvasElement)
+    await expectLinkSpacing(canvasElement)
+  },
+}
+
+/** Link Apple: the same, with Apple's button (when a Services ID is set). */
+export const LinkAppleSpacing: Story = {
+  args: { method: LoginMethod.Apple },
+  decorators: [api()],
+  play: async ({ canvasElement }) => {
+    const { dialog, title, description, body } = await openDialog(
+      canvasElement,
+      'Link Apple',
+    )
+    await expect(gapBelow(title, description as HTMLElement)).toBe(
+      formSpace.titleToSubtitle,
+    )
+    if (!isAppleAuthConfigured()) return
+    const button = within(dialog).getByRole('button', {
+      name: 'Continue with Apple',
+    })
+    await expect(gapBelow(description as HTMLElement, button)).toBe(
+      formSpace.headerToBody,
+    )
+    await expect(heightOf(button)).toBe(formSpace.controlHeight)
+    await expect(gapBelow(button, barButton(dialog, 'Cancel'))).toBe(
+      formSpace.bodyToAction,
+    )
+    expectNoHorizontalOverflow(body)
+  },
+}
+
+/**
+ * Unlink: a confirm with no field, so the sentence is the body: 24 under the
+ * title and 20 above the buttons.
+ */
+export const UnlinkSpacing: Story = {
+  decorators: [api()],
+  render: ({ method, onClose }) => (
+    <UnlinkLoginMethodDialog method={method} onClose={onClose} />
+  ),
+  play: async ({ canvasElement }) => {
+    const { dialog, title, description } = await openDialog(
+      canvasElement,
+      'Unlink Google?',
+    )
+    const sentence = within(dialog).getByText(
+      /You won't be able to sign in with Google any more/,
+    )
+
+    await expect(description).toBeNull()
+    await expect(gapBelow(title, sentence)).toBe(formSpace.headerToBody)
+    await expect(gapBelow(sentence, barButton(dialog, 'Unlink'))).toBe(
+      formSpace.bodyToAction,
+    )
+  },
+}
+
+/** An error from the API is one more block: 20 under the sentence, 20 above the buttons. */
+export const UnlinkErrorSpacing: Story = {
+  decorators: [api({ kind: 'graphqlError', code: 'LAST_LOGIN_METHOD' })],
+  render: ({ method, onClose }) => (
+    <UnlinkLoginMethodDialog method={method} onClose={onClose} />
+  ),
+  play: async ({ canvasElement }) => {
+    await userEvent.click(
+      await page(canvasElement).findByRole('button', { name: 'Unlink' }),
+    )
+    const { dialog } = await openDialog(canvasElement, 'Unlink Google?')
+    const alert = await within(dialog).findByRole('alert')
+    const sentence = within(dialog).getByText(
+      /You won't be able to sign in with Google any more/,
+    )
+
+    await expect(gapBelow(sentence, alert)).toBe(formSpace.fieldGap)
+    await expect(gapBelow(alert, barButton(dialog, 'Unlink'))).toBe(
+      formSpace.bodyToAction,
+    )
   },
 }

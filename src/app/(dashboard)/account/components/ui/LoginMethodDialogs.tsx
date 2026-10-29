@@ -1,7 +1,7 @@
 'use client'
 
 import { useMutation } from '@apollo/client/react'
-import { Stack, Text } from '@chakra-ui/react'
+import { Text } from '@chakra-ui/react'
 import {
   type LinkLoginMethodInput,
   type LinkLoginMethodMutation,
@@ -21,7 +21,7 @@ import { verificationErrorText } from '@/app/(dashboard)/components/ui/verificat
 import { formatMessage } from '@/i18n/loadPageI11n'
 import { useI11n } from '@/i18n/useI11n'
 import { showAppToast } from '@/utils/appToast'
-import { Button, Modal } from '@ui'
+import { Button, FormStack, Modal } from '@ui'
 
 import bag from '../../i11n.json'
 
@@ -117,16 +117,17 @@ export function LinkLoginMethodDialog({
         if (!next) close()
       }}
       title={formatMessage(t.linkTitle, { provider })}
+      description={formatMessage(t.linkBody, { provider, email })}
       footer={
         <Button type="button" variant="secondary" onClick={close}>
           {t.cancel}
         </Button>
       }
     >
-      <Text fontSize="sm">
-        {formatMessage(t.linkBody, { provider, email })}
-      </Text>
-      <Stack gap={3} align="stretch">
+      {/* The provider's button is the main action here: 24 under the
+          description, and the Cancel bar is 20 below it. Only the provider
+          being linked shows, so there is nothing to put under a divider. */}
+      <FormStack>
         {method === LoginMethod.Google ? (
           <GoogleAuthButton
             busy={loading}
@@ -143,12 +144,12 @@ export function LinkLoginMethodDialog({
             }
           />
         ) : null}
-      </Stack>
-      {error ? (
-        <Text color="status.danger.fg" fontSize="sm" role="alert">
-          {error}
-        </Text>
-      ) : null}
+        {error ? (
+          <Text color="status.danger.fg" fontSize="sm" role="alert">
+            {error}
+          </Text>
+        ) : null}
+      </FormStack>
     </Modal>
   )
 }
@@ -209,12 +210,16 @@ export function UnlinkLoginMethodDialog({
       onSubmit={() => void unlink()}
       submitLoading={loading}
     >
-      <Text fontSize="sm">{formatMessage(t.unlinkBody, { provider })}</Text>
-      {error ? (
-        <Text color="status.danger.fg" fontSize="sm" role="alert">
-          {error}
-        </Text>
-      ) : null}
+      {/* A confirm with no field: the sentence is the body, 24 under the
+          title, and the buttons are 20 below it. */}
+      <FormStack>
+        <Text fontSize="sm">{formatMessage(t.unlinkBody, { provider })}</Text>
+        {error ? (
+          <Text color="status.danger.fg" fontSize="sm" role="alert">
+            {error}
+          </Text>
+        ) : null}
+      </FormStack>
     </Modal>
   )
 }

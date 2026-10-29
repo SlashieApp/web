@@ -8,7 +8,20 @@ import {
   withSession,
 } from '@/app/(auth)/helpers/authStoryDecorator'
 import { storyMe } from '@/app/(auth)/helpers/authStoryFixtures'
+import { formSpace } from '@/theme/styles'
+import { gapBelow, heightOf } from '@/ui/FormField/formGap.testing'
 
+import {
+  barButton,
+  expectNoHorizontalOverflow,
+  expectPhoneWidth,
+  expectReauthPrompt,
+  fieldOf,
+  labelOf,
+  openDialog,
+  phone390,
+  shellOf,
+} from '../../../components/ui/dialogSpacing.testing'
 import { AccountPasswordDialog } from './AccountPasswordDialog'
 
 /** A story-only session whose API answers the password mutations as given. */
@@ -185,5 +198,167 @@ export const Closed: Story = {
   decorators: [api()],
   play: async ({ canvasElement }) => {
     await expect(page(canvasElement).queryByRole('dialog')).toBeNull()
+  },
+}
+
+/**
+ * Change: no description, so the first field is 24 under the title. Fields are
+ * 20 apart, the hint is 4 under its field, and the last field is 20 above the
+ * buttons; fields are 48 tall.
+ */
+async function expectChangeSpacing(canvasElement: HTMLElement) {
+  const { dialog, title, description, body } = await openDialog(
+    canvasElement,
+    'Change your password',
+  )
+  const current = fieldOf(dialog, 'Current password')
+  const next = fieldOf(dialog, 'New password')
+  const confirm = fieldOf(dialog, 'Confirm new password')
+  const hint = within(next).getByText('At least 8 characters.')
+  const save = barButton(dialog, 'Save password')
+
+  await expect(description).toBeNull()
+  await expect(gapBelow(title, current)).toBe(formSpace.headerToBody)
+  await expect(gapBelow(current, next)).toBe(formSpace.fieldGap)
+  await expect(gapBelow(next, confirm)).toBe(formSpace.fieldGap)
+  await expect(gapBelow(confirm, save)).toBe(formSpace.bodyToAction)
+  await expect(gapBelow(shellOf(next), hint)).toBe(formSpace.controlToHelper)
+  for (const field of [current, next, confirm]) {
+    await expect(gapBelow(labelOf(field), shellOf(field))).toBe(
+      formSpace.labelToControl,
+    )
+    await expect(heightOf(shellOf(field))).toBe(formSpace.controlHeight)
+  }
+  expectNoHorizontalOverflow(body)
+}
+
+/** Change: first field 24 under the title, fields 20 apart, 20 to the buttons. */
+export const ChangeSpacing: Story = {
+  decorators: [api()],
+  play: ({ canvasElement }) => expectChangeSpacing(canvasElement),
+}
+
+/** The same gaps at phone width. */
+export const ChangeSpacingPhone: Story = {
+  ...phone390,
+  decorators: [api()],
+  play: async ({ canvasElement }) => {
+    expectPhoneWidth(canvasElement)
+    await expectChangeSpacing(canvasElement)
+  },
+}
+
+/** Hint and error under one field: 4 under the control, 4 apart, then 20 to the next field. */
+export const ChangeErrorSpacing: Story = {
+  decorators: [api()],
+  play: async ({ canvasElement }) => {
+    await save(canvasElement, { current: 'old', next: 'short', confirm: 'x' })
+    const { dialog } = await openDialog(canvasElement, 'Change your password')
+    const next = fieldOf(dialog, 'New password')
+    const confirm = fieldOf(dialog, 'Confirm new password')
+    const hint = within(next).getByText('At least 8 characters.')
+    const error = await within(next).findByText('Use at least 8 characters.')
+    const mismatch = within(confirm).getByText("The passwords don't match.")
+
+    await expect(gapBelow(shellOf(next), hint)).toBe(formSpace.controlToHelper)
+    await expect(gapBelow(hint, error)).toBe(formSpace.helperGap)
+    await expect(gapBelow(next, confirm)).toBe(formSpace.fieldGap)
+    await expect(gapBelow(shellOf(confirm), mismatch)).toBe(
+      formSpace.controlToHelper,
+    )
+  },
+}
+
+/** A form-level error (the API said no): one more field group, 20 under the last field. */
+export const ChangeFormErrorSpacing: Story = {
+  decorators: [
+    api({
+      ChangePassword: { kind: 'graphqlError', code: 'INVALID_CREDENTIALS' },
+    }),
+  ],
+  play: async ({ canvasElement }) => {
+    await save(canvasElement, { current: 'wrong', next: 'new-password' })
+    const { dialog } = await openDialog(canvasElement, 'Change your password')
+    const alert = await within(dialog).findByRole('alert')
+    const confirm = fieldOf(dialog, 'Confirm new password')
+    const button = barButton(dialog, 'Save password')
+
+    await expect(gapBelow(confirm, alert)).toBe(formSpace.fieldGap)
+    await expect(gapBelow(alert, button)).toBe(formSpace.bodyToAction)
+  },
+}
+
+/** Set: the intro is the description (8 under the title), the first field 24 below it. */
+export const SetSpacing: Story = {
+  args: { mode: 'set', enabledLoginMethods: [LoginMethod.Google] },
+  decorators: [api()],
+  play: async ({ canvasElement }) => {
+    const { dialog, title, description } = await openDialog(
+      canvasElement,
+      'Set a password',
+    )
+    const next = fieldOf(dialog, 'New password')
+    const confirm = fieldOf(dialog, 'Confirm new password')
+    const button = barButton(dialog, 'Save password')
+
+    await expect(dialog).toHaveAccessibleDescription(
+      'Add a password so you can also sign in with sam.carter@example.com.',
+    )
+    await expect(gapBelow(title, description as HTMLElement)).toBe(
+      formSpace.titleToSubtitle,
+    )
+    await expect(gapBelow(description as HTMLElement, next)).toBe(
+      formSpace.headerToBody,
+    )
+    await expect(gapBelow(next, confirm)).toBe(formSpace.fieldGap)
+    await expect(gapBelow(confirm, button)).toBe(formSpace.bodyToAction)
+  },
+}
+
+/**
+ * Sign in again: the error is 20 under the last field, the re-auth block 20
+ * under it. In the block the sentence is 8 above Google, Google and Apple are 8
+ * apart and 48 tall, and Apple is 20 above the buttons.
+ */
+export const SetReauthSpacing: Story = {
+  args: {
+    mode: 'set',
+    enabledLoginMethods: [LoginMethod.Google, LoginMethod.Apple],
+  },
+  decorators: [
+    api({ SetPassword: { kind: 'graphqlError', code: 'REAUTH_REQUIRED' } }),
+    withAuthWidgets(),
+  ],
+  play: async ({ canvasElement }) => {
+    await save(canvasElement, { next: 'new-password' })
+    const { dialog } = await openDialog(canvasElement, 'Set a password')
+    const alert = await within(dialog).findByRole('alert')
+    const confirm = fieldOf(dialog, 'Confirm new password')
+    const button = barButton(dialog, 'Save password')
+
+    await expect(gapBelow(confirm, alert)).toBe(formSpace.fieldGap)
+    const block = await expectReauthPrompt(dialog, /sign in again first/)
+    if (!block) return
+    await expect(gapBelow(alert, block.text)).toBe(formSpace.fieldGap)
+    await expect(gapBelow(block.apple, button)).toBe(formSpace.bodyToAction)
+  },
+}
+
+/** Back from the re-auth: the thanks line is 20 under the last field, 20 above the buttons. */
+export const SetReauthedSpacing: Story = {
+  args: {
+    mode: 'set',
+    enabledLoginMethods: [LoginMethod.Google],
+    reauthed: true,
+  },
+  decorators: [api()],
+  play: async ({ canvasElement }) => {
+    const { dialog } = await openDialog(canvasElement, 'Set a password')
+    const thanks = within(dialog).getByText(/You can save your password now/)
+    const confirm = fieldOf(dialog, 'Confirm new password')
+    const button = barButton(dialog, 'Save password')
+
+    await expect(gapBelow(confirm, thanks)).toBe(formSpace.fieldGap)
+    await expect(gapBelow(thanks, button)).toBe(formSpace.bodyToAction)
   },
 }
