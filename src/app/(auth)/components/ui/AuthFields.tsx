@@ -5,6 +5,7 @@ import { type ReactNode, type Ref, useState } from 'react'
 import { LuEye, LuEyeOff, LuLock, LuMail } from 'react-icons/lu'
 
 import { useI11n } from '@/i18n/useI11n'
+import { hitAreaGrowth } from '@/theme/styles'
 import { IconButton, Input, type InputProps } from '@ui'
 
 import bag from '../i11n.json'
@@ -17,7 +18,7 @@ function FieldIcon({ children }: { children: ReactNode }) {
   )
 }
 
-const FIELD_ROOT = { minH: '48px', w: 'full' } as const
+const FIELD_ROOT = { minH: 'form.controlHeight', w: 'full' } as const
 
 /** Email field for every auth form (spread `register('email')` onto it). */
 export function EmailInput(props: InputProps) {
@@ -68,7 +69,17 @@ export function PasswordInput(props: InputProps) {
   )
 }
 
-/** Checkbox for every auth form (remember me, consent). Use with a `Controller`. */
+/** A field-group row is one line of its label: 20 tall, like the control. */
+const FIELD_GROUP_ROW_HEIGHT = 20
+
+/**
+ * Checkbox for every auth form (remember me, consent). Use with a `Controller`.
+ *
+ * `fieldGroup` makes it a field group in the form rhythm (FE-481): the visible
+ * row is the label's one line, so the gap above and below it is the field gap,
+ * and its error sits `controlToHelper` (4) under it. The 44px hit area grows
+ * past the row into the gaps around it, so it adds no space.
+ */
 export function AuthCheckbox({
   name,
   checked,
@@ -76,6 +87,7 @@ export function AuthCheckbox({
   inputRef,
   label,
   errorText,
+  fieldGroup = false,
 }: {
   name: string
   checked: boolean
@@ -83,9 +95,10 @@ export function AuthCheckbox({
   inputRef?: Ref<HTMLInputElement>
   label: ReactNode
   errorText?: string
+  fieldGroup?: boolean
 }) {
   return (
-    <Stack gap={1}>
+    <Stack gap={fieldGroup ? 'form.controlToHelper' : 1}>
       <Checkbox.Root
         name={name}
         checked={checked}
@@ -93,9 +106,15 @@ export function AuthCheckbox({
         colorPalette="green"
       >
         <Checkbox.HiddenInput ref={inputRef} />
-        <HStack gap={3} align="flex-start" minH="44px" py={2.5}>
+        <HStack
+          gap={3}
+          align="flex-start"
+          {...(fieldGroup
+            ? hitAreaGrowth(FIELD_GROUP_ROW_HEIGHT)
+            : { minH: '44px', py: 2.5 })}
+        >
           <Checkbox.Control
-            mt={0.5}
+            mt={fieldGroup ? 0 : 0.5}
             borderRadius="md"
             borderWidth="1px"
             borderColor="border.strong"
@@ -112,7 +131,7 @@ export function AuthCheckbox({
             fontSize="sm"
             fontWeight={500}
             color="text.default"
-            lineHeight="1.5"
+            lineHeight={fieldGroup ? `${FIELD_GROUP_ROW_HEIGHT}px` : '1.5'}
           >
             {label}
           </Checkbox.Label>

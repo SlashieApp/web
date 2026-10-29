@@ -171,7 +171,7 @@ export function TurnstileField({
         fontSize="sm"
         fontWeight={500}
         color="text.default"
-        mb={2}
+        mb="form.labelToControl"
         display="block"
       >
         {label}

@@ -239,6 +239,41 @@ export const formHelperTextStyle = {
   color: 'text.muted',
 } as const satisfies SystemStyleObject
 
+/** The smallest pointer target (px) of any control: the house touch target. */
+export const minHitArea = 44
+
+/** The style props of {@link hitAreaGrowth}: spread them on the control. */
+export type HitAreaGrowth = {
+  pt?: string
+  pb?: string
+  mt?: string
+  mb?: string
+}
+
+/**
+ * Grows the pointer target of a short control (an inline link, a checkbox row)
+ * to {@link minHitArea} without adding visible space: padding, and an equal
+ * negative margin that takes it back. The control keeps its layout height, so
+ * every gap measured between visible edges stays what the spec says, and the
+ * target reaches into the gaps around it.
+ *
+ * `visualHeight` is the control's own height (px). `above` is how far the
+ * target may reach up; the rest goes below. It defaults to half the extra
+ * (a checkbox row grows evenly). A link under its field sets it to
+ * `controlToHelper`, so the target stops at the field's edge instead of
+ * covering the field.
+ */
+export function hitAreaGrowth(
+  visualHeight: number,
+  above?: number,
+): HitAreaGrowth {
+  const extra = Math.max(0, minHitArea - visualHeight)
+  if (extra === 0) return {}
+  const up = Math.min(extra, above ?? extra / 2)
+  const down = extra - up
+  return { pt: `${up}px`, pb: `${down}px`, mt: `${-up}px`, mb: `${-down}px` }
+}
+
 /** SDL radii (px). */
 export const sdlRadii = {
   md: 8,

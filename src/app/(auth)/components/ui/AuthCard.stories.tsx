@@ -7,6 +7,8 @@ import {
 } from 'react-icons/lu'
 import { expect, within } from 'storybook/test'
 
+import { formSpace } from '@/theme/styles'
+import { gapBelow } from '@/ui/FormField/formGap.testing'
 import { Button, Link } from '@ui'
 
 import { AuthAlert } from './AuthAlert'
@@ -41,10 +43,18 @@ export const Form: Story = {
     footer: <Link href="/login">Back to log in</Link>,
   },
   play: async ({ canvasElement }) => {
-    await within(canvasElement).findByRole('heading', {
+    const canvas = within(canvasElement)
+    const title = await canvas.findByRole('heading', {
       level: 1,
       name: 'Reset your password',
     })
+    // The header is the shared one: title 8 subtitle, then 24 to the form.
+    const subtitle = canvas.getByText(
+      "Enter your email and we'll send you a secure link.",
+    )
+    const button = canvas.getByRole('button', { name: 'Send reset link' })
+    await expect(gapBelow(title, subtitle)).toBe(formSpace.titleToSubtitle)
+    await expect(gapBelow(subtitle, button)).toBe(formSpace.headerToBody)
   },
 }
 

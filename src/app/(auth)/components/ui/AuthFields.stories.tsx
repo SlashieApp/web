@@ -3,7 +3,9 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { useState } from 'react'
 import { expect, userEvent, within } from 'storybook/test'
 
-import { FormField } from '@ui'
+import { formSpace, minHitArea } from '@/theme/styles'
+import { gapBelow, heightOf } from '@/ui/FormField/formGap.testing'
+import { FormField, FormStack } from '@ui'
 
 import { AuthCheckbox, EmailInput, PasswordInput } from './AuthFields'
 
@@ -55,7 +57,13 @@ export const NewPasswordWithError: Story = {
   ),
 }
 
-function CheckboxDemo({ errorText }: { errorText?: string }) {
+function CheckboxDemo({
+  errorText,
+  fieldGroup,
+}: {
+  errorText?: string
+  fieldGroup?: boolean
+}) {
   const [checked, setChecked] = useState(false)
   return (
     <AuthCheckbox
@@ -64,6 +72,7 @@ function CheckboxDemo({ errorText }: { errorText?: string }) {
       onCheckedChange={setChecked}
       label="I confirm I am 18 or over."
       errorText={errorText}
+      fieldGroup={fieldGroup}
     />
   )
 }
@@ -87,4 +96,46 @@ export const CheckboxError: Story = {
   render: () => (
     <CheckboxDemo errorText="You must confirm you are 18 or over to use Slashie." />
   ),
+}
+
+/**
+ * A checkbox as a field group (FE-481): one 20px line between two fields, 20
+ * above and below it, its error 4 under it. The row is 44 tall to tap and
+ * adds no space.
+ */
+export const CheckboxFieldGroup: Story = {
+  render: () => (
+    <FormStack maxW="360px">
+      <FormField label="Email">
+        <EmailInput />
+      </FormField>
+      <CheckboxDemo
+        fieldGroup
+        errorText="You must confirm you are 18 or over."
+      />
+      <FormField label="Password">
+        <PasswordInput />
+      </FormField>
+    </FormStack>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const root = canvas.getByRole('checkbox').closest('label') as HTMLElement
+    const control = root.querySelector('[data-part="control"]') as HTMLElement
+    const row = canvas.getByText('I confirm I am 18 or over.')
+      .parentElement as HTMLElement
+    const error = canvas.getByText('You must confirm you are 18 or over.')
+    const email = canvas.getByText('Email', { selector: 'label' })
+      .parentElement as HTMLElement
+    const password = canvas.getByText('Password', { selector: 'label' })
+      .parentElement as HTMLElement
+    const emailShell = (email.querySelector('input') as HTMLElement)
+      .parentElement as HTMLElement
+
+    await expect(heightOf(control)).toBe(20)
+    await expect(gapBelow(emailShell, control)).toBe(formSpace.fieldGap)
+    await expect(gapBelow(control, error)).toBe(formSpace.controlToHelper)
+    await expect(gapBelow(error, password)).toBe(formSpace.fieldGap)
+    await expect(heightOf(row)).toBe(minHitArea)
+  },
 }

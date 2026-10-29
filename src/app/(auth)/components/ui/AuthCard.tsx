@@ -1,10 +1,10 @@
 'use client'
 
-import { Box, Heading, Stack, Text } from '@chakra-ui/react'
+import { Box, Stack, Text } from '@chakra-ui/react'
 import type { ReactNode } from 'react'
 import type { IconType } from 'react-icons'
 
-import { Card } from '@ui'
+import { Card, FormHeader } from '@ui'
 
 export type AuthCardTone = 'neutral' | 'success' | 'warning' | 'danger'
 
@@ -66,24 +66,13 @@ export function AuthCard({
               <Icon size={22} aria-hidden />
             </Box>
           ) : null}
-          <Stack gap={2}>
-            <Heading
-              as="h1"
-              fontFamily="heading"
-              fontSize={{ base: '2xl', lg: '3xl' }}
-              fontWeight={500}
-              lineHeight="1.2"
-              letterSpacing={{ base: '-0.02em', lg: '-0.025em' }}
-              color="text.default"
-            >
-              {title}
-            </Heading>
-            {description ? (
-              <Text color="text.muted" fontSize="md" lineHeight="1.55">
-                {description}
-              </Text>
-            ) : null}
-          </Stack>
+          {/* The card's gap spaces the header from what follows, so it owns no 24 of its own. */}
+          <FormHeader
+            title={title}
+            description={description}
+            align={centred ? 'center' : 'start'}
+            mb={0}
+          />
           {notice}
           {children ? (
             <Stack gap={4} w="full" textAlign="start">

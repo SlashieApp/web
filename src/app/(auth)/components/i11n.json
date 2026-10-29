@@ -46,7 +46,7 @@
     "fields": {
       "showPassword": "Show password",
       "hidePassword": "Hide password",
-      "orEmail": "Or continue with email",
+      "orEmail": "Or continue with",
       "emailPlaceholder": "you@example.com",
       "passwordHint": "At least 8 characters."
     },
@@ -111,7 +111,7 @@
     "fields": {
       "showPassword": "顯示密碼",
       "hidePassword": "隱藏密碼",
-      "orEmail": "或使用電郵繼續",
+      "orEmail": "或使用以下方式繼續",
       "emailPlaceholder": "you@example.com",
       "passwordHint": "最少 8 個字元。"
     },

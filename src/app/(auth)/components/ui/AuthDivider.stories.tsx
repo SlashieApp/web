@@ -16,6 +16,6 @@ type Story = StoryObj<typeof meta>
 /** The rule with its label. */
 export const Default: Story = {
   play: async ({ canvasElement }) => {
-    await within(canvasElement).findByText('Or continue with email')
+    await within(canvasElement).findByText('Or continue with')
   },
 }
