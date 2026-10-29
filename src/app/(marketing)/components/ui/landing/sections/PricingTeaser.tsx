@@ -1,24 +1,20 @@
-import {
-  Box,
-  Container,
-  Grid,
-  HStack,
-  Heading,
-  Stack,
-  Text,
-} from '@chakra-ui/react'
+import { Box, Container, Grid, HStack, Heading, Text } from '@chakra-ui/react'
 import NextLink from 'next/link'
 import { LuSparkles } from 'react-icons/lu'
 
+import { sdlCardSurface } from '@/theme/styles'
 import { Button } from '@ui'
 
-import { SECTION_PY } from '@/app/(marketing)/components/layout/MarketingFrame'
+import {
+  SECTION_PY,
+  SectionHead,
+} from '@/app/(marketing)/components/layout/MarketingFrame'
 import { Reveal } from '../Reveal'
 
 export type LandingPricing = {
   /** e.g. "Slashie Unlimited" */
   productName: string
-  /** Premium-card headline — live trial label when one exists, else the price. */
+  /** Premium-card headline: live trial label when one exists, else the price. */
   headline: string
   /** Premium-card supporting line. */
   subline: string
@@ -33,9 +29,82 @@ type PricingTeaserCopy = {
   freeBody: string
 }
 
+/** The section heading's id, which names the landmark. */
+export const PRICING_TEASER_HEADING_ID = 'landing-pricing-heading'
+
+/** A plan card's padding: a step roomier from `lg`, where the cards sit beside the head. */
+const CARD_P = { base: 5, md: 6, lg: 7 } as const
+
 /**
- * Pricing teaser. The worker subscription is the product's single premium
- * layer — and the ONLY place plum (`accent.premium`) appears on the landing.
+ * One plan: the card recipe of the product (white, a 1px hairline, `e1`, 12px
+ * corners), left-aligned: a label, the headline as an h3 and a muted line. The
+ * paid plan swaps the hairline and the label for plum (`accent.premium`), and
+ * nothing else changes between the two, so they read as a pair.
+ */
+function PlanCard({
+  label,
+  headline,
+  body,
+  premium = false,
+  ...dataAttrs
+}: {
+  label: string
+  headline: string
+  body: string
+  premium?: boolean
+} & Record<`data-${string}`, string>) {
+  return (
+    <Box
+      {...dataAttrs}
+      display="flex"
+      flexDirection="column"
+      alignItems="flex-start"
+      gap={3}
+      h="full"
+      p={CARD_P}
+      textAlign="start"
+      {...sdlCardSurface}
+      borderColor={premium ? 'accent.premium' : 'border.default'}
+    >
+      <HStack
+        gap={1.5}
+        minH="21px"
+        color={premium ? 'accent.premium' : 'text.muted'}
+      >
+        {premium ? <LuSparkles size={16} aria-hidden /> : null}
+        <Text as="p" textStyle="label-md" fontSize="sm">
+          {label}
+        </Text>
+      </HStack>
+      <Heading
+        as="h3"
+        textStyle="heading-lg"
+        fontVariantNumeric="tabular-nums"
+        textWrap="balance"
+      >
+        {headline}
+      </Heading>
+      <Text textStyle="text-sm" color="text.muted">
+        {body}
+      </Text>
+    </Box>
+  )
+}
+
+/**
+ * The pricing teaser (tone refresh, train 2, item 6): the worker side of the
+ * price in two plain cards, then one pill to the pricing page. The live
+ * pricing (trial, price, free quotes) is built in `home/page.tsx` and arrives
+ * as `pricing`; this section only sets it.
+ *
+ * From `lg` the head and the pill sit in a left column and the two cards in
+ * the right one; below it the head, the cards (two columns from `md`) and the
+ * pill stack, always in that reading order. The section is opaque
+ * (`bg.surface`) like the other panels, so a 3D prop never crosses a card.
+ *
+ * Plum (`accent.premium`) is the worker subscription's colour: its label, its
+ * hairline and the pill. Green is not used here: the page's one green action
+ * is the hero's and the closing call's.
  */
 export function PricingTeaser({
   copy,
@@ -49,97 +118,70 @@ export function PricingTeaser({
   pricingHref: string
 }) {
   return (
-    <Box as="section" py={SECTION_PY}>
+    <Box
+      as="section"
+      data-pricing-teaser=""
+      aria-labelledby={PRICING_TEASER_HEADING_ID}
+      bg="bg.surface"
+      py={SECTION_PY}
+    >
       <Container>
-        <Stack gap={{ base: 8, md: 10 }} maxW="4xl">
-          <Reveal>
-            <Stack gap={3}>
-              <Heading
-                as="h2"
-                fontFamily="display"
-                fontSize={{ base: '28px', md: '36px' }}
-                letterSpacing={{ base: '-0.025em', md: '-0.03em' }}
-              >
-                {copy.heading}
-              </Heading>
-              <Text color="text.muted" maxW="65ch">
-                {copy.body}
-              </Text>
-            </Stack>
+        <Grid
+          templateColumns={{
+            base: 'minmax(0, 1fr)',
+            lg: 'minmax(0, 5fr) minmax(0, 7fr)',
+          }}
+          // The cards span both rows beside the head and the pill: the head
+          // keeps its height and the pill sits right under it.
+          templateRows={{ lg: 'auto 1fr' }}
+          columnGap={{ lg: 16, xl: 24 }}
+          rowGap={{ base: 8, md: 10 }}
+          alignItems="start"
+        >
+          <Reveal gridColumn={{ lg: 1 }} gridRow={{ lg: 1 }}>
+            <SectionHead
+              heading={copy.heading}
+              headingId={PRICING_TEASER_HEADING_ID}
+              body={copy.body}
+            />
           </Reveal>
 
           <Grid
-            templateColumns={{ base: '1fr', md: '1fr 1fr' }}
-            gap={5}
+            data-pricing-plans=""
+            templateColumns={{
+              base: 'minmax(0, 1fr)',
+              md: 'repeat(2, minmax(0, 1fr))',
+            }}
+            gap={{ base: 4, md: 5 }}
+            gridColumn={{ lg: 2 }}
+            gridRow={{ lg: '1 / span 2' }}
             w="full"
           >
             <Reveal h="full">
-              <Stack
-                gap={3}
-                h="full"
-                p={{ base: 5, md: 6 }}
-                bg="bg.surface"
-                borderRadius="lg"
-                borderWidth="1px"
-                borderColor="border.default"
-                textAlign="center"
-                align="center"
-              >
-                <Text fontSize="sm" fontWeight={500} color="text.muted">
-                  {copy.freePlanLabel}
-                </Text>
-                <Heading
-                  as="h3"
-                  fontSize="24px"
-                  fontWeight={500}
-                  letterSpacing="-0.02em"
-                >
-                  {pricing.freeHeadline}
-                </Heading>
-                <Text fontSize="sm" color="text.muted">
-                  {copy.freeBody}
-                </Text>
-              </Stack>
+              <PlanCard
+                data-pricing-plan="free"
+                label={copy.freePlanLabel}
+                headline={pricing.freeHeadline}
+                body={copy.freeBody}
+              />
             </Reveal>
-
             <Reveal delayMs={120} h="full">
-              <Stack
-                gap={3}
-                h="full"
-                p={{ base: 5, md: 6 }}
-                bg="bg.surface"
-                borderRadius="lg"
-                borderWidth="2px"
-                borderColor="accent.premium"
-                textAlign="center"
-                align="center"
-                position="relative"
-              >
-                <HStack gap={1.5} color="accent.premium" fontWeight={500}>
-                  <LuSparkles size={16} aria-hidden />
-                  <Text fontSize="sm">{pricing.productName}</Text>
-                </HStack>
-                <Heading
-                  as="h3"
-                  fontSize="24px"
-                  fontWeight={500}
-                  letterSpacing="-0.02em"
-                >
-                  {pricing.headline}
-                </Heading>
-                <Text fontSize="sm" color="text.muted">
-                  {pricing.subline}
-                </Text>
-              </Stack>
+              <PlanCard
+                data-pricing-plan="premium"
+                premium
+                label={pricing.productName}
+                headline={pricing.headline}
+                body={pricing.subline}
+              />
             </Reveal>
           </Grid>
 
-          <Reveal delayMs={160}>
+          <Reveal delayMs={160} gridColumn={{ lg: 1 }} gridRow={{ lg: 2 }}>
             <Button asChild variant="premium">
               <NextLink href={pricingHref}>{ctaLabel}</NextLink>
             </Button>
           </Reveal>
-        </Stack>
+        </Grid>
       </Container>
     </Box>
   )

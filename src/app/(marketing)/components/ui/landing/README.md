@@ -64,7 +64,7 @@ components/ui/landing/
     BentoSection.tsx         the bento: three hairline-divided cells, each a step and its snippet
     BentoSnippets.tsx        the three live snippets: post form, quote rows, accepted row
     useSnippetEntrance.ts    the snippets' once-only entrance (static | waiting | playing)
-  sections/                  TrustSection (the trust row) · PricingTeaser · FinalCtaBand
+  sections/                  TrustSection (the trust row) · PricingTeaser (two plan cards and a pill) · FinalCtaBand
 ```
 
 ## Frame and rhythm
@@ -282,6 +282,48 @@ it has no card: no tint, radius or shadow.
   first; ask Ryan before adding one.
 - **Motion.** Each point is a `Reveal` (a fade with an 8px rise, 400ms, once),
   staggered 70ms; reduced motion and no JS show them as they are.
+
+## Pricing teaser
+
+The pricing teaser (`sections/PricingTeaser.tsx`) is the worker side of the price
+in two plain cards and one pill to `/pricing`, between the two section rules that
+`home/page.tsx` puts round it. It is the stage `pricing`. The live pricing (the
+trial label, the price line, the free quotes) is still built in `home/page.tsx`
+and arrives as `pricing` (`LandingPricing`); the section only sets it, so a
+missing price degrades to the generic lines as before. No string is added: the
+heading, the body, the two plan labels, the free body and the pill label are
+today's.
+
+- **Head.** `SectionHead` without an eyebrow (an eyebrow needs a string first):
+  the h2 at 34/41, 44/48 from `lg`, 500, and the body in `text-lg` muted. The
+  section is a landmark named by that heading (`aria-labelledby`).
+- **Layout.** From `lg` the head and the pill sit in the left column (5fr) and
+  the two cards in the right one (7fr), the cards spanning both rows, so the
+  pill sits right under the head. Below `lg` the order is the head, the cards
+  (two columns from `md`, one on a phone) and the pill, which is also the DOM
+  order, so the reading order never changes.
+- **A plan card** is the product's card recipe (`sdlCardSurface`: `bg.surface`,
+  a 1px `border.default` hairline, 12px corners, `e1`), left-aligned, with
+  `p` 20 / 24 / 28 by breakpoint. In it: a label (14 at 500; `text.muted` for the
+  free plan), the headline as an h3 (`heading-lg`, 24/30 at 500, tabular
+  figures, balanced) and a `text-sm` muted line. Both cards stretch to one
+  height. The headline is one string (a trial, a price or "3 quotes a month"),
+  so it stays a heading at 500; the 600 figure weight is for a price that is its
+  own element.
+- **Plum** (`accent.premium`) is the worker subscription's colour and it is
+  kept for the paid plan only: its label with the sparkle, its 1px hairline
+  (instead of `border.default`; it was a 2px line) and the pill (the `premium`
+  Button variant, white label). Nothing else is plum and nothing here is green:
+  the page's one green action is the hero's, and the closing call has its own.
+  If the pill should be quieter, `variant="secondary"` is the one prop to change.
+- **Opaque** (`bg.surface`), like the map panel, the bento and the trust row: the
+  3D scene stays behind it, so a prop never crosses a card.
+- **Motion.** The head, each card (staggered 120ms) and the pill are `Reveal`s (a
+  fade with an 8px rise, 400ms, once); reduced motion and no JS show them as they
+  are.
+- **The pricing page** is to follow this recipe when it is restyled (the spec:
+  "the pricing cards follow the teaser"): the same hairline-and-`e1` card, plum
+  only for the paid plan.
 
 ## Behaviour by device
 
