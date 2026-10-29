@@ -15,7 +15,7 @@ import { useForgotPassword } from '@/app/(auth)/helpers/useForgotPassword'
 import { useProgressiveCaptcha } from '@/app/(auth)/helpers/useProgressiveCaptcha'
 import { formatMessage } from '@/i18n/loadPageI11n'
 import { useI11n } from '@/i18n/useI11n'
-import { Button, Link } from '@ui'
+import { Button, FormStack, Link } from '@ui'
 
 import bag from '../../sent/i11n.json'
 import { useForgotPasswordMessage } from './forgotPasswordMessage'
@@ -68,26 +68,28 @@ export function ForgotPasswordSentPanel() {
         </Link>
       }
     >
-      {captcha.requiresCaptcha ? (
-        <TurnstileField
-          onTokenChange={captcha.setToken}
-          resetSignal={captcha.resetSignal}
-        />
-      ) : null}
-      {alert ? <AuthAlert tone={alert.tone}>{alert.text}</AuthAlert> : null}
-      <Button
-        variant="secondary"
-        loading={loading}
-        disabled={!canResend || (captcha.requiresCaptcha && !captcha.token)}
-        onClick={() => void onResend()}
-        w="full"
-        size="lg"
-        minH="48px"
-      >
-        {cooldownSeconds > 0
-          ? formatMessage(shared.tryAgainIn, { seconds: cooldownSeconds })
-          : t.resend}
-      </Button>
+      {/* Form spacing (FE-481): 24 under the header, then the security check, any alert and Resend 20 apart. */}
+      <FormStack>
+        {captcha.requiresCaptcha ? (
+          <TurnstileField
+            onTokenChange={captcha.setToken}
+            resetSignal={captcha.resetSignal}
+          />
+        ) : null}
+        {alert ? <AuthAlert tone={alert.tone}>{alert.text}</AuthAlert> : null}
+        <Button
+          variant="secondary"
+          loading={loading}
+          disabled={!canResend || (captcha.requiresCaptcha && !captcha.token)}
+          onClick={() => void onResend()}
+          w="full"
+          size="form"
+        >
+          {cooldownSeconds > 0
+            ? formatMessage(shared.tryAgainIn, { seconds: cooldownSeconds })
+            : t.resend}
+        </Button>
+      </FormStack>
     </AuthCard>
   )
 }

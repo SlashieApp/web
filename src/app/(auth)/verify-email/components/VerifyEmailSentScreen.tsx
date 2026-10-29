@@ -1,6 +1,6 @@
 'use client'
 
-import { Stack, Text } from '@chakra-ui/react'
+import { Text } from '@chakra-ui/react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useCallback, useRef } from 'react'
 import { LuMailCheck } from 'react-icons/lu'
@@ -16,7 +16,7 @@ import { useMe } from '@/app/(auth)/store/user'
 import { useI11n } from '@/i18n/useI11n'
 import { APP_HOME } from '@/utils/appRoutes'
 import { getAuthToken } from '@/utils/auth'
-import { Button, Link } from '@ui'
+import { Button, FormAlternatives, FormStack, Link } from '@ui'
 
 import bag from '../sent/i11n.json'
 
@@ -70,41 +70,46 @@ export function VerifyEmailSentScreen() {
         </>
       }
     >
+      {/*
+        Form spacing (FE-481): 24 under the header, then any alert or note, 20,
+        then the buttons. Continue and Resend are stacked buttons, 8 apart.
+      */}
       {signedIn ? (
-        <Stack gap={3}>
+        <FormStack>
           {resend.isSent ? (
             <AuthAlert tone="success">{shared.resend.sent}</AuthAlert>
           ) : resend.failure ? (
             <AuthAlert>{shared.resend[resend.failure]}</AuthAlert>
           ) : null}
           {/* Verifying can wait; carrying on (e.g. into worker setup) is the next step. */}
-          <Button asChild w="full" size="lg" minH="48px">
-            <Link href={nextPath} _hover={{ textDecoration: 'none' }}>
-              {t.continue}
-            </Link>
-          </Button>
-          <Button
-            variant="secondary"
-            w="full"
-            size="lg"
-            minH="48px"
-            loading={resend.isSending}
-            onClick={() => void resend.resend()}
-          >
-            {t.resend}
-          </Button>
-        </Stack>
+          <FormAlternatives>
+            <Button asChild w="full" size="form">
+              <Link href={nextPath} _hover={{ textDecoration: 'none' }}>
+                {t.continue}
+              </Link>
+            </Button>
+            <Button
+              variant="secondary"
+              w="full"
+              size="form"
+              loading={resend.isSending}
+              onClick={() => void resend.resend()}
+            >
+              {t.resend}
+            </Button>
+          </FormAlternatives>
+        </FormStack>
       ) : (
-        <Stack gap={3}>
+        <FormStack>
           <Text fontSize="sm" color="text.muted" textAlign="center">
             {t.loginPrompt}
           </Text>
-          <Button asChild w="full" size="lg" minH="48px">
+          <Button asChild w="full" size="form">
             <Link href={LOGIN_HREF} _hover={{ textDecoration: 'none' }}>
               {t.login}
             </Link>
           </Button>
-        </Stack>
+        </FormStack>
       )}
     </AuthCard>
   )

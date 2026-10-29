@@ -20,11 +20,12 @@ import {
 import { useUserStore } from '@/app/(auth)/store/user'
 import { useLocalizedHref } from '@/i18n/LocaleProvider'
 import { useI11n } from '@/i18n/useI11n'
+import { formSpace, hitAreaGrowth } from '@/theme/styles'
 import { EVENTS, trackFlowFailed, trackFlowSucceeded } from '@/utils/analytics'
 import { MY_TASKS_HREF } from '@/utils/appRoutes'
 import { setAuthToken } from '@/utils/auth'
 import { getGraphQLErrorCode } from '@/utils/graphqlErrors'
-import { Button, FormField, Input, Link } from '@ui'
+import { Button, FormField, FormStack, Input, Link } from '@ui'
 
 import ResetPassword from '../graphql/ResetPassword.gql'
 import bag from '../i11n.json'
@@ -35,6 +36,9 @@ import {
 } from '../resetPasswordFormSchema'
 
 const isDev = process.env.NODE_ENV === 'development'
+
+/** "Request reset link" is one 20px line, like the helper text under a field. */
+const RESET_LINK_HEIGHT = 20
 
 type ResetPasswordMessage =
   | 'linkExpired'
@@ -69,7 +73,7 @@ export function ResetLinkMissing() {
       description={t.missingDescription}
       footer={<BackToLogin />}
     >
-      <Button asChild w="full" size="lg" minH="48px">
+      <Button asChild w="full" size="form">
         <Link href="/forgot-password" _hover={{ textDecoration: 'none' }}>
           {t.missingCta}
         </Link>
@@ -158,7 +162,8 @@ export function ResetPasswordScreen() {
     >
       <Box asChild w="full">
         <form method="post" onSubmit={handleSubmit(onValid)} noValidate>
-          <Stack gap={4}>
+          {/* Form spacing (FE-481): fields, the message and the main button, 20 apart. */}
+          <FormStack>
             {/* Dev only: paste a token when testing without the email link. */}
             {isDev && (showTokenField || !tokenWatch) ? (
               <FormField
@@ -168,7 +173,6 @@ export function ResetPasswordScreen() {
                 <Input
                   placeholder="Paste token from your email"
                   autoComplete="one-time-code"
-                  rootProps={{ minH: '48px', w: 'full' }}
                   {...register('token')}
                 />
               </FormField>
@@ -207,14 +211,26 @@ export function ResetPasswordScreen() {
             </FormField>
 
             {messageText ? (
-              <Stack gap={2}>
+              // The alert is one more field (20 above it, 20 to the button); the
+              // link to ask again hangs 4 under it, as "Forgot password?" does.
+              <Stack gap={0}>
                 <AuthAlert>{messageText}</AuthAlert>
                 {message === 'linkExpired' ? (
-                  <Text fontSize="sm">
+                  <Text
+                    fontSize="sm"
+                    lineHeight={`${RESET_LINK_HEIGHT}px`}
+                    mt="form.controlToHelper"
+                  >
                     <Link
                       href="/forgot-password"
+                      display="block"
                       fontWeight={500}
                       color="text.link"
+                      // 44 to tap, reaching up to the alert's edge and down into the gap.
+                      {...hitAreaGrowth(
+                        RESET_LINK_HEIGHT,
+                        formSpace.controlToHelper,
+                      )}
                     >
                       {t.missingCta}
                     </Link>
@@ -223,16 +239,10 @@ export function ResetPasswordScreen() {
               </Stack>
             ) : null}
 
-            <Button
-              type="submit"
-              loading={loading}
-              w="full"
-              size="lg"
-              minH="48px"
-            >
+            <Button type="submit" loading={loading} w="full" size="form">
               {t.submit}
             </Button>
-          </Stack>
+          </FormStack>
         </form>
       </Box>
     </AuthCard>

@@ -21,7 +21,7 @@ import {
 import { showAppToast } from '@/utils/appToast'
 import { getAuthToken } from '@/utils/auth'
 import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
-import { Button, Logo } from '@ui'
+import { Button, FormAlternatives, Logo } from '@ui'
 
 import bag from '../i11n.json'
 
@@ -75,6 +75,10 @@ export function AccountRestoreScreen({
       py={10}
       bg="bg.canvas"
     >
+      {/*
+        Form spacing (FE-481): a status page. The header block (logo, icon,
+        title and text) sits 24 above the buttons, which are 48 tall and 8 apart.
+      */}
       <Stack
         as="section"
         aria-labelledby="account-restore-title"
@@ -82,44 +86,51 @@ export function AccountRestoreScreen({
         maxW="28rem"
         align="center"
         textAlign="center"
-        gap={5}
+        gap="form.headerToBody"
         p={{ base: 6, md: 8 }}
         bg="bg.surface"
         borderRadius="xl"
         boxShadow="e3"
       >
-        <Logo />
-        <Box
-          boxSize="48px"
-          borderRadius="full"
-          bg="status.warning.soft"
-          color="status.warning.fg"
-          display="flex"
-          alignItems="center"
-          justifyContent="center"
-          aria-hidden
-        >
-          <LuClock size={24} />
-        </Box>
-        <Stack gap={2}>
-          <Heading as="h1" id="account-restore-title" fontSize="xl">
-            {t.title}
-          </Heading>
-          <Text color="text.muted" lineHeight="tall">
-            {date ? formatMessage(t.body, { date }) : t.bodyNoDate}
-          </Text>
-          <Text fontSize="sm" color="text.muted" lineHeight="tall">
-            {t.keepNote}
-          </Text>
+        <Stack align="center" gap={5} w="full">
+          <Logo />
+          <Box
+            boxSize="48px"
+            borderRadius="full"
+            bg="status.warning.soft"
+            color="status.warning.fg"
+            display="flex"
+            alignItems="center"
+            justifyContent="center"
+            aria-hidden
+          >
+            <LuClock size={24} />
+          </Box>
+          <Stack gap="form.titleToSubtitle">
+            <Heading as="h1" id="account-restore-title" fontSize="xl">
+              {t.title}
+            </Heading>
+            <Text color="text.muted" lineHeight="tall">
+              {date ? formatMessage(t.body, { date }) : t.bodyNoDate}
+            </Text>
+            <Text fontSize="sm" color="text.muted" lineHeight="tall">
+              {t.keepNote}
+            </Text>
+          </Stack>
         </Stack>
-        <Stack w="full" gap={2}>
-          <Button variant="primary" loading={loading} onClick={onRestore}>
+        <FormAlternatives>
+          <Button
+            variant="primary"
+            size="form"
+            loading={loading}
+            onClick={onRestore}
+          >
             {t.restore}
           </Button>
-          <Button variant="ghost" onClick={onSignOut}>
+          <Button variant="ghost" size="form" onClick={onSignOut}>
             {t.signOut}
           </Button>
-        </Stack>
+        </FormAlternatives>
       </Stack>
     </Box>
   )

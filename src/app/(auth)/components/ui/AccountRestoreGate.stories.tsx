@@ -1,6 +1,9 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { expect, userEvent, waitFor, within } from 'storybook/test'
 
+import { formSpace } from '@/theme/styles'
+import { gapBelow, heightOf } from '@/ui/FormField/formGap.testing'
+
 import { withSession } from '../../helpers/authStoryDecorator'
 import { storyMe } from '../../helpers/authStoryFixtures'
 import { AccountRestoreGate, AccountRestoreScreen } from './AccountRestoreGate'
@@ -18,6 +21,33 @@ const meta = {
 export default meta
 type Story = StoryObj<typeof meta>
 
+type Canvas = ReturnType<typeof within>
+
+/**
+ * A status page (wiki: Foundations-Form-Spacing), measured between visible
+ * edges: the title 8 above its text, the header block 24 above the buttons,
+ * which are 48 tall and 8 apart.
+ */
+async function expectStatusSpacing(canvas: Canvas) {
+  const title = await canvas.findByRole('heading', {
+    name: 'Your account is scheduled for deletion',
+  })
+  const note = canvas.getByText(/Restoring brings your profile back/)
+  const restore = canvas.getByRole('button', { name: 'Restore my account' })
+  const signOut = canvas.getByRole('button', { name: 'Sign out' })
+  const header = title.parentElement as HTMLElement
+
+  await expect(gapBelow(title, title.nextElementSibling as Element)).toBe(
+    formSpace.titleToSubtitle,
+  )
+  await expect(gapBelow(header, restore)).toBe(formSpace.headerToBody)
+  await expect(gapBelow(restore, signOut)).toBe(formSpace.alternativesGap)
+  await expect(heightOf(restore)).toBe(formSpace.controlHeight)
+  await expect(heightOf(signOut)).toBe(formSpace.controlHeight)
+  // The note is the last line of the header block.
+  await expect(header.lastElementChild).toBe(note)
+}
+
 /** Signed in while the account is waiting for deletion. */
 export const Default: Story = {
   decorators: [withSession({ me: scheduledMe })],
@@ -31,6 +61,7 @@ export const Default: Story = {
     await expect(
       canvas.getByRole('button', { name: 'Restore my account' }),
     ).toBeEnabled()
+    await expectStatusSpacing(canvas)
   },
 }
 
@@ -56,10 +87,13 @@ export const Restoring: Story = {
   },
 }
 
-/** Phones: the card fills the width. */
+/** Phones: the card fills the width, with the same gaps. */
 export const Phone: Story = {
   globals: { viewport: { value: 'mobile1' } },
   decorators: [withSession({ me: scheduledMe })],
+  play: async ({ canvasElement }) => {
+    await expectStatusSpacing(within(canvasElement))
+  },
 }
 
 /** The gate for an account waiting for deletion: the restore screen replaces the app. */

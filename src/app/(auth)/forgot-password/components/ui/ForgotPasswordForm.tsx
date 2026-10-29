@@ -1,6 +1,6 @@
 'use client'
 
-import { Box, Stack } from '@chakra-ui/react'
+import { Box } from '@chakra-ui/react'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 
@@ -17,7 +17,7 @@ import { useForgotPassword } from '@/app/(auth)/helpers/useForgotPassword'
 import { useProgressiveCaptcha } from '@/app/(auth)/helpers/useProgressiveCaptcha'
 import { formatMessage } from '@/i18n/loadPageI11n'
 import { useI11n } from '@/i18n/useI11n'
-import { Button, FormField, Link } from '@ui'
+import { Button, FormField, FormStack, Link } from '@ui'
 
 import bag from '../../i11n.json'
 import { useForgotPasswordMessage } from './forgotPasswordMessage'
@@ -69,7 +69,8 @@ export function ForgotPasswordForm() {
     >
       <Box asChild w="full">
         <form method="post" onSubmit={onSubmit}>
-          <Stack gap={4}>
+          {/* Form spacing (FE-481): the field, the security check and the alert 20 apart, 20 to the button. */}
+          <FormStack>
             <FormField label={t.emailLabel}>
               <EmailInput
                 value={email}
@@ -97,14 +98,13 @@ export function ForgotPasswordForm() {
               loading={loading}
               disabled={submitDisabled}
               w="full"
-              size="lg"
-              minH="48px"
+              size="form"
             >
               {cooldownSeconds > 0
                 ? formatMessage(shared.tryAgainIn, { seconds: cooldownSeconds })
                 : t.submit}
             </Button>
-          </Stack>
+          </FormStack>
         </form>
       </Box>
     </AuthCard>

@@ -24,7 +24,11 @@ export type AuthCardProps = {
   tone?: AuthCardTone
   /** Account notice above the form (deletion scheduled, restore). */
   notice?: ReactNode
-  /** The form, or a status page's actions. */
+  /**
+   * The form, or a status page's actions. A plain container: put a
+   * `FormStack` (fields, alert, main button) or `FormAlternatives` (buttons 8
+   * apart) in it, which set the gaps.
+   */
   children?: ReactNode
   /** The one link row under the card. */
   footer?: ReactNode
@@ -44,18 +48,27 @@ export function AuthCard({
   footer,
 }: AuthCardProps) {
   const centred = Icon != null
+  // A header with nothing under it (verifying, confirmed) has no 24 to give.
+  const hasBody = Boolean(notice) || Boolean(children)
 
   return (
     <Stack gap={6} w="full">
       <Card framed={{ base: false, lg: true }} p={8} w="full">
+        {/*
+          Form spacing (FE-481): the card is a plain column, not a gapped stack.
+          The status icon sits 24 above the title, the header owns its 24 below
+          it, a notice has 20 to what follows, and the page's own body
+          (FormStack, FormAlternatives) sets the gaps inside it.
+        */}
         <Stack
-          gap={6}
+          gap={0}
           align={centred ? 'center' : 'stretch'}
           textAlign={centred ? 'center' : 'start'}
         >
           {Icon ? (
             <Box
               boxSize={12}
+              mb="form.headerToBody"
               borderRadius="full"
               bg={TONE[tone].bg}
               color={TONE[tone].color}
@@ -66,18 +79,21 @@ export function AuthCard({
               <Icon size={22} aria-hidden />
             </Box>
           ) : null}
-          {/* The card's gap spaces the header from what follows, so it owns no 24 of its own. */}
           <FormHeader
             title={title}
             description={description}
             align={centred ? 'center' : 'start'}
-            mb={0}
+            {...(hasBody ? {} : { mb: 0 })}
           />
-          {notice}
+          {notice ? (
+            <Box w="full" textAlign="start" mb={children ? 'form.fieldGap' : 0}>
+              {notice}
+            </Box>
+          ) : null}
           {children ? (
-            <Stack gap={4} w="full" textAlign="start">
+            <Box w="full" textAlign="start">
               {children}
-            </Stack>
+            </Box>
           ) : null}
         </Stack>
       </Card>

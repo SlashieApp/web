@@ -24,7 +24,7 @@ import { APP_HOME } from '@/utils/appRoutes'
 import { showAppToast } from '@/utils/appToast'
 import { getAuthToken, setAuthToken } from '@/utils/auth'
 import { getGraphQLErrorCode } from '@/utils/graphqlErrors'
-import { Button, Link } from '@ui'
+import { Button, FormStack, Link } from '@ui'
 
 import VerifyEmail from '../graphql/VerifyEmail.gql'
 import bag from '../i11n.json'
@@ -115,15 +115,14 @@ export function VerifyEmailScreen() {
   const resendAction = signedIn ? (
     <Button
       w="full"
-      size="lg"
-      minH="48px"
+      size="form"
       loading={resend.isSending}
       onClick={() => void resend.resend()}
     >
       {t.resend}
     </Button>
   ) : (
-    <Button asChild w="full" size="lg" minH="48px">
+    <Button asChild w="full" size="form">
       <Link href={RESEND_LOGIN_HREF} _hover={{ textDecoration: 'none' }}>
         {t.loginToResend}
       </Link>
@@ -157,8 +156,11 @@ export function VerifyEmailScreen() {
           title={t.invalidTitle}
           description={t.invalidDescription}
         >
-          {resendAlert}
-          {resendAction}
+          {/* Form spacing (FE-481): 24 under the header, the alert, then 20 to the button. */}
+          <FormStack>
+            {resendAlert}
+            {resendAction}
+          </FormStack>
         </AuthCard>
       ) : (
         <AuthCard
@@ -169,8 +171,11 @@ export function VerifyEmailScreen() {
             failure === 'expired' ? t.errorDescription : t.messages[failure]
           }
         >
-          {resendAlert}
-          {resendAction}
+          {/* Form spacing (FE-481): 24 under the header, the alert, then 20 to the button. */}
+          <FormStack>
+            {resendAlert}
+            {resendAction}
+          </FormStack>
         </AuthCard>
       )}
     </div>

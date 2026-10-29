@@ -7,9 +7,10 @@ import {
 } from 'react-icons/lu'
 import { expect, within } from 'storybook/test'
 
+import { cardParts } from '@/app/(auth)/helpers/authSpacing.testing'
 import { formSpace } from '@/theme/styles'
-import { gapBelow } from '@/ui/FormField/formGap.testing'
-import { Button, Link } from '@ui'
+import { gapBelow, heightOf } from '@/ui/FormField/formGap.testing'
+import { Button, FormAlternatives, FormStack, Link } from '@ui'
 
 import { AuthAlert } from './AuthAlert'
 import { AuthCard } from './AuthCard'
@@ -58,7 +59,7 @@ export const Form: Story = {
   },
 }
 
-/** A notice above the form (deletion scheduled, restore). */
+/** A notice above the form (deletion scheduled, restore): 24 under the header, 20 above the form. */
 export const WithNotice: Story = {
   args: {
     notice: (
@@ -67,6 +68,14 @@ export const WithNotice: Story = {
       </AuthAlert>
     ),
     children: <Button w="full">Log in</Button>,
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const { subtitle } = await cardParts(canvas)
+    const notice = canvas.getByRole('status')
+    const button = canvas.getByRole('button', { name: 'Log in' })
+    await expect(gapBelow(subtitle, notice)).toBe(formSpace.headerToBody)
+    await expect(gapBelow(notice, button)).toBe(formSpace.fieldGap)
   },
 }
 
@@ -89,6 +98,54 @@ export const Status: Story = {
     await expect(getComputedStyle(icon).backgroundColor).toBe(
       'rgb(244, 244, 245)',
     )
+    // Icon 24 above the title, title 8 above the description, then 24 to the button.
+    const canvas = within(canvasElement)
+    const parts = await cardParts(canvas)
+    const button = canvas.getByRole('button', { name: 'Resend reset link' })
+    await expect(parts.icon).toBe(icon)
+    await expect(gapBelow(icon, parts.title)).toBe(formSpace.headerToBody)
+    await expect(gapBelow(parts.title, parts.subtitle)).toBe(
+      formSpace.titleToSubtitle,
+    )
+    await expect(gapBelow(parts.subtitle, button)).toBe(formSpace.headerToBody)
+  },
+}
+
+/**
+ * A status page with an alert and two buttons (Continue and Resend): header 24,
+ * then the alert, 20, then the buttons, 8 apart. The same recipe as the verify
+ * email page.
+ */
+export const StatusWithAlertAndButtons: Story = {
+  args: {
+    icon: LuMailCheck,
+    title: 'Check your inbox',
+    description: 'We sent a link to sam@example.com.',
+    children: (
+      <FormStack>
+        <AuthAlert tone="success">Verification email sent.</AuthAlert>
+        <FormAlternatives>
+          <Button w="full" size="form">
+            Continue
+          </Button>
+          <Button variant="secondary" w="full" size="form">
+            Resend
+          </Button>
+        </FormAlternatives>
+      </FormStack>
+    ),
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const { subtitle } = await cardParts(canvas)
+    const alert = canvas.getByRole('status')
+    const next = canvas.getByRole('button', { name: 'Continue' })
+    const resend = canvas.getByRole('button', { name: 'Resend' })
+    await expect(gapBelow(subtitle, alert)).toBe(formSpace.headerToBody)
+    await expect(gapBelow(alert, next)).toBe(formSpace.fieldGap)
+    await expect(gapBelow(next, resend)).toBe(formSpace.alternativesGap)
+    await expect(heightOf(next)).toBe(formSpace.controlHeight)
+    await expect(heightOf(resend)).toBe(formSpace.controlHeight)
   },
 }
 
@@ -107,6 +164,14 @@ export const StatusSuccess: Story = {
     await expect(getComputedStyle(icon).backgroundColor).toBe(
       'rgb(231, 251, 240)',
     )
+    // Nothing under the header: it gives no 24 of its own, so the card ends
+    // at the description.
+    const parts = await cardParts(within(canvasElement))
+    await expect(parts.below).toHaveLength(0)
+    await expect(
+      parts.column.getBoundingClientRect().bottom -
+        parts.header.getBoundingClientRect().bottom,
+    ).toBeCloseTo(0, 2)
   },
 }
 
