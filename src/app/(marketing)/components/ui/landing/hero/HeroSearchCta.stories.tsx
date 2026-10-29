@@ -1,12 +1,25 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { getRouter } from '@storybook/nextjs-vite/navigation.mock'
-import { expect, userEvent, within } from 'storybook/test'
+import { expect, userEvent, waitFor, within } from 'storybook/test'
 
 import messages from '@/app/(marketing)/i11n.json'
 
 import { HeroSearchCta } from './HeroSearchCta'
 
 const hero = messages.en.landing.hero
+
+/** `text.subtle`, `border.strong`, `border.focus` and green 400, resolved. */
+const TEXT_SUBTLE = 'rgb(107, 107, 116)'
+const BORDER_STRONG = 'rgb(212, 212, 216)'
+const BORDER_FOCUS = 'rgb(2, 165, 103)'
+const GREEN_400 = 'rgb(0, 220, 130)'
+
+/** The pill: the bordered shell around the field and the Search button. */
+function getPill(canvasElement: HTMLElement) {
+  const pill = within(canvasElement).getByRole('textbox').parentElement
+  if (!pill) throw new Error('The search field has no pill around it')
+  return pill
+}
 
 const meta = {
   title: 'Marketing/Landing/HeroSearchCta',
@@ -25,15 +38,42 @@ const meta = {
 export default meta
 type Story = StoryObj<typeof meta>
 
-/** Empty: placeholder showing, "Search" button, arrow icon from `sm` up. */
-export const Default: Story = {}
+/**
+ * Empty: one 52px pill with a 1px `border.strong` hairline, the `text.subtle`
+ * placeholder and the green Search pill inside it (the hero's one green fill).
+ */
+export const Default: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const pill = getPill(canvasElement)
+    await expect(pill.getBoundingClientRect().height).toBe(52)
+    const pillStyle = getComputedStyle(pill)
+    await expect(pillStyle.borderTopWidth).toBe('1px')
+    await expect(pillStyle.borderTopColor).toBe(BORDER_STRONG)
+    await expect(
+      Number.parseFloat(pillStyle.borderTopLeftRadius),
+    ).toBeGreaterThan(26)
+    const input = canvas.getByRole('textbox')
+    await expect(getComputedStyle(input, '::placeholder').color).toBe(
+      TEXT_SUBTLE,
+    )
+    const submit = canvas.getByRole('button', { name: hero.searchSubmit })
+    await expect(pill).toContainElement(submit)
+    await expect(getComputedStyle(submit).backgroundColor).toBe(GREEN_400)
+  },
+}
 
-/** Focused: the whole bar lifts to the green border and the larger shadow. */
+/** Focused: the pill's border and ring step to green 600 (`border.focus`). */
 export const Focused: Story = {
   play: async ({ canvasElement }) => {
     const input = within(canvasElement).getByRole('textbox')
     await userEvent.click(input)
     await expect(input).toHaveFocus()
+    await waitFor(() =>
+      expect(getComputedStyle(getPill(canvasElement)).borderTopColor).toBe(
+        BORDER_FOCUS,
+      ),
+    )
   },
 }
 
@@ -46,9 +86,12 @@ export const Typed: Story = {
   },
 }
 
-/** Phone width: tighter padding, 48px controls and no arrow on the button. */
+/** Phone width: still 52px tall, tighter side padding and no arrow on the button. */
 export const Mobile: Story = {
   globals: { viewport: { value: 'mobile1', isRotated: false } },
+  play: async ({ canvasElement }) => {
+    await expect(getPill(canvasElement).getBoundingClientRect().height).toBe(52)
+  },
 }
 
 /** Traditional Chinese copy (zh_hk bag) in the same bar. */

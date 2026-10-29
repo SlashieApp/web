@@ -1,15 +1,15 @@
 'use client'
 
-import { Box, HStack, chakra } from '@chakra-ui/react'
+import { Box, chakra } from '@chakra-ui/react'
 import { useRouter } from 'next/navigation'
 import { type FormEvent, useState } from 'react'
 import { LuArrowRight, LuSearch } from 'react-icons/lu'
 
-const HeroSearchForm = chakra('form')
-
 import { buildSearchUrl } from '@/app/(task)/search/helpers/searchQueryParams'
 import { useLocalizedHref } from '@/i18n/LocaleProvider'
 import { Button, Input } from '@ui'
+
+const HeroSearchForm = chakra('form')
 
 type HeroSearchCtaProps = {
   placeholder: string
@@ -17,7 +17,17 @@ type HeroSearchCtaProps = {
   ariaLabel: string
 }
 
-/** Hero search: opens /search with the typed text as its query (`?q=`). */
+/** Height of the search pill (tone refresh, train 2, hero). */
+const HERO_SEARCH_HEIGHT = '52px'
+
+/**
+ * Hero search: one 52px pill (the `Input` primitive's search shape: a 1px
+ * `border.strong` hairline that steps to `border.hover` and, on focus, to the
+ * green 600 `border.focus` ring) with the green Search pill inside it, on the
+ * right. The placeholder is `text.subtle`. Submitting opens /search with the
+ * typed text as its query (`?q=`). The Search pill is the one green fill in
+ * the hero.
+ */
 export function HeroSearchCta({
   placeholder,
   submitLabel,
@@ -35,65 +45,47 @@ export function HeroSearchCta({
 
   return (
     <HeroSearchForm onSubmit={onSubmit} w="full" maxW="34rem">
-      <HStack
-        gap={2}
-        align="stretch"
-        p={{ base: 1.5, md: 2 }}
-        borderRadius="full"
-        bg="bg.surface"
-        boxShadow="e3"
-        _focusWithin={{
-          outline: '2px solid',
-          outlineColor: 'border.focus',
-          boxShadow: 'e4',
-        }}
-      >
-        <Input
-          name="q"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder={placeholder}
-          aria-label={ariaLabel}
-          autoComplete="off"
-          enterKeyHint="go"
-          startElement={
-            <Box color="text.muted" display="flex" aria-hidden>
-              <LuSearch size={18} />
-            </Box>
-          }
-          rootProps={{
-            flex: 1,
-            minH: { base: '48px', md: '52px' },
-            borderWidth: 0,
-            bg: 'transparent',
-            boxShadow: 'none',
-            px: 2,
-            _hover: { borderColor: 'transparent' },
-            _focusWithin: { borderColor: 'transparent', boxShadow: 'none' },
-          }}
-          color="text.default"
-          _placeholder={{ color: 'text.muted' }}
-        />
-        <Button
-          type="submit"
-          size="lg"
-          variant="primary"
-          flexShrink={0}
-          minH={{ base: '48px', md: '52px' }}
-          px={{ base: 3.5, md: 5 }}
-          gap={2}
-          aria-label={submitLabel}
-        >
-          {submitLabel}
-          <Box
-            as="span"
-            display={{ base: 'none', sm: 'inline-flex' }}
-            aria-hidden
-          >
-            <LuArrowRight size={18} />
+      <Input
+        pill
+        name="q"
+        value={query}
+        onChange={(e) => setQuery(e.target.value)}
+        placeholder={placeholder}
+        aria-label={ariaLabel}
+        autoComplete="off"
+        enterKeyHint="go"
+        startElement={
+          <Box color="text.subtle" display="flex" aria-hidden>
+            <LuSearch size={18} />
           </Box>
-        </Button>
-      </HStack>
+        }
+        endElement={
+          <Button
+            type="submit"
+            size="md"
+            variant="primary"
+            px={{ base: 3.5, md: 5 }}
+            aria-label={submitLabel}
+          >
+            {submitLabel}
+            <Box
+              as="span"
+              display={{ base: 'none', sm: 'inline-flex' }}
+              aria-hidden
+            >
+              <LuArrowRight size={18} />
+            </Box>
+          </Button>
+        }
+        rootProps={{
+          minH: HERO_SEARCH_HEIGHT,
+          // The Search pill sits a hair inside the hairline; a phone gives the
+          // placeholder the few pixels it needs to show whole.
+          pl: { base: 3, md: 4 },
+          pr: '3px',
+          boxShadow: 'e1',
+        }}
+      />
     </HeroSearchForm>
   )
 }

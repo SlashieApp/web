@@ -212,6 +212,15 @@ const sharedTheme = {
         from: { opacity: '0', transform: 'translateY(28px)' },
         to: { opacity: '1', transform: 'translateY(0)' },
       },
+      /**
+       * Marketing entrance, tone train 2: a fade with an 8px rise (the same rise
+       * as the landing `Reveal`). Run it 400ms on `sdlMotion.easing.decelerate`,
+       * once, and pair it with a reduced-motion override.
+       */
+      'fade-rise': {
+        from: { opacity: '0', transform: 'translateY(8px)' },
+        to: { opacity: '1', transform: 'translateY(0)' },
+      },
       /** Landing phone demo: "tap here" ring. Pair with a reduced-motion override. */
       'tap-pulse': {
         '0%': { opacity: '0.7', transform: 'scale(0.92)' },

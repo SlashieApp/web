@@ -1,16 +1,23 @@
-import { Box, Container, HStack, Heading, Stack, Text } from '@chakra-ui/react'
+import { Box, Container, Heading, List, Stack, Text } from '@chakra-ui/react'
+import { LuCheck } from 'react-icons/lu'
 
+import { SECTION_PY } from '@/app/(marketing)/components/layout/MarketingFrame'
 import { PAGE_CONTAINER_MAX_W, PAGE_GUTTER_X } from '@/theme/pageContainer'
+import { sdlMotion } from '@/theme/styles'
+import { HEADER_MIN_HEIGHT } from '@/ui/Header/shell/headerShell'
 
 import { HeroHowItWorksLink } from './HeroHowItWorksLink'
 import { HeroSearchCta } from './HeroSearchCta'
 
-/** CSS entrance (runs without JS; disabled under reduced motion). */
+/**
+ * CSS entrance (runs without JS; disabled under reduced motion): a fade with an
+ * 8px rise, 400ms on the decelerate curve, once, the same as `Reveal`.
+ */
 function riseIn(delayMs: number) {
   return {
-    animationName: 'rise-in',
-    animationDuration: '0.85s',
-    animationTimingFunction: 'cubic-bezier(0.2, 0, 0, 1)',
+    animationName: 'fade-rise',
+    animationDuration: '400ms',
+    animationTimingFunction: sdlMotion.easing.decelerate,
     animationFillMode: 'backwards',
     animationDelay: `${delayMs}ms`,
     css: {
@@ -18,6 +25,13 @@ function riseIn(delayMs: number) {
     },
   } as const
 }
+
+/**
+ * The faint radial grey at the top of the page: `bg.subtle` at the top edge
+ * fading to nothing, so it has no seam under the header or at the hero's foot.
+ */
+const HERO_GLOW =
+  'radial-gradient(ellipse 62% 100% at 50% 0%, {colors.bg.subtle} 0%, transparent 100%)'
 
 type HeroSectionCopy = {
   heading: string
@@ -36,9 +50,12 @@ type HeroSectionProps = {
 }
 
 /**
- * Hero copy and the search CTA, centred over the mint backdrop. The demo
- * phone sits just below it (pinned layer on desktop, inline on phones) and
- * the 3D objects float around both.
+ * The hero, the one centred section (tone refresh, train 2): the h1 in
+ * `display-2xl`, the body in `text-lg` muted, the 52px search pill with the
+ * green Search pill inside, a trust row with green 600 checks, and the
+ * "See how it works" text link. A faint radial grey sits behind it at the top
+ * of the page. The demo phone sits just below it (pinned layer on desktop,
+ * inline on phones) and the 3D objects float around both.
  */
 export function HeroSection({ copy, ctas }: HeroSectionProps) {
   return (
@@ -47,12 +64,29 @@ export function HeroSection({ copy, ctas }: HeroSectionProps) {
       position="relative"
       aria-labelledby="landing-hero-heading"
     >
+      <Box
+        aria-hidden
+        data-hero-glow=""
+        position="absolute"
+        // Starts under the sticky header, so the grey has no seam beneath it.
+        top={{
+          base: `-${HEADER_MIN_HEIGHT.base}`,
+          md: `-${HEADER_MIN_HEIGHT.md}`,
+        }}
+        left={0}
+        right={0}
+        bottom={0}
+        // Under the still poster (-1) and the copy.
+        zIndex={-2}
+        pointerEvents="none"
+        bgImage={HERO_GLOW}
+      />
       <Container maxW={PAGE_CONTAINER_MAX_W} px={PAGE_GUTTER_X}>
         <Stack
           align="center"
           textAlign="center"
           gap={{ base: 5, md: 6 }}
-          pt={{ base: 10, md: 16 }}
+          pt={SECTION_PY}
           pb={{ base: 8, md: 10 }}
           mx="auto"
           maxW="54rem"
@@ -60,27 +94,30 @@ export function HeroSection({ copy, ctas }: HeroSectionProps) {
           <Heading
             as="h1"
             id="landing-hero-heading"
-            fontFamily="display"
-            fontWeight={500}
-            lineHeight={1.05}
-            letterSpacing="-0.045em"
-            fontSize="clamp(2.5rem, 6vw, 4.5rem)"
+            textStyle="display-2xl"
+            textWrap="balance"
             {...riseIn(0)}
           >
             {copy.heading}
           </Heading>
 
           <Text
-            fontSize={{ base: 'md', md: 'xl' }}
-            lineHeight={1.55}
+            textStyle="text-lg"
             color="text.muted"
-            maxW="36ch"
-            {...riseIn(90)}
+            textWrap="balance"
+            maxW="56ch"
+            {...riseIn(60)}
           >
             {copy.body}
           </Text>
 
-          <Box w="full" display="flex" justifyContent="center" {...riseIn(170)}>
+          <Box
+            w="full"
+            display="flex"
+            justifyContent="center"
+            pt={{ base: 1, md: 2 }}
+            {...riseIn(120)}
+          >
             <HeroSearchCta
               placeholder={copy.searchPlaceholder}
               submitLabel={copy.searchSubmit}
@@ -88,38 +125,43 @@ export function HeroSection({ copy, ctas }: HeroSectionProps) {
             />
           </Box>
 
-          <HStack
-            gap={3}
+          <List.Root
+            ps={0}
+            listStyle="none"
+            display="flex"
+            flexDirection="row"
             flexWrap="wrap"
-            justify="center"
-            fontSize="sm"
-            fontWeight={500}
-            color="text.muted"
-            {...riseIn(240)}
+            justifyContent="center"
+            columnGap={{ base: 4, md: 6 }}
+            rowGap={2}
+            {...riseIn(180)}
           >
-            {copy.trustChips.map((item, index) => (
-              <HStack key={item} gap={3}>
-                {index > 0 ? (
-                  <Box
-                    boxSize="4px"
-                    borderRadius="full"
-                    bg="action.primary"
-                    aria-hidden
-                  />
-                ) : null}
-                <Text>{item}</Text>
-              </HStack>
+            {copy.trustChips.map((item) => (
+              <List.Item
+                key={item}
+                display="flex"
+                alignItems="center"
+                gap={1.5}
+              >
+                <Box
+                  as="span"
+                  display="inline-flex"
+                  color="accent.active"
+                  flexShrink={0}
+                  aria-hidden
+                >
+                  <LuCheck size={16} strokeWidth={2.5} />
+                </Box>
+                <Text as="span" textStyle="text-sm" color="text.muted">
+                  {item}
+                </Text>
+              </List.Item>
             ))}
-          </HStack>
+          </List.Root>
 
-          <Text
-            fontSize="sm"
-            fontWeight={500}
-            color="text.link"
-            {...riseIn(300)}
-          >
+          <Box {...riseIn(240)}>
             <HeroHowItWorksLink>{ctas.seeHowItWorks}</HeroHowItWorksLink>
-          </Text>
+          </Box>
         </Stack>
       </Container>
     </Box>

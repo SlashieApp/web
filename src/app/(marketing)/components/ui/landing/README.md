@@ -34,7 +34,8 @@ components/ui/landing/
   LenisRoot.tsx              smooth scroll (skipped under reduced motion)
   Reveal.tsx · Magnetic.tsx  scroll reveal (fade, 8px rise, 400ms, once) · magnetic CTA
   hooks/useDeviceTier.ts     high | mid | low | off (off = reduced motion / no WebGL)
-  hero/HeroSection.tsx       centred heading, search CTA (create-task handoff), chips
+  hero/HeroSection.tsx       the centred hero: h1, body, search pill, trust checks, how-it-works link
+  hero/HeroSearchCta.tsx     the 52px search pill + green Search pill (hands the text to /search)
   story/
     storyState.ts            module store: active stage, pointer, scene-ready
     StoryTracker.tsx         stage markers + IntersectionObserver on the viewport middle
@@ -71,6 +72,26 @@ section builds on it:
   tablet, 96 on a laptop, 128 on a wide screen.
 - Motion: `Reveal` fades in with an 8px rise over 400ms on the decelerate
   curve, once. Reduced motion (and no JS) shows the content as it is.
+
+## Hero
+
+The one centred section (`hero/HeroSection.tsx`), built from tokens only:
+
+- The h1 is `display-2xl` (72/72 at 500, -0.045em; 44/46 on a phone) with
+  `text-wrap: balance`; the body is `text-lg` in `text.muted`, also balanced.
+- The search is one 52px pill (`HeroSearchCta`, the `Input` primitive with
+  `pill`: a 1px `border.strong` hairline, `border.focus` ring on focus, a
+  `text.subtle` placeholder) with the green Search pill inside it. That pill is
+  the hero's only green fill; the header's Get started stays secondary over it.
+- The trust row is a list: a green 600 check (`accent.active`) and the text in
+  `text.muted`. "See how it works" is a `text.link` text action that underlines
+  on hover and focus (never green 400).
+- A faint radial grey (`bg.subtle` fading to nothing, `data-hero-glow`) sits
+  behind the top of the page. It starts under the sticky header so there is no
+  seam, and it is painted under the still poster.
+- The entrance is the `fade-rise` keyframe (a fade with an 8px rise, 400ms on
+  the decelerate curve, once, staggered 60ms); reduced motion turns it off. The
+  older `rise-in` keyframe (28px) still serves the phone screens.
 
 ## Behaviour by device
 

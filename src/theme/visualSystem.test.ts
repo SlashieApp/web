@@ -487,7 +487,8 @@ describe('elevation aliases in feature chrome', () => {
     expect(pin).toContain('sdlElevation.e1')
     expect(pin).toContain('sdlElevation.e2')
     expect(pin).not.toContain('0 4px 16px')
-    expect(heroSearch).toContain('boxShadow="e3"')
+    // The hero's search pill is a hairline with the `e1` resting elevation.
+    expect(heroSearch).toContain("boxShadow: 'e1'")
     expect(heroSearch).not.toContain('rgba(0, 220, 130')
   })
 })
