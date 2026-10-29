@@ -1,61 +1,93 @@
-import { Box, Container, Grid, HStack, Text } from '@chakra-ui/react'
+import { Box, HStack, List, Text } from '@chakra-ui/react'
 import { LuCheck } from 'react-icons/lu'
 
-import { SECTION_PY } from '@/app/(marketing)/components/layout/MarketingFrame'
+import { PAGE_CONTAINER_MAX_W, PAGE_GUTTER_X } from '@/theme/pageContainer'
+
 import { Reveal } from '../Reveal'
 
 /**
- * Calm reassurance panel: surfaces the payment model plainly, never
- * fee-heavy. A white card on the transparent landing so the 3D objects
- * drift past around it.
+ * A point's vertical padding. Cells touch the section rules, so this is the
+ * section's own rhythm, a step tighter than the frame's `SECTION_PY` because
+ * the section is one line of reassurance, not a story: 40px on a phone up to
+ * 64px on a wide screen, a step tighter where the points stack.
+ */
+export const TRUST_CELL_PY = { base: 5, md: 8, lg: 12, xl: 16 } as const
+
+/**
+ * The trust row (tone refresh, train 2, item 5): the four reassurance points
+ * as a hairline row, each a green 600 check and the point at 500 in ink. No
+ * card, no tint: the section sits on the page between two section rules.
+ *
+ * From `lg` the four points sit side by side between the frame's rails,
+ * divided by 1px `border.default` lines that run from rule to rule (none
+ * before the first: the rail is on that edge). On a tablet they flow into two
+ * columns with a hairline between the columns and the rows; on a phone they
+ * stack with a hairline between them.
+ *
+ * The section is opaque (`bg.surface`), like the map panel and the bento: the
+ * 3D scene stays behind it, so a prop never crosses a point.
+ *
+ * It has no head of its own: the strings are today's, and the only new ones
+ * allowed are the how-it-works index's labels. The points are a plain list; a
+ * heading (and so a named landmark) needs a string first.
  */
 export function TrustSection({ points }: { points: readonly string[] }) {
   return (
-    <Box as="section" py={SECTION_PY}>
-      <Container>
-        <Grid
-          p={{ base: 6, md: 8 }}
-          bg="bg.surface"
-          borderRadius="2xl"
-          boxShadow="e3"
-          templateColumns={{
-            base: '1fr',
-            sm: '1fr 1fr',
-            lg: 'repeat(4, 1fr)',
-          }}
-          gap={5}
-        >
-          {points.map((point, index) => (
-            <Reveal key={point} delayMs={index * 70}>
+    <Box as="section" data-trust="" bg="bg.surface">
+      <List.Root
+        maxW={PAGE_CONTAINER_MAX_W}
+        mx="auto"
+        ps={0}
+        listStyle="none"
+        display="grid"
+        gridTemplateColumns={{
+          base: 'minmax(0, 1fr)',
+          md: 'repeat(2, minmax(0, 1fr))',
+          lg: 'repeat(4, minmax(0, 1fr))',
+        }}
+      >
+        {points.map((point, index) => (
+          <List.Item
+            key={point}
+            data-trust-point=""
+            px={PAGE_GUTTER_X}
+            py={TRUST_CELL_PY}
+            borderColor="border.default"
+            // One column: a line above every point but the first. Two columns:
+            // a line above the second row and before the right-hand column.
+            // Four: a line before every point but the first.
+            borderTopWidth={{
+              base: index === 0 ? 0 : '1px',
+              md: index < 2 ? 0 : '1px',
+              lg: 0,
+            }}
+            borderInlineStartWidth={{
+              base: 0,
+              md: index % 2 === 1 ? '1px' : 0,
+              lg: index === 0 ? 0 : '1px',
+            }}
+          >
+            <Reveal delayMs={index * 70}>
               <HStack gap={3} align="flex-start">
                 <Box
                   as="span"
                   display="inline-flex"
                   alignItems="center"
-                  justifyContent="center"
-                  boxSize="20px"
-                  borderRadius="full"
-                  bg="action.primary"
-                  color="text.onGreen"
+                  height="24px"
+                  color="accent.active"
                   flexShrink={0}
-                  mt="2px"
                   aria-hidden
                 >
-                  <LuCheck size={12} strokeWidth={3} />
+                  <LuCheck size={20} strokeWidth={2.5} />
                 </Box>
-                <Text
-                  fontSize="sm"
-                  fontWeight={500}
-                  color="text.default"
-                  lineHeight="tall"
-                >
+                <Text textStyle="text-md" fontWeight={500} color="text.default">
                   {point}
                 </Text>
               </HStack>
             </Reveal>
-          ))}
-        </Grid>
-      </Container>
+          </List.Item>
+        ))}
+      </List.Root>
     </Box>
   )
 }

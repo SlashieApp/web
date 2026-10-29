@@ -22,7 +22,7 @@ bun run build
 | `hero` | hero heading + search CTA, then (until the first step) the map panel and the bento | Search (customer) | `hero`: left and right edges |
 | `post` · `quotes` · `chat` · `hire` · `review` | customer act | Post · Quotes · Chat · Hire · Review | `customer`: right half |
 | `workerFind` · `workerQuote` · `workerProfile` | worker act | Search (worker) · Quote form · Profile | `worker`: tools forward |
-| `trust` · `pricing` | trust panel, live pricing | (phone has left) | `scatter`: right side |
+| `trust` · `pricing` | the trust row, live pricing | (phone has left) | `scatter`: right side |
 | `cta` | Post a task / Become a worker | | `gather`: around the CTA |
 
 Each step also pulls one "focus" object beside the phone (`formations.ts`).
@@ -64,7 +64,7 @@ components/ui/landing/
     BentoSection.tsx         the bento: three hairline-divided cells, each a step and its snippet
     BentoSnippets.tsx        the three live snippets: post form, quote rows, accepted row
     useSnippetEntrance.ts    the snippets' once-only entrance (static | waiting | playing)
-  sections/                  TrustSection · PricingTeaser · FinalCtaBand
+  sections/                  TrustSection (the trust row) · PricingTeaser · FinalCtaBand
 ```
 
 ## Frame and rhythm
@@ -252,6 +252,36 @@ hero's "See how it works" lands it under the sticky header).
   green Post button is its only green), a tab underline in green 600 and the
   tap ring in green 600. Green stays for state: the selected "When" chip and the
   success cards (task posted, quote accepted, quote sent).
+
+## Trust
+
+The trust row (`sections/TrustSection.tsx`) is the four reassurance points
+(`landing.trust.points`, today's strings) as a hairline row between the two
+section rules that `home/page.tsx` puts round it. It is the stage `trust` and
+it has no card: no tint, radius or shadow.
+
+- **Layout.** From `lg` the four points sit side by side across the page column
+  (`sizes.page`), divided by 1px `border.default` lines that run from rule to
+  rule; the first has none, because the frame's rail is on that edge. From `md`
+  they flow into two columns with a hairline before the right-hand column and
+  above the second row; below `md` they stack with a hairline between them. The
+  points are a plain list (`ul`), so a screen reader announces a list of four.
+- **A point** is a green 600 check (`accent.active`, 20px, hidden from assistive
+  technology) beside the text at 16/500 in `text.default`; the check sits level
+  with the first line, so a point that wraps keeps it at the top. Green is the
+  state icon here, never a fill (the old green 400 disc is gone).
+- **Rhythm.** A point's vertical padding (`TRUST_CELL_PY`: 20px on a phone, 32 on
+  a tablet, 48 from `lg`, 64 from `xl`) is a step tighter than `SECTION_PY`: this
+  is one line of reassurance between two long sections, not a story, so the row
+  stays a band rather than a block of white.
+- **Opaque.** The section is `bg.surface`, like the map panel and the bento: the
+  3D scene stays behind it, so a prop never crosses a point.
+- **No head.** The only new strings the train allows are the how-it-works index's
+  labels, so the row has no eyebrow or heading, and so it is not a named
+  landmark (a `section` with no name is plain content). A heading needs a string
+  first; ask Ryan before adding one.
+- **Motion.** Each point is a `Reveal` (a fade with an 8px rise, 400ms, once),
+  staggered 70ms; reduced motion and no JS show them as they are.
 
 ## Behaviour by device
 
