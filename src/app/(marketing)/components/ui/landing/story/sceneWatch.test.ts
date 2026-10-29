@@ -3,7 +3,12 @@ import { join } from 'node:path'
 
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
-import { SCENE_BLOCKS, SCENE_ROOT_MARGIN, watchSceneBlocks } from './sceneWatch'
+import {
+  SCENE_BLOCKS,
+  SCENE_HERO,
+  SCENE_ROOT_MARGIN,
+  watchSceneBlocks,
+} from './sceneWatch'
 
 /** A stand-in for IntersectionObserver that the test drives by hand. */
 class FakeObserver {
@@ -38,6 +43,7 @@ const close = { name: 'close' } as unknown as Element
 const page = {
   querySelectorAll: (selector: string) =>
     selector === SCENE_BLOCKS ? [hero, story, close] : [],
+  querySelector: (selector: string) => (selector === SCENE_HERO ? hero : null),
 } as unknown as ParentNode
 
 function observerOf() {
@@ -92,13 +98,57 @@ describe('watchSceneBlocks', () => {
     expect(changes).toEqual([true])
   })
 
+  it('says whether the hero is on screen, so its props wait once it has gone', () => {
+    vi.stubGlobal('IntersectionObserver', FakeObserver)
+    const changes: [boolean, boolean][] = []
+    watchSceneBlocks(
+      (visible, heroInView) => changes.push([visible, heroInView]),
+      page,
+    )
+    const observer = observerOf()
+
+    // The top of the page: the hero is on screen.
+    observer.report(hero, true)
+    // Down through the map panel and the bento: no transparent block, no hero.
+    observer.report(hero, false)
+    // How it works comes in: the scene can be seen again, the hero is not.
+    observer.report(story, true)
+    // Back up: the hero returns while how it works is still on screen.
+    observer.report(hero, true)
+
+    expect(changes).toEqual([
+      [true, true],
+      [false, false],
+      [true, false],
+      [true, true],
+    ])
+  })
+
+  it('counts a page with no hero as always having its hero in view', () => {
+    vi.stubGlobal('IntersectionObserver', FakeObserver)
+    const changes: [boolean, boolean][] = []
+    watchSceneBlocks(
+      (visible, heroInView) => changes.push([visible, heroInView]),
+      {
+        querySelectorAll: () => [story],
+        querySelector: () => null,
+      } as unknown as ParentNode,
+    )
+    observerOf().report(story, true)
+    observerOf().report(story, false)
+    expect(changes).toEqual([
+      [true, true],
+      [false, true],
+    ])
+  })
+
   it('is right at once for a reload part way down the page', () => {
     vi.stubGlobal('IntersectionObserver', FakeObserver)
     const onChange = vi.fn()
     watchSceneBlocks(onChange, page)
     // One callback carries every target's first state: only the close is on screen.
     observerOf().report(close, true)
-    expect(onChange).toHaveBeenLastCalledWith(true)
+    expect(onChange).toHaveBeenLastCalledWith(true, false)
   })
 
   it('counts a page with none of the blocks, or no IntersectionObserver, as visible', () => {
@@ -106,14 +156,15 @@ describe('watchSceneBlocks', () => {
     const none = vi.fn()
     watchSceneBlocks(none, {
       querySelectorAll: () => [],
+      querySelector: () => null,
     } as unknown as ParentNode)
-    expect(none).toHaveBeenCalledWith(true)
+    expect(none).toHaveBeenCalledWith(true, true)
     expect(FakeObserver.latest).toBeNull()
 
     vi.stubGlobal('IntersectionObserver', undefined)
     const unsupported = vi.fn()
     const stop = watchSceneBlocks(unsupported, page)
-    expect(unsupported).toHaveBeenCalledWith(true)
+    expect(unsupported).toHaveBeenCalledWith(true, true)
     expect(stop).not.toThrow()
   })
 

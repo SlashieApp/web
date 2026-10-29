@@ -704,42 +704,71 @@ holds every pose to that).
   height and keeps the hero formation its distance from the top (a tall screen
   would otherwise carry the props down behind the panel); every other
   formation is a plain fraction. `customer` and `worker` run the props down the
-  right edge, the strip beside the pinned phone (they peek out from behind it
-  on a laptop and sit in the margin beside it on a wide screen), and swap
-  places between the acts; below `lg` they peek in at the edges beside the
-  inline phone, and each keeps its side in every formation (the toolbox left,
-  the pin right; the worker act swaps their heights, not their sides), so none
-  glides across the text from one edge to the other. `scatter` (trust and
-  pricing, under opaque panels) is parked off the screen's edges, so nothing is
-  seen sliced by a section's edge while the close scrolls in, and the props glide
-  in for it; `gather` (the close) puts the toolbox and the boxes either side of
-  the call, outside its 40rem column, and the pin low on the right. Nothing
-  sits between the steps and the phone: there is no room there at `lg`.
-- **Placement** (`placementFor`, `placeX`: pure and unit-tested) holds a prop by
-  the formation it is in. `free`: where the pose puts it (the hero on a phone,
-  where the text leaves room beside its last row). `column`: on wide screens
+  right edge, whole, in the strip between the pinned phone and the right rail
+  (or in the margin outside the rail on a monitor wider than about 1650px), and
+  swap places between the acts; below `lg` the props that have room beside the
+  text peek in at the edges, and each keeps its side in every formation (the
+  toolbox left, the pin right; the worker act swaps their heights, not their
+  sides), so none glides across the text from one edge to the other. `scatter`
+  (trust and pricing, under opaque panels) is parked off the screen's edges, so
+  nothing is seen sliced by a section's edge while the close scrolls in, and the
+  props glide in for it. The hero's formation is only for the hero: once it is
+  out of view (`storyState.heroInView`, from `sceneWatch`) `sceneStage` sends the
+  props to the same parked place, so the hero formation is not left in the middle
+  of the screen behind the map panel and the bento, where its shadows and a box's
+  underside showed in the transparent strip under the bento's bottom rule. They
+  come back with the hero. `gather` (the close) puts the toolbox and the boxes
+  either side of the call, outside its 40rem column, and the pin low on the
+  right. Nothing sits between the steps and the phone: there is no room there
+  at `lg`.
+- **Placement** (`placementFor`, `placeProp`: pure and unit-tested) holds a prop
+  by the formation it is in and says how much of its size it keeps (`fit`).
+  `free`: where the pose puts it (the hero on a phone, where the text leaves
+  room beside its last row). `column`: the hero and the close on wide screens:
   the whole prop, not its centre, stays inside the frame's rails (the page
   column is 80rem, rails 640px out, or the screen where that is narrower) with
   16px of air, using each prop's reach (`PROP_REACH`: half width, height above
   and shadow below, in world units, measured on the models), so no rail runs
-  across a prop at 1366 or 1920. `peek`: below `lg` the text runs edge to edge,
-  so a prop only peeks in from its edge: exactly as far as the free strip beside
-  the text (`peekReachPx`: the gutter, less 4px of air, so 12px on a phone and
-  20px on a tablet's left; the tablet's right strip beside the steps' 38rem
-  column is wider; the close's centred 40rem column leaves the same on both
-  sides), the pose saying only which side. `parked`: left where the pose is,
-  off the edges.
-- **The close stays above the footer.** The footer is opaque and covers the
+  across a prop at 1366 or 1920. `strip`: the acts from `lg`: the whole prop sits
+  in the strip between the pinned phone and the right rail (`phoneStripPx`,
+  worked out from the story's grid and the phone's width, both mirrored from
+  their CSS and held by a test), scaled down to fit it. A strip is only
+  about 60px wide on a 1024 to 1279px laptop (the phone column is 352px and the
+  phone 300 at most) and about 150px from 1280px, so a prop too wide for it
+  at a size that reads (under `PROP_MIN_FIT`, 60% of its size at rest, or the
+  strip under 48px) waits just off the right edge (`PARK_MARGIN_PX` beyond its
+  reach, so floating and tilting never show it) instead of showing as a sliver
+  cut by the phone's frame, which is what 1024 and 1366 laptops had. Sized by
+  its rest size, so the step's own prop is not parked for being brought
+  forward. On a monitor wide enough that the margin outside the rail is wider
+  than the strip (about 1650px and up), the prop sits whole in that margin
+  instead, at its own size. `peek`: below `lg` the text runs edge to edge, so a
+  prop only peeks in from its edge: exactly as far as the free strip beside the
+  text (`peekReachPx`: the gutter, less 4px of air, so 12px on a phone and 20px
+  on a tablet's left; the tablet's right strip beside the steps' 38rem column
+  is wider; the close's centred 40rem column leaves the same on both sides),
+  the pose saying only which side, and only where that shows at least
+  `PROP_MIN_FIT` of the prop. A 12px sliver of a 100px prop read as a rendering
+  fault, not an object, so on a phone the acts and the close have no props (they
+  wait off the edges); a tablet's right strip does hold the pin. `parked`: left
+  where the pose is, off the edges.
+- **The close stays clear of the footer.** The footer is opaque and covers the
   bottom of the screen at the end of the page (466px on a laptop), so the
   close's props, level with its call, were sliced by its top edge. `PageProbe`
-  reads the footer's top edge once a frame while the close is the stage and
-  `closeLiftPx` lifts the whole formation together (so the pin stays under the
-  boxes), by the most any prop needs to keep its shadow 24px clear of the
-  footer, and never so far that the highest goes up under the header. The
-  window between the two is about 370px at 1366 x 900, so the whole formation
-  fits there (a test holds that for 1366, 1440 and 1536 wide); on a screen
-  shorter than about 800px the header wins and the pin's shadow can still meet
-  the footer's edge.
+  reads the footer's top edge once a frame while the close is the stage (looked
+  up the first time it is needed, not in an effect) and `closeFitPx` fits the
+  whole formation between the header and the footer, together (so the pin stays
+  under the boxes): it lifts the props by the most any needs to keep its shadow
+  24px clear of the footer, and where the room between the header and the footer
+  is smaller than they are (about 370px at 1366 x 900, so the whole formation
+  fits there, but 206px at 1366 x 768 and 168px at 1536 x 730) lifting is not
+  enough, so it scales them down together to the largest size at which a lift
+  exists that clears both edges, and under `CLOSE_MIN_FIT` (half size) it parks
+  them off the edges, so the footer never slices a prop at any laptop height
+  (tests hold 650, 730 and 780 as well as 900). They shrink and lift
+  continuously as the footer comes up, and come back as it goes. (The first
+  version only lifted, and the header won where there was no room, so props
+  were cut on a 1536 x 730 and a 1366 x 657 laptop.)
 - **The step object** (`FOCUS_FOR_STAGE`) comes forward and grows 20% where it
   is, on wide screens only. Nearer the camera a prop drifts outward, so its x
   and y are scaled back to keep its spot on the screen (a unit test holds this).
@@ -764,29 +793,33 @@ holds every pose to that).
   1920 wide (14 to 26 stops each): at every settled stop no prop pixel is over
   page text and none is on a rail (the first build had the hammer touching the
   right-hand rail at 1366 and the rails across the toolbox and the boxes at
-  1920), with one exception. At 390 there is one stop where the hero formation
-  still holds while the first act's head scrolls through the middle of the
-  screen: the stage changes when that head reaches the middle, so for about
-  100px of scroll the hero's toolbox is behind the head's text before it glides
-  to the edge (a transition, not a resting place).
-  The scene is a fixed layer under scrolling text, and its props glide for about
-  a second and a half when the stage changes (the stage is the section
-  mid-screen), so a screenshot taken a moment after a scroll can catch a prop
-  mid-glide; the sweep waits for the props to settle. On a phone, where the text
-  fills the width, the props are only slivers at the edges, and they keep their
-  sides, so they never cross the text on the way. The props are light (white to
-  zinc 300), so a sliver behind a line still reads at AA for `text.default` and
-  `text.muted`.
+  1920). The scene is a fixed layer under scrolling text, and its props glide
+  for about a second and a half when the stage changes (the stage is the
+  section mid-screen), so a screenshot taken a moment after a scroll can catch a
+  prop mid-glide; the sweep waits for the props to settle. **Props emerge from
+  behind the opaque panels**: the scene is a fixed layer behind them, so a prop
+  that is at rest while a panel's edge crosses it is seen cut by that edge (the
+  toolbox's top under the bento's bottom rule at the first act, a prop under the
+  map panel's top edge as it covers the hero). That is the panels passing in
+  front of the props, as with any content scrolling behind a sheet; what is
+  not allowed is a prop or its shadow left in the strip between two panels with
+  nothing in front of it, and that is what the hero's parking (above) fixed.
+  Below `lg` the props that have no room beside the text are not drawn (above),
+  so on a phone they never cross the text, or show as slivers, at all. The
+  props are light (white to zinc 300), so what is behind a line still reads at
+  AA for `text.default` and `text.muted`.
 - **Deleted:** the mop bucket, the paint roller and the screwdriver (no
   formation uses them), the cardboard, wood, metal and fabric materials, and the
   lightformer environment. The device tiers (`useDeviceTier`: reduced motion or
   no WebGL gives no canvas and the still poster), `LandingBackdrop` and
   `HeroObjectsPoster` are as they were; only the poster images are new.
 - **Stories:** `SceneObjects` (the three models alone), `LandingScene` (every
-  formation, wide and compact, plus the `Poster*` sources),
+  formation, wide and compact, the hero out of view, a 1366 x 768 laptop in the
+  acts, plus the `Poster*` sources),
   `LandingBackdrop` (desktop, phone, low-end, reduced motion) and
-  `HeroObjectsPoster` (which still each width gets, and that its `picture` holds
-  only sources and an `img`). They sit on the page's white, not the old mint
+  `HeroObjectsPoster` (which still each width gets, no still on a phone or a
+  tablet on its side or a short wide window, and that its `picture` holds only
+  sources and an `img`). They sit on the page's white, not the old mint
   wash.
 
 ## Behaviour by device
@@ -797,12 +830,18 @@ holds every pose to that).
 - **Below `lg`:** no pinned phone. The index is a row under the header; each
   step is its text followed by its own phone, which plays once a third of it is
   on screen and resets only after it has left. The scene shows two props
-  (`COMPACT_OBJECTS`: the pin and the toolbox).
+  (`COMPACT_OBJECTS`: the pin and the toolbox), in the hero; the acts and the
+  close have none on a phone (no room beside edge-to-edge text), and a tablet's
+  right strip beside the steps holds the pin.
+- **From `lg`, the acts need width for props:** between 1024 and 1279px the
+  strip beside the phone is about 60px, so the acts have no props there (the
+  hero and the close do); from 1280px each prop sits whole beside the phone,
+  scaled to fit.
 - **Reduced motion / no WebGL / no JS:** no canvas. The hero shows the still
-  poster and phone screens show their finished state (the post screen rests as
-  its form, with a still ring on its hotspot: its finished state would cover its
-  first field). Every transition inside the phone is zeroed by `PhoneFrame`; the
-  index does not animate.
+  poster, when there is one for the window's shape (see Updating the poster),
+  and phone screens show their finished state (the post screen rests as its
+  form, with a still ring on its hotspot). Every transition inside the phone is
+  zeroed by `PhoneFrame`; the index does not animate.
 
 ## Updating the poster
 
@@ -811,12 +850,22 @@ holds every pose to that).
 live scene at its own size so the objects sit where the live scene puts them
 there and `cover` crops only a little between sizes:
 
-| Still | Screens | Story | Rendered at |
-|-------|---------|-------|-------------|
-| `hero-objects-large.webp` | 1700px and up | `PosterLarge` | 1920 x 1080, 1.25x |
-| `hero-objects-wide.webp` | 1024 to 1699 | `PosterWide` | 1440 x 900, 1.5x |
-| `hero-objects-middle.webp` | 768 to 1023 | `PosterMiddle` | 768 x 1024, 1.5x |
-| `hero-objects-compact.webp` | below 768 | `PosterCompact` | 390 x 844, 1.5x |
+| Still | Screens | Shape (width / height) | Story | Rendered at |
+|-------|---------|------------------------|-------|-------------|
+| `hero-objects-large.webp` | 1700px and up | 8:5 to 2:1 | `PosterLarge` | 1920 x 1080, 1.25x |
+| `hero-objects-wide.webp` | 1024 to 1699 | 5:4 to 2:1 | `PosterWide` | 1440 x 900, 1.5x |
+| `hero-objects-middle.webp` | 768 and up | 5:8 to 5:4 | `PosterMiddle` | 768 x 1024, 1.5x |
+| `hero-objects-compact.webp` | below 768 | under 5:8 | `PosterCompact` | 390 x 844, 1.5x |
+
+A still is chosen by shape as well as width (`POSTER_ASPECT`), because `cover`
+crops it to the window and the props are only where the text leaves room at the
+shape it was drawn for: on a phone on its side (667 x 375, 932 x 430) the toolbox
+sat over the h1 and the pin over the end of the body line, and on a short wide
+window (1366 x 600, 1920 x 700) the pin sat behind the header's Get started.
+Where no still fits (`POSTER_NONE_MEDIA`: a window under 500px tall, 2:1 or
+wider, a phone or a tablet on its side) the poster layer is hidden by a media
+query (so it holds with no JavaScript too); the props are decoration, and the live
+scene, where there is one, places them right at any size.
 
 Re-render them after changing the hero formation, the placement rules or the
 models: screenshot the stories headlessly (Playwright with `omitBackground:
@@ -862,3 +911,21 @@ hex here (`scenePalette.test.ts` fails on any other).
   a string exists". Decide before another round, so the sections are not
   reworked twice; if (b), each head only needs `eyebrow` and `icon` on its
   `SectionHead`.
+- **Where the props are not drawn (recorded for FE-471; the spec's "two objects
+  below lg" and "three on desktop" are met where there is room).** On a phone the
+  props are in the hero only: the acts and the close run text edge to edge, so
+  the free strip is the 16px gutter, and a 12px sliver of a prop read as a
+  rendering fault in the round 2 review. A tablet's right strip beside the steps
+  holds the pin. Between 1024 and 1279px wide the strip beside the pinned phone is
+  about 60px, so the acts have no props there (the hero and the close do); from
+  1280px each prop sits whole beside the phone, scaled to fit. On a laptop shorter
+  than about 800px the close's props shrink as the footer comes up and go when
+  there is no room. If Ryan wants props in those places, the room has to be made
+  (a smaller phone, props above and below it, a margin that is not the rail):
+  `placeProp` and `PROP_MIN_FIT` are where that is decided.
+- **The stage still flips when a head crosses the middle.** The review asked for
+  the stage to flip when the how-it-works block starts, so the scene would not
+  hold the hero formation under the bento. The stage drives the phone's screen and
+  the index too, so it is not moved; the scene parks the hero's props when the hero
+  is out of view instead (`sceneStage`), which gives the same result for the props
+  only.

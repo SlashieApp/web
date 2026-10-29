@@ -64,20 +64,30 @@ function pose(
  *   two props sit either side of the "See how it works" row, under the trust
  *   row and above the panel.
  * - the acts: steps on the left, the phone pinned in the right column, so the
- *   props hug the right edge (they peek out from behind the phone on laptops
- *   and sit in the margin beside it on wide screens). Nothing sits between the
- *   steps and the phone: there is no room there at `lg`. Below `lg` the text
- *   runs edge to edge, so the props only peek in at the screen's edges: how far
- *   is capped by the free strip beside the text (`peekReachPx`), so a prop
- *   never reaches into the page's gutter. Below `lg` each prop also keeps to
- *   one side in every formation (the toolbox left, the pin right), so none ever
- *   glides across the text from one edge to the other.
+ *   props hug the right edge, whole, in the strip between the phone and the
+ *   right rail (`phoneStripPx`): a prop is scaled down to fit it, and where the
+ *   strip is too narrow to hold one at a size that reads (a laptop under 1280px
+ *   wide) it waits off the right edge instead of showing as a sliver cut by
+ *   the phone. Below `lg` the text runs edge to edge, so the props only peek in
+ *   at the screen's edges: how far is capped by the free strip beside the text
+ *   (`peekReachPx`), so a prop never reaches into the page's gutter, and a
+ *   strip that shows less than `PROP_MIN_FIT` of a prop (a phone's 12px gutter)
+ *   shows none of it: it waits off the edge (a sliver reads as a rendering
+ *   fault, not an object). Below `lg` each prop also keeps to one side in every
+ *   formation (the toolbox left, the pin right), so none ever glides across the
+ *   text from one edge to the other.
  * - trust and pricing sit under opaque panels, so their formation is only a
  *   place to wait: off the screen's edges (`parked`), so a prop never shows
  *   sliced by a section's edge while the close scrolls in, and glides in for it.
+ *   The hero's formation waits there too once the hero is out of view
+ *   (`sceneStage`), so the props are not left in the middle of the screen
+ *   behind the map panel and the bento, where their shadows and a box's
+ *   underside showed in the transparent strip under the bento.
  * - the close: centred text in a column of 40rem at most, so the props stay
- *   outside it, either side of the heading, and above the footer (the footer
- *   is opaque and would slice them: `keepAboveFooter`).
+ *   outside it, either side of the heading, and clear of the footer (the footer
+ *   is opaque and would slice them: `closeFitPx` lifts them, and where the
+ *   room between the header and the footer is smaller than they are, shrinks
+ *   them, or parks them).
  */
 
 /**
@@ -208,19 +218,36 @@ export const PROP_REACH: Record<
  * How a formation holds its props on the screen:
  * - `free`: where the formation puts them (the hero on a phone, where the text
  *   leaves room beside its last row);
- * - `column`: wide screens keep the whole prop inside the page column's rails;
+ * - `column`: wide screens keep the whole prop inside the page column's rails
+ *   (the hero and the close, which have nothing but centred text);
+ * - `strip`: in the acts, from `lg`, the whole prop sits in the free strip
+ *   between the pinned phone and the right rail, scaled down to fit, or off the
+ *   right edge where the strip is too narrow to hold one that reads;
  * - `peek`: below `lg` the text runs edge to edge, so a prop only peeks in from
  *   the screen's edge, as far as the free strip beside the text (the pose says
- *   which side);
+ *   which side), or not at all where the strip would show only a sliver;
  * - `parked`: off the screen's edges, under opaque panels.
  */
-export type Placement = 'free' | 'column' | 'peek' | 'parked'
+export type Placement = 'free' | 'column' | 'strip' | 'peek' | 'parked'
 
 export function placementFor(stage: StoryStage, compact: boolean): Placement {
   const name = FORMATION_FOR_STAGE[stage]
   if (name === 'scatter') return 'parked'
   if (name === 'hero') return compact ? 'free' : 'column'
-  return compact ? 'peek' : 'column'
+  if (compact) return 'peek'
+  return name === 'gather' ? 'column' : 'strip'
+}
+
+/**
+ * The stage the scene draws. Behind the opaque map panel and bento the hero's
+ * formation would sit in the middle of the screen with its shadows showing
+ * under them, so once the hero is out of view its props wait where the opaque
+ * panels' formation waits (off the edges), and come back with the hero.
+ */
+export const PARKED_STAGE: StoryStage = 'trust'
+
+export function sceneStage(stage: StoryStage, heroInView: boolean): StoryStage {
+  return stage === 'hero' && !heroInView ? PARKED_STAGE : stage
 }
 
 /** The text a peeking prop keeps clear of: the acts' steps, or the close's centred column. */
@@ -263,40 +290,167 @@ export function peekReachPx(
   return Math.max(0, strip - PEEK_CLEARANCE_PX)
 }
 
+/** The smallest share of a prop that is worth showing: a smaller one waits off the edge. */
+export const PROP_MIN_FIT = 0.6
+
+/** The narrowest a strip can be and still hold a prop worth looking at (px). */
+export const STRIP_MIN_PX = 48
+
+/**
+ * How far past the screen's edge a waiting prop sits (px), beyond its reach: a
+ * prop floats, turns and tilts toward the pointer, and its shadow is wider than
+ * it is deep, so it needs more than its own width to be fully out of sight.
+ */
+export const PARK_MARGIN_PX = 48
+
+/** The pinned phone's width: up to 300px, shorter on short screens (`STICKY_PHONE_W`). */
+export const PHONE_MAX_PX = 300
+export const PHONE_VH_OFFSET_PX = 150
+export const PHONE_VH_DIVISOR = 2.1
+
+export function phoneWidthPx(heightPx: number): number {
+  return Math.min(
+    PHONE_MAX_PX,
+    (heightPx - PHONE_VH_OFFSET_PX) / PHONE_VH_DIVISOR,
+  )
+}
+
+/**
+ * The layout of how it works from `lg`, as `LandingStory` sets it: the page's
+ * 32px gutter, the phone's column 22rem (352px) wide at `lg`, and from `xl`
+ * half of the content less a 64px gap; the phone is centred in its column.
+ */
+const STORY_GUTTER_PX = 32
+const STORY_PHONE_COLUMN_LG_PX = 352
+const STORY_COLUMN_GAP_XL_PX = 64
+
+/** The air between a prop and the phone's frame. */
+export const PHONE_CLEARANCE_PX = 8
+
+/**
+ * The free strip between the pinned phone and the right rail, from `lg`, in px
+ * from the screen's centre: `from` is the phone's right edge less nothing but a
+ * little air, `to` the rail less its margin. A laptop 1024 to 1279px wide has
+ * about 60px of it (the phone column is 352px and the phone 300 at most); from
+ * 1280px, 150 to 190px. Pure, so it is unit-tested.
+ */
+export function phoneStripPx(
+  viewportPx: number,
+  heightPx: number,
+): { from: number; to: number } {
+  const page = Math.min(viewportPx, PAGE_COLUMN_PX)
+  const content = page - 2 * STORY_GUTTER_PX
+  const column =
+    viewportPx >= BREAKPOINT_PX.xl
+      ? (content - STORY_COLUMN_GAP_XL_PX) / 2
+      : STORY_PHONE_COLUMN_LG_PX
+  const phoneCentre = page / 2 - STORY_GUTTER_PX - column / 2
+  return {
+    from: phoneCentre + phoneWidthPx(heightPx) / 2 + PHONE_CLEARANCE_PX,
+    to: page / 2 - RAIL_MARGIN_PX,
+  }
+}
+
+/**
+ * The free margin outside the right rail, in px from the screen's centre: on a
+ * screen wider than the page column (80rem) there is room beyond the rail, and
+ * a prop sits whole in it instead of in the narrower strip beside the phone
+ * once that margin is the wider of the two (from about 1650px wide).
+ */
+export function railMarginStripPx(viewportPx: number): {
+  from: number
+  to: number
+} {
+  const rail = Math.min(viewportPx, PAGE_COLUMN_PX) / 2
+  return { from: rail + RAIL_MARGIN_PX, to: viewportPx / 2 - RAIL_MARGIN_PX }
+}
+
+/** Where a prop is drawn: its x (px from the screen's centre) and how much of its size it keeps. */
+export type Placed = { x: number; fit: number }
+
 /**
  * Places a prop horizontally (px from the centre of the screen, where it
- * appears) by its placement. `halfPx` is half the prop's width on screen.
- * `free` and `parked` leave the pose's position; `column` holds the whole prop
- * inside the rails; `peek` puts exactly the free strip's worth of it in from
- * the edge the pose is on. Pure, so it is unit-tested.
+ * appears) by its placement, and says how much of its size it keeps (`fit`, 1
+ * unless a strip is too narrow for it at its size). `halfPx` is half the prop's
+ * width on screen; `restHalfPx` the same for the prop at rest, without the
+ * growth a step gives it (so a step's prop is not parked just for being the
+ * step's). `free` and `parked` leave the pose's position; `column` holds the
+ * whole prop inside the rails; `strip` holds it whole in the strip beside the
+ * phone, shrunk to fit; `peek` puts exactly the free strip's worth of it in from
+ * the edge the pose is on. Where a strip would show less than `PROP_MIN_FIT` of
+ * a prop, the prop is put just off the screen's edge instead (`parkedX`).
+ * Pure, so it is unit-tested.
  */
-export function placeX({
+export function placeProp({
   xPx,
   halfPx,
+  restHalfPx = halfPx,
   viewportPx,
+  heightPx = REFERENCE_HEIGHT_PX,
   placement,
   layout = 'steps',
 }: {
   xPx: number
   halfPx: number
+  restHalfPx?: number
   viewportPx: number
+  heightPx?: number
   placement: Placement
   layout?: PeekLayout
-}): number {
-  if (placement === 'free' || placement === 'parked') return xPx
+}): Placed {
+  if (placement === 'free' || placement === 'parked') {
+    return { x: xPx, fit: 1 }
+  }
   if (placement === 'column') {
     // The whole prop, not its centre, stays inside the rails (the page column,
     // or the screen where that is narrower), with a margin.
     const rail = Math.min(viewportPx, PAGE_COLUMN_PX) / 2
     const limit = Math.max(0, rail - RAIL_MARGIN_PX - halfPx)
-    return Math.max(-limit, Math.min(limit, xPx))
+    return { x: Math.max(-limit, Math.min(limit, xPx)), fit: 1 }
+  }
+  const edge = viewportPx / 2
+  if (placement === 'strip') {
+    // The strip beside the phone, or the margin outside the rail where that is
+    // wider (a wide monitor): the prop sits whole in the wider of the two.
+    const beside = phoneStripPx(viewportPx, heightPx)
+    const outside = railMarginStripPx(viewportPx)
+    const inMargin = outside.to - outside.from > beside.to - beside.from
+    const { from, to } = inMargin ? outside : beside
+    const room = to - from
+    // Too narrow for the prop at rest to read: wait off the right edge.
+    if (room < Math.max(STRIP_MIN_PX, PROP_MIN_FIT * 2 * restHalfPx)) {
+      return { x: edge + halfPx + PARK_MARGIN_PX, fit: 1 }
+    }
+    const fit = Math.min(1, room / (2 * halfPx))
+    const half = halfPx * fit
+    return {
+      // Centred in the margin; beside the phone the pose says where (it hugs
+      // the rail). Either way the prop stays whole.
+      x: inMargin
+        ? (from + to) / 2
+        : Math.max(from + half, Math.min(to - half, xPx)),
+      fit,
+    }
   }
   // Peek: the pose only says which side; the prop is placed so that `reach` px
   // of it shows in from that edge (all of it, if it is narrower than that).
-  const edge = viewportPx / 2
   const side = xPx < 0 ? 'left' : 'right'
-  const shown = Math.min(peekReachPx(viewportPx, side, layout), 2 * halfPx)
-  return side === 'left' ? -edge + shown - halfPx : edge - shown + halfPx
+  const reach = peekReachPx(viewportPx, side, layout)
+  if (reach < PROP_MIN_FIT * 2 * restHalfPx) {
+    // A sliver reads as a fault, not an object: wait just off the edge.
+    const out = edge + halfPx + PARK_MARGIN_PX
+    return { x: side === 'left' ? -out : out, fit: 1 }
+  }
+  const shown = Math.min(reach, 2 * halfPx)
+  return {
+    x: side === 'left' ? -edge + shown - halfPx : edge - shown + halfPx,
+    fit: 1,
+  }
+}
+
+/** `placeProp`'s x alone. */
+export function placeX(args: Parameters<typeof placeProp>[0]): number {
+  return placeProp(args).x
 }
 
 /** The air between a prop's shadow and the footer's top edge. */
@@ -322,17 +476,30 @@ export function fitFor(compact: boolean, aspect: number): number {
   return compact ? 1 : Math.min(1, aspect / WIDE_ASPECT)
 }
 
+/** The least share of their size the close's props keep before they wait off the edges instead. */
+export const CLOSE_MIN_FIT = 0.5
+
 /**
- * How far to lift the close's props (px, up) so that none of them, shadow
- * included, is cut by the opaque footer. The close's props sit level with its
+ * How the close's props fit between the header and the opaque footer: lifted
+ * (`lift`, px, up), scaled (`scale`, 1 or less, about each prop's own centre) or
+ * `parked` (waiting off the screen's edges, as under the opaque panels).
+ */
+export type CloseFit = { lift: number; scale: number; parked: boolean }
+
+/**
+ * Fits the close's props between the header and the footer so that none of
+ * them, shadow included, is cut by either. The close's props sit level with its
  * call, and at the foot of the page the footer covers the bottom of the screen
  * (its top edge is at `footerTopPx`; `null`, or past the screen's foot, means no
  * footer in view). They are lifted together, by the most any one needs, so the
- * formation keeps its shape, and never so far that the highest goes up under the
- * header: where the room is smaller than the props, the header wins. Pure, so it
- * is unit-tested.
+ * formation keeps its shape. Where the room between the header and the footer
+ * is smaller than the props (a laptop screen under about 900px tall at the end
+ * of the page), lifting is not enough: the props are scaled down together until
+ * they fit (the largest scale at which a lift exists that clears both edges),
+ * and where that would leave them under `CLOSE_MIN_FIT` of their size they are
+ * parked, so the footer never slices one. Pure, so it is unit-tested.
  */
-export function closeLiftPx({
+export function closeFitPx({
   ids,
   compact,
   widthPx,
@@ -346,28 +513,48 @@ export function closeLiftPx({
   heightPx: number
   footerTopPx: number | null
   headerPx: number
-}): number {
-  if (footerTopPx === null) return 0
+}): CloseFit {
+  if (footerTopPx === null) return { lift: 0, scale: 1, parked: false }
   const perUnit = heightPx / WORLD_HEIGHT
   const fit = fitFor(compact, widthPx / heightPx)
-  let needed = 0
-  let room = Number.POSITIVE_INFINITY
-  for (const id of ids) {
+  const top = headerPx + HEADER_MARGIN_PX
+  const bottom = footerTopPx - FOOTER_MARGIN_PX
+  const props = ids.map((id) => {
     const pose = poseFor(id, 'cta', compact, heightPx)
     const near = CAMERA_Z / (CAMERA_Z - pose.z)
     const px = perUnit * near * pose.s * fit
-    const centre = heightPx / 2 - pose.y * heightPx * near
-    const reach = PROP_REACH[id]
-    needed = Math.max(
-      needed,
-      centre + reach.below * px - (footerTopPx - FOOTER_MARGIN_PX),
-    )
-    room = Math.min(
-      room,
-      centre - reach.above * px - (headerPx + HEADER_MARGIN_PX),
-    )
+    return {
+      centre: heightPx / 2 - pose.y * heightPx * near,
+      above: PROP_REACH[id].above * px,
+      below: PROP_REACH[id].below * px,
+    }
+  })
+  // At scale k, prop i's foot is at `centre + below k - lift` and prop j's top at
+  // `centre - above k - lift`. A lift clears both edges for every prop when, for
+  // every pair, the lowest foot and the highest top fit in the room:
+  //   (centre_i + below_i k) - bottom <= (centre_j - above_j k) - top.
+  let scale = 1
+  for (const low of props) {
+    for (const high of props) {
+      scale = Math.min(
+        scale,
+        (high.centre - low.centre + (bottom - top)) / (low.below + high.above),
+      )
+    }
   }
-  return Math.max(0, Math.min(needed, room))
+  scale = Math.max(0, scale)
+  if (scale < CLOSE_MIN_FIT) return { lift: 0, scale: 1, parked: true }
+  const needed = Math.max(
+    ...props.map((prop) => prop.centre + prop.below * scale - bottom),
+  )
+  const room = Math.min(
+    ...props.map((prop) => prop.centre - prop.above * scale - top),
+  )
+  return {
+    lift: Math.max(0, Math.min(needed, Math.max(0, room))),
+    scale,
+    parked: false,
+  }
 }
 
 /**
@@ -377,13 +564,15 @@ export function closeLiftPx({
  * number of pixels from the top of the page whatever the screen's height, so
  * the hero formation keeps its distance from the top (a tall screen would
  * otherwise carry the props down behind the panel). Every other formation is
- * a fraction of the screen.
+ * a fraction of the screen. `withFocus` false gives the pose at rest, without the
+ * growth and lift the step's own object gets (what a strip is sized by).
  */
 export function poseFor(
   id: SceneObjectId,
   stage: StoryStage,
   compact: boolean,
   heightPx: number = REFERENCE_HEIGHT_PX,
+  withFocus = true,
 ): Pose {
   const name = FORMATION_FOR_STAGE[stage]
   const placed = (compact ? COMPACT : WIDE)[name][id]
@@ -399,7 +588,7 @@ export function poseFor(
     id === 'pin'
       ? Math.sin(index * PIN_SWAY_STEP) * PIN_SWAY
       : index * TURN_PER_STAGE
-  const focused = !compact && FOCUS_FOR_STAGE[stage] === id
+  const focused = withFocus && !compact && FOCUS_FOR_STAGE[stage] === id
   if (!focused) return { ...base, ry: base.ry + turn }
   // Nearer the camera, an object drifts outward in the picture; scale x and y
   // back so it grows in place, beside the phone, instead of leaving the screen.

@@ -47,10 +47,42 @@ const withHeroBlock: Decorator = (Story) => (
   </Box>
 )
 
+/** Window shapes the stills are not drawn for: on their sides, or short and wide. */
+const POSTER_VIEWPORTS = {
+  phoneOnItsSide: {
+    name: 'Phone on its side',
+    styles: { width: '667px', height: '375px' },
+    type: 'mobile',
+  },
+  phoneOnItsSideLarge: {
+    name: 'Large phone on its side',
+    styles: { width: '932px', height: '430px' },
+    type: 'mobile',
+  },
+  laptopShort: {
+    name: 'Short laptop window',
+    styles: { width: '1366px', height: '600px' },
+    type: 'desktop',
+  },
+  monitorShort: {
+    name: 'Short wide window',
+    styles: { width: '1920px', height: '700px' },
+    type: 'desktop',
+  },
+  tabletOnItsSide: {
+    name: 'Tablet on its side',
+    styles: { width: '1000px', height: '700px' },
+    type: 'tablet',
+  },
+} as const
+
 const meta = {
   title: 'Marketing/Landing/HeroObjectsPoster',
   component: HeroObjectsPoster,
-  parameters: { layout: 'fullscreen' },
+  parameters: {
+    layout: 'fullscreen',
+    viewport: { options: POSTER_VIEWPORTS },
+  },
   decorators: [withHeroBlock],
 } satisfies Meta<typeof HeroObjectsPoster>
 
@@ -105,10 +137,82 @@ export const OnlySourcesAndAnImage: Story = {
         node.getAttribute('media'),
       ),
     ).toEqual([
-      `(min-width: ${POSTER_LARGE_MIN_PX}px)`,
-      '(min-width: 1024px)',
-      '(min-width: 768px)',
+      `(min-width: ${POSTER_LARGE_MIN_PX}px) and (min-aspect-ratio: 8/5)`,
+      '(min-width: 1024px) and (min-aspect-ratio: 5/4)',
+      '(min-width: 768px) and (min-aspect-ratio: 5/8)',
     ])
+  },
+}
+
+/** The poster layer: its box, hidden or not. */
+function posterLayer(canvasElement: HTMLElement): HTMLElement {
+  const layer = canvasElement.querySelector('picture')?.parentElement
+  if (!layer) throw new Error('Poster layer not found')
+  return layer
+}
+
+/**
+ * A still is a picture of the props where the live scene puts them at one size,
+ * and `cover` crops it to the window, so on a phone on its side the toolbox sat
+ * over the h1 and the pin over the end of the body line. A window that is not
+ * the shape of any still gets none (the props are decoration).
+ */
+export const NoStillOnAPhoneOnItsSide: Story = {
+  globals: { viewport: { value: 'phoneOnItsSide', isRotated: false } },
+  play: async ({ canvasElement }) => {
+    await expect(window.innerHeight).toBe(375)
+    await expect(getComputedStyle(posterLayer(canvasElement)).display).toBe(
+      'none',
+    )
+  },
+}
+
+export const NoStillOnALargePhoneOnItsSide: Story = {
+  globals: { viewport: { value: 'phoneOnItsSideLarge', isRotated: false } },
+  play: async ({ canvasElement }) => {
+    await expect(getComputedStyle(posterLayer(canvasElement)).display).toBe(
+      'none',
+    )
+  },
+}
+
+/** Short and wide (1366 x 600, 1920 x 700): the cover crop put the pin behind the header's Get started. */
+export const NoStillOnAShortWideWindow: Story = {
+  globals: { viewport: { value: 'laptopShort', isRotated: false } },
+  play: async ({ canvasElement }) => {
+    await expect(window.innerHeight).toBe(600)
+    await expect(getComputedStyle(posterLayer(canvasElement)).display).toBe(
+      'none',
+    )
+  },
+}
+
+export const NoStillOnAShortWideMonitor: Story = {
+  globals: { viewport: { value: 'monitorShort', isRotated: false } },
+  play: async ({ canvasElement }) => {
+    await expect(getComputedStyle(posterLayer(canvasElement)).display).toBe(
+      'none',
+    )
+  },
+}
+
+/** A tablet on its side is under `lg` and wider than a tablet's still: none. */
+export const NoStillOnATabletOnItsSide: Story = {
+  globals: { viewport: { value: 'tabletOnItsSide', isRotated: false } },
+  play: async ({ canvasElement }) => {
+    await expect(getComputedStyle(posterLayer(canvasElement)).display).toBe(
+      'none',
+    )
+  },
+}
+
+/** The shapes the stills are drawn for keep theirs: a phone, a tablet and a laptop. */
+export const StillsKeepTheirOwnShapes: Story = {
+  globals: { viewport: { value: 'mobile2', isRotated: false } },
+  play: async ({ canvasElement }) => {
+    await expect(getComputedStyle(posterLayer(canvasElement)).display).not.toBe(
+      'none',
+    )
   },
 }
 

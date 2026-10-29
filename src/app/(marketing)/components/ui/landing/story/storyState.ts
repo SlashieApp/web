@@ -46,6 +46,12 @@ const state = {
    * until the tracker has looked, so the first frames draw.
    */
   sceneVisible: true,
+  /**
+   * The hero is on screen. The hero's formation of props is only for the hero:
+   * once it has scrolled away, behind the opaque panels, the props wait off the
+   * edges (`sceneStage`). True until the tracker has looked.
+   */
+  heroInView: true,
 }
 
 const listeners = new Set<() => void>()
@@ -70,12 +76,23 @@ export function setSceneVisible(visible: boolean): void {
   for (const listener of listeners) listener()
 }
 
+export function setHeroInView(inView: boolean): void {
+  if (state.heroInView === inView) return
+  state.heroInView = inView
+  for (const listener of listeners) listener()
+}
+
 export function setStoryPointer(x: number, y: number): void {
   state.pointerX = x
   state.pointerY = y
 }
 
-function subscribe(listener: () => void) {
+/**
+ * Calls `listener` whenever the stage, the scene's readiness, its visibility or
+ * the hero's visibility change. Returns the unsubscribe. The 3D scene uses it to
+ * ask for a frame when it can be seen again.
+ */
+export function subscribeStory(listener: () => void) {
   listeners.add(listener)
   return () => {
     listeners.delete(listener)
@@ -84,7 +101,7 @@ function subscribe(listener: () => void) {
 
 export function useStoryStage(): StoryStage {
   return useSyncExternalStore(
-    subscribe,
+    subscribeStory,
     () => state.stage,
     () => 'hero',
   )
@@ -92,7 +109,7 @@ export function useStoryStage(): StoryStage {
 
 export function useSceneVisible(): boolean {
   return useSyncExternalStore(
-    subscribe,
+    subscribeStory,
     () => state.sceneVisible,
     () => true,
   )
@@ -100,7 +117,7 @@ export function useSceneVisible(): boolean {
 
 export function useSceneReady(): boolean {
   return useSyncExternalStore(
-    subscribe,
+    subscribeStory,
     () => state.sceneReady,
     () => false,
   )

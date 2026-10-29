@@ -6,6 +6,7 @@ import { expect, waitFor } from 'storybook/test'
 import {
   STORY_STAGES,
   type StoryStage,
+  setHeroInView,
   setStoryStage,
 } from '../story/storyState'
 import LandingScene from './LandingScene'
@@ -14,15 +15,20 @@ function SceneFrame({
   stage,
   compact,
   transparent = false,
+  heroInView = true,
 }: {
   stage: StoryStage
   compact: boolean
   /** No ground at all: used to render the still poster with a clear background. */
   transparent?: boolean
+  /** Whether the hero is on screen: once it is not, the hero's props wait off the edges. */
+  heroInView?: boolean
 }) {
   useEffect(() => {
     setStoryStage(stage)
-  }, [stage])
+    setHeroInView(heroInView)
+    return () => setHeroInView(true)
+  }, [stage, heroInView])
   return (
     <Box
       position="fixed"
@@ -38,7 +44,18 @@ function SceneFrame({
 const meta = {
   title: 'Marketing/Landing/LandingScene',
   component: SceneFrame,
-  parameters: { layout: 'fullscreen' },
+  parameters: {
+    layout: 'fullscreen',
+    viewport: {
+      options: {
+        laptop768: {
+          name: 'Laptop 1366 x 768',
+          styles: { width: '1366px', height: '768px' },
+          type: 'desktop',
+        },
+      },
+    },
+  },
   args: { stage: 'hero', compact: false },
   argTypes: {
     stage: { control: 'select', options: STORY_STAGES },
@@ -75,13 +92,17 @@ export const Compact: Story = {
   parameters: { viewport: { defaultViewport: 'mobile1' } },
 }
 
-/** Phone, customer act: two small objects peek in from the edges beside the steps. */
+/**
+ * Phone, customer act: the text runs edge to edge, so no whole prop fits beside
+ * it and a sliver at the edge read as a rendering fault: the props wait off the
+ * edges (a tablet's right strip does hold the pin).
+ */
 export const CompactCustomerAct: Story = {
   args: { stage: 'quotes', compact: true },
   globals: { viewport: { value: 'mobile1', isRotated: false } },
 }
 
-/** Phone, worker act: the two objects swap sides with the customer act. */
+/** Phone, worker act: the props wait off the edges here too. */
 export const CompactWorkerAct: Story = {
   args: { stage: 'workerQuote', compact: true },
   globals: { viewport: { value: 'mobile1', isRotated: false } },
@@ -93,10 +114,25 @@ export const CompactScatter: Story = {
   globals: { viewport: { value: 'mobile1', isRotated: false } },
 }
 
-/** Phone, gather (final call to action): the two objects frame the heading. */
+/** Phone, gather (final call to action): the centred text runs gutter to gutter, so the props wait off the edges. */
 export const CompactGather: Story = {
   args: { stage: 'cta', compact: true },
   globals: { viewport: { value: 'mobile1', isRotated: false } },
+}
+
+/**
+ * The hero is out of view (the map panel and the bento are in front of it): the
+ * hero's props wait off the edges instead of sitting in the middle of the
+ * screen with their shadows showing under the opaque panels.
+ */
+export const HeroOutOfView: Story = {
+  args: { stage: 'hero', heroInView: false },
+}
+
+/** A 1366 x 768 laptop, customer act: each prop whole in the strip beside the phone, scaled to fit. */
+export const CustomerActLaptop: Story = {
+  args: { stage: 'quotes' },
+  globals: { viewport: { value: 'laptop768', isRotated: false } },
 }
 
 /** Source for the hero's still poster (`public/images/landing/`), wide (1440 x 900), transparent. */

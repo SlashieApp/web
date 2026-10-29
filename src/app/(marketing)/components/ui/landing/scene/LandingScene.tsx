@@ -5,7 +5,7 @@ import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import {
   type ComponentType,
   type MutableRefObject,
-  useEffect,
+  useCallback,
   useMemo,
   useRef,
 } from 'react'
@@ -14,21 +14,24 @@ import { CanvasTexture, type Group, MathUtils, NeutralToneMapping } from 'three'
 import { BREAKPOINT_PX } from '@/theme/breakpoints'
 import { HEADER_MIN_HEIGHT } from '@/ui/Header/shell/headerShell'
 
-import { storyState, useSceneVisible } from '../story/storyState'
+import { storyState, subscribeStory } from '../story/storyState'
 import { SceneLights } from './SceneLights'
 import {
   CAMERA_FOV,
   CAMERA_Z,
   COMPACT_OBJECTS,
+  type CloseFit,
+  PARKED_STAGE,
   PROP_REACH,
   SCENE_OBJECTS,
   type SceneObjectId,
-  closeLiftPx,
+  closeFitPx,
   fitFor,
   peekLayoutFor,
-  placeX,
+  placeProp,
   placementFor,
   poseFor,
+  sceneStage,
 } from './formations'
 import { Boxes } from './objects/Boxes'
 import { MapPin } from './objects/MapPin'
@@ -43,11 +46,18 @@ const MODELS: Record<SceneObjectId, ComponentType> = {
 
 /** How quickly objects glide to a new formation (higher = snappier). */
 const FORMATION_LAMBDA = 2.6
+/**
+ * A gap this long between two frames (ms) means the scene was not drawing (no
+ * transparent block was on screen), so nobody saw the props move meanwhile.
+ */
+const RETURN_GAP_MS = 250
 /** What the scene reads off the page once a frame (see `PageProbe`). */
 type PageProbe = {
-  /** How far (px, up) the close's props are lifted to stay clear of the footer. */
-  closeLift: number
+  /** How the close's props are lifted, scaled or parked to stay clear of the footer. */
+  close: CloseFit
 }
+
+const CLOSE_AT_REST: CloseFit = { lift: 0, scale: 1, parked: false }
 
 function useBlobShadowTexture(): CanvasTexture {
   const texture = useMemo(() => {
@@ -92,6 +102,7 @@ function SceneObject({
   const turnRef = useRef<Group>(null)
   const shadowRef = useRef<Group>(null)
   const placed = useRef(false)
+  const lastFrameAt = useRef(0)
   const Model = MODELS[id]
 
   useFrame((state, delta) => {
@@ -99,13 +110,22 @@ function SceneObject({
     const turn = turnRef.current
     const shade = shadowRef.current
     if (!group || !turn || !shade) return
-    const stage = storyState.stage
-    const target = poseFor(id, stage, compact, state.size.height)
+    const now = performance.now()
+    const wasHidden = now - lastFrameAt.current > RETURN_GAP_MS
+    lastFrameAt.current = now
+    // The hero's props wait off the edges once the hero is out of view, and the
+    // close's where the footer leaves them no room (`closeFitPx`).
+    const stage = sceneStage(storyState.stage, storyState.heroInView)
+    const closing = stage === 'cta'
+    const close = closing ? probe.current.close : CLOSE_AT_REST
+    const shown = closing && close.parked ? PARKED_STAGE : stage
+    const target = poseFor(id, shown, compact, state.size.height)
+    const rest = poseFor(id, shown, compact, state.size.height, false)
     const { width, height, factor } = state.viewport
     // Sizes follow the viewport height (perspective camera), so keep wide
     // formations from crowding the centre on less-wide windows.
     const fit = fitFor(compact, width / height)
-    const scale = target.s * fit
+    const scale = target.s * fit * close.scale
     // A gentle drift tied to scroll, out of phase per object.
     const drift =
       Math.sin(window.scrollY / window.innerHeight + index * 1.7) * 0.12
@@ -113,30 +133,44 @@ function SceneObject({
     // perspective pushes outward, is held at the same line. Its reach (the
     // hammer and the shadow included) is in px at its depth too.
     const near = CAMERA_Z / (CAMERA_Z - target.z)
+    const restNear = CAMERA_Z / (CAMERA_Z - rest.z)
     const reach = PROP_REACH[id]
     const px = factor * near * scale
+    const restPx = factor * restNear * rest.s * fit * close.scale
     const viewportPx = state.size.width
-    // Wide screens keep the whole prop inside the page column's rails, phones
-    // let it only peek in from the edge (clear of the text), and the formation
-    // that waits under the opaque panels is parked off the edges.
-    const xPx = placeX({
+    // Wide screens keep the whole prop inside the page column's rails (the hero
+    // and the close) or in the strip beside the phone (the acts), shrunk to fit
+    // or waiting off the edge where that is too narrow; phones let it only peek
+    // in from the edge (clear of the text) or not at all where that would be a
+    // sliver; and the formation that waits under the opaque panels is parked
+    // off the edges.
+    const placement = placeProp({
       xPx: target.x * viewportPx * near,
       halfPx: reach.halfWidth * px,
+      restHalfPx: reach.halfWidth * restPx,
       viewportPx,
-      placement: placementFor(stage, compact),
-      layout: peekLayoutFor(stage),
+      heightPx: state.size.height,
+      placement: placementFor(shown, compact),
+      layout: peekLayoutFor(shown),
     })
-    const x = xPx / near / factor
-    // The close's props stay above the opaque footer, which would slice them
+    const x = placement.x / near / factor
+    const finalScale = scale * placement.fit
+    // The close's props stay clear of the opaque footer, which would slice them
     // (`PageProbe` works out how far to lift them, together).
-    const lift = stage === 'cta' ? probe.current.closeLift : 0
+    const lift = closing && !close.parked ? close.lift : 0
     const y = (target.y + lift / (state.size.height * near)) * height + drift
-    if (!placed.current) {
-      // First frame: start in place (the poster underneath shows the same).
+    // Off the screen's edge there is nothing to see move.
+    const offScreen =
+      placementFor(shown, compact) === 'parked' ||
+      Math.abs(placement.x) > viewportPx / 2
+    if (!placed.current || (wasHidden && offScreen)) {
+      // First frame, or back from a stretch the scene was not drawn (the
+      // props' place is off the edges, so they should not cross the screen to
+      // get there): start in place (the poster underneath shows the same).
       group.position.set(x, y, target.z)
       turn.rotation.set(target.rx, target.ry, target.rz)
-      turn.scale.setScalar(scale)
-      shade.scale.setScalar(scale)
+      turn.scale.setScalar(finalScale)
+      shade.scale.setScalar(finalScale)
       placed.current = true
       return
     }
@@ -153,7 +187,7 @@ function SceneObject({
       damp(turn.rotation.y, target.ry),
       damp(turn.rotation.z, target.rz),
     )
-    const nextScale = damp(turn.scale.x, scale)
+    const nextScale = damp(turn.scale.x, finalScale)
     turn.scale.setScalar(nextScale)
     shade.scale.setScalar(nextScale)
   })
@@ -213,9 +247,10 @@ function PointerRig({ children }: { children: React.ReactNode }) {
 
 /**
  * Reads the footer's top edge once a frame, while the close is the stage (the
- * only formation that has to keep clear of it), and works out how far to lift
- * the close's props together (`closeLiftPx`), so no prop reads the page itself.
- * It is mounted before the props, so its lift is current when they read it.
+ * only formation that has to keep clear of it), and works out how to lift,
+ * scale or park the close's props together (`closeFitPx`), so no prop reads the
+ * page itself. It is mounted before the props, so its fit is current when they
+ * read it. The footer is looked up the first time it is needed.
  */
 function PageProbe({
   probe,
@@ -227,14 +262,14 @@ function PageProbe({
   compact: boolean
 }) {
   const footer = useRef<Element | null>(null)
-  useEffect(() => {
-    footer.current = document.querySelector('footer')
-  }, [])
   useFrame((state) => {
     if (storyState.stage !== 'cta') return
+    if (!footer.current?.isConnected) {
+      footer.current = document.querySelector('footer')
+    }
     const top = footer.current?.getBoundingClientRect().top
     const widthPx = state.size.width
-    probe.current.closeLift = closeLiftPx({
+    probe.current.close = closeFitPx({
       ids,
       compact,
       widthPx,
@@ -256,18 +291,27 @@ function PageProbe({
  * screen this asks for the next frame each frame, and when none is (the opaque
  * panels hide the scene) it stops, so the GPU and the battery are not spent on
  * what nobody can see. A pointer move or a scroll that brings a block back
- * starts it again.
+ * starts it again: the ref callback on the node below subscribes to the story
+ * state for as long as the scene is mounted, and asks for a frame whenever the
+ * scene can be seen.
  */
 function FrameDriver() {
-  const visible = useSceneVisible()
   const invalidate = useThree((state) => state.invalidate)
-  useEffect(() => {
-    if (visible) invalidate()
-  }, [visible, invalidate])
+  const watch = useCallback(
+    (node: Group | null) => {
+      if (!node) return
+      const ask = () => {
+        if (storyState.sceneVisible) invalidate()
+      }
+      ask()
+      return subscribeStory(ask)
+    },
+    [invalidate],
+  )
   useFrame(() => {
     if (storyState.sceneVisible) invalidate()
   })
-  return null
+  return <group ref={watch} />
 }
 
 /** Calls `onReady` once two frames have drawn (shaders compiled, objects up). */
@@ -288,7 +332,7 @@ function SceneContents({
   onReady?: () => void
 }) {
   const shadow = useBlobShadowTexture()
-  const probe = useRef<PageProbe>({ closeLift: 0 })
+  const probe = useRef<PageProbe>({ close: CLOSE_AT_REST })
   const ids = compact ? COMPACT_OBJECTS : SCENE_OBJECTS
   return (
     <>
