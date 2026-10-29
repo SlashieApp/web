@@ -366,17 +366,27 @@ function MarketingNavigation({
 export type MarketingHeaderProps = Omit<BoxProps, 'children'>
 
 /**
+ * The routes that have taken the marketing frame (FE-471): their page is white
+ * (`bg.surface`), so their header is too. Add a route here when its page sits
+ * in `MarketingFrame`; the others keep the canvas colour until then.
+ */
+const FRAMED_ROUTES: readonly string[] = [MARKETING_HOME, '/pricing']
+
+/**
  * Sticky marketing header. On the landing (`/home`) it starts transparent
  * over the white page and solidifies to white once scrolled. Text colours are
- * the same either way, so this is safe from the first server paint. Other
- * marketing routes always get the solid header, on the canvas colour their
- * pages still use until they take the marketing frame.
+ * the same either way, so this is safe from the first server paint. The other
+ * framed routes (`FRAMED_ROUTES`, such as `/pricing`) always get the solid
+ * header, in white. Marketing routes that have not taken the marketing frame
+ * yet get it on the canvas colour their pages still use.
  */
 export function MarketingHeader(props: MarketingHeaderProps) {
   const pathname = usePathname()
   const locale = useLocale()
   const copy = loadPageI11n(chromeMessages, locale)
-  const isLanding = stripLocalePrefix(pathname ?? '/') === MARKETING_HOME
+  const barePathname = stripLocalePrefix(pathname ?? '/')
+  const isLanding = barePathname === MARKETING_HOME
+  const isFramed = FRAMED_ROUTES.includes(barePathname)
   const [scrolled, setScrolled] = useState(false)
 
   useEffect(() => {
@@ -396,9 +406,7 @@ export function MarketingHeader(props: MarketingHeaderProps) {
         as="header"
         zIndex={30}
         overflow="visible"
-        bg={
-          transparent ? 'transparent' : isLanding ? 'bg.surface' : 'bg.canvas'
-        }
+        bg={transparent ? 'transparent' : isFramed ? 'bg.surface' : 'bg.canvas'}
         color="text.default"
         borderWidth="1px"
         borderColor={transparent ? 'transparent' : 'border.default'}

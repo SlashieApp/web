@@ -102,14 +102,14 @@ export const HeaderScrolled: Story = {
   },
 }
 
-/** Pricing (FE-449): a large "Membership" (the h1), then the page's own centred heading as an h2. */
+/** Pricing (FE-449): a large "Membership" (the h1), then the page's own heading as an h2 (left-aligned since FE-471). */
 export const PricingTitle: Story = {
   args: {
     title: 'Membership',
     description: undefined,
     contentMaxW: undefined,
     children: (
-      <Heading as="h2" size="2xl" textAlign="center" pt={8} pb="150vh">
+      <Heading as="h2" size="2xl" pt={8} pb="150vh">
         Simple plans. Clear quotes.
       </Heading>
     ),

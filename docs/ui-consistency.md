@@ -63,7 +63,9 @@ Marketing pages sit in the marketing frame (FE-471, `src/app/(marketing)/compone
 a white page, from `lg` a 1px `border.default` rail down each side of this same page column, a full-width
 1px rule between sections (`SectionRule`), a left-aligned section head with a green 600 icon and an
 eyebrow (`SectionHead`), and section padding from `SECTION_PY` (56px phone to 128px wide). Only the hero
-and the closing call to action are centred.
+and the closing call to action are centred. `/home` and `/pricing` are in the frame so far (the marketing
+header is white on those routes, `FRAMED_ROUTES`); a page whose sticky page header paints an opaque bar
+passes `railsZIndex` so the rails run over it.
 
 ### Type / radius / shadow
 

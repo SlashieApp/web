@@ -13,7 +13,7 @@ const MARKETING_HEADER_H = { base: '58px', md: '66px' } as const
 
 type MarketingPageHeaderProps = Pick<
   StickyHeaderProps,
-  'description' | 'contentMaxW'
+  'description' | 'contentMaxW' | 'contentPx' | 'background'
 > & {
   title: string
   /** The page under the title. */
@@ -25,11 +25,18 @@ type MarketingPageHeaderProps = Pick<
  * the bar sticks under the marketing header and the title collapses into it
  * on scroll. Back goes to the page before, or when this page was opened
  * straight away to Search (signed in) or the marketing home (a visitor).
+ *
+ * A page in the marketing frame (FE-471) is white and its sections run edge to
+ * edge between full-width rules, so it puts the header outside a `<Container>`
+ * and says its colour (`background`, the bar's) and its column (`contentMaxW`
+ * and `contentPx`, the same measure and gutters as a Container).
  */
 export function MarketingPageHeader({
   title,
   description,
   contentMaxW,
+  contentPx,
+  background,
   children,
 }: MarketingPageHeaderProps) {
   const t = useI11n(chromeMessages)
@@ -43,6 +50,8 @@ export function MarketingPageHeader({
       backAriaLabel={t.goBack}
       stickyTop={MARKETING_HEADER_H}
       contentMaxW={contentMaxW}
+      contentPx={contentPx}
+      background={background}
     >
       {children}
     </StickyHeader>

@@ -2,9 +2,11 @@
 
 `/pricing` shows the page header (FE-458: Back and a large "Membership" that
 shrinks into the bar on scroll, as Account and Plan & billing do; it is the
-page's one h1), the header ("Simple plans. Clear quotes.", an h2), the two
-plan cards (Free and Slashie Unlimited) and the FAQ. The cards depend on who's looking, so they come from
-one view at a time. `getPricingView({ available, session, worker })` picks it, each view
+page's one h1), the plans section (its head "Simple plans. Clear quotes.", an
+h2, and the two plan cards, Free and Slashie Unlimited) and the FAQ, in the
+marketing frame (FE-471: `components/PricingPageView.tsx`; the layout is described
+in `components/ui/landing/README.md`, Pricing page). The cards depend on who's
+looking, so they come from one view at a time. `getPricingView({ available, session, worker })` picks it, each view
 has one config file in this folder (which card is "Your plan", whether
 Unlimited leads with the trial, each card's button), and `index.ts` maps names
 to configs.
@@ -16,7 +18,8 @@ to configs.
 - `components/ui/plan/PricingPlanCards.tsx` only renders the config, plus the
   store purchases note under the cards (`plans.purchasesNote`), the same in
   every view. `PricingCheckoutButton` is the one client island that starts
-  Checkout.
+  Checkout. The paid plan's button (a link or the checkout button) is the plum
+  `premium` pill; Free's is outline.
 - Membership comes from the API's flags (`hasUnlimitedQuotes`, `canUpgrade`,
   `canStartTrial`), never the Stripe status, so pricing offers exactly what
   /billing would.

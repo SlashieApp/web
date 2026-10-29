@@ -79,14 +79,26 @@ export default meta
 
 type Story = StoryObj<typeof meta>
 
-/** Solid header on a marketing page with no nav item active. */
-export const Default: Story = {}
+/**
+ * Solid header on a marketing page with no nav item active. A page that has
+ * not taken the marketing frame yet keeps the canvas colour.
+ */
+export const Default: Story = {
+  play: async ({ canvasElement }) => {
+    await expect(headerBackground(canvasElement)).toBe('rgb(250, 250, 250)')
+  },
+}
 
-/** On `/pricing`: the Pricing link is current (semibold, link colour, aria-current). */
+/**
+ * On `/pricing`: the Pricing link is current (semibold, link colour,
+ * aria-current), and the header is white like the page, which sits in the
+ * marketing frame (FE-471).
+ */
 export const PricingActive: Story = {
   parameters: { nextjs: { navigation: { pathname: '/pricing' } } },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
+    await expect(headerBackground(canvasElement)).toBe('rgb(255, 255, 255)')
     await waitFor(
       () =>
         expect(canvas.getByRole('link', { name: 'Pricing' })).toHaveAttribute(

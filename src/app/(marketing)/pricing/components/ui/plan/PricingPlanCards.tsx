@@ -8,11 +8,10 @@ import {
   Stack,
   Text,
 } from '@chakra-ui/react'
-import type { ReactNode } from 'react'
-import { LuBriefcase, LuCheck, LuZap } from 'react-icons/lu'
+import { LuCheck, LuSparkles } from 'react-icons/lu'
 
 import { formatMessage } from '@/i18n/loadPageI11n'
-import { sdlFigure } from '@/theme/styles'
+import { sdlCardSurface, sdlFigure } from '@/theme/styles'
 import { Badge, Button, Link } from '@ui'
 
 import {
@@ -30,6 +29,14 @@ import { PricingCheckoutButton } from './PricingCheckoutButton'
 type PricingCopy = (typeof messages)['en']
 export type PricingPlansCopy = PricingCopy['plans']
 
+/** A plan card's padding: 20, 24 and 28px by breakpoint (the teaser's). */
+const CARD_P = { base: 5, md: 6, lg: 7 } as const
+
+/**
+ * A card's one button, a pill: outline on Free, plum (`premium`) on the paid
+ * plan, as the landing's teaser sets them. Green is not used here: the page's
+ * one green button is the marketing header's Get started.
+ */
 function PlanAction({
   action,
   labels,
@@ -46,7 +53,7 @@ function PlanAction({
     return <PricingCheckoutButton label={labels[action.label]} />
   }
   return (
-    <Button asChild w="full" variant={featured ? 'primary' : 'secondary'}>
+    <Button asChild w="full" variant={featured ? 'premium' : 'secondary'}>
       <Link href={action.href} _hover={{ textDecoration: 'none' }}>
         {labels[action.label]}
       </Link>
@@ -54,9 +61,16 @@ function PlanAction({
   )
 }
 
+/**
+ * One plan: the card recipe of the product and of the landing's teaser (white,
+ * a 1px hairline, `e1`, 12px corners), left-aligned: the plan's name as a
+ * label, its line, the price as a figure (600, tabular), a hairline, the
+ * features with green 600 checks and a pill. The paid plan swaps the hairline
+ * and the label for plum (`accent.premium`, with the sparkle) and its pill is
+ * plum; nothing else changes between the two, so they read as a pair.
+ */
 function PlanCard({
   featured = false,
-  icon,
   title,
   subtitle,
   amount,
@@ -67,9 +81,9 @@ function PlanCard({
   yourPlan,
   action,
   labels,
+  ...dataAttrs
 }: {
   featured?: boolean
-  icon: ReactNode
   title: string
   subtitle: string
   amount: string
@@ -80,52 +94,43 @@ function PlanCard({
   yourPlan: string
   action: PricingAction | null
   labels: PricingPlansCopy['actions']
-}) {
+} & Record<`data-${string}`, string>) {
   return (
-    <Stack
+    <Box
+      {...dataAttrs}
+      display="flex"
+      flexDirection="column"
       gap={5}
       h="full"
-      borderWidth={featured ? '2px' : '1px'}
-      borderColor={featured ? 'border.focus' : 'border.default'}
-      borderRadius="lg"
-      bg="bg.surface"
-      boxShadow={featured ? 'e2' : 'e1'}
-      p={{ base: 5, md: 6 }}
+      p={CARD_P}
+      {...sdlCardSurface}
+      borderColor={featured ? 'accent.premium' : 'border.default'}
     >
-      <HStack justify="space-between" align="flex-start">
-        <Box
-          boxSize="44px"
-          borderRadius="full"
-          bg="bg.subtle"
-          color="text.muted"
-          display="flex"
-          alignItems="center"
-          justifyContent="center"
-          aria-hidden
-        >
-          {icon}
-        </Box>
-        {current ? (
-          <Badge variant="success" px={3} py={1}>
-            {yourPlan}
-          </Badge>
-        ) : null}
-      </HStack>
-      <Stack gap={1}>
-        <Heading as="h2" size="md">
-          {title}
-        </Heading>
-        <Text fontSize="sm" color="text.muted">
+      <Stack gap={1.5}>
+        <HStack justify="space-between" align="center" gap={3} minH="26px">
+          <HStack gap={1.5} color={featured ? 'accent.premium' : 'text.muted'}>
+            {featured ? <LuSparkles size={16} aria-hidden /> : null}
+            <Heading as="h3" textStyle="label-md" fontSize="sm" color="inherit">
+              {title}
+            </Heading>
+          </HStack>
+          {current ? (
+            <Badge variant="success" px={3} py={1}>
+              {yourPlan}
+            </Badge>
+          ) : null}
+        </HStack>
+        <Text textStyle="text-sm" color="text.muted">
           {subtitle}
         </Text>
       </Stack>
       <Stack gap={1.5}>
         <HStack gap={2} align="baseline" flexWrap="wrap">
           <Text
-            fontSize="3xl"
+            textStyle="heading-xl"
             {...sdlFigure}
-            lineHeight="1"
             color="text.default"
+            textWrap="balance"
           >
             {amount}
           </Text>
@@ -136,12 +141,19 @@ function PlanCard({
           ) : null}
         </HStack>
         {note ? (
-          <Text fontSize="sm" color="text.muted">
+          <Text textStyle="text-sm" color="text.muted">
             {note}
           </Text>
         ) : null}
       </Stack>
-      <List.Root gap={3} ps={0} listStyle="none">
+      <List.Root
+        gap={3}
+        ps={0}
+        pt={5}
+        listStyle="none"
+        borderTopWidth="1px"
+        borderColor="border.default"
+      >
         {features.map((feature) => (
           <List.Item
             key={feature}
@@ -153,18 +165,14 @@ function PlanCard({
               as="span"
               display="inline-flex"
               alignItems="center"
-              justifyContent="center"
-              boxSize="18px"
-              borderRadius="full"
-              bg="action.primary"
-              color="text.onGreen"
+              h="21px"
+              color="accent.active"
               flexShrink={0}
-              mt="2px"
               aria-hidden
             >
-              <LuCheck size={11} strokeWidth={3} />
+              <LuCheck size={16} strokeWidth={2.5} />
             </Box>
-            <Text as="span" fontSize="sm" lineHeight="tall">
+            <Text as="span" textStyle="text-sm">
               {feature}
             </Text>
           </List.Item>
@@ -175,7 +183,7 @@ function PlanCard({
           <PlanAction action={action} labels={labels} featured={featured} />
         </Box>
       ) : null}
-    </Stack>
+    </Box>
   )
 }
 
@@ -183,7 +191,9 @@ function PlanCard({
  * Free and Slashie Unlimited side by side (stacked on phones), rendered from
  * the view's config: which card is "Your plan", whether Unlimited leads with
  * the trial, and each card's button. Prices and trial come from the API. The
- * store purchases note sits under the cards, the same for every view.
+ * store purchases note sits under the cards, the same for every view. The
+ * cards fill the column they are in (the page's section sets its width) and
+ * stand at one height.
  */
 export function PricingPlanCards({
   pricing,
@@ -207,10 +217,17 @@ export function PricingPlanCards({
   const count = pricing.freeQuotesPerMonth
 
   return (
-    <Stack gap={4} w="full" maxW="4xl" mx="auto">
-      <Grid templateColumns={{ base: '1fr', md: '1fr 1fr' }} gap={5} w="full">
+    <Stack gap={4} w="full">
+      <Grid
+        templateColumns={{
+          base: 'minmax(0, 1fr)',
+          md: 'repeat(2, minmax(0, 1fr))',
+        }}
+        gap={{ base: 4, md: 5 }}
+        w="full"
+      >
         <PlanCard
-          icon={<LuBriefcase size={22} />}
+          data-pricing-plan="free"
           title={copy.free.title}
           subtitle={copy.free.subtitle}
           amount={formatPricingAmount(0, pricing.priceCurrency)}
@@ -224,8 +241,8 @@ export function PricingPlanCards({
           labels={copy.actions}
         />
         <PlanCard
+          data-pricing-plan="unlimited"
           featured
-          icon={<LuZap size={22} />}
           title={pricing.productName}
           subtitle={copy.unlimited.subtitle}
           amount={
@@ -248,7 +265,7 @@ export function PricingPlanCards({
           labels={copy.actions}
         />
       </Grid>
-      <Text fontSize="sm" color="text.muted">
+      <Text textStyle="text-sm" color="text.muted" maxW="60ch">
         {copy.purchasesNote}
       </Text>
     </Stack>

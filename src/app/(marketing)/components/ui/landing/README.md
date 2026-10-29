@@ -326,9 +326,9 @@ today's.
 - **Motion.** The head, each card (staggered 120ms) and the pill are `Reveal`s (a
   fade with an 8px rise, 400ms, once); reduced motion and no JS show them as they
   are.
-- **The pricing page** is to follow this recipe when it is restyled (the spec:
-  "the pricing cards follow the teaser"): the same hairline-and-`e1` card, plum
-  only for the paid plan.
+- **The pricing page** follows this recipe (the spec: "the pricing cards follow
+  the teaser"): the same hairline-and-`e1` card, plum only for the paid plan. See
+  Pricing page.
 
 ## Final call to action
 
@@ -411,6 +411,61 @@ call's Post a task goes: register, then on to `/tasks/create`.
 - **Motion.** In: a fade with a 16px rise, 400ms on the decelerate curve. Out: a
   200ms fade. Reduced motion (read with `matchMedia`, so a story can set it): it
   fades without any rise (no `transform` at all). It is not printed.
+
+## Pricing page
+
+`/pricing` (`src/app/(marketing)/pricing/`) takes the same frame as the landing
+(the spec: "the same frame, rules, eyebrows and type; the pricing cards follow
+the teaser"). `components/PricingPageView.tsx` assembles it (frame, page header,
+the plans section, the questions); `page.tsx` loads the data and adds the footer
+and the view's analytics. The views (who sees which button) are unchanged:
+`pricing/views/README.md`.
+
+- **Frame.** A white page (`MarketingFrame bg="bg.surface"`), the rails from `lg`,
+  and a `SectionRule` under the title and one between the plans and the
+  questions. The marketing header turns white on `/pricing` (`FRAMED_ROUTES` in
+  `MarketingHeader.tsx`: a route goes in that list when its page takes the frame).
+  The page header's bar is opaque and sits 10 deep, so the page passes
+  `railsZIndex={11}` and the rails run unbroken from the site header.
+- **Page header (FE-458) stays.** The big "Membership" is the page's one h1 and
+  collapses into the bar as before. The header now sits outside a `<Container>`
+  (so the rules can run edge to edge) and says its column and colour:
+  `MarketingPageHeader` takes `contentMaxW`, `contentPx` (the Container's measure
+  and gutters) and `background`.
+- **Sections** are `PricingSection`: a landmark named by its h2 (`aria-labelledby`),
+  `SECTION_PY`, the page column. Below `xl` the head sits over the content; from
+  `xl` the head is the left column (4fr) and the content the right one (8fr),
+  as the teaser sets its head and cards (`PRICING_SPLIT`; the cards need about
+  300px each, which the right column only has from `xl`). The plans section is
+  `SectionHead` (the h2, the body), the two cards and the purchases note; the
+  questions are `SectionHead` ("Questions") and the rows. Neither head has an eyebrow:
+  an eyebrow needs a string and this page adds none; `SectionHead` takes
+  `eyebrow` and `icon` when there is one.
+- **Plan cards** are the teaser's card: `sdlCardSurface` (white, a 1px hairline,
+  12px corners, `e1`), `p` 20 / 24 / 28, left-aligned, one height. In order, as
+  before: the plan's name (an h3, a 14/500 label, muted on Free), its line, the
+  price as a figure (`heading-xl` at 600 with tabular figures: "£0 / month",
+  "6 months free"), the "Then" line, a hairline, the features with green 600
+  checks and the pill. The icon tiles are gone (the teaser has none). "Your plan"
+  is still the `success` tag, because it is a state.
+- **Plum** is the paid plan's: its name with the sparkle, its 1px hairline (it was
+  a 2px green one) and its pill, the `premium` Button (the links and
+  `PricingCheckoutButton`, which is why the `premium` variant keeps its plum while
+  loading). Free's pill is outline. Green is not a button colour on this page:
+  the marketing header's Get started is already the screen's one green button,
+  and a second would break "one per screen". To make the paid pill green, change
+  `variant` in `PlanAction` and `PricingCheckoutButton` to `primary`.
+- **Questions** are hairline rows, not cards: an h3 at 18/500 (`heading-sm`) over
+  the answer at 14 in `text.muted`, a hairline above each and under the last, and
+  the Terms line under them.
+- **Headings.** One h1 (the title), h2 for the plans head and "Questions", h3
+  for the plan names, the questions and the "Pricing isn't loading" card (the plan
+  names were h2 before the plans section had a head of its own).
+- **Loading and unavailable.** `loading.tsx` draws the same frame, rules and grid
+  with skeletons. With no plans from the API the plans section shows the card
+  (left-aligned now) and the questions are left out, as before.
+- **Motion.** The head and the content of each section are `Reveal`s; reduced
+  motion and no JS show them as they are.
 
 ## 3D props
 

@@ -160,6 +160,19 @@ export const States: Story = {
 
 /** Loading: spinner replaces the label and the button stops taking clicks. */
 export const Loading: Story = { args: { loading: true } }
+
+/** Loading premium: the plum stays (a loading button is not a disabled one), as primary keeps its green. */
+export const PremiumLoading: Story = {
+  args: { variant: 'premium', loading: true, children: 'Start free trial' },
+  play: async ({ canvasElement }) => {
+    const button = within(canvasElement).getByRole('button')
+    await expect(getComputedStyle(button).backgroundColor).toBe(
+      'rgb(105, 56, 239)',
+    )
+    await expect(getComputedStyle(button).color).toBe('rgb(255, 255, 255)')
+  },
+}
+
 /** Disabled: muted fill and text, not focusable and not clickable. */
 export const Disabled: Story = { args: { disabled: true } }
 

@@ -144,6 +144,8 @@ function variantStyles(variant: SdlVariant): SystemStyleObject {
         _active: { filter: 'brightness(0.96)' },
         _focusVisible: sdlFocusRing,
         _disabled: disabledSolid,
+        // Loading keeps the plum with its spinner, as primary keeps its green.
+        _loading: { bg: 'accent.premium', color: 'white', opacity: 0.85 },
       }
   }
 }

@@ -246,3 +246,35 @@ export const SectionHeadVariants: Story = {
     await expect(bare?.previousElementSibling).toBeNull()
   },
 }
+
+/**
+ * `railsZIndex`: by default the rails sit under anything positioned over the
+ * page (1); a page whose sticky page header paints an opaque bar (the pricing
+ * page) raises them above it so they run unbroken from the site header. They
+ * stay out of the way of clicks either way.
+ */
+export const RailsAboveABar: Story = {
+  render: () => (
+    <>
+      <MarketingFrame data-testid="default-frame">
+        <Box h="80px" />
+      </MarketingFrame>
+      <MarketingFrame data-testid="raised-frame" railsZIndex={11}>
+        <Box h="80px" />
+      </MarketingFrame>
+    </>
+  ),
+  globals: { viewport: { value: 'desktop', isRotated: false } },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const railsOf = (id: string) =>
+      canvas
+        .getByTestId(id)
+        .querySelector<HTMLElement>('[data-marketing-rails]') as HTMLElement
+    await expect(getComputedStyle(railsOf('default-frame')).zIndex).toBe('1')
+    await expect(getComputedStyle(railsOf('raised-frame')).zIndex).toBe('11')
+    await expect(getComputedStyle(railsOf('raised-frame')).pointerEvents).toBe(
+      'none',
+    )
+  },
+}

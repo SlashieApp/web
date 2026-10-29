@@ -37,7 +37,16 @@ import { sdlEyebrow } from '@/theme/styles'
  */
 export const SECTION_PY = { base: 14, md: 20, lg: 24, xl: 32 } as const
 
-export type MarketingFrameProps = Omit<BoxProps, 'position'>
+export type MarketingFrameProps = Omit<BoxProps, 'position'> & {
+  /**
+   * The rails' stacking order (default 1, under anything that is positioned
+   * over the page). A page whose sticky page header paints an opaque bar
+   * across the page (the pricing page) raises it above the bar (11) so the
+   * rails run unbroken from the site header down. The rails never take a
+   * click.
+   */
+  railsZIndex?: BoxProps['zIndex']
+}
 
 /**
  * The content column of a marketing page: from `lg`, a 1px `border.default`
@@ -50,7 +59,11 @@ export type MarketingFrameProps = Omit<BoxProps, 'position'>
  * Wrap the sections, not the footer: the footer is its own band. Full-bleed
  * panels and `SectionRule`s run under the rails and cross them.
  */
-export function MarketingFrame({ children, ...boxProps }: MarketingFrameProps) {
+export function MarketingFrame({
+  children,
+  railsZIndex = 1,
+  ...boxProps
+}: MarketingFrameProps) {
   return (
     <Box position="relative" {...boxProps}>
       <Box
@@ -58,7 +71,7 @@ export function MarketingFrame({ children, ...boxProps }: MarketingFrameProps) {
         data-marketing-rails=""
         position="absolute"
         inset={0}
-        zIndex={1}
+        zIndex={railsZIndex}
         display={{ base: 'none', lg: 'block' }}
         pointerEvents="none"
       >

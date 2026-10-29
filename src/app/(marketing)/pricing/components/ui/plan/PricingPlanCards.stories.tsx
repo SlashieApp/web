@@ -27,6 +27,122 @@ function link(canvasElement: HTMLElement, name: string) {
   return within(canvasElement).getByRole('link', { name })
 }
 
+/** Resolved token values the stories check. */
+const WHITE = 'rgb(255, 255, 255)'
+const PLUM = 'rgb(105, 56, 239)'
+const BORDER_DEFAULT = 'rgb(228, 228, 231)'
+const BORDER_STRONG = 'rgb(212, 212, 216)'
+const TEXT_MUTED = 'rgb(82, 82, 91)'
+const INK = 'rgb(10, 21, 18)'
+const GREEN_400 = 'rgb(0, 220, 130)'
+const GREEN_600 = 'rgb(2, 165, 103)'
+
+/** The two cards, by the hooks they carry. */
+function cards(canvasElement: HTMLElement) {
+  const free = canvasElement.querySelector<HTMLElement>(
+    '[data-pricing-plan="free"]',
+  )
+  const unlimited = canvasElement.querySelector<HTMLElement>(
+    '[data-pricing-plan="unlimited"]',
+  )
+  if (!free || !unlimited) throw new Error('The plan cards are missing')
+  return { free, unlimited }
+}
+
+/**
+ * The card recipe of the product and the landing's teaser (FE-471): white, a
+ * 1px hairline, 12px corners and `e1`; the paid plan keeps plum for its label
+ * (with a sparkle), its hairline and its pill; the price is a 600 figure with
+ * tabular figures; the checks are green 600 strokes and nothing is a green fill.
+ */
+export const CardRecipe: Story = {
+  globals: { viewport: { value: 'tablet', isRotated: false } },
+  play: async ({ canvasElement }) => {
+    const { free, unlimited } = cards(canvasElement)
+
+    for (const card of [free, unlimited]) {
+      const style = getComputedStyle(card)
+      await expect(style.backgroundColor).toBe(WHITE)
+      await expect(style.borderTopWidth).toBe('1px')
+      await expect(style.borderTopLeftRadius).toBe('12px')
+      await expect(style.boxShadow).toContain('rgba(10, 21, 18, 0.05)')
+      await expect(style.textAlign).toMatch(/^(start|left)$/)
+    }
+    await expect(getComputedStyle(free).borderTopColor).toBe(BORDER_DEFAULT)
+    await expect(getComputedStyle(unlimited).borderTopColor).toBe(PLUM)
+
+    // Each plan's name is an h3 at 500; muted on Free, plum with the sparkle on the paid plan.
+    const freeTitle = within(free).getByRole('heading', { level: 3 })
+    const paidTitle = within(unlimited).getByRole('heading', { level: 3 })
+    await expect(freeTitle).toHaveTextContent('Free')
+    await expect(paidTitle).toHaveTextContent('Slashie Unlimited')
+    await expect(getComputedStyle(freeTitle).color).toBe(TEXT_MUTED)
+    await expect(getComputedStyle(paidTitle).color).toBe(PLUM)
+    await expect(Number(getComputedStyle(paidTitle).fontWeight)).toBe(500)
+    await expect(freeTitle.previousElementSibling).toBeNull()
+    await expect(paidTitle.previousElementSibling).toHaveAttribute(
+      'aria-hidden',
+      'true',
+    )
+
+    // The price: a figure, 34px at 600 with tabular figures, in ink.
+    for (const text of ['£0', '6 months free']) {
+      const style = getComputedStyle(within(canvasElement).getByText(text))
+      await expect(Number(style.fontWeight)).toBe(600)
+      await expect(style.fontSize).toBe('34px')
+      await expect(style.fontVariantNumeric).toContain('tabular-nums')
+      await expect(style.color).toBe(INK)
+    }
+
+    // The features: a hairline above, green 600 checks (aria-hidden), ink text.
+    const checks = free.querySelectorAll<HTMLElement>(
+      'li > span[aria-hidden="true"]',
+    )
+    await expect(checks).toHaveLength(pricingBag.en.plans.free.features.length)
+    for (const check of checks) {
+      await expect(getComputedStyle(check).color).toBe(GREEN_600)
+    }
+    await expect(
+      getComputedStyle(free.querySelector('ul') as HTMLElement).borderTopWidth,
+    ).toBe('1px')
+
+    // The buttons are pills: outline on Free, plum with a white label on the paid plan.
+    const freeButton = link(free, 'Get started')
+    const paidButton = link(unlimited, 'Start free trial')
+    await expect(getComputedStyle(freeButton).backgroundColor).toBe(WHITE)
+    await expect(getComputedStyle(freeButton).borderTopColor).toBe(
+      BORDER_STRONG,
+    )
+    await expect(getComputedStyle(paidButton).backgroundColor).toBe(PLUM)
+    await expect(getComputedStyle(paidButton).color).toBe(WHITE)
+    for (const button of [freeButton, paidButton]) {
+      const rect = button.getBoundingClientRect()
+      await expect(
+        Number.parseFloat(getComputedStyle(button).borderTopLeftRadius),
+      ).toBeGreaterThan(rect.height / 2 - 1)
+      await expect(rect.height).toBeGreaterThanOrEqual(44)
+    }
+    // Both buttons sit on one line at the card's foot.
+    await expect(freeButton.getBoundingClientRect().bottom).toBe(
+      paidButton.getBoundingClientRect().bottom,
+    )
+
+    // Green does not fill anything and weights stop at 600.
+    for (const node of [...canvasElement.querySelectorAll<HTMLElement>('*')]) {
+      const style = getComputedStyle(node)
+      await expect(style.backgroundColor).not.toBe(GREEN_400)
+      await expect(Number(style.fontWeight)).toBeLessThanOrEqual(600)
+    }
+
+    // The cards stand side by side at one height.
+    const [left, right] = [free, unlimited].map((card) =>
+      card.getBoundingClientRect(),
+    )
+    await expect(left?.top).toBe(right?.top)
+    await expect(left?.height).toBe(right?.height)
+  },
+}
+
 /** `guest`: both buttons go through sign-up; the trial leads on Unlimited. */
 export const Guest: Story = {
   play: async ({ canvasElement }) => {
@@ -115,9 +231,11 @@ export const WorkerFree: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
     await expect(canvas.getByText('Your plan')).toBeVisible()
-    await expect(
-      canvas.getByRole('button', { name: 'Start free trial' }),
-    ).toBeEnabled()
+    const trial = canvas.getByRole('button', { name: 'Start free trial' })
+    await expect(trial).toBeEnabled()
+    // The checkout button is the paid plan's pill: plum, like its links.
+    await expect(getComputedStyle(trial).backgroundColor).toBe(PLUM)
+    await expect(getComputedStyle(trial).color).toBe(WHITE)
   },
 }
 
@@ -185,9 +303,20 @@ export const YearlyPrice: Story = {
   },
 }
 
-/** Phone width: the cards stack, Free first. */
+/** Phone width: the cards stack, Free first, each as wide as the screen's column. */
 export const Mobile: Story = {
   globals: { viewport: { value: 'mobile1', isRotated: false } },
+  play: async ({ canvasElement }) => {
+    const { free, unlimited } = cards(canvasElement)
+    const [first, second] = [free, unlimited].map((card) =>
+      card.getBoundingClientRect(),
+    )
+    await expect(second?.top).toBeGreaterThanOrEqual(first?.bottom ?? 0)
+    await expect(first?.left).toBe(second?.left)
+    await expect(first?.width).toBe(second?.width)
+    const root = canvasElement.ownerDocument.documentElement
+    await expect(root.scrollWidth).toBeLessThanOrEqual(root.clientWidth)
+  },
 }
 
 /** Traditional Chinese: trial and interval come from the copy, not the API label. */
