@@ -26,6 +26,7 @@ import {
   PricingTeaser,
 } from '../components/ui/landing/sections/PricingTeaser'
 import { TrustSection } from '../components/ui/landing/sections/TrustSection'
+import { MapShowcase } from '../components/ui/landing/showcase/MapShowcase'
 import { LandingStory } from '../components/ui/landing/story/LandingStory'
 import {
   StoryStageMarker,
@@ -44,11 +45,11 @@ export async function generateMetadata() {
 }
 
 /**
- * Marketing landing at `/home`: a scroll story (hero, customer act, worker
- * act, trust, pricing, close) on a white page with floating 3D objects, and a
- * demo phone that follows the story. The sections sit in the marketing frame
- * (rails down the content column from `lg`, a full-width rule between
- * sections); the footer is its own band under it. All copy is
+ * Marketing landing at `/home`: a scroll story (hero, the map panel, customer
+ * act, worker act, trust, pricing, close) on a white page with floating 3D
+ * objects, and a demo phone that follows the story. The sections sit in the
+ * marketing frame (rails down the content column from `lg`, a full-width rule
+ * between sections); the footer is its own band under it. All copy is
  * server-rendered (SEO + no-JS legible); the scene, phone motion and scroll
  * tracking are client layers on top. Root `/` auth-redirects guests here
  * and signed-in users to `/search`.
@@ -107,6 +108,13 @@ export default async function MarketingHomePage() {
                 copy={landing.hero}
                 ctas={{ seeHowItWorks: ctas.seeHowItWorks }}
               />
+            }
+            showcase={
+              <>
+                <SectionRule />
+                <MapShowcase copy={landing.phone} />
+                <SectionRule />
+              </>
             }
             story={landing.story}
             phone={landing.phone}

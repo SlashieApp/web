@@ -51,6 +51,10 @@ components/ui/landing/
     formations.ts            poses per formation (viewport fractions), unit-tested
     objects/*                procedural models (drei RoundedBox, lathe/extrude/tube geometry)
     HeroObjectsPoster.tsx    still render of the hero objects (public/images/landing/)
+  showcase/
+    MapShowcase.tsx          the map panel: drawn map, price pins, the selected task's card
+    mapShowcaseModel.ts      pure: demo tasks from landing.phone, pin spots per layout, collision maths
+    mapShowcaseArt.ts        pure: the drawn map's shapes (river, roads, parks, streets)
   sections/                  TrustSection · PricingTeaser · FinalCtaBand
 ```
 
@@ -64,7 +68,8 @@ section builds on it:
   1px `border.default` rail down each side of the page column (`sizes.page`,
   the same measure as `<Container>` and the header) for the full height.
 - `SectionRule` is a full-width 1px rule between two sections; it runs across
-  the rails. `home/page.tsx` puts one between each section it assembles.
+  the rails. `home/page.tsx` puts one between each section it assembles (and
+  around the map panel it passes to `LandingStory`).
 - `SectionHead` is the left-aligned section head: a small green 600 icon and
   the eyebrow, then the heading (34/41 on a phone, 44/48 from `lg`, 500) and
   an optional body. Only the hero and the closing call to action are centred.
@@ -92,6 +97,47 @@ The one centred section (`hero/HeroSection.tsx`), built from tokens only:
 - The entrance is the `fade-rise` keyframe (a fade with an 8px rise, 400ms on
   the decelerate curve, once, staggered 60ms); reduced motion turns it off. The
   older `rise-in` keyframe (28px) still serves the phone screens.
+
+## Map panel
+
+The interactive map panel (`showcase/MapShowcase.tsx`) sits between the hero and
+the first act. `home/page.tsx` passes it to `LandingStory` as `showcase`, between
+two `SectionRule`s, so the order is hero, panel, then the phone and the acts (on
+both layouts). It belongs to no story stage: the scene stays in the hero
+formation while it passes, and the panel is opaque (`bg.canvas`).
+
+- **The map** is drawn, not tiled: an SVG in neutral tokens only (`bg.subtle`
+  land, `border.default` parks and road casings, `border.strong` river,
+  `bg.surface` streets). No green, no mint, no network, no Mapbox. The shapes are
+  data in `mapShowcaseArt.ts`; the SVG is one canvas that the map box crops
+  (`slice`, centred), the river down the middle so every crop keeps it.
+- **The map box** is as wide as the page column (80rem) and keeps an aspect
+  ratio per breakpoint (9:10 on a phone, 3:2 from `sm`, 9:5 from `md`, 11:5 from
+  `lg`; `MAP_ASPECT`), so it works from 390 to 1920 wide.
+- **Pins** are real buttons named by `landing.phone.search.selectPin` ("Show the
+  £45 task"), with `aria-pressed` for the selection, in reading order (top to
+  bottom, both layouts). A pin is a white pill with a 1px `border.default`
+  hairline, `e1`, and the price in green 800 at 600 with tabular figures; the
+  selected one is green 400 with an ink price and `e3`. The area sits under the
+  dot as a quiet map label. Focus is a green 600 ring round the pill. Hover steps
+  the hairline to `border.hover`.
+- **The card** is a lightweight replica of the product's `TaskCard` (which reads
+  the API and the router): `Card` (12px, hairline, `e1`), a neutral tile, a
+  neutral `Badge` with the area, the title at 500 / -0.01em, the price in ink at
+  600 with tabular figures and the muted meta. From `md` it floats over the map's
+  bottom-left corner (20px inset, 380px); below `md` it sits under the map. It is
+  an `aria-live="polite"` region, so a change of pin is announced.
+- **Pin spots** (`PIN_SPOTS`, fractions of the map box) differ per layout: the
+  narrow one uses the whole map, the wide one keeps clear of the card. The title
+  chip ("Tasks near you", the section's h2, `landing.phone.search.workerPlaceholder`)
+  takes the top-left. `mapShowcaseModel.test.ts` checks, at every width from 320
+  to 1920, that no two pins touch and none sits under the card or the chip.
+- **Copy:** none added. The tag on the card is the task's area, because the
+  phone bag has a category for one task only; the quote count is the bag's
+  `{count} quotes` (so "1 quotes", as the phone shows it).
+- **Motion:** pins ease their fill and lift over 200ms; a new card fades in with
+  an 8px rise over 300ms, only after the visitor picks a pin. Reduced motion
+  turns both off (the selection then cuts); the section's own reveal is `Reveal`.
 
 ## Behaviour by device
 

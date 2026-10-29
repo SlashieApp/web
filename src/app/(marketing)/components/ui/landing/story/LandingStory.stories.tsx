@@ -2,11 +2,15 @@ import { Box } from '@chakra-ui/react'
 import type { Decorator, Meta, StoryObj } from '@storybook/nextjs-vite'
 import { expect, waitFor, within } from 'storybook/test'
 
-import { MarketingFrame } from '@/app/(marketing)/components/layout/MarketingFrame'
+import {
+  MarketingFrame,
+  SectionRule,
+} from '@/app/(marketing)/components/layout/MarketingFrame'
 import messages from '@/app/(marketing)/i11n.json'
 import { formatMessage } from '@/i18n/loadPageI11n'
 
 import { HeroSection } from '../hero/HeroSection'
+import { MapShowcase } from '../showcase/MapShowcase'
 import { LandingStory } from './LandingStory'
 import { StoryTracker } from './StoryTracker'
 import { setStoryStage } from './storyState'
@@ -125,5 +129,58 @@ export const PhoneQuotesStep: Story = {
     await waitFor(() => expect(entrance.style.opacity).toBe('1'), {
       timeout: 3000,
     })
+  },
+}
+
+/**
+ * Story-only: the map panel between its two section rules, as `home/page.tsx`
+ * passes it to the story.
+ */
+const mapPanel = (
+  <>
+    <SectionRule />
+    <MapShowcase copy={phone} />
+    <SectionRule />
+  </>
+)
+
+/** Whether `a` comes before `b` in the document. */
+function isBefore(a: Element, b: Element): boolean {
+  return Boolean(
+    a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING,
+  )
+}
+
+/** Desktop with the map panel: the hero, then the panel between rules, then the first step of the story. */
+export const DesktopWithMapPanel: Story = {
+  args: { showcase: mapPanel },
+  globals: { viewport: { value: 'desktop', isRotated: false } },
+  play: async ({ canvasElement }) => {
+    const panel = canvasElement.querySelector('[data-map-showcase]')
+    if (!panel) throw new Error('The map panel is missing')
+    await expect(isBefore(getStep(canvasElement, 'hero'), panel)).toBe(true)
+    await expect(isBefore(panel, getStep(canvasElement, 'post'))).toBe(true)
+    // A rule on each side of the panel.
+    await expect(panel.previousElementSibling).toHaveAttribute(
+      'data-section-rule',
+    )
+    await expect(panel.nextElementSibling).toHaveAttribute('data-section-rule')
+  },
+}
+
+/** Below lg with the map panel: the hero, the panel, then the inline phone and the steps. */
+export const PhoneWithMapPanel: Story = {
+  args: { showcase: mapPanel },
+  globals: { viewport: { value: 'mobile1', isRotated: false } },
+  play: async ({ canvasElement }) => {
+    const panel = canvasElement.querySelector('[data-map-showcase]')
+    if (!panel) throw new Error('The map panel is missing')
+    const [firstPhone] = within(canvasElement).getAllByRole('figure', {
+      name: phone.demoLabel,
+    })
+    await expect(isBefore(panel, firstPhone)).toBe(true)
+    await expect(isBefore(firstPhone, getStep(canvasElement, 'post'))).toBe(
+      true,
+    )
   },
 }

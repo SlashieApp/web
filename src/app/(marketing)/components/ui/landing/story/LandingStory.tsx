@@ -261,14 +261,18 @@ function Act({
 
 /**
  * The scroll story: hero, then the customer act and the worker act, with the
- * demo phone pinned beside the steps on desktop and inline on phones.
+ * demo phone pinned beside the steps on desktop and inline on phones. A
+ * `showcase` (the map panel, with its own section rules) sits between the hero
+ * and the first act; the phone follows it on both layouts.
  */
 export function LandingStory({
   hero,
+  showcase,
   story,
   phone,
 }: {
   hero: ReactNode
+  showcase?: ReactNode
   story: StoryCopy
   phone: PhoneCopy
 }) {
@@ -277,12 +281,14 @@ export function LandingStory({
   return (
     <Box position="relative">
       <HeroObjectsPoster />
-      <StoryStageMarker stage="hero">
-        {hero}
+      <StoryStageMarker stage="hero">{hero}</StoryStageMarker>
+      {showcase}
+      <StoryStageMarker stage="hero" display={{ base: 'block', lg: 'none' }}>
         <StepPhone
           stage="hero"
           copy={phone}
-          display={{ base: 'flex', lg: 'none' }}
+          display="flex"
+          pt={showcase ? 8 : 0}
           pb={8}
         />
       </StoryStageMarker>
