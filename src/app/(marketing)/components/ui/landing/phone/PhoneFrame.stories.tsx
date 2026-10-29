@@ -38,14 +38,10 @@ const meta = {
     w: '300px',
     children: <BlankScreen />,
   },
-  // The mint wash the landing sets the phone on.
+  // The white page the landing sets the phone on.
   decorators: [
     (Story) => (
-      <Box
-        p={{ base: 4, md: 8 }}
-        bg="status.success.soft"
-        display="inline-block"
-      >
+      <Box p={{ base: 4, md: 8 }} bg="bg.surface" display="inline-block">
         <Story />
       </Box>
     ),

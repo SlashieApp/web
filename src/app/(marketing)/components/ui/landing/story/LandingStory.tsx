@@ -1,176 +1,118 @@
 'use client'
 
+import { Box, Grid, HStack, Heading, Stack, Text } from '@chakra-ui/react'
+import type { ReactNode } from 'react'
+import type { IconType } from 'react-icons'
+import { LuHardHat, LuPointer, LuUser } from 'react-icons/lu'
+
 import {
-  Box,
-  Container,
-  Grid,
-  HStack,
-  Heading,
-  Stack,
-  Text,
-} from '@chakra-ui/react'
-import { motion, useMotionValue, useReducedMotion } from 'motion/react'
-import { type ReactNode, useEffect, useRef } from 'react'
-import { LuPointer } from 'react-icons/lu'
-
+  SECTION_PY,
+  SectionHead,
+} from '@/app/(marketing)/components/layout/MarketingFrame'
 import { PAGE_CONTAINER_MAX_W, PAGE_GUTTER_X } from '@/theme/pageContainer'
-import { sdlEyebrow, sdlFigure } from '@/theme/styles'
 
+import { Reveal } from '../Reveal'
 import { STICKY_PHONE_W, StepPhone, StickyPhone } from '../phone/PhoneDemo'
 import { PHONE_ASPECT } from '../phone/PhoneFrame'
 import type { PhoneCopy, StoryCopy } from '../phone/phoneCopy'
 import { HeroObjectsPoster } from '../scene/HeroObjectsPoster'
+import { StoryIndex } from './StoryIndex'
 import { StoryStageMarker } from './StoryTracker'
+import {
+  STORY_HEADER_H,
+  STORY_STEP_MIN_H,
+  STORY_STEP_SCROLL_MARGIN,
+} from './storyLayout'
 import type { StoryStage } from './storyState'
+import {
+  CUSTOMER_STAGES,
+  type CustomerStage,
+  WORKER_STAGES,
+  type WorkerStage,
+  buildIndexGroups,
+  stepDomId,
+} from './storySteps'
 
 const PHONE_H = `calc(${STICKY_PHONE_W} * ${PHONE_ASPECT})`
 
-function easeInOut(t: number) {
-  return t < 0.5 ? 2 * t * t : 1 - (-2 * t + 2) ** 2 / 2
-}
-
-/**
- * Desktop phone layer. Vertically it is pure CSS: a sticky phone in a track
- * that spans the spacer under the hero text through the end of both acts,
- * so it starts under the hero, pins at the middle of the screen and lets go
- * exactly when the story ends. Sideways it slides from the hero centre into
- * the right-hand column as the hero scrolls away (snapping instead under
- * reduced motion). Server HTML starts centred.
- */
-function PhoneRig({ copy }: { copy: PhoneCopy }) {
-  const layerRef = useRef<HTMLDivElement>(null)
-  const x = useMotionValue(0)
-  const reduced = useReducedMotion()
-
-  useEffect(() => {
-    let frame = 0
-    const update = () => {
-      frame = 0
-      const layer = layerRef.current
-      const spacer = document.querySelector('[data-phone-spacer]')
-      const column = document.querySelector('[data-phone-column]')
-      if (!layer || !spacer || !column) return
-      const layerRect = layer.getBoundingClientRect()
-      const spacerRect = spacer.getBoundingClientRect()
-      const columnRect = column.getBoundingClientRect()
-      // The layer starts where the spacer is and sticks once centred.
-      const startTop = spacerRect.top + window.scrollY
-      const stuckTop = (window.innerHeight - layerRect.height) / 2
-      const travel = startTop - stuckTop
-      const progress =
-        travel > 0 ? Math.min(Math.max(window.scrollY / travel, 0), 1) : 1
-      const target =
-        columnRect.left +
-        columnRect.width / 2 -
-        (layerRect.left + layerRect.width / 2)
-      x.set(
-        reduced ? (progress >= 1 ? target : 0) : target * easeInOut(progress),
-      )
-    }
-    const schedule = () => {
-      if (!frame) frame = window.requestAnimationFrame(update)
-    }
-    update()
-    window.addEventListener('scroll', schedule, { passive: true })
-    window.addEventListener('resize', schedule)
-    return () => {
-      window.cancelAnimationFrame(frame)
-      window.removeEventListener('scroll', schedule)
-      window.removeEventListener('resize', schedule)
-    }
-  }, [reduced, x])
-
-  return (
-    <Box
-      position="absolute"
-      inset={0}
-      display={{ base: 'none', lg: 'block' }}
-      zIndex={2}
-      pointerEvents="none"
-    >
-      <Box
-        ref={layerRef}
-        display="flex"
-        justifyContent="center"
-        position="sticky"
-        top={`calc(50vh - ${PHONE_H} / 2)`}
-        h={PHONE_H}
-      >
-        <motion.div style={{ x, pointerEvents: 'auto' }}>
-          <StickyPhone copy={copy} />
-        </motion.div>
-      </Box>
-    </Box>
-  )
-}
-
 type StepCopy = { title: string; body: string }
 
-function StepBlock({
+/**
+ * One step as a hairline row: its number in Geist Mono 12 (`text.subtle`,
+ * never green), the title at 18/500 and the body at 14 in `text.muted`.
+ *
+ * The row is the step's story stage: the tracker marks it active when it
+ * crosses the middle of the viewport, and the phone, the 3D scene and the
+ * section index follow. The text sits at the top of the row, so it arrives
+ * just under that line as the phone changes. From `lg` the row is tall enough
+ * for the phone to stay on the step's screen while the text is read (and for a
+ * fast scroll not to skip it, since the tracker watches a single line); below
+ * `lg` it carries its own inline phone.
+ */
+function StepRow({
   stage,
   number,
   step,
   phone,
-  intro,
   hint,
 }: {
   stage: StoryStage
   number: number
   step: StepCopy
   phone: PhoneCopy
-  /** Act heading, shown above the act's first step. */
-  intro?: ReactNode
   hint?: string
 }) {
   return (
     <StoryStageMarker
+      as="li"
       stage={stage}
-      minH={{ lg: '82vh' }}
-      display="flex"
-      flexDirection="column"
-      justifyContent="center"
-      py={{ base: 10, lg: 16 }}
+      id={stepDomId(stage)}
+      listStyleType="none"
+      scrollMarginTop={STORY_STEP_SCROLL_MARGIN}
+      minH={{ lg: STORY_STEP_MIN_H }}
+      pt={{ base: 8, lg: 10 }}
+      pb={{ base: 8, lg: 12 }}
+      borderTopWidth="1px"
+      borderColor="border.default"
+      // The list's last row closes it with a hairline.
+      css={{ '&:last-of-type': { borderBottomWidth: '1px' } }}
     >
-      {intro}
-      <Stack gap={3} maxW="30rem">
-        <Text
-          fontSize="sm"
-          {...sdlFigure}
-          letterSpacing="0.08em"
-          color="text.link"
+      <Reveal>
+        <Grid
+          templateColumns="2.5rem minmax(0, 1fr)"
+          alignItems="baseline"
+          maxW="38rem"
         >
-          {String(number).padStart(2, '0')}
-        </Text>
-        <Heading
-          as="h3"
-          fontFamily="display"
-          fontWeight={500}
-          fontSize={{ base: '26px', lg: '34px' }}
-          lineHeight={1.15}
-          letterSpacing={{ base: '-0.02em', lg: '-0.03em' }}
-        >
-          {step.title}
-        </Heading>
-        <Text
-          fontSize={{ base: 'md', lg: 'lg' }}
-          lineHeight={1.6}
-          color="text.muted"
-        >
-          {step.body}
-        </Text>
-        {hint ? (
-          <HStack
-            gap={2}
-            mt={2}
-            fontSize="sm"
+          <Text
+            as="span"
+            aria-hidden
+            fontFamily="mono"
+            fontSize="12px"
+            lineHeight="16px"
             fontWeight={500}
-            color="text.link"
+            fontVariantNumeric="tabular-nums"
+            color="text.subtle"
           >
-            <LuPointer size={16} aria-hidden />
-            <Text>{hint}</Text>
-          </HStack>
-        ) : null}
-      </Stack>
+            {String(number).padStart(2, '0')}
+          </Text>
+          <Stack gap={1.5}>
+            <Heading as="h3" textStyle="heading-sm" color="text.default">
+              {step.title}
+            </Heading>
+            <Text textStyle="text-sm" color="text.muted">
+              {step.body}
+            </Text>
+            {hint ? (
+              <HStack gap={2} mt={2} textStyle="text-sm" fontWeight={500}>
+                <Box as="span" display="inline-flex" color="accent.active">
+                  <LuPointer size={16} aria-hidden />
+                </Box>
+                <Text color="text.muted">{hint}</Text>
+              </HStack>
+            ) : null}
+          </Stack>
+        </Grid>
+      </Reveal>
       <StepPhone
         stage={stage}
         copy={phone}
@@ -181,89 +123,86 @@ function StepBlock({
   )
 }
 
-function ActIntro({
-  id,
-  eyebrow,
-  heading,
-}: {
-  id: string
-  eyebrow: string
-  heading: string
-}) {
-  return (
-    <Stack gap={2} mb={{ base: 4, lg: 8 }}>
-      <Text {...sdlEyebrow}>{eyebrow}</Text>
-      <Heading
-        as="h2"
-        id={id}
-        fontFamily="display"
-        fontWeight={500}
-        fontSize={{ base: '32px', lg: '44px' }}
-        lineHeight={1.1}
-        letterSpacing={{ base: '-0.025em', lg: '-0.035em' }}
-      >
-        {heading}
-      </Heading>
-    </Stack>
-  )
-}
-
+/**
+ * An act: its head (the eyebrow with a small green icon, then the heading)
+ * over its steps as hairline rows. The head belongs to the act's first step, so
+ * the phone and the index move to the act as soon as its head is mid-screen.
+ */
 function Act({
-  id,
+  icon,
   eyebrow,
   heading,
   steps,
   phone,
   hint,
+  spaced = false,
 }: {
-  id?: string
+  icon: IconType
   eyebrow: string
   heading: string
   steps: { stage: StoryStage; copy: StepCopy }[]
   phone: PhoneCopy
   hint?: string
+  /** Leave a section's worth of space above (the second act). */
+  spaced?: boolean
 }) {
-  const headingId = `${steps[0]?.stage}-heading`
+  const [first] = steps
+  const headingId = `${first?.stage}-heading`
   return (
-    <Box as="section" id={id} aria-labelledby={headingId}>
-      <Container maxW={PAGE_CONTAINER_MAX_W} px={PAGE_GUTTER_X}>
-        <Grid
-          templateColumns={{ base: '1fr', lg: 'minmax(0, 1fr) minmax(0, 1fr)' }}
-          gap={{ lg: 16 }}
-        >
-          <Box>
-            {steps.map(({ stage, copy }, index) => (
-              <StepBlock
-                key={stage}
-                stage={stage}
-                number={index + 1}
-                step={copy}
-                phone={phone}
-                hint={index === 0 ? hint : undefined}
-                intro={
-                  index === 0 ? (
-                    <ActIntro
-                      id={headingId}
-                      eyebrow={eyebrow}
-                      heading={heading}
-                    />
-                  ) : undefined
-                }
-              />
-            ))}
-          </Box>
-          <Box data-phone-column display={{ base: 'none', lg: 'block' }} />
-        </Grid>
-      </Container>
+    <Box
+      as="section"
+      aria-labelledby={headingId}
+      mt={spaced ? { base: 14, md: 20, lg: 24 } : 0}
+    >
+      {first ? (
+        <StoryStageMarker stage={first.stage} pb={{ base: 6, lg: 8 }}>
+          <Reveal>
+            <SectionHead
+              icon={icon}
+              eyebrow={eyebrow}
+              heading={heading}
+              headingId={headingId}
+            />
+          </Reveal>
+        </StoryStageMarker>
+      ) : null}
+      <Box as="ol" m={0} p={0} mt={{ base: 8, lg: 12 }} listStyleType="none">
+        {steps.map(({ stage, copy }, index) => (
+          <StepRow
+            key={stage}
+            stage={stage}
+            number={index + 1}
+            step={copy}
+            phone={phone}
+            hint={index === 0 ? hint : undefined}
+          />
+        ))}
+      </Box>
     </Box>
   )
 }
 
+const customerSteps = (steps: StoryCopy['customer']['steps']) =>
+  CUSTOMER_STAGES.map((stage: CustomerStage) => ({
+    stage,
+    copy: steps[stage],
+  }))
+
+const workerSteps = (steps: StoryCopy['worker']['steps']) =>
+  WORKER_STAGES.map((stage: WorkerStage) => ({ stage, copy: steps[stage] }))
+
 /**
- * The scroll story: hero, then the customer act and the worker act, with the
- * demo phone pinned beside the steps on desktop and inline on phones. A
- * `showcase` (the map panel, with its own section rules) sits between the hero
- * and the first act; the phone follows it on both layouts.
+ * The scroll story (tone refresh, train 2, item 4): the hero, then how it
+ * works, the customer act and the worker act. A `showcase` (the map panel and
+ * the bento, with their own section rules) sits between the two.
+ *
+ * How it works is three columns from `lg`: the section index (sticky, left),
+ * the steps (middle) and the demo phone, pinned in the right column from the
+ * first step to the last. Below `lg` it is one column: the index is a row that
+ * sticks under the header and each step carries its own inline phone.
+ *
+ * The phone is plain CSS `position: sticky` in the right column, so the
+ * server HTML already has it in place and reduced motion changes nothing.
  */
 export function LandingStory({
   hero,
@@ -276,56 +215,80 @@ export function LandingStory({
   story: StoryCopy
   phone: PhoneCopy
 }) {
-  const customer = story.customer
-  const worker = story.worker
+  const { customer, worker } = story
   return (
     <Box position="relative">
       <HeroObjectsPoster />
       <StoryStageMarker stage="hero">{hero}</StoryStageMarker>
       {showcase}
-      <StoryStageMarker stage="hero" display={{ base: 'block', lg: 'none' }}>
-        <StepPhone
-          stage="hero"
-          copy={phone}
-          display="flex"
-          pt={showcase ? 8 : 0}
-          pb={8}
-        />
-      </StoryStageMarker>
-      {/* The phone's track: from under the hero text to the end of the
-          worker act. */}
-      <Box position="relative">
-        <StoryStageMarker
-          stage="hero"
-          data-phone-spacer
-          display={{ base: 'none', lg: 'block' }}
-          h={`calc(${PHONE_H} + 6vh)`}
-        />
-        <Act
-          id="how-it-works"
-          eyebrow={customer.eyebrow}
-          heading={customer.heading}
-          hint={story.tapHint}
-          phone={phone}
-          steps={[
-            { stage: 'post', copy: customer.steps.post },
-            { stage: 'quotes', copy: customer.steps.quotes },
-            { stage: 'chat', copy: customer.steps.chat },
-            { stage: 'hire', copy: customer.steps.hire },
-            { stage: 'review', copy: customer.steps.review },
-          ]}
-        />
-        <Act
-          eyebrow={worker.eyebrow}
-          heading={worker.heading}
-          phone={phone}
-          steps={[
-            { stage: 'workerFind', copy: worker.steps.workerFind },
-            { stage: 'workerQuote', copy: worker.steps.workerQuote },
-            { stage: 'workerProfile', copy: worker.steps.workerProfile },
-          ]}
-        />
-        <PhoneRig copy={phone} />
+      <Box
+        id="how-it-works"
+        data-how-it-works=""
+        // "See how it works" lands the section under the sticky header.
+        scrollMarginTop={STORY_HEADER_H}
+      >
+        <Box
+          maxW={PAGE_CONTAINER_MAX_W}
+          mx="auto"
+          px={PAGE_GUTTER_X}
+          py={SECTION_PY}
+        >
+          {/* From lg two halves, as the 3D scene's formations expect: the
+              steps (with the index) on the left, the phone on the right. */}
+          <Grid
+            templateColumns={{
+              lg: 'minmax(0, 1fr) 22rem',
+              xl: 'repeat(2, minmax(0, 1fr))',
+            }}
+            columnGap={{ lg: 12, xl: 16 }}
+          >
+            {/* A block below lg, so the index can stick along both acts; a
+                grid from lg, where it is one tall row the index sticks in. */}
+            <Grid
+              display={{ base: 'block', lg: 'grid' }}
+              templateColumns={{
+                lg: '9rem minmax(0, 1fr)',
+                xl: '10rem minmax(0, 1fr)',
+              }}
+              columnGap={8}
+              minW={0}
+            >
+              <StoryIndex
+                label={story.index.label}
+                groups={buildIndexGroups(story.index)}
+              />
+              <Box minW={0}>
+                <Act
+                  icon={LuUser}
+                  eyebrow={customer.eyebrow}
+                  heading={customer.heading}
+                  hint={story.tapHint}
+                  phone={phone}
+                  steps={customerSteps(customer.steps)}
+                />
+                <Act
+                  icon={LuHardHat}
+                  eyebrow={worker.eyebrow}
+                  heading={worker.heading}
+                  phone={phone}
+                  steps={workerSteps(worker.steps)}
+                  spaced
+                />
+              </Box>
+            </Grid>
+            <Box data-phone-column="" display={{ base: 'none', lg: 'block' }}>
+              <Box
+                position="sticky"
+                top={`calc(50vh - ${PHONE_H} / 2)`}
+                display="flex"
+                justifyContent="center"
+                h={PHONE_H}
+              >
+                <StickyPhone copy={phone} />
+              </Box>
+            </Box>
+          </Grid>
+        </Box>
       </Box>
     </Box>
   )

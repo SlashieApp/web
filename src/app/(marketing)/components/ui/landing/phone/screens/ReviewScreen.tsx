@@ -36,7 +36,12 @@ export function ReviewScreen({
           <LuArrowLeft size={22} />
         </Box>
         <Stack gap={0} flex={1} minW={0}>
-          <Text fontSize="15px" fontWeight={500} lineClamp={1}>
+          <Text
+            fontSize="15px"
+            fontWeight={500}
+            letterSpacing="-0.01em"
+            lineClamp={1}
+          >
             {copy.tasks.hedge.title}
           </Text>
           <Text fontSize="12px" color="text.muted">
@@ -50,7 +55,7 @@ export function ReviewScreen({
           align="center"
           gap="14px"
           p="20px"
-          borderRadius="20px"
+          borderRadius="16px"
           bg="bg.surface"
           borderWidth="1px"
           borderColor="border.default"
@@ -58,7 +63,7 @@ export function ReviewScreen({
         >
           <InitialAvatar initials={quote.initials} size={56} />
           <Stack gap="2px" align="center">
-            <Text fontSize="18px" fontWeight={500}>
+            <Text fontSize="18px" fontWeight={500} letterSpacing="-0.01em">
               {t.title}
             </Text>
             <Text fontSize="14px" color="text.muted">
@@ -100,9 +105,10 @@ export function ReviewScreen({
             minH="76px"
             px="12px"
             py="10px"
-            borderRadius="12px"
+            borderRadius="8px"
             borderWidth="1px"
-            borderColor="border.default"
+            borderColor="border.strong"
+            bg="bg.surface"
             fontSize="14px"
             color={done ? 'text.default' : 'text.subtle'}
           >

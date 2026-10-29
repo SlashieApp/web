@@ -112,7 +112,12 @@ export function ChatScreen({
           <LuArrowLeft size={22} />
         </Box>
         <Stack gap={0} flex={1} minW={0}>
-          <Text fontSize="15px" fontWeight={500} lineClamp={1}>
+          <Text
+            fontSize="15px"
+            fontWeight={500}
+            letterSpacing="-0.01em"
+            lineClamp={1}
+          >
             {copy.tasks.hedge.title}
           </Text>
           <Text fontSize="12px" color="text.muted">
@@ -144,7 +149,7 @@ export function ChatScreen({
           alignSelf="center"
           w="88%"
           p="14px"
-          borderRadius="16px"
+          borderRadius="12px"
           borderWidth="1px"
           borderColor="border.default"
           bg="bg.subtle"
@@ -159,9 +164,9 @@ export function ChatScreen({
           <Box
             mt="10px"
             display="inline-flex"
-            px="12px"
+            px="14px"
             py="6px"
-            borderRadius="10px"
+            borderRadius="full"
             borderWidth="1px"
             borderColor="border.strong"
             bg="bg.surface"

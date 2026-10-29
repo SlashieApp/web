@@ -37,7 +37,7 @@ export function WorkerQuoteScreen({
         <Box display="inline-flex" aria-hidden>
           <LuX size={22} />
         </Box>
-        <Text fontSize="16px" fontWeight={500}>
+        <Text fontSize="16px" fontWeight={500} letterSpacing="-0.01em">
           {t.header}
         </Text>
         <Box w="22px" />
@@ -45,7 +45,7 @@ export function WorkerQuoteScreen({
 
       <Stack gap="12px" p="16px" flex={1}>
         <DemoCard style={enterStyle(entered, 0)}>
-          <Text fontSize="16px" fontWeight={500}>
+          <Text fontSize="16px" fontWeight={500} letterSpacing="-0.01em">
             {task.title}
           </Text>
           <HStack mt="4px" gap="4px" fontSize="13px" color="text.muted">
@@ -54,12 +54,7 @@ export function WorkerQuoteScreen({
             <Text aria-hidden>·</Text>
             <Text>{t.postedBy}</Text>
           </HStack>
-          <Text
-            mt="8px"
-            fontSize="13px"
-            fontWeight={500}
-            color="status.success.fg"
-          >
+          <Text mt="8px" fontSize="13px" fontWeight={500} color="text.muted">
             {formatMessage(t.budget, { price: task.price })}
           </Text>
         </DemoCard>
@@ -71,9 +66,11 @@ export function WorkerQuoteScreen({
           <Box
             px="12px"
             py="8px"
-            borderRadius="10px"
-            borderWidth="1.5px"
+            borderRadius="8px"
+            borderWidth="1px"
             borderColor="border.focus"
+            boxShadow="0 0 0 1px var(--chakra-colors-border-focus)"
+            bg="bg.surface"
             fontSize="26px"
             fontWeight={600}
             fontVariantNumeric="tabular-nums"
@@ -90,9 +87,10 @@ export function WorkerQuoteScreen({
             minH="88px"
             px="12px"
             py="10px"
-            borderRadius="10px"
+            borderRadius="8px"
             borderWidth="1px"
-            borderColor="border.default"
+            borderColor="border.strong"
+            bg="bg.surface"
             fontSize="14px"
             lineHeight={1.45}
           >
@@ -143,7 +141,13 @@ export function WorkerQuoteScreen({
       ) : null}
 
       <Box px="16px" pb="44px" style={enterStyle(entered, 3)}>
-        <Hotspot label={t.submit} onPress={trigger} pulse={!done} w="full">
+        <Hotspot
+          label={t.submit}
+          onPress={trigger}
+          pulse={!done}
+          w="full"
+          borderRadius="full"
+        >
           <DemoPrimary>
             {done ? <LuCheck size={18} aria-hidden /> : null}
             {done ? t.sentTitle : t.submit}

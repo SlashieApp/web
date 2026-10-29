@@ -18,7 +18,7 @@ const copy = messages.en.landing.phone
 
 function DemoPhone({ stage, width }: { stage: StoryStage; width: number }) {
   return (
-    <Box p={8} bg="status.success.soft" display="inline-block">
+    <Box p={8} bg="bg.surface" display="inline-block">
       <PhoneFrame label={copy.demoLabel} nominalWidth={width} w={`${width}px`}>
         <PhoneScreen stage={stage} copy={copy} active intro={false} />
       </PhoneFrame>
@@ -34,7 +34,7 @@ function PinnedPhone({ stage }: { stage: StoryStage }) {
   // Leave the store as the page starts, so other stories begin at the hero.
   useEffect(() => () => setStoryStage('hero'), [])
   return (
-    <Box p={8} bg="status.success.soft" display="inline-block">
+    <Box p={8} bg="bg.surface" display="inline-block">
       <StickyPhone copy={copy} />
     </Box>
   )
@@ -121,7 +121,7 @@ export const StepPhoneInView: Story = {
   argTypes: { width: { table: { disable: true } } },
   globals: { viewport: { value: 'mobile1', isRotated: false } },
   render: ({ stage }) => (
-    <Box py={4} bg="status.success.soft">
+    <Box py={4} bg="bg.surface">
       <StepPhone stage={stage} copy={copy} />
     </Box>
   ),
@@ -132,7 +132,7 @@ export const StepPhoneBelowTheFold: Story = {
   parameters: { controls: { disable: true } },
   globals: { viewport: { value: 'mobile1', isRotated: false } },
   render: () => (
-    <Box bg="status.success.soft">
+    <Box bg="bg.surface">
       <Box h="120vh" p={4}>
         <Text color="text.muted" fontSize="sm">
           Scroll down: the phone plays once a third of it is on screen.

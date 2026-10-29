@@ -44,13 +44,38 @@ const withLandingPage: Decorator = (Story) => (
   </Box>
 )
 
-/** Story-only: the block that marks one step of the story in the page. */
+/**
+ * Story-only: the block that marks one step of the story in the page. A step's
+ * row (an `li`) wins over its act's head, which carries the first step's stage.
+ */
 function getStep(canvasElement: HTMLElement, stage: string): HTMLElement {
-  const step = canvasElement.querySelector<HTMLElement>(
-    `[data-story-stage="${stage}"]`,
-  )
+  const step =
+    canvasElement.querySelector<HTMLElement>(
+      `li[data-story-stage="${stage}"]`,
+    ) ??
+    canvasElement.querySelector<HTMLElement>(`[data-story-stage="${stage}"]`)
   if (!step) throw new Error(`Story step "${stage}" not found`)
   return step
+}
+
+/**
+ * Story-only: the colour a semantic token resolves to, read off a probe
+ * element, so the stories compare with the tokens and not with hex values.
+ */
+function tokenColor(host: HTMLElement, token: string): string {
+  const probe = document.createElement('span')
+  probe.style.color = `var(--chakra-colors-${token.replace('.', '-')})`
+  host.appendChild(probe)
+  const color = getComputedStyle(probe).color
+  probe.remove()
+  return color
+}
+
+/** Story-only: the section index, whose active link follows the tracker. */
+function getIndex(canvasElement: HTMLElement): HTMLElement {
+  return within(canvasElement).getByRole('navigation', {
+    name: story.index.label,
+  })
 }
 
 const meta = {
@@ -75,12 +100,83 @@ const meta = {
 export default meta
 type Story = StoryObj<typeof meta>
 
-/** Desktop (lg and up): steps on the left, one pinned phone that follows them. */
+/**
+ * Desktop (lg and up): the section index on the left, the steps as hairline
+ * rows beside it and one pinned phone on the right that follows them.
+ */
 export const Desktop: Story = {
   globals: { viewport: { value: 'desktop', isRotated: false } },
+  play: async ({ canvasElement }) => {
+    const index = getIndex(canvasElement)
+    const firstStep = getStep(canvasElement, 'post')
+    const phoneColumn = canvasElement.querySelector<HTMLElement>(
+      '[data-phone-column]',
+    )
+    if (!phoneColumn) throw new Error('The phone column is missing')
+    // Index, steps, phone: left to right.
+    const indexRect = index.getBoundingClientRect()
+    const stepRect = firstStep.getBoundingClientRect()
+    const phoneRect = phoneColumn.getBoundingClientRect()
+    await expect(indexRect.right).toBeLessThanOrEqual(stepRect.left)
+    await expect(stepRect.right).toBeLessThanOrEqual(phoneRect.left)
+    // The index and the phone both stick (plain CSS, no scroll script).
+    await expect(getComputedStyle(index).position).toBe('sticky')
+    const pinned = phoneColumn.firstElementChild as HTMLElement
+    await expect(getComputedStyle(pinned).position).toBe('sticky')
+    // The page has the one pinned phone; the inline ones are hidden.
+    await expect(
+      within(canvasElement).getAllByRole('figure', { name: phone.demoLabel }),
+    ).toHaveLength(1)
+  },
 }
 
-/** Desktop, scrolled to the chat step: the pinned phone has moved on to the thread. */
+/**
+ * Desktop: the steps are hairline rows. The number is Geist Mono 12 in
+ * `text.subtle` (never green), the title 18/500 and the body 14 in
+ * `text.muted`.
+ */
+export const DesktopHairlineRows: Story = {
+  globals: { viewport: { value: 'desktop', isRotated: false } },
+  play: async ({ canvasElement }) => {
+    const row = getStep(canvasElement, 'quotes')
+    await expect(row.tagName).toBe('LI')
+    const rowStyle = getComputedStyle(row)
+    await expect(rowStyle.borderTopWidth).toBe('1px')
+    await expect(rowStyle.borderTopColor).toBe(
+      tokenColor(canvasElement, 'border.default'),
+    )
+    const title = within(row).getByRole('heading', {
+      level: 3,
+      name: story.customer.steps.quotes.title,
+    })
+    await expect(getComputedStyle(title).fontSize).toBe('18px')
+    await expect(getComputedStyle(title).fontWeight).toBe('500')
+    const body = within(row).getByText(story.customer.steps.quotes.body)
+    await expect(getComputedStyle(body).fontSize).toBe('14px')
+    await expect(getComputedStyle(body).color).toBe(
+      tokenColor(canvasElement, 'text.muted'),
+    )
+    const number = within(row).getByText('02')
+    const numberStyle = getComputedStyle(number)
+    await expect(numberStyle.fontSize).toBe('12px')
+    await expect(numberStyle.fontFamily).toContain('Geist Mono')
+    await expect(numberStyle.color).toBe(
+      tokenColor(canvasElement, 'text.subtle'),
+    )
+    // The act heads: eyebrow, then the heading, and the worker's below.
+    await expect(
+      within(canvasElement).getByRole('heading', {
+        level: 2,
+        name: story.worker.heading,
+      }),
+    ).toBeInTheDocument()
+    await expect(
+      within(canvasElement).getByText(story.customer.eyebrow),
+    ).toBeInTheDocument()
+  },
+}
+
+/** Desktop, scrolled to the chat step: the pinned phone has moved on to the thread, and so has the index. */
 export const DesktopChatStep: Story = {
   globals: { viewport: { value: 'desktop', isRotated: false } },
   play: async ({ canvasElement }) => {
@@ -100,12 +196,70 @@ export const DesktopChatStep: Story = {
       },
       { timeout: 5000 },
     )
+    // The index is driven by the same tracker: the chat step is the current one.
+    const chat = within(getIndex(canvasElement)).getByRole('link', {
+      name: story.index.chat,
+    })
+    await waitFor(() => expect(chat).toHaveAttribute('aria-current'), {
+      timeout: 5000,
+    })
+    await expect(
+      getIndex(canvasElement).querySelectorAll('[aria-current]'),
+    ).toHaveLength(1)
+    await expect(getComputedStyle(chat).color).toBe(
+      tokenColor(canvasElement, 'text.default'),
+    )
   },
 }
 
-/** Below lg (phone width): no pinned phone, each step carries its own inline phone. */
+/** Desktop, scrolled into the worker act: its first step is current and the phone shows the worker map. */
+export const DesktopWorkerAct: Story = {
+  globals: { viewport: { value: 'desktop', isRotated: false } },
+  play: async ({ canvasElement }) => {
+    getStep(canvasElement, 'workerQuote').scrollIntoView({ block: 'center' })
+    const link = within(getIndex(canvasElement)).getByRole('link', {
+      name: story.index.workerQuote,
+    })
+    await waitFor(() => expect(link).toHaveAttribute('aria-current'), {
+      timeout: 5000,
+    })
+    const pinnedPhone = within(canvasElement).getByRole('figure', {
+      name: phone.demoLabel,
+    })
+    await waitFor(
+      () =>
+        expect(
+          within(pinnedPhone).getByText(phone.worker.header),
+        ).toBeInTheDocument(),
+      { timeout: 5000 },
+    )
+  },
+}
+
+/**
+ * Below lg (phone width): no pinned phone, each step carries its own inline
+ * phone, and the section index is a row that sticks under the header.
+ */
 export const Phone: Story = {
   globals: { viewport: { value: 'mobile1', isRotated: false } },
+  play: async ({ canvasElement }) => {
+    const index = getIndex(canvasElement)
+    await expect(getComputedStyle(index).position).toBe('sticky')
+    // One inline phone per step, each inside its step's row.
+    const phones = within(canvasElement).getAllByRole('figure', {
+      name: phone.demoLabel,
+    })
+    await expect(phones).toHaveLength(8)
+    for (const figure of phones) {
+      await expect(figure.closest('li[data-story-stage]')).not.toBeNull()
+    }
+    // The index comes before the steps.
+    const [firstPhone] = phones
+    await expect(
+      index.compareDocumentPosition(firstPhone as HTMLElement) &
+        Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy()
+  },
 }
 
 /** Below lg, scrolled to the quotes step: its inline phone is in view and plays. */
@@ -188,7 +342,10 @@ export const DesktopWithShowcase: Story = {
   },
 }
 
-/** Below lg with the showcase: the hero, the panel, the bento, then the inline phone and the steps. */
+/**
+ * Below lg with the showcase: the hero, the panel, the bento, then how it
+ * works: the index row, then the steps, each with its own inline phone.
+ */
 export const PhoneWithShowcase: Story = {
   args: { showcase },
   globals: { viewport: { value: 'mobile1', isRotated: false } },
@@ -198,9 +355,13 @@ export const PhoneWithShowcase: Story = {
       name: phone.demoLabel,
     })
     await expect(isBefore(panel, bento)).toBe(true)
-    await expect(isBefore(bento, firstPhone)).toBe(true)
-    await expect(isBefore(firstPhone, getStep(canvasElement, 'post'))).toBe(
-      true,
+    await expect(isBefore(bento, getIndex(canvasElement))).toBe(true)
+    await expect(
+      isBefore(getIndex(canvasElement), getStep(canvasElement, 'post')),
+    ).toBe(true)
+    // The first inline phone is the first step's: nothing sits between the bento and the steps.
+    await expect(getStep(canvasElement, 'post')).toContainElement(
+      firstPhone as HTMLElement,
     )
   },
 }

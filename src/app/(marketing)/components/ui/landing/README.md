@@ -3,7 +3,8 @@
 `/home`: a scroll story that introduces Slashie. A fixed white page with
 floating real-time 3D objects (toolbox, mop bucket, boxes, paint roller,
 screwdriver, map pin) sits behind a server-rendered narrative, and an HTML
-phone demos the real app as you scroll. Lives inside the production app
+phone demos the real app as you scroll (pinned beside the steps on desktop,
+inline in each step below `lg`). Lives inside the production app
 (Chakra v3 + SDL tokens): **no Tailwind, no styling-system fork** (FE-205).
 
 ## Run / build
@@ -18,7 +19,7 @@ bun run build
 
 | Stage | Copy (`landing.story`) | Phone screen | 3D formation |
 | --- | --- | --- | --- |
-| `hero` | hero heading + search CTA | Search (customer) | `hero`: around the phone |
+| `hero` | hero heading + search CTA, then (until the first step) the map panel and the bento | Search (customer) | `hero`: left and right edges |
 | `post` · `quotes` · `chat` · `hire` · `review` | customer act | Post · Quotes · Chat · Hire · Review | `customer`: right half |
 | `workerFind` · `workerQuote` · `workerProfile` | worker act | Search (worker) · Quote form · Profile | `worker`: tools forward |
 | `trust` · `pricing` | trust panel, live pricing | (phone has left) | `scatter`: right side |
@@ -39,12 +40,16 @@ components/ui/landing/
   story/
     storyState.ts            module store: active stage, pointer, scene-ready
     StoryTracker.tsx         stage markers + IntersectionObserver on the viewport middle
-    LandingStory.tsx         hero, both acts, the pinned phone track (desktop)
+    LandingStory.tsx         the hero, then how it works: the acts as hairline rows, the pinned phone
+    StoryIndex.tsx           the section index (vertical from lg, a sticky row below), driven by the tracker
+    storySteps.ts            pure: the steps of each act, the rows' ids, the index's groups (unit-tested)
+    storyLayout.ts           header, index row and scroll-margin measures
   phone/
     PhoneFrame.tsx           device chrome; 375x812 screens scaled to the frame width
     PhoneDemo.tsx            stage -> screen; StickyPhone (desktop) / StepPhone (inline)
     screens/*                one scripted beat per screen (useDemoBeat: tap or autoplay)
-    PhoneMap.tsx             drawn London map + the app's price pins
+    PhoneMap.tsx             the drawn monochrome map + the app's price pins (white pills)
+    phoneParts.tsx           tab bar, hotspot, avatar, card, primary button
   scene/
     LandingBackdrop.tsx      fixed white page + lazy three.js scene (next/dynamic, ssr: false)
     LandingScene.tsx         Canvas, lightformer reflections, damped formation moves
@@ -106,8 +111,8 @@ The one centred section (`hero/HeroSection.tsx`), built from tokens only:
 
 The interactive map panel (`showcase/MapShowcase.tsx`) sits between the hero and
 the first act. `home/page.tsx` passes it to `LandingStory` as `showcase`, between
-two `SectionRule`s, so the order is hero, panel, then the phone and the acts (on
-both layouts). It belongs to no story stage: the scene stays in the hero
+two `SectionRule`s, so the order is hero, panel, then how it works, the acts and
+the phone (on both layouts). It belongs to no story stage: the scene stays in the hero
 formation while it passes, and the panel is opaque (`bg.canvas`).
 
 - **The map** is drawn, not tiled: an SVG in neutral tokens only (`bg.subtle`
@@ -150,7 +155,7 @@ three cells divided by hairlines: "Post a task in a minute", "Compare quotes"
 and "Hire and pay directly" (`landing.story.customer.steps`, title and body as
 they are). `home/page.tsx` passes it to `LandingStory` in the `showcase` slot,
 after the map panel, with a `SectionRule` on each side, so the order is hero,
-map panel, bento, then the phone and the acts (on both layouts). It belongs to
+map panel, bento, then how it works (on both layouts). It belongs to
 no story stage, and it is opaque (`bg.surface`): the 3D scene stays behind it,
 so a prop never crosses a title or a row.
 
@@ -192,20 +197,74 @@ so a prop never crosses a title or a row.
   `playing` (in view: the rows fade in with the `Reveal` rise, 70ms apart, once;
   the title types; the check lands). The cell text uses `Reveal`.
 
+## How it works
+
+The customer act, then the worker act (`story/LandingStory.tsx`), in the page
+column under the bento's rule. `id="how-it-works"` is on the section (the
+hero's "See how it works" lands it under the sticky header).
+
+- **Layout from `lg`.** Two halves, as the 3D scene's formations expect (text
+  on the left, the objects and the phone on the right; from `xl` they are equal
+  halves, from `lg` the right one is 22rem). The left half is the index (9rem,
+  10rem from `xl`) beside the steps; the right half is the phone, pinned. Below
+  `lg` it is one column.
+- **An act** is a `SectionHead` (a small green 600 icon and the eyebrow, "For
+  customers" or "For workers", then the h2 at 34/41, 44/48 from `lg`) over its
+  steps. Its head belongs to the act's first step, so the phone and the index
+  move to the act as soon as its head is mid-screen.
+- **Steps are hairline rows** (an `ol`; each row is an `li` with a 1px
+  `border.default` on top, the last also below). The number is Geist Mono 12 in
+  `text.subtle` (never green), the title is an h3 at 18/500 (`heading-sm`) and
+  the body is 14 in `text.muted`. The first step keeps the tap hint (a green 600
+  pointer icon, the text muted). From `lg` a row is at least `max(300px, 42vh)`
+  tall, with its text at the top: the phone changes as the row's top crosses
+  the middle of the screen, so the new text arrives just under that line, and
+  the row is tall enough that a fast scroll cannot skip it (the tracker watches
+  one line). Below `lg` a row is its text and its own phone.
+- **The section index** (`StoryIndex`) lists one short label per step, the two
+  acts apart: a list in the left column from `lg` (a 1px `border.default`
+  hairline with the active label's 2px green 600 bar over it), a row below it
+  that sticks right under the header, full width, scrolls sideways when the
+  labels do not fit and keeps the active label in view (the bar is then an
+  underline). The active label is `text.default` and the rest `text.subtle`, all
+  at 500. It reads the stage from the story tracker (`useStoryStage`), so it
+  always agrees with the phone, and each label links to its row
+  (`#how-it-works-<stage>`; `scroll-margin-top` lands the row across the middle
+  of the screen from `lg`, and under the index row below it, so the linked step
+  is the active one). It is a `nav` named by `landing.story.index.label`, the
+  active link carries `aria-current="location"`, and it must be a direct child
+  of the box that spans both acts, so that `position: sticky` runs along them.
+- **Copy:** the only new strings are the index's: `landing.story.index` (a name
+  for the nav and the eight short labels), in English and Traditional Chinese.
+  The group names are not new strings: the index has none (a gap, or a hairline
+  in the row, separates the acts).
+- **The phone** is plain CSS: a `position: sticky` box in the right half, so the
+  server HTML already has it in place and reduced motion changes nothing. The
+  old sideways slide (the phone travelled from the hero's centre into the right
+  column) and the empty spacer it started in are gone: the hero no longer holds
+  a phone. The phone starts on the search screen (`hero` stage) until the first
+  step is under the middle line.
+- **The phone's screens** follow the product after Train 1: neutral tiles and
+  avatars (no mint), the drawn map in neutral tokens, price pins as pills
+  (hairline, green 800 price; the selected one green 400 with an ink price),
+  pill buttons and chips, 8px fields on `border.strong`, 12px cards, prices in
+  ink at 600 with tabular figures, a bottom bar whose active tab is ink (the
+  green Post button is its only green), a tab underline in green 600 and the
+  tap ring in green 600. Green stays for state: the selected "When" chip and the
+  success cards (task posted, quote accepted, quote sent).
+
 ## Behaviour by device
 
-- **Desktop (`lg`+):** one phone in an absolutely positioned track that spans
-  from under the hero text to the end of the worker act. Vertically it is
-  pure CSS sticky (starts under the hero, pins at mid-screen, lets go when
-  the story ends); sideways it slides into the right column as the hero
-  scrolls away. Server HTML starts centred, so there is no first-paint jump.
-- **Below `lg`:** no pinned phone. Each step is its text followed by its own
-  phone, which plays once a third of it is on screen and resets only after
-  it has left. The scene shows three objects (`COMPACT_OBJECTS`).
+- **Desktop (`lg`+):** the index, the steps and one phone (see How it works).
+  The phone is sticky in the right half: it starts at the top of the steps,
+  pins at mid-screen and lets go when the last step ends.
+- **Below `lg`:** no pinned phone. The index is a row under the header; each
+  step is its text followed by its own phone, which plays once a third of it is
+  on screen and resets only after it has left. The scene shows three objects
+  (`COMPACT_OBJECTS`).
 - **Reduced motion / no WebGL / no JS:** no canvas. The hero shows the still
-  poster, phone screens show their finished state, and the desktop phone
-  snaps to the right column instead of sliding. Every transition inside the
-  phone is zeroed by `PhoneFrame`.
+  poster and phone screens show their finished state. Every transition inside
+  the phone is zeroed by `PhoneFrame`; the index does not animate.
 
 ## Updating the poster
 

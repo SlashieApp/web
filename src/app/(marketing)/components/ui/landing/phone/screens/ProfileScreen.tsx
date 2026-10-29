@@ -43,22 +43,17 @@ export function ProfileScreen({
 
   return (
     <Box position="absolute" inset={0} bg="bg.canvas">
-      <Box
-        h="96px"
-        bgGradient="to-br"
-        gradientFrom="status.success.soft"
-        gradientTo="status.success.border"
-      />
+      <Box h="96px" bg="bg.subtle" aria-hidden />
       <Stack px="16px" mt="-44px" gap="12px">
         <Stack align="center" gap="6px" style={enterStyle(entered, 0)}>
           <Box borderRadius="full" borderWidth="4px" borderColor="bg.canvas">
             <InitialAvatar initials={t.initials} size={80} />
           </Box>
           <HStack gap="6px">
-            <Text fontSize="21px" fontWeight={500}>
+            <Text fontSize="21px" fontWeight={500} letterSpacing="-0.015em">
               {t.name}
             </Text>
-            <Box color="status.success.fg" display="inline-flex">
+            <Box color="accent.active" display="inline-flex">
               <LuBadgeCheck size={20} aria-hidden />
             </Box>
           </HStack>
@@ -96,8 +91,10 @@ export function ProfileScreen({
               px="10px"
               py="5px"
               borderRadius="full"
-              bg="status.success.soft"
-              color="status.success.fg"
+              bg="bg.subtle"
+              borderWidth="1px"
+              borderColor="border.default"
+              color="text.muted"
               fontSize="12px"
               fontWeight={500}
             >
@@ -106,7 +103,12 @@ export function ProfileScreen({
           ))}
         </HStack>
 
-        <Text fontSize="16px" fontWeight={500} style={enterStyle(entered, 3)}>
+        <Text
+          fontSize="16px"
+          fontWeight={500}
+          letterSpacing="-0.01em"
+          style={enterStyle(entered, 3)}
+        >
           {t.reviewsTitle}
         </Text>
         {shown.map((review, index) => (
@@ -135,10 +137,16 @@ export function ProfileScreen({
         ))}
         {done ? null : (
           <Box style={enterStyle(entered, 5)}>
-            <Hotspot label={t.seeAll} onPress={trigger} pulse w="full">
+            <Hotspot
+              label={t.seeAll}
+              onPress={trigger}
+              pulse
+              w="full"
+              borderRadius="full"
+            >
               <Box
                 h="42px"
-                borderRadius="12px"
+                borderRadius="full"
                 borderWidth="1px"
                 borderColor="border.strong"
                 bg="bg.surface"

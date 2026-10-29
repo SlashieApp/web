@@ -4,7 +4,7 @@ import { Box, HStack, Stack, Text } from '@chakra-ui/react'
 import { LuArrowLeft, LuCalendar, LuMapPin, LuTag } from 'react-icons/lu'
 
 import { formatMessage } from '@/i18n/loadPageI11n'
-import { sdlElevation } from '@/theme/styles'
+import { sdlElevation, sdlFigure } from '@/theme/styles'
 
 import { PhoneMap, PricePin } from '../PhoneMap'
 import type { PhoneCopy } from '../phoneCopy'
@@ -44,12 +44,7 @@ function QuoteRow({
             </Text>
           </HStack>
         </Stack>
-        <Text
-          fontSize="20px"
-          fontWeight={600}
-          fontVariantNumeric="tabular-nums"
-          color="status.success.fg"
-        >
+        <Text fontSize="20px" color="text.default" {...sdlFigure}>
           {quote.price}
         </Text>
       </HStack>
@@ -67,7 +62,7 @@ function QuoteRow({
           gap="8px"
           fontSize="12px"
           fontWeight={500}
-          color="status.success.fg"
+          color="text.muted"
           css={{ animation: 'rise-in 320ms cubic-bezier(0.2, 0, 0, 1) both' }}
         >
           <Text>{formatMessage(copy.jobs, { count: quote.jobs })}</Text>
@@ -145,7 +140,12 @@ export function QuotesScreen({
               {t.status}
             </Text>
           </HStack>
-          <Text fontSize="21px" fontWeight={500} lineHeight={1.2}>
+          <Text
+            fontSize="21px"
+            fontWeight={500}
+            lineHeight={1.2}
+            letterSpacing="-0.015em"
+          >
             {task.title}
           </Text>
           <HStack gap="6px" flexWrap="wrap">
@@ -171,7 +171,7 @@ export function QuotesScreen({
             py="10px"
             fontSize="14px"
             fontWeight={500}
-            color="text.muted"
+            color="text.subtle"
           >
             {t.overview}
           </Text>
@@ -181,7 +181,7 @@ export function QuotesScreen({
             gap="6px"
             py="10px"
             borderBottomWidth="2px"
-            borderColor="action.primary"
+            borderColor="accent.active"
             mb="-1px"
           >
             <Text fontSize="14px" fontWeight={500}>

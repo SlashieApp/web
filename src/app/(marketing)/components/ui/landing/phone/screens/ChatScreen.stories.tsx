@@ -38,14 +38,10 @@ const meta = {
   parameters: { layout: 'padded' },
   argTypes: { copy: { control: false } },
   args: { copy, active: true, intro: true },
-  // The landing's phone: the screen inside its frame on the mint wash.
+  // The landing's phone: the screen inside its frame on the white page.
   decorators: [
     (Story) => (
-      <Box
-        p={{ base: 4, md: 8 }}
-        bg="status.success.soft"
-        display="inline-block"
-      >
+      <Box p={{ base: 4, md: 8 }} bg="bg.surface" display="inline-block">
         <PhoneFrame label={copy.demoLabel} nominalWidth={300} w="300px">
           <Story />
         </PhoneFrame>

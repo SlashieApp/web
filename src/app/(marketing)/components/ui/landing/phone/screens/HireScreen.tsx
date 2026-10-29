@@ -4,6 +4,7 @@ import { Box, HStack, Stack, Text } from '@chakra-ui/react'
 import { LuCalendar, LuCheck, LuHandCoins } from 'react-icons/lu'
 
 import { formatMessage } from '@/i18n/loadPageI11n'
+import { sdlFigure } from '@/theme/styles'
 
 import { PhoneMap } from '../PhoneMap'
 import type { PhoneCopy } from '../phoneCopy'
@@ -39,7 +40,7 @@ export function HireScreen({
         pt="10px"
         pb="44px"
         bg="bg.surface"
-        borderTopRadius="24px"
+        borderTopRadius="12px"
         style={enterStyle(entered, 0, 60)}
       >
         <Box
@@ -53,7 +54,7 @@ export function HireScreen({
         <HStack gap="12px">
           <InitialAvatar initials={quote.initials} size={52} />
           <Stack gap="2px" flex={1}>
-            <Text fontSize="17px" fontWeight={500}>
+            <Text fontSize="17px" fontWeight={500} letterSpacing="-0.01em">
               {quote.name}
             </Text>
             <HStack gap="4px">
@@ -64,12 +65,7 @@ export function HireScreen({
               </Text>
             </HStack>
           </Stack>
-          <Text
-            fontSize="28px"
-            fontWeight={600}
-            fontVariantNumeric="tabular-nums"
-            color="status.success.fg"
-          >
+          <Text fontSize="28px" color="text.default" {...sdlFigure}>
             {t.price}
           </Text>
         </HStack>
@@ -89,7 +85,7 @@ export function HireScreen({
           <HStack
             gap="12px"
             p="14px"
-            borderRadius="16px"
+            borderRadius="12px"
             bg="status.success.soft"
             borderWidth="1px"
             borderColor="status.success.border"
@@ -119,7 +115,13 @@ export function HireScreen({
           </HStack>
         ) : null}
 
-        <Hotspot label={t.accept} onPress={trigger} pulse={!done} w="full">
+        <Hotspot
+          label={t.accept}
+          onPress={trigger}
+          pulse={!done}
+          w="full"
+          borderRadius="full"
+        >
           <DemoPrimary>
             {done ? <LuCheck size={18} aria-hidden /> : null}
             {done ? t.acceptedTitle : t.accept}

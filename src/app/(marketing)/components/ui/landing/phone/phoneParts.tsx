@@ -34,6 +34,8 @@ export type PhoneTab = keyof PhoneNavCopy
 /**
  * The app's real bottom bar (Search · My tasks · Post task · Messages ·
  * Account), drawn as a picture: it's decoration inside the demo, not links.
+ * As in the app after the tone refresh: the active tab's icon and label are
+ * ink, the others `text.subtle`, and the green Post button is the only green.
  */
 export function PhoneTabBar({
   copy,
@@ -93,7 +95,7 @@ export function PhoneTabBar({
               >
                 {icon}
               </Box>
-              <Text fontSize="10px" fontWeight={500} color="text.muted">
+              <Text fontSize="10px" fontWeight={500} color="text.default">
                 {copy[key]}
               </Text>
             </Box>
@@ -108,7 +110,7 @@ export function PhoneTabBar({
             alignItems="center"
             gap="2px"
             py="2px"
-            color={isActive ? 'status.success.fg' : 'text.muted'}
+            color={isActive ? 'text.default' : 'text.subtle'}
           >
             <Box position="relative" display="inline-flex">
               {icon}
@@ -148,7 +150,9 @@ const HotspotButton = chakra('button')
 
 /**
  * The screen's one tappable beat. A real button (keyboard and screen
- * readers work); the pulsing ring says "tap me" until the beat has played.
+ * readers work); the pulsing ring says "tap me" until the beat has played. The
+ * ring is a line, so it is green 600 (green 400 is for fills) and it takes the
+ * button's corners.
  */
 export function Hotspot({
   label,
@@ -183,9 +187,9 @@ export function Hotspot({
         <Box
           position="absolute"
           inset="-6px"
-          borderRadius="16px"
-          borderWidth="3px"
-          borderColor="action.primary"
+          borderRadius="inherit"
+          borderWidth="2px"
+          borderColor="accent.active"
           pointerEvents="none"
           animation="tap-pulse 1.6s cubic-bezier(0.2, 0, 0, 1) infinite"
           aria-hidden
@@ -195,7 +199,7 @@ export function Hotspot({
   )
 }
 
-/** Initials avatar (demo people have no photos). */
+/** Initials avatar (demo people have no photos): a neutral disc, not mint. */
 export function InitialAvatar({
   initials,
   size = 40,
@@ -209,8 +213,10 @@ export function InitialAvatar({
       h={`${size}px`}
       flexShrink={0}
       borderRadius="full"
-      bg="status.success.soft"
-      color="status.success.fg"
+      bg="bg.subtle"
+      borderWidth="1px"
+      borderColor="border.default"
+      color="text.default"
       display="flex"
       alignItems="center"
       justifyContent="center"
@@ -271,12 +277,12 @@ export function MetaChip({ children, ...props }: TextProps) {
   )
 }
 
-/** White card surface used across the demo screens. */
+/** White card surface used across the demo screens: 12 corners, a hairline and `e1`. */
 export function DemoCard({ children, ...props }: BoxProps) {
   return (
     <Box
       bg="bg.surface"
-      borderRadius="16px"
+      borderRadius="12px"
       borderWidth="1px"
       borderColor="border.default"
       boxShadow={sdlElevation.e1}
@@ -288,12 +294,15 @@ export function DemoCard({ children, ...props }: BoxProps) {
   )
 }
 
-/** Green primary button look (inside the demo it's a picture or a Hotspot). */
+/**
+ * Green primary button look: a pill with an ink label (inside the demo it's a
+ * picture or a Hotspot).
+ */
 export function DemoPrimary({ children, ...props }: BoxProps) {
   return (
     <Box
       h="48px"
-      borderRadius="12px"
+      borderRadius="full"
       bg="action.primary"
       color="text.onGreen"
       fontSize="15px"

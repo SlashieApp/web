@@ -41,14 +41,10 @@ const meta = {
     variant: { control: 'inline-radio', options: ['customer', 'worker'] },
   },
   args: { copy, active: true, intro: true, variant: 'customer' },
-  // The landing's phone: the screen inside its frame on the mint wash.
+  // The landing's phone: the screen inside its frame on the white page.
   decorators: [
     (Story) => (
-      <Box
-        p={{ base: 4, md: 8 }}
-        bg="status.success.soft"
-        display="inline-block"
-      >
+      <Box p={{ base: 4, md: 8 }} bg="bg.surface" display="inline-block">
         <PhoneFrame label={copy.demoLabel} nominalWidth={300} w="300px">
           <Story />
         </PhoneFrame>

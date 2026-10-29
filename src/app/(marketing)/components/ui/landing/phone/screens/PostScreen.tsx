@@ -44,7 +44,7 @@ export function PostScreen({
         <Box color="text.default" display="inline-flex" aria-hidden>
           <LuX size={22} aria-hidden />
         </Box>
-        <Text fontSize="16px" fontWeight={500}>
+        <Text fontSize="16px" fontWeight={500} letterSpacing="-0.01em">
           {t.header}
         </Text>
         <Box w="22px" />
@@ -57,9 +57,13 @@ export function PostScreen({
             minH="46px"
             px="12px"
             py="11px"
-            borderRadius="10px"
-            borderWidth="1.5px"
-            borderColor={typing ? 'border.focus' : 'border.default'}
+            borderRadius="8px"
+            borderWidth="1px"
+            borderColor={typing ? 'border.focus' : 'border.strong'}
+            boxShadow={
+              typing ? '0 0 0 1px var(--chakra-colors-border-focus)' : 'none'
+            }
+            bg="bg.surface"
             fontSize="15px"
             fontWeight={500}
           >
@@ -83,7 +87,7 @@ export function PostScreen({
           <Box
             position="relative"
             h="118px"
-            borderRadius="10px"
+            borderRadius="8px"
             overflow="hidden"
             borderWidth="1px"
             borderColor="border.default"
@@ -100,7 +104,7 @@ export function PostScreen({
               position="absolute"
               left="50%"
               top="50%"
-              color="status.success.fg"
+              color="accent.active"
               style={{
                 transform: entered
                   ? 'translate(-50%, -100%)'
@@ -132,7 +136,7 @@ export function PostScreen({
               py="7px"
               borderRadius="full"
               bg="status.success.soft"
-              borderWidth="1.5px"
+              borderWidth="1px"
               borderColor="status.success.border"
               color="status.success.fg"
               fontSize="13px"
@@ -145,7 +149,7 @@ export function PostScreen({
               py="7px"
               borderRadius="full"
               borderWidth="1px"
-              borderColor="border.default"
+              borderColor="border.strong"
               fontSize="13px"
               fontWeight={500}
               color="text.muted"
@@ -170,7 +174,13 @@ export function PostScreen({
       </Stack>
 
       <Box px="16px" pb="44px" style={enterStyle(entered, 4)}>
-        <Hotspot label={t.submit} onPress={trigger} pulse={!done} w="full">
+        <Hotspot
+          label={t.submit}
+          onPress={trigger}
+          pulse={!done}
+          w="full"
+          borderRadius="full"
+        >
           <DemoPrimary>
             {done ? <LuCheck size={18} aria-hidden /> : null}
             {done ? t.postedTitle : t.submit}

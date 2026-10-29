@@ -84,7 +84,7 @@ const meta = {
 export default meta
 type Story = StoryObj<typeof meta>
 
-/** Bare map: parks, river, roads and district labels, no pins. */
+/** Bare map: the monochrome sketch (neutral parks and river, roads with a hairline casing) and district labels, no pins. */
 export const Default: Story = {
   decorators: [withMapBox],
 }
@@ -113,13 +113,13 @@ export const MapWithPinsUnselected: Story = {
   render: () => <MapWithPins />,
 }
 
-/** Price pin at rest: white pill, green price, small dot. */
+/** Price pin at rest: a white pill with a hairline, the price in green 800 at 600, a grey dot. */
 export const Pin: Story = {
   decorators: [withPinBackdrop],
   render: () => <PricePin price={tasks.move.price} selected={false} />,
 }
 
-/** Selected price pin: green fill with dark ink, slightly larger, bigger dot. */
+/** Selected price pin: green 400 fill with an ink price, slightly larger, a green dot. */
 export const PinSelected: Story = {
   decorators: [withPinBackdrop],
   render: () => <PricePin price={tasks.move.price} selected />,

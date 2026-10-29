@@ -63,6 +63,17 @@
       },
       "story": {
         "tapHint": "Try it: tap the glowing part of the phone.",
+        "index": {
+          "label": "How it works",
+          "post": "Post",
+          "quotes": "Quotes",
+          "chat": "Chat",
+          "hire": "Hire",
+          "review": "Review",
+          "workerFind": "Find work",
+          "workerQuote": "Send quote",
+          "workerProfile": "Get booked"
+        },
         "customer": {
           "eyebrow": "For customers",
           "heading": "Get it done, your way",
@@ -349,6 +360,17 @@
       },
       "story": {
         "tapHint": "試試看：點按手機上發亮的位置。",
+        "index": {
+          "label": "運作方式",
+          "post": "發布",
+          "quotes": "報價",
+          "chat": "對話",
+          "hire": "聘用",
+          "review": "評價",
+          "workerFind": "搵工作",
+          "workerQuote": "發送報價",
+          "workerProfile": "接單"
+        },
         "customer": {
           "eyebrow": "給客戶",
           "heading": "按你的方式把事情辦妥",

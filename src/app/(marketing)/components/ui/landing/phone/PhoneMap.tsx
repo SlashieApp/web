@@ -1,6 +1,6 @@
 import { Box, type BoxProps } from '@chakra-ui/react'
 
-import { sdlElevation } from '@/theme/styles'
+import { sdlElevation, sdlFigure, sdlMotion } from '@/theme/styles'
 
 const color = (token: string) => `var(--chakra-colors-${token})`
 
@@ -40,7 +40,12 @@ const LABELS: { x: number; y: number; text: string }[] = [
   { x: 270, y: 690, text: 'CLAPHAM' },
 ]
 
-/** A hand-drawn London-ish street map behind the demo map screens. */
+/**
+ * A hand-drawn London-ish street map behind the demo map screens: the same
+ * monochrome sketch as the landing's map panel, in neutral tokens only (land
+ * `bg.subtle`, parks `border.default`, the river `border.strong`, streets
+ * `bg.surface`, wide roads with a hairline casing). No green, no mint.
+ */
 export function PhoneMap(props: BoxProps) {
   return (
     <Box position="absolute" inset={0} overflow="hidden" {...props}>
@@ -61,15 +66,14 @@ export function PhoneMap(props: BoxProps) {
             width={park.w}
             height={park.h}
             rx={park.r}
-            fill={color('green-100')}
-            opacity={0.85}
+            fill={color('border-default')}
           />
         ))}
         <path
           d="M-10 430 C 60 400, 110 470, 170 450 S 260 380, 300 420 S 360 470, 390 440"
           fill="none"
-          stroke={color('info-solid')}
-          strokeOpacity={0.22}
+          stroke={color('border-strong')}
+          strokeOpacity={0.75}
           strokeWidth={24}
           strokeLinecap="round"
         />
@@ -80,6 +84,16 @@ export function PhoneMap(props: BoxProps) {
             fill="none"
             stroke={color('bg-surface')}
             strokeWidth={3}
+          />
+        ))}
+        {MAJOR_ROADS.map((d) => (
+          <path
+            key={`casing-${d}`}
+            d={d}
+            fill="none"
+            stroke={color('border-default')}
+            strokeWidth={10}
+            strokeLinecap="round"
           />
         ))}
         {MAJOR_ROADS.map((d) => (
@@ -111,7 +125,12 @@ export function PhoneMap(props: BoxProps) {
   )
 }
 
-/** The app's price pin: a white pill with green ink over a dot. */
+/**
+ * The app's price pin (tone refresh): a pill with a 1px hairline, `e1` and the
+ * price in green 800 at 600 with tabular figures, over a dot. Selected, it is
+ * green 400 with an ink price. Decoration here, so it is not a button (the
+ * screen's tappable beat wraps it in a `Hotspot`).
+ */
 export function PricePin({
   price,
   selected,
@@ -128,29 +147,33 @@ export function PricePin({
       pointerEvents="none"
     >
       <Box
-        px="10px"
-        py="4px"
-        borderRadius="10px"
+        display="flex"
+        alignItems="center"
+        h="30px"
+        px="12px"
+        borderRadius="full"
+        borderWidth="1px"
+        borderColor={selected ? 'action.primary' : 'border.default'}
         bg={selected ? 'action.primary' : 'bg.surface'}
         color={selected ? 'text.onGreen' : 'status.success.fg'}
-        borderWidth="2px"
-        borderColor={selected ? 'action.primary' : 'transparent'}
         fontSize="16px"
-        fontWeight={600}
-        fontVariantNumeric="tabular-nums"
-        lineHeight={1.2}
-        boxShadow={selected ? sdlElevation.e3 : sdlElevation.e2}
-        transform={selected ? 'scale(1.08)' : 'none'}
-        transition="transform 220ms cubic-bezier(0.2, 0, 0, 1)"
+        lineHeight="1"
+        {...sdlFigure}
+        boxShadow={selected ? sdlElevation.e3 : sdlElevation.e1}
+        transform={selected ? 'scale(1.06)' : 'none'}
+        transformOrigin="50% 100%"
+        transitionProperty="transform, box-shadow, background-color, border-color"
+        transitionDuration={sdlMotion.duration.moderate}
+        transitionTimingFunction={sdlMotion.easing.standard}
       >
         {price}
       </Box>
       <Box
-        w={selected ? '14px' : '11px'}
-        h={selected ? '14px' : '11px'}
+        w={selected ? '12px' : '10px'}
+        h={selected ? '12px' : '10px'}
         borderRadius="full"
-        bg={selected ? 'action.primary' : 'status.success.border'}
-        boxShadow={`0 0 0 3px ${color('bg-surface')}`}
+        bg={selected ? 'action.primary' : 'border.hover'}
+        boxShadow={`0 0 0 2px ${color('bg-surface')}`}
       />
     </Box>
   )

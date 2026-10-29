@@ -4,7 +4,7 @@ import { Box, HStack, Stack, Text } from '@chakra-ui/react'
 import { LuCrosshair, LuMapPin, LuSearch, LuSprout } from 'react-icons/lu'
 
 import { formatMessage } from '@/i18n/loadPageI11n'
-import { sdlElevation } from '@/theme/styles'
+import { sdlElevation, sdlFigure } from '@/theme/styles'
 
 import { PhoneMap, PricePin } from '../PhoneMap'
 import type { DemoTaskId, PhoneCopy } from '../phoneCopy'
@@ -55,16 +55,16 @@ export function SearchScreen({
         h="50px"
         px="16px"
         gap="10px"
-        borderRadius="14px"
+        borderRadius="full"
         bg="bg.surface"
         borderWidth="1px"
-        borderColor="border.default"
+        borderColor="border.strong"
         boxShadow={sdlElevation.e2}
         color="text.muted"
         zIndex={2}
       >
         <LuSearch size={20} aria-hidden />
-        <Text flex={1} fontSize="16px">
+        <Text flex={1} fontSize="16px" color="text.subtle">
           {variant === 'worker'
             ? copy.search.workerPlaceholder
             : copy.search.placeholder}
@@ -129,21 +129,26 @@ export function SearchScreen({
           }}
         >
           <Box
-            w="64px"
-            h="64px"
+            w="56px"
+            h="56px"
             flexShrink={0}
-            borderRadius="12px"
-            bg="status.success.soft"
-            color="status.success.fg"
+            borderRadius="8px"
+            bg="bg.subtle"
+            color="text.muted"
             display="flex"
             alignItems="center"
             justifyContent="center"
             aria-hidden
           >
-            <LuSprout size={28} />
+            <LuSprout size={24} />
           </Box>
           <Stack gap="2px" flex={1} minW={0}>
-            <Text fontSize="15px" fontWeight={500} lineClamp={1}>
+            <Text
+              fontSize="15px"
+              fontWeight={500}
+              letterSpacing="-0.01em"
+              lineClamp={1}
+            >
               {task.title}
             </Text>
             <HStack gap="4px" color="text.muted" fontSize="13px">
@@ -156,19 +161,14 @@ export function SearchScreen({
             </HStack>
           </Stack>
           <Stack gap="6px" align="flex-end" flexShrink={0}>
-            <Text
-              fontSize="18px"
-              fontWeight={600}
-              fontVariantNumeric="tabular-nums"
-              color="status.success.fg"
-            >
+            <Text fontSize="18px" color="text.default" {...sdlFigure}>
               {task.price}
             </Text>
             {variant === 'worker' ? (
               <Box
-                px="10px"
+                px="12px"
                 py="5px"
-                borderRadius="8px"
+                borderRadius="full"
                 bg="action.primary"
                 color="text.onGreen"
                 fontSize="12px"
