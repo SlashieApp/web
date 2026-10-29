@@ -10,6 +10,7 @@ import { sdlEyebrow } from '@/theme/styles'
 
 import { Avatar } from '../Avatar/Avatar'
 import { FormField } from '../FormField/FormField'
+import { FormStack } from '../FormStack/FormStack'
 import { Modal } from '../Modal/Modal'
 import { Select } from '../Select/Select'
 import { Textarea } from '../Textarea/Textarea'
@@ -79,84 +80,84 @@ export function ReportDialog({
         onOpenChange(next)
       }}
       title={reportKindPhrases(kind, t).title}
+      description={t.description}
       cancelLabel={t.cancel}
       submitLabel={t.submit}
       submitLoading={submitting}
       submitDisabled={submitting}
       onSubmit={() => void form.handleSubmit(handleSubmit)()}
     >
-      {targetTitle ? (
-        <Stack
-          gap={2}
-          p={3}
-          borderWidth="1px"
-          borderColor="border.default"
-          borderRadius="md"
-          bg="bg.subtle"
-        >
-          <Text {...sdlEyebrow}>{reportKindPhrases(kind, t).subject}</Text>
-          <HStack align="start" gap={3} minW={0}>
-            {kind === 'review' || kind === 'message' ? null : kind ===
-              'worker' ? (
-              <Avatar name={targetTitle} src={targetImageSrc} size="lg" />
-            ) : (
-              <Thumbnail
-                src={targetImageSrc}
-                alt=""
-                size="sm"
-                w="56px"
-                h="56px"
-                minW="56px"
-                flexShrink={0}
-                borderRadius="lg"
-                aria-hidden
-              />
-            )}
-            <Stack gap={0.5} minW={0}>
-              <Text
-                fontWeight={500}
-                fontSize="sm"
-                color="text.default"
-                lineClamp={2}
-              >
-                {targetTitle}
-              </Text>
-              {targetMeta ? (
-                <Text fontSize="xs" color="text.muted" lineClamp={2}>
-                  {targetMeta}
+      <FormStack>
+        {targetTitle ? (
+          <Stack
+            gap={2}
+            p={3}
+            borderWidth="1px"
+            borderColor="border.default"
+            borderRadius="md"
+            bg="bg.subtle"
+          >
+            <Text {...sdlEyebrow}>{reportKindPhrases(kind, t).subject}</Text>
+            <HStack align="start" gap={3} minW={0}>
+              {kind === 'review' || kind === 'message' ? null : kind ===
+                'worker' ? (
+                <Avatar name={targetTitle} src={targetImageSrc} size="lg" />
+              ) : (
+                <Thumbnail
+                  src={targetImageSrc}
+                  alt=""
+                  size="sm"
+                  w="56px"
+                  h="56px"
+                  minW="56px"
+                  flexShrink={0}
+                  borderRadius="lg"
+                  aria-hidden
+                />
+              )}
+              <Stack gap={0.5} minW={0}>
+                <Text
+                  fontWeight={500}
+                  fontSize="sm"
+                  color="text.default"
+                  lineClamp={2}
+                >
+                  {targetTitle}
                 </Text>
-              ) : null}
-            </Stack>
-          </HStack>
-        </Stack>
-      ) : null}
-      <Text fontSize="sm" color="text.muted" lineHeight="tall">
-        {t.description}
-      </Text>
-      <FormField label={t.reasonLabel} required errorText={reasonError}>
-        <Select {...form.register('reason')} defaultValue="">
-          <option value="" disabled>
-            {t.reasonPlaceholder}
-          </option>
-          {REPORT_REASON_VALUES.map((value) => (
-            <option key={value} value={value}>
-              {t.reasons[value as ReportReasonValue]}
+                {targetMeta ? (
+                  <Text fontSize="xs" color="text.muted" lineClamp={2}>
+                    {targetMeta}
+                  </Text>
+                ) : null}
+              </Stack>
+            </HStack>
+          </Stack>
+        ) : null}
+        <FormField label={t.reasonLabel} required errorText={reasonError}>
+          <Select {...form.register('reason')} defaultValue="">
+            <option value="" disabled>
+              {t.reasonPlaceholder}
             </option>
-          ))}
-        </Select>
-      </FormField>
-      <FormField label={t.detailsLabel}>
-        <Textarea
-          {...form.register('details')}
-          placeholder={t.detailsPlaceholder}
-          minH="120px"
-        />
-      </FormField>
-      {submitError ? (
-        <Text fontSize="sm" color="status.danger.fg">
-          {submitError}
-        </Text>
-      ) : null}
+            {REPORT_REASON_VALUES.map((value) => (
+              <option key={value} value={value}>
+                {t.reasons[value as ReportReasonValue]}
+              </option>
+            ))}
+          </Select>
+        </FormField>
+        <FormField label={t.detailsLabel}>
+          <Textarea
+            {...form.register('details')}
+            placeholder={t.detailsPlaceholder}
+            minH="120px"
+          />
+        </FormField>
+        {submitError ? (
+          <Text fontSize="sm" color="status.danger.fg">
+            {submitError}
+          </Text>
+        ) : null}
+      </FormStack>
     </Modal>
   )
 }

@@ -8,6 +8,7 @@ import { useForm } from 'react-hook-form'
 import { useI11n } from '@/i18n/useI11n'
 
 import { FormField } from '../FormField/FormField'
+import { FormStack } from '../FormStack/FormStack'
 import { Input } from '../Input/Input'
 import { Modal } from '../Modal/Modal'
 import { Select } from '../Select/Select'
@@ -107,69 +108,69 @@ export function FeedbackDialog({
         onOpenChange(next)
       }}
       title={t.title}
+      description={t.description}
       cancelLabel={t.cancel}
       submitLabel={t.submit}
       submitLoading={submitting}
       submitDisabled={submitting}
       onSubmit={() => void form.handleSubmit(handleSubmit)()}
     >
-      <Text fontSize="sm" color="text.muted" lineHeight="tall">
-        {t.description}
-      </Text>
-      <FormField label={t.categoryLabel} required errorText={categoryError}>
-        <Select {...form.register('category')}>
-          {FEEDBACK_CATEGORY_VALUES.map((value) => (
-            <option key={value} value={value}>
-              {t.categories[value as FeedbackCategoryValue]}
-            </option>
-          ))}
-        </Select>
-      </FormField>
-      <FormField
-        label={t.ratingLabel}
-        required={ratingRequired}
-        helperText={ratingRequired ? undefined : t.ratingHelper}
-        errorText={ratingError}
-      >
-        <StarRatingInput
-          value={rating}
-          disabled={submitting}
-          onChange={(next) =>
-            form.setValue('rating', next, {
-              shouldDirty: true,
-              shouldValidate: true,
-            })
-          }
-        />
-      </FormField>
-      <FormField label={t.messageLabel} required errorText={messageError}>
-        <Textarea
-          {...form.register('message')}
-          placeholder={t.messagePlaceholder}
-          minH="120px"
-        />
-      </FormField>
-      <FormField label={t.nameLabel}>
-        <Input {...form.register('name')} autoComplete="name" />
-      </FormField>
-      <FormField
-        label={t.emailLabel}
-        required
-        errorText={emailError}
-        helperText={emailLocked ? t.emailLockedHint : t.emailGuestHint}
-      >
-        <Input
-          {...form.register('email')}
-          type="email"
-          autoComplete="email"
-          readOnly={emailLocked}
-        />
-      </FormField>
-      {submitError ? (
-        <Text fontSize="sm" color="status.danger.fg">
-          {submitError}
-        </Text>
-      ) : null}
+      <FormStack>
+        <FormField label={t.categoryLabel} required errorText={categoryError}>
+          <Select {...form.register('category')}>
+            {FEEDBACK_CATEGORY_VALUES.map((value) => (
+              <option key={value} value={value}>
+                {t.categories[value as FeedbackCategoryValue]}
+              </option>
+            ))}
+          </Select>
+        </FormField>
+        <FormField
+          label={t.ratingLabel}
+          required={ratingRequired}
+          helperText={ratingRequired ? undefined : t.ratingHelper}
+          errorText={ratingError}
+        >
+          <StarRatingInput
+            value={rating}
+            disabled={submitting}
+            onChange={(next) =>
+              form.setValue('rating', next, {
+                shouldDirty: true,
+                shouldValidate: true,
+              })
+            }
+          />
+        </FormField>
+        <FormField label={t.messageLabel} required errorText={messageError}>
+          <Textarea
+            {...form.register('message')}
+            placeholder={t.messagePlaceholder}
+            minH="120px"
+          />
+        </FormField>
+        <FormField label={t.nameLabel}>
+          <Input {...form.register('name')} autoComplete="name" />
+        </FormField>
+        <FormField
+          label={t.emailLabel}
+          required
+          errorText={emailError}
+          helperText={emailLocked ? t.emailLockedHint : t.emailGuestHint}
+        >
+          <Input
+            {...form.register('email')}
+            type="email"
+            autoComplete="email"
+            readOnly={emailLocked}
+          />
+        </FormField>
+        {submitError ? (
+          <Text fontSize="sm" color="status.danger.fg">
+            {submitError}
+          </Text>
+        ) : null}
+      </FormStack>
     </Modal>
   )
 }

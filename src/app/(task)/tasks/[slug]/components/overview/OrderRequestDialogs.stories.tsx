@@ -1,5 +1,18 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
-import { fn, userEvent, within } from 'storybook/test'
+import { expect, fn, userEvent, within } from 'storybook/test'
+
+import {
+  barButton,
+  bodyColumn,
+  expectNoHorizontalOverflow,
+  expectPhoneWidth,
+  gapsBetweenChildren,
+  openDialog,
+  phone390,
+} from '@/app/(dashboard)/components/ui/dialogSpacing.testing'
+import { formSpace } from '@/theme/styles'
+import { gapBelow, gapBeside } from '@/ui/FormField/formGap.testing'
+import { expectField, scrollToEnd } from '@/ui/Modal/taskDialogSpacing.testing'
 
 import { withTaskDetailStory } from '../../helpers/taskDetailStoryDecorator'
 import { storyTaskOrder } from '../../helpers/taskDetailStoryFixtures'
@@ -69,5 +82,136 @@ export const Closed: Story = {
     if (body.queryByRole('dialog')) {
       throw new Error('A dialog is open while the story is closed')
     }
+  },
+}
+
+/**
+ * Form spacing (FE-481, wiki Foundations-Form-Spacing), read between visible
+ * edges. The sentence is the Modal description (8 under the title) and the
+ * picker is the body: the first slot card 24 under the description, the cards
+ * and the Add button 20 apart, the last block 20 above the buttons. In a card the
+ * heading is 12 above the day strip, the strip 20 above the fields, and each
+ * field is 48 tall with its label 8 above.
+ */
+async function expectRescheduleSpacing(
+  canvasElement: HTMLElement,
+  layout: 'side by side' | 'stacked',
+) {
+  const { dialog, title, description, body } = await openDialog(
+    canvasElement,
+    'Propose new times',
+  )
+  const picker = bodyColumn(body)
+  const [card, add] = [...picker.children] as HTMLElement[]
+  const [heading, fields] = [...card.children] as HTMLElement[]
+  const [strip, pairBlock] = [...fields.children] as HTMLElement[]
+  const pair = pairBlock.firstElementChild as HTMLElement
+  const [start, duration] = [...pair.children].map(
+    (box) => box.firstElementChild,
+  ) as HTMLElement[]
+
+  await expect(dialog).toHaveAccessibleDescription(
+    'Offer one or two times. Jordan picks one, or keeps the current time.',
+  )
+  await expect(gapBelow(title, description as HTMLElement)).toBe(
+    formSpace.titleToSubtitle,
+  )
+  await expect(gapBelow(description as HTMLElement, card)).toBe(
+    formSpace.headerToBody,
+  )
+  await expect(gapBelow(heading, strip)).toBe(formSpace.sectionTitleToField)
+  await expect(gapBelow(strip, pair)).toBe(formSpace.fieldGap)
+  await expectField(start)
+  await expectField(duration)
+  if (layout === 'side by side') {
+    await expect(gapBeside(start, duration)).toBe(formSpace.inlineGap)
+  } else {
+    await expect(gapBelow(start, duration)).toBe(formSpace.fieldGap)
+  }
+  await expect(add).toHaveTextContent('Add another time')
+  await expect(gapsBetweenChildren(picker)).toEqual([formSpace.fieldGap])
+  await scrollToEnd(body)
+  await expect(gapBelow(picker, barButton(dialog, 'Send request'))).toBeCloseTo(
+    formSpace.bodyToAction,
+    0,
+  )
+  expectNoHorizontalOverflow(body)
+}
+
+/** Desktop (the large dialog): the fields sit side by side, 12 apart. */
+export const RescheduleSpacing: Story = {
+  play: ({ canvasElement }) =>
+    expectRescheduleSpacing(canvasElement, 'side by side'),
+}
+
+/** Phone: the card is too narrow for both fields, so they stack 20 apart. */
+export const RescheduleSpacingPhone: Story = {
+  ...phone390,
+  play: async ({ canvasElement }) => {
+    expectPhoneWidth(canvasElement)
+    await expectRescheduleSpacing(canvasElement, 'stacked')
+  },
+}
+
+/** A slot's error sits 4 under its fields, and the body still ends 20 above the buttons. */
+export const RescheduleErrorSpacing: Story = {
+  play: async ({ canvasElement }) => {
+    const { dialog, body } = await openDialog(
+      canvasElement,
+      'Propose new times',
+    )
+    await userEvent.click(barButton(dialog, 'Send request'))
+    const error = await within(dialog).findByText(
+      'Pick a day and a start time.',
+    )
+    const pair = bodyColumn(body).querySelector('[role="alert"]')
+      ?.previousElementSibling as HTMLElement
+
+    await expect(gapBelow(pair, error)).toBe(formSpace.controlToHelper)
+    await scrollToEnd(body)
+    await expect(
+      gapBelow(bodyColumn(body), barButton(dialog, 'Send request')),
+    ).toBeCloseTo(formSpace.bodyToAction, 0)
+  },
+}
+
+/** Ask to cancel: one sentence is the whole body, 24 under the title and 20 above the buttons. */
+export const CancelSpacing: Story = {
+  render: (args) => <OrderCancelDialog {...args} />,
+  play: async ({ canvasElement }) => {
+    const { dialog, title, description } = await openDialog(
+      canvasElement,
+      'Ask to cancel this booking?',
+    )
+    const sentence = within(dialog).getByText(
+      'Jordan needs to accept before the booking is cancelled.',
+    )
+
+    await expect(description).toBeNull()
+    await expect(gapBelow(title, sentence)).toBe(formSpace.headerToBody)
+    await expect(gapBelow(sentence, barButton(dialog, 'Ask to cancel'))).toBe(
+      formSpace.bodyToAction,
+    )
+  },
+}
+
+/** Phone: the same gaps. */
+export const CancelSpacingPhone: Story = {
+  ...phone390,
+  render: (args) => <OrderCancelDialog {...args} />,
+  play: async ({ canvasElement }) => {
+    expectPhoneWidth(canvasElement)
+    const { dialog, title } = await openDialog(
+      canvasElement,
+      'Ask to cancel this booking?',
+    )
+    const sentence = within(dialog).getByText(
+      'Jordan needs to accept before the booking is cancelled.',
+    )
+
+    await expect(gapBelow(title, sentence)).toBe(formSpace.headerToBody)
+    await expect(gapBelow(sentence, barButton(dialog, 'Ask to cancel'))).toBe(
+      formSpace.bodyToAction,
+    )
   },
 }

@@ -1,6 +1,6 @@
 'use client'
 
-import { Stack, Text } from '@chakra-ui/react'
+import { Text } from '@chakra-ui/react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import type { ReactNode } from 'react'
 import { useCallback } from 'react'
@@ -10,6 +10,7 @@ import { useI11n } from '@/i18n/useI11n'
 
 import { StarRatingInput } from '../FeedbackDialog/StarRatingInput'
 import { FormField } from '../FormField/FormField'
+import { FormStack } from '../FormStack/FormStack'
 import { Modal } from '../Modal/Modal'
 import { Textarea } from '../Textarea/Textarea'
 import bag from './i11n.json'
@@ -82,7 +83,7 @@ function ReviewFormFields({
         locked ? undefined : () => void form.handleSubmit(handleSubmit)()
       }
     >
-      <Stack gap={4}>
+      <FormStack>
         <FormField
           label={t.starsLabel}
           helperText={locked ? undefined : t.starsHint}
@@ -131,7 +132,7 @@ function ReviewFormFields({
           </Text>
         ) : null}
         {report}
-      </Stack>
+      </FormStack>
     </Modal>
   )
 }

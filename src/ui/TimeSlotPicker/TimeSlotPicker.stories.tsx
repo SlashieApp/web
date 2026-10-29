@@ -4,8 +4,11 @@ import { useState } from 'react'
 import { expect, within } from 'storybook/test'
 
 import { LocaleProvider } from '@/i18n/LocaleProvider'
+import { formSpace } from '@/theme/styles'
 import type { TimeSlotDraft } from '@/utils/timeSlots'
 
+import { gapBelow, gapBeside } from '../FormField/formGap.testing'
+import { expectField } from '../Modal/taskDialogSpacing.testing'
 import { TimeSlotPicker } from './TimeSlotPicker'
 
 /** `YYYY-MM-DD`, `days` from today (stories stay valid as time passes). */
@@ -133,5 +136,117 @@ export const TraditionalChinese: Story = {
         timeout: 3000,
       }),
     ).toBeVisible()
+  },
+}
+
+/** The card of slot `n`, found by its heading: a box with the heading row, then the fields. */
+const cardOf = (canvas: ReturnType<typeof within>, n: number) =>
+  canvas.getByText(`Time ${n}`).parentElement?.parentElement as HTMLElement
+
+/** The parts of one card: heading row, day strip, the pair of fields, and the slot's error (if any). */
+function partsOf(card: HTMLElement) {
+  const [heading, fields] = [...card.children] as HTMLElement[]
+  const [strip, pairBlock] = [...fields.children] as HTMLElement[]
+  const [pair, error] = [...pairBlock.children] as HTMLElement[]
+  const [startBox, durationBox] = [...pair.children] as HTMLElement[]
+  return {
+    heading,
+    strip,
+    pair,
+    error: error ?? null,
+    start: startBox.firstElementChild as HTMLElement,
+    duration: durationBox.firstElementChild as HTMLElement,
+  }
+}
+
+/**
+ * Form spacing (FE-481, wiki Foundations-Form-Spacing), read between visible
+ * edges. A slot card is a small section: its heading is 12 above the day strip
+ * (section title to first field), the strip 20 above the fields, and Start time
+ * and How long are FormFields (label 8 above, 48 tall) side by side 12 apart.
+ * A slot's error sits 4 under them.
+ */
+export const Spacing: Story = {
+  args: {
+    initial: [{ date: inDays(3), time: '', durationMinutes: null }],
+    showErrors: true,
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const { heading, strip, pair, error, start, duration } = partsOf(
+      cardOf(canvas, 1),
+    )
+
+    await expect(gapBelow(heading, strip)).toBe(formSpace.sectionTitleToField)
+    await expect(gapBelow(strip, pair)).toBe(formSpace.fieldGap)
+    await expectField(start)
+    await expectField(duration)
+    // Side by side: 12 apart, level (labels on one line).
+    await expect(gapBeside(start, duration)).toBe(formSpace.inlineGap)
+    await expect(
+      Math.abs(
+        start.getBoundingClientRect().top -
+          duration.getBoundingClientRect().top,
+      ),
+    ).toBeLessThan(0.5)
+    await expect(error).toHaveTextContent('Pick a day and a start time.')
+    await expect(gapBelow(pair, error as HTMLElement)).toBe(
+      formSpace.controlToHelper,
+    )
+  },
+}
+
+/** In a card too narrow for both, the fields stack and sit 20 apart, like any two fields. */
+export const SpacingNarrow: Story = {
+  args: { initial: [{ date: inDays(3), time: '10:30', durationMinutes: 60 }] },
+  decorators: [
+    (Story) => (
+      <Box maxW="300px">
+        <Story />
+      </Box>
+    ),
+  ],
+  play: async ({ canvasElement }) => {
+    const { start, duration, error } = partsOf(cardOf(within(canvasElement), 1))
+
+    await expect(gapBelow(start, duration)).toBe(formSpace.fieldGap)
+    await expectField(start)
+    await expectField(duration)
+    await expect(error).toBeNull()
+  },
+}
+
+/** Two slots: the cards sit 20 apart (the Add button is gone at the maximum). */
+export const SpacingTwoSlots: Story = {
+  args: {
+    initial: [
+      { date: inDays(3), time: '09:00', durationMinutes: 120 },
+      { date: inDays(30), time: '14:00', durationMinutes: null },
+    ],
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+
+    await expect(gapBelow(cardOf(canvas, 1), cardOf(canvas, 2))).toBe(
+      formSpace.fieldGap,
+    )
+    await expect(
+      canvas.queryByRole('button', { name: 'Add another time' }),
+    ).toBeNull()
+  },
+}
+
+/** One slot: the Add button sits 20 under the card. */
+export const SpacingAddButton: Story = {
+  args: { initial: [{ date: inDays(5), time: '10:30', durationMinutes: 60 }] },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+
+    await expect(
+      gapBelow(
+        cardOf(canvas, 1),
+        canvas.getByRole('button', { name: 'Add another time' }),
+      ),
+    ).toBe(formSpace.fieldGap)
   },
 }

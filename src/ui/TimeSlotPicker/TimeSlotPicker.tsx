@@ -1,13 +1,13 @@
 'use client'
 
-import { Box, HStack, Stack, Text } from '@chakra-ui/react'
+import { Box, Flex, HStack, Stack, Text } from '@chakra-ui/react'
 import { type ChangeEvent, useCallback } from 'react'
 import { LuPlus, LuX } from 'react-icons/lu'
 
 import { useLocale } from '@/i18n/LocaleProvider'
 import { formatMessage } from '@/i18n/loadPageI11n'
 import { useI11n } from '@/i18n/useI11n'
-import { sdlFigure } from '@/theme/styles'
+import { formHelperTextStyle, sdlFigure } from '@/theme/styles'
 import {
   TIME_SLOT_DURATION_PRESETS,
   TIME_SLOT_MAX,
@@ -16,6 +16,8 @@ import {
 } from '@/utils/timeSlots'
 
 import { Button } from '../Button'
+import { FormField } from '../FormField/FormField'
+import { FormStack } from '../FormStack/FormStack'
 import { IconButton } from '../IconButton'
 import { Input } from '../Input/Input'
 import { Select } from '../Select'
@@ -139,6 +141,13 @@ function DayStrip({
  * One or two exact time slots: a day, a start time, and an optional length.
  * Used for quote times and reschedule proposals. Values are local wall time;
  * convert with `timeSlotInputsFromDrafts` before sending.
+ *
+ * Form spacing (FE-481): the slot cards and the Add button sit `fieldGap` (20)
+ * apart. A card is a small section: its heading is `sectionTitleToField` (12)
+ * above its first field, the fields 20 apart, and Start time and Duration are
+ * labelled FormFields side by side `inlineGap` (12) apart, which stack (20)
+ * when the card is too narrow. A slot's error sits `controlToHelper` (4) under
+ * them. The card keeps its 16 padding.
  */
 export function TimeSlotPicker({
   value,
@@ -165,7 +174,7 @@ export function TimeSlotPicker({
   }
 
   return (
-    <Stack gap={4}>
+    <FormStack>
       {slots.map((slot, index) => {
         const error = showErrors ? errors[index] : null
         const heading = copy.slotHeading.replace('{n}', String(index + 1))
@@ -178,90 +187,84 @@ export function TimeSlotPicker({
             borderRadius="lg"
             p={4}
           >
-            <Stack gap={3}>
-              <HStack justify="space-between">
-                <Text fontWeight={500}>{heading}</Text>
-                {slots.length > 1 ? (
-                  <IconButton
-                    type="button"
-                    aria-label={`${copy.removeSlot}: ${heading}`}
-                    variant="ghost"
-                    size="sm"
-                    onClick={() =>
-                      onChange(slots.filter((_, i) => i !== index))
-                    }
-                  >
-                    <LuX />
-                  </IconButton>
-                ) : null}
-              </HStack>
+            <HStack justify="space-between" mb="form.sectionTitleToField">
+              <Text fontWeight={500}>{heading}</Text>
+              {slots.length > 1 ? (
+                <IconButton
+                  type="button"
+                  aria-label={`${copy.removeSlot}: ${heading}`}
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => onChange(slots.filter((_, i) => i !== index))}
+                >
+                  <LuX />
+                </IconButton>
+              ) : null}
+            </HStack>
+            <FormStack>
               <DayStrip
                 value={slot.date}
                 onChange={(date) => update(index, { date })}
                 locale={locale}
                 now={now}
               />
-              <HStack gap={3} align="flex-end" flexWrap="wrap">
-                <Box flex="1 1 140px">
+              <Stack gap="form.controlToHelper">
+                <Flex
+                  columnGap="form.inlineGap"
+                  rowGap="form.fieldGap"
+                  align="flex-start"
+                  flexWrap="wrap"
+                >
+                  <Box flex="1 1 140px">
+                    <FormField label={copy.startTime}>
+                      <Input
+                        type="time"
+                        value={slot.time}
+                        onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                          update(index, { time: e.target.value })
+                        }
+                      />
+                    </FormField>
+                  </Box>
+                  <Box flex="1 1 160px">
+                    <FormField label={copy.duration}>
+                      <Select
+                        value={
+                          slot.durationMinutes == null
+                            ? ''
+                            : String(slot.durationMinutes)
+                        }
+                        onChange={(e: ChangeEvent<HTMLSelectElement>) =>
+                          update(index, {
+                            durationMinutes: e.target.value
+                              ? Number(e.target.value)
+                              : null,
+                          })
+                        }
+                      >
+                        {TIME_SLOT_DURATION_PRESETS.map((minutes) => (
+                          <option key={minutes ?? 'none'} value={minutes ?? ''}>
+                            {minutes == null
+                              ? copy.noSetEnd
+                              : formatDuration(minutes)}
+                          </option>
+                        ))}
+                      </Select>
+                    </FormField>
+                  </Box>
+                </Flex>
+                {error ? (
                   <Text
-                    as="label"
-                    fontSize="sm"
-                    fontWeight={500}
-                    mb={1}
-                    display="block"
+                    {...formHelperTextStyle}
+                    color="status.danger.fg"
+                    px={1}
+                    role="alert"
                   >
-                    {copy.startTime}
-                    <Input
-                      type="time"
-                      mt={1}
-                      value={slot.time}
-                      onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                        update(index, { time: e.target.value })
-                      }
-                    />
+                    {copy.errors[error]}
                   </Text>
-                </Box>
-                <Box flex="1 1 160px">
-                  <Text
-                    as="label"
-                    fontSize="sm"
-                    fontWeight={500}
-                    mb={1}
-                    display="block"
-                  >
-                    {copy.duration}
-                    <Select
-                      rootProps={{ mt: 1 }}
-                      value={
-                        slot.durationMinutes == null
-                          ? ''
-                          : String(slot.durationMinutes)
-                      }
-                      onChange={(e: ChangeEvent<HTMLSelectElement>) =>
-                        update(index, {
-                          durationMinutes: e.target.value
-                            ? Number(e.target.value)
-                            : null,
-                        })
-                      }
-                    >
-                      {TIME_SLOT_DURATION_PRESETS.map((minutes) => (
-                        <option key={minutes ?? 'none'} value={minutes ?? ''}>
-                          {minutes == null
-                            ? copy.noSetEnd
-                            : formatDuration(minutes)}
-                        </option>
-                      ))}
-                    </Select>
-                  </Text>
-                </Box>
-              </HStack>
-              {error ? (
-                <Text fontSize="sm" color="status.danger.fg" role="alert">
-                  {copy.errors[error]}
-                </Text>
-              ) : null}
-            </Stack>
+                ) : null}
+              </Stack>
+            </FormStack>
           </Box>
         )
       })}
@@ -276,6 +279,6 @@ export function TimeSlotPicker({
           {copy.addSlot}
         </Button>
       ) : null}
-    </Stack>
+    </FormStack>
   )
 }

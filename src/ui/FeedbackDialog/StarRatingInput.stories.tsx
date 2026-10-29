@@ -3,7 +3,11 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { useState } from 'react'
 import { expect, fn, userEvent, within } from 'storybook/test'
 
+import { minHitArea } from '@/theme/styles'
+
 import { FormField } from '../FormField/FormField'
+import { heightOf } from '../FormField/formGap.testing'
+import { starTilesOf } from '../Modal/taskDialogSpacing.testing'
 import { StarRatingInput } from './StarRatingInput'
 
 const meta = {
@@ -115,4 +119,23 @@ export const AllLevels: Story = {
       </HStack>
     </Stack>
   ),
+}
+
+/**
+ * Form spacing (FE-481): the star tile is the control, 44 square (the house tap
+ * target; a rating is not a text field, so it keeps 44 rather than the 48 of
+ * inputs). A form puts its label 8 above the tile and its helper or error 4
+ * below it.
+ */
+export const TileSize: Story = {
+  args: { value: 3 },
+  play: async ({ canvasElement }) => {
+    const tiles = starTilesOf(canvasElement)
+
+    await expect(tiles).toHaveLength(5)
+    for (const tile of tiles) {
+      await expect(heightOf(tile)).toBe(minHitArea)
+      await expect(tile.getBoundingClientRect().width).toBe(minHitArea)
+    }
+  },
 }

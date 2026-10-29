@@ -5,6 +5,7 @@ import type { ReactNode } from 'react'
 
 import { useI11n } from '@/i18n/useI11n'
 
+import { FormStack } from '../FormStack/FormStack'
 import { Modal } from '../Modal/Modal'
 import { SafetyNotice } from './SafetyNotice'
 import bag from './i11n.json'
@@ -22,7 +23,11 @@ export type SafetyConfirmDialogProps = {
   children?: ReactNode
 }
 
-/** Accept-quote confirm: C2C + meet-safely one-liner before the mutation. */
+/**
+ * Accept-quote confirm: C2C + meet-safely one-liner before the mutation. The
+ * body is a `FormStack`: the choice above (a time), the notice and the hint sit
+ * `formSpace.fieldGap` (20) apart, and the body ends 20 above the buttons.
+ */
 export function SafetyConfirmDialog({
   open,
   onOpenChange,
@@ -45,11 +50,13 @@ export function SafetyConfirmDialog({
       submitLoading={confirmLoading}
       submitDisabled={confirmDisabled}
     >
-      {children}
-      <SafetyNotice variant="inline" />
-      <Text fontSize="sm" color="text.muted" lineHeight="tall">
-        {t.acceptHint}
-      </Text>
+      <FormStack>
+        {children}
+        <SafetyNotice variant="inline" />
+        <Text fontSize="sm" color="text.muted" lineHeight="tall">
+          {t.acceptHint}
+        </Text>
+      </FormStack>
     </Modal>
   )
 }

@@ -2,7 +2,15 @@ import { QuoteStatus } from '@codegen/schema'
 import type { Decorator, Meta, StoryObj } from '@storybook/nextjs-vite'
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test'
 
+import {
+  barButton,
+  expectPhoneWidth,
+  openDialog,
+  phone390,
+} from '@/app/(dashboard)/components/ui/dialogSpacing.testing'
 import { LocaleProvider } from '@/i18n/LocaleProvider'
+import { formSpace } from '@/theme/styles'
+import { gapBelow } from '@/ui/FormField/formGap.testing'
 
 import { withTaskDetailStory } from '../../helpers/taskDetailStoryDecorator'
 import {
@@ -178,4 +186,68 @@ export const Closed: Story = {
     await new Promise((resolve) => setTimeout(resolve, 100))
     await expect(page(canvasElement).queryByRole('dialog')).toBeNull()
   },
+}
+
+/**
+ * Form spacing (FE-481, wiki Foundations-Form-Spacing), read between visible
+ * edges. A confirm has no field: its one sentence is the body, 24 under the
+ * title (not a description: nothing follows it) and 20 above the buttons.
+ */
+async function expectConfirmSpacing(
+  canvasElement: HTMLElement,
+  name: string,
+  sentenceText: string,
+  confirm: string,
+) {
+  const { dialog, title, description } = await openDialog(canvasElement, name)
+  const sentence = within(dialog).getByText(sentenceText)
+
+  await expect(description).toBeNull()
+  await expect(gapBelow(title, sentence)).toBe(formSpace.headerToBody)
+  await expect(gapBelow(sentence, barButton(dialog, confirm))).toBe(
+    formSpace.bodyToAction,
+  )
+}
+
+const CANCEL_TASK_SENTENCE =
+  'Cancel this task? Workers will no longer be able to send quotes.'
+
+/** Cancel task, desktop. */
+export const CancelTaskSpacing: Story = {
+  decorators: [owner],
+  play: ({ canvasElement }) =>
+    expectConfirmSpacing(
+      canvasElement,
+      'Cancel task',
+      CANCEL_TASK_SENTENCE,
+      'Cancel task',
+    ),
+}
+
+/** Cancel task, phone. */
+export const CancelTaskSpacingPhone: Story = {
+  ...phone390,
+  decorators: [owner],
+  play: async ({ canvasElement }) => {
+    expectPhoneWidth(canvasElement)
+    await expectConfirmSpacing(
+      canvasElement,
+      'Cancel task',
+      CANCEL_TASK_SENTENCE,
+      'Cancel task',
+    )
+  },
+}
+
+/** Withdraw quote, desktop. */
+export const WithdrawQuoteSpacing: Story = {
+  decorators: [worker],
+  render: (args) => <WithdrawQuoteDialog {...args} />,
+  play: ({ canvasElement }) =>
+    expectConfirmSpacing(
+      canvasElement,
+      'Withdraw quote',
+      'Withdraw your quote? The customer will no longer see it.',
+      'Withdraw quote',
+    ),
 }

@@ -1,7 +1,7 @@
 'use client'
 
 import { Stack, Text } from '@chakra-ui/react'
-import { useCallback, useState } from 'react'
+import { useCallback, useId, useState } from 'react'
 
 import { useLocale } from '@/i18n/LocaleProvider'
 import { useI11n } from '@/i18n/useI11n'
@@ -10,7 +10,12 @@ import {
   formatTimeSlotLabel,
   isTimeSlotPast,
 } from '@/utils/timeSlots'
-import { RadioButton, SafetyConfirmDialog } from '@ui'
+import {
+  RadioButton,
+  SafetyConfirmDialog,
+  formControlHelperTextProps,
+  formControlLabelProps,
+} from '@ui'
 
 import { useTaskDetail } from '../../context/TaskDetailProvider'
 import bag from '../../i11n.json'
@@ -35,6 +40,7 @@ export function useAcceptQuoteDialog({
   acceptingQuoteId: string | null
 }) {
   const q = useI11n(bag).quotes
+  const hintId = useId()
   const locale = useLocale() === 'zh-hk' ? 'zh-HK' : 'en-GB'
   const [pendingQuoteId, setPendingQuoteId] = useState<string | null>(null)
   const [slotId, setSlotId] = useState<string | null>(null)
@@ -74,15 +80,27 @@ export function useAcceptQuoteDialog({
         pendingQuoteId != null && acceptingQuoteId === pendingQuoteId
       }
     >
-      <Stack gap={2}>
-        <Text fontWeight={500}>{q.pickSlot}</Text>
+      {/*
+        One choice group, laid out like a field: its label 8 above the rows, the
+        rows 8 apart, the hint 4 under them (the compact helper line). The
+        SafetyConfirmDialog stack puts 20 around the group.
+      */}
+      <Stack gap={0}>
+        <Text {...formControlLabelProps} px={1}>
+          {q.pickSlot}
+        </Text>
         {futureSlots.length === 0 ? (
           <Text fontSize="sm" color="status.danger.fg">
             {q.noFutureSlots}
           </Text>
         ) : (
           <>
-            <Stack gap={2} role="radiogroup" aria-label={q.pickSlot}>
+            <Stack
+              gap={2}
+              role="radiogroup"
+              aria-label={q.pickSlot}
+              aria-describedby={hintId}
+            >
               {slots.map((slot) => {
                 const past = isTimeSlotPast(slot)
                 const label = formatTimeSlotLabel(slot, locale)
@@ -97,7 +115,12 @@ export function useAcceptQuoteDialog({
                 )
               })}
             </Stack>
-            <Text fontSize="sm" color="text.muted">
+            <Text
+              id={hintId}
+              {...formControlHelperTextProps}
+              mt="form.controlToHelper"
+              px={1}
+            >
               {q.pickSlotHint}
             </Text>
           </>

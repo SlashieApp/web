@@ -3,7 +3,27 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { useState } from 'react'
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test'
 
+import {
+  barButton,
+  bodyColumn,
+  expectNoHorizontalOverflow,
+  expectPhoneWidth,
+  gapsBetweenChildren,
+  labelOf,
+  openDialog,
+  phone390,
+} from '@/app/(dashboard)/components/ui/dialogSpacing.testing'
+import { formSpace, minHitArea } from '@/theme/styles'
+
 import { Button } from '../Button/Button'
+import { gapBelow, heightOf } from '../FormField/formGap.testing'
+import {
+  controlOf,
+  expectField,
+  lineOf,
+  scrollToEnd,
+  starTilesOf,
+} from '../Modal/taskDialogSpacing.testing'
 import { FeedbackDialog, type FeedbackDialogProps } from './FeedbackDialog'
 import { FeedbackDialogProvider } from './FeedbackDialogProvider'
 import { FeedbackTrigger } from './FeedbackTrigger'
@@ -237,4 +257,146 @@ export const Triggers: Story = {
       </HStack>
     </FeedbackDialogProvider>
   ),
+}
+
+/**
+ * Form spacing (FE-481, wiki Foundations-Form-Spacing), read between visible
+ * edges: the intro is the Modal description (8 under the title), the first field
+ * 24 under it, the five fields 20 apart, and the last 20 above the buttons.
+ * Fields are 48 tall with the label 8 above; the star tiles are the 44 tap target, and
+ * a helper sits 4 under its control.
+ */
+async function expectFeedbackSpacing(canvasElement: HTMLElement) {
+  const { dialog, title, description, body } = await openDialog(
+    canvasElement,
+    'Send feedback',
+  )
+  const column = bodyColumn(body)
+  const [category, rating, message, name, email] = [
+    ...column.children,
+  ] as HTMLElement[]
+
+  await expect(dialog).toHaveAccessibleDescription(/Tell us about a bug/)
+  await expect(gapBelow(title, description as HTMLElement)).toBe(
+    formSpace.titleToSubtitle,
+  )
+  await expect(gapBelow(description as HTMLElement, category)).toBe(
+    formSpace.headerToBody,
+  )
+  await expect(gapsBetweenChildren(column)).toEqual(
+    Array(4).fill(formSpace.fieldGap),
+  )
+
+  await expectField(category)
+  await expectField(message, null)
+  await expectField(name)
+  await expectField(email)
+
+  // The stars: 44 tiles 8 under their label, the helper 4 under them.
+  const tiles = starTilesOf(rating)
+  await expect(tiles).toHaveLength(5)
+  await expect(gapBelow(labelOf(rating), tiles[0])).toBe(
+    formSpace.labelToControl,
+  )
+  for (const tile of tiles) {
+    await expect(heightOf(tile)).toBe(minHitArea)
+  }
+  await expect(
+    gapBelow(
+      tiles[0],
+      lineOf(rating, 'Optional, but required if you chose Rating.'),
+    ),
+  ).toBe(formSpace.controlToHelper)
+
+  await expect(
+    gapBelow(
+      controlOf(email),
+      lineOf(email, 'We’ll use this to reply within 10 working days.'),
+    ),
+  ).toBe(formSpace.controlToHelper)
+  await scrollToEnd(body)
+  await expect(gapBelow(email, barButton(dialog, 'Send feedback'))).toBeCloseTo(
+    formSpace.bodyToAction,
+    0,
+  )
+  expectNoHorizontalOverflow(body)
+}
+
+/** Desktop: the gaps above. */
+export const Spacing: Story = {
+  play: ({ canvasElement }) => expectFeedbackSpacing(canvasElement),
+}
+
+/** The same gaps at phone width. */
+export const SpacingPhone: Story = {
+  ...phone390,
+  play: async ({ canvasElement }) => {
+    expectPhoneWidth(canvasElement)
+    await expectFeedbackSpacing(canvasElement)
+  },
+}
+
+/** Both messages under a control: the helper 4 under it, the error 4 under the helper. */
+export const SpacingEmailError: Story = {
+  play: async ({ canvasElement }) => {
+    const { dialog, body } = await openDialog(canvasElement, 'Send feedback')
+    const email = bodyColumn(body).children[4] as HTMLElement
+    await userEvent.click(barButton(dialog, 'Send feedback'))
+    const error = await within(email).findByText('Enter your email.')
+    const helper = lineOf(
+      email,
+      'We’ll use this to reply within 10 working days.',
+    )
+
+    await expect(gapBelow(controlOf(email), helper)).toBe(
+      formSpace.controlToHelper,
+    )
+    await expect(gapBelow(helper, error)).toBe(formSpace.helperGap)
+  },
+}
+
+/** A required rating with an error: the error 4 under the stars (no helper then). */
+export const SpacingRatingError: Story = {
+  play: async ({ canvasElement }) => {
+    const { dialog, body } = await openDialog(canvasElement, 'Send feedback')
+    const rating = bodyColumn(body).children[1] as HTMLElement
+    await userEvent.selectOptions(
+      within(dialog).getByRole('combobox'),
+      'RATING',
+    )
+    await userEvent.type(
+      within(dialog).getByRole('textbox', { name: /your message/i }),
+      'The map pins load slowly on my phone.',
+    )
+    await userEvent.type(
+      within(dialog).getByRole('textbox', { name: /^email/i }),
+      'sam@example.com',
+    )
+    await userEvent.click(barButton(dialog, 'Send feedback'))
+    const error = await within(rating).findByText(
+      'Choose a rating from 1 to 5.',
+    )
+
+    await expect(gapBelow(starTilesOf(rating)[0], error)).toBe(
+      formSpace.controlToHelper,
+    )
+  },
+}
+
+/** A failed send is one more block: 20 under the email, 20 above the buttons. */
+export const SpacingSubmitError: Story = {
+  args: { submitError: 'We could not send your feedback. Please try again.' },
+  play: async ({ canvasElement }) => {
+    const { dialog, body } = await openDialog(canvasElement, 'Send feedback')
+    const column = bodyColumn(body)
+    const email = column.children[4] as HTMLElement
+    const error = within(column).getByText(
+      'We could not send your feedback. Please try again.',
+    )
+
+    await expect(gapBelow(email, error)).toBe(formSpace.fieldGap)
+    await expect(gapBelow(error, barButton(dialog, 'Send feedback'))).toBe(
+      formSpace.bodyToAction,
+    )
+  },
 }

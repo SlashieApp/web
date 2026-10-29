@@ -1,6 +1,5 @@
 'use client'
 
-import { Stack, Text } from '@chakra-ui/react'
 import { useState } from 'react'
 
 import { OrderStatus } from '@codegen/schema'
@@ -78,6 +77,7 @@ export function OrderRescheduleDialog({
         if (!next) setShowErrors(false)
       }}
       title={r.rescheduleTitle}
+      description={formatMessage(r.rescheduleBody, { name: counterpartName })}
       size="lg"
       cancelLabel={r.keepBooking}
       submitLabel={r.rescheduleSubmit}
@@ -101,16 +101,11 @@ export function OrderRescheduleDialog({
         )
       }}
     >
-      <Stack gap={4}>
-        <Text fontSize="sm" color="text.muted">
-          {formatMessage(r.rescheduleBody, { name: counterpartName })}
-        </Text>
-        <TimeSlotPicker
-          value={slots}
-          onChange={setSlots}
-          showErrors={showErrors}
-        />
-      </Stack>
+      <TimeSlotPicker
+        value={slots}
+        onChange={setSlots}
+        showErrors={showErrors}
+      />
     </Modal>
   )
 }

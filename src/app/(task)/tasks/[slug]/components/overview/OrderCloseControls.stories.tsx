@@ -2,6 +2,10 @@ import { OrderStatus } from '@codegen/schema'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test'
 
+import { openDialog } from '@/app/(dashboard)/components/ui/dialogSpacing.testing'
+import { formSpace } from '@/theme/styles'
+import { gapBelow } from '@/ui/FormField/formGap.testing'
+
 import { withTaskDetailStory } from '../../helpers/taskDetailStoryDecorator'
 import { storyTaskOrder } from '../../helpers/taskDetailStoryFixtures'
 import { OrderCloseControls, OrderDoneDialog } from './OrderCloseControls'
@@ -98,5 +102,36 @@ export const DoneDialog: Story = {
       { name: 'Changed your mind? Mark it Done' },
     )
     await within(dialog).findByText('Slide to mark Done')
+  },
+}
+
+/**
+ * Form spacing (FE-481): the slide is the dialog's action, 24 under the title,
+ * and the line saying what Done means is its helper, 4 under it. There is no bar,
+ * so the body keeps its 24 at the bottom.
+ */
+export const DoneDialogSpacing: Story = {
+  decorators: [ready],
+  render: () => <OrderDoneDialog open onOpenChange={fn()} />,
+  play: async ({ canvasElement }) => {
+    const { dialog, title, footer, body } = await openDialog(
+      canvasElement,
+      'Changed your mind? Mark it Done',
+    )
+    // The thumb sits inside the track: the track is the control.
+    const slide = within(dialog).getByRole('button', {
+      name: 'Slide to mark Done',
+    }).parentElement as HTMLElement
+    const meaning = within(dialog).getByText(
+      'Done means the work is finished and payment is settled.',
+    )
+
+    await expect(footer).toBeNull()
+    await expect(gapBelow(title, slide)).toBe(formSpace.headerToBody)
+    await expect(gapBelow(slide, meaning)).toBe(formSpace.controlToHelper)
+    await expect(
+      body.getBoundingClientRect().bottom -
+        meaning.getBoundingClientRect().bottom,
+    ).toBe(24)
   },
 }

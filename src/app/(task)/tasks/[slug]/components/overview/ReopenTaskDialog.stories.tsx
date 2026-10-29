@@ -8,6 +8,13 @@ import {
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { expect, fn, within } from 'storybook/test'
 
+import {
+  barButton,
+  openDialog,
+} from '@/app/(dashboard)/components/ui/dialogSpacing.testing'
+import { formSpace } from '@/theme/styles'
+import { gapBelow } from '@/ui/FormField/formGap.testing'
+
 import { withTaskDetailStory } from '../../helpers/taskDetailStoryDecorator'
 import {
   storyTaskDetail,
@@ -134,5 +141,25 @@ export const Closed: Story = {
   play: async ({ canvasElement }) => {
     await new Promise((resolve) => setTimeout(resolve, 100))
     await expect(page(canvasElement).queryByRole('dialog')).toBeNull()
+  },
+}
+
+/** Form spacing (FE-481): the one sentence is the body, 24 under the title and 20 above the buttons. */
+export const Spacing: Story = {
+  decorators: [cancelled],
+  play: async ({ canvasElement }) => {
+    const { dialog, title, description } = await openDialog(
+      canvasElement,
+      'Reopen this task?',
+    )
+    const sentence = within(dialog).getByText(
+      'It will be open for quotes again, and workers with pending quotes will be told.',
+    )
+
+    await expect(description).toBeNull()
+    await expect(gapBelow(title, sentence)).toBe(formSpace.headerToBody)
+    await expect(gapBelow(sentence, barButton(dialog, 'Reopen task'))).toBe(
+      formSpace.bodyToAction,
+    )
   },
 }

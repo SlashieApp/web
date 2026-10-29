@@ -2,10 +2,10 @@
 
 import { Stack, Text } from '@chakra-ui/react'
 import { OrderFailedReason } from '@codegen/schema'
-import { useState } from 'react'
+import { useId, useState } from 'react'
 
 import { useI11n } from '@/i18n/useI11n'
-import { Modal, RadioButton } from '@ui'
+import { FormStack, Modal, RadioButton, formControlHelperTextProps } from '@ui'
 
 import { useTaskDetail } from '../../context/TaskDetailProvider'
 import bag from '../../i11n.json'
@@ -20,6 +20,7 @@ export function OrderFailedDialog({
 }) {
   const { runOrderAction, orderActionPending } = useTaskDetail()
   const c = useI11n(bag).close
+  const noteId = useId()
   const [reason, setReason] = useState<OrderFailedReason | null>(null)
 
   const reasons: Array<[OrderFailedReason, string]> = [
@@ -46,19 +47,30 @@ export function OrderFailedDialog({
         })
       }}
     >
-      <Stack gap={3} role="radiogroup" aria-label={c.failedTitle}>
-        {reasons.map(([value, label]) => (
-          <RadioButton
-            key={value}
-            checked={reason === value}
-            label={label}
-            onChange={() => setReason(value)}
-          />
-        ))}
-        <Text fontSize="sm" color="text.muted">
-          {c.failedPrivate}
-        </Text>
-      </Stack>
+      <FormStack>
+        {/* One choice group with no label of its own (the title names it): the
+            reasons 8 apart, the private note 4 under them like a helper. */}
+        <Stack gap="form.controlToHelper">
+          <Stack
+            gap={2}
+            role="radiogroup"
+            aria-label={c.failedTitle}
+            aria-describedby={noteId}
+          >
+            {reasons.map(([value, label]) => (
+              <RadioButton
+                key={value}
+                checked={reason === value}
+                label={label}
+                onChange={() => setReason(value)}
+              />
+            ))}
+          </Stack>
+          <Text id={noteId} {...formControlHelperTextProps} px={1}>
+            {c.failedPrivate}
+          </Text>
+        </Stack>
+      </FormStack>
     </Modal>
   )
 }

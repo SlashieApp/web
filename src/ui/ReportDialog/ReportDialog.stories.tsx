@@ -3,7 +3,24 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { useState } from 'react'
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test'
 
+import {
+  barButton,
+  bodyColumn,
+  expectNoHorizontalOverflow,
+  expectPhoneWidth,
+  gapsBetweenChildren,
+  openDialog,
+  phone390,
+} from '@/app/(dashboard)/components/ui/dialogSpacing.testing'
+import { formSpace } from '@/theme/styles'
+
 import { Button } from '../Button/Button'
+import { gapBelow, heightOf } from '../FormField/formGap.testing'
+import {
+  controlOf,
+  expectField,
+  scrollToEnd,
+} from '../Modal/taskDialogSpacing.testing'
 import { ReportControl } from './ReportControl'
 import { ReportDialog, type ReportDialogProps } from './ReportDialog'
 
@@ -251,4 +268,107 @@ export const Triggers: Story = {
       />
     </HStack>
   ),
+}
+
+/**
+ * Form spacing (FE-481, wiki Foundations-Form-Spacing), read between visible
+ * edges: the intro is the Modal description (8 under the title), the first block
+ * 24 under it, the target card, the reason and the details 20 apart, and the
+ * last field 20 above the buttons. A field is 48 tall with its label 8 above.
+ */
+async function expectReportSpacing(canvasElement: HTMLElement) {
+  const { dialog, title, description, body } = await openDialog(
+    canvasElement,
+    'Report this task',
+  )
+  const column = bodyColumn(body)
+  const [card, reason, details] = [...column.children] as HTMLElement[]
+
+  await expect(dialog).toHaveAccessibleDescription(/Tell us what’s wrong/)
+  await expect(gapBelow(title, description as HTMLElement)).toBe(
+    formSpace.titleToSubtitle,
+  )
+  await expect(gapBelow(description as HTMLElement, card)).toBe(
+    formSpace.headerToBody,
+  )
+  await expect(gapsBetweenChildren(column)).toEqual([
+    formSpace.fieldGap,
+    formSpace.fieldGap,
+  ])
+  await expectField(reason)
+  await expectField(details, null)
+  await expect(heightOf(controlOf(details))).toBeGreaterThanOrEqual(120)
+  await scrollToEnd(body)
+  await expect(gapBelow(details, barButton(dialog, 'Send report'))).toBeCloseTo(
+    formSpace.bodyToAction,
+    0,
+  )
+  expectNoHorizontalOverflow(body)
+}
+
+/** Desktop: the gaps above. */
+export const Spacing: Story = {
+  play: ({ canvasElement }) => expectReportSpacing(canvasElement),
+}
+
+/** The same gaps at phone width. */
+export const SpacingPhone: Story = {
+  ...phone390,
+  play: async ({ canvasElement }) => {
+    expectPhoneWidth(canvasElement)
+    await expectReportSpacing(canvasElement)
+  },
+}
+
+/** No target (no card): the reason is the first field, 24 under the description. */
+export const SpacingWithoutTarget: Story = {
+  args: { targetTitle: undefined, targetMeta: undefined },
+  play: async ({ canvasElement }) => {
+    const { description, body, dialog } = await openDialog(
+      canvasElement,
+      'Report this task',
+    )
+    const column = bodyColumn(body)
+    const [reason, details] = [...column.children] as HTMLElement[]
+
+    await expect(gapBelow(description as HTMLElement, reason)).toBe(
+      formSpace.headerToBody,
+    )
+    await expect(gapsBetweenChildren(column)).toEqual([formSpace.fieldGap])
+    await expect(gapBelow(details, barButton(dialog, 'Send report'))).toBe(
+      formSpace.bodyToAction,
+    )
+  },
+}
+
+/** The reason's error sits 4 under the select, and nothing else moves. */
+export const SpacingReasonError: Story = {
+  play: async ({ canvasElement }) => {
+    const { dialog, body } = await openDialog(canvasElement, 'Report this task')
+    const reason = [...bodyColumn(body).children][1] as HTMLElement
+    await userEvent.click(barButton(dialog, 'Send report'))
+    const error = await within(reason).findByText('Choose a reason.')
+
+    await expect(gapBelow(controlOf(reason), error)).toBe(
+      formSpace.controlToHelper,
+    )
+  },
+}
+
+/** A failed send is one more block: 20 under the details, 20 above the buttons. */
+export const SpacingSubmitError: Story = {
+  args: { submitError: 'We could not send your report. Please try again.' },
+  play: async ({ canvasElement }) => {
+    const { dialog, body } = await openDialog(canvasElement, 'Report this task')
+    const column = bodyColumn(body)
+    const details = column.children[2] as HTMLElement
+    const error = within(column).getByText(
+      'We could not send your report. Please try again.',
+    )
+
+    await expect(gapBelow(details, error)).toBe(formSpace.fieldGap)
+    await expect(gapBelow(error, barButton(dialog, 'Send report'))).toBe(
+      formSpace.bodyToAction,
+    )
+  },
 }

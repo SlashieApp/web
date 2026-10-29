@@ -3,7 +3,20 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { useState } from 'react'
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test'
 
+import {
+  barButton,
+  bodyColumn,
+  expectNoHorizontalOverflow,
+  expectPhoneWidth,
+  gapsBetweenChildren,
+  openDialog,
+  phone390,
+} from '@/app/(dashboard)/components/ui/dialogSpacing.testing'
+import { formSpace } from '@/theme/styles'
+
 import { Button } from '../Button/Button'
+import { gapBelow } from '../FormField/formGap.testing'
+import { scrollToEnd } from '../Modal/taskDialogSpacing.testing'
 import {
   SafetyConfirmDialog,
   type SafetyConfirmDialogProps,
@@ -152,4 +165,55 @@ export const CustomTitleAndLabel: Story = {
 /** Phone: the dialog fills the narrow viewport width. */
 export const Mobile: Story = {
   globals: { viewport: { value: 'mobile1', isRotated: false } },
+}
+
+/**
+ * Form spacing (FE-481, wiki Foundations-Form-Spacing), read between visible
+ * edges: the body is a FormStack, so the choice a host passes in, the safety
+ * line and the booking hint sit 20 apart, the first block 24 under the title, and
+ * the last 20 above the buttons.
+ */
+async function expectConfirmSpacing(
+  canvasElement: HTMLElement,
+  blocks: number,
+) {
+  const { dialog, title, body } = await openDialog(
+    canvasElement,
+    'Accept this quote?',
+  )
+  const column = bodyColumn(body)
+
+  await expect(column.children).toHaveLength(blocks)
+  await expect(gapBelow(title, column.firstElementChild as HTMLElement)).toBe(
+    formSpace.headerToBody,
+  )
+  await expect(gapsBetweenChildren(column)).toEqual(
+    Array(blocks - 1).fill(formSpace.fieldGap),
+  )
+  await scrollToEnd(body)
+  await expect(gapBelow(column, barButton(dialog, 'Accept quote'))).toBeCloseTo(
+    formSpace.bodyToAction,
+    0,
+  )
+  expectNoHorizontalOverflow(body)
+}
+
+/** Safety line and hint: 24 under the title, 20 apart, 20 above the buttons. */
+export const Spacing: Story = {
+  play: ({ canvasElement }) => expectConfirmSpacing(canvasElement, 2),
+}
+
+/** The same gaps at phone width. */
+export const SpacingPhone: Story = {
+  ...phone390,
+  play: async ({ canvasElement }) => {
+    expectPhoneWidth(canvasElement)
+    await expectConfirmSpacing(canvasElement, 2)
+  },
+}
+
+/** With a choice above them: it is the first block, 24 under the title, and the three sit 20 apart. */
+export const SpacingWithChoice: Story = {
+  args: { children: <SlotChoices selected="Sat 17 Oct, 9:00 am" /> },
+  play: ({ canvasElement }) => expectConfirmSpacing(canvasElement, 3),
 }

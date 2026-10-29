@@ -85,7 +85,9 @@ export function OrderDoneDialog({
       title={c.switchToDone}
       size="sm"
     >
-      <Stack gap={2}>
+      {/* The slide is the action and "what Done means" is its helper line:
+          4 under it (`formSpace.controlToHelper`), as under any control. */}
+      <Stack gap="form.controlToHelper">
         <SlideDone onMarked={() => onOpenChange(false)} />
       </Stack>
     </Modal>
