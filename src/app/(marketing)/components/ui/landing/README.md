@@ -365,12 +365,17 @@ in two plain cards and one pill to `/pricing`, between the two section rules tha
 trial label, the price line, the free quotes) is still built in `home/page.tsx`
 and arrives as `pricing` (`LandingPricing`); the section only sets it, so a
 missing price degrades to the generic lines as before. No string is added: the
-heading, the body, the two plan labels, the free body and the pill label are
-today's.
+heading, the body, the two plan labels, the free body, the pill label and the
+eyebrow are today's.
 
-- **Head.** `SectionHead` without an eyebrow (an eyebrow needs a string first):
-  the h2 at 34/41, 44/48 from `lg`, 500, and the body in `text-lg` muted. The
-  section is a landmark named by that heading (`aria-labelledby`).
+- **Head.** `SectionHead` with an eyebrow: the nav's "Pricing"
+  (`header.nav.pricing`, "收費" in zh-HK, passed from `home/page.tsx`: an existing
+  string, so no copy is added) and a small green 600 tag icon, then the h2 at
+  34/41, 44/48 from `lg`, 500, and the body in `text-lg` muted. The section is a
+  landmark named by that heading (`aria-labelledby`). The eyebrow icon is the
+  section's only green (an eyebrow icon is green 600 by the spec; never a fill).
+  Of the other heads with no eyebrow, this is the one an existing string fits;
+  the rest are an open decision (see Deliberate calls).
 - **Layout.** From `lg` the head and the pill sit in the left column (5fr) and
   the two cards in the right one (7fr), the cards spanning both rows, so the
   pill sits right under the head. Below `lg` the order is the head, the cards
@@ -379,16 +384,19 @@ today's.
 - **A plan card** is the product's card recipe (`sdlCardSurface`: `bg.surface`,
   a 1px `border.default` hairline, 12px corners, `e1`), left-aligned, with
   `p` 20 / 24 / 28 by breakpoint. In it: a label (14 at 500; `text.muted` for the
-  free plan), the headline as an h3 (`heading-lg`, 24/30 at 500, tabular
-  figures, balanced) and a `text-sm` muted line. Both cards stretch to one
-  height. The headline is one string (a trial, a price or "3 quotes a month"),
-  so it stays a heading at 500; the 600 figure weight is for a price that is its
-  own element.
+  free plan), the headline as an h3 (`heading-lg`, 24/30, balanced) and a
+  `text-sm` muted line. Both cards stretch to one height. The headline is a
+  figure (a trial, a price or "3 quotes a month"), so it is 600 with tabular
+  figures (`sdlFigure`), as the price is on the pricing page's cards, which
+  follow this card (the type rule: "prices, counts and other figures are 600
+  with tabular figures"). The first build set it at 500 and the pricing page at
+  600.
 - **Plum** (`accent.premium`) is the worker subscription's colour and it is
   kept for the paid plan only: its label with the sparkle, its 1px hairline
   (instead of `border.default`; it was a 2px line) and the pill (the `premium`
-  Button variant, white label). Nothing else is plum and nothing here is green:
-  the page's one green action is the hero's, and the closing call has its own.
+  Button variant, white label). Nothing else is plum and nothing here is a green
+  fill or text: the page's one green action is the hero's, and the closing call
+  has its own.
   If the pill should be quieter, `variant="secondary"` is the one prop to change.
 - **Opaque** (`bg.surface`), like the map panel, the bento and the trust row: the
   3D scene stays behind it, so a prop never crosses a card.
@@ -728,3 +736,18 @@ hex here (`scenePalette.test.ts` fails on any other).
   build one for. A hemisphere light and two directional lights do the work.
 - Demo people, tasks and prices are fictional and live in the i11n bag
   (`landing.phone`), in English and Traditional Chinese.
+- **Eyebrows: partly done, the rest needs Ryan.** The spec wants every
+  left-aligned section head to carry an eyebrow with a green 600 icon, and also
+  allows no new strings beyond the how-it-works index's labels. Heads with an
+  eyebrow today: the two acts (`landing.story.*.eyebrow`) and the pricing teaser
+  (the nav's "Pricing", an existing string). Heads without: the bento (no head
+  of its own, its cells' titles are the h2s), the trust row (no head), the map
+  panel's title chip, `/pricing`'s two heads, `/about`'s four section heads (its
+  two step groups have a group label, placed under the h2) and the legal rows.
+  No existing string fits any of them ("For customers" over the bento would
+  repeat the act's eyebrow right below it). The options for Ryan: (a) keep
+  reusing existing strings where one fits and accept the rest, (b) allow a few
+  new eyebrow strings in en and zh-HK, or (c) amend the spec to "eyebrows where
+  a string exists". Decide before another round, so the sections are not
+  reworked twice; if (b), each head only needs `eyebrow` and `icon` on its
+  `SectionHead`.

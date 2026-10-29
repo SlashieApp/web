@@ -136,6 +136,7 @@ export default async function MarketingHomePage() {
           <StoryStageMarker stage="pricing">
             <PricingTeaser
               copy={landing.pricingTeaser}
+              eyebrow={copy.header.nav.pricing}
               pricing={landingPricing}
               ctaLabel={ctas.viewPricing}
               pricingHref={hrefs.pricing}

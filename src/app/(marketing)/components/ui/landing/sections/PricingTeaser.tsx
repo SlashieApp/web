@@ -1,8 +1,8 @@
 import { Box, Container, Grid, HStack, Heading, Text } from '@chakra-ui/react'
 import NextLink from 'next/link'
-import { LuSparkles } from 'react-icons/lu'
+import { LuSparkles, LuTag } from 'react-icons/lu'
 
-import { sdlCardSurface } from '@/theme/styles'
+import { sdlCardSurface, sdlFigure } from '@/theme/styles'
 import { Button } from '@ui'
 
 import {
@@ -79,7 +79,9 @@ function PlanCard({
       <Heading
         as="h3"
         textStyle="heading-lg"
-        fontVariantNumeric="tabular-nums"
+        // The headline is a figure ("3 quotes a month", a price, a trial): 600
+        // with tabular figures, as the price is on the pricing page's cards.
+        {...sdlFigure}
         textWrap="balance"
       >
         {headline}
@@ -102,17 +104,24 @@ function PlanCard({
  * pill stack, always in that reading order. The section is opaque
  * (`bg.surface`) like the other panels, so a 3D prop never crosses a card.
  *
+ * The head has an eyebrow, like the other left-aligned heads: the nav's
+ * "Pricing" (`header.nav.pricing`, today's string) with a small green 600 tag
+ * icon. That icon is the only green here: it is a state/eyebrow icon, never a
+ * fill, and the page's one green action is the hero's and the closing call's.
+ *
  * Plum (`accent.premium`) is the worker subscription's colour: its label, its
- * hairline and the pill. Green is not used here: the page's one green action
- * is the hero's and the closing call's.
+ * hairline and the pill.
  */
 export function PricingTeaser({
   copy,
+  eyebrow,
   pricing,
   ctaLabel,
   pricingHref,
 }: {
   copy: PricingTeaserCopy
+  /** The head's eyebrow: the nav's "Pricing" (`header.nav.pricing`). */
+  eyebrow: string
   pricing: LandingPricing
   ctaLabel: string
   pricingHref: string
@@ -140,6 +149,8 @@ export function PricingTeaser({
         >
           <Reveal gridColumn={{ lg: 1 }} gridRow={{ lg: 1 }}>
             <SectionHead
+              icon={LuTag}
+              eyebrow={eyebrow}
               heading={copy.heading}
               headingId={PRICING_TEASER_HEADING_ID}
               body={copy.body}

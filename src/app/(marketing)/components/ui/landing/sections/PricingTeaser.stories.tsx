@@ -12,6 +12,7 @@ import { PricingTeaser } from './PricingTeaser'
 
 const copy = messages.en.landing.pricingTeaser
 const zhCopy = messages.zh_hk.landing.pricingTeaser
+const eyebrow = messages.en.header.nav.pricing
 
 /** The character the product's copy never uses, built here so no source line carries it. */
 const EM_DASH = String.fromCodePoint(0x2014)
@@ -22,8 +23,12 @@ const PLUM = 'rgb(105, 56, 239)'
 const BORDER_DEFAULT = 'rgb(228, 228, 231)'
 const TEXT_MUTED = 'rgb(82, 82, 91)'
 const INK = 'rgb(10, 21, 18)'
-/** Green 400, 600 and 800: none of them belongs in this section. */
+/**
+ * Green 400, 600 and 800: none of them belongs in this section, but the green
+ * 600 icon of the head's eyebrow (an eyebrow icon is green 600 by the spec).
+ */
 const GREENS = ['rgb(0, 220, 130)', 'rgb(2, 165, 103)', 'rgb(5, 104, 63)']
+const GREEN_600 = 'rgb(2, 165, 103)'
 
 /** Story-only: the section in the marketing frame, between two section rules, as `home/page.tsx` sets it. */
 const withFrame: Decorator = (Story) => (
@@ -77,6 +82,7 @@ const meta = {
   },
   args: {
     copy,
+    eyebrow,
     pricing: {
       productName: 'Slashie Unlimited',
       headline: '30-day free trial',
@@ -153,10 +159,21 @@ export const Default: Story = {
     )
     await expect(free.querySelector('svg')).toBeNull()
 
-    // The headlines are headings at 500 in ink with tabular figures.
+    // The head has its eyebrow (the nav's "Pricing") with a green 600 icon.
+    const eyebrowText = canvas.getByText(eyebrow)
+    await expect(getComputedStyle(eyebrowText).textTransform).toBe('uppercase')
+    await expect(eyebrowText.previousElementSibling).toHaveAttribute(
+      'aria-hidden',
+      'true',
+    )
+    await expect(
+      getComputedStyle(eyebrowText.previousElementSibling as Element).color,
+    ).toBe(GREEN_600)
+
+    // The headlines are figures: headings at 600 in ink with tabular figures.
     for (const plan of plans) {
       const style = getComputedStyle(plan)
-      await expect(Number(style.fontWeight)).toBe(500)
+      await expect(Number(style.fontWeight)).toBe(600)
       await expect(style.color).toBe(INK)
       await expect(style.fontSize).toBe('24px')
       await expect(style.fontVariantNumeric).toContain('tabular-nums')
@@ -174,18 +191,23 @@ export const Default: Story = {
     )
     await expect(box(cta).height).toBeGreaterThanOrEqual(44)
 
-    // Green stops at the door: no green text, fill or line, and nothing over 600.
+    // Green stops at the door: no green text, fill or line, and nothing over
+    // 600. The one exception is the eyebrow's green 600 icon (and the svg
+    // inside it, which draws with its colour).
+    const eyebrowIcon = eyebrowText.previousElementSibling as Element
     for (const node of [
       section,
       ...section.querySelectorAll<HTMLElement>('*'),
     ]) {
       const style = getComputedStyle(node)
+      const inEyebrowIcon = eyebrowIcon.contains(node)
       for (const value of [
         style.color,
         style.backgroundColor,
         style.borderTopColor,
         style.borderLeftColor,
       ]) {
+        if (inEyebrowIcon && value === GREEN_600) continue
         await expect(GREENS).not.toContain(value)
       }
       await expect(Number(style.fontWeight)).toBeLessThanOrEqual(600)
@@ -333,6 +355,7 @@ export const Tablet: Story = {
 export const TraditionalChinese: Story = {
   args: {
     copy: zhCopy,
+    eyebrow: messages.zh_hk.header.nav.pricing,
     pricing: {
       productName: 'Slashie Unlimited',
       headline: '30 日免費試用',
@@ -350,6 +373,7 @@ export const TraditionalChinese: Story = {
       canvas.getByRole('region', { name: zhCopy.heading }),
     ).toBeVisible()
     await expect(canvas.getByText(zhCopy.freePlanLabel)).toBeVisible()
+    await expect(canvas.getByText(args.eyebrow)).toBeVisible()
     await expect(
       canvas.getByRole('link', { name: args.ctaLabel }),
     ).toBeVisible()
