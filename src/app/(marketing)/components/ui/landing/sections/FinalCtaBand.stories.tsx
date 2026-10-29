@@ -167,6 +167,9 @@ export const Default: Story = {
     // Post a task: the green pill with an ink label, 52px, fully round, at 500.
     const green = getComputedStyle(primary)
     await expect(green.backgroundColor).toBe(GREEN_400)
+    // The header's Get started yields to this pill, not to the whole section.
+    await expect(primary).toHaveAttribute('data-page-green-action', '')
+    await expect(secondary).not.toHaveAttribute('data-page-green-action')
     await expect(green.color).toBe(INK)
     await expect(Number(green.fontWeight)).toBe(500)
     await expect(box(primary).height).toBeGreaterThanOrEqual(52)

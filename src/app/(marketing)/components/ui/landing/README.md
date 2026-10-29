@@ -462,7 +462,10 @@ are today's, and the hrefs arrive localized from the page.
   keeps the `Magnetic` pull (fine pointers only, off under reduced motion). The
   pills sit in one centred row and wrap onto their own rows when the width
   cannot hold both (below about 330px of content, so 320px phones). Post a task
-  is the section's only green; nothing else here is green or heavier than 600.
+  carries `data-page-green-action`, the hook the header watches (the button, not
+  the section: the header's Get started stays quiet only while the pill is on
+  screen, so no scroll position near the foot is left without a green action).
+  Post a task is the section's only green; nothing else here is green or heavier than 600.
 - **Transparent.** Unlike the panels above it (map panel, bento, trust, pricing)
   the section has no background: the scene's `gather` formation is this
   section's beat, so the objects have to show round the call. The text block

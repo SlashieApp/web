@@ -232,6 +232,13 @@ describe('the hooks the header watches', () => {
     const search = read(`${landing}/hero/HeroSearchCta.tsx`)
     expect(search).toContain('data-page-green-action=""')
     expect(search).toContain('variant="primary"')
+    // The closing call's Post a task pill, a primary button too.
+    const close = read(`${landing}/sections/FinalCtaBand.tsx`)
+    expect(close).toContain('data-page-green-action=""')
+    expect(close).toContain('variant="primary"')
+    // On the one pill, not on the section around it (which holds the outline
+    // pill too).
+    expect(close.match(/data-page-green-action=""/g)).toHaveLength(1)
   })
 
   it('is what the header reads, so its action is secondary beside them', () => {

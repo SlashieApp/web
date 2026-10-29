@@ -16,7 +16,9 @@ export const FINAL_CTA_HEADING_ID = 'landing-final-cta-heading'
  * The final call to action (tone refresh, train 2, item 7): a closing beat of
  * one centred line, one sentence and two ways in. Post a task is the green
  * pill (the primary action, green 400 with an ink label); Become a worker is
- * the outline pill (white, a 1px `border.strong` hairline, an ink label). It is
+ * the outline pill (white, a 1px `border.strong` hairline, an ink label), and
+ * the green pill carries the `data-page-green-action` hook the header watches
+ * (the header's Get started is quiet while it is on screen). It is
  * the only centred section besides the hero, so it has no eyebrow and no icon:
  * an eyebrow would need a string, and the train allows none.
  *
@@ -73,7 +75,14 @@ export function FinalCtaBand({
           <Reveal delayMs={120}>
             <HStack gap={3} flexWrap="wrap" justify="center">
               <Magnetic>
-                <Button asChild size="lg" variant="primary">
+                {/* The page's green action: the header's Get started gives way
+                    while this pill is on screen (`pageGreenWatch`). */}
+                <Button
+                  asChild
+                  size="lg"
+                  variant="primary"
+                  data-page-green-action=""
+                >
                   <NextLink href={primary.href}>{primary.label}</NextLink>
                 </Button>
               </Magnetic>
