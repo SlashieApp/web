@@ -335,16 +335,25 @@ it has no card: no tint, radius or shadow.
   technology) beside the text at 16/500 in `text.default`; the check sits level
   with the first line, so a point that wraps keeps it at the top. Green is the
   state icon here, never a fill (the old green 400 disc is gone).
-- **Rhythm.** A point's vertical padding (`TRUST_CELL_PY`: 20px on a phone, 32 on
-  a tablet, 48 from `lg`, 64 from `xl`) is a step tighter than `SECTION_PY`: this
-  is one line of reassurance between two long sections, not a story, so the row
-  stays a band rather than a block of white.
+- **Rhythm.** Cells touch the rules (the dividers run from rule to rule), so a
+  cell's padding is the section's. The section's edges take the frame's
+  `SECTION_PY` like every other section (56px on a phone, 80 on a tablet, 96 on
+  a laptop, 128 on a wide screen), and the padding between points that sit above
+  one another is tighter (20px stacked, 32px in the 2 x 2 grid) so four short
+  lines do not become a block of white (`trustCellPadding`, unit-tested). From
+  `lg`, where the four sit in one row, every cell is `SECTION_PY`. The first
+  build had them a step tighter all round (a row 177px tall at 1366), below the
+  spec's "generous section padding (96 to 128px desktop, 56 to 64px phones)".
 - **Opaque.** The section is `bg.surface`, like the map panel and the bento: the
   3D scene stays behind it, so a prop never crosses a point.
 - **No head.** The only new strings the train allows are the how-it-works index's
   labels, so the row has no eyebrow or heading, and so it is not a named
-  landmark (a `section` with no name is plain content). A heading needs a string
-  first; ask Ryan before adding one.
+  landmark. Its wrapper is a `div`, not a `section`: a landmark needs a name and
+  a name needs a string (none of today's fits), and an unnamed `section` claims a
+  structure it cannot have. The spec's "each section is a landmark with a
+  heading" does not hold for this one section until Ryan allows a heading string
+  (a visually hidden one would do); this is a recorded deviation, not an
+  accident.
 - **Motion.** Each point is a `Reveal` (a fade with an 8px rise, 400ms, once),
   staggered 70ms; reduced motion and no JS show them as they are.
 

@@ -1,17 +1,44 @@
 import { Box, HStack, List, Text } from '@chakra-ui/react'
 import { LuCheck } from 'react-icons/lu'
 
+import { SECTION_PY } from '@/app/(marketing)/components/layout/MarketingFrame'
 import { PAGE_CONTAINER_MAX_W, PAGE_GUTTER_X } from '@/theme/pageContainer'
 
 import { Reveal } from '../Reveal'
 
+/** The padding between two points that sit above one another: 20px stacked, 32 in the 2 x 2 grid. */
+const INNER_PY = { base: 5, md: 8 } as const
+
 /**
- * A point's vertical padding. Cells touch the section rules, so this is the
- * section's own rhythm, a step tighter than the frame's `SECTION_PY` because
- * the section is one line of reassurance, not a story: 40px on a phone up to
- * 64px on a wide screen, a step tighter where the points stack.
+ * A point's vertical padding. Cells touch the section rules (so the dividers
+ * run from rule to rule), which makes a cell's padding the section's own. The
+ * section's edges take the frame's rhythm, `SECTION_PY` (56px on a phone, 80 on
+ * a tablet, 96 on a laptop, 128 on a wide screen), as every other section
+ * does; the padding between two points that sit above one another is tighter
+ * (20px stacked, 32px in the 2 x 2 grid), so four lines of reassurance do not
+ * become a block of white. From `lg`, where the four sit in one row, every
+ * cell is `SECTION_PY`.
+ *
+ * `index` is the point's place and `count` how many there are.
  */
-export const TRUST_CELL_PY = { base: 5, md: 8, lg: 12, xl: 16 } as const
+export function trustCellPadding(index: number, count: number) {
+  const row = Math.floor(index / 2)
+  const lastRow = Math.floor((count - 1) / 2)
+  return {
+    pt: {
+      base: index === 0 ? SECTION_PY.base : INNER_PY.base,
+      md: row === 0 ? SECTION_PY.md : INNER_PY.md,
+      lg: SECTION_PY.lg,
+      xl: SECTION_PY.xl,
+    },
+    pb: {
+      base: index === count - 1 ? SECTION_PY.base : INNER_PY.base,
+      md: row === lastRow ? SECTION_PY.md : INNER_PY.md,
+      lg: SECTION_PY.lg,
+      xl: SECTION_PY.xl,
+    },
+  } as const
+}
 
 /**
  * The trust row (tone refresh, train 2, item 5): the four reassurance points
@@ -28,12 +55,15 @@ export const TRUST_CELL_PY = { base: 5, md: 8, lg: 12, xl: 16 } as const
  * 3D scene stays behind it, so a prop never crosses a point.
  *
  * It has no head of its own: the strings are today's, and the only new ones
- * allowed are the how-it-works index's labels. The points are a plain list; a
- * heading (and so a named landmark) needs a string first.
+ * allowed are the how-it-works index's labels. The points are a plain list, and
+ * the wrapper is a `div`, not a `section`: a landmark needs a name and a name
+ * needs a string (no existing one fits), and an unnamed `section` claims a
+ * structure it cannot have. The spec's "each section is a landmark with a
+ * heading" therefore does not hold here until a heading string is allowed.
  */
 export function TrustSection({ points }: { points: readonly string[] }) {
   return (
-    <Box as="section" data-trust="" bg="bg.surface">
+    <Box data-trust="" bg="bg.surface">
       <List.Root
         maxW={PAGE_CONTAINER_MAX_W}
         mx="auto"
@@ -51,7 +81,7 @@ export function TrustSection({ points }: { points: readonly string[] }) {
             key={point}
             data-trust-point=""
             px={PAGE_GUTTER_X}
-            py={TRUST_CELL_PY}
+            {...trustCellPadding(index, points.length)}
             borderColor="border.default"
             // One column: a line above every point but the first. Two columns:
             // a line above the second row and before the right-hand column.

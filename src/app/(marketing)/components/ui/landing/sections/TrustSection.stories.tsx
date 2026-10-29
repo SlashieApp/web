@@ -69,6 +69,9 @@ export const Default: Story = {
     // No card: the white page, no tint, radius or shadow on the section or a point.
     const section = canvasElement.querySelector<HTMLElement>('[data-trust]')
     if (!section) throw new Error('The trust section is missing')
+    // Not a `section`: with no string to name it, it would be an unnamed
+    // region that claims a structure it cannot have.
+    await expect(section.tagName).toBe('DIV')
     await expect(getComputedStyle(section).backgroundColor).toBe(WHITE)
     await expect(getComputedStyle(section).boxShadow).toBe('none')
     const nodes = cells(canvasElement)
@@ -95,6 +98,12 @@ export const Default: Story = {
     }
     for (const node of nodes) {
       await expect(getComputedStyle(node).borderTopWidth).toBe('0px')
+    }
+
+    // The frame's rhythm on a wide screen: 128px above and below the row.
+    for (const node of nodes) {
+      await expect(getComputedStyle(node).paddingTop).toBe('128px')
+      await expect(getComputedStyle(node).paddingBottom).toBe('128px')
     }
 
     // The check is green 600 (never the green 400 fill), the point is ink at 500.
@@ -190,6 +199,18 @@ export const Mobile: Story = {
       await expect(getComputedStyle(node).borderInlineStartWidth).toBe('0px')
     }
 
+    // 56px under the rule above and over the rule below, 20px between points.
+    const pads = nodes.map((node) => {
+      const style = getComputedStyle(node)
+      return [style.paddingTop, style.paddingBottom]
+    })
+    await expect(pads).toEqual([
+      ['56px', '20px'],
+      ['20px', '20px'],
+      ['20px', '20px'],
+      ['20px', '56px'],
+    ])
+
     const root = canvasElement.ownerDocument.documentElement
     await expect(root.scrollWidth).toBeLessThanOrEqual(root.clientWidth)
   },
@@ -219,6 +240,18 @@ export const Tablet: Story = {
       ['0px', '1px'],
       ['1px', '0px'],
       ['1px', '1px'],
+    ])
+
+    // 80px under the rule above and over the rule below, 32px between rows.
+    const pads = nodes.map((node) => {
+      const style = getComputedStyle(node)
+      return [style.paddingTop, style.paddingBottom]
+    })
+    await expect(pads).toEqual([
+      ['80px', '32px'],
+      ['80px', '32px'],
+      ['32px', '80px'],
+      ['32px', '80px'],
     ])
 
     const root = canvasElement.ownerDocument.documentElement
