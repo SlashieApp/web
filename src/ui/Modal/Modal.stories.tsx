@@ -3,8 +3,12 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { useState } from 'react'
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test'
 
+import { formSpace } from '@/theme/styles'
+
 import { Button } from '../Button'
 import { FormField } from '../FormField/FormField'
+import { gapBelow } from '../FormField/formGap.testing'
+import { FormStack } from '../FormStack/FormStack'
 import { Input } from '../Input/Input'
 import { Modal } from './Modal'
 
@@ -226,8 +230,7 @@ export const AllVariants: Story = {
         >
           <Text fontSize="sm" color="text.muted" lineHeight="tall">
             The {size} preset constrains the dialog max-width. Body copy uses
-            text.muted; the surface, border, and footer divider all reference
-            SDL semantic roles.
+            text.muted; the surface and border reference SDL semantic roles.
           </Text>
         </ModalDemo>
       ))}
@@ -257,6 +260,46 @@ const emailBody = (
 const overlayDocs = {
   docs: { story: { inline: false, iframeHeight: 560 } },
 } as const
+
+const phoneDescription =
+  'We will text a 6-digit code to confirm your number before you can quote on tasks.'
+
+/** The open dialog and the parts of its frame (FE-481 form spacing). */
+async function openFrame(canvasElement: HTMLElement, name: string) {
+  const page = within(canvasElement.ownerDocument.body)
+  const dialog = await page.findByRole('dialog', { name }, { timeout: 3000 })
+  await waitFor(() => expect(dialog).toBeVisible(), { timeout: 3000 })
+  // The dialog scales in: measure once it has settled.
+  await waitFor(() => expect(dialog.getAnimations()).toHaveLength(0), {
+    timeout: 3000,
+  })
+  const part = (cls: string) => dialog.querySelector(cls) as HTMLElement | null
+  return {
+    dialog,
+    title: within(dialog).getByRole('heading', { name }),
+    header: part('.chakra-dialog__header') as HTMLElement,
+    body: part('.chakra-dialog__body') as HTMLElement,
+    footer: part('.chakra-dialog__footer'),
+  }
+}
+
+/** The FormField root of a field, from its label. */
+function fieldOf(dialog: HTMLElement, label: string) {
+  return within(dialog).getByText(label, { selector: 'label' })
+    .parentElement as HTMLElement
+}
+
+/** Form fields in the frame: two fields 20 apart, as a `FormStack` lays them. */
+const phoneForm = (
+  <FormStack>
+    <FormField label="Mobile number">
+      <Input placeholder="+44 7700 900000" />
+    </FormField>
+    <FormField label="Name on the account">
+      <Input placeholder="Alex Morgan" />
+    </FormField>
+  </FormStack>
+)
 
 /** Open: the default dialog already showing, Cancel plus primary action. */
 export const Open: Story = {
@@ -510,7 +553,7 @@ const houseRules = [
   'Cancel at least 24 hours ahead if your plans change, so the worker can re-book the slot.',
 ]
 
-/** Open with long content: the dialog grows and scrolls in the viewport. */
+/** Open with long content: the dialog stops at the viewport and the body scrolls between the header and the buttons. */
 export const OpenLongContent: Story = {
   parameters: overlayDocs,
   args: { title: 'Before you accept this quote', submitLabel: 'Accept quote' },
@@ -552,4 +595,181 @@ export const OpenMobile: Story = {
       {verifyPhoneBody}
     </ModalDemo>
   ),
+}
+
+/**
+ * Open with a description: the title block is the title, the description 8
+ * under it, then 24 to the first field. Fields sit 20 apart, and the last field
+ * is 20 above the buttons. Neither the header nor the footer has a dividing
+ * line.
+ */
+export const OpenWithDescription: Story = {
+  parameters: overlayDocs,
+  args: {
+    title: 'Add contact phone number',
+    description: phoneDescription,
+    submitLabel: 'Send code',
+  },
+  render: (args) => (
+    <ModalDemo {...args} initialOpen triggerLabel="Verify phone number">
+      {phoneForm}
+    </ModalDemo>
+  ),
+  play: async ({ canvasElement }) => {
+    const { dialog, title, header, footer } = await openFrame(
+      canvasElement,
+      'Add contact phone number',
+    )
+    const description = within(dialog).getByText(phoneDescription)
+    const first = fieldOf(dialog, 'Mobile number')
+    const last = fieldOf(dialog, 'Name on the account')
+    const send = within(dialog).getByRole('button', { name: 'Send code' })
+
+    await expect(gapBelow(title, description)).toBe(formSpace.titleToSubtitle)
+    await expect(gapBelow(description, first)).toBe(formSpace.headerToBody)
+    await expect(gapBelow(first, last)).toBe(formSpace.fieldGap)
+    await expect(gapBelow(last, send)).toBe(formSpace.bodyToAction)
+
+    await expect(getComputedStyle(header).borderBottomWidth).toBe('0px')
+    await expect(getComputedStyle(footer as HTMLElement).borderTopWidth).toBe(
+      '0px',
+    )
+    // The description is the dialog's accessible description.
+    await expect(dialog).toHaveAccessibleDescription(phoneDescription)
+  },
+}
+
+/** Open with no description: the title, then 24 to the first field. */
+export const OpenWithoutDescription: Story = {
+  parameters: overlayDocs,
+  args: { title: 'Change email address', submitLabel: 'Save' },
+  render: (args) => (
+    <ModalDemo {...args} initialOpen triggerLabel="Update email">
+      <FormStack>
+        <FormField label="New email">
+          <Input type="email" placeholder="you@example.com" />
+        </FormField>
+      </FormStack>
+    </ModalDemo>
+  ),
+  play: async ({ canvasElement }) => {
+    const { dialog, title } = await openFrame(
+      canvasElement,
+      'Change email address',
+    )
+    const field = fieldOf(dialog, 'New email')
+    const save = within(dialog).getByRole('button', { name: 'Save' })
+
+    await expect(gapBelow(title, field)).toBe(formSpace.headerToBody)
+    await expect(gapBelow(field, save)).toBe(formSpace.bodyToAction)
+  },
+}
+
+/** A field error is part of its field: the 20 to the buttons is below it. */
+export const OpenErrorAboveButtons: Story = {
+  parameters: overlayDocs,
+  args: { title: 'Change email address', submitLabel: 'Save' },
+  render: (args) => (
+    <ModalDemo {...args} initialOpen triggerLabel="Update email">
+      <FormStack>
+        <FormField
+          label="New email"
+          errorText="That does not look like a valid email address."
+        >
+          <Input type="email" defaultValue="not-an-email" />
+        </FormField>
+      </FormStack>
+    </ModalDemo>
+  ),
+  play: async ({ canvasElement }) => {
+    const { dialog } = await openFrame(canvasElement, 'Change email address')
+    const field = fieldOf(dialog, 'New email')
+    const save = within(dialog).getByRole('button', { name: 'Save' })
+    await expect(gapBelow(field, save)).toBe(formSpace.bodyToAction)
+  },
+}
+
+/**
+ * Open, tall body: the dialog stops at the viewport, the body scrolls between
+ * the header and the button bar, and the bar stays where it is. Scrolled to the
+ * end, the last line is 20 above the buttons.
+ */
+export const OpenBarStaysPut: Story = {
+  parameters: overlayDocs,
+  args: {
+    title: 'Before you accept this quote',
+    description: 'Read these through first.',
+    submitLabel: 'Accept quote',
+  },
+  render: (args) => (
+    <ModalDemo {...args} initialOpen triggerLabel="Accept quote">
+      {[...houseRules, ...houseRules].map((rule, index) => (
+        <Text
+          // biome-ignore lint/suspicious/noArrayIndexKey: the rules repeat
+          key={index}
+          fontSize="sm"
+          color="text.muted"
+          lineHeight="tall"
+        >
+          {index + 1}. {rule}
+        </Text>
+      ))}
+    </ModalDemo>
+  ),
+  play: async ({ canvasElement }) => {
+    const { dialog, header, body } = await openFrame(
+      canvasElement,
+      'Before you accept this quote',
+    )
+    const accept = within(dialog).getByRole('button', { name: 'Accept quote' })
+    const viewportHeight = canvasElement.ownerDocument.defaultView?.innerHeight
+
+    // The dialog fits the viewport, and the body is what scrolls.
+    const box = dialog.getBoundingClientRect()
+    await expect(box.top).toBeGreaterThanOrEqual(0)
+    await expect(box.bottom).toBeLessThanOrEqual(viewportHeight ?? 0)
+    await expect(body.scrollHeight).toBeGreaterThan(body.clientHeight)
+
+    const headerTop = header.getBoundingClientRect().top
+    const acceptTop = accept.getBoundingClientRect().top
+    body.scrollTop = body.scrollHeight
+    await waitFor(() =>
+      expect(body.scrollTop + body.clientHeight).toBeGreaterThanOrEqual(
+        body.scrollHeight - 1,
+      ),
+    )
+    // Header and bar did not move; the last rule is 20 above the button.
+    await expect(header.getBoundingClientRect().top).toBe(headerTop)
+    await expect(accept.getBoundingClientRect().top).toBe(acceptTop)
+    const rules = within(body).getAllByText(/^\d+\. /)
+    const last = rules[rules.length - 1] as HTMLElement
+    // A scroll position is a whole number and the layout is not, so the end
+    // of the scroll can sit up to half a pixel off.
+    await expect(gapBelow(last, accept)).toBeCloseTo(formSpace.bodyToAction, 0)
+  },
+}
+
+/** Open with no footer: the body ends 24 above the dialog's edge, as it did. */
+export const OpenNoFooterEnds: Story = {
+  parameters: overlayDocs,
+  args: { title: 'Quick note', hideFooter: true },
+  render: (args) => (
+    <ModalDemo {...args} initialOpen triggerLabel="Open note">
+      <Text fontSize="sm" color="text.muted" lineHeight="tall">
+        This dialog hides the default footer.
+      </Text>
+    </ModalDemo>
+  ),
+  play: async ({ canvasElement }) => {
+    const { dialog, body } = await openFrame(canvasElement, 'Quick note')
+    const note = within(dialog).getByText(
+      'This dialog hides the default footer.',
+    )
+    await expect(
+      Math.round(
+        body.getBoundingClientRect().bottom -
+          note.getBoundingClientRect().bottom,
+      ),
+    ).toBe(24)
+  },
 }

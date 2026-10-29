@@ -2,9 +2,12 @@ import { Box, SimpleGrid, Stack, Text } from '@chakra-ui/react'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import type { ComponentProps } from 'react'
 import { useState } from 'react'
-import { expect, within } from 'storybook/test'
+import { expect, waitFor, within } from 'storybook/test'
+
+import { formSpace } from '@/theme/styles'
 
 import { Button } from '../Button'
+import { gapBelow } from '../FormField/formGap.testing'
 import { Drawer, type DrawerPlacement, type DrawerSize } from './Drawer'
 
 /**
@@ -154,6 +157,33 @@ function expectAligned(dialog: HTMLElement, { handle = false } = {}) {
   ).toBeLessThanOrEqual(0.5)
 }
 
+/**
+ * The title block of an open drawer (FE-481 form spacing): the description is 8
+ * under the title text, the first block is 24 under the description (or under
+ * the title when there is none), and nothing draws a line between them.
+ */
+async function expectTitleBlock(
+  dialog: HTMLElement,
+  { description }: { description?: string } = {},
+) {
+  const title = within(dialog).getByRole('heading')
+  const first = within(dialog).getByText('Drawer body content goes here.')
+  if (description) {
+    const text = within(dialog).getByText(description)
+    await expect(gapBelow(title, text)).toBe(formSpace.titleToSubtitle)
+    await expect(gapBelow(text, first)).toBe(formSpace.headerToBody)
+    await expect(dialog).toHaveAccessibleDescription(description)
+  } else {
+    await expect(gapBelow(title, first)).toBe(formSpace.headerToBody)
+  }
+  const header = dialog.querySelector('.chakra-drawer__header') as HTMLElement
+  await expect(getComputedStyle(header).borderBottomWidth).toBe('0px')
+  const footer = dialog.querySelector('.chakra-drawer__footer')
+  if (footer) {
+    await expect(getComputedStyle(footer).borderTopWidth).toBe('0px')
+  }
+}
+
 /** Default: closed with a trigger; opens from the start edge with a footer action. */
 export const Default: Story = {
   args: { open: false, onOpenChange: () => {}, children: null },
@@ -213,7 +243,11 @@ export const OpenEnd: Story = {
     </DrawerDemo>
   ),
   play: async ({ canvasElement }) => {
-    expectAligned(await findOpenDialog(canvasElement, 'Edit profile'))
+    const dialog = await findOpenDialog(canvasElement, 'Edit profile')
+    expectAligned(dialog)
+    await expectTitleBlock(dialog, {
+      description: 'Changes show on your public profile.',
+    })
   },
 }
 
@@ -252,9 +286,14 @@ export const OpenBottomPhone: Story = {
     </DrawerDemo>
   ),
   play: async ({ canvasElement }) => {
-    expectAligned(await findOpenDialog(canvasElement, 'Filters'), {
-      handle: true,
+    const dialog = await findOpenDialog(canvasElement, 'Filters')
+    expectAligned(dialog, { handle: true })
+    await expectTitleBlock(dialog, {
+      description: 'Refine results by category and budget.',
     })
+    // The title sits where a 44px row had it: 12 under the handle, then 8.
+    const grip = dialog.querySelector('[data-sheet-handle]') as HTMLElement
+    await expect(gapBelow(grip, within(dialog).getByRole('heading'))).toBe(20)
   },
 }
 
@@ -314,12 +353,21 @@ export const OpenTitleOnly: Story = {
       description={undefined}
       primaryActionLabel={undefined}
       initialOpen
-    />
+    >
+      <BodyCopy />
+    </DrawerDemo>
   ),
-  play: ({ canvasElement }) => expectOpen(canvasElement, 'Quick view'),
+  play: async ({ canvasElement }) => {
+    await expectOpen(canvasElement, 'Quick view')
+    await expectTitleBlock(await findOpenDialog(canvasElement, 'Quick view'))
+  },
 }
 
-/** Open, long content: the body scrolls while header and footer stay pinned. */
+/**
+ * Open, long content: the body scrolls while header and footer stay pinned.
+ * Scrolled to the end, the last row is 20 above the button, and the bar has no
+ * line above it.
+ */
 export const OpenScrollingBody: Story = {
   tags: ['!autodocs'],
   args: controlled,
@@ -328,7 +376,38 @@ export const OpenScrollingBody: Story = {
       <LongBody />
     </DrawerDemo>
   ),
-  play: ({ canvasElement }) => expectOpen(canvasElement, 'Filters'),
+  play: async ({ canvasElement }) => {
+    await expectOpen(canvasElement, 'Filters')
+    const dialog = await findOpenDialog(canvasElement, 'Filters')
+    const body = dialog.querySelector('.chakra-drawer__body') as HTMLElement
+    const apply = within(dialog).getByRole('button', { name: 'Apply' })
+    await expect(body.scrollHeight).toBeGreaterThan(body.clientHeight)
+
+    // Offsets inside the panel, which can still be settling into place.
+    const title = within(dialog).getByRole('heading')
+    const inPanel = (element: Element) =>
+      element.getBoundingClientRect().top - dialog.getBoundingClientRect().top
+    const titleTop = inPanel(title)
+    const applyTop = inPanel(apply)
+    body.scrollTop = body.scrollHeight
+    await waitFor(() =>
+      expect(body.scrollTop + body.clientHeight).toBeGreaterThanOrEqual(
+        body.scrollHeight - 1,
+      ),
+    )
+    // Header and bar did not move.
+    await expect(inPanel(title)).toBe(titleTop)
+    await expect(inPanel(apply)).toBe(applyTop)
+    // A scroll position is a whole number and the layout is not, so the end
+    // of the scroll can sit up to half a pixel off.
+    const rows = within(body).getAllByText(/^Row \d+:/)
+    await expect(gapBelow(rows[rows.length - 1] as Element, apply)).toBeCloseTo(
+      formSpace.bodyToAction,
+      0,
+    )
+    const footer = dialog.querySelector('.chakra-drawer__footer') as HTMLElement
+    await expect(getComputedStyle(footer).borderTopWidth).toBe('0px')
+  },
 }
 
 /** Every placement, each with its own trigger. */

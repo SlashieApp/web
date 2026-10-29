@@ -239,6 +239,19 @@ export const formHelperTextStyle = {
   color: 'text.muted',
 } as const satisfies SystemStyleObject
 
+/**
+ * The description under a dialog or drawer title (`Modal`, `Drawer`): muted,
+ * 14px, the same in both so the title block reads alike. It sits
+ * `formSpace.titleToSubtitle` (8) under the title; the body copy that follows
+ * the header is a different thing.
+ */
+export const overlayDescriptionStyle = {
+  color: 'text.muted',
+  fontSize: 'sm',
+  lineHeight: 'tall',
+  fontWeight: 500,
+} as const satisfies SystemStyleObject
+
 /** The smallest pointer target (px) of any control: the house touch target. */
 export const minHitArea = 44
 

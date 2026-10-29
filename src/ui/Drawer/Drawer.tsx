@@ -28,7 +28,7 @@ import { createPortal } from 'react-dom'
 import { LuX } from 'react-icons/lu'
 
 import { useI11n } from '@/i18n/useI11n'
-import { APP_OVERLAY_Z_INDEX } from '@/theme/styles'
+import { APP_OVERLAY_Z_INDEX, overlayDescriptionStyle } from '@/theme/styles'
 import { useIsBrowser } from '@/utils/useIsBrowser'
 
 import { Button } from '../Button'
@@ -223,59 +223,62 @@ export function Drawer({
             },
           }}
         >
-          <DrawerHeader px={drawerGutterX} pt={4} pb={4} flexShrink={0}>
+          <DrawerHeader px={drawerGutterX} pt={4} pb={0} flexShrink={0}>
             {/* The header is a flex row: without `w="full"` this column shrinks
                 to its text, and the handle centres over the title. */}
             <Stack gap={0} align="stretch" w="full">
               {placement === 'bottom' ? <SheetHandle /> : null}
-              <HStack align="center" justify="space-between" gap={3} minH={11}>
-                <DrawerTitle
-                  fontFamily="body"
-                  fontSize="20px"
-                  fontWeight={500}
-                  letterSpacing="-0.015em"
-                  color="text.default"
-                  lineHeight="short"
-                  flex={1}
-                  minW={0}
-                >
-                  {title}
-                </DrawerTitle>
-                {/* Unstyled: Chakra floats the close button in the panel's
-                    corner, which puts it above the title. Here it is in the
-                    row, so the two centre on each other. */}
-                <DrawerCloseTrigger asChild unstyled>
-                  <UiIconButton
-                    aria-label={t.close}
-                    variant="ghost"
-                    flexShrink={0}
-                    minW="44px"
-                    minH="44px"
-                    // The 20px glyph sits on the content's right edge, as the
-                    // body's controls do; the 44px target reaches into the gutter.
-                    me={-3}
+              {/* The title and the description are `formSpace.titleToSubtitle`
+                  apart, edge to edge. The 44px close button is taller than the
+                  title, so its margins (-8) take it out of the row's height,
+                  and the row's top padding (8) puts the title back where a
+                  44px row had it: the description is 8 under the title text,
+                  not 8 under a row with slack. */}
+              <Stack gap="form.titleToSubtitle" align="stretch" w="full">
+                <HStack align="center" justify="space-between" gap={3} pt={2}>
+                  <DrawerTitle
+                    fontFamily="body"
+                    fontSize="20px"
+                    fontWeight={500}
+                    letterSpacing="-0.015em"
+                    color="text.default"
+                    lineHeight="28px"
+                    flex={1}
+                    minW={0}
                   >
-                    <LuX size={20} strokeWidth={2} aria-hidden />
-                  </UiIconButton>
-                </DrawerCloseTrigger>
-              </HStack>
-              {description ? (
-                <DrawerDescription
-                  mt={2}
-                  color="text.muted"
-                  fontSize="sm"
-                  lineHeight="tall"
-                  fontWeight={500}
-                >
-                  {description}
-                </DrawerDescription>
-              ) : null}
+                    {title}
+                  </DrawerTitle>
+                  {/* Unstyled: Chakra floats the close button in the panel's
+                      corner, which puts it above the title. Here it is in the
+                      row, so the two centre on each other. */}
+                  <DrawerCloseTrigger asChild unstyled>
+                    <UiIconButton
+                      aria-label={t.close}
+                      variant="ghost"
+                      flexShrink={0}
+                      minW="44px"
+                      minH="44px"
+                      my={-2}
+                      // The 20px glyph sits on the content's right edge, as the
+                      // body's controls do; the 44px target reaches into the gutter.
+                      me={-3}
+                    >
+                      <LuX size={20} strokeWidth={2} aria-hidden />
+                    </UiIconButton>
+                  </DrawerCloseTrigger>
+                </HStack>
+                {description ? (
+                  <DrawerDescription {...overlayDescriptionStyle}>
+                    {description}
+                  </DrawerDescription>
+                ) : null}
+              </Stack>
             </Stack>
           </DrawerHeader>
           <DrawerBody
             px={drawerGutterX}
-            pt={5}
-            pb={6}
+            pt="form.headerToBody"
+            pb={primaryActionLabel ? 0 : 6}
             flex={1}
             minH={0}
             overflowY="auto"
@@ -293,16 +296,22 @@ export function Drawer({
               minH={0}
             >
               {children}
+              {primaryActionLabel ? (
+                // The box above shrinks to the body (`minH={0}`), so a child
+                // taller than the body overflows it, and the body's own bottom
+                // padding would end before the last row. This spacer is part
+                // of that flow: the last row is `formSpace.bodyToAction` above
+                // the button, scrolled to the end or not.
+                <Box aria-hidden flexShrink={0} pb="form.bodyToAction" />
+              ) : null}
             </Box>
           </DrawerBody>
           {primaryActionLabel ? (
             <DrawerFooter
               px={drawerGutterX}
-              pt={3}
+              pt={0}
               pb="calc(16px + env(safe-area-inset-bottom, 0px))"
               flexShrink={0}
-              borderTopWidth="1px"
-              borderColor="border.default"
             >
               <Button
                 variant="primary"

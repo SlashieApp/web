@@ -5,6 +5,7 @@ import {
   DialogBody,
   DialogCloseTrigger,
   DialogContent,
+  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogPositioner,
@@ -19,7 +20,11 @@ import { createPortal } from 'react-dom'
 import { LuX } from 'react-icons/lu'
 
 import { useI11n } from '@/i18n/useI11n'
-import { APP_OVERLAY_Z_INDEX, sdlMotion } from '@/theme/styles'
+import {
+  APP_OVERLAY_Z_INDEX,
+  overlayDescriptionStyle,
+  sdlMotion,
+} from '@/theme/styles'
 import { useIsBrowser } from '@/utils/useIsBrowser'
 
 import { Button } from '../Button'
@@ -37,8 +42,18 @@ import bag from './i11n.json'
  * - Footer primary action is `Button` (44px, green-ink, visible focus).
  * - Transitions use `sdlMotion`; the scrim/content animation honours reduced motion.
  *
- * Public props/API unchanged. `size` keeps its legacy `sm | md | lg` names.
- * With `onSubmit`, the body and footer are a form, so Enter in a field submits.
+ * Form spacing (FE-481, wiki Foundations-Form-Spacing): the header is the title,
+ * then the optional `description` `formSpace.titleToSubtitle` (8) under it, and
+ * the first field sits `formSpace.headerToBody` (24) below the header block.
+ * The body ends so the last field is `formSpace.bodyToAction` (20) above the
+ * buttons. The footer bar has no dividing line and the header has none either:
+ * a rule inside those 24 would crowd them. The header and the bar stay put
+ * (`scrollBehavior="inside"`): a tall body scrolls between them, so the buttons
+ * are always reachable.
+ *
+ * `size` keeps its legacy `sm | md | lg` names; `description` is new and
+ * optional. With `onSubmit`, the body and footer are a form, so Enter in a
+ * field submits.
  */
 
 const modalPaddingX = { base: 5, md: 6 } as const
@@ -55,6 +70,8 @@ export type ModalProps = {
   open: boolean
   onOpenChange: (open: boolean) => void
   title: string
+  /** Muted line under the title (8 below it): the intro, not body copy. */
+  description?: ReactNode
   children: ReactNode
   size?: ModalSize
   /** Secondary footer action (left). Defaults to "Cancel". */
@@ -79,6 +96,7 @@ export function Modal({
   open,
   onOpenChange,
   title,
+  description,
   children,
   size = 'md',
   cancelLabel = 'Cancel',
@@ -116,7 +134,11 @@ export function Modal({
 
   const bodyAndFooter = (
     <>
-      <DialogBody px={modalPaddingX} py={6}>
+      <DialogBody
+        px={modalPaddingX}
+        pt="form.headerToBody"
+        pb={showFooter ? 'form.bodyToAction' : 6}
+      >
         <Stack gap={6} fontSize="md" color="text.muted" lineHeight="1.625">
           {children}
         </Stack>
@@ -125,9 +147,9 @@ export function Modal({
       {showFooter ? (
         <DialogFooter
           px={modalPaddingX}
-          py={4}
-          borderTopWidth="1px"
-          borderColor="border.default"
+          pt={0}
+          pb={4}
+          flexShrink={0}
           gap={3}
           justifyContent="flex-end"
         >
@@ -189,6 +211,7 @@ export function Modal({
           borderWidth="1px"
           borderColor="border.default"
           maxW={sizeMaxW[size]}
+          maxH="full"
           w="full"
           mx="auto"
           overflow="hidden"
@@ -196,36 +219,37 @@ export function Modal({
           transitionDuration={sdlMotion.duration.moderate}
           transitionTimingFunction={sdlMotion.easing.standard}
         >
-          <DialogHeader
-            px={modalPaddingX}
-            pt={5}
-            pb={4}
-            borderBottomWidth="1px"
-            borderColor="border.default"
-          >
-            <HStack align="center" justify="space-between" gap={3}>
-              <DialogTitle
-                fontFamily="body"
-                fontSize="20px"
-                fontWeight={500}
-                letterSpacing="-0.015em"
-                color="text.default"
-                lineHeight="short"
-                flex={1}
-                minW={0}
-              >
-                {title}
-              </DialogTitle>
-              <DialogCloseTrigger asChild>
-                <UiIconButton
-                  aria-label={t.close}
-                  variant="ghost"
-                  flexShrink={0}
+          <DialogHeader px={modalPaddingX} pt={5} pb={0}>
+            <Stack gap="form.titleToSubtitle" w="full">
+              <HStack align="center" justify="space-between" gap={3}>
+                <DialogTitle
+                  fontFamily="body"
+                  fontSize="20px"
+                  fontWeight={500}
+                  letterSpacing="-0.015em"
+                  color="text.default"
+                  lineHeight="short"
+                  flex={1}
+                  minW={0}
                 >
-                  <LuX size={20} strokeWidth={2} aria-hidden />
-                </UiIconButton>
-              </DialogCloseTrigger>
-            </HStack>
+                  {title}
+                </DialogTitle>
+                <DialogCloseTrigger asChild>
+                  <UiIconButton
+                    aria-label={t.close}
+                    variant="ghost"
+                    flexShrink={0}
+                  >
+                    <LuX size={20} strokeWidth={2} aria-hidden />
+                  </UiIconButton>
+                </DialogCloseTrigger>
+              </HStack>
+              {description ? (
+                <DialogDescription {...overlayDescriptionStyle}>
+                  {description}
+                </DialogDescription>
+              ) : null}
+            </Stack>
           </DialogHeader>
 
           {onSubmit ? (
@@ -246,6 +270,7 @@ export function Modal({
       onOpenChange={(details: { open: boolean }) => onOpenChange(details.open)}
       placement="center"
       motionPreset="scale"
+      scrollBehavior="inside"
     >
       {isBrowser ? createPortal(overlay, document.body) : overlay}
     </DialogRoot>

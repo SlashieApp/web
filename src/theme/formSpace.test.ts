@@ -1,7 +1,10 @@
+import { readFileSync } from 'node:fs'
+import { join } from 'node:path'
+
 import { describe, expect, it } from 'vitest'
 
 import { darkSystem, lightSystem } from './chakraSystem'
-import { formSpace, sdlSpace } from './styles'
+import { formSpace, overlayDescriptionStyle, sdlSpace } from './styles'
 
 /**
  * The form spacing table (wiki: Foundations-Form-Spacing, FE-481). The Expo app
@@ -76,5 +79,50 @@ describe('form tokens in the Chakra system', () => {
   it('keeps the default spacing scale beside the form tokens', () => {
     expect(lightSystem.token('spacing.5')).toBe('1.25rem')
     expect(lightSystem.token('sizes.12')).toBe('3rem')
+  })
+})
+
+describe('dialog and drawer frames read the form tokens (FE-481 overlay-chrome)', () => {
+  // The frames' geometry is measured in the Modal and Drawer stories; these pin
+  // that the numbers come from the tokens, and that no dividing line returns.
+  const read = (file: string) => readFileSync(join(process.cwd(), file), 'utf8')
+  const modal = read('src/ui/Modal/Modal.tsx')
+  const drawer = read('src/ui/Drawer/Drawer.tsx')
+
+  it.each([
+    ['Modal', modal],
+    ['Drawer', drawer],
+  ] as const)(
+    '%s: description 8 under the title, 24 to the first field, 20 to the bar',
+    (_name, source) => {
+      expect(source).toContain('gap="form.titleToSubtitle"')
+      expect(source).toContain('pt="form.headerToBody"')
+      expect(source).toContain('form.bodyToAction')
+      expect(source).toContain('{...overlayDescriptionStyle}')
+    },
+  )
+
+  it.each([
+    ['Modal', modal],
+    ['Drawer', drawer],
+  ] as const)(
+    '%s: no dividing line on the header or the footer',
+    (_name, source) => {
+      expect(source).not.toContain('borderTopWidth')
+      expect(source).not.toContain('borderBottomWidth')
+    },
+  )
+
+  it('the Modal bar stays put: the body scrolls inside the dialog', () => {
+    expect(modal).toContain('scrollBehavior="inside"')
+  })
+
+  it('the description style is muted 14px, weight 500 at most', () => {
+    expect(overlayDescriptionStyle).toEqual({
+      color: 'text.muted',
+      fontSize: 'sm',
+      lineHeight: 'tall',
+      fontWeight: 500,
+    })
   })
 })
