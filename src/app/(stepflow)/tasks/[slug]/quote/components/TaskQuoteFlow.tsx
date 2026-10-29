@@ -6,6 +6,7 @@ import { LuUndo2 } from 'react-icons/lu'
 
 import taskDetailBag from '@/app/(task)/tasks/[slug]/i11n.json'
 import { useI11n } from '@/i18n/useI11n'
+import { hitAreaGrowth } from '@/theme/styles'
 import { timeSlotDraftFromSlot } from '@/utils/timeSlots'
 
 import { isEmailVerified } from '@/app/(auth)/helpers/emailVerification'
@@ -218,8 +219,15 @@ export function TaskQuoteFlow() {
             variant="ghost"
             color="status.danger.fg"
             alignSelf="flex-start"
-            mt={6}
             px={0}
+            // A line of text, 20 under the step's last field like any field
+            // group (the stack above sets it); it is 44 to tap, reaching into
+            // the gaps around it.
+            h="auto"
+            minH={0}
+            borderWidth={0}
+            lineHeight="20px"
+            {...hitAreaGrowth(20)}
             loading={withdrawingQuote}
             onClick={() => setWithdrawOpen(true)}
           >

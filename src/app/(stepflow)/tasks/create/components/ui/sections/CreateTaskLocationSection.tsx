@@ -1,10 +1,11 @@
 'use client'
 
-import { Box, HStack, Stack, Text } from '@chakra-ui/react'
+import { Box, HStack, Text } from '@chakra-ui/react'
 import { LuLock, LuMapPin } from 'react-icons/lu'
 
 import { formatMessage } from '@/i18n/loadPageI11n'
 import { useI11n } from '@/i18n/useI11n'
+import { FormStack } from '@ui'
 import { taskFieldError } from '../../../helpers/taskFieldError'
 import bag from '../../../i11n.json'
 
@@ -26,6 +27,9 @@ export type CreateTaskLocationSectionProps = {
  * The pin's public side (FE-70): the approximate area workers see, a hint
  * when current location is unavailable, and the map's error. The private
  * exact address is `CreateTaskAddressSection`.
+ *
+ * Form spacing (FE-481): the privacy note, the area chip, the hint and the
+ * error are notes in a form, so each is a field group, `fieldGap` (20) apart.
  */
 export function CreateTaskLocationSection({
   publicArea,
@@ -37,7 +41,7 @@ export function CreateTaskLocationSection({
   const t = copy.location
 
   return (
-    <Stack gap={2}>
+    <FormStack>
       {privacyCallout ? (
         <HStack
           align="flex-start"
@@ -87,6 +91,6 @@ export function CreateTaskLocationSection({
           {taskFieldError(copy.errors, locationError)}
         </Text>
       ) : null}
-    </Stack>
+    </FormStack>
   )
 }

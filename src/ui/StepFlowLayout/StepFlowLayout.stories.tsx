@@ -3,7 +3,20 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { LuCheck } from 'react-icons/lu'
 import { expect, waitFor, within } from 'storybook/test'
 
+import {
+  desktop1280,
+  expectNoBarLine,
+  expectStepFlowFrame,
+  expectWidth,
+  phone390,
+  stepFlowOf,
+} from '@/app/(stepflow)/stepFlowSpacing.testing'
+import { formSpace } from '@/theme/styles'
+
 import { FormField } from '../FormField'
+import { gapBelow, heightOf } from '../FormField/formGap.testing'
+import { FormSection } from '../FormSection'
+import { FormStack } from '../FormStack'
 import { Input } from '../Input/Input'
 import { Textarea } from '../Textarea/Textarea'
 import {
@@ -424,6 +437,103 @@ export const MobileLongContent: Story = {
   args: { ...LongContent.args, aside: undefined },
 }
 
+/** Eight fields, so the step overflows its pane and scrolls on both layouts. */
+const spacingFields = (
+  <>
+    {[
+      'Total price',
+      'Call-out fee',
+      'Materials',
+      'Parts supplier',
+      'Earliest start',
+      'Access notes',
+      'Parking',
+      'Anything else',
+    ].map((label) => (
+      <FormField key={label} label={label}>
+        <Input placeholder="Add details" />
+      </FormField>
+    ))}
+  </>
+)
+
+/**
+ * Form spacing (FE-481): the description 8 under the title, the first field 24
+ * under it, the fields 20 apart, the last one 20 above Continue at the end of the
+ * scroll, Continue 48 tall, and no line over the bar. Desktop.
+ */
+export const Spacing: Story = {
+  ...desktop1280,
+  args: { ...WithAside.args, children: spacingFields },
+  play: async ({ canvasElement }) => {
+    expectWidth(canvasElement, 1280)
+    await expectStepFlowFrame(canvasElement)
+  },
+}
+
+/** The same frame on a phone (390 wide): the pane scrolls between the strip and the bar. */
+export const SpacingPhone: Story = {
+  ...phone390,
+  args: { ...WithAside.args, aside: undefined, children: spacingFields },
+  play: async ({ canvasElement }) => {
+    expectWidth(canvasElement, 390)
+    await expectStepFlowFrame(canvasElement)
+  },
+}
+
+/** A save error is the first field group: 24 under the description, 20 above the first field. */
+export const SpacingError: Story = {
+  ...desktop1280,
+  args: {
+    ...WithError.args,
+    aside: undefined,
+    children: spacingFields,
+  },
+  play: async ({ canvasElement }) => {
+    const { body } = await expectStepFlowFrame(canvasElement)
+    const error = within(canvasElement).getByRole('alert')
+    await expect(body.firstElementChild).toBe(error)
+  },
+}
+
+/** Sections: the flow passes one `FormStack gap="section"`, which sits 20 under the error and the notice above it. */
+export const SpacingSections: Story = {
+  ...phone390,
+  args: {
+    ...TwoColumn.args,
+    children: (
+      <>
+        <Text fontSize="sm">A note above the sections.</Text>
+        <FormStack gap="section">
+          {['Details', 'Timing'].map((title) => (
+            <FormSection key={title} title={title}>
+              <FormField label={`${title} one`}>
+                <Input />
+              </FormField>
+              <FormField label={`${title} two`}>
+                <Input />
+              </FormField>
+            </FormSection>
+          ))}
+        </FormStack>
+      </>
+    ),
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const { body } = stepFlowOf(canvasElement)
+    const [note, sections] = [...body.children] as HTMLElement[]
+    await expect(gapBelow(note, sections)).toBe(formSpace.fieldGap)
+    const [details, timing] = [...sections.children] as HTMLElement[]
+    await expect(gapBelow(details, timing)).toBe(formSpace.sectionGap)
+    // The title is 12 above its first field's label, and no rule is drawn.
+    const title = canvas.getByRole('heading', { name: 'Details' })
+    const label = canvas.getByText('Details one', { selector: 'label' })
+    await expect(gapBelow(title, label)).toBe(formSpace.sectionTitleToField)
+    await expect(getComputedStyle(timing).borderTopWidth).toBe('0px')
+  },
+}
+
 /** Props-only stories for the exported parts: no layout args apply. */
 type PartStory = StoryObj
 
@@ -443,6 +553,16 @@ export const HeadingDefault: PartStory = {
       />
     </Box>
   ),
+  play: async ({ canvasElement }) => {
+    // The description is 8 under the title; the heading owns the 24 under it.
+    const { title, description, heading } = stepFlowOf(canvasElement)
+    await expect(gapBelow(title, description as HTMLElement)).toBe(
+      formSpace.titleToSubtitle,
+    )
+    await expect(getComputedStyle(heading).marginBottom).toBe(
+      `${formSpace.headerToBody}px`,
+    )
+  },
 }
 
 /** Heading, compact: a smaller title with tighter spacing. */
@@ -457,6 +577,13 @@ export const HeadingCompact: PartStory = {
       />
     </Box>
   ),
+  play: async ({ canvasElement }) => {
+    // The map step's tighter header: 4 between the title and the description,
+    // and no 24 under it (the card around it sets how far the first block is).
+    const { title, description, heading } = stepFlowOf(canvasElement)
+    await expect(gapBelow(title, description as HTMLElement)).toBe(4)
+    await expect(getComputedStyle(heading).marginBottom).toBe('0px')
+  },
 }
 
 /** Heading, title only: no supporting copy. */
@@ -489,6 +616,13 @@ export const ActionsWithBack: PartStory = {
     const { width, height } = back.getBoundingClientRect()
     await expect(width).toBeGreaterThanOrEqual(44)
     await expect(height).toBeGreaterThanOrEqual(44)
+    // Continue is the form height (48), and the bar draws no line and has no
+    // padding above the buttons: the body above it ends 20 from them.
+    const main = canvas.getByRole('button', { name: /Continue/ })
+    await expect(heightOf(main)).toBe(formSpace.controlHeight)
+    await expectNoBarLine(main)
+    const bar = main.parentElement?.parentElement as HTMLElement
+    await expect(getComputedStyle(bar).paddingTop).toBe('0px')
   },
 }
 

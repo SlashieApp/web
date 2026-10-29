@@ -6,7 +6,7 @@ import { LuImagePlus, LuX } from 'react-icons/lu'
 
 import { formatMessage } from '@/i18n/loadPageI11n'
 import { useI11n } from '@/i18n/useI11n'
-import { sdlFocusRing } from '@/theme/styles'
+import { formHelperTextStyle, sdlFocusRing } from '@/theme/styles'
 import {
   Badge,
   Button,
@@ -154,96 +154,121 @@ export function CreateTaskVisualsSection({
           : formatMessage(f.notAPhoto, { name: item.name })
 
   return (
-    <CreateTaskSection bare={bare} heading={sectionHeading} bodyGap={3}>
-      {labelled || count > 0 ? (
-        <HStack gap={2} justify="space-between">
-          {labelled ? (
-            <HStack gap={2}>
-              <Text
-                fontSize="14px"
-                fontWeight={500}
-                color="text.default"
-                px={1}
-              >
-                {f.photos}
-              </Text>
-              <Badge variant="neutral" shape="pill">
-                {f.optional}
-              </Badge>
+    <CreateTaskSection bare={bare} heading={sectionHeading}>
+      {/* One field: its label, lead-in and tiles are `labelToControl` (8)
+          apart, and a rejected file's reason hangs 4 under the tiles. */}
+      <Stack gap="form.controlToHelper">
+        <Stack gap="form.labelToControl">
+          {labelled || count > 0 ? (
+            <HStack gap={2} justify="space-between">
+              {labelled ? (
+                <HStack gap={2}>
+                  <Text
+                    fontSize="14px"
+                    fontWeight={500}
+                    color="text.default"
+                    px={1}
+                  >
+                    {f.photos}
+                  </Text>
+                  <Badge variant="neutral" shape="pill">
+                    {f.optional}
+                  </Badge>
+                </HStack>
+              ) : (
+                <span />
+              )}
+              {count > 0 ? (
+                <Text fontSize="sm" color="text.muted">
+                  {formatMessage(f.photoCount, { count, max: TASK_PHOTOS_MAX })}
+                </Text>
+              ) : null}
             </HStack>
-          ) : (
-            <span />
-          )}
-          {count > 0 ? (
-            <Text fontSize="sm" color="text.muted">
-              {formatMessage(f.photoCount, { count, max: TASK_PHOTOS_MAX })}
+          ) : null}
+          {helper ? (
+            <Text {...formHelperTextStyle} px={1}>
+              {f.photosHelper}
             </Text>
           ) : null}
-        </HStack>
-      ) : null}
-      {helper ? (
-        <Text fontSize="sm" color="text.muted" px={1}>
-          {f.photosHelper}
-        </Text>
-      ) : null}
 
-      <Wrap gap={3} align="flex-start" pt={1}>
-        {existingImageUrls.map((src, i) => (
-          <PhotoThumb
-            key={src}
-            src={src}
-            alt={viewable[i].alt}
-            onOpen={() => setPreviewIndex(i)}
-          />
-        ))}
-        {photos.map((photo, i) => {
-          const number = existingImageUrls.length + i + 1
-          const alt = formatMessage(f.newPhoto, { number })
-          const { src } = photo
-          return (
-            <Box key={photo.key} position="relative">
-              {src ? (
-                <PhotoThumb
-                  src={src}
-                  alt={alt}
-                  onOpen={() => setPreviewIndex(viewIndex(src))}
-                />
-              ) : (
-                <PhotoTile state={photo.state} alt={alt} size={THUMB} />
-              )}
-              {/* 44px target hangs off the corner to cover less of the photo. */}
-              <IconButton
-                type="button"
-                aria-label={formatMessage(f.removePhoto, { number })}
-                position="absolute"
-                top={-2}
-                right={-2}
-                bg="bg.surface"
-                boxShadow="e2"
-                onClick={() => onRemoveFile(i)}
-              >
-                <LuX aria-hidden />
-              </IconButton>
-            </Box>
-          )
-        })}
-        {full ? null : (
-          // The back camera, for the job itself.
-          <PhotoSourcePicker
-            camera="environment"
-            multiple
-            onFiles={onFilesAdded}
-          >
-            {(trigger) => (
-              <AddPhotoTile
-                {...trigger}
-                icon={<LuImagePlus size={20} aria-hidden />}
-                label={f.addPhotos}
+          {/* A photo's remove button hangs 8 above it, so with photos the
+              row starts 8 lower: the buttons, not the tiles, are the block's
+              visible top, `labelToControl` under the text above. */}
+          <Wrap gap={3} align="flex-start" pt={count > 0 ? 2 : 0}>
+            {existingImageUrls.map((src, i) => (
+              <PhotoThumb
+                key={src}
+                src={src}
+                alt={viewable[i].alt}
+                onOpen={() => setPreviewIndex(i)}
               />
+            ))}
+            {photos.map((photo, i) => {
+              const number = existingImageUrls.length + i + 1
+              const alt = formatMessage(f.newPhoto, { number })
+              const { src } = photo
+              return (
+                <Box key={photo.key} position="relative">
+                  {src ? (
+                    <PhotoThumb
+                      src={src}
+                      alt={alt}
+                      onOpen={() => setPreviewIndex(viewIndex(src))}
+                    />
+                  ) : (
+                    <PhotoTile state={photo.state} alt={alt} size={THUMB} />
+                  )}
+                  {/* 44px target hangs off the corner to cover less of the photo. */}
+                  <IconButton
+                    type="button"
+                    aria-label={formatMessage(f.removePhoto, { number })}
+                    position="absolute"
+                    top={-2}
+                    right={-2}
+                    bg="bg.surface"
+                    boxShadow="e2"
+                    onClick={() => onRemoveFile(i)}
+                  >
+                    <LuX aria-hidden />
+                  </IconButton>
+                </Box>
+              )
+            })}
+            {full ? null : (
+              // The back camera, for the job itself.
+              <PhotoSourcePicker
+                camera="environment"
+                multiple
+                onFiles={onFilesAdded}
+              >
+                {(trigger) => (
+                  <AddPhotoTile
+                    {...trigger}
+                    icon={<LuImagePlus size={20} aria-hidden />}
+                    label={f.addPhotos}
+                  />
+                )}
+              </PhotoSourcePicker>
             )}
-          </PhotoSourcePicker>
-        )}
-      </Wrap>
+          </Wrap>
+        </Stack>
+
+        {rejected.length > 0 ? (
+          <Stack gap="form.helperGap" role="alert">
+            {rejected.map((item) => (
+              <Text
+                key={item.reason === 'tooMany' ? 'tooMany' : item.name}
+                fontSize="sm"
+                lineHeight="20px"
+                color="status.danger.fg"
+                px={1}
+              >
+                {rejection(item)}
+              </Text>
+            ))}
+          </Stack>
+        ) : null}
+      </Stack>
 
       <ImagePreview
         items={viewable}
@@ -251,21 +276,6 @@ export function CreateTaskVisualsSection({
         onIndexChange={setPreviewIndex}
         onClose={() => setPreviewIndex(null)}
       />
-
-      {rejected.length > 0 ? (
-        <Stack gap={1} role="alert">
-          {rejected.map((item) => (
-            <Text
-              key={item.reason === 'tooMany' ? 'tooMany' : item.name}
-              fontSize="sm"
-              color="status.danger.fg"
-              px={1}
-            >
-              {rejection(item)}
-            </Text>
-          ))}
-        </Stack>
-      ) : null}
     </CreateTaskSection>
   )
 }

@@ -1,6 +1,6 @@
 'use client'
 
-import { Box, HStack, Text, Wrap, chakra } from '@chakra-ui/react'
+import { Box, HStack, Stack, Text, Wrap, chakra } from '@chakra-ui/react'
 import { type ReactNode, useState } from 'react'
 import { LuPlus, LuX } from 'react-icons/lu'
 
@@ -61,6 +61,12 @@ const chipStyles = {
 /**
  * A chip list: chosen chips (tap one to remove it), add-your-own and
  * suggestions. Says why a typed chip was turned away.
+ *
+ * Form spacing (FE-481): one composite field. Its pieces (the chosen chips, the
+ * add row, the suggestions) are `labelToControl` (8) apart, chips wrap 8 apart,
+ * the input and Add sit `inlineGap` (12) apart and are 48 tall, the refused-chip
+ * error and the count are `controlToHelper` (4) under the add row, and the
+ * suggestions' heading is 8 above them.
  */
 export function WorkerSetupChipsField({
   label,
@@ -107,9 +113,9 @@ export function WorkerSetupChipsField({
 
   return (
     <FormField label={label} helperText={helperText} errorText={errorText}>
-      <Box w="full">
+      <Stack gap="form.labelToControl" w="full">
         {value.length > 0 ? (
-          <Wrap gap={2} pb={3}>
+          <Wrap gap="form.alternativesGap">
             {value.map((item) => (
               <ChipButton
                 key={item}
@@ -130,56 +136,75 @@ export function WorkerSetupChipsField({
           </Wrap>
         ) : null}
 
-        <HStack gap={2} align="stretch">
-          <Input
-            value={draft}
-            onChange={(e) => {
-              setDraft(e.target.value)
-              setDropped(null)
-            }}
-            onKeyDown={(e) => {
-              if (e.key !== 'Enter') return
-              e.preventDefault()
-              commitDraft()
-            }}
-            placeholder={copy.placeholder}
-            disabled={atCap}
-            rootProps={{ ...formControlRootProps, flex: 1 }}
-          />
-          <Button
-            type="button"
-            variant="secondary"
-            onClick={commitDraft}
-            disabled={atCap || !draft.trim()}
-            minH="44px"
-            flexShrink={0}
-          >
-            {copy.add}
-          </Button>
-        </HStack>
+        {/* The add row, with what it says about the entry under it. Each line
+            is `controlToHelper` (4) under the one above by its own margin: the
+            live region below is always in the page and takes no gap while it
+            is empty. */}
+        <Stack gap={0}>
+          <HStack gap="form.inlineGap" align="stretch">
+            <Input
+              value={draft}
+              onChange={(e) => {
+                setDraft(e.target.value)
+                setDropped(null)
+              }}
+              onKeyDown={(e) => {
+                if (e.key !== 'Enter') return
+                e.preventDefault()
+                commitDraft()
+              }}
+              placeholder={copy.placeholder}
+              disabled={atCap}
+              rootProps={{ ...formControlRootProps, flex: 1 }}
+            />
+            <Button
+              type="button"
+              variant="secondary"
+              size="form"
+              onClick={commitDraft}
+              disabled={atCap || !draft.trim()}
+              flexShrink={0}
+            >
+              {copy.add}
+            </Button>
+          </HStack>
 
-        <Box aria-live="polite">
-          {droppedText ? (
-            <Text fontSize="sm" color="status.danger.fg" pt={2} px={1}>
-              {droppedText}
+          {/* Always in the page, so a refused chip is announced. */}
+          <Box aria-live="polite">
+            {droppedText ? (
+              <Text
+                mt="form.controlToHelper"
+                fontSize="sm"
+                lineHeight="20px"
+                color="status.danger.fg"
+                px={1}
+              >
+                {droppedText}
+              </Text>
+            ) : null}
+          </Box>
+
+          {countText ? (
+            <Text
+              mt="form.controlToHelper"
+              fontSize="xs"
+              lineHeight="16px"
+              color="text.muted"
+              px={1}
+            >
+              {countText}
             </Text>
           ) : null}
-        </Box>
-
-        {countText ? (
-          <Text fontSize="xs" color="text.muted" pt={2} px={1}>
-            {countText}
-          </Text>
-        ) : null}
+        </Stack>
 
         {remaining.length > 0 && !atCap ? (
-          <Box pt={3}>
+          <Stack gap="form.labelToControl">
             {suggestionsLabel ? (
-              <Text fontSize="xs" fontWeight={500} color="text.muted" pb={2}>
+              <Text fontSize="xs" fontWeight={500} color="text.muted">
                 {suggestionsLabel}
               </Text>
             ) : null}
-            <Wrap gap={2}>
+            <Wrap gap="form.alternativesGap">
               {remaining.map((item) => (
                 <ChipButton
                   key={item}
@@ -204,9 +229,9 @@ export function WorkerSetupChipsField({
                 </ChipButton>
               ))}
             </Wrap>
-          </Box>
+          </Stack>
         ) : null}
-      </Box>
+      </Stack>
     </FormField>
   )
 }

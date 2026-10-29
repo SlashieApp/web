@@ -1,6 +1,13 @@
 'use client'
 
-import { Box, Grid, Text, VisuallyHidden, chakra } from '@chakra-ui/react'
+import {
+  Box,
+  Grid,
+  Stack,
+  Text,
+  VisuallyHidden,
+  chakra,
+} from '@chakra-ui/react'
 import { useId } from 'react'
 import type { IconType } from 'react-icons'
 import {
@@ -19,7 +26,8 @@ import {
 } from 'react-icons/lu'
 
 import { useI11n } from '@/i18n/useI11n'
-import { sdlFocusRing, sdlMotion } from '@/theme/styles'
+import { formHelperTextStyle, sdlFocusRing, sdlMotion } from '@/theme/styles'
+import { formControlLabelProps } from '@ui'
 
 import {
   WORKER_PRIMARY_CATEGORIES,
@@ -55,6 +63,11 @@ export type WorkerSetupCategoryTilesProps = {
 /**
  * The main trade as icon tiles over a native radio set: arrow keys move the
  * choice, it is announced, and shown by the border and tint together.
+ *
+ * Form spacing (FE-481): a choice group lays out like a field. The legend is the
+ * form label, `labelToControl` (8) above the tiles, the tiles are
+ * `alternativesGap` (8) apart, and the helper and the error sit
+ * `controlToHelper` (4) under them on the compact line.
  */
 export function WorkerSetupCategoryTiles({
   label,
@@ -73,24 +86,20 @@ export function WorkerSetupCategoryTiles({
       as="fieldset"
       display="flex"
       flexDirection="column"
-      gap={2}
+      gap={0}
       minW={0}
       aria-describedby={
         [helperId, errorId].filter(Boolean).join(' ') || undefined
       }
       data-invalid={errorText ? '' : undefined}
     >
-      <Box
-        as="legend"
-        fontSize="14px"
-        fontWeight={500}
-        color="text.default"
-        px={1}
-        mb={2}
-      >
+      <Box as="legend" {...formControlLabelProps} px={1}>
         {label}
       </Box>
-      <Grid templateColumns={{ base: '1fr 1fr', md: '1fr 1fr 1fr' }} gap={2.5}>
+      <Grid
+        templateColumns={{ base: '1fr 1fr', md: '1fr 1fr 1fr' }}
+        gap="form.alternativesGap"
+      >
         {WORKER_PRIMARY_CATEGORIES.map(({ slug }) => {
           const Icon = CATEGORY_ICONS[slug]
           const selected = slug === value
@@ -136,21 +145,25 @@ export function WorkerSetupCategoryTiles({
           )
         })}
       </Grid>
-      {helperText ? (
-        <Text
-          id={helperId}
-          fontSize="sm"
-          color="text.muted"
-          lineHeight="tall"
-          px={1}
-        >
-          {helperText}
-        </Text>
-      ) : null}
-      {errorText ? (
-        <Text id={errorId} fontSize="sm" color="status.danger.fg" px={1}>
-          {errorText}
-        </Text>
+      {helperText || errorText ? (
+        <Stack gap="form.helperGap" mt="form.controlToHelper">
+          {helperText ? (
+            <Text id={helperId} {...formHelperTextStyle} px={1}>
+              {helperText}
+            </Text>
+          ) : null}
+          {errorText ? (
+            <Text
+              id={errorId}
+              fontSize="sm"
+              lineHeight="20px"
+              color="status.danger.fg"
+              px={1}
+            >
+              {errorText}
+            </Text>
+          ) : null}
+        </Stack>
       ) : null}
     </Box>
   )

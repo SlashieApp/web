@@ -130,13 +130,7 @@ export const EditingExistingQuote: Story = {
     initialPounds: '85',
     submitLabel: 'Update quote',
     footer: (
-      <Button
-        type="button"
-        variant="ghost"
-        alignSelf="flex-start"
-        mt={6}
-        px={0}
-      >
+      <Button type="button" variant="ghost" alignSelf="flex-start" px={0}>
         Withdraw quote
       </Button>
     ),

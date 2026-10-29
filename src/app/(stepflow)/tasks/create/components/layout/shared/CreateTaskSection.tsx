@@ -1,9 +1,9 @@
 'use client'
 
-import { Heading, Stack, type StackProps } from '@chakra-ui/react'
+import { Heading, Stack } from '@chakra-ui/react'
 import type { ReactNode } from 'react'
 
-import { Card } from '@ui'
+import { Card, FormStack } from '@ui'
 
 export type CreateTaskSectionProps = {
   /**
@@ -15,29 +15,28 @@ export type CreateTaskSectionProps = {
   heading: string
   /** Optional supporting copy under the heading (card mode only). */
   headingSubtext?: ReactNode
-  bodyGap?: StackProps['gap']
   children: ReactNode
 }
 
 /**
  * Wrapper shared by every task section so the fields render either bare in a
- * create step or inside a titled section Card on edit, with the same spacing.
+ * create step or inside a titled section Card, with the same spacing: the
+ * fields are `fieldGap` (20) apart, the form stack (FE-481).
  */
 export function CreateTaskSection({
   bare = false,
   heading,
   headingSubtext,
-  bodyGap = 4,
   children,
 }: CreateTaskSectionProps) {
   if (bare) {
-    return <Stack gap={bodyGap}>{children}</Stack>
+    return <FormStack>{children}</FormStack>
   }
 
   return (
     <Card
       layout="section"
-      bodyGap={bodyGap}
+      bodyGap="form.fieldGap"
       header={
         headingSubtext ? (
           <Stack gap={1}>

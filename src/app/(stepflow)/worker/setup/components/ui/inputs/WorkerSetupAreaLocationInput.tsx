@@ -5,9 +5,10 @@ import { useState } from 'react'
 
 import { formatMessage } from '@/i18n/loadPageI11n'
 import { useI11n } from '@/i18n/useI11n'
+import { formHelperTextStyle } from '@/theme/styles'
 import { mapboxForwardGeocode } from '@/utils/mapboxGeocode'
 import { townOnly } from '@/utils/taskLocationDisplay'
-import { FormField, Input, MapCard, formControlRootProps } from '@ui'
+import { FormField, FormStack, Input, MapCard, formControlRootProps } from '@ui'
 
 import { useWorkerSetup } from '../../../context/WorkerSetupProvider'
 import { workerSetupErrorText } from '../../../helpers/workerSetupValidation'
@@ -19,6 +20,10 @@ type Preview = { lat: number; lng: number; placeName: string }
  * Town or postcode, with an approximate-area map and the town customers will
  * see (the API keeps the town only). The preview looks the place up on blur;
  * Continue resolves it again to save.
+ *
+ * Form spacing (FE-481): the field and the map preview are field groups,
+ * `fieldGap` (20) apart; the preview's caption is `controlToHelper` (4) under
+ * the map, on the compact helper line.
  */
 export function WorkerSetupAreaLocationInput() {
   const t = useI11n(bag)
@@ -41,7 +46,7 @@ export function WorkerSetupAreaLocationInput() {
   }
 
   return (
-    <Stack gap={3}>
+    <FormStack>
       <FormField
         label={t.area.label}
         helperText={t.area.helper}
@@ -64,7 +69,7 @@ export function WorkerSetupAreaLocationInput() {
         />
       </FormField>
       {point ? (
-        <Stack gap={1.5}>
+        <Stack gap="form.controlToHelper">
           <MapCard
             accessToken={accessToken}
             lat={point.lat}
@@ -72,11 +77,11 @@ export function WorkerSetupAreaLocationInput() {
             height="160px"
             variant="approximate"
           />
-          <Text fontSize="sm" color="text.muted" px={1}>
+          <Text {...formHelperTextStyle} px={1}>
             {town ? formatMessage(t.area.shownAs, { town }) : t.area.mapCaption}
           </Text>
         </Stack>
       ) : null}
-    </Stack>
+    </FormStack>
   )
 }

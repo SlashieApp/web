@@ -1,9 +1,18 @@
 import { TaskDateTimeType } from '@codegen/schema'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { useState } from 'react'
+import { expect } from 'storybook/test'
 
 import { storyDateInDays } from '@/app/(stepflow)/stepflowStoryHelpers'
 
+import {
+  expectChoiceGroup,
+  expectGaps,
+  fieldByLabel,
+  phone390,
+} from '@/app/(stepflow)/stepFlowSpacing.testing'
+import { formSpace } from '@/theme/styles'
+import { expectField } from '@/ui/Modal/taskDialogSpacing.testing'
 import { createTaskStoryErrors } from '../../createTaskStoryFixtures'
 import {
   CreateTaskScheduleSection,
@@ -91,4 +100,21 @@ export const TimeRequired: Story = {
 /** Card mode (edit page): the fields sit in a titled section card. */
 export const CardMode: Story = {
   args: { bare: false, datetimeType: TaskDateTimeType.Exact },
+}
+
+/**
+ * Form spacing (FE-481): the "When" group is a choice group (label 8, rows 8
+ * apart), and it and the date and time fields are 20 apart and 48 tall.
+ */
+export const Spacing: Story = {
+  ...phone390,
+  args: { datetimeType: TaskDateTimeType.Exact },
+  play: async ({ canvasElement }) => {
+    const when = await expectChoiceGroup(canvasElement, 'When')
+    const date = fieldByLabel(canvasElement, /^Date/)
+    const time = fieldByLabel(canvasElement, /^Time/)
+    await expectGaps([when.root, date, time], formSpace.fieldGap)
+    await expectField(date)
+    await expectField(time)
+  },
 }

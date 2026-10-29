@@ -7,6 +7,12 @@ import type { MeSnapshot } from '@/app/(auth)/store/user'
 import { getContactOptions } from '@/app/(dashboard)/profile/profileEligibility'
 
 import {
+  expectChoiceGroup,
+  expectGaps,
+  phone390,
+} from '@/app/(stepflow)/stepFlowSpacing.testing'
+import { formSpace } from '@/theme/styles'
+import {
   CreateTaskContactSection,
   type CreateTaskContactSectionProps,
 } from './CreateTaskContactSection'
@@ -105,4 +111,31 @@ export const NothingVerified: Story = {
 /** Card mode (edit page): the fields sit in a titled section. */
 export const CardMode: Story = {
   args: { bare: false, sectionHeading: 'Preferred contact' },
+}
+
+/**
+ * Form spacing (FE-481): the group's helper and a disabled option's reason are
+ * 4 under the rows and 4 apart (compact lines), and the Verify button is a field
+ * group, 20 under the group.
+ */
+export const Spacing: Story = {
+  ...phone390,
+  args: {
+    preferredContactMethod: TaskContactMethod.Phone,
+    contactOptions: options(true, false),
+  },
+  play: async ({ canvasElement }) => {
+    const group = await expectChoiceGroup(
+      canvasElement,
+      'How should your worker reach you?',
+      [
+        'Shared only with the worker you accept.',
+        'Verify your phone in Account to use this.',
+      ],
+    )
+    const verify = within(canvasElement).getByRole('link', {
+      name: 'Verify phone in Account',
+    })
+    await expectGaps([group.root, verify], formSpace.fieldGap)
+  },
 }

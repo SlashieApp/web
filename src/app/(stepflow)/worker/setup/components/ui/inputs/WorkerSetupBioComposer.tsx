@@ -6,7 +6,7 @@ import { LuChevronDown, LuChevronUp, LuPlus } from 'react-icons/lu'
 
 import { formatMessage } from '@/i18n/loadPageI11n'
 import { useI11n } from '@/i18n/useI11n'
-import { sdlFocusRing, sdlMotion } from '@/theme/styles'
+import { hitAreaGrowth, sdlFocusRing, sdlMotion } from '@/theme/styles'
 import { FormField, ProgressBar, Textarea, formControlTextareaProps } from '@ui'
 
 import {
@@ -33,7 +33,14 @@ export type WorkerSetupBioComposerProps = {
   errorText?: string
 }
 
-/** Guided bio: sentence starters, a quality meter and an example. */
+/**
+ * Guided bio: sentence starters, a quality meter and an example.
+ *
+ * Form spacing (FE-481): one composite field. The starters, the textarea, the
+ * quality meter and the example are `labelToControl` (8) apart, the starters
+ * wrap 8 apart, and the example toggle is a 20px line that is 44 to tap, so it
+ * adds no space.
+ */
 export function WorkerSetupBioComposer({
   value,
   onChange,
@@ -58,8 +65,8 @@ export function WorkerSetupBioComposer({
       helperText={copy.helper}
       errorText={errorText}
     >
-      <Stack gap={3} w="full">
-        <Wrap gap={2}>
+      <Stack gap="form.labelToControl" w="full">
+        <Wrap gap="form.alternativesGap">
           {copy.starters.map((starter) => (
             <ChipButton
               key={starter}
@@ -145,22 +152,24 @@ export function WorkerSetupBioComposer({
           </Text>
         </HStack>
 
-        <Box>
+        <Stack gap="form.labelToControl">
           <ChipButton
             type="button"
             onClick={() => setExampleOpen((open) => !open)}
             aria-expanded={exampleOpen}
             display="inline-flex"
             alignItems="center"
+            alignSelf="flex-start"
             gap={1}
-            minH="44px"
             fontSize="sm"
+            lineHeight="20px"
             fontWeight={500}
             color="text.link"
             bg="transparent"
             cursor="pointer"
             borderRadius="md"
             _focusVisible={sdlFocusRing}
+            {...hitAreaGrowth(20)}
           >
             {exampleOpen ? copy.hideExample : copy.showExample}
             {exampleOpen ? (
@@ -171,7 +180,6 @@ export function WorkerSetupBioComposer({
           </ChipButton>
           {exampleOpen ? (
             <Box
-              mt={1}
               p={3.5}
               borderRadius="lg"
               bg="bg.subtle"
@@ -183,7 +191,7 @@ export function WorkerSetupBioComposer({
               </Text>
             </Box>
           ) : null}
-        </Box>
+        </Stack>
       </Stack>
     </FormField>
   )

@@ -1,6 +1,23 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { expect, userEvent, waitFor, within } from 'storybook/test'
 
+import {
+  desktop1280,
+  expectAddRow,
+  expectChoiceGroup,
+  expectGaps,
+  expectLineUnder,
+  expectPieces,
+  expectWidth,
+  fieldByLabel,
+  gapBelowContent,
+  labelIn,
+  phone390,
+} from '@/app/(stepflow)/stepFlowSpacing.testing'
+import { formSpace } from '@/theme/styles'
+import { gapBelow, gapBeside, heightOf } from '@/ui/FormField/formGap.testing'
+import { expectField } from '@/ui/Modal/taskDialogSpacing.testing'
+
 import type { WorkerSetupContextValue } from '../../../context/WorkerSetupProvider'
 import { type WorkerSetupScreenId, workerSetupScreen } from '../../../views'
 import {
@@ -387,5 +404,264 @@ export const ZhHkWork: Story = {
     await expect(
       canvas.getByRole('button', { name: '加入「掛牆電視安裝」' }),
     ).toBeVisible()
+  },
+}
+
+/**
+ * Form spacing (FE-481), About you on desktop: the names sit side by side,
+ * `inlineGap` (12) apart; the blocks of the screen are fields, 20 apart; the
+ * photo field has its helper 4 under the photo and the button.
+ */
+export const SpacingAbout: Story = {
+  ...onScreen('about'),
+  ...desktop1280,
+  play: async ({ canvasElement }) => {
+    expectWidth(canvasElement, 1280)
+    const first = fieldByLabel(canvasElement, 'First name')
+    const last = fieldByLabel(canvasElement, 'Last name')
+    const dob = fieldByLabel(canvasElement, 'Date of birth')
+    const photo = fieldByLabel(canvasElement, 'Profile photo')
+    await expect(gapBeside(first, last)).toBe(formSpace.inlineGap)
+    await expectField(first)
+    await expectField(last)
+    const column = (first.parentElement as HTMLElement)
+      .parentElement as HTMLElement
+    await expectGaps([...column.children], formSpace.fieldGap)
+    await expectField(dob)
+    const control = labelIn(photo).nextElementSibling as HTMLElement
+    await expect(gapBelow(labelIn(photo), control)).toBe(
+      formSpace.labelToControl,
+    )
+    await expectLineUnder(control, photo, /A clear, friendly photo/)
+  },
+}
+
+/** On a phone the names stack, `fieldGap` (20) apart. */
+export const SpacingAboutPhone: Story = {
+  ...onScreen('about'),
+  ...phone390,
+  play: async ({ canvasElement }) => {
+    expectWidth(canvasElement, 390)
+    const first = fieldByLabel(canvasElement, 'First name')
+    const last = fieldByLabel(canvasElement, 'Last name')
+    await expect(gapBelow(first, last)).toBe(formSpace.fieldGap)
+    await expectField(first)
+    await expectField(last)
+  },
+}
+
+/**
+ * Your work: the trade tiles are a choice group (legend 8 above, tiles 8 apart,
+ * helper 4 under), and the skills and qualifications are composite fields: the
+ * label 8 above the pieces, the pieces 8 apart, the count 4 under the add row
+ * (input and Add 12 apart, 48 tall), the suggestions' heading 8 above them.
+ */
+export const SpacingWork: Story = {
+  ...onScreen('work', {
+    form: workerSetupStoryForm({
+      primaryCategory: 'plumbing',
+      skills: ['Tap Repairs', 'Leak Fixes', 'Shower Fitting'],
+      yearsExperience: '8',
+      qualifications: ['Gas Safe'],
+    }),
+  }),
+  ...desktop1280,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const legend = await canvas.findByText('What kind of work do you do most?')
+    const trade = legend.closest('fieldset') as HTMLElement
+    const skills = fieldByLabel(canvasElement, 'Skills and services')
+    const years = fieldByLabel(canvasElement, 'Years of experience')
+    const quals = fieldByLabel(
+      canvasElement,
+      /^Qualifications and certificates/,
+    )
+    const column = trade.parentElement as HTMLElement
+    await expectGaps([...column.children], formSpace.fieldGap)
+
+    // The trade tiles: legend 8 above, tiles 8 apart, helper 4 under.
+    const grid = legend.nextElementSibling as HTMLElement
+    await expect(gapBelow(legend, grid)).toBe(formSpace.labelToControl)
+    await expectGaps([...grid.children], formSpace.alternativesGap)
+    await expect(
+      gapBelow(grid, canvas.getByText(/It leads your profile/)),
+    ).toBe(formSpace.controlToHelper)
+
+    // Skills: tags, add row with its count, suggestions.
+    const { control, pieces } = await expectPieces(skills)
+    const [tags, entry, suggestions] = pieces
+    await expectGaps([...tags.children], formSpace.alternativesGap)
+    await expectAddRow(entry.firstElementChild as HTMLElement)
+    const count = within(entry).getByText(/3 of 12/)
+    await expect(gapBelow(entry.firstElementChild as Element, count)).toBe(
+      formSpace.controlToHelper,
+    )
+    await expectGaps([...suggestions.children], formSpace.labelToControl)
+    await expectLineUnder(control, skills, /Pick at least 3/)
+
+    await expectField(years)
+    await expectPieces(quals)
+  },
+}
+
+/** A refused skill is the add row's meta: 4 under the row, with the count 4 under it. */
+export const SpacingSkillRefused: Story = {
+  ...onScreen('work'),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await userEvent.type(
+      canvas.getByPlaceholderText('e.g. Boiler servicing'),
+      'x',
+    )
+    await userEvent.click(canvas.getAllByRole('button', { name: 'Add' })[0])
+    const refusal = await canvas.findByText(/is too short/)
+    const skills = fieldByLabel(canvasElement, 'Skills and services')
+    const { pieces } = await expectPieces(skills)
+    const entry = pieces.find((piece) => piece.contains(refusal)) as HTMLElement
+    const row = entry.firstElementChild as HTMLElement
+    await expect(gapBelow(row, refusal)).toBe(formSpace.controlToHelper)
+    await expect(gapBelow(refusal, within(entry).getByText(/0 of 12/))).toBe(
+      formSpace.controlToHelper,
+    )
+  },
+}
+
+/**
+ * Your profile: the headline's suggestion is an inline action 4 under the
+ * field (44 to tap, no added space); the bio is a composite field (starters,
+ * textarea, quality meter, example, 8 apart); the work photos list, add row and
+ * links are 8 apart.
+ */
+export const SpacingProfile: Story = {
+  ...onScreen('profile', {
+    form: {
+      ...completedWorkerSetupForm,
+      tagline: 'Handy',
+      portfolioUrls: ['https://example.com/a.jpg', 'https://example.com/b.jpg'],
+    },
+  }),
+  ...desktop1280,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const headline = fieldByLabel(canvasElement, 'Headline')
+    const bio = fieldByLabel(canvasElement, 'Short bio')
+    const portfolio = fieldByLabel(canvasElement, /^Work photos and links/)
+    const suggestion = await canvas.findByRole('button', { name: /^Use / })
+    const column = headline.parentElement?.parentElement as HTMLElement
+    await expectGaps([...column.children], formSpace.fieldGap)
+
+    await expect(gapBelowContent(headline, suggestion)).toBe(
+      formSpace.controlToHelper,
+    )
+    await expect(heightOf(suggestion)).toBeGreaterThanOrEqual(44)
+
+    // The bio: starters, textarea, quality meter, example toggle.
+    const { pieces } = await expectPieces(bio)
+    await expect(pieces).toHaveLength(4)
+    await expectGaps([...pieces[0].children], formSpace.alternativesGap)
+    await expect(
+      heightOf(pieces[3].firstElementChild as Element),
+    ).toBeGreaterThanOrEqual(44)
+
+    // The links: the list and the add row.
+    const { pieces: parts } = await expectPieces(portfolio)
+    await expectGaps([...parts[0].children], formSpace.alternativesGap)
+    await expectAddRow(parts[1])
+  },
+}
+
+/**
+ * Where you work: the town field and the map preview are field groups, 20 apart;
+ * the map's caption is 4 under it; the travel distance is a choice group (label
+ * 8, rows 8 apart, helper 4 under).
+ */
+export const SpacingArea: Story = {
+  ...onScreen('area', {
+    form: workerSetupStoryForm({
+      locationName: '54 Herkomer Road, Bushey, WD23 3LU, United Kingdom',
+      locationLat: 51.6449,
+      locationLng: -0.3644,
+      travelRadiusMiles: '15',
+    }),
+  }),
+  ...phone390,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const caption = await canvas.findByText('Customers see: Bushey')
+    const town = fieldByLabel(canvasElement, 'Town or postcode')
+    await expectField(town)
+    const preview = caption.parentElement as HTMLElement
+    await expect(gapBelow(town, preview)).toBe(formSpace.fieldGap)
+    await expect(gapBelow(preview.firstElementChild as Element, caption)).toBe(
+      formSpace.controlToHelper,
+    )
+    const travel = await expectChoiceGroup(
+      canvasElement,
+      /How far will you travel/,
+      ['Further away means more tasks.'],
+    )
+    await expect(gapBelow(preview.parentElement as Element, travel.root)).toBe(
+      formSpace.fieldGap,
+    )
+  },
+}
+
+/**
+ * Phone: the intro is a lead-in 8 above the contact rows, the readiness line is
+ * a field group 20 under them, and a failed Continue's error is one more, 20
+ * under that.
+ */
+export const SpacingPhoneScreen: Story = {
+  ...onScreen('phone', { fieldErrors: workerSetupStoryErrors('phone') }),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const intro = await canvas.findByText(/Confirm email or phone so Slashie/)
+    const lead = intro.parentElement as HTMLElement
+    const [, rows] = [...lead.children]
+    await expect(gapBelow(intro, rows as Element)).toBe(
+      formSpace.labelToControl,
+    )
+    const panel = lead.parentElement as HTMLElement
+    const status = canvas.getByText(
+      /A verified phone is required to send quotes/,
+    )
+    await expect(gapBelow(lead, status)).toBe(formSpace.fieldGap)
+    const column = panel.parentElement as HTMLElement
+    await expectGaps([...column.children], formSpace.fieldGap)
+  },
+}
+
+/**
+ * Review: a long form of titled blocks. The strength card, the preview and the
+ * notes are sections, 32 apart with no line; the preview's title is 12 above its
+ * card; the two notes are field groups, 20 apart.
+ */
+export const SpacingReview: Story = {
+  ...onScreen(
+    'review',
+    { form: completedWorkerSetupForm },
+    {
+      avatarUrl: STORY_WORKER_AVATAR,
+      phoneVerified: true,
+      emailVerified: false,
+    },
+  ),
+  ...desktop1280,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const title = await canvas.findByRole('heading', {
+      name: 'How customers will see you',
+    })
+    const preview = title.parentElement as HTMLElement
+    const column = preview.parentElement as HTMLElement
+    await expect(column.children).toHaveLength(3)
+    await expectGaps([...column.children], formSpace.sectionGap)
+    await expect(gapBelow(title, title.nextElementSibling as Element)).toBe(
+      formSpace.sectionTitleToField,
+    )
+    const notes = column.lastElementChild as HTMLElement
+    await expect(notes.children).toHaveLength(2)
+    await expectGaps([...notes.children], formSpace.fieldGap)
+    await expect(getComputedStyle(preview).borderTopWidth).toBe('0px')
   },
 }

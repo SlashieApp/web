@@ -1,7 +1,17 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { useState } from 'react'
+import { expect, within } from 'storybook/test'
 
+import {
+  expectGaps,
+  expectLineUnder,
+  fieldByLabel,
+  labelIn,
+} from '@/app/(stepflow)/stepFlowSpacing.testing'
 import { REVIEW_COMMENT_MAX } from '@/content/reviews/reviewModel'
+import { formSpace } from '@/theme/styles'
+import { gapBelow } from '@/ui/FormField/formGap.testing'
+import { controlOf, expectField } from '@/ui/Modal/taskDialogSpacing.testing'
 
 import { TaskReviewStep, type TaskReviewStepProps } from './TaskReviewStep'
 
@@ -104,4 +114,50 @@ export const Submit: Story = {
 /** Submit step with no comment: the comment label stands in. */
 export const SubmitWithoutComment: Story = {
   args: { step: 'submit', stars: 4 },
+}
+
+/**
+ * Form spacing (FE-481): the label is 8 above the stars, the hint 4 under them
+ * and the error 4 under the hint. The stars stay 44 tiles: a rating is not a
+ * text field.
+ */
+export const SpacingStars: Story = {
+  args: { starsError: 'Choose a star rating.' },
+  play: async ({ canvasElement }) => {
+    const field = fieldByLabel(canvasElement, 'Rating')
+    const control = labelIn(field).nextElementSibling as HTMLElement
+    await expect(gapBelow(labelIn(field), control)).toBe(
+      formSpace.labelToControl,
+    )
+    const hint = within(field).getByText(/1 to 5 stars/)
+    await expect(gapBelow(control, hint)).toBe(formSpace.controlToHelper)
+    await expect(
+      gapBelow(hint, within(field).getByText('Choose a star rating.')),
+    ).toBe(formSpace.helperGap)
+  },
+}
+
+/** The comment: label 8 above the textarea, the character count 4 under it. */
+export const SpacingComment: Story = {
+  args: { step: 'comment', stars: 5, comment: 'Clear about the time.' },
+  play: async ({ canvasElement }) => {
+    const field = fieldByLabel(canvasElement, /^Comment/)
+    await expectField(field, null)
+    await expectLineUnder(controlOf(field), field, `21/${REVIEW_COMMENT_MAX}`)
+  },
+}
+
+/** The read-back: the stars, the comment and the disclaimer are field groups, 20 apart. */
+export const SpacingSubmit: Story = {
+  args: {
+    step: 'submit',
+    stars: 5,
+    comment: 'Clear about the time and left the place tidy.',
+  },
+  play: async ({ canvasElement }) => {
+    const comment = within(canvasElement).getByText(/Clear about the time/)
+    const column = comment.parentElement as HTMLElement
+    await expect(column.children).toHaveLength(3)
+    await expectGaps([...column.children], formSpace.fieldGap)
+  },
 }

@@ -51,7 +51,8 @@ export function CreateTaskAddressSection({
       helperText={privacyHint ? t.addressHelper : undefined}
       errorText={taskFieldError(copy.errors, streetAddressError)}
     >
-      <Stack gap={2}>
+      {/* The "Use pin address" button hangs 8 under the field it fills. */}
+      <Stack gap="form.alternativesGap">
         <Input
           {...register('streetAddress')}
           placeholder={t.addressPlaceholder}

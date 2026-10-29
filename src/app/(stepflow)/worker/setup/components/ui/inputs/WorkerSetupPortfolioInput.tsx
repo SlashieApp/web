@@ -58,7 +58,13 @@ export type WorkerSetupPortfolioInputProps = {
   errorText?: string
 }
 
-/** Optional links to photos of finished jobs (`portfolioUrls`). */
+/**
+ * Optional links to photos of finished jobs (`portfolioUrls`).
+ *
+ * Form spacing (FE-481): one composite field. The saved links (8 apart) and the
+ * add row are `labelToControl` (8) apart, and the input and Add sit `inlineGap`
+ * (12) apart, both 48 tall.
+ */
 export function WorkerSetupPortfolioInput({
   value,
   onChange,
@@ -100,9 +106,9 @@ export function WorkerSetupPortfolioInput({
       }
       errorText={draftError ?? errorText}
     >
-      <Stack gap={3} w="full">
+      <Stack gap="form.labelToControl" w="full">
         {value.length > 0 ? (
-          <Stack gap={2}>
+          <Stack gap="form.alternativesGap">
             {value.map((url) => (
               <HStack
                 key={url}
@@ -140,7 +146,7 @@ export function WorkerSetupPortfolioInput({
           </Stack>
         ) : null}
 
-        <HStack gap={2} align="stretch">
+        <HStack gap="form.inlineGap" align="stretch">
           <Input
             value={draft}
             onChange={(e) => {
@@ -162,9 +168,9 @@ export function WorkerSetupPortfolioInput({
           <Button
             type="button"
             variant="secondary"
+            size="form"
             onClick={addDraft}
             disabled={atCap || !draft.trim()}
-            minH="44px"
             flexShrink={0}
           >
             {copy.add}

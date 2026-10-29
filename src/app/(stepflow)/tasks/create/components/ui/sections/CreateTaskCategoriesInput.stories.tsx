@@ -4,6 +4,14 @@ import { useState } from 'react'
 import { expect, userEvent, within } from 'storybook/test'
 
 import {
+  expectAddRow,
+  expectGaps,
+  expectLineUnder,
+  expectPieces,
+  fieldByLabel,
+} from '@/app/(stepflow)/stepFlowSpacing.testing'
+import { formSpace } from '@/theme/styles'
+import {
   createTaskStoryErrors,
   withPopularCategories,
 } from '../../createTaskStoryFixtures'
@@ -105,5 +113,28 @@ export const TooMany: Story = {
     await userEvent.paste('Decorating, Roofing')
     await userEvent.keyboard('{Enter}')
     await expect(canvas.getByText(/up to 10 categories/i)).toBeVisible()
+  },
+}
+
+/**
+ * Form spacing (FE-481): one composite field. The label is 8 above the tags, the
+ * pieces (tags, add row, suggestions) are 8 apart, the input and Add are 12
+ * apart and 48 tall, and the helper is 4 under the control.
+ */
+export const Spacing: Story = {
+  args: { value: ['Plumbing', 'Dog walking'] },
+  play: async ({ canvasElement }) => {
+    const field = fieldByLabel(canvasElement, /Categories/)
+    const { control, pieces } = await expectPieces(field)
+    const [tags, row, suggestions] = pieces
+    await expectGaps([...tags.children], formSpace.alternativesGap)
+    await expectAddRow(row)
+    await expectGaps([...suggestions.children], formSpace.labelToControl)
+    // The suggestions wrap 8 apart, on a line and between lines.
+    await expectGaps(
+      [...(suggestions.lastElementChild as HTMLElement).children],
+      formSpace.alternativesGap,
+    )
+    await expectLineUnder(control, field, /Tap a suggestion/)
   },
 }

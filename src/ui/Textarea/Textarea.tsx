@@ -38,6 +38,10 @@ export const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
       <ChakraTextarea
         ref={ref}
         pointerEvents="auto"
+        // A textarea is inline-block by default: in a block it leaves a line's
+        // descender (7px) under it, so a helper or a count would sit 11px
+        // under the field, not the 4 of the form spacing (FE-481).
+        display="block"
         w="full"
         minH="140px"
         px={3}

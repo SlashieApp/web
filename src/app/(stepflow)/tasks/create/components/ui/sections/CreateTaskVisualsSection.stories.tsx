@@ -2,11 +2,14 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { useRef, useState } from 'react'
 import { expect, userEvent, waitFor, within } from 'storybook/test'
 
+import { expectGaps } from '@/app/(stepflow)/stepFlowSpacing.testing'
 import {
   storyHeicPhoto,
   storyImage,
   takeStoryPhoto,
 } from '@/app/(stepflow)/stepflowStoryHelpers'
+import { formSpace } from '@/theme/styles'
+import { gapBelow } from '@/ui/FormField/formGap.testing'
 
 import {
   type TaskPhotoTile,
@@ -280,5 +283,35 @@ export const Rejected: Story = {
         "scan.bmp wasn't added. Use a JPG, PNG, WebP, HEIC or AVIF photo.",
       ),
     ).toBeVisible()
+  },
+}
+
+/**
+ * Form spacing (FE-481): the label row, the helper and the photos are 8 apart
+ * (the remove buttons that hang off the photos' corners are the row's visible
+ * top), and a refused file's reason is 4 under the photos.
+ */
+export const Spacing: Story = {
+  args: {
+    initial: [photo('pipe', '#9ec5e8'), photo('sink', '#f0c987')],
+    rejected: [
+      { reason: 'notAPhoto', name: 'quote.pdf' },
+      { reason: 'unsupportedType', name: 'scan.bmp' },
+    ],
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const label = canvas.getByText('Photos')
+    const labelRow = label.parentElement?.parentElement as HTMLElement
+    const helper = canvas.getByText(/Photos help workers quote/)
+    const remove = canvas.getByRole('button', { name: /Remove photo 1/ })
+    await expectGaps([labelRow, helper], formSpace.labelToControl)
+    await expect(gapBelow(helper, remove)).toBe(formSpace.labelToControl)
+
+    const tiles = remove.parentElement?.parentElement as HTMLElement
+    const alert = canvas.getByRole('alert')
+    await expect(gapBelow(tiles, alert)).toBe(formSpace.controlToHelper)
+    const reasons = [...alert.children]
+    await expectGaps(reasons, formSpace.helperGap)
   },
 }

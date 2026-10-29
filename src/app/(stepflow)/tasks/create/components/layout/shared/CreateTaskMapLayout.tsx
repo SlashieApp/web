@@ -25,6 +25,7 @@ import { sdlMotion } from '@/theme/styles'
 import {
   StepFlowActions,
   type StepFlowActionsProps,
+  StepFlowBody,
   StepFlowHeading,
 } from '@ui'
 
@@ -187,6 +188,13 @@ export type CreateTaskMapLayoutProps = {
  * form slides up from the bottom over the band; Back to it slides the form
  * down to open the band again. Between full-screen steps only the content
  * changes. Reduced motion: no slide. Desktop keeps the band.
+ *
+ * Form spacing (FE-481): the steps follow the step-flow rules of
+ * `StepFlowLayout` (title 8 description, 24 to the first field, fields 20
+ * apart, the body ends 20 above Continue, no line above the bar). The location
+ * step is the exception: its card keeps a tighter header (title and description
+ * 4 apart, the first block 8 under them on phones, 16 from lg) so the map keeps
+ * half the screen. Its body still ends 20 above Continue.
  */
 export function CreateTaskMapLayout({
   banner,
@@ -231,6 +239,8 @@ export function CreateTaskMapLayout({
       />
     </Box>
   )
+  // The compact card's save error: it sits in the card's tight stack. The
+  // other steps put it first in the form's stack (`StepFlowBody`).
   const error = errorText ? (
     <Text color="status.danger.fg" fontSize="sm" role="alert">
       {errorText}
@@ -315,12 +325,13 @@ export function CreateTaskMapLayout({
               pointerEvents="auto"
               css={stageEnterCss}
             >
-              {/* Tighter on phones, so the map keeps half the screen. */}
+              {/* Tighter header on phones, so the map keeps half the screen;
+                  the body still ends `bodyToAction` above Continue. */}
               <Stack
                 gap={{ base: 2, lg: 4 }}
                 px={{ base: 4, md: 8, lg: 6 }}
                 pt={{ base: 2, lg: 5 }}
-                pb={{ base: 2, lg: 4 }}
+                pb="form.bodyToAction"
               >
                 {heading}
                 {error}
@@ -401,19 +412,17 @@ export function CreateTaskMapLayout({
                 overflow="clip"
                 css={formRises ? formRisesCss : undefined}
               >
-                <Stack
-                  gap={6}
+                <Box
                   flex={1}
                   px={{ base: 4, md: 8, lg: 10 }}
                   pt={{ base: 5, md: 8 }}
-                  pb={{ base: 4, md: 8 }}
+                  pb="form.bodyToAction"
                   css={fieldsClearStickyBarCss}
                   onFocus={keepFocusedFieldInView}
                 >
                   {heading}
-                  {error}
-                  {children}
-                </Stack>
+                  <StepFlowBody errorText={errorText}>{children}</StepFlowBody>
+                </Box>
                 <StepFlowActions {...actions} sticky />
               </Box>
             </Grid>

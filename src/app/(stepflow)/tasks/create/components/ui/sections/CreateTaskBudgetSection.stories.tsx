@@ -4,6 +4,16 @@ import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { expect, userEvent, within } from 'storybook/test'
 
+import {
+  desktop1280,
+  expectChoiceGroup,
+  expectGaps,
+  expectWidth,
+  fieldByLabel,
+  phone390,
+} from '@/app/(stepflow)/stepFlowSpacing.testing'
+import { formSpace } from '@/theme/styles'
+import { expectField } from '@/ui/Modal/taskDialogSpacing.testing'
 import type { CreateTaskFormFieldValues } from '../../../createTaskFormSchema'
 import {
   createTaskStoryErrors,
@@ -111,4 +121,32 @@ export const AmountRequired: Story = {
 /** Card mode (edit page): the fields sit in a titled section card. */
 export const CardMode: Story = {
   args: { bare: false, budgetMajor: '120' },
+}
+
+/**
+ * Form spacing (FE-481): the choice groups lay out like fields. Each label is 8
+ * above its rows, the rows 8 apart (one under the other on a phone), and the
+ * groups and the amount field 20 apart. The amount is 48 tall.
+ */
+export const Spacing: Story = {
+  ...phone390,
+  args: { budgetMajor: '120' },
+  play: async ({ canvasElement }) => {
+    expectWidth(canvasElement, 390)
+    const type = await expectChoiceGroup(canvasElement, 'Budget type')
+    const amount = fieldByLabel(canvasElement, /^Budget/)
+    const pay = await expectChoiceGroup(canvasElement, "How you'll pay")
+    await expectGaps([type.root, amount, pay.root], formSpace.fieldGap)
+    await expectField(amount)
+  },
+}
+
+/** From `sm` the rows sit side by side, still 8 apart. */
+export const SpacingWide: Story = {
+  ...desktop1280,
+  args: { budgetMajor: '120' },
+  play: async ({ canvasElement }) => {
+    await expectChoiceGroup(canvasElement, 'Budget type')
+    await expectChoiceGroup(canvasElement, "How you'll pay")
+  },
 }

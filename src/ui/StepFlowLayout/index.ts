@@ -1,6 +1,7 @@
 export {
   StepFlowActions,
   type StepFlowActionsProps,
+  StepFlowBody,
   StepFlowHeader,
   type StepFlowHeaderProps,
   StepFlowHeading,

@@ -58,7 +58,6 @@ export function CreateTaskBudgetSection({
     <CreateTaskSection
       bare={bare}
       heading={sectionHeading}
-      bodyGap={5}
       headingSubtext={
         <Text fontSize="sm" color="text.muted">
           {t.steps.budget.description}

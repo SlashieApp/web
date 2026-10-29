@@ -4,10 +4,14 @@ import { Checkbox, HStack, Stack, Text } from '@chakra-ui/react'
 import { LuShieldAlert } from 'react-icons/lu'
 
 import { useI11n } from '@/i18n/useI11n'
-import { InfoBar } from '@ui'
+import { hitAreaGrowth } from '@/theme/styles'
+import { FormStack, InfoBar } from '@ui'
 
 import { taskFieldError } from '../../../helpers/taskFieldError'
 import bag from '../../../i11n.json'
+
+/** A checkbox row is one line of its label: 20 tall, like the control. */
+const ROW_LINE_HEIGHT = 20
 
 export type CreateTaskConsentSectionProps = {
   accepted: boolean
@@ -16,7 +20,14 @@ export type CreateTaskConsentSectionProps = {
   errorText?: string
 }
 
-/** The allowed-tasks notice and the confirmation posting needs. */
+/**
+ * The allowed-tasks notice and the confirmation posting needs.
+ *
+ * Form spacing (FE-481): the notice and the checkbox are field groups, `fieldGap`
+ * (20) apart. The row is the label's lines (20 each), so the gap above and below
+ * it is the field gap, and its error sits `controlToHelper` (4) under it. The
+ * 44px hit area grows past the row into the gaps around it, so it adds no space.
+ */
 export function CreateTaskConsentSection({
   accepted,
   onChange,
@@ -26,7 +37,7 @@ export function CreateTaskConsentSection({
   const f = t.fields
 
   return (
-    <Stack gap={3}>
+    <FormStack>
       <InfoBar
         tone="warning"
         icon={<LuShieldAlert size={20} />}
@@ -35,16 +46,19 @@ export function CreateTaskConsentSection({
       >
         {f.allowedBody}
       </InfoBar>
-      <Stack gap={1}>
+      <Stack gap="form.controlToHelper">
         <Checkbox.Root
           checked={accepted}
           onCheckedChange={(detail) => onChange(Boolean(detail.checked))}
           invalid={Boolean(errorText)}
         >
           <Checkbox.HiddenInput />
-          <HStack gap={3} align="flex-start" minH="44px">
+          <HStack
+            gap={3}
+            align="flex-start"
+            {...hitAreaGrowth(ROW_LINE_HEIGHT)}
+          >
             <Checkbox.Control
-              mt={0.5}
               borderRadius="md"
               borderWidth="1px"
               borderColor="border.strong"
@@ -61,7 +75,7 @@ export function CreateTaskConsentSection({
               fontSize="sm"
               fontWeight={500}
               color="text.default"
-              lineHeight="1.5"
+              lineHeight={`${ROW_LINE_HEIGHT}px`}
             >
               {f.allowedConfirm}
             </Checkbox.Label>
@@ -73,6 +87,6 @@ export function CreateTaskConsentSection({
           </Text>
         ) : null}
       </Stack>
-    </Stack>
+    </FormStack>
   )
 }

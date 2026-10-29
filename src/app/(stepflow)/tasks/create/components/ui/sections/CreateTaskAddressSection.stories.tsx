@@ -2,6 +2,12 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { useForm } from 'react-hook-form'
 import { expect, userEvent, within } from 'storybook/test'
 
+import {
+  expectPieces,
+  fieldByLabel,
+} from '@/app/(stepflow)/stepFlowSpacing.testing'
+import { formSpace } from '@/theme/styles'
+import { gapBelow } from '@/ui/FormField/formGap.testing'
 import type { CreateTaskFormFieldValues } from '../../../createTaskFormSchema'
 import {
   CreateTaskAddressSection,
@@ -126,5 +132,31 @@ export const WithoutUsePinAddress: Story = {
     await expect(
       within(canvasElement).queryByRole('button', { name: 'Use pin address' }),
     ).toBeNull()
+  },
+}
+
+/**
+ * Form spacing (FE-481): the label is 8 above the field, the "Use pin address"
+ * button 8 under it, and the privacy hint 4 under the control. The field is 48
+ * tall.
+ */
+export const Spacing: Story = {
+  args: { privacyHint: true },
+  play: async ({ canvasElement }) => {
+    // The label is an icon and the words in a span: find the span, then its field.
+    const field = within(canvasElement)
+      .getByText(/Exact address/)
+      .closest('label')?.parentElement as HTMLElement
+    const { control, pieces } = await expectPieces(field)
+    await expect(pieces).toHaveLength(2)
+    await expect(pieces[0]?.getBoundingClientRect().height).toBe(
+      formSpace.controlHeight,
+    )
+    await expect(
+      gapBelow(
+        control,
+        within(field).getByText('Shared only with the worker you accept.'),
+      ),
+    ).toBe(formSpace.controlToHelper)
   },
 }

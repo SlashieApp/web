@@ -3,7 +3,10 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { useState } from 'react'
 import { expect, within } from 'storybook/test'
 
+import { formSpace } from '@/theme/styles'
+
 import { FormField } from '../FormField'
+import { gapBelow } from '../FormField/formGap.testing'
 import { Textarea } from './Textarea'
 
 const meta = {
@@ -244,4 +247,27 @@ const LIMIT_TEXT =
 /** Character limit reached: the counter reads 300 / 300 and typing stops. */
 export const CharCountAtLimit: Story = {
   render: () => <CharCountField initial={LIMIT_TEXT} />,
+}
+
+/**
+ * Form spacing (FE-481): a textarea is a block, so its helper is 4 under the
+ * box itself, not 11 (a descender's worth of room under an inline-block).
+ */
+export const HelperSitsFourUnder: Story = {
+  render: (args) => (
+    <Box maxW="480px">
+      <FormField label="Details" helperText="Add anything workers should know.">
+        <Textarea {...args} />
+      </FormField>
+    </Box>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(
+      gapBelow(
+        canvas.getByRole('textbox'),
+        canvas.getByText('Add anything workers should know.'),
+      ),
+    ).toBe(formSpace.controlToHelper)
+  },
 }

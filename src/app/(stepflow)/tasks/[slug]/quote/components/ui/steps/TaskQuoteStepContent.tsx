@@ -1,6 +1,6 @@
 'use client'
 
-import { Box, HStack, Stack, Text } from '@chakra-ui/react'
+import { Box, HStack, Text } from '@chakra-ui/react'
 import { type ChangeEvent, useId } from 'react'
 import { LuEye, LuPlus, LuX } from 'react-icons/lu'
 
@@ -10,6 +10,7 @@ import { sdlFigure } from '@/theme/styles'
 import { formatBudgetAmount } from '@/utils/price'
 import {
   FormField,
+  FormStack,
   IconButton,
   Input,
   Link,
@@ -86,6 +87,12 @@ function TextareaWithCharCount({
   )
 }
 
+/**
+ * One step of the send-quote flow. Form spacing (FE-481): each step is a
+ * `FormStack`, so its fields, notes, the flow's error and the terms line are
+ * `fieldGap` (20) apart; a field's label, helper and error sit 8 and 4 from its
+ * control (`FormField`).
+ */
 export function TaskQuoteStepContent({
   activeSubStep,
   poundsInput,
@@ -123,7 +130,7 @@ export function TaskQuoteStepContent({
   switch (activeSubStep) {
     case 'quote.price':
       return (
-        <Stack gap={6}>
+        <FormStack>
           {showSummary ? <TaskQuoteSummaryCard /> : null}
           <FormField
             label={t.price.label}
@@ -143,12 +150,12 @@ export function TaskQuoteStepContent({
               rootProps={formControlRootProps}
             />
           </FormField>
-        </Stack>
+        </FormStack>
       )
 
     case 'quote.message':
       return (
-        <Stack gap={3}>
+        <FormStack>
           <FormField
             label={t.message.label}
             errorText={fieldError ?? undefined}
@@ -179,12 +186,12 @@ export function TaskQuoteStepContent({
               {t.message.visibilityNote}
             </Text>
           </HStack>
-        </Stack>
+        </FormStack>
       )
 
     case 'quote.availability':
       return (
-        <Stack gap={4}>
+        <FormStack>
           <TimeSlotPicker
             value={quoteSlots}
             onChange={setQuoteSlots}
@@ -195,12 +202,12 @@ export function TaskQuoteStepContent({
               {fieldError}
             </Text>
           ) : null}
-        </Stack>
+        </FormStack>
       )
 
     case 'quote.photos':
       return (
-        <Stack gap={6}>
+        <FormStack>
           <FormField
             label={
               <TaskQuoteOptionalLabel>{t.photos.label}</TaskQuoteOptionalLabel>
@@ -260,12 +267,12 @@ export function TaskQuoteStepContent({
               ) : null}
             </HStack>
           </FormField>
-        </Stack>
+        </FormStack>
       )
 
     case 'review.check':
       return (
-        <Stack gap={6}>
+        <FormStack>
           {showSummary ? <TaskQuoteSummaryCard /> : null}
           <TaskQuoteReviewStep photoUrls={photoUrls} />
           <TaskQuoteVisibilityCallout />
@@ -281,7 +288,7 @@ export function TaskQuoteStepContent({
             </Link>
             {termsAfter}
           </Text>
-        </Stack>
+        </FormStack>
       )
 
     default:

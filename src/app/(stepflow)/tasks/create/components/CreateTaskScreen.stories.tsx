@@ -9,6 +9,12 @@ import { expect, userEvent, waitFor, within } from 'storybook/test'
 import type { MeSnapshot } from '@/app/(auth)/store/user'
 import { getContactOptions } from '@/app/(dashboard)/profile/profileEligibility'
 import {
+  desktop1280,
+  expectStepFlowFrame,
+  expectWidth,
+  phone390,
+} from '@/app/(stepflow)/stepFlowSpacing.testing'
+import {
   storyDateInDays,
   storyHeicPhoto,
 } from '@/app/(stepflow)/stepflowStoryHelpers'
@@ -781,5 +787,35 @@ export const LocationPhoneZhHk: Story = {
     ).toBeVisible()
     const map = await storyVisibleMapHeight(canvasElement, /繼續/)
     await expect(map / window.innerHeight).toBeGreaterThanOrEqual(0.5)
+  },
+}
+
+/**
+ * Form spacing (FE-481), details on desktop: the "kept your task" notice and the
+ * fields are field groups, 20 apart; the title block is 8 and 24 above them; the
+ * last field is 20 above Continue (48), with no line over the bar.
+ */
+export const SpacingDetails: Story = {
+  ...desktop1280,
+  decorators: [atStep('details')],
+  play: async ({ canvasElement }) => {
+    expectWidth(canvasElement, 1280)
+    await within(canvasElement).findByRole('heading', {
+      name: 'What needs doing?',
+    })
+    await expectStepFlowFrame(canvasElement)
+  },
+}
+
+/** The review step on a phone: the summary, the contact group and the confirmation, 20 apart. */
+export const SpacingReviewPhone: Story = {
+  ...phone390,
+  decorators: [atStep('review')],
+  play: async ({ canvasElement }) => {
+    expectWidth(canvasElement, 390)
+    await within(canvasElement).findByRole('heading', {
+      name: 'What workers will see',
+    })
+    await expectStepFlowFrame(canvasElement, { button: 'Post task' })
   },
 }

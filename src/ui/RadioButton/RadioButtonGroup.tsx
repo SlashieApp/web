@@ -3,6 +3,9 @@
 import { Box, SimpleGrid, Stack, Text } from '@chakra-ui/react'
 import { type ReactNode, useId } from 'react'
 
+import { formHelperTextStyle } from '@/theme/styles'
+
+import { formControlLabelProps } from '../FormField/FormField'
 import { RadioButton } from './RadioButton'
 
 export type RadioButtonGroupOption<T extends string> = {
@@ -29,6 +32,12 @@ export type RadioButtonGroupProps<T extends string> = {
  * A labelled single choice made of RadioButton rows (`role="radiogroup"`),
  * so the selected option is announced and shown by the dot, not by colour
  * alone. Rows meet the 44px touch target.
+ *
+ * Form spacing (FE-481): a choice group lays out like a field. The label is
+ * `labelToControl` (8) above the rows, the rows are `alternativesGap` (8)
+ * apart, and the helper, a disabled option's hint and the error sit
+ * `controlToHelper` (4) under the rows, `helperGap` (4) apart, on the compact
+ * line height so 4 reads as 4.
  */
 export function RadioButtonGroup<T extends string>({
   label,
@@ -47,15 +56,11 @@ export function RadioButtonGroup<T extends string>({
     (option) => option.disabled && option.disabledHint,
   )
 
+  const hasMeta = Boolean(helperText) || hints.length > 0 || Boolean(errorText)
+
   return (
-    <Stack gap={2} w="full">
-      <Text
-        id={labelId}
-        fontSize="14px"
-        fontWeight={500}
-        color="text.default"
-        px={1}
-      >
+    <Stack gap={0} w="full">
+      <Text id={labelId} {...formControlLabelProps} px={1}>
         {label}
       </Text>
       <SimpleGrid
@@ -68,7 +73,7 @@ export function RadioButtonGroup<T extends string>({
         columns={
           typeof columns === 'number' ? { base: 1, sm: columns } : columns
         }
-        gap={2}
+        gap="form.alternativesGap"
       >
         {options.map((option) => (
           <RadioButton
@@ -81,42 +86,41 @@ export function RadioButtonGroup<T extends string>({
           />
         ))}
       </SimpleGrid>
-      {helperText ? (
-        <Text
-          id={helperId}
-          fontSize="sm"
-          color="text.muted"
-          lineHeight="tall"
-          px={1}
-        >
-          {helperText}
-        </Text>
-      ) : null}
-      {hints.map((option) => (
-        <Text key={option.value} fontSize="sm" color="text.muted" px={1}>
-          {option.disabledHint}
-        </Text>
-      ))}
-      {errorText ? (
-        <Text
-          id={errorId}
-          color="status.danger.fg"
-          fontSize="sm"
-          display="flex"
-          alignItems="center"
-          gap={1.5}
-          px={1}
-        >
-          <Box
-            as="span"
-            aria-hidden
-            flexShrink={0}
-            boxSize="6px"
-            borderRadius="full"
-            bg="status.danger.solid"
-          />
-          {errorText}
-        </Text>
+      {hasMeta ? (
+        <Stack gap="form.helperGap" mt="form.controlToHelper">
+          {helperText ? (
+            <Text id={helperId} {...formHelperTextStyle} px={1}>
+              {helperText}
+            </Text>
+          ) : null}
+          {hints.map((option) => (
+            <Text key={option.value} {...formHelperTextStyle} px={1}>
+              {option.disabledHint}
+            </Text>
+          ))}
+          {errorText ? (
+            <Text
+              id={errorId}
+              color="status.danger.fg"
+              fontSize="sm"
+              lineHeight="20px"
+              display="flex"
+              alignItems="center"
+              gap={1.5}
+              px={1}
+            >
+              <Box
+                as="span"
+                aria-hidden
+                flexShrink={0}
+                boxSize="6px"
+                borderRadius="full"
+                bg="status.danger.solid"
+              />
+              {errorText}
+            </Text>
+          ) : null}
+        </Stack>
       ) : null}
     </Stack>
   )

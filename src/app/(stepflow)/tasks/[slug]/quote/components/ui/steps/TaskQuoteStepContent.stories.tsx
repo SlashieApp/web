@@ -4,9 +4,16 @@ import { useState } from 'react'
 import { expect, userEvent, waitFor, within } from 'storybook/test'
 
 import {
+  expectGaps,
+  expectLineUnder,
+  fieldByLabel,
+} from '@/app/(stepflow)/stepFlowSpacing.testing'
+import {
   storyImage,
   takeStoryPhoto,
 } from '@/app/(stepflow)/stepflowStoryHelpers'
+import { formSpace } from '@/theme/styles'
+import { controlOf, expectField } from '@/ui/Modal/taskDialogSpacing.testing'
 
 import {
   QUOTE_STORY_MESSAGE,
@@ -278,4 +285,75 @@ export const ReviewSendFailed: Story = {
     quoteError: 'Could not send your quote. Try again.',
   },
   decorators: step({}, form),
+}
+
+/**
+ * Form spacing (FE-481): the price field has its label 8 above it and its helper
+ * 4 under it; with the task summary above, the summary and the field are 20
+ * apart.
+ */
+export const SpacingPrice: Story = {
+  args: { poundsInput: '85', showTaskSummary: true },
+  decorators: step(),
+  play: async ({ canvasElement }) => {
+    const field = fieldByLabel(canvasElement, 'Your quote')
+    await expectField(field)
+    await expectLineUnder(controlOf(field), field, /Customer budget/)
+    await expectGaps(
+      [...(field.parentElement as HTMLElement).children],
+      formSpace.fieldGap,
+    )
+  },
+}
+
+/** The message field and the note that it is public are field groups, 20 apart. */
+export const SpacingMessage: Story = {
+  args: { activeSubStep: 'quote.message' },
+  decorators: step({}, { message: form.message }),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const field = fieldByLabel(canvasElement, 'Message to customer')
+    const note = canvas.getByText(
+      /Your message, price and times will be public/,
+    ).parentElement as HTMLElement
+    await expectField(field, null)
+    await expectGaps([field, note], formSpace.fieldGap)
+  },
+}
+
+/** The step's error is a field group: 20 under the time cards. */
+export const SpacingAvailability: Story = {
+  args: {
+    activeSubStep: 'quote.availability',
+    fieldError:
+      'Add at least one time with a day and a start time in the future.',
+  },
+  decorators: step(),
+  play: async ({ canvasElement }) => {
+    const error = within(canvasElement).getByText(
+      /Add at least one time with a day/,
+    )
+    const column = error.parentElement as HTMLElement
+    await expect(column.children).toHaveLength(2)
+    await expectGaps([...column.children], formSpace.fieldGap)
+  },
+}
+
+/** The review step: the summary, the read-back, the notice, the error and the terms are 20 apart. */
+export const SpacingReview: Story = {
+  args: {
+    activeSubStep: 'review.check',
+    showTaskSummary: true,
+    quoteError: 'We could not send your quote. Try again.',
+  },
+  decorators: step(
+    {},
+    { amountPence: form.amountPence, message: form.message, slots: form.slots },
+  ),
+  play: async ({ canvasElement }) => {
+    const terms = within(canvasElement).getByText(/By sending, you agree to/)
+    const column = terms.parentElement as HTMLElement
+    await expect(column.children).toHaveLength(5)
+    await expectGaps([...column.children], formSpace.fieldGap)
+  },
 }

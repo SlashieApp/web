@@ -40,7 +40,7 @@ export function CreateTaskContactSection({
     !enabled(TaskContactMethod.Phone)
 
   return (
-    <CreateTaskSection bare={bare} heading={sectionHeading} bodyGap={5}>
+    <CreateTaskSection bare={bare} heading={sectionHeading}>
       <RadioButtonGroup
         label={f.contact}
         helperText={helperText ?? f.contactHelper}

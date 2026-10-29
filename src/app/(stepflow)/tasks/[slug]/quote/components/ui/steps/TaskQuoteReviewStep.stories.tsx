@@ -1,7 +1,10 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
+import { expect, within } from 'storybook/test'
 
 import { storyImage } from '@/app/(stepflow)/stepflowStoryHelpers'
 
+import { expectGaps } from '@/app/(stepflow)/stepFlowSpacing.testing'
+import { formSpace } from '@/theme/styles'
 import {
   QUOTE_STORY_MESSAGE,
   quoteStorySlots,
@@ -62,4 +65,23 @@ export const LongMessage: Story = {
   decorators: review({
     message: `${QUOTE_STORY_MESSAGE}\n\nI can also bring a stud finder, and I will clear up any dust and packaging before I leave.\n\nThanks for considering my quote.`,
   }),
+}
+
+/** Form spacing (FE-481): the answers are 20 apart, and each label is 8 above what it says. */
+export const Spacing: Story = {
+  decorators: review(),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const rows = [
+      canvas.getByText('Your quote').parentElement as HTMLElement,
+      canvas.getByText('Proposed times').parentElement as HTMLElement,
+      canvas.getByText('Message to customer').parentElement as HTMLElement,
+    ]
+    await expectGaps(rows, formSpace.fieldGap)
+    for (const row of rows) {
+      await expectGaps([...row.children].slice(0, 2), formSpace.labelToControl)
+    }
+    // The proposed times are a list, 8 apart.
+    await expectGaps([...(rows[1] as HTMLElement).children].slice(1), 8)
+  },
 }

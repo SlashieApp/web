@@ -8,6 +8,7 @@ import {
 } from '@/app/(auth)/helpers/phoneVerification'
 import { useUserStore } from '@/app/(auth)/store/user'
 import { useI11n } from '@/i18n/useI11n'
+import { FormStack } from '@ui'
 
 import { ContactRows } from './contact/ContactRows'
 import bag from './contact/i11n.json'
@@ -23,7 +24,13 @@ type ContactMethodsPanelProps = {
   onContactUpdated?: () => void
 }
 
-/** Worker setup's contact step: the contact rows plus whether you can go on. */
+/**
+ * Worker setup's contact step: the contact rows plus whether you can go on.
+ *
+ * Form spacing (FE-481): the intro is a lead-in to the rows, `labelToControl`
+ * (8) above them; the readiness line is a status line, a field group 20 under
+ * the rows.
+ */
 export function ContactMethodsPanel({
   showIntro = true,
   requirePhone = false,
@@ -38,14 +45,16 @@ export function ContactMethodsPanel({
     : hasVerifiedContactMethod(me)
 
   return (
-    <Stack gap={4}>
-      {showIntro ? (
-        <Text fontSize="sm" color="text.muted" lineHeight="tall">
-          {t.intro}
-        </Text>
-      ) : null}
+    <FormStack>
+      <Stack gap="form.labelToControl">
+        {showIntro ? (
+          <Text fontSize="sm" color="text.muted" lineHeight="tall">
+            {t.intro}
+          </Text>
+        ) : null}
 
-      <ContactRows onContactUpdated={onContactUpdated} />
+        <ContactRows onContactUpdated={onContactUpdated} />
+      </Stack>
 
       {ready ? (
         <Text fontSize="sm" fontWeight={500} color="text.link">
@@ -56,6 +65,6 @@ export function ContactMethodsPanel({
           {requirePhone ? t.needPhone : t.needAny}
         </Text>
       )}
-    </Stack>
+    </FormStack>
   )
 }

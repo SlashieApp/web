@@ -1,7 +1,7 @@
 'use client'
 
 import { useQuery } from '@apollo/client/react'
-import { Box, HStack, Text, Wrap, chakra } from '@chakra-ui/react'
+import { HStack, Stack, Text, Wrap, chakra } from '@chakra-ui/react'
 import type { PopularTaskCategoriesQuery } from '@codegen/schema'
 import { useState } from 'react'
 import { LuPlus, LuX } from 'react-icons/lu'
@@ -45,6 +45,11 @@ const LIMIT_ERROR = {
 /**
  * Task categories as tags (FE-211, BE-79): suggested keywords to tap, or
  * type your own (Enter, comma or Add). 1 to 10, each up to 64 characters.
+ *
+ * Form spacing (FE-481): one composite field. Its pieces (the chosen tags, the
+ * add row, the suggestions) are `labelToControl` (8) apart, the tags and the
+ * suggestions wrap 8 apart, the input and Add sit `inlineGap` (12) apart, both
+ * 48 tall, and the suggestions' heading is 8 above them.
  */
 export function CreateTaskCategoriesInput({
   value,
@@ -89,9 +94,9 @@ export function CreateTaskCategoriesInput({
         limitError ? LIMIT_ERROR[limitError] : errorText,
       )}
     >
-      <Box w="full">
+      <Stack gap="form.labelToControl" w="full">
         {value.length > 0 ? (
-          <Wrap gap={1.5} pb={3}>
+          <Wrap gap="form.alternativesGap">
             {value.map((category) => (
               <HStack
                 key={category.toLowerCase()}
@@ -133,7 +138,7 @@ export function CreateTaskCategoriesInput({
           </Wrap>
         ) : null}
 
-        <HStack gap={2} align="stretch">
+        <HStack gap="form.inlineGap" align="stretch">
           <Input
             value={draft}
             maxLength={TASK_CATEGORY_MAX_CHARS * 2}
@@ -162,6 +167,7 @@ export function CreateTaskCategoriesInput({
           <Button
             type="button"
             variant="secondary"
+            size="form"
             onClick={commitDraft}
             disabled={atCap || !draft.trim()}
             flexShrink={0}
@@ -171,11 +177,11 @@ export function CreateTaskCategoriesInput({
         </HStack>
 
         {suggestions.length > 0 ? (
-          <Box pt={3}>
-            <Text fontSize="xs" fontWeight={500} color="text.muted" pb={1.5}>
+          <Stack gap="form.labelToControl">
+            <Text fontSize="xs" fontWeight={500} color="text.muted">
               {f.suggestions}
             </Text>
-            <Wrap gap={1.5}>
+            <Wrap gap="form.alternativesGap">
               {suggestions.map((category) => (
                 <ChipButton
                   key={category.toLowerCase()}
@@ -208,9 +214,9 @@ export function CreateTaskCategoriesInput({
                 </ChipButton>
               ))}
             </Wrap>
-          </Box>
+          </Stack>
         ) : null}
-      </Box>
+      </Stack>
     </FormField>
   )
 }

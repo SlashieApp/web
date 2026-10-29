@@ -1,7 +1,7 @@
 'use client'
 
 import { useApolloClient, useMutation } from '@apollo/client/react'
-import { HStack, Heading, Stack, Text } from '@chakra-ui/react'
+import { HStack, Text } from '@chakra-ui/react'
 import type {
   TaskContactMethod,
   TaskForEditQuery,
@@ -9,7 +9,7 @@ import type {
 } from '@codegen/schema'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useRouter } from 'next/navigation'
-import { type ReactNode, useEffect, useId, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { type UseFormRegister, useForm } from 'react-hook-form'
 
 import { AppStatusBanners } from '@/app/(auth)/components/ui/AppStatusBanners'
@@ -49,7 +49,14 @@ import {
 import { freeTaskImageSlots } from '@/utils/taskImageKeys'
 import { uploadTaskImagesSettled } from '@/utils/taskImageUpload'
 import { townOnly } from '@/utils/taskLocationDisplay'
-import { InfoBar, Modal, StepFlowHeader, StepFlowLayout } from '@ui'
+import {
+  FormSection,
+  FormStack,
+  InfoBar,
+  Modal,
+  StepFlowHeader,
+  StepFlowLayout,
+} from '@ui'
 
 import {
   type EditTaskFormFieldValues,
@@ -65,33 +72,6 @@ import { EditTaskMobileBar, EditTaskRail } from './EditTaskRail'
 
 const UPDATE = { shouldValidate: true, shouldDirty: true } as const
 
-function EditTaskGroup({
-  title,
-  first = false,
-  children,
-}: {
-  title: string
-  first?: boolean
-  children: ReactNode
-}) {
-  const id = useId()
-  return (
-    <Stack
-      as="section"
-      aria-labelledby={id}
-      gap={4}
-      pt={first ? 0 : 6}
-      borderTopWidth={first ? 0 : '1px'}
-      borderColor="border.default"
-    >
-      <Heading as="h2" id={id} fontSize="lg" letterSpacing="-0.01em">
-        {title}
-      </Heading>
-      {children}
-    </Stack>
-  )
-}
-
 export type EditTaskScreenProps = {
   task: NonNullable<TaskForEditQuery['task']>
   contactOptions: ContactOption[]
@@ -105,6 +85,10 @@ export type EditTaskScreenProps = {
  * on one page, one Save at the bottom. Only what changed is sent, so an
  * untouched contact method keeps its current value. Leaving with changes
  * asks first.
+ *
+ * Form spacing (FE-481): it is a long form, so the groups are sections: 32
+ * apart with no dividing line, each title 12 above its first field, the fields
+ * inside 20 apart. The quotes warning is a field group above them (20).
  */
 export function EditTaskScreen({
   task,
@@ -312,111 +296,121 @@ export function EditTaskScreen({
           </InfoBar>
         ) : null}
 
-        <EditTaskGroup title={create.steps.details.label} first>
-          <CreateTaskBasicsSection
-            bare
-            register={sharedRegister}
-            categories={values.categories}
-            onCategoriesChange={(next) => setValue('categories', next, UPDATE)}
-            fieldErrors={{
-              title: errors.title?.message,
-              categories: errors.categories?.message,
-              description: errors.description?.message,
-            }}
-          />
-        </EditTaskGroup>
+        <FormStack gap="section">
+          <FormSection title={create.steps.details.label}>
+            <CreateTaskBasicsSection
+              bare
+              register={sharedRegister}
+              categories={values.categories}
+              onCategoriesChange={(next) =>
+                setValue('categories', next, UPDATE)
+              }
+              fieldErrors={{
+                title: errors.title?.message,
+                categories: errors.categories?.message,
+                description: errors.description?.message,
+              }}
+            />
+          </FormSection>
 
-        <EditTaskGroup title={create.steps.timing.label}>
-          <CreateTaskScheduleSection
-            bare
-            datetimeType={values.datetimeType}
-            onDatetimeTypeChange={(v) => setValue('datetimeType', v, UPDATE)}
-            preferredDate={values.preferredDate}
-            preferredTime={values.preferredTime}
-            onPreferredDateChange={(v) => setValue('preferredDate', v, UPDATE)}
-            onPreferredTimeChange={(v) => setValue('preferredTime', v, UPDATE)}
-            fieldErrors={{
-              preferredDate: errors.preferredDate?.message,
-              preferredTime: errors.preferredTime?.message,
-            }}
-          />
-        </EditTaskGroup>
+          <FormSection title={create.steps.timing.label}>
+            <CreateTaskScheduleSection
+              bare
+              datetimeType={values.datetimeType}
+              onDatetimeTypeChange={(v) => setValue('datetimeType', v, UPDATE)}
+              preferredDate={values.preferredDate}
+              preferredTime={values.preferredTime}
+              onPreferredDateChange={(v) =>
+                setValue('preferredDate', v, UPDATE)
+              }
+              onPreferredTimeChange={(v) =>
+                setValue('preferredTime', v, UPDATE)
+              }
+              fieldErrors={{
+                preferredDate: errors.preferredDate?.message,
+                preferredTime: errors.preferredTime?.message,
+              }}
+            />
+          </FormSection>
 
-        <EditTaskGroup title={create.steps.location.label}>
-          <TaskLocationMapPicker
-            accessToken={accessToken}
-            location={values.mapPlaceName}
-            locationLat={values.locationLat}
-            locationLng={values.locationLng}
-            onLocationChange={(v) => setValue('mapPlaceName', v, UPDATE)}
-            onLocationLatChange={(v) => {
-              setPinMoved(true)
-              setLocateUnavailable(false)
-              setValue('locationLat', v, UPDATE)
-            }}
-            onLocationLngChange={(v) => setValue('locationLng', v, UPDATE)}
-            onLocateFailed={() => setLocateUnavailable(true)}
-          />
-          <CreateTaskLocationSection
-            privacyCallout
-            publicArea={townOnly(publicArea) ?? ''}
-            locationError={
-              errors.mapPlaceName?.message ??
-              errors.locationLat?.message ??
-              errors.locationLng?.message
-            }
-            locateUnavailable={locateUnavailable}
-          />
-          <CreateTaskAddressSection
-            register={sharedRegister}
-            privacyHint
-            streetAddressError={errors.streetAddress?.message}
-            pinAddress={values.mapPlaceName}
-            onUsePinAddress={
-              pinMoved
-                ? () => {
-                    const name = getValues('mapPlaceName').trim()
-                    if (name) setValue('streetAddress', name, UPDATE)
-                  }
-                : undefined
-            }
-          />
-        </EditTaskGroup>
+          <FormSection title={create.steps.location.label}>
+            <TaskLocationMapPicker
+              accessToken={accessToken}
+              location={values.mapPlaceName}
+              locationLat={values.locationLat}
+              locationLng={values.locationLng}
+              onLocationChange={(v) => setValue('mapPlaceName', v, UPDATE)}
+              onLocationLatChange={(v) => {
+                setPinMoved(true)
+                setLocateUnavailable(false)
+                setValue('locationLat', v, UPDATE)
+              }}
+              onLocationLngChange={(v) => setValue('locationLng', v, UPDATE)}
+              onLocateFailed={() => setLocateUnavailable(true)}
+            />
+            <CreateTaskLocationSection
+              privacyCallout
+              publicArea={townOnly(publicArea) ?? ''}
+              locationError={
+                errors.mapPlaceName?.message ??
+                errors.locationLat?.message ??
+                errors.locationLng?.message
+              }
+              locateUnavailable={locateUnavailable}
+            />
+            <CreateTaskAddressSection
+              register={sharedRegister}
+              privacyHint
+              streetAddressError={errors.streetAddress?.message}
+              pinAddress={values.mapPlaceName}
+              onUsePinAddress={
+                pinMoved
+                  ? () => {
+                      const name = getValues('mapPlaceName').trim()
+                      if (name) setValue('streetAddress', name, UPDATE)
+                    }
+                  : undefined
+              }
+            />
+          </FormSection>
 
-        <EditTaskGroup title={create.steps.budget.label}>
-          <CreateTaskBudgetSection
-            bare
-            register={sharedRegister}
-            budgetCurrency={values.budgetCurrency}
-            budgetType={values.budgetType}
-            paymentMethod={values.paymentMethod}
-            onBudgetTypeChange={(v) => setValue('budgetType', v, UPDATE)}
-            onPaymentMethodChange={(v) => setValue('paymentMethod', v, UPDATE)}
-            budgetMajorError={errors.budgetMajor?.message}
-          />
-        </EditTaskGroup>
+          <FormSection title={create.steps.budget.label}>
+            <CreateTaskBudgetSection
+              bare
+              register={sharedRegister}
+              budgetCurrency={values.budgetCurrency}
+              budgetType={values.budgetType}
+              paymentMethod={values.paymentMethod}
+              onBudgetTypeChange={(v) => setValue('budgetType', v, UPDATE)}
+              onPaymentMethodChange={(v) =>
+                setValue('paymentMethod', v, UPDATE)
+              }
+              budgetMajorError={errors.budgetMajor?.message}
+            />
+          </FormSection>
 
-        <EditTaskGroup title={t.sections.photos}>
-          <CreateTaskVisualsSection
-            bare
-            labelled={false}
-            existingImageUrls={existing}
-            photos={photos.tiles}
-            rejected={photos.rejected}
-            onFilesAdded={photos.add}
-            onRemoveFile={photos.remove}
-          />
-        </EditTaskGroup>
+          <FormSection title={t.sections.photos}>
+            <CreateTaskVisualsSection
+              bare
+              labelled={false}
+              existingImageUrls={existing}
+              photos={photos.tiles}
+              rejected={photos.rejected}
+              onFilesAdded={photos.add}
+              onRemoveFile={photos.remove}
+            />
+          </FormSection>
 
-        <EditTaskGroup title={t.sections.contact}>
-          <CreateTaskContactSection
-            bare
-            preferredContactMethod={contact}
-            onPreferredContactMethodChange={setContact}
-            contactOptions={contactOptions}
-            helperText={t.contactKeep}
-          />
-        </EditTaskGroup>
+          <FormSection title={t.sections.contact}>
+            <CreateTaskContactSection
+              bare
+              preferredContactMethod={contact}
+              onPreferredContactMethodChange={setContact}
+              contactOptions={contactOptions}
+              helperText={t.contactKeep}
+            />
+          </FormSection>
+        </FormStack>
       </StepFlowLayout>
 
       <Modal

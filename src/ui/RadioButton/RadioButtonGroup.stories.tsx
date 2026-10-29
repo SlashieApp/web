@@ -3,6 +3,12 @@ import { useState } from 'react'
 import { expect, userEvent, within } from 'storybook/test'
 
 import {
+  desktop1280,
+  expectChoiceGroup,
+  phone390,
+} from '@/app/(stepflow)/stepFlowSpacing.testing'
+
+import {
   RadioButtonGroup,
   type RadioButtonGroupOption,
 } from './RadioButtonGroup'
@@ -84,4 +90,32 @@ export const Stacked: Story = { args: { columns: 1 } }
 /** Phones stack the rows whatever the column count. */
 export const Phone: Story = {
   globals: { viewport: { value: 'mobile1' } },
+}
+
+/**
+ * Form spacing (FE-481): the label is 8 above the rows, the rows are 8 apart
+ * (one under the other on a phone), and the helper, a disabled row's reason and
+ * the error sit 4 under the rows and 4 apart, on the compact line height.
+ */
+export const Spacing: Story = {
+  ...phone390,
+  args: { errorText: 'Choose how you will pay.' },
+  play: async ({ canvasElement }) => {
+    await expectChoiceGroup(canvasElement, "How you'll pay", [
+      'You pay your worker directly.',
+      'Card payments are coming soon.',
+      'Choose how you will pay.',
+    ])
+  },
+}
+
+/** From `sm` the rows sit side by side, still 8 apart. */
+export const SpacingWide: Story = {
+  ...desktop1280,
+  play: async ({ canvasElement }) => {
+    await expectChoiceGroup(canvasElement, "How you'll pay", [
+      'You pay your worker directly.',
+      'Card payments are coming soon.',
+    ])
+  },
 }

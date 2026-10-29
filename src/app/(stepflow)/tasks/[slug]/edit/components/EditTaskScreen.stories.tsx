@@ -5,6 +5,13 @@ import { expect, userEvent, waitFor, within } from 'storybook/test'
 import type { MeSnapshot } from '@/app/(auth)/store/user'
 import { getContactOptions } from '@/app/(dashboard)/profile/profileEligibility'
 import {
+  desktop1280,
+  expectGaps,
+  expectStepFlowFrame,
+  expectWidth,
+  phone390,
+} from '@/app/(stepflow)/stepFlowSpacing.testing'
+import {
   storyDateInDays,
   storyHeicPhoto,
 } from '@/app/(stepflow)/stepflowStoryHelpers'
@@ -12,6 +19,8 @@ import { withPopularCategories } from '@/app/(stepflow)/tasks/create/components/
 import { taskLocationMapStyle } from '@/app/(stepflow)/tasks/create/components/layout/map/useTaskLocationMap'
 import { storyTaskDetail } from '@/app/(task)/tasks/[slug]/helpers/taskDetailStoryFixtures'
 import { LocaleProvider } from '@/i18n/LocaleProvider'
+import { formSpace } from '@/theme/styles'
+import { gapBelow } from '@/ui/FormField/formGap.testing'
 
 import { EditTaskScreen } from './EditTaskScreen'
 
@@ -259,5 +268,56 @@ export const Phone: Story = {
     await expect(
       canvas.getByRole('button', { name: 'Save changes' }),
     ).toBeVisible()
+  },
+}
+
+/**
+ * The groups are sections of a long form: the title is 12 above its first field,
+ * the sections 32 apart, and no line is drawn between them.
+ */
+async function expectEditSections(canvasElement: HTMLElement) {
+  const sections = [
+    ...canvasElement.querySelectorAll('section[aria-labelledby]'),
+  ] as HTMLElement[]
+  await expect(sections).toHaveLength(6)
+  await expectGaps(sections, formSpace.sectionGap)
+  for (const section of sections) {
+    const [title, fields] = [...section.children]
+    await expect(gapBelow(title as Element, fields as Element)).toBe(
+      formSpace.sectionTitleToField,
+    )
+    await expect(getComputedStyle(section).borderTopWidth).toBe('0px')
+  }
+  // The fields inside a section are 20 apart: the Location group has three blocks.
+  const location = sections[2] as HTMLElement
+  const blocks = [...(location.lastElementChild as HTMLElement).children]
+  await expect(blocks.length).toBeGreaterThanOrEqual(3)
+  await expectGaps(blocks, formSpace.fieldGap)
+}
+
+/**
+ * Form spacing (FE-481), desktop: the title, the description 8 under it, the
+ * first group 24 under that; the groups are sections (32 apart, each title 12
+ * above its first field, no lines); the last field is 20 above Save changes (48).
+ */
+export const Spacing: Story = {
+  ...desktop1280,
+  play: async ({ canvasElement }) => {
+    expectWidth(canvasElement, 1280)
+    await within(canvasElement).findByLabelText(/Task title/)
+    await expectEditSections(canvasElement)
+    await expectStepFlowFrame(canvasElement, { button: 'Save changes' })
+  },
+}
+
+/** The same on a phone, with the quotes warning: a field group 20 above the sections. */
+export const SpacingPhone: Story = {
+  ...phone390,
+  args: { liveQuotes: 2, quotesWarning: true },
+  play: async ({ canvasElement }) => {
+    expectWidth(canvasElement, 390)
+    await within(canvasElement).findByLabelText(/Task title/)
+    await expectEditSections(canvasElement)
+    await expectStepFlowFrame(canvasElement, { button: 'Save changes' })
   },
 }

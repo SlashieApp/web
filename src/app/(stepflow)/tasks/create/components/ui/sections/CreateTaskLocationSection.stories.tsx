@@ -1,6 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { expect, within } from 'storybook/test'
 
+import { expectGaps } from '@/app/(stepflow)/stepFlowSpacing.testing'
+import { formSpace } from '@/theme/styles'
 import { CreateTaskLocationSection } from './CreateTaskLocationSection'
 
 /**
@@ -61,5 +63,24 @@ export const WithError: Story = {
     await expect(within(canvasElement).getByRole('alert')).toHaveTextContent(
       'Search or move the map to set the area.',
     )
+  },
+}
+
+/**
+ * Form spacing (FE-481): the privacy note, the area chip, the hint and the error
+ * are notes in a form: field groups, 20 apart.
+ */
+export const Spacing: Story = {
+  args: {
+    publicArea: 'Watford',
+    privacyCallout: true,
+    locateUnavailable: true,
+    locationError: 'placeNotFound',
+  },
+  play: async ({ canvasElement }) => {
+    const chip = within(canvasElement).getByText(/Workers will see/)
+    const column = chip.closest('[aria-live]')?.parentElement as HTMLElement
+    await expect(column.children).toHaveLength(4)
+    await expectGaps([...column.children], formSpace.fieldGap)
   },
 }

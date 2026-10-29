@@ -6,6 +6,16 @@ import { expect, spyOn, userEvent, waitFor, within } from 'storybook/test'
 
 import type { MeSnapshot } from '@/app/(auth)/store/user'
 import { getContactOptions } from '@/app/(dashboard)/profile/profileEligibility'
+import {
+  desktop1280,
+  expectNoBarLine,
+  expectStepFlowFrame,
+  expectWidth,
+  phone390,
+  stepFlowOf,
+} from '@/app/(stepflow)/stepFlowSpacing.testing'
+import { formSpace } from '@/theme/styles'
+import { gapBelow, heightOf } from '@/ui/FormField/formGap.testing'
 import { townOnly } from '@/utils/taskLocationDisplay'
 import { Button, StepFlowHeader, StepFlowProgress } from '@ui'
 import type { CreateTaskFormFieldValues } from '../../../createTaskFormSchema'
@@ -404,5 +414,111 @@ export const FullScreenFormKeepsFieldInView: Story = {
       field.blur()
       spy.mockRestore()
     }
+  },
+}
+
+/**
+ * Form spacing (FE-481), details onward: the title, the description 8 under it,
+ * the first field 24 under that, the fields 20 apart, the last one 20 above
+ * Continue (48 tall), no line over the bar. Desktop.
+ */
+export const SpacingDetails: Story = {
+  ...desktop1280,
+  args: { start: 'details' },
+  play: async ({ canvasElement }) => {
+    expectWidth(canvasElement, 1280)
+    await within(canvasElement).findByRole('heading', {
+      name: 'What needs doing?',
+    })
+    await expectStepFlowFrame(canvasElement)
+  },
+}
+
+/** The same frame on a phone, where the form has the whole screen. */
+export const SpacingDetailsPhone: Story = {
+  ...phone390,
+  args: { start: 'details' },
+  play: async ({ canvasElement }) => {
+    expectWidth(canvasElement, 390)
+    await within(canvasElement).findByRole('heading', {
+      name: 'What needs doing?',
+    })
+    await expectStepFlowFrame(canvasElement)
+  },
+}
+
+/** The review step: the contact group and the consent notice are field groups, 20 apart. */
+export const SpacingReview: Story = {
+  ...desktop1280,
+  args: { start: 'review' },
+  play: async ({ canvasElement }) => {
+    await within(canvasElement).findByRole('heading', {
+      name: 'Check and post',
+    })
+    await expectStepFlowFrame(canvasElement, {
+      button: /Post task/,
+      atRest: true,
+    })
+  },
+}
+
+/**
+ * The location step keeps its tighter header so the map keeps half the screen:
+ * the title and description 4 apart, the first block 8 under them on a phone,
+ * and the body still ends 20 above Continue (48 tall), with no line over the bar.
+ */
+export const SpacingLocationCompactPhone: Story = {
+  ...phone390,
+  play: async ({ canvasElement }) => {
+    expectWidth(canvasElement, 390)
+    const canvas = within(canvasElement)
+    await canvas.findByRole('heading', { name: 'Where is the task?' })
+    const { title, description, heading, main } = stepFlowOf(
+      canvasElement,
+      /Continue/,
+    )
+    const first = heading.parentElement?.nextElementSibling as HTMLElement
+    await expect(gapBelow(title, description as HTMLElement)).toBe(4)
+    await expect(gapBelow(description as HTMLElement, first)).toBe(8)
+    await expect(gapBelow(first, main as HTMLElement)).toBe(
+      formSpace.bodyToAction,
+    )
+    await expect(heightOf(main as HTMLElement)).toBe(formSpace.controlHeight)
+    await expectNoBarLine(main as HTMLElement)
+  },
+}
+
+/** The same tight header on desktop: the first block is 16 under it. */
+export const SpacingLocationCompactDesktop: Story = {
+  ...desktop1280,
+  play: async ({ canvasElement }) => {
+    await within(canvasElement).findByRole('heading', {
+      name: 'Where is the task?',
+    })
+    const { title, description, heading, main } = stepFlowOf(
+      canvasElement,
+      /Continue/,
+    )
+    const first = heading.parentElement?.nextElementSibling as HTMLElement
+    await expect(gapBelow(title, description as HTMLElement)).toBe(4)
+    await expect(gapBelow(description as HTMLElement, first)).toBe(16)
+    await expect(gapBelow(first, main as HTMLElement)).toBe(
+      formSpace.bodyToAction,
+    )
+    await expectNoBarLine(main as HTMLElement)
+  },
+}
+
+/** A hint and an error under the area chip are field groups: 20 apart, as in any form. */
+export const SpacingLocationNotes: Story = {
+  ...phone390,
+  args: { locateUnavailable: true, errorText: undefined },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const chip = await canvas.findByText(/Workers will see: /)
+    const hint = canvas.getByText(/couldn.t get your location/i)
+    await expect(
+      gapBelow(chip.closest('[aria-live]') as HTMLElement, hint),
+    ).toBe(formSpace.fieldGap)
   },
 }

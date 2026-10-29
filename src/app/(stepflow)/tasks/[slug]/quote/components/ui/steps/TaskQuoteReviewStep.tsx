@@ -11,6 +11,7 @@ import {
   timeSlotDraftStart,
   timeSlotInputsFromDrafts,
 } from '@/utils/timeSlots'
+import { FormStack } from '@ui'
 
 import bag from '../../../i11n.json'
 
@@ -28,6 +29,11 @@ function formatReviewPrice(pence: number): string | null {
   }).format(pence / 100)
 }
 
+/**
+ * The read-back before sending. Form spacing (FE-481): each answer is a
+ * `FormStack` row, 20 apart, and its label is `labelToControl` (8) above what
+ * it says.
+ */
 export function TaskQuoteReviewStep({ photoUrls }: TaskQuoteReviewStepProps) {
   const { quoteAmountInput, quoteMessageInput, quoteSlots } = useTaskDetail()
   const copy = useI11n(bag)
@@ -48,8 +54,8 @@ export function TaskQuoteReviewStep({ photoUrls }: TaskQuoteReviewStepProps) {
   const message = quoteMessageInput.trim()
 
   return (
-    <Stack gap={5}>
-      <Stack gap={2}>
+    <FormStack>
+      <Stack gap="form.labelToControl">
         <Text fontWeight={500} fontSize="sm" color="text.link">
           {copy.review.price}
         </Text>
@@ -59,7 +65,7 @@ export function TaskQuoteReviewStep({ photoUrls }: TaskQuoteReviewStepProps) {
       </Stack>
 
       {times.length > 0 ? (
-        <Stack gap={2}>
+        <Stack gap="form.labelToControl">
           <Text fontWeight={500} fontSize="sm" color="text.link">
             {copy.proposedTimes}
           </Text>
@@ -71,7 +77,7 @@ export function TaskQuoteReviewStep({ photoUrls }: TaskQuoteReviewStepProps) {
         </Stack>
       ) : null}
 
-      <Stack gap={2}>
+      <Stack gap="form.labelToControl">
         <Text fontWeight={500} fontSize="sm" color="text.link">
           {copy.review.message}
         </Text>
@@ -81,7 +87,7 @@ export function TaskQuoteReviewStep({ photoUrls }: TaskQuoteReviewStepProps) {
       </Stack>
 
       {photoUrls.length > 0 ? (
-        <Stack gap={2}>
+        <Stack gap="form.labelToControl">
           <Text fontWeight={500} fontSize="sm" color="text.link">
             {copy.review.photos}
           </Text>
@@ -102,6 +108,6 @@ export function TaskQuoteReviewStep({ photoUrls }: TaskQuoteReviewStepProps) {
           </HStack>
         </Stack>
       ) : null}
-    </Stack>
+    </FormStack>
   )
 }

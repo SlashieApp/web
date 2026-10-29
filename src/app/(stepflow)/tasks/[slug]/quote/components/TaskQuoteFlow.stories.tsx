@@ -2,7 +2,13 @@ import { QuoteStatus, TaskStatus } from '@codegen/schema'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { expect, userEvent, within } from 'storybook/test'
 
+import {
+  desktop1280,
+  gapBelowContent,
+} from '@/app/(stepflow)/stepFlowSpacing.testing'
 import { storyTaskQuote } from '@/app/(task)/tasks/[slug]/helpers/taskDetailStoryFixtures'
+import { formSpace } from '@/theme/styles'
+import { heightOf } from '@/ui/FormField/formGap.testing'
 
 import { TaskQuoteFlow } from './TaskQuoteFlow'
 import {
@@ -37,6 +43,30 @@ export const ExistingQuote: Story = {
       task: quoteStoryTask({ quotes: [storyTaskQuote()] }),
     }),
   ],
+}
+
+/**
+ * Form spacing (FE-481): Withdraw is a line of text in the form stack, 20 under
+ * the step's last field (the step is a field group, like any other). Its 44px
+ * hit area grows into the gaps around it, so it adds no space.
+ */
+export const WithdrawSpacing: Story = {
+  ...desktop1280,
+  decorators: [
+    withQuoteStory({
+      viewer: 'worker',
+      task: quoteStoryTask({ quotes: [storyTaskQuote()] }),
+    }),
+  ],
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const withdraw = await canvas.findByRole('button', {
+      name: 'Withdraw quote',
+    })
+    const content = withdraw.previousElementSibling as HTMLElement
+    await expect(gapBelowContent(content, withdraw)).toBe(formSpace.fieldGap)
+    await expect(heightOf(withdraw)).toBeGreaterThanOrEqual(44)
+  },
 }
 
 /** Withdraw asks first, in the dialog task detail uses: nothing is withdrawn yet. */

@@ -137,6 +137,7 @@ export { SlideToConfirm } from './SlideToConfirm'
 export { SpotIllustration } from './SpotIllustration/SpotIllustration'
 export {
   StepFlowActions,
+  StepFlowBody,
   StepFlowHeader,
   StepFlowHeading,
   StepFlowLayout,

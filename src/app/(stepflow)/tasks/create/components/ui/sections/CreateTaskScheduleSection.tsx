@@ -54,7 +54,6 @@ export function CreateTaskScheduleSection({
     <CreateTaskSection
       bare={bare}
       heading={sectionHeading}
-      bodyGap={5}
       headingSubtext={
         <Text fontSize="sm" color="text.muted">
           {t.steps.timing.description}

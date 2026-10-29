@@ -40,7 +40,7 @@ export function CreateTaskBasicsSection({
   const f = t.fields
 
   return (
-    <CreateTaskSection bare={bare} heading={sectionHeading} bodyGap={5}>
+    <CreateTaskSection bare={bare} heading={sectionHeading}>
       <FormField
         label={f.title}
         required

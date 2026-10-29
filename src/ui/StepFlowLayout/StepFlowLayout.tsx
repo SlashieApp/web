@@ -16,6 +16,7 @@ import { LuArrowLeft, LuArrowRight, LuX } from 'react-icons/lu'
 import { PAGE_CONTAINER_MAX_W, PAGE_GUTTER_X } from '@/theme/pageContainer'
 
 import { Button } from '../Button/Button'
+import { FormStack } from '../FormStack/FormStack'
 import { IconButton } from '../IconButton/IconButton'
 import { Link } from '../Link/Link'
 import { Logo } from '../Logo/Logo'
@@ -36,6 +37,15 @@ import { ProgressBar } from '../ProgressBar'
  * The layout owns structure only — step state, validation, and navigation
  * stay in each flow's context/config. Compose the flow's own stepper and
  * progress data through the slots.
+ *
+ * Form spacing (FE-481, wiki Foundations-Form-Spacing): the step heading is the
+ * title, then the description `formSpace.titleToSubtitle` (8) under it, and the
+ * first field or block `headerToBody` (24) below that. The body is a
+ * {@link FormStack}: a save error and every child are `fieldGap` (20) apart
+ * (a flow with sections wraps them in `<FormStack gap="section">`, 32). The
+ * action bar stays pinned so Continue is always reachable, but it has no
+ * dividing line, and the body ends `bodyToAction` (20) above its buttons. The
+ * Continue button is the form height (48).
  */
 
 export type StepFlowHeaderProps = {
@@ -116,7 +126,16 @@ export type StepFlowHeadingProps = {
   headingRef?: (node: HTMLElement | null) => void
 }
 
-/** Step title + supporting copy (`h1` of the flow screen). */
+/**
+ * Step title + supporting copy (`h1` of the flow screen). The description is
+ * `titleToSubtitle` (8) under the title, and the first field is `headerToBody`
+ * (24) below the block: the heading owns that 24, so put it in a plain
+ * container, not a gapped stack.
+ *
+ * `compact` is the post-a-task map step's tighter header, so the map keeps half
+ * the screen: its title and description are 4 apart, and the card around it
+ * sets how far the first block sits (8 on phones, 16 from lg).
+ */
 export function StepFlowHeading({
   title,
   description,
@@ -124,7 +143,10 @@ export function StepFlowHeading({
   headingRef,
 }: StepFlowHeadingProps) {
   return (
-    <Stack gap={compact ? 1 : 2}>
+    <Stack
+      gap={compact ? 1 : 'form.titleToSubtitle'}
+      mb={compact ? 0 : 'form.headerToBody'}
+    >
       <Text
         as="h1"
         ref={headingRef}
@@ -170,7 +192,12 @@ export type StepFlowActionsProps = {
 
 /**
  * Back / Continue bar. Sticky on mobile; static inside the desktop panel.
- * Back is the arrow alone (44px), named by `backLabel`.
+ * Back is the arrow alone (44px), named by `backLabel`. Continue is the form
+ * height (48).
+ *
+ * The bar has no dividing line and no padding above the buttons: the body above
+ * it ends `bodyToAction` (20) from them (its own bottom padding), so the last
+ * field is 20 above Continue at rest.
  */
 export function StepFlowActions({
   showBack = false,
@@ -185,11 +212,9 @@ export function StepFlowActions({
 }: StepFlowActionsProps) {
   return (
     <Box
-      borderTopWidth="1px"
-      borderColor="border.strong"
       bg="bg.surface"
       px={{ base: 4, md: 8, lg: 10 }}
-      py={4}
+      pt={0}
       position={sticky ? 'sticky' : 'static'}
       bottom={0}
       zIndex={2}
@@ -219,6 +244,7 @@ export function StepFlowActions({
         <Button
           type="button"
           variant="primary"
+          size="form"
           onClick={onContinue}
           loading={continueLoading}
           loadingText={continueLoadingText}
@@ -226,7 +252,6 @@ export function StepFlowActions({
           // lines on a narrow phone rather than spill out of the button.
           whiteSpace="normal"
           h="auto"
-          minH="44px"
           // minW 0, not full: flex fills the row without overflowing it.
           minW={{ base: 0, lg: 'auto' }}
           flex={{ base: 1, lg: 'none' }}
@@ -276,6 +301,29 @@ export function StepFlowProgress({
   )
 }
 
+type StepFlowBodyProps = {
+  /** A save or submit error: the first field group, above the children. */
+  errorText?: string | null
+  children: ReactNode
+}
+
+/**
+ * The step's fields: a save error, then each child, `fieldGap` (20) apart. A
+ * flow with sections passes one `<FormStack gap="section">` as its child.
+ */
+export function StepFlowBody({ errorText, children }: StepFlowBodyProps) {
+  return (
+    <FormStack>
+      {errorText ? (
+        <Text color="status.danger.fg" fontSize="sm" role="alert">
+          {errorText}
+        </Text>
+      ) : null}
+      {children}
+    </FormStack>
+  )
+}
+
 type StepFlowPanelProps = {
   title: string
   description?: string
@@ -296,27 +344,21 @@ function StepFlowPanel({
 }: StepFlowPanelProps) {
   return (
     <Stack gap={0} w="full" h="full" minH={0}>
-      <Stack
-        gap={6}
+      <Box
         flex={1}
         minH={0}
         overflowY="auto"
         px={{ base: 4, md: 8, lg: 10 }}
-        py={{ base: 5, md: 8 }}
-        pb={{ base: 4, md: 8 }}
+        pt={{ base: 5, md: 8 }}
+        pb="form.bodyToAction"
       >
         <StepFlowHeading
           title={title}
           description={description}
           headingRef={headingRef}
         />
-        {errorText ? (
-          <Text color="status.danger.fg" fontSize="sm" role="alert">
-            {errorText}
-          </Text>
-        ) : null}
-        {children}
-      </Stack>
+        <StepFlowBody errorText={errorText}>{children}</StepFlowBody>
+      </Box>
       <StepFlowActions {...actions} sticky />
     </Stack>
   )
@@ -375,19 +417,14 @@ export function StepFlowLayout({
           {mobileTop}
           {progress}
           <Box flex={1} minH={0} overflowY="auto" bg="bg.surface">
-            <Stack gap={6} px={4} py={5} pb={4}>
+            <Box px={4} pt={5} pb="form.bodyToAction">
               <StepFlowHeading
                 title={title}
                 description={description}
                 headingRef={headingRef}
               />
-              {errorText ? (
-                <Text color="status.danger.fg" fontSize="sm" role="alert">
-                  {errorText}
-                </Text>
-              ) : null}
-              {children}
-            </Stack>
+              <StepFlowBody errorText={errorText}>{children}</StepFlowBody>
+            </Box>
           </Box>
           <StepFlowActions {...actions} sticky />
         </Stack>

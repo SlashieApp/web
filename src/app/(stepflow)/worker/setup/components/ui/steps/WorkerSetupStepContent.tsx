@@ -1,12 +1,13 @@
 'use client'
 
-import { Box, Grid, HStack, Stack, Text } from '@chakra-ui/react'
+import { Box, HStack, Stack, Text } from '@chakra-ui/react'
 import { type ComponentType, useState } from 'react'
 
 import { useUserStore } from '@/app/(auth)/store/user'
 import { ContactMethodsPanel } from '@/app/(dashboard)/components/ui/ContactMethodsPanel'
 import { formatMessage } from '@/i18n/loadPageI11n'
 import { useI11n } from '@/i18n/useI11n'
+import { formSpace, hitAreaGrowth } from '@/theme/styles'
 import { apolloClient } from '@/utils/apolloClient'
 import {
   type ImageUploadErrorCode,
@@ -21,6 +22,9 @@ import {
 import {
   Button,
   FormField,
+  FormRow,
+  FormSection,
+  FormStack,
   Input,
   PhotoSourcePicker,
   PhotoTile,
@@ -67,7 +71,12 @@ function useSetupField() {
 function NameSection() {
   const { t, form, patchForm, error } = useSetupField()
   return (
-    <Grid templateColumns={{ base: '1fr', md: '1fr 1fr' }} gap={6}>
+    // First and last name: stacked on a phone (a field gap apart), side by side
+    // from md (an inline gap apart).
+    <FormRow
+      gridAutoFlow={{ base: 'row', md: 'column' }}
+      gap={{ base: 'form.fieldGap', md: 'form.inlineGap' }}
+    >
       <FormField label={t.fields.firstName} errorText={error('firstName')}>
         <Input
           value={form.firstName}
@@ -84,7 +93,7 @@ function NameSection() {
           rootProps={formControlRootProps}
         />
       </FormField>
-    </Grid>
+    </FormRow>
   )
 }
 
@@ -308,7 +317,9 @@ function HeadlineSection() {
   const { t, form, patchForm, error } = useSetupField()
   const suggestion = suggestedHeadline(form, t)
   return (
-    <Stack gap={1}>
+    // The suggestion is an inline action under the field: 4 under it (and under
+    // its helper or error), 44 to tap.
+    <Stack gap="form.controlToHelper">
       <FormField
         label={t.fields.headline}
         helperText={t.fields.headlineHelper}
@@ -327,12 +338,16 @@ function HeadlineSection() {
           type="button"
           variant="ghost"
           alignSelf="flex-start"
-          minH="44px"
-          px={2}
+          h="auto"
+          minH={0}
+          borderWidth={0}
+          px={1}
+          lineHeight="20px"
           color="text.link"
           fontWeight={500}
           whiteSpace="normal"
           textAlign="left"
+          {...hitAreaGrowth(20, formSpace.controlToHelper)}
           onClick={() => patchForm({ tagline: suggestion })}
         >
           {formatMessage(t.fields.useSuggestion, { suggestion })}
@@ -391,7 +406,7 @@ function PhoneSection() {
   const { clearErrors, error } = useSetupField()
   const problem = error('contact')
   return (
-    <Stack gap={3} data-invalid={problem ? '' : undefined}>
+    <FormStack data-invalid={problem ? '' : undefined}>
       <ContactMethodsPanel
         requirePhone
         onContactUpdated={() => clearErrors(['contact'])}
@@ -401,7 +416,7 @@ function PhoneSection() {
           {problem}
         </Text>
       ) : null}
-    </Stack>
+    </FormStack>
   )
 }
 
@@ -422,19 +437,16 @@ function StrengthSection() {
 function PreviewSection() {
   const { t } = useSetupField()
   return (
-    <Stack gap={2}>
-      <Text as="h2" fontSize="md" fontWeight={500} color="text.default">
-        {t.review.previewTitle}
-      </Text>
+    <FormSection title={t.review.previewTitle}>
       <WorkerSetupProfilePreview />
-    </Stack>
+    </FormSection>
   )
 }
 
 function NotesSection() {
   const { t, account } = useSetupField()
   return (
-    <Stack gap={2}>
+    <FormStack>
       {account.emailVerified ? null : (
         <Text fontSize="sm" color="text.default" lineHeight="tall">
           {t.review.verifyEmailNote}
@@ -443,7 +455,7 @@ function NotesSection() {
       <Text fontSize="sm" color="text.muted" lineHeight="tall">
         {t.review.paymentsNote}
       </Text>
-    </Stack>
+    </FormStack>
   )
 }
 
@@ -466,18 +478,25 @@ const SECTIONS: Record<WorkerSetupSection, ComponentType> = {
   notes: NotesSection,
 }
 
-/** A setup screen: its view's sections, in order. */
+/**
+ * A setup screen: its view's sections, in order.
+ *
+ * Form spacing (FE-481): the blocks of a screen are fields (each has its own
+ * label), so they are `fieldGap` (20) apart. The review screen is a long form
+ * of titled blocks (strength, the preview, the notes): they are sections, 32
+ * apart with no line, and the preview's title is 12 above its card.
+ */
 export function WorkerSetupStepContent({
   view,
 }: {
   view: WorkerSetupScreenView
 }) {
   return (
-    <Stack gap={8}>
+    <FormStack gap={view.screen === 'review' ? 'section' : 'field'}>
       {view.sections.map((section) => {
         const Section = SECTIONS[section]
         return <Section key={section} />
       })}
-    </Stack>
+    </FormStack>
   )
 }
