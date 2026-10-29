@@ -370,15 +370,15 @@ export type MarketingHeaderProps = Omit<BoxProps, 'children'>
  * (`bg.surface`), so their header is too. Add a route here when its page sits
  * in `MarketingFrame`; the others keep the canvas colour until then.
  */
-const FRAMED_ROUTES: readonly string[] = [MARKETING_HOME, '/pricing']
+const FRAMED_ROUTES: readonly string[] = [MARKETING_HOME, '/pricing', '/about']
 
 /**
  * Sticky marketing header. On the landing (`/home`) it starts transparent
  * over the white page and solidifies to white once scrolled. Text colours are
  * the same either way, so this is safe from the first server paint. The other
- * framed routes (`FRAMED_ROUTES`, such as `/pricing`) always get the solid
- * header, in white. Marketing routes that have not taken the marketing frame
- * yet get it on the canvas colour their pages still use.
+ * framed routes (`FRAMED_ROUTES`, such as `/pricing` and `/about`) always get
+ * the solid header, in white. Marketing routes that have not taken the
+ * marketing frame yet get it on the canvas colour their pages still use.
  */
 export function MarketingHeader(props: MarketingHeaderProps) {
   const pathname = usePathname()

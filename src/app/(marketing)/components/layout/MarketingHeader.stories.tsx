@@ -113,10 +113,14 @@ export const PricingActive: Story = {
   },
 }
 
-/** On `/about`: the About link is current. */
+/**
+ * On `/about`: the About link is current, and the header is white like the
+ * page, which sits in the marketing frame (FE-471).
+ */
 export const AboutActive: Story = {
   parameters: { nextjs: { navigation: { pathname: '/about' } } },
   play: async ({ canvasElement }) => {
+    await expect(headerBackground(canvasElement)).toBe('rgb(255, 255, 255)')
     await waitFor(
       () =>
         expect(

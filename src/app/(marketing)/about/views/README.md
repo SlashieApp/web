@@ -5,8 +5,9 @@ customers and workers, what it costs, why we're building it, and where the
 code lives. Only the closing buttons depend on the reader, so there are two
 views. `getAboutView({ session })` picks one from the session cookie (read on
 the server, so the buttons never flash), and `index.ts` maps names to configs.
-`components/AboutScreen.tsx` renders the page from the copy and the config;
-`AboutScreen.stories.tsx` has a story per view, phone width and zh-HK.
+`components/AboutScreen.tsx` renders the page from the copy and the config, in
+the marketing frame (FE-471: `components/ui/landing/README.md`, About page);
+`AboutScreen.stories.tsx` has a story per view, tablet, phone width and zh-HK.
 
 Copy lives in `../i11n.json` (en + zh-HK); button labels come from
 `common.ctas` in the marketing bag. The page has no data, so there is no

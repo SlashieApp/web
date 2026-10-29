@@ -467,6 +467,45 @@ and the view's analytics. The views (who sees which button) are unchanged:
 - **Motion.** The head and the content of each section are `Reveal`s; reduced
   motion and no JS show them as they are.
 
+## About page
+
+`/about` (`src/app/(marketing)/about/`) takes the same frame, rules and type as the
+landing. `components/AboutScreen.tsx` renders the page inside `MarketingFrame`
+(`bg="bg.surface"`) from the copy and the view; `page.tsx` adds the footer under the
+frame. The views (who sees which closing button) are unchanged: `about/views/README.md`.
+
+- **Frame.** A white page, the rails from `lg`, and a `SectionRule` between each of the
+  five sections (the title, how it works, what it costs, the mission with the open
+  source note, the closing band). The marketing header is white on `/about`
+  (`FRAMED_ROUTES`). Each section is a landmark named by its heading (`aria-labelledby`),
+  in the page column with `SECTION_PY`.
+- **Title.** The h1 "About Slashie" is left-aligned (only the landing hero and the
+  closing band are centred): `display-xl` (56/58) from `md`, `display-lg` (44/48) on a
+  phone, the body in `text-lg` muted with `text-wrap: balance`.
+- **Heads.** Every section head is `SectionHead` (left-aligned, an h2 at 34/41, 44/48 from
+  `lg`, 500). They have no eyebrow: an eyebrow needs a string and this page adds none.
+  The eyebrow style (12/16 caps, 500, +0.08em, `text.subtle`, with a small green 600
+  icon) is on the two step groups' names instead, which are today's strings ("If you
+  need a hand", "If you do the work"; the same user and hard hat icons as the landing's
+  acts). They stay h3s.
+- **Steps** follow the landing's: hairline rows in an `ol` (a 1px `border.default` above
+  each, the last also below). The number is Geist Mono 12 in `text.subtle`, as "01", "02",
+  "03", never green and no disc behind it (it was a filled circle); the step is `text-md`
+  in ink. The two groups sit side by side from `md` (a 32px gap, 64px from `lg`) and stack
+  on a phone.
+- **What it costs** is three hairline-topped columns from `md` (each an h3 at 18/500 over a
+  14px muted line; stacked on a phone, with the last row closing the list). "See pricing"
+  is the `emphasis` link (green 800), set close under the points.
+- **Mission and open source** are two sections side by side from `md`, each a
+  `SectionHead` with its text as the head's body (`text-lg` muted, 60ch). The GitHub and
+  LinkedIn buttons are outline pills.
+- **Closing band** is `FinalCtaBand` unchanged (the landing's close), under a rule. On
+  this page there is no 3D scene behind it. Green is the group icons and its Post a task
+  pill; the marketing header's Get started is green here too, as it is at the foot of the
+  landing.
+- **Motion.** The heads and the content of each section are `Reveal`s (the title is not:
+  it is the first thing on the page); reduced motion and no JS show them as they are.
+
 ## 3D props
 
 The real-time scene (`scene/LandingScene.tsx`, three.js through react-three-fiber)
