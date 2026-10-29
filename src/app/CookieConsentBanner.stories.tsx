@@ -9,6 +9,14 @@ import {
 } from '@/utils/analytics'
 
 import { CookieConsentBanner } from './CookieConsentBanner'
+import { COOKIE_BANNER_HEIGHT_VAR } from './cookieBannerLayout'
+
+/** The height the banner published on `<html>` for fixed controls to clear (empty when it is closed). */
+function publishedHeight(canvasElement: HTMLElement) {
+  return canvasElement.ownerDocument.documentElement.style.getPropertyValue(
+    COOKIE_BANNER_HEIGHT_VAR,
+  )
+}
 
 /**
  * Story-only: a private, in-memory `localStorage` for this page. The real one
@@ -63,14 +71,20 @@ const meta = {
 export default meta
 type Story = StoryObj<typeof meta>
 
-/** First visit, no stored choice: the banner is pinned to the bottom of the screen. */
+/**
+ * First visit, no stored choice: the banner is pinned to the bottom of the
+ * screen and publishes its height (`--cookie-banner-height` on `<html>`), so
+ * fixed controls such as the landing's floating pill sit above it.
+ */
 export const Default: Story = {
   play: async ({ canvasElement }) => {
-    await expect(
-      await within(canvasElement).findByRole('region', {
-        name: 'Cookie consent',
-      }),
-    ).toBeVisible()
+    const banner = await within(canvasElement).findByRole('region', {
+      name: 'Cookie consent',
+    })
+    await expect(banner).toBeVisible()
+    await waitFor(() =>
+      expect(publishedHeight(canvasElement)).toBe(`${banner.offsetHeight}px`),
+    )
   },
 }
 
@@ -106,6 +120,8 @@ export const EssentialOnlyChosen: Story = {
         ).toBeNull(),
       { timeout: 3000 },
     )
+    // Closed: nothing left to clear.
+    await expect(publishedHeight(canvasElement)).toBe('')
   },
 }
 
@@ -116,6 +132,7 @@ export const AlreadyDecided: Story = {
     await expect(
       within(canvasElement).queryByRole('region', { name: 'Cookie consent' }),
     ).toBeNull()
+    await expect(publishedHeight(canvasElement)).toBe('')
   },
 }
 
@@ -128,8 +145,10 @@ export const ReopenedFromFooter: Story = {
       canvas.queryByRole('region', { name: 'Cookie consent' }),
     ).toBeNull()
     openCookieSettings()
-    await expect(
-      await canvas.findByRole('region', { name: 'Cookie consent' }),
-    ).toBeVisible()
+    const banner = await canvas.findByRole('region', { name: 'Cookie consent' })
+    await expect(banner).toBeVisible()
+    await waitFor(() =>
+      expect(publishedHeight(canvasElement)).toBe(`${banner.offsetHeight}px`),
+    )
   },
 }

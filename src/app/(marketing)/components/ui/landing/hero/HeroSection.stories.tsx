@@ -74,6 +74,12 @@ export const Default: Story = {
     await expect(glow && getComputedStyle(glow).backgroundImage).toContain(
       'radial-gradient',
     )
+
+    // The hook the floating "Post a task" pill watches: it shows once this
+    // section has scrolled out of view.
+    await expect(canvasElement.querySelector('[data-landing-hero]')).toBe(
+      canvas.getByRole('region', { name: hero.heading }),
+    )
   },
 }
 

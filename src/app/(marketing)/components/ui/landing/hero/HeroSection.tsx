@@ -55,12 +55,15 @@ type HeroSectionProps = {
  * green Search pill inside, a trust row with green 600 checks, and the
  * "See how it works" text link. A faint radial grey sits behind it at the top
  * of the page. The demo phone sits just below it (pinned layer on desktop,
- * inline on phones) and the 3D objects float around both.
+ * inline on phones) and the 3D objects float around both. `data-landing-hero`
+ * is the hook the floating "Post a task" pill watches: it shows once this
+ * section has scrolled out of view.
  */
 export function HeroSection({ copy, ctas }: HeroSectionProps) {
   return (
     <Box
       as="section"
+      data-landing-hero=""
       position="relative"
       aria-labelledby="landing-hero-heading"
     >

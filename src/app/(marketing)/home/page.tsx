@@ -22,6 +22,7 @@ import { BentoSection } from '../components/ui/landing/bento/BentoSection'
 import { HeroSection } from '../components/ui/landing/hero/HeroSection'
 import { LandingBackdrop } from '../components/ui/landing/scene/LandingBackdrop'
 import { FinalCtaBand } from '../components/ui/landing/sections/FinalCtaBand'
+import { FloatingPostPill } from '../components/ui/landing/sections/FloatingPostPill'
 import {
   type LandingPricing,
   PricingTeaser,
@@ -50,7 +51,9 @@ export async function generateMetadata() {
  * bento, customer act, worker act, trust, pricing, close) on a white page with
  * floating 3D objects, and a demo phone that follows the story. The sections
  * sit in the marketing frame (rails down the content column from `lg`, a
- * full-width rule between sections); the footer is its own band under it. All
+ * full-width rule between sections); the footer is its own band under it. A
+ * floating "Post a task" pill (to the same place as the close's) shows once the
+ * hero is out of view and gives way to the close and the footer. All
  * copy is server-rendered (SEO + no-JS legible); the scene, phone motion and
  * scroll tracking are client layers on top. Root `/` auth-redirects guests
  * here and signed-in users to `/search`.
@@ -149,6 +152,7 @@ export default async function MarketingHomePage() {
         </MarketingFrame>
         <Footer />
       </Box>
+      <FloatingPostPill label={ctas.postTask} href={hrefs.postTask} />
       <StoryTracker />
     </Box>
   )

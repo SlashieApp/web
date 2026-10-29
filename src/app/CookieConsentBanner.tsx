@@ -1,7 +1,7 @@
 'use client'
 
 import { Box, Container, HStack, Stack, Text } from '@chakra-ui/react'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
 import { useI11n } from '@/i18n/useI11n'
 import {
@@ -12,6 +12,7 @@ import {
 } from '@/utils/analytics'
 import { Button, Link } from '@ui'
 
+import { COOKIE_BANNER_HEIGHT_VAR } from './cookieBannerLayout'
 import bag from './i11n.json'
 
 /**
@@ -24,10 +25,30 @@ import bag from './i11n.json'
  * rendering nothing on the server (and first client paint) avoids a
  * hydration mismatch. Both choices share one button style: ICO guidance
  * wants rejecting to be as easy and prominent as accepting.
+ *
+ * While it is open it publishes its height as `--cookie-banner-height` on
+ * `<html>` (see `cookieBannerLayout`), so fixed controls at the bottom of the
+ * screen, such as the landing's floating "Post a task" pill, sit above it.
  */
 export function CookieConsentBanner() {
   const t = useI11n(bag).cookieBanner
   const [visible, setVisible] = useState(false)
+
+  // The banner mounts only while it is open, so the ref callback's setup is
+  // "open" and its cleanup is "closed".
+  const publishHeight = useCallback((node: HTMLElement | null) => {
+    if (!node) return
+    const root = document.documentElement
+    const publish = () =>
+      root.style.setProperty(COOKIE_BANNER_HEIGHT_VAR, `${node.offsetHeight}px`)
+    publish()
+    const observer = new ResizeObserver(publish)
+    observer.observe(node)
+    return () => {
+      observer.disconnect()
+      root.style.removeProperty(COOKIE_BANNER_HEIGHT_VAR)
+    }
+  }, [])
 
   useEffect(() => {
     setVisible(getCookieConsent() === 'unset')
@@ -46,6 +67,7 @@ export function CookieConsentBanner() {
 
   return (
     <Box
+      ref={publishHeight}
       as="section"
       aria-label={t.ariaLabel}
       position="fixed"

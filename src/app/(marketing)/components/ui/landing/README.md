@@ -65,6 +65,7 @@ components/ui/landing/
     BentoSnippets.tsx        the three live snippets: post form, quote rows, accepted row
     useSnippetEntrance.ts    the snippets' once-only entrance (static | waiting | playing)
   sections/                  TrustSection (the trust row) · PricingTeaser (two plan cards and a pill) · FinalCtaBand (the closing call: heading, body, two pills)
+                             FloatingPostPill (the ink "Post a task" pill fixed bottom-centre) · floatingPillWatch.ts (when it shows: pure, unit-tested)
 ```
 
 ## Frame and rhythm
@@ -359,6 +360,53 @@ are today's, and the hrefs arrive localized from the page.
 - **Motion.** The text and the pills are `Reveal`s (a fade with an 8px rise,
   400ms, once; the pills 120ms later); reduced motion and no JS show them as
   they are.
+
+## Floating Post a task pill
+
+The floating pill (`sections/FloatingPostPill.tsx`) is an ink pill fixed to the
+bottom centre of the screen: the page's post label and an arrow, linking to the
+page's post action. `home/page.tsx` renders it last, after the footer, with
+`ctas.postTask` and `hrefs.postTask`. No string is added. The hero has no post
+button of its own (its action is the search), so the pill goes where the closing
+call's Post a task goes: register, then on to `/tasks/create`.
+
+- **When it shows** (`sections/floatingPillWatch.ts`, pure rules plus one
+  IntersectionObserver): once the hero is out of view (scrolled past, above the
+  screen: `heroIsAbove`), and not while the final call to action or the footer is
+  in view. The page's hooks are `data-landing-hero` (on `HeroSection`),
+  `data-final-cta` (on `FinalCtaBand`) and the `footer` element; the watched
+  selectors are props with those as defaults. A hero below the screen does not
+  count, so it never shows before the visitor has seen the hero. A reload part
+  way down the page is right at once, because the observer reports every target
+  when it starts. The pill is hidden from the server render and after hydration
+  the visitor's scroll shows it, so there is no flash.
+- **Where it sits.** `position: fixed`, centred, `16px` above the bottom edge or
+  above whatever is there: `calc(max(env(safe-area-inset-bottom, 0px),
+  var(--cookie-banner-height, 0px)) + 16px)`. The cookie banner publishes its own
+  height as `--cookie-banner-height` on `<html>` while it is open and removes it
+  when it closes (`src/app/cookieBannerLayout.ts`, set by `CookieConsentBanner`
+  with a ref callback and a ResizeObserver), so the pill sits above the banner
+  and never covers it; it also stacks below it (`zIndex` 2 in the page, the banner
+  is `banner`, 1200). The row spans the screen with `pointer-events: none`, so
+  only the pill takes a tap.
+- **The pill.** A `Button` (`asChild`, so one `a`): 44px, fully round, a 500 label
+  and an 18px arrow (decorative, `aria-hidden`), `e3` for floating chrome. Ink is
+  `text.default` with a `bg.surface` label, the pair the app already uses for an
+  ink fill, so it also reads in dark mode. Hover steps the fill to `text.muted`;
+  focus is the usual green 600 ring. Nothing here is green but that ring, so the
+  hero's Search and the close's Post a task stay the page's greens (one green
+  action per screen). No counters, no social proof.
+- **Accessibility.** One link named by its label ("Post a task"). While hidden
+  it is `visibility: hidden` (after the fade-out), so it is out of the tab order
+  and the accessibility tree and a keyboard never lands on something invisible;
+  shown, it is a normal tab stop. It stays shown while it holds focus, so
+  scrolling on never pulls it from under the keyboard. It is the last element of
+  the page in the DOM, outside the sections' landmarks, so a keyboard reaches it
+  after the page's own controls; the closing call offers the same action in the
+  reading flow.
+- **Motion.** In: a fade with a 16px rise, 400ms on the decelerate curve. Out: a
+  200ms fade. Reduced motion (read with `matchMedia`, so a story can set it): it
+  fades without any rise (no `transform` at all). It is not printed.
 
 ## Behaviour by device
 
