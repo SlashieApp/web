@@ -2,6 +2,12 @@ import { QuoteStatus, TaskBookingStatus, TaskStatus } from '@codegen/schema'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { expect, userEvent, waitFor, within } from 'storybook/test'
 
+import {
+  expectPhoneWidth,
+  phone390,
+} from '@/app/(dashboard)/components/ui/dialogSpacing.testing'
+import { gapBeside, heightOf } from '@/ui/FormField/formGap.testing'
+
 import { withTaskDetailStory } from '../../helpers/taskDetailStoryDecorator'
 import {
   STORY_WORKER_ID,
@@ -140,6 +146,76 @@ export const C2CustomerList: Story = {
     ).toHaveLength(3)
     // Accept is the owner's only answer to a quote.
     expect(canvas.queryByRole('button', { name: 'Decline' })).toBeNull()
+  },
+}
+
+/**
+ * The sort is the shared Select with its "Sort:" label beside it (a list
+ * control, not a form field): the label is a real `<label>` for the select, 8
+ * from the shell, level with it, and the shell is the 44px touch target, at
+ * most 220 wide, with the chevron the old raw select did not show.
+ */
+async function expectSortControl(canvasElement: HTMLElement) {
+  const canvas = within(canvasElement)
+  const select = (await canvas.findByLabelText('Sort:')) as HTMLSelectElement
+  const label = canvas.getByText('Sort:', { selector: 'label' })
+  const shell = select.parentElement as HTMLElement
+
+  await expect(select).toHaveValue('recommended')
+  await expect(gapBeside(label, shell)).toBe(8)
+  await expect(heightOf(shell)).toBe(44)
+  await expect(shell.getBoundingClientRect().width).toBeLessThanOrEqual(220)
+  const centre = (el: Element) => {
+    const box = el.getBoundingClientRect()
+    return box.top + box.height / 2
+  }
+  await expect(Math.abs(centre(label) - centre(shell))).toBeLessThan(1)
+  // The chevron is drawn (it is not a native appearance), over the select.
+  await expect(shell.querySelector('svg')).not.toBeNull()
+
+  // The choice still works through the shared select: Price low-high lists
+  // the three quotes cheapest first.
+  await userEvent.selectOptions(select, 'price_low')
+  await expect(select).toHaveValue('price_low')
+  const prices = canvas
+    .getAllByText(/^£\d+/)
+    .map((el) => el.textContent?.trim())
+  await expect(prices).toEqual(['£85', '£95', '£110'])
+}
+
+/** C2 · owner, three quotes: the sort row's label, gap, height and the choice. */
+export const C2CustomerSortControl: Story = {
+  decorators: [
+    withTaskDetailStory(
+      {
+        viewer: 'owner',
+        task: storyTaskDetail({
+          quotes: [competitorA, competitorB, competitorC],
+        }),
+      },
+      QUOTE_LIST,
+    ),
+  ],
+  play: ({ canvasElement }) => expectSortControl(canvasElement),
+}
+
+/** The same sort row at phone width. */
+export const C2CustomerSortControlPhone: Story = {
+  ...phone390,
+  decorators: [
+    withTaskDetailStory(
+      {
+        viewer: 'owner',
+        task: storyTaskDetail({
+          quotes: [competitorA, competitorB, competitorC],
+        }),
+      },
+      QUOTE_LIST,
+    ),
+  ],
+  play: async ({ canvasElement }) => {
+    expectPhoneWidth(canvasElement)
+    await expectSortControl(canvasElement)
   },
 }
 

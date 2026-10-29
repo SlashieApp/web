@@ -37,6 +37,11 @@ export type SelectProps = NativeFieldProps & {
  * Pair with {@link FormField} for labels and errors. Use `rootProps.disabled` /
  * `rootProps.invalid` when not wrapped in a field context. The shell is 48px
  * tall in a `FormField` (a form), 44px on its own.
+ *
+ * The whole shell is the target (FE-481): the native control fills it edge to
+ * edge, and the chevron sits over it with `pointer-events: none`, so a tap on
+ * the chevron, the padding or the strip above and below the text opens the
+ * list. Only a `startElement` (a decorative prefix) is outside the target.
  */
 export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
   function Select(
@@ -69,17 +74,17 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
         invalid={invalid}
       >
         <Box
+          position="relative"
           pointerEvents="auto"
           display="flex"
-          alignItems="center"
+          alignItems="stretch"
           gap={1}
           minH={minH}
           borderRadius="md"
           borderWidth="1px"
           borderColor="border.strong"
           bg="bg.surface"
-          pl={3}
-          pr={2}
+          pl={startElement != null ? 3 : 0}
           {...formControlShellInteraction}
           {...formControlInvalidShellProps(invalid)}
         >
@@ -101,7 +106,8 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
             flex={1}
             minW={0}
             py={2.5}
-            px={1}
+            pl={startElement != null ? 1 : 4}
+            pr={9}
             h="auto"
             minH={0}
             borderWidth={0}
@@ -121,13 +127,16 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
           >
             {children}
           </NativeSelect.Field>
+          {/* Over the control, not beside it, so the click lands on the select. */}
           <Box
-            flexShrink={0}
+            position="absolute"
+            top={0}
+            bottom={0}
+            right={2.5}
             display="flex"
             alignItems="center"
             justifyContent="center"
             color="text.muted"
-            pr={0.5}
             pointerEvents="none"
             aria-hidden
           >

@@ -1,8 +1,8 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useId, useMemo, useState } from 'react'
 
-import { HStack, NativeSelect, Stack, Text } from '@chakra-ui/react'
+import { HStack, Stack, Text, chakra } from '@chakra-ui/react'
 import { QuoteStatus } from '@codegen/schema'
 
 import { publicProfilePath } from '@/app/helpers/publicProfilePath'
@@ -12,7 +12,7 @@ import { useI11n } from '@/i18n/useI11n'
 import { priceToPence } from '@/utils/price'
 import { isAcceptedQuoteStatus } from '@/utils/taskJobSchedule'
 import { formatTimeSlotLabel, isTimeSlotPast } from '@/utils/timeSlots'
-import { Badge, Card } from '@ui'
+import { Badge, Card, Select } from '@ui'
 
 import { useTaskDetail } from '../../context/TaskDetailProvider'
 import { TASK_DETAIL_SECTION_CARD } from '../../helpers/taskDetailLayout'
@@ -245,6 +245,7 @@ export function QuotesModule({ slotsCap = 1 }: QuotesModuleProps) {
   } = useTaskDetail()
   const { requestAccept, dialog: acceptSafetyDialog } = useAcceptQuoteSafety()
   const [sort, setSort] = useState<QuoteSort>('recommended')
+  const sortId = useId()
 
   const quotes = task?.quotes ?? []
   const acceptedCount = quotes.filter((qq) =>
@@ -338,29 +339,30 @@ export function QuotesModule({ slotsCap = 1 }: QuotesModuleProps) {
       ) : null}
       {isOwner && rows.length > 1 ? (
         <HStack gap={2} align="center">
-          <Text
+          <chakra.label
+            htmlFor={sortId}
             fontSize="sm"
             color="text.muted"
             fontWeight={500}
             flexShrink={0}
           >
             {q.sortLabel}
-          </Text>
-          <NativeSelect.Root w="full" maxW="220px" size="sm">
-            <NativeSelect.Field
-              bg="bg.surface"
-              borderWidth="1px"
-              borderColor="border.default"
-              borderRadius="lg"
-              fontSize="sm"
-              value={sort}
-              onChange={(e) => setSort(e.target.value as QuoteSort)}
-            >
-              <option value="recommended">{q.sortRecommended}</option>
-              <option value="price_low">{q.sortPriceLow}</option>
-              <option value="recent">{q.sortNewest}</option>
-            </NativeSelect.Field>
-          </NativeSelect.Root>
+          </chakra.label>
+          {/*
+            The shared Select, so the sort has the same shell, chevron and
+            focus ring as every other drop-down. It is a list control with its
+            label beside it, not a form field: 44 tall, not 48.
+          */}
+          <Select
+            id={sortId}
+            rootProps={{ maxW: '220px' }}
+            value={sort}
+            onChange={(e) => setSort(e.target.value as QuoteSort)}
+          >
+            <option value="recommended">{q.sortRecommended}</option>
+            <option value="price_low">{q.sortPriceLow}</option>
+            <option value="recent">{q.sortNewest}</option>
+          </Select>
         </HStack>
       ) : null}
       <Stack gap={0}>{rows.map(quoteRow)}</Stack>
