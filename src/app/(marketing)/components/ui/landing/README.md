@@ -64,7 +64,7 @@ components/ui/landing/
     BentoSection.tsx         the bento: three hairline-divided cells, each a step and its snippet
     BentoSnippets.tsx        the three live snippets: post form, quote rows, accepted row
     useSnippetEntrance.ts    the snippets' once-only entrance (static | waiting | playing)
-  sections/                  TrustSection (the trust row) · PricingTeaser (two plan cards and a pill) · FinalCtaBand
+  sections/                  TrustSection (the trust row) · PricingTeaser (two plan cards and a pill) · FinalCtaBand (the closing call: heading, body, two pills)
 ```
 
 ## Frame and rhythm
@@ -324,6 +324,41 @@ today's.
 - **The pricing page** is to follow this recipe when it is restyled (the spec:
   "the pricing cards follow the teaser"): the same hairline-and-`e1` card, plum
   only for the paid plan.
+
+## Final call to action
+
+The closing call (`sections/FinalCtaBand.tsx`) is one centred line, one sentence
+and two ways in, under the section rule that `home/page.tsx` puts above it
+(the footer is its own band below). It is the stage `cta`. No string is added:
+the heading, the body and the two labels (`ctas.postTask`, `ctas.becomeWorker`)
+are today's, and the hrefs arrive localized from the page.
+
+- **Head.** The h2 is `display-lg` (44/48 at 500, -0.035em) from `md` and
+  `heading-xl` (34/41) on a phone, the same step down as `SectionHead`, with
+  `text-wrap: balance`; the body is `text-lg` in `text.muted`, also balanced.
+  Both are centred inside a 40rem measure. There is no eyebrow and no icon (an
+  eyebrow needs a string first): this and the hero are the only centred sections.
+  The section is a landmark named by its heading (`aria-labelledby`).
+- **The two pills.** Post a task is the primary Button: green 400 with an ink
+  label, 52px (`size="lg"`, the height of the hero's search pill). Become a
+  worker is the outline pill (`variant="secondary"`: white, a 1px `border.strong`
+  hairline, an ink label, the hairline steps to `border.hover`). The primary
+  keeps the `Magnetic` pull (fine pointers only, off under reduced motion). The
+  pills sit in one centred row and wrap onto their own rows when the width
+  cannot hold both (below about 330px of content, so 320px phones). Post a task
+  is the section's only green; nothing else here is green or heavier than 600.
+- **Transparent.** Unlike the panels above it (map panel, bento, trust, pricing)
+  the section has no background: the scene's `gather` formation is this
+  section's beat, so the objects have to show round the call. The text block
+  never grows past 40rem, so the objects must stay outside that column. Today's
+  `gather` formation does (checked at 390, 834, 1366 and 1920 wide). The frame's
+  rails are drawn over the scene (`zIndex` 1), so an object that sits on a rail
+  is crossed by it.
+- **Rhythm.** `SECTION_PY` on the section (56px on a phone up to 128px on a wide
+  screen), 32px between the text and the pills on a phone and 40px from `md`.
+- **Motion.** The text and the pills are `Reveal`s (a fade with an 8px rise,
+  400ms, once; the pills 120ms later); reduced motion and no JS show them as
+  they are.
 
 ## Behaviour by device
 
