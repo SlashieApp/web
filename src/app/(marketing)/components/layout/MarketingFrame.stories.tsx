@@ -98,8 +98,8 @@ function parts(canvasElement: HTMLElement) {
 
 /**
  * Desktop (xl, 1280px): a 1px `border.default` rail down each side of the page
- * column for the frame's full height, full-width 1px rules between the
- * sections, and 128px of section padding.
+ * column for the frame's full height (and up under the sticky header),
+ * full-width 1px rules between the sections, and 128px of section padding.
  */
 export const Desktop: Story = {
   globals: { viewport: { value: 'desktop', isRotated: false } },
@@ -115,9 +115,12 @@ export const Desktop: Story = {
       await expect(edge[`border${side}Width`]).toBe('1px')
       await expect(edge[`border${side}Color`]).toBe(BORDER_DEFAULT)
     }
-    // Full height, on the page column's outer edges.
+    // Full height, on the page column's outer edges. They start one header
+    // height (64px from md) above the frame, under the sticky header, so at the
+    // top of the landing they run in from the screen's edge.
     const columnBox = column.getBoundingClientRect()
-    await expect(columnBox.height).toBe(frameBox.height)
+    await expect(columnBox.top).toBe(frameBox.top - 64)
+    await expect(columnBox.bottom).toBe(frameBox.bottom)
     await expect(columnBox.width).toBe(Math.min(frameBox.width, PAGE_PX))
     // Each section's content column is the same column the rails bound.
     for (const section of sections) {

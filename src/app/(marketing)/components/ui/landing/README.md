@@ -80,7 +80,11 @@ section builds on it:
 
 - `MarketingFrame` wraps the sections (not the footer): from `lg` it draws a
   1px `border.default` rail down each side of the page column (`sizes.page`,
-  the same measure as `<Container>` and the header) for the full height.
+  the same measure as `<Container>` and the header) for the full height. The
+  rails start one header height above the frame, under the sticky header (like
+  the hero glow), so at the top of the landing, over the transparent header,
+  they run in from the screen's edge instead of starting in mid-air; the solid
+  header covers that stretch and they meet its border.
 - `SectionRule` is a full-width 1px rule between two sections; it runs across
   the rails. `home/page.tsx` puts one between each section it assembles (and
   around the map panel it passes to `LandingStory`).
@@ -91,6 +95,18 @@ section builds on it:
   tablet, 96 on a laptop, 128 on a wide screen.
 - Motion: `Reveal` fades in with an 8px rise over 400ms on the decelerate
   curve, once. Reduced motion (and no JS) shows the content as it is.
+- **One green fill per screen, the header included.** The marketing header's
+  Get started (Open in app on a phone) is the green primary only while no
+  green action of the page's own is in view. It is secondary over the hero (the
+  Search pill is the screen's green) and again at the closing call to action
+  (the green Post a task, on the landing and at the foot of `/about`);
+  `layout/pageGreenWatch.ts` watches `[data-landing-hero]` and
+  `[data-final-cta]` and the header reads it (`quiet`). On a page with neither
+  (`/pricing`, the legal pages) it is the screen's one green button. A new
+  section with a green action of its own either carries one of those hooks or
+  extends `PAGE_GREEN_BLOCKS`. This is a decision, not an accident: if Ryan
+  wants the header's green to stay beside the close, record that exception on
+  FE-471 and drop the `pageGreen` term in `MarketingHeader`.
 
 ## Hero
 
@@ -501,8 +517,8 @@ frame. The views (who sees which closing button) are unchanged: `about/views/REA
   LinkedIn buttons are outline pills.
 - **Closing band** is `FinalCtaBand` unchanged (the landing's close), under a rule. On
   this page there is no 3D scene behind it. Green is the group icons and its Post a task
-  pill; the marketing header's Get started is green here too, as it is at the foot of the
-  landing.
+  pill; the marketing header's Get started is secondary here while the close is on screen
+  (one green fill per screen, as at the foot of the landing) and green higher up the page.
 - **Motion.** The heads and the content of each section are `Reveal`s (the title is not:
   it is the first thing on the page); reduced motion and no JS show them as they are.
 

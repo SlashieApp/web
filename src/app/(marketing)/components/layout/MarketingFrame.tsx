@@ -12,6 +12,7 @@ import type { IconType } from 'react-icons'
 
 import { PAGE_CONTAINER_MAX_W } from '@/theme/pageContainer'
 import { sdlEyebrow } from '@/theme/styles'
+import { HEADER_MIN_HEIGHT } from '@/ui/Header/shell/headerShell'
 
 /**
  * The marketing frame (FE-471, tone train 2): the pieces every marketing
@@ -56,6 +57,12 @@ export type MarketingFrameProps = Omit<BoxProps, 'position'> & {
  * every section's content. Below `lg` the column is the screen and there are
  * no rails.
  *
+ * The rails start under the sticky header (one header height above the frame),
+ * not at its foot, like the landing's hero glow. Over the landing's transparent
+ * header at the top of the page they then run in from the screen's edge instead
+ * of starting in mid-air; once the header is solid it covers them and they meet
+ * its border, as on every other marketing page.
+ *
  * Wrap the sections, not the footer: the footer is its own band. Full-bleed
  * panels and `SectionRule`s run under the rails and cross them.
  */
@@ -70,7 +77,13 @@ export function MarketingFrame({
         aria-hidden
         data-marketing-rails=""
         position="absolute"
-        inset={0}
+        top={{
+          base: `-${HEADER_MIN_HEIGHT.base}`,
+          md: `-${HEADER_MIN_HEIGHT.md}`,
+        }}
+        left={0}
+        right={0}
+        bottom={0}
         zIndex={railsZIndex}
         display={{ base: 'none', lg: 'block' }}
         pointerEvents="none"

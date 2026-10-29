@@ -165,6 +165,26 @@ export const LandingTop: Story = {
   },
 }
 
+/** The green fill of a primary button (green 400), resolved. */
+const GREEN_FILL = 'rgb(0, 220, 130)'
+
+const getStartedBackground = (canvasElement: HTMLElement) =>
+  getComputedStyle(
+    within(canvasElement).getByRole('link', { name: 'Get started' }),
+  ).backgroundColor
+
+/**
+ * Story-only: a block that carries a page's green action, like the landing's
+ * closing call to action (`data-final-cta`), taller than the screen so it is in
+ * view wherever the story scrolls to.
+ */
+const withGreenActionInView: Decorator = (Story) => (
+  <Box bg="bg.surface">
+    <Story />
+    <Box data-final-cta="" h="200vh" />
+  </Box>
+)
+
 /** Landing after scrolling past 24px: the header solidifies to the white page and Get started turns primary. */
 export const LandingScrolled: Story = {
   parameters: { nextjs: { navigation: { pathname: '/home' } } },
@@ -175,6 +195,45 @@ export const LandingScrolled: Story = {
     // The landing is a white page: the solid header ends white, not the canvas.
     await waitFor(
       () => expect(headerBackground(canvasElement)).toBe('rgb(255, 255, 255)'),
+      { timeout: 3000 },
+    )
+    // Nothing on screen has a green action of its own: Get started is it.
+    await waitFor(
+      () => expect(getStartedBackground(canvasElement)).toBe(GREEN_FILL),
+      { timeout: 3000 },
+    )
+  },
+}
+
+/**
+ * Landing scrolled to the closing call to action: the page's own green Post a
+ * task is on screen, so the solid header's Get started stays secondary (one
+ * green fill per screen, marketing included).
+ */
+export const LandingScrolledAtClose: Story = {
+  parameters: { nextjs: { navigation: { pathname: '/home' } } },
+  decorators: [withGreenActionInView],
+  beforeEach: () => () => window.scrollTo(0, 0),
+  play: async ({ canvasElement }) => {
+    window.scrollTo(0, 200)
+    await waitFor(
+      () => expect(headerBackground(canvasElement)).toBe('rgb(255, 255, 255)'),
+      { timeout: 3000 },
+    )
+    await waitFor(
+      () => expect(getStartedBackground(canvasElement)).not.toBe(GREEN_FILL),
+      { timeout: 3000 },
+    )
+    await expect(getStartedBackground(canvasElement)).toBe('rgb(255, 255, 255)')
+  },
+}
+
+/** A page with no green action of its own (the pricing page, the legal pages): Get started is the screen's one green button. */
+export const GetStartedIsTheGreenOnAPageWithNone: Story = {
+  parameters: { nextjs: { navigation: { pathname: '/pricing' } } },
+  play: async ({ canvasElement }) => {
+    await waitFor(
+      () => expect(getStartedBackground(canvasElement)).toBe(GREEN_FILL),
       { timeout: 3000 },
     )
   },

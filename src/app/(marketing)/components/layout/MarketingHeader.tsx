@@ -25,6 +25,7 @@ import { openAppOnAndroid } from '@/utils/nativeApp'
 import { Button, Drawer, IconButton, Link } from '@ui'
 
 import chromeMessages from '../../i11n.chrome.json'
+import { watchPageGreen } from './pageGreenWatch'
 
 const MARKETING_NAV_LINKS = [
   { key: 'pricing', href: '/pricing' },
@@ -88,9 +89,10 @@ const drawerLinkProps = {
 /**
  * Marketing auth actions: Log in + Get started, rendered as single <a>
  * elements via Button asChild (a <button> inside an <a> is invalid HTML and
- * double-focuses). Over the landing hero (`quiet`) Get started is secondary
- * so the hero's search stays the one green primary in the first viewport; it
- * becomes the green primary once the header solidifies.
+ * double-focuses). While the page has a green action of its own in view
+ * (`quiet`: over the landing hero, or beside the closing call to action) Get
+ * started is secondary, so the screen has one green fill; with none in view it
+ * is the green primary once the header solidifies.
  */
 function MarketingAuthButtons({
   quiet,
@@ -147,7 +149,7 @@ function MarketingNavigation({
   isLanding,
   copy,
 }: {
-  /** Over the landing hero: no second green primary next to the hero's. */
+  /** The page's own green action is in view: no second green primary beside it. */
   quiet: boolean
   isLanding: boolean
   copy: MarketingChromeCopy
@@ -383,7 +385,11 @@ const FRAMED_ROUTES: readonly string[] = [
 /**
  * Sticky marketing header. On the landing (`/home`) it starts transparent
  * over the white page and solidifies to white once scrolled. Text colours are
- * the same either way, so this is safe from the first server paint. The other
+ * the same either way, so this is safe from the first server paint. Its Get
+ * started is the green primary only while the page has no green action of its
+ * own in view: over the hero and at the closing call it is secondary (the
+ * screen's one green fill is the page's), and on a page with neither
+ * (/pricing, the legal pages) it is the screen's one green button. The other
  * framed routes (`FRAMED_ROUTES`, such as `/pricing` and `/about`) always get
  * the solid header, in white, as do the legal pages. Marketing routes that
  * have not taken the marketing frame yet get it on the canvas colour their
@@ -397,6 +403,15 @@ export function MarketingHeader(props: MarketingHeaderProps) {
   const isLanding = barePathname === MARKETING_HOME
   const isFramed = FRAMED_ROUTES.includes(barePathname)
   const [scrolled, setScrolled] = useState(false)
+  // The hero's Search or the closing Post a task is on screen: that is the
+  // screen's one green action, so the header's gives way (see `pageGreenWatch`).
+  const [pageGreen, setPageGreen] = useState(false)
+
+  useEffect(() => {
+    // A new page has new blocks to watch.
+    void barePathname
+    return watchPageGreen({ onChange: setPageGreen })
+  }, [barePathname])
 
   useEffect(() => {
     if (!isLanding) return
@@ -438,7 +453,7 @@ export function MarketingHeader(props: MarketingHeaderProps) {
           alignItems="center"
         >
           <MarketingNavigation
-            quiet={transparent}
+            quiet={transparent || pageGreen}
             isLanding={isLanding}
             copy={copy}
           />
