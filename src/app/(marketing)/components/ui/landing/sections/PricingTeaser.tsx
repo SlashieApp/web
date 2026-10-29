@@ -109,8 +109,9 @@ function PlanCard({
  * icon. That icon is the only green here: it is a state/eyebrow icon, never a
  * fill, and the page's one green action is the hero's and the closing call's.
  *
- * Plum (`accent.premium`) is the worker subscription's colour: its label, its
- * hairline and the pill.
+ * Plum (`accent.premium`) is the worker subscription's colour: the paid
+ * plan's label, sparkle and hairline, and nothing else here. The one button is
+ * the outline pill (`secondary`), so the section has no filled accent at all.
  */
 export function PricingTeaser({
   copy,
@@ -188,7 +189,11 @@ export function PricingTeaser({
           </Grid>
 
           <Reveal delayMs={160} gridColumn={{ lg: 1 }} gridRow={{ lg: 2 }}>
-            <Button asChild variant="premium">
+            {/* The outline pill, not a plum fill: plum is the paid plan's
+                (label, sparkle, hairline), and this link goes to the pricing
+                page, not to that plan. A second filled accent would sit beside
+                the page's green on a phone. */}
+            <Button asChild variant="secondary">
               <NextLink href={pricingHref}>{ctaLabel}</NextLink>
             </Button>
           </Reveal>

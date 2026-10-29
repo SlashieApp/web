@@ -21,6 +21,7 @@ const EM_DASH = String.fromCodePoint(0x2014)
 const WHITE = 'rgb(255, 255, 255)'
 const PLUM = 'rgb(105, 56, 239)'
 const BORDER_DEFAULT = 'rgb(228, 228, 231)'
+const BORDER_STRONG = 'rgb(212, 212, 216)'
 const TEXT_MUTED = 'rgb(82, 82, 91)'
 const INK = 'rgb(10, 21, 18)'
 /**
@@ -104,8 +105,9 @@ type Story = StoryObj<typeof meta>
  * Desktop, live pricing with a trial: the head and the pill on the left, the two
  * plan cards on the right. Both cards are the product's card (white, a 1px
  * hairline, `e1`, 12px corners) with the text at the start; the paid plan keeps
- * plum for its label, its hairline and the pill. There is no green in the
- * section and nothing heavier than 600.
+ * plum for its label, its sparkle and its hairline, and nothing else is plum:
+ * the pill is the outline pill, so the section has no filled accent. There is
+ * no green in the section and nothing heavier than 600.
  */
 export const Default: Story = {
   globals: { viewport: { value: 'desktop', isRotated: false } },
@@ -179,17 +181,35 @@ export const Default: Story = {
       await expect(style.fontVariantNumeric).toContain('tabular-nums')
     }
 
-    // The pill: the pricing link, plum with a white label, 44px, fully round.
+    // The pill: the pricing link, the outline pill (white, a 1px strong
+    // hairline, an ink label, not a plum fill), 44px, fully round.
     await expect(cta).toHaveAttribute('href', args.pricingHref)
     await expect(cta).toHaveTextContent(args.ctaLabel)
     const pill = getComputedStyle(cta)
-    await expect(pill.backgroundColor).toBe(PLUM)
-    await expect(pill.color).toBe(WHITE)
+    await expect(pill.backgroundColor).toBe(WHITE)
+    await expect(pill.color).toBe(INK)
+    await expect(pill.borderTopWidth).toBe('1px')
+    await expect(pill.borderTopColor).toBe(BORDER_STRONG)
     await expect(Number(pill.fontWeight)).toBe(500)
     await expect(Number.parseFloat(pill.borderTopLeftRadius)).toBeGreaterThan(
       box(cta).height / 2 - 1,
     )
     await expect(box(cta).height).toBeGreaterThanOrEqual(44)
+
+    // Plum is the paid plan's alone: nothing outside its card is plum (the
+    // pill and the free plan are not).
+    for (const node of [...section.querySelectorAll<HTMLElement>('*')].filter(
+      (element) => !premium.contains(element),
+    )) {
+      const style = getComputedStyle(node)
+      for (const value of [
+        style.color,
+        style.backgroundColor,
+        style.borderTopColor,
+      ]) {
+        await expect(value).not.toBe(PLUM)
+      }
+    }
 
     // Green stops at the door: no green text, fill or line, and nothing over
     // 600. The one exception is the eyebrow's green 600 icon (and the svg

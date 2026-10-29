@@ -423,12 +423,15 @@ eyebrow are today's.
   with tabular figures"). The first build set it at 500 and the pricing page at
   600.
 - **Plum** (`accent.premium`) is the worker subscription's colour and it is
-  kept for the paid plan only: its label with the sparkle, its 1px hairline
-  (instead of `border.default`; it was a 2px line) and the pill (the `premium`
-  Button variant, white label). Nothing else is plum and nothing here is a green
-  fill or text: the page's one green action is the hero's, and the closing call
-  has its own.
-  If the pill should be quieter, `variant="secondary"` is the one prop to change.
+  kept for the paid plan only: its label with the sparkle and its 1px hairline
+  (instead of `border.default`; it was a 2px line). Nothing else is plum and
+  nothing here is a green fill or text: the page's one green action is the
+  hero's, and the closing call has its own. The pill to `/pricing` is the outline
+  pill (`variant="secondary"`: white, a 1px `border.strong` hairline, an ink
+  label), not a plum fill: it goes to the pricing page, not to the paid plan, and
+  a solid second accent beside the page's green (on a phone the pill shares a
+  screen with the floating Post a task) is what the spec leaves out ("any second
+  accent beside green"). The first build and the round 1 build had it plum.
 - **Opaque** (`bg.surface`), like the map panel, the bento and the trust row: the
   3D scene stays behind it, so a prop never crosses a card.
 - **Motion.** The head, each card (staggered 120ms) and the pill are `Reveal`s (a
