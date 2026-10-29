@@ -36,10 +36,13 @@ export function PricingPageView({
   pricing,
   hasSession,
   copy,
+  eyebrow,
 }: {
   pricing: PricingRecord | null
   hasSession: boolean
   copy: PricingCopy
+  /** The plans head's eyebrow: the nav's "Pricing" (`i11n.chrome.json`). */
+  eyebrow: string
 }) {
   return (
     // The page header's bar is opaque and 10 deep: the rails go over it.
@@ -54,7 +57,7 @@ export function PricingPageView({
         <PricingSection
           data-pricing-plans-section=""
           headingId={PRICING_PLANS_HEADING_ID}
-          head={<PricingHeader copy={copy.header} />}
+          head={<PricingHeader copy={copy.header} eyebrow={eyebrow} />}
         >
           <PricingPlans
             pricing={pricing}

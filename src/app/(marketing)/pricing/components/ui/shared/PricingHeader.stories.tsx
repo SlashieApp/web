@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { expect, within } from 'storybook/test'
 
+import chromeMessages from '@/app/(marketing)/i11n.chrome.json'
 import pricingBag from '@/app/(marketing)/pricing/i11n.json'
 
 import { PRICING_PLANS_HEADING_ID, PricingHeader } from './PricingHeader'
@@ -14,6 +15,7 @@ const meta = {
   },
   args: {
     copy: pricingBag.en.header,
+    eyebrow: chromeMessages.en.pricing,
   },
 } satisfies Meta<typeof PricingHeader>
 
@@ -22,8 +24,10 @@ type Story = StoryObj<typeof meta>
 
 /**
  * The plans section's head (an h2: the large "Membership" title is the h1),
- * left-aligned like every section head of the frame: 44/48 at 500 from `lg`,
- * the body in `text-lg` muted, and no eyebrow (it has no string).
+ * left-aligned like every section head of the frame, with the landing teaser's
+ * eyebrow (the nav's "Pricing" and a small green 600 tag icon): 34/41 at 500 at
+ * every width, so it never out-sizes the page's own 34/41 title, and the body in
+ * `text-lg` muted.
  */
 export const Default: Story = {
   globals: { viewport: { value: 'desktop', isRotated: false } },
@@ -39,10 +43,19 @@ export const Default: Story = {
     const style = getComputedStyle(heading)
     await expect(style.textAlign).toBe('start')
     await expect(style.fontWeight).toBe('500')
-    await expect(style.fontSize).toBe('44px')
-    await expect(style.lineHeight).toBe('48px')
-    // Left-aligned: the body starts where the heading does, with no eyebrow above it.
-    await expect(heading.previousElementSibling).toBeNull()
+    await expect(style.fontSize).toBe('34px')
+    await expect(style.lineHeight).toBe('41px')
+    // The eyebrow: the nav's "Pricing", caps, with a green 600 icon before it,
+    // both starting where the heading does.
+    const eyebrow = canvas.getByText(chromeMessages.en.pricing)
+    await expect(getComputedStyle(eyebrow).textTransform).toBe('uppercase')
+    const icon = eyebrow.previousElementSibling as HTMLElement
+    await expect(icon).toHaveAttribute('aria-hidden', 'true')
+    await expect(getComputedStyle(icon).color).toBe('rgb(2, 165, 103)')
+    await expect(icon.getBoundingClientRect().left).toBe(
+      heading.getBoundingClientRect().left,
+    )
+    // Left-aligned: the body starts where the heading does.
     await expect(
       canvas.getByText(pricingBag.en.header.body).getBoundingClientRect().left,
     ).toBe(heading.getBoundingClientRect().left)
@@ -72,7 +85,10 @@ export const Mobile: Story = {
   },
 }
 
-/** Traditional Chinese copy. */
+/** Traditional Chinese copy, with the nav's 收費 as the eyebrow. */
 export const TraditionalChinese: Story = {
-  args: { copy: pricingBag.zh_hk.header },
+  args: {
+    copy: pricingBag.zh_hk.header,
+    eyebrow: chromeMessages.zh_hk.pricing,
+  },
 }

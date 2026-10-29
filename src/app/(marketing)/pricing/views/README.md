@@ -18,8 +18,10 @@ to configs.
 - `components/ui/plan/PricingPlanCards.tsx` only renders the config, plus the
   store purchases note under the cards (`plans.purchasesNote`), the same in
   every view. `PricingCheckoutButton` is the one client island that starts
-  Checkout. The paid plan's button (a link or the checkout button) is the plum
-  `premium` pill; Free's is outline.
+  Checkout. The paid plan's button (a link or the checkout button) is the green
+  `primary` pill and carries `data-page-green-action` (the page's one main
+  action; the marketing header's Get started yields to it while it is on
+  screen); Free's is outline. Plum is that card's label and hairline.
 - Membership comes from the API's flags (`hasUnlimitedQuotes`, `canUpgrade`,
   `canStartTrial`), never the Stripe status, so pricing offers exactly what
   /billing would.

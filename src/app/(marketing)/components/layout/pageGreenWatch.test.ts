@@ -239,6 +239,19 @@ describe('the hooks the header watches', () => {
     // On the one pill, not on the section around it (which holds the outline
     // pill too).
     expect(close.match(/data-page-green-action=""/g)).toHaveLength(1)
+    // The pricing page's paid plan, whether it opens a link or Checkout.
+    const plans = read(
+      'src/app/(marketing)/pricing/components/ui/plan/PricingPlanCards.tsx',
+    )
+    expect(plans).toContain(
+      "data-page-green-action={featured ? '' : undefined}",
+    )
+    expect(plans).toContain("variant={featured ? 'primary' : 'secondary'}")
+    const checkout = read(
+      'src/app/(marketing)/pricing/components/ui/plan/PricingCheckoutButton.tsx',
+    )
+    expect(checkout).toContain('data-page-green-action=""')
+    expect(checkout).toContain('variant="primary"')
   })
 
   it('is what the header reads, so its action is secondary beside them', () => {

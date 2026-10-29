@@ -563,9 +563,13 @@ and the view's analytics. The views (who sees which button) are unchanged:
   as the teaser sets its head and cards (`PRICING_SPLIT`; the cards need about
   300px each, which the right column only has from `xl`). The plans section is
   `SectionHead` (the h2, the body), the two cards and the purchases note; the
-  questions are `SectionHead` ("Questions") and the rows. Neither head has an eyebrow:
-  an eyebrow needs a string and this page adds none; `SectionHead` takes
-  `eyebrow` and `icon` when there is one.
+  questions are `SectionHead` ("Questions") and the rows. The plans head has the
+  teaser's eyebrow: the nav's "Pricing" (`i11n.chrome.json`, "收費" in zh-HK,
+  an existing string that `page.tsx` hands to `PricingPageView`) with a small green
+  600 tag icon. "Questions" has none: no existing string fits it. Both heads are
+  `size="title"` (34/41 at every width), because the page's own title is 34/41 and
+  a section head under it must not out-size it (the 44/48 display head was larger
+  than the h1); the landing and `/about` keep the display size.
 - **Plan cards** are the teaser's card: `sdlCardSurface` (white, a 1px hairline,
   12px corners, `e1`), `p` 20 / 24 / 28, left-aligned, one height. In order, as
   before: the plan's name (an h3, a 14/500 label, muted on Free), its line, the
@@ -573,13 +577,17 @@ and the view's analytics. The views (who sees which button) are unchanged:
   "6 months free"), the "Then" line, a hairline, the features with green 600
   checks and the pill. The icon tiles are gone (the teaser has none). "Your plan"
   is still the `success` tag, because it is a state.
-- **Plum** is the paid plan's: its name with the sparkle, its 1px hairline (it was
-  a 2px green one) and its pill, the `premium` Button (the links and
-  `PricingCheckoutButton`, which is why the `premium` variant keeps its plum while
-  loading). Free's pill is outline. Green is not a button colour on this page:
-  the marketing header's Get started is already the screen's one green button,
-  and a second would break "one per screen". To make the paid pill green, change
-  `variant` in `PlanAction` and `PricingCheckoutButton` to `primary`.
+- **Plum** is the paid plan's: its name with the sparkle and its 1px hairline (it
+  was a 2px green one). Its button is the green primary, not plum: the main action
+  stays Slashie green everywhere, marketing included, one per screen, and plum
+  covers the card's label and hairline only (round 2 review; the first build and
+  round 1 had a plum pill, which left a signed-in worker with no green main
+  action beside a plum Start free trial, since the header's Get started has no
+  session check). Free's pill is outline. The paid plan's action (the links and
+  `PricingCheckoutButton`) carries `data-page-green-action`, so the marketing
+  header's Get started is the outline pill while it is on screen and the green
+  one again when it is not (`layout/pageGreenWatch.ts`; the page streams in
+  behind its loading frame, which the watch follows).
 - **Questions** are hairline rows, not cards: an h3 at 18/500 (`heading-sm`) over
   the answer at 14 in `text.muted`, a hairline above each and under the last, and
   the Terms line under them.
@@ -899,13 +907,14 @@ hex here (`scenePalette.test.ts` fails on any other).
 - **Eyebrows: partly done, the rest needs Ryan.** The spec wants every
   left-aligned section head to carry an eyebrow with a green 600 icon, and also
   allows no new strings beyond the how-it-works index's labels. Heads with an
-  eyebrow today: the two acts (`landing.story.*.eyebrow`) and the pricing teaser
-  (the nav's "Pricing", an existing string). Heads without: the bento (no head
-  of its own, its cells' titles are the h2s), the trust row (no head), the map
-  panel's title chip, `/pricing`'s two heads, `/about`'s four section heads (its
-  two step groups have a group label, placed under the h2) and the legal rows.
-  No existing string fits any of them ("For customers" over the bento would
-  repeat the act's eyebrow right below it). The options for Ryan: (a) keep
+  eyebrow today: the two acts (`landing.story.*.eyebrow`), the pricing teaser and
+  `/pricing`'s plans head (the nav's "Pricing", an existing string both times) and
+  the legal pages (the footer's "Legal", an existing string: see Legal pages).
+  Heads without: the bento (no head of its own, its cells' titles are the h2s),
+  the trust row (no head), the map panel's title chip, `/pricing`'s "Questions",
+  `/about`'s four section heads (its two step groups have a group label, placed
+  under the h2) and the legal rows. No existing string fits any of them ("For
+  customers" over the bento would repeat the act's eyebrow right below it). The options for Ryan: (a) keep
   reusing existing strings where one fits and accept the rest, (b) allow a few
   new eyebrow strings in en and zh-HK, or (c) amend the spec to "eyebrows where
   a string exists". Decide before another round, so the sections are not

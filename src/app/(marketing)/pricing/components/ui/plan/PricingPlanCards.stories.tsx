@@ -52,8 +52,9 @@ function cards(canvasElement: HTMLElement) {
 /**
  * The card recipe of the product and the landing's teaser (FE-471): white, a
  * 1px hairline, 12px corners and `e1`; the paid plan keeps plum for its label
- * (with a sparkle), its hairline and its pill; the price is a 600 figure with
- * tabular figures; the checks are green 600 strokes and nothing is a green fill.
+ * (with a sparkle) and its hairline; the price is a 600 figure with tabular
+ * figures; the checks are green 600 strokes and the only green fill is the paid
+ * plan's button, the page's main action.
  */
 export const CardRecipe: Story = {
   globals: { viewport: { value: 'tablet', isRotated: false } },
@@ -106,15 +107,20 @@ export const CardRecipe: Story = {
       getComputedStyle(free.querySelector('ul') as HTMLElement).borderTopWidth,
     ).toBe('1px')
 
-    // The buttons are pills: outline on Free, plum with a white label on the paid plan.
+    // The buttons are pills: outline on Free, the green primary with an ink
+    // label on the paid plan (the main action stays green; plum is the card's
+    // label, sparkle and hairline), and only that one carries the hook the
+    // marketing header's Get started yields to.
     const freeButton = link(free, 'Get started')
     const paidButton = link(unlimited, 'Start free trial')
     await expect(getComputedStyle(freeButton).backgroundColor).toBe(WHITE)
     await expect(getComputedStyle(freeButton).borderTopColor).toBe(
       BORDER_STRONG,
     )
-    await expect(getComputedStyle(paidButton).backgroundColor).toBe(PLUM)
-    await expect(getComputedStyle(paidButton).color).toBe(WHITE)
+    await expect(freeButton).not.toHaveAttribute('data-page-green-action')
+    await expect(getComputedStyle(paidButton).backgroundColor).toBe(GREEN_400)
+    await expect(getComputedStyle(paidButton).color).toBe(INK)
+    await expect(paidButton).toHaveAttribute('data-page-green-action', '')
     for (const button of [freeButton, paidButton]) {
       const rect = button.getBoundingClientRect()
       await expect(
@@ -127,12 +133,14 @@ export const CardRecipe: Story = {
       paidButton.getBoundingClientRect().bottom,
     )
 
-    // Green does not fill anything and weights stop at 600.
+    // Green fills one thing, the paid plan's button, and weights stop at 600.
+    const greenFills: Element[] = []
     for (const node of [...canvasElement.querySelectorAll<HTMLElement>('*')]) {
       const style = getComputedStyle(node)
-      await expect(style.backgroundColor).not.toBe(GREEN_400)
+      if (style.backgroundColor === GREEN_400) greenFills.push(node)
       await expect(Number(style.fontWeight)).toBeLessThanOrEqual(600)
     }
+    await expect(greenFills).toEqual([paidButton])
 
     // The cards stand side by side at one height.
     const [left, right] = [free, unlimited].map((card) =>
@@ -233,9 +241,11 @@ export const WorkerFree: Story = {
     await expect(canvas.getByText('Your plan')).toBeVisible()
     const trial = canvas.getByRole('button', { name: 'Start free trial' })
     await expect(trial).toBeEnabled()
-    // The checkout button is the paid plan's pill: plum, like its links.
-    await expect(getComputedStyle(trial).backgroundColor).toBe(PLUM)
-    await expect(getComputedStyle(trial).color).toBe(WHITE)
+    // The checkout button is the paid plan's pill and the page's main action:
+    // the green primary like its links, with the header's hook.
+    await expect(getComputedStyle(trial).backgroundColor).toBe(GREEN_400)
+    await expect(getComputedStyle(trial).color).toBe(INK)
+    await expect(trial).toHaveAttribute('data-page-green-action', '')
   },
 }
 

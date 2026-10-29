@@ -2,6 +2,7 @@ import { Box } from '@chakra-ui/react'
 import type { Decorator, Meta, StoryObj } from '@storybook/nextjs-vite'
 import { expect, waitFor, within } from 'storybook/test'
 
+import chromeMessages from '@/app/(marketing)/i11n.chrome.json'
 import pricingBag from '@/app/(marketing)/pricing/i11n.json'
 import { FeedbackDialogProvider } from '@/ui/FeedbackDialog/FeedbackDialogProvider'
 
@@ -58,6 +59,7 @@ const meta = {
     pricing: storyPricing,
     hasSession: false,
     copy,
+    eyebrow: chromeMessages.en.pricing,
   },
   decorators: [withLayout],
   // Signed out unless a story seeds its own session; scroll back up after.
@@ -116,7 +118,8 @@ function everyNode(root: HTMLElement) {
  * plans and the questions; the page header's big title is the one h1; the plans
  * section and the questions are landmarks named by their h2s, the plan titles
  * and the questions are h3s. The head is the left column, the content the right
- * one. Plum for the paid plan, green only in the check icons.
+ * one. Plum for the paid plan's label and hairline; green in the check icons
+ * and in the paid plan's button, the page's one main action.
  */
 export const Desktop: Story = {
   globals: { viewport: { value: 'desktop', isRotated: false } },
@@ -198,6 +201,12 @@ export const Desktop: Story = {
       name: copy.header.heading,
     })
     await expect(head).toHaveStyle({ textAlign: 'start' })
+    // The teaser's eyebrow over the head, and the page title's 34/41 (a section
+    // head under a title must not out-size it, as the 44px display head did).
+    await expect(
+      within(plans).getByText(chromeMessages.en.pricing),
+    ).toBeVisible()
+    await expect(getComputedStyle(head).fontSize).toBe('34px')
     await expect(box(head).right).toBeLessThan(box(free).left)
     await expect(box(free).top).toBe(box(unlimited).top)
     await expect(box(free).height).toBe(box(unlimited).height)
@@ -249,7 +258,8 @@ export const Desktop: Story = {
       await expect(style.color).toBe(INK)
     }
 
-    // The buttons are pills: outline on Free, plum with a white label on the paid plan.
+    // The buttons are pills: outline on Free, the green primary with an ink
+    // label on the paid plan (the main action stays green, one per screen).
     const freeButton = within(free).getByRole('link', { name: 'Get started' })
     const paidButton = within(unlimited).getByRole('link', {
       name: 'Start free trial',
@@ -259,8 +269,9 @@ export const Desktop: Story = {
     await expect(outline.borderTopColor).toBe(BORDER_STRONG)
     await expect(outline.color).toBe(INK)
     const solid = getComputedStyle(paidButton)
-    await expect(solid.backgroundColor).toBe(PLUM)
-    await expect(solid.color).toBe(WHITE)
+    await expect(solid.backgroundColor).toBe(GREEN_400)
+    await expect(solid.color).toBe(INK)
+    await expect(paidButton).toHaveAttribute('data-page-green-action', '')
     for (const button of [freeButton, paidButton]) {
       await expect(Number(getComputedStyle(button).fontWeight)).toBe(500)
       await expect(
@@ -270,14 +281,17 @@ export const Desktop: Story = {
     }
     await expect(box(freeButton).bottom).toBe(box(paidButton).bottom)
 
-    // Green does a job or stays out: no green fill anywhere on the page, no
-    // green text, and the only green strokes are the check icons.
+    // Green does a job or stays out: the one green fill on the page is the paid
+    // plan's button, no green text, and the only green strokes are the check
+    // icons.
+    const greenFills: Element[] = []
     for (const node of everyNode(frame)) {
       const style = getComputedStyle(node)
-      await expect(style.backgroundColor).not.toBe(GREEN_400)
+      if (style.backgroundColor === GREEN_400) greenFills.push(node)
       await expect(style.color).not.toBe(GREEN_400)
       await expect(Number(style.fontWeight)).toBeLessThanOrEqual(600)
     }
+    await expect(greenFills).toEqual([paidButton])
     const checks = [
       ...free.querySelectorAll<HTMLElement>('li > span[aria-hidden="true"]'),
     ]
@@ -348,7 +362,7 @@ export const Tablet: Story = {
   globals: { viewport: { value: 'tablet', isRotated: false } },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
-    const { rails, rules, free, unlimited } = parts(canvasElement)
+    const { rails, rules, plans, free, unlimited } = parts(canvasElement)
     if (!free || !unlimited) throw new Error('The page is incomplete')
     await expect(getComputedStyle(rails).display).toBe('none')
     await expect(rules).toHaveLength(2)
@@ -358,6 +372,19 @@ export const Tablet: Story = {
     })
     await expect(box(free).top).toBeGreaterThanOrEqual(box(head).bottom)
     await expect(box(free).left).toBe(box(head).left)
+    // The head carries the teaser's eyebrow (the nav's "Pricing", a green 600
+    // tag icon), and is not bigger than the page's own title: the h1 is the
+    // page's largest heading.
+    const eyebrow = within(plans).getByText(chromeMessages.en.pricing)
+    await expect(box(eyebrow).left).toBeGreaterThanOrEqual(box(head).left)
+    await expect(box(eyebrow).bottom).toBeLessThanOrEqual(box(head).top)
+    await expect(
+      getComputedStyle(eyebrow.previousElementSibling as HTMLElement).color,
+    ).toBe(GREEN_600)
+    const title = canvas.getByRole('heading', { level: 1 })
+    await expect(
+      Number.parseFloat(getComputedStyle(head).fontSize),
+    ).toBeLessThanOrEqual(Number.parseFloat(getComputedStyle(title).fontSize))
     await expect(box(free).top).toBe(box(unlimited).top)
     await expect(box(free).height).toBe(box(unlimited).height)
     await expect(box(unlimited).left).toBeGreaterThan(box(free).right)
@@ -412,7 +439,7 @@ export const NoTrial: Story = {
   },
 }
 
-/** A free worker: Free is their plan (the success tag), the trial opens Checkout in plum. */
+/** A free worker: Free is their plan (the success tag), the trial opens Checkout in the green primary. */
 export const FreeWorker: Story = {
   args: { hasSession: true },
   globals: { viewport: { value: 'desktop', isRotated: false } },
@@ -433,8 +460,52 @@ export const FreeWorker: Story = {
     await expect(within(free).getByText(copy.plans.yourPlan)).toBeVisible()
     const trial = canvas.getByRole('button', { name: 'Start free trial' })
     await expect(trial).toBeEnabled()
-    await expect(getComputedStyle(trial).backgroundColor).toBe(PLUM)
-    await expect(getComputedStyle(trial).color).toBe(WHITE)
+    await expect(getComputedStyle(trial).backgroundColor).toBe(GREEN_400)
+    await expect(getComputedStyle(trial).color).toBe(INK)
+    await expect(trial).toHaveAttribute('data-page-green-action', '')
+  },
+}
+
+/**
+ * One green fill per screen: while the paid plan's button is on screen the
+ * marketing header's Get started is the outline pill, and once the visitor has
+ * scrolled to the questions (the button is off screen) it is the green one, so
+ * the screen always has a green main action.
+ */
+export const HeaderGetStartedYieldsToThePlansButton: Story = {
+  globals: { viewport: { value: 'desktop', isRotated: false } },
+  decorators: [
+    (Story) => (
+      <>
+        <Story />
+        {/* Room to scroll the plans out of view. */}
+        <Box h="160vh" />
+      </>
+    ),
+  ],
+  play: async ({ canvasElement }) => {
+    const { header, unlimited } = parts(canvasElement)
+    if (!unlimited) throw new Error('The page is incomplete')
+    const getStarted = within(header).getByRole('link', {
+      name: 'Get started',
+    })
+    const paidButton = within(unlimited).getByRole('link', {
+      name: 'Start free trial',
+    })
+    // At the top the plan's button is on screen: the header's action is outline.
+    window.scrollTo(0, 0)
+    await expect(box(paidButton).top).toBeLessThan(window.innerHeight)
+    await waitFor(
+      () => expect(getComputedStyle(getStarted).backgroundColor).toBe(WHITE),
+      { timeout: 4000 },
+    )
+    // Scrolled past it: the header's Get started is the screen's green action.
+    window.scrollTo(0, canvasElement.ownerDocument.documentElement.scrollHeight)
+    await waitFor(
+      () =>
+        expect(getComputedStyle(getStarted).backgroundColor).toBe(GREEN_400),
+      { timeout: 4000 },
+    )
   },
 }
 

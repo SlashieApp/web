@@ -33,9 +33,12 @@ export type PricingPlansCopy = PricingCopy['plans']
 const CARD_P = { base: 5, md: 6, lg: 7 } as const
 
 /**
- * A card's one button, a pill: outline on Free, plum (`premium`) on the paid
- * plan, as the landing's teaser sets them. Green is not used here: the page's
- * one green button is the marketing header's Get started.
+ * A card's one button, a pill: outline on Free, the green primary on the paid
+ * plan. The main action stays Slashie green everywhere, marketing included, one
+ * per screen: the paid plan's is the page's (it carries `data-page-green-action`,
+ * so the header's Get started is secondary while it is on screen and the green
+ * one again when it is not). Plum stays on that card's label, sparkle and
+ * hairline, not on its button.
  */
 function PlanAction({
   action,
@@ -53,7 +56,12 @@ function PlanAction({
     return <PricingCheckoutButton label={labels[action.label]} />
   }
   return (
-    <Button asChild w="full" variant={featured ? 'premium' : 'secondary'}>
+    <Button
+      asChild
+      w="full"
+      variant={featured ? 'primary' : 'secondary'}
+      data-page-green-action={featured ? '' : undefined}
+    >
       <Link href={action.href} _hover={{ textDecoration: 'none' }}>
         {labels[action.label]}
       </Link>
@@ -67,7 +75,8 @@ function PlanAction({
  * label, its line, the price as a figure (600, tabular), a hairline, the
  * features with green 600 checks and a pill. The paid plan swaps the hairline
  * and the label for plum (`accent.premium`, with the sparkle) and its pill is
- * plum; nothing else changes between the two, so they read as a pair.
+ * the green primary (the page's main action); nothing else changes between the
+ * two, so they read as a pair.
  */
 function PlanCard({
   featured = false,

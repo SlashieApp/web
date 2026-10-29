@@ -5,9 +5,11 @@ import { Button } from '@ui'
 
 /**
  * Starts Stripe Checkout for Slashie Unlimited (Billing handles the return).
- * It is the paid plan's button, so it is plum (`premium`) like the paid plan's
- * links: the card follows the landing's teaser, and the page's one green
- * button is the marketing header's Get started.
+ * It is the paid plan's button and so the page's main action: the green
+ * primary, like the paid plan's links, and it carries `data-page-green-action`
+ * so the marketing header's Get started gives way to it while it is on screen
+ * (one green fill per screen). The plan's plum is its label, sparkle and
+ * hairline.
  */
 export function PricingCheckoutButton({ label }: { label: string }) {
   const { startCheckout, checkoutLoading } = useBillingActions()
@@ -15,7 +17,8 @@ export function PricingCheckoutButton({ label }: { label: string }) {
   return (
     <Button
       w="full"
-      variant="premium"
+      variant="primary"
+      data-page-green-action=""
       onClick={() => void startCheckout('pricing')}
       loading={checkoutLoading}
       disabled={checkoutLoading}

@@ -52,6 +52,7 @@ export function PricingFaq({
       headingId={PRICING_FAQ_HEADING_ID}
       head={
         <SectionHead
+          size="title"
           heading={copy.heading}
           headingId={PRICING_FAQ_HEADING_ID}
         />

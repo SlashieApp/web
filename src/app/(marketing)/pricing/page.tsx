@@ -1,3 +1,4 @@
+import chromeMessages from '@/app/(marketing)/i11n.chrome.json'
 import { getHasAuthSession } from '@/app/helpers/getHasAuthSession'
 import { getRequestLocale } from '@/i18n/getRequestLocale'
 import { loadPageI11n, metadataFromI11n } from '@/i18n/loadPageI11n'
@@ -25,6 +26,7 @@ export async function generateMetadata() {
 export default async function PricingPage() {
   const locale = await getRequestLocale()
   const copy = loadPageI11n(messages, locale)
+  const chrome = loadPageI11n(chromeMessages, locale)
   const [{ pricing }, hasSession] = await Promise.all([
     getPricingForPage(),
     getHasAuthSession(),
@@ -32,7 +34,12 @@ export default async function PricingPage() {
 
   return (
     <>
-      <PricingPageView pricing={pricing} hasSession={hasSession} copy={copy} />
+      <PricingPageView
+        pricing={pricing}
+        hasSession={hasSession}
+        copy={copy}
+        eyebrow={chrome.pricing}
+      />
       <Footer />
       <PricingViewCapture />
     </>
