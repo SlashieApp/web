@@ -27,6 +27,15 @@ export function useFormField() {
   return useContext(FormFieldContext)
 }
 
+/**
+ * Min height of a bordered control shell (`Input`, `Select`, the dial prefix).
+ * Inside a {@link FormField} it is the form control height (48); on its own (a
+ * search bar, a composer) it stays the 44px touch target.
+ */
+export function useFormControlMinH(): string {
+  return useFormField() ? 'form.controlHeight' : '44px'
+}
+
 export type FormFieldControlProps = {
   id?: string
   disabled?: boolean

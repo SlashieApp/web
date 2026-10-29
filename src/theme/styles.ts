@@ -180,6 +180,65 @@ export const sdlSpace = {
   24: 96,
 } as const
 
+/**
+ * SDL form spacing (FE-481): one set of gaps for every form. The keys and
+ * values are the same in the Expo app (`src/theme/spacing.ts`); the spec is the
+ * wiki note Foundations-Form-Spacing. Every value sits on the 4px scale above.
+ * Gaps are measured between the visible edges of the elements, so a hit area
+ * larger than its visual (a checkbox row, an inline link) adds no space.
+ *
+ * `chakraSystem` exposes them as Chakra tokens: the gaps as `spacing.form.*`
+ * (`gap="form.fieldGap"`) and the height as `sizes.form.controlHeight`
+ * (`minH="form.controlHeight"`). Components and screens read the token, never
+ * a step or a px for a form gap.
+ */
+export const formSpace = {
+  /** A form title and its subtitle or description. */
+  titleToSubtitle: 8,
+  /** The header block and the first field (or first block). */
+  headerToBody: 24,
+  /** A label and its control (input, select, checkbox group, composite field). */
+  labelToControl: 8,
+  /** One field group and the next, including checkbox rows, Turnstile and form-level notes or errors. */
+  fieldGap: 20,
+  /** A control and its helper, error or inline link ("Forgot password?"). */
+  controlToHelper: 4,
+  /** A helper and an error, when both show (helper first). */
+  helperGap: 4,
+  /** The last field (or its helper) and the main button. */
+  bodyToAction: 20,
+  /** The main button and the "Or continue with" divider. */
+  actionToDivider: 24,
+  /** The divider and the first alternative button. */
+  dividerToAlternatives: 24,
+  /** Stacked alternative or secondary buttons (Google and Apple; Continue and Resend). */
+  alternativesGap: 8,
+  /** One section and the next in a long form (no dividing lines). */
+  sectionGap: 32,
+  /** A section title and its first field. */
+  sectionTitleToField: 12,
+  /** Fields side by side (Min and Max, From and To, First and Last name). */
+  inlineGap: 12,
+  /** Fields, main buttons and the Google and Apple buttons in forms. */
+  controlHeight: 48,
+} as const
+
+export type FormSpaceKey = keyof typeof formSpace
+
+/** Every `formSpace` key that is a gap (all but the control height). */
+export type FormGapKey = Exclude<FormSpaceKey, 'controlHeight'>
+
+/**
+ * Helper copy under a field. Its line height is compact (20px, the label's own)
+ * where Chakra's `tall` would be 22.75px, so the 4px under the control reads as
+ * 4. The error line (12/16) is already compact.
+ */
+export const formHelperTextStyle = {
+  fontSize: 'sm',
+  lineHeight: '20px',
+  color: 'text.muted',
+} as const satisfies SystemStyleObject
+
 /** SDL radii (px). */
 export const sdlRadii = {
   md: 8,

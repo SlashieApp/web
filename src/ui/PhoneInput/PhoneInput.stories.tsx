@@ -8,7 +8,8 @@ import { PhoneInput } from './PhoneInput'
 /**
  * SDL PhoneInput: a UK (+44) phone field. A non-interactive dialling-code
  * prefix sits beside the national-number {@link Input}, which carries the SDL
- * focus ring and the 44px touch target via the shared bordered shell.
+ * focus ring and the touch target (48px in a field, 44px on its own) via the
+ * shared bordered shell.
  *
  * Pass `label` to wrap the field in a `FormField`: a persistent `<label>` plus
  * helper/error text tied to the input via `aria-describedby` (the placeholder is

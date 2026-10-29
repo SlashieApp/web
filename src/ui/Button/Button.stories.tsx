@@ -20,7 +20,7 @@ const meta = {
   parameters: { layout: 'padded' },
   argTypes: {
     variant: { control: 'select', options: SDL_VARIANTS },
-    size: { control: 'inline-radio', options: ['sm', 'md', 'lg'] },
+    size: { control: 'inline-radio', options: ['sm', 'md', 'lg', 'form'] },
     loading: { control: 'boolean' },
     disabled: { control: 'boolean' },
     children: { control: 'text' },
@@ -68,6 +68,18 @@ export const Medium: Story = { args: { size: 'md' } }
 /** Large (`lg`): 52px tall, for the main call to action on a page. */
 export const Large: Story = { args: { size: 'lg' } }
 
+/**
+ * Form (`form`): 48px tall, the height of a field. The main button of a form,
+ * and Google and Apple under it, use it; `lg` stays for marketing CTAs.
+ */
+export const Form: Story = {
+  args: { size: 'form', children: 'Log in' },
+  play: async ({ canvasElement }) => {
+    const button = within(canvasElement).getByRole('button', { name: 'Log in' })
+    await expect(Math.round(button.getBoundingClientRect().height)).toBe(48)
+  },
+}
+
 /** Every variant at the default size. */
 export const AllVariants: Story = {
   render: () => (
@@ -81,13 +93,14 @@ export const AllVariants: Story = {
   ),
 }
 
-/** Sizes sm / md / lg (md and lg meet the 44px touch target). */
+/** Sizes sm / md / lg / form (md, lg and form meet the 44px touch target). */
 export const Sizes: Story = {
   render: () => (
     <HStack gap={3} alignItems="center">
       <Button size="sm">Small</Button>
       <Button size="md">Medium</Button>
       <Button size="lg">Large</Button>
+      <Button size="form">Form</Button>
     </HStack>
   ),
 }
@@ -96,7 +109,7 @@ export const Sizes: Story = {
 export const Shape: Story = {
   render: () => (
     <Stack gap={3}>
-      {(['sm', 'md', 'lg'] as const).map((size) => (
+      {(['sm', 'md', 'lg', 'form'] as const).map((size) => (
         <HStack key={size} gap={3} flexWrap="wrap" alignItems="center">
           {SDL_VARIANTS.map((variant) => (
             <Button key={variant} variant={variant} size={size}>

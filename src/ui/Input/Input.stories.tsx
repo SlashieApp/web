@@ -28,9 +28,11 @@ const lockIcon = (
 /**
  * SDL bordered text field. The native control is borderless inside a bordered
  * shell; the visible focus ring is expressed on the shell via `border.focus`
- * (`formControlShellInteraction._focusWithin`). The shell meets the 44px touch
- * target. Pair with `FormField` for a persistent `<label>`, helper/error text,
- * and `aria-describedby` wiring -- never rely on the placeholder as the label.
+ * (`formControlShellInteraction._focusWithin`). The shell is 48px tall inside a
+ * `FormField` (the form control height) and 44px on its own, so both meet the
+ * touch target. Pair with `FormField` for a persistent `<label>`, helper/error
+ * text, and `aria-describedby` wiring -- never rely on the placeholder as the
+ * label.
  */
 const meta = {
   title: 'UI/Input',

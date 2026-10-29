@@ -59,6 +59,7 @@ export {
   useFeedbackDialog,
   useOpenFeedbackDialog,
 } from './FeedbackDialog'
+export { FormAlternatives } from './FormAlternatives'
 export {
   formControlHelperTextProps,
   formControlInvalidFieldProps,
@@ -68,9 +69,15 @@ export {
   formControlTextareaProps,
   FormField,
   FormFieldStateContext,
+  useFormControlMinH,
   useFormField,
   useFormFieldControlProps,
 } from './FormField'
+export { FormDivider } from './FormDivider'
+export { FormHeader } from './FormHeader'
+export { FormRow } from './FormRow'
+export { FormSection } from './FormSection'
+export { FormStack } from './FormStack'
 export { GetAppButton } from './GetApp/GetAppButton'
 export { GetAppDialog } from './GetApp/GetAppDialog'
 export {
@@ -181,11 +188,17 @@ export type {
   FeedbackTriggerProps,
   FeedbackTriggerVariant,
 } from './FeedbackDialog'
+export type { FormAlternativesProps } from './FormAlternatives'
+export type { FormDividerProps } from './FormDivider'
 export type {
   FormFieldControlProps,
   FormFieldProps,
   FormFieldState,
 } from './FormField'
+export type { FormHeaderProps } from './FormHeader'
+export type { FormRowProps } from './FormRow'
+export type { FormSectionProps } from './FormSection'
+export type { FormStackProps } from './FormStack'
 export type { HeaderProps } from './Header'
 export type { IconButtonProps, NavIconButtonProps } from './IconButton'
 export type { ImageGalleryItem, ImageGalleryProps } from './ImageGallery'

@@ -14,6 +14,7 @@ import {
   getGoogleClientId,
   isGoogleAuthConfigured,
 } from '@/app/(auth)/helpers/googleAuthConfig'
+import { SOCIAL_BUTTON_SCALE } from '@/app/(auth)/helpers/socialButton'
 import { useUserStore } from '@/app/(auth)/store/user'
 import { useI11n } from '@/i18n/useI11n'
 import { APP_HOME } from '@/utils/appRoutes'
@@ -21,6 +22,12 @@ import { showAppToast } from '@/utils/appToast'
 import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
 
 import bag from '../i11n.json'
+
+/**
+ * Google's button is drawn 40px tall and scaled to the form control height (see
+ * `socialButton`). Its width range, in px, is Google's own.
+ */
+const GOOGLE_BUTTON_MIN_W = 200
 
 type GoogleAuthButtonProps = {
   intent?: AuthRedirectIntent | null
@@ -154,6 +161,12 @@ export function GoogleAuthButton({
 
   if (!isGoogleAuthConfigured()) return null
 
+  // Drawn narrower by the scale, so the scaled button fills the container.
+  const drawnWidth = Math.max(
+    GOOGLE_BUTTON_MIN_W,
+    Math.floor(buttonWidth / SOCIAL_BUTTON_SCALE),
+  )
+
   return (
     <GoogleOAuthProvider clientId={clientId}>
       <Box
@@ -161,12 +174,17 @@ export function GoogleAuthButton({
         flex={1}
         minW={0}
         w="full"
-        minH="48px"
+        minH="form.controlHeight"
         opacity={loading ? 0.72 : 1}
         pointerEvents={loading ? 'none' : 'auto'}
       >
         {isClient ? (
-          <Box position="relative">
+          <Box
+            position="relative"
+            w={`${drawnWidth}px`}
+            transform={`scale(${SOCIAL_BUTTON_SCALE})`}
+            transformOrigin="top left"
+          >
             <GoogleLogin
               onSuccess={(response) => void onSuccess(response)}
               onError={onError}
@@ -174,7 +192,7 @@ export function GoogleAuthButton({
               text="continue_with"
               shape="pill"
               size="large"
-              width={`${buttonWidth}`}
+              width={`${drawnWidth}`}
             />
             {blocked ? (
               <Box

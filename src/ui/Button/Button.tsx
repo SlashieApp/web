@@ -36,7 +36,11 @@ export type UiButtonVariant =
   | 'tertiary'
   | 'success'
 
-export type UiButtonSize = 'sm' | 'md' | 'lg' | 'xs' | 'xl'
+/**
+ * `form` is the main button of a form, and Google and Apple under it: the form
+ * control height (48), the same as a field. `lg` (52) stays for marketing CTAs.
+ */
+export type UiButtonSize = 'sm' | 'md' | 'lg' | 'xs' | 'xl' | 'form'
 
 export type UiButtonProps = Omit<ButtonProps, 'variant' | 'size'> & {
   variant?: UiButtonVariant
@@ -59,19 +63,21 @@ const variantAlias: Record<UiButtonVariant, SdlVariant> = {
   premium: 'premium',
 }
 
-/** Heights meet the 44px touch target at md/lg; sm (36) is for dense/desktop rows. */
-const buttonSizes: Record<'sm' | 'md' | 'lg', SystemStyleObject> = {
+/** Heights meet the 44px touch target at md/lg/form; sm (36) is for dense/desktop rows. */
+const buttonSizes: Record<'sm' | 'md' | 'lg' | 'form', SystemStyleObject> = {
   sm: { minH: '36px', px: 3, fontSize: 'sm', gap: 1.5 },
   md: { minH: '44px', px: 4, fontSize: 'md', gap: 2 },
   lg: { minH: '52px', px: 6, fontSize: 'md', gap: 2 },
+  form: { minH: 'form.controlHeight', px: 6, fontSize: 'md', gap: 2 },
 }
 
-const sizeAlias: Record<UiButtonSize, 'sm' | 'md' | 'lg'> = {
+const sizeAlias: Record<UiButtonSize, 'sm' | 'md' | 'lg' | 'form'> = {
   xs: 'sm',
   sm: 'sm',
   md: 'md',
   lg: 'lg',
   xl: 'lg',
+  form: 'form',
 }
 
 const disabledSolid: SystemStyleObject = {

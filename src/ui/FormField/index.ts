@@ -10,6 +10,7 @@ export {
   formControlInvalidFieldProps,
   formControlInvalidShellProps,
   FormFieldStateContext,
+  useFormControlMinH,
   useFormField,
   useFormFieldControlProps,
 } from './formFieldContext'

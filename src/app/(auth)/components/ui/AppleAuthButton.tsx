@@ -22,6 +22,7 @@ import {
   type AuthRedirectIntent,
   resolvePostAuthRedirect,
 } from '@/app/(auth)/helpers/authRedirect'
+import { socialButtonPx } from '@/app/(auth)/helpers/socialButton'
 import { useUserStore } from '@/app/(auth)/store/user'
 import { useLocale } from '@/i18n/LocaleProvider'
 import { useI11n } from '@/i18n/useI11n'
@@ -78,6 +79,8 @@ function loadAppleScript(locale: string): Promise<void> {
  * provides the ID token the API verifies), so Apple follows it. Apple's
  * guidelines allow this white, outlined style. The colours are Google's
  * fixed values, not theme tokens: their widget stays white in dark mode too.
+ * Google's button is scaled to the form control height (48), so Apple is built
+ * at 48 with the same scale on its padding, text and logo.
  */
 export function AppleSignInButton({
   label,
@@ -93,20 +96,20 @@ export function AppleSignInButton({
       type="button"
       w="full"
       maxW="400px"
-      h="40px"
-      px="12px"
+      h="form.controlHeight"
+      px={`${socialButtonPx(12)}px`}
       display="flex"
       alignItems="center"
-      gap="8px"
+      gap={`${socialButtonPx(8)}px`}
       borderRadius="full"
       borderWidth="1px"
       borderColor="#dadce0"
       bg="white"
       color="#3c4043"
       fontFamily='"Google Sans", arial, sans-serif'
-      fontSize="14px"
+      fontSize={`${socialButtonPx(14)}px`}
       fontWeight={500}
-      letterSpacing="0.25px"
+      letterSpacing={`${socialButtonPx(0.25)}px`}
       cursor="pointer"
       transition="background-color 0.218s, border-color 0.218s"
       _hover={{ bg: '#f8faff', borderColor: '#d2e3fc' }}
@@ -115,7 +118,12 @@ export function AppleSignInButton({
       _focusVisible={sdlFocusRing}
       onClick={onClick}
     >
-      <FaApple size={18} color="#000" aria-hidden style={{ flexShrink: 0 }} />
+      <FaApple
+        size={socialButtonPx(18)}
+        color="#000"
+        aria-hidden
+        style={{ flexShrink: 0 }}
+      />
       {/* Centred in the space after the logo, like Google's label. */}
       <chakra.span flex={1} textAlign="center">
         {label}

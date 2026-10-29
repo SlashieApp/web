@@ -11,12 +11,14 @@ import {
 } from '@/utils/phoneCountries'
 
 import { FormField } from '../FormField'
+import { useFormControlMinH } from '../FormField/formFieldContext'
 import { Input } from '../Input'
 
 /**
  * SDL PhoneInput. A UK (+44) phone number field: a non-interactive dialling-code
  * prefix sits beside the national-number {@link Input}, which carries the focus
- * ring and the 44px touch target via the shared bordered shell.
+ * ring and the touch target (48px in a field, 44px on its own) via the shared
+ * bordered shell.
  *
  * Wiring: pass `label` to wrap the field in a `FormField` for a persistent
  * `<label>` and helper/error text tied to the input via `aria-describedby`
@@ -41,13 +43,14 @@ export type PhoneInputProps = {
 
 /** Non-interactive dialling-code prefix; neutral chrome, not a status surface. */
 function DialPrefix({ disabled }: { disabled: boolean }) {
+  const minH = useFormControlMinH()
   return (
     <Box
       flexShrink={0}
       display="flex"
       alignItems="center"
       px={3}
-      minH="44px"
+      minH={minH}
       borderRadius="md"
       borderWidth="1px"
       /* TODO(sdl): verify role — `badgeBg` maps to status.success.soft, but a

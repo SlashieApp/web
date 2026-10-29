@@ -10,11 +10,12 @@ import {
   FieldLabel,
   FieldRoot,
   HStack,
+  Stack,
   Text,
   type TextProps,
 } from '@chakra-ui/react'
 
-import { sdlFocusRing, sdlMotion } from '@/theme/styles'
+import { formHelperTextStyle, sdlFocusRing, sdlMotion } from '@/theme/styles'
 
 import { type FormFieldState, FormFieldStateContext } from './formFieldContext'
 
@@ -43,6 +44,12 @@ export type FormFieldProps = {
   children: ReactNode | ((field: FormFieldState) => ReactNode)
   labelProps?: React.ComponentProps<typeof FieldLabel>
   helperTextProps?: TextProps
+  /**
+   * An inline action in the helper slot, right-aligned beside the helper text
+   * (or alone): "Forgot password?" under a password field. It sits
+   * `controlToHelper` (4) below the control, like the helper.
+   */
+  helperAction?: ReactNode
   /** Applied to the icon slot wrapper (e.g. `color` on dark panels). */
   iconProps?: Omit<BoxProps, 'children'>
   /** Optional leading icon inside the control row (e.g. calendar, currency). */
@@ -61,6 +68,7 @@ export function FormField({
   children,
   labelProps,
   helperTextProps,
+  helperAction,
   iconProps,
   icon,
   onControlClick,
@@ -149,85 +157,112 @@ export function FormField({
 
   return (
     <FormFieldStateContext.Provider value={fieldState}>
+      {/*
+        Form spacing (FE-481): the label sits `labelToControl` above the control,
+        and the messages sit `controlToHelper` below it, `helperGap` apart. The
+        root has no gap of its own, so a one-line field is just label + control.
+      */}
       <FieldRoot
         invalid={invalid}
         disabled={disabled}
         required={required}
-        gap={2}
+        gap={0}
         w="full"
         {...props}
       >
         <FieldLabel
           htmlFor={controlId}
-          fontSize="14px"
-          fontWeight={500}
-          color="text.default"
+          {...formControlLabelProps}
           px={1}
           {...labelProps}
         >
           {label}
         </FieldLabel>
         {control}
-        {helperText ? (
-          <Text
-            id={helperId}
-            fontSize="sm"
-            color="text.muted"
-            lineHeight="tall"
-            px={1}
-            {...helperTextProps}
-          >
-            {helperText}
-          </Text>
-        ) : null}
-        {errorText ? (
-          <FieldErrorText
-            id={errorId}
-            color="status.danger.fg"
-            display="flex"
-            alignItems="center"
-            gap={1.5}
-            px={1}
-          >
-            {/* Status not by color alone: pair an icon + label. */}
-            <Box
-              as="span"
-              aria-hidden
-              flexShrink={0}
-              boxSize="6px"
-              borderRadius="full"
-              bg="status.danger.solid"
-            />
-            {errorText}
-          </FieldErrorText>
+        {helperText || helperAction || errorText ? (
+          <Stack gap="form.helperGap" mt="form.controlToHelper" w="full">
+            {helperText || helperAction ? (
+              <HStack gap={3} align="flex-start" w="full">
+                {helperText ? (
+                  <Text
+                    id={helperId}
+                    {...formControlHelperTextProps}
+                    flex={1}
+                    minW={0}
+                    px={1}
+                    {...helperTextProps}
+                  >
+                    {helperText}
+                  </Text>
+                ) : null}
+                {helperAction ? (
+                  <Box
+                    flexShrink={0}
+                    ml="auto"
+                    px={1}
+                    {...formControlHelperTextProps}
+                  >
+                    {helperAction}
+                  </Box>
+                ) : null}
+              </HStack>
+            ) : null}
+            {errorText ? (
+              <FieldErrorText
+                id={errorId}
+                color="status.danger.fg"
+                display="flex"
+                alignItems="center"
+                gap={1.5}
+                px={1}
+              >
+                {/* Status not by color alone: pair an icon + label. */}
+                <Box
+                  as="span"
+                  aria-hidden
+                  flexShrink={0}
+                  boxSize="6px"
+                  borderRadius="full"
+                  bg="status.danger.solid"
+                />
+                {errorText}
+              </FieldErrorText>
+            ) : null}
+          </Stack>
         ) : null}
       </FieldRoot>
     </FormFieldStateContext.Provider>
   )
 }
 
-/** Shared bordered field shell — Design-System/inputs.md (8px radius, 40px min height). */
+/**
+ * Shared bordered field shell: 8px radius and the form control height (48).
+ * Spread it as `rootProps` on an `Input` that must not shrink below the field
+ * height. An `Input` inside a {@link FormField} already has that height.
+ */
 export const formControlRootProps = {
-  minH: '40px',
+  minH: 'form.controlHeight',
   w: 'full',
   borderRadius: 'md',
   pl: 3,
   pr: 3,
 } satisfies ComponentProps<typeof Box>
 
-/** Default label treatment — 14px medium, heading color, 8px bottom margin. */
+/**
+ * Default label treatment: 14px medium, heading color, `labelToControl` (8)
+ * above the control. {@link FormField} applies it; a hand-rolled label that sits
+ * on a control reads it too, so the gap is one token.
+ */
 export const formControlLabelProps = {
   fontSize: '14px',
   fontWeight: 500,
   color: 'text.default',
-  mb: 2,
+  mb: 'form.labelToControl',
 } as const
 
-/** Helper copy under fields. */
+/** Helper copy under fields: compact line height, so the 4px below the control reads as 4. */
 export const formControlHelperTextProps = {
-  fontSize: 'sm',
-  color: 'text.muted',
-  lineHeight: 'tall',
+  ...formHelperTextStyle,
 } satisfies TextProps
 
 /** Multiline field shell aligned with inputs.md. */

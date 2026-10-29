@@ -9,7 +9,14 @@ import {
 
 import { chakraBreakpoints } from './breakpoints'
 import { PAGE_CONTAINER_MAX_W_CSS, PAGE_GUTTER_X } from './pageContainer'
-import { sdlElevation, sdlFonts, sdlTextAa, sdlTypeScale } from './styles'
+import {
+  type FormGapKey,
+  formSpace,
+  sdlElevation,
+  sdlFonts,
+  sdlTextAa,
+  sdlTypeScale,
+} from './styles'
 
 /**
  * SLASHIE DESIGN LANGUAGE (SDL) — Chakra theme = single source of truth.
@@ -65,6 +72,17 @@ const sdlTextStyles = Object.fromEntries(
     ]
   }),
 )
+
+/**
+ * The form gaps (`formSpace`) as `spacing.form.*` tokens, so a component writes
+ * `gap="form.fieldGap"`. Rem, like the scale they sit on (4px = 0.25rem); the
+ * control height is the one px value (below), as every control height here is.
+ */
+const sdlFormGaps = Object.fromEntries(
+  Object.entries(formSpace)
+    .filter(([key]) => key !== 'controlHeight')
+    .map(([key, px]) => [key, { value: `${px / 16}rem` }]),
+) as Record<FormGapKey, { value: string }>
 
 /**
  * Chakra `Heading` sizes: weight 500 (`medium`), tracking by size. Sizes and
@@ -173,9 +191,15 @@ const sharedTheme = {
         '2xl': { value: '20px' },
         full: { value: '9999px' },
       },
+      spacing: {
+        /** Form gaps (FE-481): `gap="form.fieldGap"`. Generated from `formSpace`. */
+        form: sdlFormGaps,
+      },
       sizes: {
         /** Page column — default `<Container>` max width (worker detail). */
         page: { value: PAGE_CONTAINER_MAX_W_CSS },
+        /** Fields, main buttons and Google / Apple in forms: `minH="form.controlHeight"`. */
+        form: { controlHeight: { value: `${formSpace.controlHeight}px` } },
       },
       shadows: {
         // SDL elevation scale (light). Named aliases + explicit e1..e5.

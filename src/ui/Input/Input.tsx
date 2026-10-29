@@ -14,6 +14,7 @@ import {
 } from '@/theme/system'
 import {
   formControlInvalidShellProps,
+  useFormControlMinH,
   useFormFieldControlProps,
 } from '../FormField/formFieldContext'
 
@@ -31,6 +32,7 @@ export type InputProps = ChakraInputProps & {
 /**
  * Bordered text field with optional start/end slots. The native input is
  * borderless inside the shell; focus ring is expressed via the shell border.
+ * The shell is 48px tall in a `FormField` (a form), 44px on its own.
  */
 export const Input = React.forwardRef<HTMLInputElement, InputProps>(
   function Input(
@@ -52,6 +54,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
       required,
       'aria-describedby': inputProps['aria-describedby'],
     })
+    const minH = useFormControlMinH()
 
     return (
       <Box
@@ -60,7 +63,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
         alignItems="center"
         gap={1}
         w="full"
-        minH="44px"
+        minH={minH}
         borderRadius={pill ? 'full' : 'md'}
         borderWidth="1px"
         borderColor="border.strong"

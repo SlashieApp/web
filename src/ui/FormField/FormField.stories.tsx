@@ -2,13 +2,17 @@ import { Box, Stack, Text } from '@chakra-ui/react'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { useState } from 'react'
 import { LuCalendar } from 'react-icons/lu'
+import { expect, within } from 'storybook/test'
 
+import { FormStack } from '../FormStack/FormStack'
 import { Input } from '../Input/Input'
+import { Link } from '../Link/Link'
 import { OtpInput } from '../OtpInput/OtpInput'
 import { PhoneInput } from '../PhoneInput/PhoneInput'
 import { Select } from '../Select/Select'
 import { Textarea } from '../Textarea/Textarea'
 import { FormField } from './FormField'
+import { gapBelow, heightOf } from './formGap.testing'
 
 /**
  * SDL FormField: the labelled wrapper that supplies a persistent `<label>`,
@@ -16,6 +20,10 @@ import { FormField } from './FormField'
  * control it wraps. The error message never relies on color alone: it pairs a
  * danger dot with the label text. Renders under both light and dark via the
  * global theme toolbar.
+ *
+ * Spacing (the `formSpace` tokens): the label sits 8 above the control, and the
+ * helper and the error sit 4 below it and 4 apart. A field is as tall as its
+ * parts; the 20 between one field and the next is the `FormStack`'s.
  */
 const meta = {
   title: 'UI/FormField',
@@ -279,4 +287,133 @@ export const WithOtp: Story = {
       </FormField>
     )
   },
+}
+
+/** The parts of the field labelled `label`: its root, label, control shell, helper and error. */
+function fieldParts(canvas: ReturnType<typeof within>, label: string) {
+  const labelEl = canvas.getByText(label, { selector: 'label' })
+  const root = labelEl.parentElement as HTMLElement
+  const shell = (canvas.getByLabelText(label) as HTMLElement)
+    .parentElement as HTMLElement
+  return {
+    root,
+    labelEl,
+    shell,
+    helper: root.querySelector('[id$="-helper"]'),
+    error: root.querySelector('[id$="-error"]'),
+  }
+}
+
+/**
+ * Spacing: label 8 above the control, helper 4 below it, error 4 below the
+ * helper (or 4 below the control when there is no helper), an inline action in
+ * the helper slot 4 below the control, and 20 from one field to the next.
+ */
+export const Spacing: Story = {
+  render: () => (
+    <FormStack maxW="420px">
+      <FormField label="Helper only" helperText="A short hint under the field.">
+        <Input placeholder="you@example.com" />
+      </FormField>
+      <FormField label="Error only" errorText="Enter a valid email address">
+        <Input placeholder="you@example.com" />
+      </FormField>
+      <FormField
+        label="Helper and error"
+        helperText="A short hint under the field."
+        errorText="Enter a valid email address"
+      >
+        <Input placeholder="you@example.com" />
+      </FormField>
+      <FormField
+        label="Helper action"
+        helperAction={<Link href="/forgot-password">Forgot password?</Link>}
+      >
+        <Input placeholder="Password" type="password" />
+      </FormField>
+      <FormField label="Label only">
+        <Input placeholder="you@example.com" />
+      </FormField>
+    </FormStack>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const labels = [
+      'Helper only',
+      'Error only',
+      'Helper and error',
+      'Helper action',
+      'Label only',
+    ]
+    const fields = labels.map((label) => fieldParts(canvas, label))
+    const [helperOnly, errorOnly, both, action, labelOnly] = fields
+
+    // Label to control: 8 in every field.
+    for (const field of fields) {
+      await expect(gapBelow(field.labelEl, field.shell)).toBe(8)
+    }
+
+    // Control to helper or error: 4.
+    await expect(gapBelow(helperOnly.shell, helperOnly.helper as Element)).toBe(
+      4,
+    )
+    await expect(gapBelow(errorOnly.shell, errorOnly.error as Element)).toBe(4)
+    await expect(gapBelow(both.shell, both.helper as Element)).toBe(4)
+
+    // Helper to error: 4.
+    await expect(gapBelow(both.helper as Element, both.error as Element)).toBe(
+      4,
+    )
+
+    // An inline action sits in the helper slot, 4 below the control.
+    const link = canvas.getByText('Forgot password?')
+    await expect(gapBelow(action.shell, link.parentElement as Element)).toBe(4)
+
+    // One field to the next: 20, whatever the field holds.
+    for (let i = 0; i < fields.length - 1; i += 1) {
+      await expect(gapBelow(fields[i].root, fields[i + 1].root)).toBe(20)
+    }
+    await expect(heightOf(labelOnly.root)).toBe(20 + 8 + 48)
+  },
+}
+
+/**
+ * Heights: a control inside a field is 48 tall; on its own (a search bar, a
+ * composer) it stays the 44px touch target.
+ */
+export const Heights: Story = {
+  render: () => (
+    <Stack gap={6} maxW="420px">
+      <FormField label="Name">
+        <Input placeholder="Full name" />
+      </FormField>
+      <FormField label="Category">
+        <Select>
+          <option value="">Select a category…</option>
+        </Select>
+      </FormField>
+      <PhoneField />
+      <Input aria-label="Standalone" placeholder="Standalone" />
+    </Stack>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    for (const label of ['Name', 'Category']) {
+      await expect(heightOf(fieldParts(canvas, label).shell)).toBe(48)
+    }
+    const phone = fieldParts(canvas, 'Mobile number').shell
+    await expect(heightOf(phone)).toBe(48)
+    // The dial prefix beside it is the same height.
+    await expect(
+      heightOf(canvas.getByText('+44').parentElement as Element),
+    ).toBe(48)
+    const standalone = (canvas.getByLabelText('Standalone') as HTMLElement)
+      .parentElement as HTMLElement
+    await expect(heightOf(standalone)).toBe(44)
+  },
+}
+
+function PhoneField() {
+  const [phone, setPhone] = useState('')
+  return <PhoneInput label="Mobile number" value={phone} onChange={setPhone} />
 }

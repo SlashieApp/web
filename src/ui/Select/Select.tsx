@@ -11,6 +11,7 @@ import {
 } from '@/theme/system'
 import {
   formControlInvalidShellProps,
+  useFormControlMinH,
   useFormFieldControlProps,
 } from '../FormField/formFieldContext'
 
@@ -34,7 +35,8 @@ export type SelectProps = NativeFieldProps & {
  * `formControl*` tokens and green focus border via the wrapper.
  *
  * Pair with {@link FormField} for labels and errors. Use `rootProps.disabled` /
- * `rootProps.invalid` when not wrapped in a field context.
+ * `rootProps.invalid` when not wrapped in a field context. The shell is 48px
+ * tall in a `FormField` (a form), 44px on its own.
  */
 export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
   function Select(
@@ -56,6 +58,7 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
       required,
       'aria-describedby': fieldProps['aria-describedby'],
     })
+    const minH = useFormControlMinH()
 
     return (
       <NativeSelect.Root
@@ -70,7 +73,7 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
           display="flex"
           alignItems="center"
           gap={1}
-          minH="44px"
+          minH={minH}
           borderRadius="md"
           borderWidth="1px"
           borderColor="border.strong"
