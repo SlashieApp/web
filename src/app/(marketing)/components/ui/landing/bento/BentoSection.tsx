@@ -23,10 +23,11 @@ export const bentoTitleId = (key: BentoKey) => `bento-${key}-title`
 
 /**
  * A cell's vertical padding. Cells touch the section rules, so this is the
- * section's own rhythm (the frame's `SECTION_PY`): 56px on a phone up to 128px
- * on a wide screen, a step tighter where the cells stack.
+ * section's own rhythm (the frame's `SECTION_PY`): 56px on a phone and a
+ * tablet (a step tighter than the frame's 80 where the cells stack), 96px from
+ * `lg` and 128px on a wide screen.
  */
-export const BENTO_CELL_PY = { base: 12, md: 14, lg: 24, xl: 32 } as const
+export const BENTO_CELL_PY = { base: 14, md: 14, lg: 24, xl: 32 } as const
 
 function snippetFor(key: BentoKey, phone: PhoneCopy): ReactNode {
   const labelledBy = bentoTitleId(key)

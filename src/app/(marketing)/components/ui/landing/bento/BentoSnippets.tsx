@@ -324,7 +324,14 @@ function QuoteCard({
             </Box>
           </QuoteToggle>
           <HStack gap={1}>
-            <Rating value={quote.rating} size="sm" />
+            <Rating
+              value={quote.rating}
+              size="sm"
+              // The score alone, as the phone demo reads it ("4.9 (32)"): the
+              // component's default name is the English "Rating: 4.9", which
+              // would be read out on the zh-HK page, and there is no string.
+              aria-label={quote.rating}
+            />
             <Text textStyle="text-xs" color="text.muted">
               {formatMessage(copy.reviews, { count: quote.reviews })}
             </Text>
@@ -437,7 +444,11 @@ export function AcceptedSnippet({
                 {quote.name}
               </Text>
               <HStack gap={1}>
-                <Rating value={quote.rating} size="sm" />
+                <Rating
+                  value={quote.rating}
+                  size="sm"
+                  aria-label={quote.rating}
+                />
                 <Text textStyle="text-xs" color="text.muted">
                   {formatMessage(phone.quotes.reviews, {
                     count: quote.reviews,

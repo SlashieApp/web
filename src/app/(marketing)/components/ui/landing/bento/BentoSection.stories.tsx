@@ -389,6 +389,9 @@ export const Mobile: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
     const cells = KEYS.map((key) => cell(canvasElement, key))
+    // 56px above and below the content: the phone's section rhythm.
+    await expect(getComputedStyle(cells[0]).paddingTop).toBe('56px')
+    await expect(getComputedStyle(cells[2]).paddingBottom).toBe('56px')
     const boxes = cells.map((node) => node.getBoundingClientRect())
     await expect(boxes[1].top).toBeGreaterThanOrEqual(boxes[0].bottom - 1)
     await expect(boxes[2].top).toBeGreaterThanOrEqual(boxes[1].bottom - 1)
@@ -562,5 +565,18 @@ export const TraditionalChinese: Story = {
         zh.phone.hire.acceptedTitle,
       ),
     ).toBeInTheDocument()
+
+    // No English accessible name on the Chinese page: the ratings are named by
+    // their score alone, not "Rating: 4.9".
+    const ratings = [...canvasElement.querySelectorAll('[role="img"]')]
+    await expect(ratings.length).toBeGreaterThan(0)
+    for (const rating of ratings) {
+      await expect(rating.getAttribute('aria-label')).not.toMatch(/Rating/)
+    }
+    // The first quote's score names its rating, in the quotes and the accepted row.
+    await expect(
+      canvas.getAllByRole('img', { name: zh.phone.quotes.items[0].rating })
+        .length,
+    ).toBeGreaterThanOrEqual(1)
   },
 }

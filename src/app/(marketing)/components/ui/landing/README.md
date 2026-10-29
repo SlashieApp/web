@@ -213,7 +213,7 @@ so a prop never crosses a title or a row.
   where subgrid is missing they simply start at the top of each cell. Below
   `lg` the cells stack with a hairline between them; from `md` each sets its
   text beside its snippet. A cell's vertical padding is the section rhythm
-  (`BENTO_CELL_PY`: 48px on a phone, 56 on a tablet, 96 from `lg`, 128 from
+  (`BENTO_CELL_PY`: 56px on a phone and a tablet, 96 from `lg`, 128 from
   `xl`; the first and last cell are the section's padding).
 - **No head of its own.** Only the how-it-works index's labels are new strings,
   so the section has no heading: each cell's title is an `h2`, and the section
@@ -232,7 +232,10 @@ so a prop never crosses a title or a row.
   - *Compare quotes:* three quote rows (avatar, name, rating, price, message).
     The name is a `button` with `aria-expanded` (named by `phone.quotes.expand`)
     and a pseudo-element stretches it over the card; opening one closes the
-    others, the first starts open.
+    others, the first starts open. The rating is the `Rating` component with
+    its accessible name set to the score alone ("4.9", as the phone demo reads
+    "4.9 (32)"): its default name is the English "Rating: 4.9", which the zh-HK
+    page would read out, and there is no string for a label.
   - *Hire and pay directly:* the chosen quote with its booking, then the
     accepted row. The check scales in on `sdlMotion.easing.emphasis`, the
     easing the SDL keeps for confirmations.
