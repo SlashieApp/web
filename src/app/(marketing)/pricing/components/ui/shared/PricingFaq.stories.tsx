@@ -70,10 +70,11 @@ export const Default: Story = {
     await expect(
       canvas.getByText(/continues at £19\.99 \/ month unless/),
     ).toBeVisible()
-    await expect(canvas.getByRole('link', { name: 'Terms' })).toHaveAttribute(
-      'href',
-      '/terms',
-    )
+    const terms = canvas.getByRole('link', { name: 'Terms' })
+    await expect(terms).toHaveAttribute('href', '/terms')
+    // A link inside a sentence is underlined at rest: its green 800 is 1.1:1
+    // against the muted text, so colour alone would not tell it apart (WCAG 1.4.1).
+    await expect(getComputedStyle(terms).textDecorationLine).toBe('underline')
   },
 }
 

@@ -590,7 +590,10 @@ and the view's analytics. The views (who sees which button) are unchanged:
   behind its loading frame, which the watch follows).
 - **Questions** are hairline rows, not cards: an h3 at 18/500 (`heading-sm`) over
   the answer at 14 in `text.muted`, a hairline above each and under the last, and
-  the Terms line under them.
+  the Terms line under them. The Terms link is underlined at rest (green 800 is
+  1.1:1 against the muted line, which axe reports as a Level A failure, WCAG
+  1.4.1, once the page has plans to show: found on the production build run with
+  a stubbed pricing query).
 - **Headings.** One h1 (the title), h2 for the plans head and "Questions", h3
   for the plan names, the questions and the "Pricing isn't loading" card (the plan
   names were h2 before the plans section had a head of its own).

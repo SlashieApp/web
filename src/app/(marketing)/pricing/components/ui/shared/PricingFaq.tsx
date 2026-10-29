@@ -83,7 +83,14 @@ export function PricingFaq({
         </List.Root>
         <Text textStyle="text-sm" color="text.muted">
           {copy.terms.before}
-          <Link href="/terms" tone="emphasis">
+          {/* Underlined at rest: green 800 is 1.1:1 against the muted text, so
+              colour alone would not tell the link from the sentence (WCAG 1.4.1). */}
+          <Link
+            href="/terms"
+            tone="emphasis"
+            textDecoration="underline"
+            textUnderlineOffset="3px"
+          >
             {copy.terms.link}
           </Link>
           {copy.terms.after}
