@@ -14,8 +14,17 @@ import {
 } from '@/content/admin/adminNotificationDraft'
 import { formatMessage } from '@/i18n/loadPageI11n'
 import { useI11n } from '@/i18n/useI11n'
+import { hitAreaGrowth } from '@/theme/styles'
 import { AdminCohortKey } from '@codegen/schema'
-import { Button, Card, FormField, Input, Textarea } from '@ui'
+import {
+  Button,
+  Card,
+  FormField,
+  FormStack,
+  Input,
+  Textarea,
+  formControlLabelProps,
+} from '@ui'
 
 import bag from '../../i11n.json'
 
@@ -26,6 +35,9 @@ const COHORTS: {
   { key: AdminCohortKey.FoundingWorkers, labelKey: 'cohortFounding' },
   { key: AdminCohortKey.GeoWatfordBushey, labelKey: 'cohortGeo' },
 ]
+
+/** A cohort row is one line of its label: 20 tall, like the checkbox. */
+const COHORT_LINE_HEIGHT = 20
 
 export type AdminNotificationComposerProps = {
   onDryRun: (draft: AdminNotificationDraft) => Promise<void>
@@ -93,8 +105,11 @@ export function AdminNotificationComposer({
       }}
       gap={5}
     >
-      <Card layout="section" heading={t.title}>
-        <Stack gap={4}>
+      {/* Form spacing (FE-481): the heading is `headerToBody` (24) above the
+          first field, the fields, the status lines and the buttons are a
+          `FormStack` (20 apart, the buttons 20 under the last line). */}
+      <Card layout="section" heading={t.title} bodyGap="form.headerToBody">
+        <FormStack>
           <FormField
             label={t.titleLabel}
             errorText={form.formState.errors.title?.message}
@@ -121,15 +136,15 @@ export function AdminNotificationComposer({
           >
             <Textarea rows={3} {...form.register('userIdsText')} />
           </FormField>
-          <Stack gap={2}>
-            <Text fontSize="sm" fontWeight={500} color="text.default">
+          <Stack gap={0}>
+            <Text {...formControlLabelProps} px={1}>
               {t.cohortsLabel}
             </Text>
             <Controller
               name="cohortKeys"
               control={form.control}
               render={({ field }) => (
-                <Stack gap={1}>
+                <Stack gap="form.alternativesGap">
                   {COHORTS.map((cohort) => {
                     const checked = field.value.includes(cohort.key)
                     return (
@@ -145,7 +160,11 @@ export function AdminNotificationComposer({
                         colorPalette="green"
                       >
                         <Checkbox.HiddenInput />
-                        <HStack gap={3} minH="44px" align="center">
+                        <HStack
+                          gap={3}
+                          align="flex-start"
+                          {...hitAreaGrowth(COHORT_LINE_HEIGHT)}
+                        >
                           <Checkbox.Control
                             borderRadius="md"
                             borderWidth="0"
@@ -159,7 +178,10 @@ export function AdminNotificationComposer({
                           >
                             <Checkbox.Indicator color="inherit" />
                           </Checkbox.Control>
-                          <Checkbox.Label cursor="pointer">
+                          <Checkbox.Label
+                            cursor="pointer"
+                            lineHeight={`${COHORT_LINE_HEIGHT}px`}
+                          >
                             {t[cohort.labelKey]}
                           </Checkbox.Label>
                         </HStack>
@@ -170,7 +192,12 @@ export function AdminNotificationComposer({
               )}
             />
             {form.formState.errors.cohortKeys?.message ? (
-              <Text fontSize="sm" color="status.danger.solid" role="alert">
+              <Text
+                mt="form.controlToHelper"
+                fontSize="sm"
+                color="status.danger.solid"
+                role="alert"
+              >
                 {form.formState.errors.cohortKeys.message}
               </Text>
             ) : null}
@@ -192,10 +219,11 @@ export function AdminNotificationComposer({
               {formatMessage(t.audit, { id: auditId })}
             </Text>
           ) : null}
-          <HStack gap={2} flexWrap="wrap">
+          <HStack gap="form.alternativesGap" flexWrap="wrap">
             <Button
               type="button"
               variant="secondary"
+              size="form"
               onClick={() => void submitDryRun()}
               loading={dryRunning}
               disabled={sending}
@@ -205,6 +233,7 @@ export function AdminNotificationComposer({
             <Button
               type="button"
               variant="primary"
+              size="form"
               onClick={() => void submitSend()}
               loading={sending}
               disabled={!canSend}
@@ -212,7 +241,7 @@ export function AdminNotificationComposer({
               {sending ? t.sending : t.send}
             </Button>
           </HStack>
-        </Stack>
+        </FormStack>
       </Card>
       <Card layout="section" heading={t.preview}>
         <Stack gap={2}>

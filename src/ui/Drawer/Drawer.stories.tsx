@@ -7,8 +7,9 @@ import { expect, fn, userEvent, waitFor, within } from 'storybook/test'
 import { formSpace } from '@/theme/styles'
 
 import { Button } from '../Button'
-import { gapBelow } from '../FormField/formGap.testing'
+import { gapBelow, gapBeside } from '../FormField/formGap.testing'
 import { Drawer, type DrawerPlacement, type DrawerSize } from './Drawer'
+import { DrawerBar } from './DrawerBar'
 import { expectBar, expectNoLines } from './drawerSpacing.testing'
 
 /**
@@ -465,6 +466,76 @@ export const OpenScrollingBody: Story = {
     )
     const footer = dialog.querySelector('.chakra-drawer__footer') as HTMLElement
     await expect(getComputedStyle(footer).borderTopWidth).toBe('0px')
+  },
+}
+
+/**
+ * Open, the body ends in a bar of its own (`endsInBar` and `DrawerBar`: a form's
+ * Cancel and Save). The body adds no padding under the bar, so the bar is
+ * pinned 16 above the bottom edge and the buttons do not move between the top
+ * of the scroll and the end; scrolled to the end, the last row is 20 above them.
+ * No line is drawn above the bar.
+ */
+export const OpenEndsInBar: Story = {
+  tags: ['!autodocs'],
+  args: { ...controlled, placement: 'end', endsInBar: true },
+  render: (args) => (
+    <DrawerDemo {...args} primaryActionLabel={undefined} initialOpen>
+      <Stack gap="form.fieldGap">
+        {Array.from({ length: 24 }, (_, i) => `row-${i + 1}`).map(
+          (rowKey, i) => (
+            <Text key={rowKey} fontSize="sm" color="text.default">
+              Row {i + 1}: scrollable drawer body content.
+            </Text>
+          ),
+        )}
+        <DrawerBar>
+          <Button variant="ghost" size="form">
+            Cancel
+          </Button>
+          <Button size="form">Save</Button>
+        </DrawerBar>
+      </Stack>
+    </DrawerDemo>
+  ),
+  play: async ({ canvasElement }) => {
+    const dialog = await findOpenDialog(canvasElement, 'Filters')
+    const body = dialog.querySelector('.chakra-drawer__body') as HTMLElement
+    const cancel = within(dialog).getByRole('button', { name: 'Cancel' })
+    const save = within(dialog).getByRole('button', { name: 'Save' })
+    await expect(getComputedStyle(body).paddingBottom).toBe('0px')
+    await expect(body.scrollHeight).toBeGreaterThan(body.clientHeight)
+    // Pinned: 16 above the bottom edge of the panel, whatever the scroll.
+    const bottomGap = () =>
+      dialog.getBoundingClientRect().bottom -
+      save.getBoundingClientRect().bottom
+    await expect(Math.abs(bottomGap() - 16)).toBeLessThanOrEqual(0.5)
+    const pinned = save.getBoundingClientRect().top
+    body.scrollTop = body.scrollHeight
+    await waitFor(() =>
+      expect(body.scrollTop + body.clientHeight).toBeGreaterThanOrEqual(
+        body.scrollHeight - 1,
+      ),
+    )
+    // A scroll position is a whole number and the layout is not: up to half a pixel.
+    await expect(
+      Math.abs(save.getBoundingClientRect().top - pinned),
+    ).toBeLessThanOrEqual(0.5)
+    await expect(Math.abs(bottomGap() - 16)).toBeLessThanOrEqual(0.5)
+    const rows = within(body).getAllByText(/^Row \d+:/)
+    const last = rows[rows.length - 1] as Element
+    for (const button of [cancel, save]) {
+      await expect(
+        Math.abs(gapBelow(last, button) - formSpace.bodyToAction),
+      ).toBeLessThanOrEqual(0.5)
+      await expect(button.getBoundingClientRect().height).toBe(
+        formSpace.controlHeight,
+      )
+    }
+    await expect(
+      Math.abs(gapBeside(cancel, save) - formSpace.inlineGap),
+    ).toBeLessThanOrEqual(0.5)
+    await expectNoLines(dialog)
   },
 }
 

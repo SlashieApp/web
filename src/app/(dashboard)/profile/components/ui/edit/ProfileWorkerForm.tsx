@@ -1,7 +1,7 @@
 'use client'
 
 import { useApolloClient } from '@apollo/client/react'
-import { HStack, Stack, Text } from '@chakra-ui/react'
+import { Text } from '@chakra-ui/react'
 import { WorkerPublishState } from '@codegen/schema'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMemo, useState } from 'react'
@@ -22,7 +22,7 @@ import setupBag from '@/app/(stepflow)/worker/setup/i11n.json'
 import { useI11n } from '@/i18n/useI11n'
 import { EVENTS, trackFlowFailed, trackFlowSucceeded } from '@/utils/analytics'
 import { showAppToast } from '@/utils/appToast'
-import { Button, FormField, Input } from '@ui'
+import { Button, DrawerBar, FormField, FormRow, FormStack, Input } from '@ui'
 
 import {
   WorkerProfileSaveError,
@@ -127,7 +127,7 @@ export function ProfileWorkerForm({
       }}
       noValidate
     >
-      <Stack gap={6}>
+      <FormStack>
         {submitError ? (
           <Text color="status.danger.fg" fontSize="sm" role="alert">
             {submitError}
@@ -142,7 +142,6 @@ export function ProfileWorkerForm({
           <Input
             {...register('legalName')}
             placeholder={t.legalNamePlaceholder}
-            minH="44px"
           />
         </FormField>
 
@@ -155,7 +154,6 @@ export function ProfileWorkerForm({
             {...register('tagline')}
             placeholder={t.headlinePlaceholder}
             maxLength={HEADLINE_MAX_CHARS}
-            minH="44px"
           />
         </FormField>
 
@@ -192,35 +190,34 @@ export function ProfileWorkerForm({
           errorText={errors.skills?.message}
         />
 
-        <HStack gap={4} flexWrap="wrap" align="flex-start">
+        {/* Years and radius: stacked on a phone (a field gap apart), side by
+            side from md (an inline gap apart). */}
+        <FormRow
+          gridAutoFlow={{ base: 'row', md: 'column' }}
+          gap={{ base: 'form.fieldGap', md: 'form.inlineGap' }}
+        >
           <FormField
             label={t.years}
             errorText={errors.yearsExperience?.message}
-            flex="1"
-            minW={{ base: 'full', md: '200px' }}
           >
             <Input
               {...register('yearsExperience')}
               inputMode="numeric"
               placeholder="3"
-              minH="44px"
             />
           </FormField>
           <FormField
             label={t.radius}
             helperText={t.optional}
             errorText={errors.travelRadiusMiles?.message}
-            flex="1"
-            minW={{ base: 'full', md: '200px' }}
           >
             <Input
               {...register('travelRadiusMiles')}
               inputMode="decimal"
               placeholder="10"
-              minH="44px"
             />
           </FormField>
-        </HStack>
+        </FormRow>
 
         <WorkerSetupQualificationsInput
           value={watch('qualifications')}
@@ -245,7 +242,6 @@ export function ProfileWorkerForm({
               setValue('locationLng', null, { shouldDirty: true })
             }}
             placeholder={t.areaPlaceholder}
-            minH="44px"
           />
         </FormField>
 
@@ -260,17 +256,11 @@ export function ProfileWorkerForm({
           }
         />
 
-        <HStack
-          gap={3}
-          justify="flex-end"
-          position="sticky"
-          bottom={0}
-          bg="bg.surface"
-          py={3}
-        >
+        <DrawerBar>
           <Button
             type="button"
             variant="ghost"
+            size="form"
             onClick={() => {
               reset(formValues)
               onCancel?.()
@@ -282,13 +272,14 @@ export function ProfileWorkerForm({
           <Button
             type="submit"
             variant="primary"
+            size="form"
             loading={saving || isSubmitting}
             disabled={!isDirty}
           >
             {editor.save}
           </Button>
-        </HStack>
-      </Stack>
+        </DrawerBar>
+      </FormStack>
     </form>
   )
 }

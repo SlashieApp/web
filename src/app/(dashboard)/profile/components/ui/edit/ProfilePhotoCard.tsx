@@ -105,15 +105,26 @@ export function ProfilePhotoCard({ onSaved }: { onSaved?: () => void } = {}) {
   }
 
   return (
-    <Card layout="section" id="profile-photo" p={{ base: 5, md: 6 }}>
-      <Stack gap={4}>
-        <Stack gap={1}>
-          <Heading size="md">{t.heading}</Heading>
-          <Text fontSize="sm" color="text.muted">
-            {t.body}
-          </Text>
-        </Stack>
+    // Form spacing (FE-481): the card is a title, its sentence and one field.
+    // The sentence is `titleToSubtitle` (8) under the title and the field
+    // `headerToBody` (24) under that (the card's `bodyGap`); the photo, the
+    // button and the hint are the field's control, so the hint and a refused
+    // file's reason sit `controlToHelper` (4) under it. The button is the
+    // editor's main button: `controlHeight` (48).
+    <Card
+      layout="section"
+      id="profile-photo"
+      p={{ base: 5, md: 6 }}
+      bodyGap="form.headerToBody"
+    >
+      <Stack gap="form.titleToSubtitle">
+        <Heading size="md">{t.heading}</Heading>
+        <Text fontSize="sm" color="text.muted">
+          {t.body}
+        </Text>
+      </Stack>
 
+      <Stack gap="form.controlToHelper">
         <HStack gap={4} align="center" flexWrap="wrap">
           {tile ? (
             <PhotoTile state={tile} alt={t.heading} size="96px" round />
@@ -126,7 +137,7 @@ export function ProfilePhotoCard({ onSaved }: { onSaved?: () => void } = {}) {
             />
           )}
 
-          <Stack gap={2}>
+          <Stack gap="form.controlToHelper">
             {/* The front camera, for a selfie. */}
             <PhotoSourcePicker
               camera="user"
@@ -136,8 +147,7 @@ export function ProfilePhotoCard({ onSaved }: { onSaved?: () => void } = {}) {
               {(trigger) => (
                 <Button
                   {...trigger}
-                  size="sm"
-                  minH="44px"
+                  size="form"
                   variant="secondary"
                   alignSelf="flex-start"
                   onClick={() => {
@@ -150,7 +160,7 @@ export function ProfilePhotoCard({ onSaved }: { onSaved?: () => void } = {}) {
                 </Button>
               )}
             </PhotoSourcePicker>
-            <Text fontSize="xs" color="text.muted">
+            <Text fontSize="xs" lineHeight="16px" color="text.muted">
               {t.hint}
             </Text>
           </Stack>

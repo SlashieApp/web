@@ -41,6 +41,7 @@ export {
 export { DetailRow } from './DetailRow'
 export {
   Drawer,
+  DrawerBar,
   useCloseFromItem,
   useDrawerClose,
   useInsideDrawer,
@@ -180,7 +181,12 @@ export type {
   UseColorModeReturn,
 } from './color-mode'
 export type { DetailRowProps } from './DetailRow'
-export type { DrawerPlacement, DrawerProps, DrawerSize } from './Drawer'
+export type {
+  DrawerBarProps,
+  DrawerPlacement,
+  DrawerProps,
+  DrawerSize,
+} from './Drawer'
 export type {
   FeedbackCategoryValue,
   FeedbackDialogProps,

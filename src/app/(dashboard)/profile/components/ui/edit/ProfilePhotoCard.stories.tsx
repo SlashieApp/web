@@ -3,6 +3,13 @@ import { expect, fireEvent, userEvent, waitFor, within } from 'storybook/test'
 
 import { withSession } from '@/app/(auth)/helpers/authStoryDecorator'
 import { storyAvatarUrl, storyMe } from '@/app/(auth)/helpers/authStoryFixtures'
+import {
+  desktop1280,
+  expectWidth,
+  phone390,
+} from '@/app/(stepflow)/stepFlowSpacing.testing'
+import { formSpace } from '@/theme/styles'
+import { gapBelow, heightOf } from '@/ui/FormField/formGap.testing'
 
 import { ProfilePhotoCard } from './ProfilePhotoCard'
 
@@ -165,5 +172,75 @@ export const FileTooLarge: Story = {
     await expect(
       await within(canvasElement).findByText('Image must be 5MB or smaller.'),
     ).toBeVisible()
+  },
+}
+
+/**
+ * The card is a title, its sentence and one field: the sentence 8 under the
+ * title, the photo row 24 under that, the button 48 tall (the editor's main
+ * button) with the hint 4 under it, and a refused file's reason 4 under the row.
+ */
+async function expectCard(canvasElement: HTMLElement, button: string) {
+  const canvas = within(canvasElement)
+  const upload = await canvas.findByRole('button', { name: button })
+  const card = canvasElement.querySelector('#profile-photo') as HTMLElement
+  const [header, field] = [
+    ...(card.firstElementChild as HTMLElement).children,
+  ] as [HTMLElement, HTMLElement]
+  const [title, sentence] = [...header.children]
+  await expect(title).toHaveTextContent('Profile photo')
+  await expect(gapBelow(title as Element, sentence as Element)).toBe(
+    formSpace.titleToSubtitle,
+  )
+  await expect(gapBelow(header, field)).toBe(formSpace.headerToBody)
+  await expect(heightOf(upload)).toBe(formSpace.controlHeight)
+  const hint = canvas.getByText('JPG, PNG, WebP, HEIC, or AVIF. Up to 5MB.')
+  await expect(gapBelow(upload, hint)).toBe(formSpace.controlToHelper)
+  return { card, field }
+}
+
+/** A saved photo, wide: the card on the spacing system. */
+export const Spacing: Story = {
+  ...desktop1280,
+  decorators: [
+    withSession({
+      me: storyMe({ profile: { avatarUrl: storyAvatarUrl('SC') } }),
+    }),
+  ],
+  play: async ({ canvasElement }) => {
+    expectWidth(canvasElement, 1280)
+    await expectCard(canvasElement, 'Replace photo')
+  },
+}
+
+/** No photo yet, at 390: the same gaps, the card sits flush on the page. */
+export const SpacingPhone: Story = {
+  ...phone390,
+  decorators: [withSession({ me: storyMe() })],
+  play: async ({ canvasElement }) => {
+    expectWidth(canvasElement, 390)
+    await expectCard(canvasElement, 'Upload photo')
+  },
+}
+
+/** A refused file: its reason is 4 under the photo row, on the line a helper uses. */
+export const ErrorSpacing: Story = {
+  ...desktop1280,
+  decorators: [withSession({ me: storyMe() })],
+  play: async ({ canvasElement }) => {
+    const { field } = await expectCard(canvasElement, 'Upload photo')
+    pickFile(
+      canvasElement,
+      new File([new ArrayBuffer(5 * 1024 * 1024 + 1)], 'huge.png', {
+        type: 'image/png',
+      }),
+    )
+    const reason = await within(canvasElement).findByText(
+      'Image must be 5MB or smaller.',
+    )
+    await expect(reason.parentElement).toBe(field)
+    await expect(gapBelow(field.firstElementChild as Element, reason)).toBe(
+      formSpace.controlToHelper,
+    )
   },
 }

@@ -120,6 +120,14 @@ export type DrawerProps = {
    */
   secondaryActionLabel?: string
   onSecondaryAction?: () => void
+  /**
+   * The body ends in a bar of its own (a form's Cancel and Save, see
+   * `DrawerBar`) that is pinned to the bottom while the body scrolls. The body
+   * then adds no padding under it: the bar keeps its 16 below the buttons, and
+   * the buttons do not move at the end of the scroll. Not for a drawer with
+   * `primaryActionLabel`, whose bar is the frame's.
+   */
+  endsInBar?: boolean
   /** Optional responsive panel overrides for feature drawers/sheets. */
   contentProps?: DrawerContentProps
   /**
@@ -172,6 +180,7 @@ export function Drawer({
   onPrimaryAction,
   secondaryActionLabel,
   onSecondaryAction,
+  endsInBar = false,
   contentProps,
   finalFocusEl,
 }: DrawerProps) {
@@ -288,7 +297,7 @@ export function Drawer({
           <DrawerBody
             px={drawerGutterX}
             pt="form.headerToBody"
-            pb={primaryActionLabel ? 0 : 6}
+            pb={primaryActionLabel || endsInBar ? 0 : 6}
             flex={1}
             minH={0}
             overflowY="auto"

@@ -1,7 +1,6 @@
 'use client'
 
 import { useMutation } from '@apollo/client/react'
-import { HStack, Stack } from '@chakra-ui/react'
 import {
   TaskContactMethod,
   type UpdateMyProfileMutation,
@@ -15,7 +14,7 @@ import UpdateMyProfile from '@/app/(dashboard)/profile/graphql/UpdateMyProfile.g
 import { useI11n } from '@/i18n/useI11n'
 import { EVENTS, trackFlowFailed, trackFlowSucceeded } from '@/utils/analytics'
 import { showAppToast } from '@/utils/appToast'
-import { Button, Drawer, FormField, Input } from '@ui'
+import { Button, Drawer, DrawerBar, FormField, FormStack, Input } from '@ui'
 
 import bag from '../../../i11n.json'
 import { initialDisplayNameForForm } from '../../../profileDisplayHelpers'
@@ -55,6 +54,8 @@ export function ProfileEditDrawer({
       description={meta.description}
       placement="end"
       size="lg"
+      // Personal and worker end in a Cancel and Save bar of their own.
+      endsInBar={section === 'personal' || section === 'worker'}
       contentProps={{
         w: { base: '100vw', md: 'min(640px, 100vw)' },
         maxW: { base: '100vw', md: '640px' },
@@ -159,7 +160,7 @@ function PersonalInfoEditor({
       }}
       noValidate
     >
-      <Stack gap={5}>
+      <FormStack>
         <FormField
           label={t.displayName}
           helperText={t.displayNameHelp}
@@ -179,18 +180,11 @@ function PersonalInfoEditor({
             max={new Date().toISOString().slice(0, 10)}
           />
         </FormField>
-        <HStack
-          gap={3}
-          justify="flex-end"
-          position="sticky"
-          bottom={0}
-          bg="bg.surface"
-          py={3}
-          mt="auto"
-        >
+        <DrawerBar>
           <Button
             type="button"
             variant="ghost"
+            size="form"
             onClick={() => {
               reset(values)
               onCancel()
@@ -201,13 +195,14 @@ function PersonalInfoEditor({
           </Button>
           <Button
             type="submit"
+            size="form"
             loading={loading || isSubmitting}
             disabled={!isDirty}
           >
             {t.save}
           </Button>
-        </HStack>
-      </Stack>
+        </DrawerBar>
+      </FormStack>
     </form>
   )
 }
