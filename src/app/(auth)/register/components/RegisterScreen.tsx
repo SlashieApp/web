@@ -1,7 +1,7 @@
 'use client'
 
 import { useMutation } from '@apollo/client/react'
-import { Box, Stack, Text } from '@chakra-ui/react'
+import { Box, Text } from '@chakra-ui/react'
 import type { RegisterMutation } from '@codegen/schema'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useRouter, useSearchParams } from 'next/navigation'
@@ -12,7 +12,6 @@ import authBag from '@/app/(auth)/components/i11n.json'
 import { AppleAuthButton } from '@/app/(auth)/components/ui/AppleAuthButton'
 import { AuthAlert } from '@/app/(auth)/components/ui/AuthAlert'
 import { AuthCard } from '@/app/(auth)/components/ui/AuthCard'
-import { AuthDivider } from '@/app/(auth)/components/ui/AuthDivider'
 import {
   AuthCheckbox,
   EmailInput,
@@ -32,6 +31,7 @@ import {
 } from '@/app/(auth)/helpers/authMessages'
 import { authSwitchHref } from '@/app/(auth)/helpers/authRedirect'
 import { captchaMutationContext } from '@/app/(auth)/helpers/captchaMutationContext'
+import { isSocialAuthConfigured } from '@/app/(auth)/helpers/socialAuthConfig'
 import { useCooldownSeconds } from '@/app/(auth)/helpers/useCooldownSeconds'
 import { useProgressiveCaptcha } from '@/app/(auth)/helpers/useProgressiveCaptcha'
 import { useUserStore } from '@/app/(auth)/store/user'
@@ -41,7 +41,15 @@ import { useI11n } from '@/i18n/useI11n'
 import { EVENTS, trackFlowFailed, trackFlowSucceeded } from '@/utils/analytics'
 import { setAuthToken } from '@/utils/auth'
 import { getGraphQLErrorCode } from '@/utils/graphqlErrors'
-import { Button, FormField, Input, Link } from '@ui'
+import {
+  Button,
+  FormAlternatives,
+  FormDivider,
+  FormField,
+  FormStack,
+  Input,
+  Link,
+} from '@ui'
 
 import Register from '../graphql/Register.gql'
 import bag from '../i11n.json'
@@ -65,8 +73,11 @@ function registerMessageFor(error: unknown): RegisterMessage {
 }
 
 /**
- * /register: the 18+ and Terms boxes gate every way in (Google, Apple and
- * email), so they come first; then the email form.
+ * /register, in the form spacing order (FE-481): the fields, then the 18+,
+ * Terms and marketing boxes as the last field group above the main button, the
+ * "Or continue with" divider, then Google and Apple. The 18+ and Terms boxes
+ * still gate every way in: the form checks them on submit, and Google and Apple
+ * stay blocked, with a hint under them, until both are ticked.
  */
 export function RegisterScreen() {
   const t = useI11n(bag)
@@ -209,10 +220,53 @@ export function RegisterScreen() {
         </>
       }
     >
-      <Box asChild w="full">
-        <form method="post" onSubmit={handleSubmit(onValid)} noValidate>
-          <Stack gap={4}>
-            <Stack gap={0}>
+      {/* The divider owns its 24 either side, so this is a plain box, not a
+          gapped stack: FormStack gives the fields, the boxes and the main
+          button their 20, FormAlternatives the 8 between Google and Apple. */}
+      <Box w="full">
+        <Box asChild w="full">
+          <form method="post" onSubmit={handleSubmit(onValid)} noValidate>
+            <FormStack>
+              <FormField
+                label={t.fullNameLabel}
+                errorText={fieldError(errors.fullName?.message)}
+              >
+                <Input
+                  placeholder={t.namePlaceholder}
+                  autoComplete="name"
+                  {...registerField('fullName')}
+                />
+              </FormField>
+
+              <FormField
+                label={t.emailLabel}
+                errorText={fieldError(errors.email?.message)}
+              >
+                <EmailInput autoComplete="email" {...registerField('email')} />
+              </FormField>
+
+              <FormField
+                label={t.passwordLabel}
+                helperText={shared.fields.passwordHint}
+                errorText={fieldError(errors.password?.message)}
+              >
+                <PasswordInput
+                  autoComplete="new-password"
+                  {...registerField('password')}
+                />
+              </FormField>
+
+              <FormField
+                label={t.confirmPasswordLabel}
+                errorText={fieldError(errors.confirmPassword?.message)}
+              >
+                <PasswordInput
+                  autoComplete="new-password"
+                  {...registerField('confirmPassword')}
+                />
+              </FormField>
+
+              {/* The last field group: each row is a field in the 20 rhythm. */}
               <Controller
                 name="isOver18"
                 control={control}
@@ -270,9 +324,37 @@ export function RegisterScreen() {
                   />
                 )}
               />
-            </Stack>
 
-            <Stack gap={3}>
+              {captcha.requiresCaptcha ? (
+                <TurnstileField
+                  onTokenChange={captcha.setToken}
+                  resetSignal={captcha.resetSignal}
+                />
+              ) : null}
+
+              {messageText ? <AuthAlert>{messageText}</AuthAlert> : null}
+
+              <Button
+                type="submit"
+                loading={loading}
+                disabled={waiting || checkPending}
+                w="full"
+                size="form"
+              >
+                {waiting
+                  ? formatMessage(shared.tryAgainIn, {
+                      seconds: retryInSeconds,
+                    })
+                  : t.submit}
+              </Button>
+            </FormStack>
+          </form>
+        </Box>
+
+        {isSocialAuthConfigured() ? (
+          <>
+            <FormDivider />
+            <FormAlternatives>
               <GoogleAuthButton
                 next={next}
                 blocked={oauthBlocked}
@@ -292,73 +374,9 @@ export function RegisterScreen() {
                   {t.googleConsentHint}
                 </Text>
               ) : null}
-            </Stack>
-
-            <AuthDivider />
-
-            <FormField
-              label={t.fullNameLabel}
-              errorText={fieldError(errors.fullName?.message)}
-            >
-              <Input
-                placeholder={t.namePlaceholder}
-                autoComplete="name"
-                rootProps={{ minH: '48px', w: 'full' }}
-                {...registerField('fullName')}
-              />
-            </FormField>
-
-            <FormField
-              label={t.emailLabel}
-              errorText={fieldError(errors.email?.message)}
-            >
-              <EmailInput autoComplete="email" {...registerField('email')} />
-            </FormField>
-
-            <FormField
-              label={t.passwordLabel}
-              helperText={shared.fields.passwordHint}
-              errorText={fieldError(errors.password?.message)}
-            >
-              <PasswordInput
-                autoComplete="new-password"
-                {...registerField('password')}
-              />
-            </FormField>
-
-            <FormField
-              label={t.confirmPasswordLabel}
-              errorText={fieldError(errors.confirmPassword?.message)}
-            >
-              <PasswordInput
-                autoComplete="new-password"
-                {...registerField('confirmPassword')}
-              />
-            </FormField>
-
-            {captcha.requiresCaptcha ? (
-              <TurnstileField
-                onTokenChange={captcha.setToken}
-                resetSignal={captcha.resetSignal}
-              />
-            ) : null}
-
-            {messageText ? <AuthAlert>{messageText}</AuthAlert> : null}
-
-            <Button
-              type="submit"
-              loading={loading}
-              disabled={waiting || checkPending}
-              w="full"
-              size="lg"
-              minH="48px"
-            >
-              {waiting
-                ? formatMessage(shared.tryAgainIn, { seconds: retryInSeconds })
-                : t.submit}
-            </Button>
-          </Stack>
-        </form>
+            </FormAlternatives>
+          </>
+        ) : null}
       </Box>
     </AuthCard>
   )

@@ -59,10 +59,10 @@ export const NewPasswordWithError: Story = {
 
 function CheckboxDemo({
   errorText,
-  fieldGroup,
+  label = 'I confirm I am 18 or over.',
 }: {
   errorText?: string
-  fieldGroup?: boolean
+  label?: string
 }) {
   const [checked, setChecked] = useState(false)
   return (
@@ -70,9 +70,8 @@ function CheckboxDemo({
       name="isOver18"
       checked={checked}
       onCheckedChange={setChecked}
-      label="I confirm I am 18 or over."
+      label={label}
       errorText={errorText}
-      fieldGroup={fieldGroup}
     />
   )
 }
@@ -99,7 +98,7 @@ export const CheckboxError: Story = {
 }
 
 /**
- * A checkbox as a field group (FE-481): one 20px line between two fields, 20
+ * A checkbox is a field group (FE-481): one 20px line between two fields, 20
  * above and below it, its error 4 under it. The row is 44 tall to tap and
  * adds no space.
  */
@@ -109,10 +108,7 @@ export const CheckboxFieldGroup: Story = {
       <FormField label="Email">
         <EmailInput />
       </FormField>
-      <CheckboxDemo
-        fieldGroup
-        errorText="You must confirm you are 18 or over."
-      />
+      <CheckboxDemo errorText="You must confirm you are 18 or over." />
       <FormField label="Password">
         <PasswordInput />
       </FormField>
@@ -137,5 +133,54 @@ export const CheckboxFieldGroup: Story = {
     await expect(gapBelow(control, error)).toBe(formSpace.controlToHelper)
     await expect(gapBelow(error, password)).toBe(formSpace.fieldGap)
     await expect(heightOf(row)).toBe(minHitArea)
+  },
+}
+
+const LONG_LABEL =
+  'Send me Slashie news and tips (optional). You can turn this off any time in Account settings.'
+
+/**
+ * A long label wraps: the box stays level with the first line, the row is the
+ * lines (20 each), and the gaps around it are still the field gap. The tap
+ * target is at least 44 and adds no space.
+ */
+export const CheckboxWrappedLabel: Story = {
+  render: () => (
+    <FormStack maxW="260px">
+      <FormField label="Email">
+        <EmailInput />
+      </FormField>
+      <CheckboxDemo label={LONG_LABEL} errorText="Tick this to go on." />
+      <FormField label="Password">
+        <PasswordInput />
+      </FormField>
+    </FormStack>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const root = canvas.getByRole('checkbox').closest('label') as HTMLElement
+    const control = root.querySelector('[data-part="control"]') as HTMLElement
+    const label = canvas.getByText(LONG_LABEL)
+    const row = label.parentElement as HTMLElement
+    const error = canvas.getByText('Tick this to go on.')
+    const emailShell = (
+      canvas.getByText('Email', { selector: 'label' })
+        .parentElement as HTMLElement
+    ).querySelector('input')?.parentElement as HTMLElement
+    const password = canvas.getByText('Password', { selector: 'label' })
+      .parentElement as HTMLElement
+
+    const lines = Math.round(heightOf(label) / 20)
+    await expect(lines).toBeGreaterThan(1)
+    await expect(heightOf(label)).toBe(lines * 20)
+    // The box is level with the first line.
+    await expect(heightOf(control)).toBe(20)
+    await expect(control.getBoundingClientRect().top).toBe(
+      label.getBoundingClientRect().top,
+    )
+    await expect(gapBelow(emailShell, control)).toBe(formSpace.fieldGap)
+    await expect(gapBelow(label, error)).toBe(formSpace.controlToHelper)
+    await expect(gapBelow(error, password)).toBe(formSpace.fieldGap)
+    await expect(heightOf(row)).toBeGreaterThanOrEqual(minHitArea)
   },
 }

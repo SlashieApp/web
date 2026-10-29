@@ -189,7 +189,6 @@ export function LoginPanel({
                 control={control}
                 render={({ field }) => (
                   <AuthCheckbox
-                    fieldGroup
                     name={field.name}
                     checked={field.value}
                     onCheckedChange={field.onChange}

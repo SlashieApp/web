@@ -69,16 +69,17 @@ export function PasswordInput(props: InputProps) {
   )
 }
 
-/** A field-group row is one line of its label: 20 tall, like the control. */
-const FIELD_GROUP_ROW_HEIGHT = 20
+/** A checkbox row is one line of its label: 20 tall, like the control. */
+const ROW_LINE_HEIGHT = 20
 
 /**
  * Checkbox for every auth form (remember me, consent). Use with a `Controller`.
  *
- * `fieldGroup` makes it a field group in the form rhythm (FE-481): the visible
- * row is the label's one line, so the gap above and below it is the field gap,
- * and its error sits `controlToHelper` (4) under it. The 44px hit area grows
- * past the row into the gaps around it, so it adds no space.
+ * It is a field group in the form rhythm (FE-481): the visible row is the
+ * label's lines (20 each), so the gap above and below it is the field gap, and
+ * its error sits `controlToHelper` (4) under it. The 44px hit area grows past
+ * the row into the gaps around it, so it adds no space. A label may wrap: the
+ * box stays level with its first line.
  */
 export function AuthCheckbox({
   name,
@@ -87,7 +88,6 @@ export function AuthCheckbox({
   inputRef,
   label,
   errorText,
-  fieldGroup = false,
 }: {
   name: string
   checked: boolean
@@ -95,10 +95,9 @@ export function AuthCheckbox({
   inputRef?: Ref<HTMLInputElement>
   label: ReactNode
   errorText?: string
-  fieldGroup?: boolean
 }) {
   return (
-    <Stack gap={fieldGroup ? 'form.controlToHelper' : 1}>
+    <Stack gap="form.controlToHelper">
       <Checkbox.Root
         name={name}
         checked={checked}
@@ -106,15 +105,8 @@ export function AuthCheckbox({
         colorPalette="green"
       >
         <Checkbox.HiddenInput ref={inputRef} />
-        <HStack
-          gap={3}
-          align="flex-start"
-          {...(fieldGroup
-            ? hitAreaGrowth(FIELD_GROUP_ROW_HEIGHT)
-            : { minH: '44px', py: 2.5 })}
-        >
+        <HStack gap={3} align="flex-start" {...hitAreaGrowth(ROW_LINE_HEIGHT)}>
           <Checkbox.Control
-            mt={fieldGroup ? 0 : 0.5}
             borderRadius="md"
             borderWidth="1px"
             borderColor="border.strong"
@@ -131,7 +123,7 @@ export function AuthCheckbox({
             fontSize="sm"
             fontWeight={500}
             color="text.default"
-            lineHeight={fieldGroup ? `${FIELD_GROUP_ROW_HEIGHT}px` : '1.5'}
+            lineHeight={`${ROW_LINE_HEIGHT}px`}
           >
             {label}
           </Checkbox.Label>
