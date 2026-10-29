@@ -36,7 +36,11 @@ export type ShowcaseTask = {
   price: string
   /** "3 quotes". */
   quotes: string
-  /** The pin button's accessible name: "Show the £45 task". */
+  /**
+   * The pin button's accessible name: "Show the £45 task, Camden". It holds
+   * both words the pin shows (the price and the area), so a voice command that
+   * says either finds it (WCAG 2.5.3), and no two pins share a name.
+   */
   pinLabel: string
 }
 
@@ -49,7 +53,7 @@ export function buildShowcaseTasks(copy: PhoneCopy): ShowcaseTask[] {
       area: task.area,
       price: task.price,
       quotes: formatMessage(copy.search.quotes, { count: task.quotes }),
-      pinLabel: formatMessage(copy.search.selectPin, { price: task.price }),
+      pinLabel: `${formatMessage(copy.search.selectPin, { price: task.price })}, ${task.area}`,
     }
   })
 }

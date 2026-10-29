@@ -2,6 +2,10 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { expect, userEvent, waitFor, within } from 'storybook/test'
 
 import messages from '@/app/(marketing)/i11n.json'
+import {
+  COOKIE_BANNER_HEIGHT_VAR,
+  COOKIE_BANNER_SCROLL_PADDING,
+} from '@/app/cookieBannerLayout'
 import { formatMessage } from '@/i18n/loadPageI11n'
 
 import { MapShowcase } from './MapShowcase'
@@ -25,8 +29,9 @@ function pinFor(
   task: keyof typeof phone.tasks,
   bag: typeof phone = phone,
 ) {
+  // The name is the select text, the price and the area: both words the pin shows.
   return canvas.getByRole('button', {
-    name: formatMessage(bag.search.selectPin, { price: bag.tasks[task].price }),
+    name: `${formatMessage(bag.search.selectPin, { price: bag.tasks[task].price })}, ${bag.tasks[task].area}`,
   })
 }
 
@@ -239,6 +244,9 @@ export const KeyboardSelects: Story = {
       expect(ring.outlineStyle).toBe('solid')
       expect(ring.outlineWidth).toBe('2px')
       expect(ring.outlineColor).toBe(BORDER_FOCUS)
+      // A white halo under the ring, so the green is drawn on white and not on
+      // the map's land or park (both darker, under 3:1).
+      expect(ring.boxShadow).toBe('rgb(255, 255, 255) 0px 0px 0px 6px')
     })
 
     await userEvent.keyboard('{Enter}')
@@ -435,6 +443,54 @@ export const KeyboardChoiceBringsTheCardIntoView: Story = {
       },
     )
     await expect(pinFor(canvas, 'move')).toHaveAttribute('aria-current', 'true')
+  },
+}
+
+/**
+ * With the cookie banner open (a first visit), the card a keyboard choice
+ * scrolls into view stops above the banner, not under it. The page's
+ * `scroll-padding-bottom` (`globals.css`, here injected with the same value)
+ * adds the banner's height, which the banner publishes on `<html>`.
+ */
+const BANNER_PX = 180
+
+export const KeyboardChoiceClearsTheCookieBanner: Story = {
+  globals: { viewport: { value: 'mobile1', isRotated: false } },
+  decorators: [
+    (Story) => (
+      <div>
+        <style>{`html { scroll-padding-bottom: ${COOKIE_BANNER_SCROLL_PADDING}; }`}</style>
+        <div style={{ height: '320px' }} />
+        <Story />
+        <div style={{ height: '200vh' }} />
+      </div>
+    ),
+  ],
+  beforeEach: () => {
+    document.documentElement.style.setProperty(
+      COOKIE_BANNER_HEIGHT_VAR,
+      `${BANNER_PX}px`,
+    )
+    return () => {
+      document.documentElement.style.removeProperty(COOKIE_BANNER_HEIGHT_VAR)
+      window.scrollTo(0, 0)
+    }
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const cardBottom = () =>
+      getCard(canvasElement).getBoundingClientRect().bottom
+    window.scrollTo(0, 0)
+    pinFor(canvas, 'move').focus()
+    await userEvent.keyboard('{Enter}')
+    // The card ends above the banner (the viewport's foot less its height).
+    await waitFor(
+      () =>
+        expect(cardBottom()).toBeLessThanOrEqual(
+          window.innerHeight - BANNER_PX,
+        ),
+      { timeout: 4000 },
+    )
   },
 }
 

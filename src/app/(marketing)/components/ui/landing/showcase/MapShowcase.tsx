@@ -10,15 +10,7 @@ import {
   chakra,
 } from '@chakra-ui/react'
 import { useId, useRef, useState } from 'react'
-import type { IconType } from 'react-icons'
-import {
-  LuHammer,
-  LuMapPin,
-  LuPackage,
-  LuPaintRoller,
-  LuSparkles,
-  LuSprout,
-} from 'react-icons/lu'
+import { LuMapPin } from 'react-icons/lu'
 
 import { PAGE_CONTAINER_MAX_W, PAGE_GUTTER_X } from '@/theme/pageContainer'
 import {
@@ -31,6 +23,7 @@ import {
 import { Badge, Card } from '@ui'
 
 import { Reveal } from '../Reveal'
+import { DEMO_TASK_ICONS } from '../phone/demoTaskIcons'
 import type { DemoTaskId, PhoneCopy } from '../phone/phoneCopy'
 import {
   MAP_MAJOR_ROADS,
@@ -54,15 +47,6 @@ import {
 
 /** A token's CSS variable, for the SVG's paint (which takes no style props). */
 const color = (token: string) => `var(--chakra-colors-${token})`
-
-/** The icon in the card's tile: what kind of job it is, never a colour. */
-const TASK_ICONS: Record<DemoTaskId, IconType> = {
-  move: LuPackage,
-  wardrobe: LuHammer,
-  paint: LuPaintRoller,
-  hedge: LuSprout,
-  clean: LuSparkles,
-}
 
 const PinButton = chakra('button')
 
@@ -151,7 +135,9 @@ function MapArt() {
  * label, in `text.muted` (6:1 on the map's park fill, where `text.subtle` was
  * 4.1:1). The visible ring on keyboard focus goes round the pill. In Windows
  * high contrast (forced colours) the fills are gone, so the chosen pin's pill
- * takes a thick `Highlight` border.
+ * takes a thick `Highlight` border. Its accessible name is the select text
+ * with the price and then the area, so it holds both the words that are shown
+ * on the pin (a voice command that says the area finds it).
  */
 function MapPin({
   task,
@@ -188,7 +174,14 @@ function MapPin({
       outline="none"
       css={{
         touchAction: 'manipulation',
-        '&:focus-visible [data-pin-pill]': sdlFocusRing,
+        // The ring is green 600 (3.2:1 on white), but the map under it is
+        // darker than white (2.9:1 on the land, 2.5:1 on a park), so the pill
+        // gets a white halo, 6px out, and the ring (2px, offset 2px) is drawn
+        // across it: white, green, white, wherever the pin sits.
+        '&:focus-visible [data-pin-pill]': {
+          ...sdlFocusRing,
+          boxShadow: '0 0 0 6px {colors.bg.surface}',
+        },
         '&:not([aria-current="true"]):hover [data-pin-pill]': {
           borderColor: 'border.hover',
           boxShadow: sdlElevation.e2,
@@ -275,7 +268,9 @@ function ShowcaseCard({
   task: ShowcaseTask
   animate: boolean
 }) {
-  const Icon = TASK_ICONS[task.id]
+  // What kind of job it is, never a colour; the phone's search card wears the
+  // same icon for the same task.
+  const Icon = DEMO_TASK_ICONS[task.id]
   return (
     <Card
       p={3}
@@ -455,7 +450,8 @@ export function MapShowcase({ copy }: { copy: PhoneCopy }) {
               py={{ base: 4, md: 0 }}
               zIndex={3}
               // `scrollIntoView` keeps it clear of the sticky header (56 or
-              // 64px) above and a little air below.
+              // 64px) above and a little air below, and `globals.css` adds the
+              // open cookie banner to the bottom, so the card is never under it.
               scrollMarginTop={{ base: '72px', md: '80px' }}
               scrollMarginBottom="16px"
             >

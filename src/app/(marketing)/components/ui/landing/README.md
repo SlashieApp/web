@@ -172,8 +172,10 @@ formation while it passes, and the panel is opaque (`bg.canvas`).
   `sm`, 9:5 from `md`, 11:5 from `lg`; `MAP_ASPECT`), so it works from 390 to
   1920 wide. On a phone a hairline closes the map and the card sits under it on
   the page's 16px gutters.
-- **Pins** are real buttons named by `landing.phone.search.selectPin` ("Show the
-  £45 task"). They are a single choice, not toggles (pressing the chosen pin does
+- **Pins** are real buttons named by `landing.phone.search.selectPin` with the
+  area after it ("Show the £45 task, Camden"): the name holds both words the pin
+  shows, so a voice command that says the area finds it (WCAG 2.5.3 Label in
+  Name) and no two pins share a name. They are a single choice, not toggles (pressing the chosen pin does
   nothing), so the chosen one carries `aria-current="true"`, not `aria-pressed`.
   They are in the DOM, and so tabbed, top to bottom in both layouts
   (`SHOWCASE_ORDER`, asserted by the model test): the narrow and the wide layout
@@ -183,16 +185,24 @@ formation while it passes, and the panel is opaque (`bg.canvas`).
   600 with tabular figures; the selected one is green 400 with an ink price and
   `e3`. The area sits under the dot as a map label at 12px in `text.muted` (6:1
   on the map's park fill; 11px `text.subtle` was 4.1:1 there, under AA, and under
-  the type scale's 12px floor). Focus is a green 600 ring round the pill. Hover
+  the type scale's 12px floor). Focus is a green 600 ring round the pill, on a
+  white halo 6px out (white, green, white): the ring alone was 2.9:1 on the map's
+  land and 2.5:1 on a park, under the 3:1 a focus indicator needs, and the halo
+  puts the green on white wherever the pin sits. Hover
   steps the hairline to `border.hover`. In Windows high contrast (forced colours)
   the fills and the 6% scale are not drawn, so the chosen pin's pill takes a 3px
   `Highlight` border.
 - **Keyboard.** Choosing a pin with Enter or Space brings the card on screen
   (`scrollIntoView`, `nearest`, clear of the sticky header, instant under reduced
   motion): from `md` the card floats at the map's foot and on a laptop-height
-  screen it can be below the fold. A click or tap does not scroll.
+  screen it can be below the fold. With the cookie banner open (a first visit)
+  the card still ends above the banner, because `globals.css` gives `<html>` a
+  bottom scroll padding of the banner's height (`COOKIE_BANNER_SCROLL_PADDING`).
+  A click or tap does not scroll.
 - **The card** is a lightweight replica of the product's `TaskCard` (which reads
-  the API and the router): `Card` (12px, hairline, `e1`), a neutral tile, a
+  the API and the router): `Card` (12px, hairline, `e1`), a neutral tile with
+  the task's icon (`phone/demoTaskIcons.ts`, shared with the phone's search
+  card, so a task wears the same icon on both), a
   neutral `Badge` with the area, the title at 500 / -0.01em, the price in ink at
   600 with tabular figures and the muted meta. From `md` it floats over the map's
   bottom-left corner (20px inset, 380px); below `md` it sits under the map. It is

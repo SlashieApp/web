@@ -38,14 +38,14 @@ describe('buildShowcaseTasks', () => {
       area: phone.tasks.move.area,
       price: phone.tasks.move.price,
       quotes: '3 quotes',
-      pinLabel: 'Show the £45 task',
+      pinLabel: 'Show the £45 task, Camden',
     })
   })
 
   it('reads the Traditional Chinese bag too', () => {
     const [move] = buildShowcaseTasks(messages.zh_hk.landing.phone)
     expect(move.quotes).toBe('3 個報價')
-    expect(move.pinLabel).toBe('顯示 £45 的任務')
+    expect(move.pinLabel).toBe('顯示 £45 的任務, Camden')
   })
 
   it('gives every pin a distinct label, so each button has its own name', () => {
@@ -55,6 +55,18 @@ describe('buildShowcaseTasks', () => {
     ]) {
       const labels = buildShowcaseTasks(bag).map((task) => task.pinLabel)
       expect(new Set(labels).size).toBe(labels.length)
+    }
+  })
+
+  it('names the price and the area each pin shows', () => {
+    for (const bag of [
+      messages.en.landing.phone,
+      messages.zh_hk.landing.phone,
+    ]) {
+      for (const task of buildShowcaseTasks(bag)) {
+        expect(task.pinLabel).toContain(task.price)
+        expect(task.pinLabel).toContain(task.area)
+      }
     }
   })
 
