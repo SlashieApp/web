@@ -659,41 +659,83 @@ holds every pose to that).
   right edge, the strip beside the pinned phone (they peek out from behind it
   on a laptop and sit in the margin beside it on a wide screen), and swap
   places between the acts; below `lg` they peek in at the edges beside the
-  inline phone. `scatter` (trust and pricing, under opaque panels) waits at the
-  same edge; `gather` (the close) puts the toolbox and the boxes either side of
+  inline phone, and each keeps its side in every formation (the toolbox left,
+  the pin right; the worker act swaps their heights, not their sides), so none
+  glides across the text from one edge to the other. `scatter` (trust and
+  pricing, under opaque panels) is parked off the screen's edges, so nothing is
+  seen sliced by a section's edge while the close scrolls in, and the props glide
+  in for it; `gather` (the close) puts the toolbox and the boxes either side of
   the call, outside its 40rem column, and the pin low on the right. Nothing
   sits between the steps and the phone: there is no room there at `lg`.
+- **Placement** (`placementFor`, `placeX`: pure and unit-tested) holds a prop by
+  the formation it is in. `free`: where the pose puts it (the hero on a phone,
+  where the text leaves room beside its last row). `column`: on wide screens
+  the whole prop, not its centre, stays inside the frame's rails (the page
+  column is 80rem, rails 640px out, or the screen where that is narrower) with
+  16px of air, using each prop's reach (`PROP_REACH`: half width, height above
+  and shadow below, in world units, measured on the models), so no rail runs
+  across a prop at 1366 or 1920. `peek`: below `lg` the text runs edge to edge,
+  so a prop only peeks in from its edge: exactly as far as the free strip beside
+  the text (`peekReachPx`: the gutter, less 4px of air, so 12px on a phone and
+  20px on a tablet's left; the tablet's right strip beside the steps' 38rem
+  column is wider; the close's centred 40rem column leaves the same on both
+  sides), the pose saying only which side. `parked`: left where the pose is,
+  off the edges.
+- **The close stays above the footer.** The footer is opaque and covers the
+  bottom of the screen at the end of the page (466px on a laptop), so the
+  close's props, level with its call, were sliced by its top edge. `PageProbe`
+  reads the footer's top edge once a frame while the close is the stage and
+  `closeLiftPx` lifts the whole formation together (so the pin stays under the
+  boxes), by the most any prop needs to keep its shadow 24px clear of the
+  footer, and never so far that the highest goes up under the header.
 - **The step object** (`FOCUS_FOR_STAGE`) comes forward and grows 20% where it
   is, on wide screens only. Nearer the camera a prop drifts outward, so its x
   and y are scaled back to keep its spot on the screen (a unit test holds this).
   The flat pin sways about its pose from step to step instead of turning, so it
   is never edge-on.
-- **On wide screens** `limitX` holds every prop within 555px of the screen's
-  centre (the page column is 80rem, and its rails are 640px out), so on a 1920
-  screen the props stay with the page instead of floating in the margin.
-- **Clear of text.** Checked on the live page (`next dev`) by diffing a
-  screenshot with the canvas on against one with it hidden and counting prop
-  pixels under any text, plus 4px: no overlap in the hero and the close at 320,
-  360, 390, 430, 600, 768, 1023, 1024, 1100, 1280, 1366, 1440, 1536, 1920 and
-  2560 wide, and none in the act steps measured: all eight at 390, every step
-  but Get booked at 1024, Post, Quotes and Send a quote at 320, 360 and 430,
-  Quotes and Send a quote at 768, 1023 and 1366, and Quotes, Find work, Send a
-  quote and Get booked at 1280, 1440 and 1920. The scene is a fixed layer under
-  scrolling text, so a clean result is for the moment a stage arrives (the
-  section mid-screen). On a phone, where the text fills the width, the props
-  are only slivers at the edges (they peek in beside the inline phone and
-  either side of the close's heading), and as the page scrolls an edge may pass
-  behind a line. The props are light (white to zinc 300), so that still reads
-  at AA for `text.default` and `text.muted`.
+- **Draws only while a prop can be seen.** The canvas is `frameloop="demand"`.
+  Only three blocks of the page are transparent (the hero, how it works and the
+  close: `[data-landing-hero]`, `[data-how-it-works]`, `[data-final-cta]`); the
+  map panel, the bento, the trust row, the pricing teaser and the footer are
+  opaque and hide the scene. `story/sceneWatch.ts` (an IntersectionObserver
+  below the header, started by `StoryTracker`) publishes `storyState.sceneVisible`
+  and `FrameDriver` asks for the next frame each frame only while it is true.
+  Measured on the dev server in headless Chromium (software GL), WebGL draw
+  calls per second fell from about 600 to 1000 all down the page to none while
+  the map panel, the bento, the trust row and the pricing teaser fill the screen
+  (and about 200 to 400 in the acts, 400 to 900 over the hero).
+- **Clear of text and of the rails.** Checked on the live page (`next dev`) by
+  scrolling the whole of /home in steps of about half a screen and, at each stop
+  once the props have settled, diffing a screenshot with the canvas on against
+  one with it hidden: prop pixels under any page text (plus 4px) and prop pixels
+  on a rail column. Swept at 390, 768, 1366 and
+  1920 wide (14 to 26 stops each): at every settled stop no prop pixel is over
+  page text and none is on a rail (the first build had the hammer touching the
+  right-hand rail at 1366 and the rails across the toolbox and the boxes at
+  1920), with one exception. At 390 there is one stop where the hero formation
+  still holds while the first act's head scrolls through the middle of the
+  screen: the stage changes when that head reaches the middle, so for about
+  100px of scroll the hero's toolbox is behind the head's text before it glides
+  to the edge (a transition, not a resting place).
+  The scene is a fixed layer under scrolling text, and its props glide for about
+  a second and a half when the stage changes (the stage is the section
+  mid-screen), so a screenshot taken a moment after a scroll can catch a prop
+  mid-glide; the sweep waits for the props to settle. On a phone, where the text
+  fills the width, the props are only slivers at the edges, and they keep their
+  sides, so they never cross the text on the way. The props are light (white to
+  zinc 300), so a sliver behind a line still reads at AA for `text.default` and
+  `text.muted`.
 - **Deleted:** the mop bucket, the paint roller and the screwdriver (no
   formation uses them), the cardboard, wood, metal and fabric materials, and the
   lightformer environment. The device tiers (`useDeviceTier`: reduced motion or
   no WebGL gives no canvas and the still poster), `LandingBackdrop` and
   `HeroObjectsPoster` are as they were; only the poster images are new.
 - **Stories:** `SceneObjects` (the three models alone), `LandingScene` (every
-  formation, wide and compact, plus `PosterWide` and `PosterCompact`),
+  formation, wide and compact, plus the `Poster*` sources),
   `LandingBackdrop` (desktop, phone, low-end, reduced motion) and
-  `HeroObjectsPoster`. They sit on the page's white, not the old mint wash.
+  `HeroObjectsPoster` (which still each width gets, and that its `picture` holds
+  only sources and an `img`). They sit on the page's white, not the old mint
+  wash.
 
 ## Behaviour by device
 
@@ -705,18 +747,35 @@ holds every pose to that).
   on screen and resets only after it has left. The scene shows two props
   (`COMPACT_OBJECTS`: the pin and the toolbox).
 - **Reduced motion / no WebGL / no JS:** no canvas. The hero shows the still
-  poster and phone screens show their finished state. Every transition inside
-  the phone is zeroed by `PhoneFrame`; the index does not animate.
+  poster and phone screens show their finished state (the post screen rests as
+  its form, with a still ring on its hotspot: its finished state would cover its
+  first field). Every transition inside the phone is zeroed by `PhoneFrame`; the
+  index does not animate.
 
 ## Updating the poster
 
-The poster is rendered from the `PosterWide` / `PosterCompact` stories of
-`LandingScene` (transparent background). Re-render it after changing the
-hero formation or the models: screenshot those stories headlessly (e.g.
-Playwright with `omitBackground: true` at 1440x900 and 390x844, 1.5x, with the
-page, `body` and `#storybook-root` backgrounds cleared) and save WebP files to
-`public/images/landing/hero-objects-{wide,compact}.webp`. Look at both before
-committing: the objects should sit where the live scene puts them.
+`HeroObjectsPoster` is a `picture` of four stills, widest first (the first
+`media` that matches wins; the `img` is the phone's), each rendered from the
+live scene at its own size so the objects sit where the live scene puts them
+there and `cover` crops only a little between sizes:
+
+| Still | Screens | Story | Rendered at |
+|-------|---------|-------|-------------|
+| `hero-objects-large.webp` | 1700px and up | `PosterLarge` | 1920 x 1080, 1.25x |
+| `hero-objects-wide.webp` | 1024 to 1699 | `PosterWide` | 1440 x 900, 1.5x |
+| `hero-objects-middle.webp` | 768 to 1023 | `PosterMiddle` | 768 x 1024, 1.5x |
+| `hero-objects-compact.webp` | below 768 | `PosterCompact` | 390 x 844, 1.5x |
+
+Re-render them after changing the hero formation, the placement rules or the
+models: screenshot the stories headlessly (Playwright with `omitBackground:
+true`, at the size in the table, with the page, `body` and `#storybook-root`
+backgrounds cleared) and save WebP files (quality 80, alpha 90) to
+`public/images/landing/`. Look at them before committing: the objects should sit
+where the live scene puts them at that size. The `img` is a plain element with
+inline styles on purpose: a styled one puts a `<style>` tag between the
+`source`s and the `img`, and the browser then fetches the wide still as well as
+the one that applies (a story checks the `picture` holds only sources and an
+`img`).
 
 ## Brand tokens
 

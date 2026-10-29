@@ -3,9 +3,11 @@
 import { Box, type BoxProps } from '@chakra-ui/react'
 import { useEffect } from 'react'
 
+import { watchSceneBlocks } from './sceneWatch'
 import {
   type StoryStage,
   isStoryStage,
+  setSceneVisible,
   setStoryPointer,
   setStoryStage,
 } from './storyState'
@@ -20,7 +22,9 @@ export function StoryStageMarker({
 
 /**
  * Publishes the active stage: whichever marked block crosses the middle of
- * the viewport. Also feeds the pointer position to the 3D scene (fine
+ * the viewport. Also says whether the 3D scene can be seen at all (a
+ * transparent block is on screen: `sceneWatch`), so it stops drawing behind
+ * the opaque panels, and feeds the pointer position to the scene (fine
  * pointers only; touch has no hover to follow).
  */
 export function StoryTracker() {
@@ -37,6 +41,7 @@ export function StoryTracker() {
       { rootMargin: '-50% 0px -50% 0px' },
     )
     for (const block of blocks) observer.observe(block)
+    const stopWatchingScene = watchSceneBlocks(setSceneVisible)
 
     const finePointer = window.matchMedia('(pointer: fine)').matches
     const onPointer = (event: PointerEvent) => {
@@ -49,6 +54,8 @@ export function StoryTracker() {
 
     return () => {
       observer.disconnect()
+      stopWatchingScene()
+      setSceneVisible(true)
       window.removeEventListener('pointermove', onPointer)
     }
   }, [])

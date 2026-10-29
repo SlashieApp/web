@@ -1,3 +1,6 @@
+import { BREAKPOINT_PX } from '@/theme/breakpoints'
+import { PAGE_CONTAINER_MAX_W_CSS } from '@/theme/pageContainer'
+
 import { STORY_STAGES, type StoryStage } from '../story/storyState'
 
 /**
@@ -63,12 +66,18 @@ function pose(
  * - the acts: steps on the left, the phone pinned in the right column, so the
  *   props hug the right edge (they peek out from behind the phone on laptops
  *   and sit in the margin beside it on wide screens). Nothing sits between the
- *   steps and the phone: there is no room there at `lg`. Below `lg` they peek
- *   in at the edges beside the inline phone.
+ *   steps and the phone: there is no room there at `lg`. Below `lg` the text
+ *   runs edge to edge, so the props only peek in at the screen's edges: how far
+ *   is capped by the free strip beside the text (`peekReachPx`), so a prop
+ *   never reaches into the page's gutter. Below `lg` each prop also keeps to
+ *   one side in every formation (the toolbox left, the pin right), so none ever
+ *   glides across the text from one edge to the other.
  * - trust and pricing sit under opaque panels, so their formation is only a
- *   place to wait.
+ *   place to wait: off the screen's edges (`parked`), so a prop never shows
+ *   sliced by a section's edge while the close scrolls in, and glides in for it.
  * - the close: centred text in a column of 40rem at most, so the props stay
- *   outside it, either side of the heading.
+ *   outside it, either side of the heading, and above the footer (the footer
+ *   is opaque and would slice them: `keepAboveFooter`).
  */
 
 /**
@@ -90,11 +99,12 @@ const WIDE: Record<FormationName, Formation> = {
     boxes: pose(0.48, 0.01, -0.5, 0.3, -0.4, 0, 0.5),
     toolbox: pose(0.47, -0.26, 0.5, 0.4, 0.6, 0.05, 0.62),
   },
-  // Trust and pricing sit under opaque panels: wait at the right edge.
+  // Trust and pricing sit under opaque panels: wait off the right edge (they
+  // are `parked`, so the page column does not hold them in).
   scatter: {
-    toolbox: pose(0.44, 0.3, -1, 0.4, 0.8, 0.1, 0.52),
-    boxes: pose(0.45, -0.3, -1, 0.3, -0.7, 0, 0.49),
-    pin: pose(0.47, 0, 0, 0.1, 0.3, -0.1, 0.38),
+    toolbox: pose(0.7, 0.3, -1, 0.4, 0.8, 0.1, 0.52),
+    boxes: pose(0.72, -0.3, -1, 0.3, -0.7, 0, 0.49),
+    pin: pose(0.74, 0, 0, 0.1, 0.3, -0.1, 0.38),
   },
   gather: {
     toolbox: pose(-0.37, 0.05, 0, 0.45, 0.5, 0.08, 0.63),
@@ -112,10 +122,13 @@ const COMPACT: Record<FormationName, Formation> = {
   // and the link leave (the same spot from a phone to a tablet).
   hero: {
     ...WIDE.hero,
-    toolbox: pose(-0.39, -0.01, 0, 0.15, 0.5, 0.08, 0.3),
+    toolbox: pose(-0.39, -0.018, 0, 0.15, 0.5, 0.08, 0.3),
     pin: pose(0.39, 0.01, 0, 0.1, 0.3, -0.15, 0.32),
   },
-  // Steps fill the width with text: objects only peek in from the edges.
+  // Steps fill the width with text: objects only peek in from the edges (how
+  // far is capped, see `peekReachPx`). Each keeps its side in every formation,
+  // so none glides across the text; the worker act swaps their heights, not
+  // their sides.
   customer: {
     ...WIDE.customer,
     toolbox: pose(-0.52, -0.2, -0.5, 0.4, -0.6, 0.1, 0.35),
@@ -123,13 +136,14 @@ const COMPACT: Record<FormationName, Formation> = {
   },
   worker: {
     ...WIDE.worker,
-    toolbox: pose(0.52, -0.2, 0, 0.4, 0.6, 0.05, 0.39),
-    pin: pose(-0.52, -0.05, 0, 0.1, 0.3, -0.15, 0.32),
+    toolbox: pose(-0.52, -0.05, 0, 0.4, 0.6, 0.05, 0.39),
+    pin: pose(0.52, -0.2, 0, 0.1, 0.3, -0.15, 0.32),
   },
+  // Parked off the edges, on the sides they keep.
   scatter: {
     ...WIDE.scatter,
-    toolbox: pose(0.48, 0.05, -1, 0.4, 0.8, 0.1, 0.32),
-    pin: pose(-0.47, 0.34, 0, 0.1, 0.3, -0.1, 0.28),
+    toolbox: pose(-0.72, 0.05, -1, 0.4, 0.8, 0.1, 0.32),
+    pin: pose(0.72, 0.34, 0, 0.1, 0.3, -0.1, 0.28),
   },
   gather: {
     ...WIDE.gather,
@@ -176,21 +190,184 @@ const PIN_SWAY = 0.45
 const PIN_SWAY_STEP = 0.9
 
 /**
- * The widest the props sit from the screen's centre, in CSS pixels. The page
- * column is 80rem (640px a side) and the phone ends 170px short of its rail,
- * so this is the middle of the strip beside the phone. Past it a wide screen
- * would carry the props off into the empty margin, away from the page.
+ * What each prop reaches from its origin at scale 1, in world units: half its
+ * width (the hammer and the spanner, and the quarter turns the formations give
+ * it, included), its height above the origin, and its depth below it down to
+ * the bottom of its blob shadow. Measured on the rendered models.
  */
-export const WIDE_X_LIMIT_PX = 555
+export const PROP_REACH: Record<
+  SceneObjectId,
+  { halfWidth: number; above: number; below: number }
+> = {
+  toolbox: { halfWidth: 1.25, above: 1.1, below: 1.2 },
+  boxes: { halfWidth: 1.15, above: 0.75, below: 1.2 },
+  pin: { halfWidth: 0.6, above: 0.85, below: 1.2 },
+}
 
 /**
- * Keeps a prop's horizontal position (px from the centre of the screen) inside
- * the page column on wide screens. Narrower screens are not limited: their
- * formations are fractions of a screen that is the page.
+ * How a formation holds its props on the screen:
+ * - `free`: where the formation puts them (the hero on a phone, where the text
+ *   leaves room beside its last row);
+ * - `column`: wide screens keep the whole prop inside the page column's rails;
+ * - `peek`: below `lg` the text runs edge to edge, so a prop only peeks in from
+ *   the screen's edge, as far as the free strip beside the text (the pose says
+ *   which side);
+ * - `parked`: off the screen's edges, under opaque panels.
  */
-export function limitX(xPx: number, compact: boolean): number {
-  if (compact) return xPx
-  return Math.max(-WIDE_X_LIMIT_PX, Math.min(WIDE_X_LIMIT_PX, xPx))
+export type Placement = 'free' | 'column' | 'peek' | 'parked'
+
+export function placementFor(stage: StoryStage, compact: boolean): Placement {
+  const name = FORMATION_FOR_STAGE[stage]
+  if (name === 'scatter') return 'parked'
+  if (name === 'hero') return compact ? 'free' : 'column'
+  return compact ? 'peek' : 'column'
+}
+
+/** The text a peeking prop keeps clear of: the acts' steps, or the close's centred column. */
+export type PeekLayout = 'steps' | 'centred'
+
+export function peekLayoutFor(stage: StoryStage): PeekLayout {
+  return FORMATION_FOR_STAGE[stage] === 'gather' ? 'centred' : 'steps'
+}
+
+/** The page column's width (`sizes.page`, 80rem), in px: the rails stand on its edges. */
+export const PAGE_COLUMN_PX = Number.parseFloat(PAGE_CONTAINER_MAX_W_CSS) * 16
+
+/** The air a prop keeps between its outer edge and a rail. */
+export const RAIL_MARGIN_PX = 16
+
+/** The air a peeking prop keeps between itself and the text. */
+export const PEEK_CLEARANCE_PX = 4
+
+/** The page gutter below `lg`: 16px on a phone, 24px from `md`. */
+const GUTTER_PX = { base: 16, md: 24 } as const
+/** A step's text column, `maxW="38rem"` in the story, and the close's, 40rem. */
+const TEXT_MAX_PX = { steps: 608, centred: 640 } as const
+
+/**
+ * How far in from the screen's edge a peeking prop may reach (px): the free
+ * strip between the edge and the text, less a few px of air. Below `lg` the
+ * steps' text starts at the gutter and ends at most 38rem on, so on a phone
+ * both strips are the gutter (a sliver) and on a tablet the right one is wide.
+ * The close's text is centred.
+ */
+export function peekReachPx(
+  viewportPx: number,
+  side: 'left' | 'right',
+  layout: PeekLayout,
+): number {
+  const gutter = viewportPx >= BREAKPOINT_PX.md ? GUTTER_PX.md : GUTTER_PX.base
+  const width = Math.min(TEXT_MAX_PX[layout], viewportPx - 2 * gutter)
+  const left = layout === 'steps' ? gutter : (viewportPx - width) / 2
+  const strip = side === 'left' ? left : viewportPx - (left + width)
+  return Math.max(0, strip - PEEK_CLEARANCE_PX)
+}
+
+/**
+ * Places a prop horizontally (px from the centre of the screen, where it
+ * appears) by its placement. `halfPx` is half the prop's width on screen.
+ * `free` and `parked` leave the pose's position; `column` holds the whole prop
+ * inside the rails; `peek` puts exactly the free strip's worth of it in from
+ * the edge the pose is on. Pure, so it is unit-tested.
+ */
+export function placeX({
+  xPx,
+  halfPx,
+  viewportPx,
+  placement,
+  layout = 'steps',
+}: {
+  xPx: number
+  halfPx: number
+  viewportPx: number
+  placement: Placement
+  layout?: PeekLayout
+}): number {
+  if (placement === 'free' || placement === 'parked') return xPx
+  if (placement === 'column') {
+    // The whole prop, not its centre, stays inside the rails (the page column,
+    // or the screen where that is narrower), with a margin.
+    const rail = Math.min(viewportPx, PAGE_COLUMN_PX) / 2
+    const limit = Math.max(0, rail - RAIL_MARGIN_PX - halfPx)
+    return Math.max(-limit, Math.min(limit, xPx))
+  }
+  // Peek: the pose only says which side; the prop is placed so that `reach` px
+  // of it shows in from that edge (all of it, if it is narrower than that).
+  const edge = viewportPx / 2
+  const side = xPx < 0 ? 'left' : 'right'
+  const shown = Math.min(peekReachPx(viewportPx, side, layout), 2 * halfPx)
+  return side === 'left' ? -edge + shown - halfPx : edge - shown + halfPx
+}
+
+/** The air between a prop's shadow and the footer's top edge. */
+export const FOOTER_MARGIN_PX = 24
+/** The air between a prop's top and the header's foot. */
+export const HEADER_MARGIN_PX = 8
+
+/** The camera's vertical field of view (degrees): the scene's `Canvas` uses it. */
+export const CAMERA_FOV = 32
+
+/** Wide formations are tuned at 16:10; narrower windows shrink the objects. */
+export const WIDE_ASPECT = 1.6
+
+/** The height of the z = 0 plane the camera sees, in world units. */
+export const WORLD_HEIGHT =
+  2 * CAMERA_Z * Math.tan((CAMERA_FOV / 2) * (Math.PI / 180))
+
+/**
+ * Sizes follow the viewport height (a perspective camera), so wide formations
+ * are shrunk on less-wide windows to keep them off the centre.
+ */
+export function fitFor(compact: boolean, aspect: number): number {
+  return compact ? 1 : Math.min(1, aspect / WIDE_ASPECT)
+}
+
+/**
+ * How far to lift the close's props (px, up) so that none of them, shadow
+ * included, is cut by the opaque footer. The close's props sit level with its
+ * call, and at the foot of the page the footer covers the bottom of the screen
+ * (its top edge is at `footerTopPx`; `null`, or past the screen's foot, means no
+ * footer in view). They are lifted together, by the most any one needs, so the
+ * formation keeps its shape, and never so far that the highest goes up under the
+ * header: where the room is smaller than the props, the header wins. Pure, so it
+ * is unit-tested.
+ */
+export function closeLiftPx({
+  ids,
+  compact,
+  widthPx,
+  heightPx,
+  footerTopPx,
+  headerPx,
+}: {
+  ids: readonly SceneObjectId[]
+  compact: boolean
+  widthPx: number
+  heightPx: number
+  footerTopPx: number | null
+  headerPx: number
+}): number {
+  if (footerTopPx === null) return 0
+  const perUnit = heightPx / WORLD_HEIGHT
+  const fit = fitFor(compact, widthPx / heightPx)
+  let needed = 0
+  let room = Number.POSITIVE_INFINITY
+  for (const id of ids) {
+    const pose = poseFor(id, 'cta', compact, heightPx)
+    const near = CAMERA_Z / (CAMERA_Z - pose.z)
+    const px = perUnit * near * pose.s * fit
+    const centre = heightPx / 2 - pose.y * heightPx * near
+    const reach = PROP_REACH[id]
+    needed = Math.max(
+      needed,
+      centre + reach.below * px - (footerTopPx - FOOTER_MARGIN_PX),
+    )
+    room = Math.min(
+      room,
+      centre - reach.above * px - (headerPx + HEADER_MARGIN_PX),
+    )
+  }
+  return Math.max(0, Math.min(needed, room))
 }
 
 /**

@@ -99,8 +99,17 @@ export const CompactGather: Story = {
   globals: { viewport: { value: 'mobile1', isRotated: false } },
 }
 
-/** Source for the hero's still poster (`public/images/landing/`), wide, transparent. */
+/** Source for the hero's still poster (`public/images/landing/`), wide (1440 x 900), transparent. */
 export const PosterWide: Story = { args: { transparent: true } }
+
+/** Source for the hero's still poster on a large screen (1920 x 1080), transparent. */
+export const PosterLarge: Story = { args: { transparent: true } }
+
+/** Source for the hero's still poster on a tablet (768 x 1024): the two compact objects, transparent. */
+export const PosterMiddle: Story = {
+  args: { transparent: true, compact: true },
+  parameters: { viewport: { defaultViewport: 'tablet' } },
+}
 
 /** Source for the hero's still poster, phone size: the two compact objects, transparent. */
 export const PosterCompact: Story = {

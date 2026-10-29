@@ -39,6 +39,13 @@ const state = {
   pointerY: 0,
   /** The live 3D scene has drawn, so the hero's still poster can go. */
   sceneReady: false,
+  /**
+   * A transparent block of the page (the hero, how it works, the close) is on
+   * screen, so a prop can be seen. Every other section is an opaque panel that
+   * hides the scene, so the scene stops drawing while none is in view. True
+   * until the tracker has looked, so the first frames draw.
+   */
+  sceneVisible: true,
 }
 
 const listeners = new Set<() => void>()
@@ -54,6 +61,12 @@ export function setStoryStage(stage: StoryStage): void {
 export function setSceneReady(ready: boolean): void {
   if (state.sceneReady === ready) return
   state.sceneReady = ready
+  for (const listener of listeners) listener()
+}
+
+export function setSceneVisible(visible: boolean): void {
+  if (state.sceneVisible === visible) return
+  state.sceneVisible = visible
   for (const listener of listeners) listener()
 }
 
@@ -74,6 +87,14 @@ export function useStoryStage(): StoryStage {
     subscribe,
     () => state.stage,
     () => 'hero',
+  )
+}
+
+export function useSceneVisible(): boolean {
+  return useSyncExternalStore(
+    subscribe,
+    () => state.sceneVisible,
+    () => true,
   )
 }
 

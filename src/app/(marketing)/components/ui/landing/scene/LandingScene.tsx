@@ -1,18 +1,33 @@
 'use client'
 
 import { Float } from '@react-three/drei'
-import { Canvas, useFrame } from '@react-three/fiber'
-import { type ComponentType, useMemo, useRef } from 'react'
+import { Canvas, useFrame, useThree } from '@react-three/fiber'
+import {
+  type ComponentType,
+  type MutableRefObject,
+  useEffect,
+  useMemo,
+  useRef,
+} from 'react'
 import { CanvasTexture, type Group, MathUtils, NeutralToneMapping } from 'three'
 
-import { storyState } from '../story/storyState'
+import { BREAKPOINT_PX } from '@/theme/breakpoints'
+import { HEADER_MIN_HEIGHT } from '@/ui/Header/shell/headerShell'
+
+import { storyState, useSceneVisible } from '../story/storyState'
 import { SceneLights } from './SceneLights'
 import {
+  CAMERA_FOV,
   CAMERA_Z,
   COMPACT_OBJECTS,
+  PROP_REACH,
   SCENE_OBJECTS,
   type SceneObjectId,
-  limitX,
+  closeLiftPx,
+  fitFor,
+  peekLayoutFor,
+  placeX,
+  placementFor,
   poseFor,
 } from './formations'
 import { Boxes } from './objects/Boxes'
@@ -28,8 +43,11 @@ const MODELS: Record<SceneObjectId, ComponentType> = {
 
 /** How quickly objects glide to a new formation (higher = snappier). */
 const FORMATION_LAMBDA = 2.6
-/** Wide formations are tuned at 16:10; narrower windows shrink the objects. */
-const WIDE_ASPECT = 1.6
+/** What the scene reads off the page once a frame (see `PageProbe`). */
+type PageProbe = {
+  /** How far (px, up) the close's props are lifted to stay clear of the footer. */
+  closeLift: number
+}
 
 function useBlobShadowTexture(): CanvasTexture {
   const texture = useMemo(() => {
@@ -62,11 +80,13 @@ function SceneObject({
   compact,
   index,
   shadow,
+  probe,
 }: {
   id: SceneObjectId
   compact: boolean
   index: number
   shadow: CanvasTexture
+  probe: MutableRefObject<PageProbe>
 }) {
   const ref = useRef<Group>(null)
   const turnRef = useRef<Group>(null)
@@ -79,21 +99,38 @@ function SceneObject({
     const turn = turnRef.current
     const shade = shadowRef.current
     if (!group || !turn || !shade) return
-    const target = poseFor(id, storyState.stage, compact, state.size.height)
+    const stage = storyState.stage
+    const target = poseFor(id, stage, compact, state.size.height)
     const { width, height, factor } = state.viewport
     // Sizes follow the viewport height (perspective camera), so keep wide
     // formations from crowding the centre on less-wide windows.
-    const fit = compact ? 1 : Math.min(1, width / height / WIDE_ASPECT)
+    const fit = fitFor(compact, width / height)
     const scale = target.s * fit
     // A gentle drift tied to scroll, out of phase per object.
     const drift =
       Math.sin(window.scrollY / window.innerHeight + index * 1.7) * 0.12
-    // On wide screens the props stay inside the page column. The limit is on
-    // where a prop appears (px from the centre), so a prop nearer the camera,
-    // which the perspective pushes outward, is held at the same line.
+    // Where a prop appears is held in px: a prop nearer the camera, which the
+    // perspective pushes outward, is held at the same line. Its reach (the
+    // hammer and the shadow included) is in px at its depth too.
     const near = CAMERA_Z / (CAMERA_Z - target.z)
-    const x = limitX(target.x * width * factor * near, compact) / near / factor
-    const y = target.y * height + drift
+    const reach = PROP_REACH[id]
+    const px = factor * near * scale
+    const viewportPx = state.size.width
+    // Wide screens keep the whole prop inside the page column's rails, phones
+    // let it only peek in from the edge (clear of the text), and the formation
+    // that waits under the opaque panels is parked off the edges.
+    const xPx = placeX({
+      xPx: target.x * viewportPx * near,
+      halfPx: reach.halfWidth * px,
+      viewportPx,
+      placement: placementFor(stage, compact),
+      layout: peekLayoutFor(stage),
+    })
+    const x = xPx / near / factor
+    // The close's props stay above the opaque footer, which would slice them
+    // (`PageProbe` works out how far to lift them, together).
+    const lift = stage === 'cta' ? probe.current.closeLift : 0
+    const y = (target.y + lift / (state.size.height * near)) * height + drift
     if (!placed.current) {
       // First frame: start in place (the poster underneath shows the same).
       group.position.set(x, y, target.z)
@@ -174,6 +211,65 @@ function PointerRig({ children }: { children: React.ReactNode }) {
   return <group ref={ref}>{children}</group>
 }
 
+/**
+ * Reads the footer's top edge once a frame, while the close is the stage (the
+ * only formation that has to keep clear of it), and works out how far to lift
+ * the close's props together (`closeLiftPx`), so no prop reads the page itself.
+ * It is mounted before the props, so its lift is current when they read it.
+ */
+function PageProbe({
+  probe,
+  ids,
+  compact,
+}: {
+  probe: MutableRefObject<PageProbe>
+  ids: readonly SceneObjectId[]
+  compact: boolean
+}) {
+  const footer = useRef<Element | null>(null)
+  useEffect(() => {
+    footer.current = document.querySelector('footer')
+  }, [])
+  useFrame((state) => {
+    if (storyState.stage !== 'cta') return
+    const top = footer.current?.getBoundingClientRect().top
+    const widthPx = state.size.width
+    probe.current.closeLift = closeLiftPx({
+      ids,
+      compact,
+      widthPx,
+      heightPx: state.size.height,
+      footerTopPx: top === undefined || top >= state.size.height ? null : top,
+      headerPx: Number.parseFloat(
+        widthPx >= BREAKPOINT_PX.md
+          ? HEADER_MIN_HEIGHT.md
+          : HEADER_MIN_HEIGHT.base,
+      ),
+    })
+  })
+  return null
+}
+
+/**
+ * Keeps the scene drawing only while a prop can be seen. The canvas draws on
+ * demand (`frameloop="demand"`); while a transparent block of the page is on
+ * screen this asks for the next frame each frame, and when none is (the opaque
+ * panels hide the scene) it stops, so the GPU and the battery are not spent on
+ * what nobody can see. A pointer move or a scroll that brings a block back
+ * starts it again.
+ */
+function FrameDriver() {
+  const visible = useSceneVisible()
+  const invalidate = useThree((state) => state.invalidate)
+  useEffect(() => {
+    if (visible) invalidate()
+  }, [visible, invalidate])
+  useFrame(() => {
+    if (storyState.sceneVisible) invalidate()
+  })
+  return null
+}
+
 /** Calls `onReady` once two frames have drawn (shaders compiled, objects up). */
 function ReadySignal({ onReady }: { onReady?: () => void }) {
   const frames = useRef(0)
@@ -192,10 +288,13 @@ function SceneContents({
   onReady?: () => void
 }) {
   const shadow = useBlobShadowTexture()
+  const probe = useRef<PageProbe>({ closeLift: 0 })
   const ids = compact ? COMPACT_OBJECTS : SCENE_OBJECTS
   return (
     <>
       <SceneLights />
+      <FrameDriver />
+      <PageProbe probe={probe} ids={ids} compact={compact} />
       <ReadySignal onReady={onReady} />
       <PointerRig>
         {ids.map((id, index) => (
@@ -205,6 +304,7 @@ function SceneContents({
             compact={compact}
             index={index}
             shadow={shadow}
+            probe={probe}
           />
         ))}
       </PointerRig>
@@ -228,8 +328,10 @@ export default function LandingScene({
 }: LandingSceneProps) {
   return (
     <Canvas
+      // Draws only while a prop can be seen (`FrameDriver`).
+      frameloop="demand"
       dpr={[1, dprMax]}
-      camera={{ position: [0, 0, CAMERA_Z], fov: 32 }}
+      camera={{ position: [0, 0, CAMERA_Z], fov: CAMERA_FOV }}
       gl={{ antialias: true, alpha: true, powerPreference: 'high-performance' }}
       style={{ pointerEvents: 'none' }}
       onCreated={({ gl }) => {
