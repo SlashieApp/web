@@ -21,6 +21,12 @@ export type TaskSearchBaseProps = {
   /** Typed text not applied yet, or results loading: inline spinner. */
   pending?: boolean
   autoFocus?: boolean
+  /**
+   * A labelled field of a filter panel (My tasks): `controlHeight` tall (48),
+   * like every field of a form. Off, it is the search bar, which keeps the
+   * 44px touch target.
+   */
+  asField?: boolean
   onValueChange: (value: string) => void
   /** Enter: apply the typed text now. */
   onCommit: () => void
@@ -90,6 +96,7 @@ export function TaskSearchBase({
   mode,
   pending = false,
   autoFocus = false,
+  asField = false,
   onValueChange,
   onCommit,
   onClear,
@@ -158,6 +165,7 @@ export function TaskSearchBase({
   return (
     <Input
       pill
+      rootProps={asField ? { minH: 'form.controlHeight' } : undefined}
       startElement={startElement}
       endElement={endElement}
       value={value}

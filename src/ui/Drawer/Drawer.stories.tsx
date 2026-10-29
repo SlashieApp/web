@@ -2,13 +2,14 @@ import { Box, SimpleGrid, Stack, Text } from '@chakra-ui/react'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import type { ComponentProps } from 'react'
 import { useState } from 'react'
-import { expect, waitFor, within } from 'storybook/test'
+import { expect, fn, userEvent, waitFor, within } from 'storybook/test'
 
 import { formSpace } from '@/theme/styles'
 
 import { Button } from '../Button'
 import { gapBelow } from '../FormField/formGap.testing'
 import { Drawer, type DrawerPlacement, type DrawerSize } from './Drawer'
+import { expectBar, expectNoLines } from './drawerSpacing.testing'
 
 /**
  * SDL Drawer (Foundations). A scrim-backed sheet that tracks the finger 1:1,
@@ -43,9 +44,15 @@ const meta = {
       control: 'text',
       description: 'When set, renders a full-width footer action that closes.',
     },
+    secondaryActionLabel: {
+      control: 'text',
+      description:
+        'A second footer button left of the primary one (Clear, Reset); it closes too.',
+    },
     open: { table: { disable: true } },
     onOpenChange: { table: { disable: true } },
     onPrimaryAction: { table: { disable: true } },
+    onSecondaryAction: { table: { disable: true } },
     children: { table: { disable: true } },
   },
   args: {
@@ -360,6 +367,57 @@ export const OpenTitleOnly: Story = {
   play: async ({ canvasElement }) => {
     await expectOpen(canvasElement, 'Quick view')
     await expectTitleBlock(await findOpenDialog(canvasElement, 'Quick view'))
+  },
+}
+
+/**
+ * Open, a bar with two buttons (the filter drawers: Clear and Apply): the
+ * secondary is left of the primary, 12 apart, the primary takes the rest of the
+ * row, the last row is 20 above both, and no line is drawn above the bar. Each
+ * button runs its callback and closes the drawer.
+ */
+export const OpenSecondaryAction: Story = {
+  tags: ['!autodocs'],
+  args: {
+    ...controlled,
+    placement: 'bottom',
+    primaryActionLabel: 'Apply',
+    secondaryActionLabel: 'Clear',
+    onPrimaryAction: fn(),
+    onSecondaryAction: fn(),
+  },
+  render: (args) => (
+    <DrawerDemo {...args} description={undefined} initialOpen>
+      <BodyCopy />
+    </DrawerDemo>
+  ),
+  play: async ({ canvasElement, args }) => {
+    const dialog = await findOpenDialog(canvasElement, 'Filters')
+    const clear = within(dialog).getByRole('button', { name: 'Clear' })
+    const apply = within(dialog).getByRole('button', { name: 'Apply' })
+    // Clear is on the left and keeps its own width; Apply fills the rest.
+    await expect(clear.getBoundingClientRect().left).toBeLessThan(
+      apply.getBoundingClientRect().left,
+    )
+    await expectBar(
+      within(dialog).getByText('Drawer body content goes here.'),
+      [clear, apply],
+    )
+    await expect(apply.getBoundingClientRect().width).toBeGreaterThan(
+      clear.getBoundingClientRect().width,
+    )
+    await expectNoLines(dialog)
+
+    await userEvent.click(clear)
+    await expect(args.onSecondaryAction).toHaveBeenCalledTimes(1)
+    await expect(args.onPrimaryAction).not.toHaveBeenCalled()
+    await waitFor(() =>
+      expect(
+        within(canvasElement.ownerDocument.body).queryByRole('dialog', {
+          name: 'Filters',
+        }),
+      ).toBeNull(),
+    )
   },
 }
 

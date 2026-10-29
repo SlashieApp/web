@@ -1,5 +1,9 @@
 import { Box } from '@chakra-ui/react'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
+import { expect, within } from 'storybook/test'
+
+import { formSpace } from '@/theme/styles'
+import { heightOf } from '@/ui/FormField/formGap.testing'
 
 import { withWorkersStory } from '../workersStoryDecorator'
 import {
@@ -36,7 +40,7 @@ export const AreaInput: Story = {
   ),
 }
 
-/** Skills field, empty: shows its placeholder. */
+/** Skills field, empty: shows its placeholder. In the search bar it keeps the 44px touch target. */
 export const SkillsInput: Story = {
   decorators: [withWorkersStory()],
   render: () => (
@@ -44,6 +48,26 @@ export const SkillsInput: Story = {
       <WorkersSkillsInput />
     </Box>
   ),
+  play: async ({ canvasElement }) => {
+    const field = within(canvasElement).getByRole('searchbox')
+    await expect(heightOf(field.parentElement as HTMLElement)).toBe(44)
+  },
+}
+
+/** Skills field as a labelled field of the filters drawer: a form field, 48 tall. */
+export const SkillsInputAsField: Story = {
+  decorators: [withWorkersStory()],
+  render: () => (
+    <Box maxW="360px">
+      <WorkersSkillsInput asField />
+    </Box>
+  ),
+  play: async ({ canvasElement }) => {
+    const field = within(canvasElement).getByRole('searchbox')
+    await expect(heightOf(field.parentElement as HTMLElement)).toBe(
+      formSpace.controlHeight,
+    )
+  },
 }
 
 /** Skills field with a search already typed in. */

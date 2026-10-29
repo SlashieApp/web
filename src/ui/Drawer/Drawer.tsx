@@ -112,6 +112,14 @@ export type DrawerProps = {
   /** Footer button that closes the drawer; optional. */
   primaryActionLabel?: string
   onPrimaryAction?: () => void
+  /**
+   * A second footer button, left of the primary one (Clear, Reset). It runs
+   * `onSecondaryAction`, then closes the drawer, like the primary. The two sit
+   * `formSpace.inlineGap` (12) apart and the primary takes the rest of the row.
+   * It needs a `primaryActionLabel`: the bar is the primary's.
+   */
+  secondaryActionLabel?: string
+  onSecondaryAction?: () => void
   /** Optional responsive panel overrides for feature drawers/sheets. */
   contentProps?: DrawerContentProps
   /**
@@ -162,6 +170,8 @@ export function Drawer({
   size = 'md',
   primaryActionLabel,
   onPrimaryAction,
+  secondaryActionLabel,
+  onSecondaryAction,
   contentProps,
   finalFocusEl,
 }: DrawerProps) {
@@ -313,17 +323,32 @@ export function Drawer({
               pb="calc(16px + env(safe-area-inset-bottom, 0px))"
               flexShrink={0}
             >
-              <Button
-                variant="primary"
-                w="full"
-                size="lg"
-                onClick={() => {
-                  onPrimaryAction?.()
-                  onOpenChange(false)
-                }}
-              >
-                {primaryActionLabel}
-              </Button>
+              <HStack gap="form.inlineGap" w="full">
+                {secondaryActionLabel ? (
+                  <Button
+                    variant="secondary"
+                    size="lg"
+                    onClick={() => {
+                      onSecondaryAction?.()
+                      onOpenChange(false)
+                    }}
+                  >
+                    {secondaryActionLabel}
+                  </Button>
+                ) : null}
+                <Button
+                  variant="primary"
+                  flex={1}
+                  minW={0}
+                  size="lg"
+                  onClick={() => {
+                    onPrimaryAction?.()
+                    onOpenChange(false)
+                  }}
+                >
+                  {primaryActionLabel}
+                </Button>
+              </HStack>
             </DrawerFooter>
           ) : null}
         </DrawerContent>

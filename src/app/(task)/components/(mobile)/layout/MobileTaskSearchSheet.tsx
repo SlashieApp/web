@@ -4,7 +4,7 @@ import { Stack, useBreakpointValue } from '@chakra-ui/react'
 import type { ReactNode } from 'react'
 
 import { useI11n } from '@/i18n/useI11n'
-import { Drawer } from '@ui'
+import { Drawer, FormStack } from '@ui'
 
 import { TaskList } from '../../(web)/layout/TaskList'
 import { useTaskBrowseLayout } from '../../../context/TaskBrowseProvider'
@@ -42,8 +42,12 @@ export function MobileTaskSearchSheet({
       size="full"
     >
       <Stack gap={3} flex={1} minH={0}>
-        <TaskSearch mode="input" autoFocus />
-        <TaskSearchFilters />
+        {/* The search and its filters are fields of a form (FE-481): the frame
+            puts 24 under the title, and the two are `fieldGap` (20) apart. */}
+        <FormStack>
+          <TaskSearch mode="input" autoFocus />
+          <TaskSearchFilters />
+        </FormStack>
         <TaskList
           header={listHeader}
           onOpenTask={() => setIsFilterOpen(false)}

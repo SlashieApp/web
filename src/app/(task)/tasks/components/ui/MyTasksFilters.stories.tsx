@@ -1,7 +1,17 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test'
 
+import { phone390 } from '@/app/(dashboard)/components/ui/dialogSpacing.testing'
 import { LocaleProvider } from '@/i18n/LocaleProvider'
+import { formSpace } from '@/theme/styles'
+import {
+  expectBar,
+  expectFiltersApart,
+  expectLabelAbove,
+  expectNoLines,
+  openDrawer as openFilterDrawer,
+} from '@/ui/Drawer/drawerSpacing.testing'
+import { gapBelow, gapBeside } from '@/ui/FormField/formGap.testing'
 
 import type { MyTasksQuery } from '../../helpers/myTasksHubFilters'
 import { MyTasksFilters } from './MyTasksFilters'
@@ -271,5 +281,79 @@ export const TraditionalChinese: Story = {
     )
     await pressed(page, '我發布的')
     await expect(page.getByRole('button', { name: '套用' })).toBeVisible()
+  },
+}
+
+/**
+ * Form spacing (FE-481), at a real 390 phone. The first filter is 24 under the
+ * title, the three filters are 20 apart, each label is 8 above its control,
+ * Search is a field (48 tall), the choices are 8 apart (also when they wrap),
+ * and Clear and Apply are pinned in the bar: 20 under the last filter, 12
+ * apart, no line above them.
+ */
+export const Spacing: Story = {
+  ...phone390,
+  tags: ['!autodocs'],
+  args: { query: active },
+  play: async ({ canvasElement }) => {
+    await userEvent.click(
+      within(canvasElement).getByRole('button', { name: 'Filters, 3 active' }),
+    )
+    const { dialog, title, column } = await openFilterDrawer(
+      canvasElement,
+      'Filter tasks',
+    )
+    const inDrawer = within(dialog)
+    const legend = (name: string) =>
+      inDrawer.getByText(name, { selector: 'legend' })
+    const search = inDrawer.getByRole('searchbox').parentElement as HTMLElement
+    const show = legend('Show').nextElementSibling as HTMLElement
+    const category = legend('Category').nextElementSibling as HTMLElement
+
+    await expect(gapBelow(title, legend('Search'))).toBe(formSpace.headerToBody)
+    await expectLabelAbove(legend('Search'), search, {
+      height: formSpace.controlHeight,
+    })
+    await expectLabelAbove(legend('Show'), show)
+    await expectLabelAbove(legend('Category'), category)
+    await expectFiltersApart(column)
+
+    // The choices are 8 apart, across and down when they wrap.
+    const choices = (row: HTMLElement) => [...row.children] as HTMLElement[]
+    const [allTasks, posted] = choices(show)
+    await expect(gapBeside(allTasks as Element, posted as Element)).toBe(
+      formSpace.alternativesGap,
+    )
+    const [allCategories, , , moving] = choices(category)
+    await expect(gapBelow(allCategories as Element, moving as Element)).toBe(
+      formSpace.alternativesGap,
+    )
+
+    await expectBar(category, [
+      inDrawer.getByRole('button', { name: 'Clear' }),
+      inDrawer.getByRole('button', { name: 'Apply' }),
+    ])
+    await expectNoLines(dialog)
+    await expect(dialog.scrollWidth).toBeLessThanOrEqual(390)
+  },
+}
+
+/** One kind of task: the Show filter is gone and the other two keep the same gaps. */
+export const SpacingOneRole: Story = {
+  ...phone390,
+  tags: ['!autodocs'],
+  args: { showRole: false },
+  play: async ({ canvasElement }) => {
+    await userEvent.click(
+      within(canvasElement).getByRole('button', { name: 'Filters' }),
+    )
+    const { dialog, title, column } = await openFilterDrawer(
+      canvasElement,
+      'Filter tasks',
+    )
+    const legend = within(dialog).getByText('Search', { selector: 'legend' })
+    await expect(gapBelow(title, legend)).toBe(formSpace.headerToBody)
+    await expectFiltersApart(column)
+    await expect(column.children).toHaveLength(2)
   },
 }

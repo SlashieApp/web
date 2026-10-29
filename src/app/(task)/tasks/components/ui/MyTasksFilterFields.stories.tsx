@@ -2,7 +2,10 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { useState } from 'react'
 import { expect, fn, userEvent, within } from 'storybook/test'
 
+import { gapsBetweenChildren } from '@/app/(dashboard)/components/ui/dialogSpacing.testing'
 import { LocaleProvider } from '@/i18n/LocaleProvider'
+import { formSpace } from '@/theme/styles'
+import { gapBelow, heightOf } from '@/ui/FormField/formGap.testing'
 
 import type { MyTasksQuery } from '../../helpers/myTasksHubFilters'
 import {
@@ -166,5 +169,39 @@ export const TraditionalChinese: Story = {
     await expect(
       canvas.getByRole('button', { name: '我發布的' }),
     ).toHaveAttribute('aria-pressed', 'true')
+  },
+}
+
+/**
+ * Form spacing (FE-481): the three groups are a FormStack (20 apart), each
+ * legend is the form label (8 above its control) and Search is a field (48
+ * tall). The component sets this itself, so a caller adds nothing around it.
+ */
+export const Spacing: Story = {
+  args: { query: active },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const column = canvas.getByRole('group', { name: 'Search' })
+      .parentElement as HTMLElement
+    for (const gap of gapsBetweenChildren(column)) {
+      await expect(gap).toBe(formSpace.fieldGap)
+    }
+    await expect(column.children).toHaveLength(3)
+
+    for (const name of ['Search', 'Show', 'Category']) {
+      const legend = canvas.getByText(name, { selector: 'legend' })
+      await expect(gapBelow(legend, legend.nextElementSibling as Element)).toBe(
+        formSpace.labelToControl,
+      )
+    }
+    const search = canvas.getByRole('searchbox').parentElement as HTMLElement
+    await expect(heightOf(search)).toBe(formSpace.controlHeight)
+    // The label is 14px, weight 500, on the form label's own 20px line.
+    const legend = getComputedStyle(
+      canvas.getByText('Search', { selector: 'legend' }),
+    )
+    await expect(legend.fontSize).toBe('14px')
+    await expect(legend.fontWeight).toBe('500')
+    await expect(legend.lineHeight).toBe('20px')
   },
 }

@@ -2,6 +2,11 @@ import { Box } from '@chakra-ui/react'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { expect, userEvent, waitFor, within } from 'storybook/test'
 
+import { phone390 } from '@/app/(dashboard)/components/ui/dialogSpacing.testing'
+import { formSpace } from '@/theme/styles'
+import { openDrawer } from '@/ui/Drawer/drawerSpacing.testing'
+import { gapBelow, heightOf } from '@/ui/FormField/formGap.testing'
+
 import { withTaskBrowseStory } from '../../../helpers/taskBrowseStoryDecorator'
 import { storyBrowseTasks } from '../../../helpers/taskBrowseStoryFixtures'
 import { SearchResultsListTitle } from '../../../search/components/results/SearchResultsListTitle'
@@ -72,6 +77,33 @@ export const Open: Story = {
     const sheet = page(canvasElement)
     await sheet.findByText(storyBrowseTasks[0].title)
     await sheet.findByRole('button', { name: /Date/ })
+  },
+}
+
+/**
+ * Form spacing (FE-481), at a real 390 phone: the search field is 24 under the
+ * title, the Date and Budget chips are 20 under it (the search bar keeps its
+ * own height, under a field's 48), and an open panel hangs 8 under the chips.
+ */
+export const OpenSpacing: Story = {
+  ...phone390,
+  decorators: [withTaskBrowseStory({ isDesktop: false, sheetOpen: true })],
+  play: async ({ canvasElement }) => {
+    const { dialog, title } = await openDrawer(canvasElement, 'Search tasks')
+    const sheet = within(dialog)
+    const search = sheet.getByRole('searchbox').parentElement as HTMLElement
+    const chips = sheet.getByRole('button', { name: /Date/ })
+      .parentElement as HTMLElement
+    await expect(gapBelow(title, search)).toBe(formSpace.headerToBody)
+    // The bar is the search bar, not a field of a form: it stays under the 48 of a field.
+    await expect(heightOf(search)).toBeLessThan(formSpace.controlHeight)
+    await expect(gapBelow(search, chips)).toBe(formSpace.fieldGap)
+
+    await userEvent.click(sheet.getByRole('button', { name: /Budget/ }))
+    const panel = await sheet.findByRole('group', { name: 'Budget' })
+    const row = chips.parentElement as HTMLElement
+    await expect(gapBelow(row, panel)).toBe(8)
+    await expect(dialog.scrollWidth).toBeLessThanOrEqual(390)
   },
 }
 

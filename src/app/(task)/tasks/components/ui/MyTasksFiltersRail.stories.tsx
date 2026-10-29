@@ -2,7 +2,10 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { useState } from 'react'
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test'
 
+import { gapsBetweenChildren } from '@/app/(dashboard)/components/ui/dialogSpacing.testing'
 import { LocaleProvider } from '@/i18n/LocaleProvider'
+import { formSpace } from '@/theme/styles'
+import { gapBelow, heightOf } from '@/ui/FormField/formGap.testing'
 import { Button } from '@ui'
 
 import {
@@ -366,5 +369,40 @@ export const TraditionalChinese: Story = {
       canvas.getByRole('button', { name: '我發布的' }),
     ).toHaveAttribute('aria-pressed', 'true')
     await expect(canvas.getByRole('button', { name: '清除篩選' })).toBeVisible()
+  },
+}
+
+/**
+ * Form spacing (FE-481): the first filter is 24 under the heading's text, and
+ * the three filters are 20 apart (each label 8 above its control, Search 48
+ * tall). Clear filters is taller than the heading line, but it adds no height
+ * to the row: the heading does not move, and the 24 does not change, when the
+ * button appears.
+ */
+export const Spacing: Story = {
+  render: (args) => <RailInPage {...args} />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const heading = canvas.getByRole('heading', { name: 'Filter tasks' })
+    const search = canvas.getByText('Search', { selector: 'legend' })
+    const topBefore = heading.getBoundingClientRect().top
+    await expect(gapBelow(heading, search)).toBe(formSpace.headerToBody)
+
+    const column = canvas.getByRole('group', { name: 'Search' })
+      .parentElement as HTMLElement
+    for (const gap of gapsBetweenChildren(column)) {
+      await expect(gap).toBe(formSpace.fieldGap)
+    }
+    await expect(
+      heightOf(canvas.getByRole('searchbox').parentElement as HTMLElement),
+    ).toBe(formSpace.controlHeight)
+
+    // Typing turns Clear filters on; the heading and the gap below it stay put.
+    await userEvent.type(canvas.getByRole('searchbox'), 'tap')
+    await expect(
+      canvas.getByRole('button', { name: 'Clear filters' }),
+    ).toBeVisible()
+    await expect(heading.getBoundingClientRect().top).toBe(topBefore)
+    await expect(gapBelow(heading, search)).toBe(formSpace.headerToBody)
   },
 }

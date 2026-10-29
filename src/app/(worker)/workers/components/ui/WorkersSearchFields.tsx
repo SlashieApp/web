@@ -79,13 +79,19 @@ export function WorkersAreaInput() {
   )
 }
 
-export function WorkersSkillsInput() {
+/**
+ * The skills and name search. In the filters drawer it is a labelled field of a
+ * form, so it is `controlHeight` tall (`asField`, 48); in the search bar it is
+ * the bar's own search, which keeps the 44px touch target.
+ */
+export function WorkersSkillsInput({ asField = false }: { asField?: boolean }) {
   const t = useI11n(bag)
   const { workerSearchInput, setWorkerSearchInput } = useWorkerSearch()
 
   return (
     <Input
       pill
+      rootProps={asField ? { minH: 'form.controlHeight' } : undefined}
       startElement={
         <Box as="span" aria-hidden display="inline-flex">
           <LuSearch size={18} strokeWidth={2} />
@@ -148,12 +154,15 @@ export function WorkersDistanceControl({
   }
 
   return (
-    <Stack gap={2}>
-      <HStack justify="space-between" align="baseline">
+    <Stack gap="form.labelToControl">
+      {/* The label and the value share the label's 16px line and centre on
+          it, so the row is one label tall and the 8 under it is measured from
+          the label. */}
+      <HStack justify="space-between" align="center">
         <Text {...WORKERS_FILTER_LABEL} mb={0}>
           {t.distanceLabel}
         </Text>
-        <Text fontSize="sm" {...sdlFigure} color="text.link">
+        <Text fontSize="sm" lineHeight="16px" {...sdlFigure} color="text.link">
           {valueLabel}
         </Text>
       </HStack>

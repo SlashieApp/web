@@ -114,17 +114,23 @@ export function MyTasksFiltersRail({
       ref={onRootRef}
       aria-labelledby={headingId}
       tabIndex={-1}
-      gap={6}
+      gap="form.headerToBody"
       w={MY_TASKS_RAIL_W}
       flexShrink={0}
       display={{ base: 'none', lg: 'flex' }}
       outline="none"
     >
-      <HStack justify="space-between" align="center" gap={2} minH="36px">
+      {/* The heading is the header: the first filter is `headerToBody` (24)
+          below its text. Clear filters is a 36px button, taller than the 28px
+          line, so its margins (-4) take it out of the row's height, and the
+          row's top padding (4) keeps the heading where a 36px row had it: the
+          24 is the same with the button or without. */}
+      <HStack justify="space-between" align="center" gap={2} pt={1}>
         <Heading
           as="h2"
           id={headingId}
           fontSize="lg"
+          lineHeight="28px"
           fontWeight={500}
           color="text.default"
           letterSpacing="-0.01em"
@@ -137,6 +143,7 @@ export function MyTasksFiltersRail({
             variant="ghost"
             size="sm"
             h="36px"
+            my={-1}
             onClick={clearAll}
           >
             {t.views.actions.clearFilters}

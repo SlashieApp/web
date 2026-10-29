@@ -5,7 +5,7 @@ import { Stack, Text } from '@chakra-ui/react'
 import { useTaskBrowseData } from '@/app/(task)/context/TaskBrowseProvider'
 import { useI11n } from '@/i18n/useI11n'
 import { MOBILE_BOTTOM_NAV_CLEARANCE } from '@/ui/MobileBottomNav/mobileBottomNavLayout'
-import { Drawer } from '@ui'
+import { Drawer, FormStack } from '@ui'
 
 import { useWorkerSearch } from '../../context/WorkerSearchProvider'
 import bag from '../../i11n.json'
@@ -50,17 +50,20 @@ export function WorkersFiltersDrawer() {
       }}
       contentProps={{ pb: MOBILE_BOTTOM_NAV_CLEARANCE }}
     >
-      <Stack gap={6} pb={2}>
-        <Stack gap={2}>
+      {/* Filters are fields of a form (FE-481): 20 apart, each label 8 above its
+          control. The frame puts 24 under the title and ends the body 20 above
+          Apply, so nothing here adds space at either end. */}
+      <FormStack>
+        <Stack gap="form.labelToControl">
           <Text {...WORKERS_FILTER_LABEL}>{t.skillsLabel}</Text>
-          <WorkersSkillsInput />
+          <WorkersSkillsInput asField />
         </Stack>
         <WorkersDistanceControl layout="block" />
-        <Stack gap={2}>
+        <Stack gap="form.labelToControl">
           <Text {...WORKERS_FILTER_LABEL}>{t.verifiedOnly}</Text>
           <WorkersVerifiedToggle />
         </Stack>
-      </Stack>
+      </FormStack>
     </Drawer>
   )
 }

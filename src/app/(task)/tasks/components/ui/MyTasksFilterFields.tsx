@@ -6,6 +6,7 @@ import type { ReactNode } from 'react'
 import { TaskSearchBase } from '@/app/(task)/components/ui/TaskSearch'
 import { OptionButton } from '@/app/(task)/components/ui/TaskSearchFilters'
 import { useI11n } from '@/i18n/useI11n'
+import { FormStack, formControlLabelProps } from '@ui'
 
 import type { MyTaskRole } from '../../helpers/myTasksHub'
 import type { MyTasksQuery } from '../../helpers/myTasksHubFilters'
@@ -26,16 +27,14 @@ export type MyTasksFilterFieldsProps = {
   onCategoryChange: (category: string) => void
 }
 
+/**
+ * One filter: its label is the legend, `labelToControl` (8) above its control,
+ * in the form label's own type and 20px line (so the 8 is a whole 8).
+ */
 function Group({ label, children }: { label: string; children: ReactNode }) {
   return (
     <chakra.fieldset m={0} p={0} borderWidth={0} minW={0}>
-      <chakra.legend
-        p={0}
-        mb={2}
-        fontSize="sm"
-        fontWeight={500}
-        color="text.default"
-      >
+      <chakra.legend p={0} textStyle="sm" {...formControlLabelProps}>
         {label}
       </chakra.legend>
       {children}
@@ -47,7 +46,8 @@ function Group({ label, children }: { label: string; children: ReactNode }) {
  * The three filter groups of My tasks: Search, Show (posted or quoted) and
  * Category. The phone drawer and the desktop rail both render them, so the
  * controls and their copy are the same; each decides when a change applies.
- * The groups sit in the caller's stack, which sets the spacing.
+ * The groups are a `FormStack` (20 apart); the caller puts nothing around
+ * them, so the header above and the bar below set their own distance.
  */
 export function MyTasksFilterFields({
   query,
@@ -67,10 +67,11 @@ export function MyTasksFilterFields({
   ]
 
   return (
-    <>
+    <FormStack>
       <Group label={f.searchLabel}>
         <TaskSearchBase
           mode="input"
+          asField
           value={query.q}
           onValueChange={onSearchChange}
           onCommit={onSearchCommit}
@@ -83,7 +84,7 @@ export function MyTasksFilterFields({
       </Group>
       {showRole ? (
         <Group label={f.roleLabel}>
-          <HStack gap={2} flexWrap="wrap">
+          <HStack gap="form.alternativesGap" flexWrap="wrap">
             {roles.map(([role, label]) => (
               <OptionButton
                 key={label}
@@ -98,7 +99,7 @@ export function MyTasksFilterFields({
       ) : null}
       {categories.length > 0 ? (
         <Group label={f.categoryLabel}>
-          <HStack gap={2} flexWrap="wrap">
+          <HStack gap="form.alternativesGap" flexWrap="wrap">
             {[{ category: '', label: f.categoryAll }, ...categories].map(
               (option) => (
                 <OptionButton
@@ -113,6 +114,6 @@ export function MyTasksFilterFields({
           </HStack>
         </Group>
       ) : null}
-    </>
+    </FormStack>
   )
 }

@@ -1,7 +1,7 @@
 'use client'
 
-import { HStack, SimpleGrid, Stack, Text, chakra } from '@chakra-ui/react'
-import { Button, FormField, Input } from '@ui'
+import { HStack, Stack, Text, chakra } from '@chakra-ui/react'
+import { Button, FormField, FormRow, FormStack, Input } from '@ui'
 import { useId, useState } from 'react'
 import { LuChevronDown, LuX } from 'react-icons/lu'
 
@@ -201,8 +201,8 @@ export function TaskSearchFilters() {
           borderColor="border.default"
           bg="bg.surface"
         >
-          <Stack gap={3}>
-            <HStack gap={2} flexWrap="wrap">
+          <FormStack>
+            <HStack gap="form.alternativesGap" flexWrap="wrap">
               <OptionButton
                 pressed={dateFilter?.preset === 'today'}
                 onPress={() => {
@@ -234,7 +234,7 @@ export function TaskSearchFilters() {
               </OptionButton>
             </HStack>
             {picking || dateFilter?.preset === 'custom' ? (
-              <SimpleGrid columns={2} gap={3}>
+              <FormRow>
                 <FormField label={t.dateFrom}>
                   <Input
                     type="date"
@@ -271,9 +271,9 @@ export function TaskSearchFilters() {
                     }
                   />
                 </FormField>
-              </SimpleGrid>
+              </FormRow>
             ) : null}
-          </Stack>
+          </FormStack>
         </chakra.fieldset>
       ) : null}
 
@@ -289,8 +289,8 @@ export function TaskSearchFilters() {
           borderColor="border.default"
           bg="bg.surface"
         >
-          <Stack gap={2}>
-            <SimpleGrid columns={2} gap={3}>
+          <Stack gap="form.controlToHelper">
+            <FormRow>
               <FormField label={t.budgetMin}>
                 <Input
                   type="number"
@@ -311,9 +311,15 @@ export function TaskSearchFilters() {
                   onChange={(e) => setBudgetMaxInput(e.target.value)}
                 />
               </FormField>
-            </SimpleGrid>
+            </FormRow>
+            {/* The pair's error: 4 under the row, on the compact 20px line like a field's helper. */}
             {budgetRangeInvalid ? (
-              <Text fontSize="sm" color="status.danger.fg" role="alert">
+              <Text
+                fontSize="sm"
+                lineHeight="20px"
+                color="status.danger.fg"
+                role="alert"
+              >
                 {t.budgetInvalid}
               </Text>
             ) : null}
