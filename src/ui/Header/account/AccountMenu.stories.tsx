@@ -13,6 +13,12 @@ import { NEVER } from 'rxjs'
 import { expect, userEvent, waitFor, within } from 'storybook/test'
 
 import { type MeSnapshot, useUserStore } from '@/app/(auth)/store/user'
+import { desktop1280 } from '@/app/(stepflow)/stepFlowSpacing.testing'
+import {
+  expectPanelPadding,
+  panelOf,
+  settled,
+} from '@/ui/Dropdown/menuSpacing.testing'
 
 import { FeedbackDialogProvider } from '../../FeedbackDialog/FeedbackDialogProvider'
 import { AccountMenu, type AccountMenuProps } from './AccountMenu'
@@ -224,6 +230,33 @@ export const Open: Story = {
   render: (args) => <OpenSlot {...args} />,
   play: async ({ canvasElement }) => {
     await openMenu(canvasElement)
+  },
+}
+
+/**
+ * The popover's frame (FE-481 menus): the panel pads its content 8 on every
+ * side, the header and the groups of rows are inside that, and the rows are
+ * the rows they were.
+ */
+export const OpenSpacing: Story = {
+  ...desktop1280,
+  decorators: [withMe(meTrial)],
+  render: (args) => <OpenSlot {...args} />,
+  play: async ({ canvasElement }) => {
+    const canvas = await openMenu(canvasElement)
+    const panel = panelOf(canvas.getByRole('button', { name: 'Account menu' }))
+    await settled(panel)
+    await expectPanelPadding(panel)
+    // Every row keeps the 44px target it had (the header's own link is not a row).
+    const rows = canvas
+      .getAllByRole('link')
+      .filter((row) => row.textContent !== 'View profile')
+    await expect(rows.length).toBeGreaterThan(5)
+    for (const row of rows) {
+      await expect(row.getBoundingClientRect().height).toBeGreaterThanOrEqual(
+        44,
+      )
+    }
   },
 }
 

@@ -2,6 +2,7 @@ import { QuoteStatus, TaskStatus, ThreadAttentionKind } from '@codegen/schema'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { expect, fn, userEvent, within } from 'storybook/test'
 
+import { desktop1280 } from '@/app/(stepflow)/stepFlowSpacing.testing'
 import { TaskDetailProvider } from '@/app/(task)/tasks/[slug]/context/TaskDetailProvider'
 import {
   STORY_OWNER_ID,
@@ -12,6 +13,11 @@ import {
   storyTaskQuote,
 } from '@/app/(task)/tasks/[slug]/helpers/taskDetailStoryFixtures'
 import { LocaleProvider } from '@/i18n/LocaleProvider'
+import {
+  expectPanelPadding,
+  expectRowsAreRows,
+  openPopover,
+} from '@/ui/Dropdown/menuSpacing.testing'
 
 import { ThreadHeader } from './ThreadHeader'
 import { messagesStory } from './messagesStoryDecorator'
@@ -212,6 +218,26 @@ export const OwnerMenu: Story = {
     await expect(
       menu.getByRole('button', { name: 'Block Jordan Lee' }),
     ).toBeInTheDocument()
+  },
+}
+
+/**
+ * The conversation menu's panel (FE-481 menus): its rows sit 8 inside the panel on
+ * every side, and stay rows: 44 tall and touching.
+ */
+export const OwnerMenuSpacing: Story = {
+  ...desktop1280,
+  decorators: messagesStory({ viewer: 'owner', task: openTask }),
+  play: async ({ canvasElement }) => {
+    const trigger = await within(canvasElement).findByRole('button', {
+      name: 'Conversation options',
+    })
+    const panel = await openPopover(trigger)
+    await within(panel).findByRole('button', { name: 'Cancel task' })
+    await expectPanelPadding(panel)
+    const rows = [...panel.querySelectorAll('button')]
+    await expect(rows.length).toBeGreaterThanOrEqual(3)
+    await expectRowsAreRows(rows, 0)
   },
 }
 

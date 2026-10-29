@@ -51,6 +51,15 @@ const sdlPanelMotion = {
 const PANEL_EXIT_MS = 160
 
 /**
+ * Padding of the menu panel (Chakra step 2 = 8px), the same on every side and in
+ * both modes: the rows are inset 8 from the panel's edge (Foundations-Form-Spacing,
+ * menus). Rows stay rows: they keep their own height and padding and sit flush
+ * against each other, so this is the whole panel frame. Below `lg` the panel is
+ * the Drawer, whose own gutter and header gap (24) frame the rows.
+ */
+const PANEL_PADDING = 2
+
+/**
  * Exit motion — mirrors the enter keyframes as a transition back to hidden.
  * `alignTransform` preserves alignment transforms (e.g. centered panels).
  */
@@ -447,7 +456,7 @@ function ClickDropdown({
           bg="bg.surface"
           borderRadius="xl"
           boxShadow="e3"
-          p={1}
+          p={PANEL_PADDING}
           overflow="hidden"
           css={closing ? sdlPanelExit(alignTransform) : sdlPanelMotion}
           {...alignProps}
@@ -591,8 +600,7 @@ function HoverDropdown({
             bg="bg.surface"
             borderRadius="xl"
             boxShadow="e3"
-            py={2}
-            px={1}
+            p={PANEL_PADDING}
             minW="200px"
             css={closing ? sdlPanelExit() : sdlPanelMotion}
             {...contentProps}

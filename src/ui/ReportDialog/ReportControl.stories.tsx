@@ -3,6 +3,12 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { useState } from 'react'
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test'
 
+import { desktop1280 } from '@/app/(stepflow)/stepFlowSpacing.testing'
+
+import {
+  expectPanelPadding,
+  openPopover,
+} from '../Dropdown/menuSpacing.testing'
 import {
   ReportControl,
   type ReportControlProps,
@@ -127,6 +133,23 @@ export const OverflowMenuOpen: Story = {
         ).toBeVisible(),
       { timeout: 3000 },
     )
+  },
+}
+
+/** Overflow, menu open: the one row sits 8 inside the panel on every side (FE-481 menus), a panel sized to its row. */
+export const OverflowMenuSpacing: Story = {
+  ...desktop1280,
+  args: { variant: 'overflow' },
+  render: (args) => (
+    <EndSlot>
+      <ReportControl {...args} />
+    </EndSlot>
+  ),
+  play: async ({ canvasElement }) => {
+    const panel = await openPopover(
+      within(canvasElement).getByRole('button', { name: 'More actions' }),
+    )
+    await expectPanelPadding(panel)
   },
 }
 

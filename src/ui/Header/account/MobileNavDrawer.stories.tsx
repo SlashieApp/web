@@ -10,6 +10,9 @@ import { useState } from 'react'
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test'
 
 import { type MeSnapshot, useUserStore } from '@/app/(auth)/store/user'
+import { phone390 } from '@/app/(dashboard)/components/ui/dialogSpacing.testing'
+import { formSpace } from '@/theme/styles'
+import { gapBelow } from '@/ui/FormField/formGap.testing'
 
 import { Button } from '../../Button/Button'
 import { FeedbackDialogProvider } from '../../FeedbackDialog/FeedbackDialogProvider'
@@ -210,6 +213,38 @@ export const OpenWorkerOnTrial: Story = {
     for (const row of rows) {
       expect(Math.abs(textLeft(row) - textLeft(title))).toBeLessThanOrEqual(0.5)
     }
+  },
+}
+
+/**
+ * The phone account menu on the form spacing (FE-481 menus), at 390: the header
+ * block is 24 under the title and 24 above the first row, the avatar sits on the
+ * title's left edge, and the groups of rows keep their rules.
+ */
+export const OpenSpacing390: Story = {
+  ...phone390,
+  decorators: [withMe(meTrial)],
+  play: async ({ canvasElement }) => {
+    const drawer = await within(canvasElement.ownerDocument.body).findByRole(
+      'dialog',
+      { name: 'Account menu' },
+    )
+    const title = within(drawer).getByRole('heading', { name: 'Account menu' })
+    const header = drawer.querySelector('[data-menu-header]') as HTMLElement
+    const link = within(drawer).getByRole('link', { name: 'View profile' })
+    const first = within(drawer).getByRole('link', { name: 'Search' })
+    await waitFor(() =>
+      expect(gapBelow(title, header)).toBe(formSpace.headerToBody),
+    )
+    await expect(gapBelow(link, first)).toBe(formSpace.headerToBody)
+    // The avatar (inset 12 in its block, which is pulled out 12) and the labels start where the title does.
+    const avatar = header.firstElementChild as HTMLElement
+    await expect(
+      Math.abs(avatar.getBoundingClientRect().left - textLeft(title)),
+    ).toBeLessThanOrEqual(0.5)
+    await expect(
+      Math.abs(textLeft(first) - textLeft(title)),
+    ).toBeLessThanOrEqual(0.5)
   },
 }
 

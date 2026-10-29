@@ -3,7 +3,13 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { useState } from 'react'
 import { expect, spyOn, userEvent, waitFor, within } from 'storybook/test'
 
+import { phone390 } from '@/app/(dashboard)/components/ui/dialogSpacing.testing'
+import { formSpace } from '@/theme/styles'
+
 import { Button } from '../Button/Button'
+import { openDrawer } from '../Drawer/drawerSpacing.testing'
+import { expectFirstRowUnderTitle } from '../Dropdown/menuSpacing.testing'
+import { gapBelow, heightOf } from '../FormField/formGap.testing'
 import {
   PhotoSourcePicker,
   type PhotoSourcePickerProps,
@@ -132,6 +138,31 @@ export const TouchScreen: Story = {
     await expect(
       within(drawer).getByRole('button', { name: 'Choose from library' }),
     ).toBeVisible()
+  },
+}
+
+/**
+ * The two choices on the spacing steps (FE-481 menus): the first is 24 under the
+ * title, and the two are 8 apart (were 12), as stacked alternatives are. They
+ * stay the sheet's 52px buttons: a choice, not a form.
+ */
+export const TouchScreenSpacing: Story = {
+  ...phone390,
+  tags: ['!autodocs'],
+  parameters: { ...phone390.parameters, touchScreen: true },
+  play: async ({ canvasElement }) => {
+    await userEvent.click(
+      within(canvasElement).getByRole('button', { name: 'Add photos' }),
+    )
+    const { dialog, title } = await openDrawer(canvasElement, 'Add a photo')
+    const take = within(dialog).getByRole('button', { name: 'Take photo' })
+    const library = within(dialog).getByRole('button', {
+      name: 'Choose from library',
+    })
+    await expectFirstRowUnderTitle(title, take)
+    await expect(gapBelow(take, library)).toBe(formSpace.alternativesGap)
+    await expect(heightOf(take)).toBe(52)
+    await expect(heightOf(library)).toBe(52)
   },
 }
 

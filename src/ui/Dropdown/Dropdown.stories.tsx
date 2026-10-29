@@ -11,6 +11,9 @@ import { useState } from 'react'
 import { expect, userEvent, waitFor, within } from 'storybook/test'
 
 import { type MeSnapshot, useUserStore } from '@/app/(auth)/store/user'
+import { phone390 } from '@/app/(dashboard)/components/ui/dialogSpacing.testing'
+import { desktop1280 } from '@/app/(stepflow)/stepFlowSpacing.testing'
+import { openDrawer } from '@/ui/Drawer/drawerSpacing.testing'
 import { AccountMenu } from '@/ui/Header/account/AccountMenu'
 
 import { Button } from '../Button'
@@ -18,6 +21,13 @@ import { Link } from '../Link'
 import { Modal } from '../Modal'
 
 import { Dropdown, useDropdownClose } from './Dropdown'
+import {
+  expectFirstRowUnderTitle,
+  expectPanelPadding,
+  expectRowsAreRows,
+  openPopover,
+  textLeft,
+} from './menuSpacing.testing'
 
 const accountMenuMe: MeSnapshot = {
   id: 'user-1',
@@ -592,4 +602,149 @@ export const AccountMenuOpen: Story = {
       <AccountMenu initialOpen />
     </Box>
   ),
+}
+
+/**
+ * Menu rows as the product's menus build them: ghost buttons, 44 tall, with
+ * their own 16 of side padding. Nothing else around them, so what the panel
+ * adds is all that is measured.
+ */
+function PlainRows() {
+  const close = useDropdownClose()
+  return (
+    <>
+      {['Share task', 'Edit task', 'Cancel task'].map((label) => (
+        <Button
+          key={label}
+          variant="ghost"
+          justifyContent="flex-start"
+          w="full"
+          onClick={close}
+        >
+          {label}
+        </Button>
+      ))}
+    </>
+  )
+}
+
+/**
+ * The panel's padding (FE-481 menus, Foundations-Form-Spacing): 8 on every
+ * side, so the rows sit 8 inside the panel's edge (was 4). Rows stay rows: 44
+ * tall and touching, with no field gap between them.
+ */
+export const PanelPadding: Story = {
+  ...desktop1280,
+  parameters: { ...desktop1280.parameters, layout: 'fullscreen' },
+  render: () => (
+    <Box display="flex" justifyContent="flex-end" p={6}>
+      <Dropdown
+        contentLabel="Task options"
+        trigger={
+          <Button size="sm" variant="secondary">
+            More
+          </Button>
+        }
+      >
+        <PlainRows />
+      </Dropdown>
+    </Box>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const panel = await openPopover(
+      await canvas.findByRole('button', { name: 'More' }),
+    )
+    await expectPanelPadding(panel)
+    await expectRowsAreRows(within(panel).getAllByRole('button'), 0)
+  },
+}
+
+/** The hover panel (nav menus) has the same 8 on every side, where it had 8 above and below and 4 at the sides. */
+export const HoverPanelPadding: Story = {
+  ...desktop1280,
+  parameters: { ...desktop1280.parameters, layout: 'fullscreen' },
+  render: () => (
+    <Box display="flex" justifyContent="flex-start" p={6}>
+      <Dropdown
+        hoverExpand
+        contentLabel="Explore"
+        trigger={<Link href="/about">Explore</Link>}
+      >
+        <PlainRows />
+      </Dropdown>
+    </Box>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const trigger = await canvas.findByRole('link', { name: 'Explore' })
+    const panel = await openPopover(trigger, { hover: true })
+    await expectPanelPadding(panel)
+    await expectRowsAreRows(within(panel).getAllByRole('button'), 0)
+  },
+}
+
+/** A panel sized to its rows (`max-content`, as the card and report menus are) keeps the same 8. */
+export const PanelPaddingFitsRows: Story = {
+  ...desktop1280,
+  parameters: { ...desktop1280.parameters, layout: 'fullscreen' },
+  render: () => (
+    <Box display="flex" justifyContent="flex-end" p={6}>
+      <Dropdown
+        contentLabel="Task options"
+        width="max-content"
+        trigger={
+          <Button size="sm" variant="secondary">
+            More
+          </Button>
+        }
+      >
+        <PlainRows />
+      </Dropdown>
+    </Box>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const panel = await openPopover(
+      await canvas.findByRole('button', { name: 'More' }),
+    )
+    await expectPanelPadding(panel)
+  },
+}
+
+/**
+ * On a phone the menu is a sheet: the first row is 24 under the title (the
+ * header-to-body step), and the rows are the same rows as the popover's.
+ */
+export const MobileDrawerSpacing: Story = {
+  ...phone390,
+  parameters: { ...phone390.parameters, layout: 'fullscreen' },
+  render: () => (
+    <Box display="flex" justifyContent="flex-end" p={4}>
+      <Dropdown
+        contentLabel="Task options"
+        mobilePlacement="bottom"
+        defaultOpen
+        trigger={
+          <Button size="sm" variant="secondary">
+            More
+          </Button>
+        }
+      >
+        <PlainRows />
+      </Dropdown>
+    </Box>
+  ),
+  play: async ({ canvasElement }) => {
+    const { dialog, title } = await openDrawer(canvasElement, 'Task options')
+    const rows = within(dialog).getAllByRole('button', {
+      name: /Share task|Edit task|Cancel task/,
+    })
+    await expectFirstRowUnderTitle(title, rows[0] as Element)
+    await expectRowsAreRows(rows, 0)
+    // The row's own 16 of padding puts its label inside the title's left edge.
+    await expect(textLeft(rows[0] as Element)).toBeGreaterThan(
+      title.getBoundingClientRect().left,
+    )
+  },
 }

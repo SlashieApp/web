@@ -202,7 +202,11 @@ function InboxSearch({ t }: { t: Copy }) {
         placement={placement}
         finalFocusEl={() => buttonRef.current}
       >
-        <Stack gap={2} role="radiogroup" aria-label={t.inbox.filter}>
+        <Stack
+          gap="form.alternativesGap"
+          role="radiogroup"
+          aria-label={t.inbox.filter}
+        >
           {INBOX_FILTERS.map((value) => (
             <RadioButton
               key={value}

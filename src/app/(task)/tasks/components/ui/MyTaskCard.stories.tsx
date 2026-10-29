@@ -2,7 +2,13 @@ import { Box } from '@chakra-ui/react'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { expect, userEvent, waitFor, within } from 'storybook/test'
 
+import { desktop1280 } from '@/app/(stepflow)/stepFlowSpacing.testing'
 import { LocaleProvider } from '@/i18n/LocaleProvider'
+import {
+  expectPanelPadding,
+  expectRowsAreRows,
+  openPopover,
+} from '@/ui/Dropdown/menuSpacing.testing'
 
 import { storyRows } from '../myTasksStoryFixtures'
 import { MyTaskCard } from './MyTaskCard'
@@ -159,6 +165,25 @@ export const OpenNoQuotes: Story = {
       '/tasks/open-no-quotes/edit',
     )
     await expect(menu.queryByRole('button', { name: /Report/ })).toBeNull()
+  },
+}
+
+/**
+ * The card menu's panel (FE-481 menus): the rows sit 8 inside the panel on every
+ * side, a panel sized to its rows; they stay rows, 44 tall and 2 apart.
+ */
+export const MenuSpacing: Story = {
+  ...desktop1280,
+  args: { row: storyRows.openNoQuotes, layout: 'row' },
+  play: async ({ canvasElement }) => {
+    const trigger = within(canvasElement).getByRole('button', {
+      name: 'Options for Clear out a garage',
+    })
+    const panel = await openPopover(trigger)
+    await expectPanelPadding(panel)
+    const rows = [...panel.querySelectorAll('a, button')]
+    await expect(rows).toHaveLength(2)
+    await expectRowsAreRows(rows, 2)
   },
 }
 

@@ -10,6 +10,15 @@ import {
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { expect, userEvent, waitFor, within } from 'storybook/test'
 
+import { phone390 } from '@/app/(dashboard)/components/ui/dialogSpacing.testing'
+import { openDrawer } from '@/ui/Drawer/drawerSpacing.testing'
+import {
+  expectFirstRowUnderTitle,
+  expectPanelPadding,
+  expectRowsAreRows,
+  openPopover,
+} from '@/ui/Dropdown/menuSpacing.testing'
+
 import { withTaskDetailStory } from '../../helpers/taskDetailStoryDecorator'
 import {
   STORY_OWNER_ID,
@@ -92,6 +101,26 @@ export const OwnerOpenTask: Story = {
     expect(panel.queryByRole('link', { name: 'Get help' })).toBeNull()
     await panel.findByRole('button', { name: 'Cancel task' })
     expect(panel.queryByRole('button', { name: 'Report task' })).toBeNull()
+  },
+}
+
+/**
+ * The popover's frame on the spacing steps (FE-481 menus): the panel pads the
+ * rows 8 on every side (the rows used to add 4 of their own inside the panel's
+ * 4), and the rows stay rows: 44 tall, 4 apart.
+ */
+export const OwnerOpenTaskSpacing: Story = {
+  ...desktop,
+  ...menu({ viewer: 'owner' }),
+  play: async ({ canvasElement }) => {
+    const trigger = await within(canvasElement).findByRole('button', {
+      name: 'Task options',
+    })
+    const panel = await openPopover(trigger)
+    await expectPanelPadding(panel)
+    const rows = [...panel.querySelectorAll('a, button')]
+    await expect(rows).toHaveLength(4)
+    await expectRowsAreRows(rows, 4)
   },
 }
 
@@ -343,6 +372,30 @@ export const PhoneOwnerOpenTask: Story = {
     const sheet = await openMenu(canvasElement, true)
     await sheet.findByRole('dialog')
     await sheet.findByRole('button', { name: 'Cancel task' })
+  },
+}
+
+/**
+ * Phone, the sheet at 390: the first row is 24 under the title (the sheet's
+ * header-to-body step, no padding of the menu's own on top of it), and the rows
+ * keep their 44 and their 4 apart.
+ */
+export const PhoneOwnerOpenTaskSpacing: Story = {
+  ...phone390,
+  ...menu({ viewer: 'owner' }),
+  play: async ({ canvasElement }) => {
+    await userEvent.click(
+      await within(canvasElement).findByRole('button', {
+        name: 'Task options',
+      }),
+    )
+    const { dialog, title } = await openDrawer(canvasElement, 'Task options')
+    const rows = [...dialog.querySelectorAll('a, button')].filter(
+      (row) => row.getAttribute('aria-label') !== 'Close',
+    )
+    await expect(rows).toHaveLength(4)
+    await expectFirstRowUnderTitle(title, rows[0] as Element)
+    await expectRowsAreRows(rows, 4)
   },
 }
 

@@ -5,6 +5,7 @@ import {
   DialogBackdrop,
   DialogBody,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogPositioner,
   DialogRoot,
@@ -20,7 +21,11 @@ import { LuCheck } from 'react-icons/lu'
 
 import { type AppLocale, LOCALES, LOCALE_LABELS } from '@/i18n/locales'
 import { useI11n } from '@/i18n/useI11n'
-import { APP_OVERLAY_Z_INDEX, sdlMotion } from '@/theme/styles'
+import {
+  APP_OVERLAY_Z_INDEX,
+  overlayDescriptionStyle,
+  sdlMotion,
+} from '@/theme/styles'
 import { useIsBrowser } from '@/utils/useIsBrowser'
 
 import { IconButton } from '../IconButton'
@@ -84,47 +89,57 @@ export function LanguageSwitcher({
           transitionDuration={sdlMotion.duration.moderate}
           transitionTimingFunction={sdlMotion.easing.standard}
         >
-          <DialogHeader
-            px={{ base: 4, md: 8 }}
-            pt={5}
-            pb={4}
-            borderBottomWidth="1px"
-            borderColor="border.default"
-          >
-            <HStack
-              align="center"
-              justify="space-between"
-              gap={3}
-              maxW="560px"
-              mx="auto"
-              w="full"
-            >
-              <DialogTitle
-                fontFamily="body"
-                fontSize="xl"
-                fontWeight={500}
-                letterSpacing="-0.015em"
-                color="text.default"
-                lineHeight="short"
-              >
-                {t.title}
-              </DialogTitle>
-              <IconButton
-                aria-label={t.close}
-                variant="ghost"
-                onClick={() => onOpenChange(false)}
-              >
-                ×
-              </IconButton>
-            </HStack>
+          {/* The title block of a dialog (Foundations-Form-Spacing): the
+              description is `formSpace.titleToSubtitle` (8) under the title
+              and the list is `headerToBody` (24) under the description, with
+              no rule between them. The 44px close button is taller than the
+              title, so its margins (-8) take it out of the row's height and
+              the row's top padding (8) puts the title back where a 44px row
+              had it: the description is 8 under the title text, not 8 under a
+              row with slack. */}
+          <DialogHeader px={{ base: 4, md: 8 }} pt={5} pb={0} flexShrink={0}>
+            <Stack gap="form.titleToSubtitle" maxW="560px" mx="auto" w="full">
+              <HStack align="center" justify="space-between" gap={3} pt={2}>
+                <DialogTitle
+                  fontFamily="body"
+                  fontSize="xl"
+                  fontWeight={500}
+                  letterSpacing="-0.015em"
+                  color="text.default"
+                  lineHeight="28px"
+                >
+                  {t.title}
+                </DialogTitle>
+                <IconButton
+                  aria-label={t.close}
+                  variant="ghost"
+                  my={-2}
+                  onClick={() => onOpenChange(false)}
+                >
+                  ×
+                </IconButton>
+              </HStack>
+              <DialogDescription {...overlayDescriptionStyle}>
+                {t.description}
+              </DialogDescription>
+            </Stack>
           </DialogHeader>
 
-          <DialogBody px={{ base: 4, md: 8 }} py={8} overflowY="auto">
-            <Stack gap={6} maxW="560px" mx="auto" w="full">
-              <Text fontSize="sm" color="text.muted" lineHeight="tall">
-                {t.description}
-              </Text>
-              <Stack as="fieldset" border="0" m={0} p={0} minW={0} gap={2}>
+          <DialogBody
+            px={{ base: 4, md: 8 }}
+            pt="form.headerToBody"
+            pb={8}
+            overflowY="auto"
+          >
+            <Stack maxW="560px" mx="auto" w="full">
+              <Stack
+                as="fieldset"
+                border="0"
+                m={0}
+                p={0}
+                minW={0}
+                gap="form.alternativesGap"
+              >
                 <VisuallyHidden as="legend">{t.listLabel}</VisuallyHidden>
                 {LOCALES.map((code) => {
                   const selected = code === locale

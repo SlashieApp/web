@@ -275,6 +275,10 @@ export function TaskOverflowActions({
   onDone?: () => void
   /** Opens a dialog held outside the menu (`useTaskDialogs`). */
   onOpenDialog: (dialog: TaskDialog) => void
+  /**
+   * In the menu panel: a minimum width for the rows. The panel owns the padding
+   * around them (Foundations-Form-Spacing, menus: 8), so there is none here.
+   */
   packed?: boolean
 }) {
   const close = onDone ?? (() => {})
@@ -285,12 +289,7 @@ export function TaskOverflowActions({
   if (!task) return null
 
   return (
-    <Stack
-      gap={1}
-      p={packed ? 1 : 0}
-      minW={packed ? '220px' : undefined}
-      w="full"
-    >
+    <Stack gap={1} minW={packed ? '220px' : undefined} w="full">
       <BookingActions onDone={close} onOpenDialog={onOpenDialog} />
       <MenuAction
         icon={<LuShare2 />}

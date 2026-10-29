@@ -3,8 +3,13 @@ import { TaskStatus, ThreadAttentionKind } from '@codegen/schema'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { expect, userEvent, waitFor, within } from 'storybook/test'
 
+import { phone390 } from '@/app/(dashboard)/components/ui/dialogSpacing.testing'
 import { STORY_OWNER_ID } from '@/app/(task)/tasks/[slug]/helpers/taskDetailStoryFixtures'
 import { LocaleProvider } from '@/i18n/LocaleProvider'
+import { formSpace } from '@/theme/styles'
+import { openDrawer } from '@/ui/Drawer/drawerSpacing.testing'
+import { expectFirstRowUnderTitle } from '@/ui/Dropdown/menuSpacing.testing'
+import { gapBelow } from '@/ui/FormField/formGap.testing'
 
 import { InboxSearchProvider } from '../context/InboxSearchProvider'
 import { MessagesContext } from '../context/MessagesProvider'
@@ -534,6 +539,29 @@ export const FilterDrawerPhone: Story = {
       await expect(drawer.getByRole('radio', { name })).toBeVisible()
     }
     await expect(drawer.getByRole('radio', { name: 'All' })).toBeChecked()
+  },
+}
+
+/**
+ * The filter sheet on the spacing steps (FE-481 menus), at 390: the first choice
+ * is 24 under the title and the six choices are 8 apart (the stacked-choice gap).
+ */
+export const FilterDrawerSpacing: Story = {
+  ...mixed,
+  ...phone390,
+  play: async ({ canvasElement }) => {
+    await userEvent.click(
+      await within(canvasElement).findByRole('button', { name: 'Filter' }),
+    )
+    const { dialog, title } = await openDrawer(canvasElement, 'Filter')
+    const radios = within(dialog).getAllByRole('radio')
+    await expect(radios).toHaveLength(6)
+    await expectFirstRowUnderTitle(title, radios[0] as Element)
+    for (let i = 1; i < radios.length; i++) {
+      await expect(
+        gapBelow(radios[i - 1] as Element, radios[i] as Element),
+      ).toBe(formSpace.alternativesGap)
+    }
   },
 }
 

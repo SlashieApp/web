@@ -11,6 +11,9 @@ import type { ComponentType } from 'react'
 import { expect, fn, userEvent, within } from 'storybook/test'
 
 import { type MeSnapshot, useUserStore } from '@/app/(auth)/store/user'
+import { formSpace } from '@/theme/styles'
+import { textLeft } from '@/ui/Dropdown/menuSpacing.testing'
+import { gapBelow } from '@/ui/FormField/formGap.testing'
 
 import { FeedbackDialogProvider } from '../../FeedbackDialog/FeedbackDialogProvider'
 import { AccountMenuContent } from './AccountMenuContent'
@@ -159,7 +162,7 @@ const meta = {
       <FeedbackDialogProvider onSubmit={async () => true}>
         <Box
           w="300px"
-          p={1}
+          p={2}
           bg="bg.surface"
           borderWidth="1px"
           borderColor="border.default"
@@ -210,5 +213,38 @@ export const LanguageRowCallsHandler: Story = {
     )
     await expect(args.onOpenLanguage).toHaveBeenCalledTimes(1)
     await expect(args.onClose).toHaveBeenCalledTimes(1)
+  },
+}
+
+/**
+ * Header to rows (FE-481 menus): the first row is 24 under the Profile link, with
+ * no rule between them (the groups of rows below keep theirs), and the avatar's
+ * left edge is where the row labels start.
+ */
+export const HeaderToRows: Story = {
+  decorators: [withMe(meTrial)],
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const link = canvas.getByRole('link', { name: 'View profile' })
+    const first = canvas.getByRole('link', { name: 'Search' })
+    await expect(gapBelow(link, first)).toBe(formSpace.headerToBody)
+
+    // Rules sit between the groups of rows, never between the header and the first row.
+    const rules = [...canvasElement.querySelectorAll('div')].filter(
+      (el) =>
+        getComputedStyle(el).borderTopWidth === '1px' && !el.children.length,
+    )
+    await expect(rules.length).toBeGreaterThan(0)
+    for (const rule of rules) {
+      await expect(rule.getBoundingClientRect().top).toBeGreaterThan(
+        first.getBoundingClientRect().bottom,
+      )
+    }
+
+    const avatar = canvasElement.querySelector('[data-menu-header]')
+      ?.firstElementChild as HTMLElement
+    await expect(
+      Math.abs(avatar.getBoundingClientRect().left - textLeft(first)),
+    ).toBeLessThanOrEqual(0.5)
   },
 }

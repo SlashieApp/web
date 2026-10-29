@@ -119,7 +119,10 @@ export function PhotoSourcePicker({
         placement="bottom"
         finalFocusEl={() => triggerRef.current}
       >
-        <Stack gap={3}>
+        {/* Two alternatives, stacked: `formSpace.alternativesGap` (8) apart
+            (was 12). They stay the sheet's 52px buttons: this is a choice,
+            not a form. */}
+        <Stack gap="form.alternativesGap">
           <Button
             variant="secondary"
             size="lg"

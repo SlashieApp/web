@@ -2,7 +2,11 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { useState } from 'react'
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test'
 
+import { phone390 } from '@/app/(dashboard)/components/ui/dialogSpacing.testing'
+import { desktop1280 } from '@/app/(stepflow)/stepFlowSpacing.testing'
 import type { AppLocale } from '@/i18n/locales'
+import { formSpace } from '@/theme/styles'
+import { gapBelow, heightOf } from '@/ui/FormField/formGap.testing'
 
 import { Button } from '../Button/Button'
 import { LanguageSwitcher } from './LanguageSwitcher'
@@ -96,4 +100,57 @@ export const PicksLocale: Story = {
       timeout: 3000,
     })
   },
+}
+
+/**
+ * The title block of the list (FE-481 menus): the description is 8 under the
+ * title, the first language is 24 under the description, the languages are 8
+ * apart, and nothing draws a rule under the header. The close button keeps its
+ * 44px target (its margins only take it out of the row's height).
+ */
+async function expectListSpacing(canvasElement: HTMLElement) {
+  const dialog = await within(canvasElement.ownerDocument.body).findByRole(
+    'dialog',
+    { name: 'Language' },
+  )
+  const title = within(dialog).getByRole('heading', { name: 'Language' })
+  const description = within(dialog).getByText(
+    'Choose the language used across Slashie.',
+  )
+  const rows = within(dialog)
+    .getAllByRole('radio')
+    .map((radio) => radio.closest('label') as HTMLElement)
+  await expect(rows).toHaveLength(2)
+  await expect(dialog).toHaveAccessibleDescription(
+    'Choose the language used across Slashie.',
+  )
+  await expect(gapBelow(title, description)).toBe(formSpace.titleToSubtitle)
+  await expect(gapBelow(description, rows[0] as Element)).toBe(
+    formSpace.headerToBody,
+  )
+  await expect(gapBelow(rows[0] as Element, rows[1] as Element)).toBe(
+    formSpace.alternativesGap,
+  )
+  const header = dialog.querySelector('.chakra-dialog__header') as HTMLElement
+  await expect(getComputedStyle(header).borderBottomWidth).toBe('0px')
+  const close = within(dialog).getByRole('button', { name: 'Close' })
+  await expect(heightOf(close)).toBeGreaterThanOrEqual(44)
+  // The × is centred on the title's line.
+  const mid = (el: Element) =>
+    el.getBoundingClientRect().top + el.getBoundingClientRect().height / 2
+  await expect(Math.abs(mid(close) - mid(title))).toBeLessThanOrEqual(0.5)
+}
+
+/** Desktop: the title block on the spacing steps. */
+export const Spacing: Story = {
+  ...desktop1280,
+  render: (args) => <ControlledSwitcher initialOpen onSelect={args.onSelect} />,
+  play: async ({ canvasElement }) => expectListSpacing(canvasElement),
+}
+
+/** Phone 390: the same steps. */
+export const SpacingPhone: Story = {
+  ...phone390,
+  render: (args) => <ControlledSwitcher initialOpen onSelect={args.onSelect} />,
+  play: async ({ canvasElement }) => expectListSpacing(canvasElement),
 }

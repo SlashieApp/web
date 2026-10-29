@@ -1,6 +1,11 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { expect, fn, userEvent, within } from 'storybook/test'
 
+import { phone390 } from '@/app/(dashboard)/components/ui/dialogSpacing.testing'
+import { openDrawer } from '@/ui/Drawer/drawerSpacing.testing'
+import { expectFirstRowUnderTitle } from '@/ui/Dropdown/menuSpacing.testing'
+import { gapBelow } from '@/ui/FormField/formGap.testing'
+
 import type { TaskMapTask } from '../../../components/ui/TaskMap'
 import { TaskStackList } from './TaskStackList'
 
@@ -81,6 +86,23 @@ export const Mobile: Story = {
           title.getBoundingClientRect().left,
       ),
     ).toBeLessThanOrEqual(0.5)
+  },
+}
+
+/**
+ * The sheet's rows stay rows (FE-481 menus): the first is 24 under the title, as in
+ * every sheet, and the rows keep their own 4 apart.
+ */
+export const MobileSpacing: Story = {
+  ...phone390,
+  args: { isDesktop: false },
+  play: async ({ canvasElement }) => {
+    const { dialog, title } = await openDrawer(canvasElement, '3 tasks here')
+    const rows = within(dialog).getAllByRole('button', { name: /£/ })
+    await expect(rows).toHaveLength(3)
+    await expectFirstRowUnderTitle(title, rows[0] as Element)
+    await expect(gapBelow(rows[0] as Element, rows[1] as Element)).toBe(4)
+    await expect(gapBelow(rows[1] as Element, rows[2] as Element)).toBe(4)
   },
 }
 
