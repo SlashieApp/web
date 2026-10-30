@@ -234,6 +234,10 @@ export const DiscardChanges: Story = {
     await expect(
       dialog.getByRole('button', { name: 'Keep editing' }),
     ).toBeVisible()
+    // The one sentence is the dialog's description, so it is read on opening.
+    await expect(
+      dialog.getByRole('dialog', { name: 'Discard your changes?' }),
+    ).toHaveAccessibleDescription("Your changes to this task won't be saved.")
   },
 }
 

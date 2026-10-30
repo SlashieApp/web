@@ -1,7 +1,5 @@
 'use client'
 
-import { Text } from '@chakra-ui/react'
-
 import { useI11n } from '@/i18n/useI11n'
 import { Modal } from '@ui'
 
@@ -29,8 +27,11 @@ type ConfirmDialogProps = DialogProps & {
 }
 
 /**
- * One title, one line of body, Keep and a red confirm button: the pattern of
+ * One title, one sentence, Keep and a red confirm button: the pattern of
  * Cancel booking, Cancel task and Withdraw quote (the app's `ConfirmDialog`).
+ * The sentence is the Modal's description (8 under the title, and what the
+ * dialog is described by, so a screen reader hears what will happen before it
+ * reaches the buttons); there is no body, and the buttons sit 24 under it.
  */
 export function ConfirmDialog({
   open,
@@ -47,6 +48,7 @@ export function ConfirmDialog({
       open={open}
       onOpenChange={onOpenChange}
       title={title}
+      description={body}
       size="sm"
       cancelLabel={keepLabel}
       submitLabel={confirmLabel}
@@ -57,11 +59,7 @@ export function ConfirmDialog({
           if (ok) onOpenChange(false)
         })
       }}
-    >
-      <Text fontSize="sm" color="text.muted">
-        {body}
-      </Text>
-    </Modal>
+    />
   )
 }
 

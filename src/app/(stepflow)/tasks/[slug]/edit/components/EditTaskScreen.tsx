@@ -1,7 +1,6 @@
 'use client'
 
 import { useApolloClient, useMutation } from '@apollo/client/react'
-import { HStack, Text } from '@chakra-ui/react'
 import type {
   TaskContactMethod,
   TaskForEditQuery,
@@ -417,6 +416,9 @@ export function EditTaskScreen({
         open={discardOpen}
         onOpenChange={setDiscardOpen}
         title={t.discard.title}
+        // The one sentence is the description: 8 under the title, and what
+        // the dialog is described by.
+        description={t.discard.body}
         size="sm"
         cancelLabel={t.discard.keep}
         submitLabel={t.discard.discard}
@@ -424,13 +426,7 @@ export function EditTaskScreen({
           setDiscardOpen(false)
           router.push(localize(taskHref))
         }}
-      >
-        <HStack>
-          <Text fontSize="sm" color="text.muted" lineHeight="tall">
-            {t.discard.body}
-          </Text>
-        </HStack>
-      </Modal>
+      />
     </>
   )
 }

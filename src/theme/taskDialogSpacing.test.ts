@@ -74,12 +74,16 @@ describe('task dialogs: one rhythm from the form pieces', () => {
     expect(ALL.OrderRequestDialogs).toContain('description={formatMessage(')
   })
 
-  it.each(['TaskConfirmDialogs', 'ReopenTaskDialog'] as const)(
-    '%s keeps its one sentence as the body (nothing follows it, so it is not a description)',
-    (name) => {
-      expect(ALL[name]).not.toContain('description=')
-    },
-  )
+  it('the confirms pass their one sentence as the description (what the dialog is described by), with no body', () => {
+    // ConfirmDialog (cancel task, withdraw quote, ask to cancel the booking).
+    expect(ALL.TaskConfirmDialogs).toContain('description={body}')
+    expect(ALL.ReopenTaskDialog).toContain('description={body}')
+    for (const name of ['TaskConfirmDialogs', 'ReopenTaskDialog'] as const) {
+      // Nothing is left to put in the body: a self-closing Modal, no Text.
+      expect(ALL[name]).not.toContain('<Text')
+      expect(ALL[name]).not.toContain('</Modal>')
+    }
+  })
 })
 
 describe('choice groups and helpers: label 8, rows 8, helper 4', () => {

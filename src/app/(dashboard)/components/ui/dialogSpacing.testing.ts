@@ -99,6 +99,35 @@ export function barButton(dialog: HTMLElement, name: string) {
   return within(bar ?? dialog).getByRole('button', { name })
 }
 
+/**
+ * A confirm that is one sentence (FE-481 round 4): the sentence is the dialog's
+ * description, 8 under the title, and what the dialog is described by (so a
+ * screen reader hears it on opening, before the buttons); there is no body, and
+ * the first button is 24 under the sentence (the header's step to the next
+ * block).
+ */
+export async function expectSentenceConfirm(
+  parts: {
+    dialog: HTMLElement
+    title: HTMLElement
+    description: HTMLElement | null
+    body: HTMLElement
+  },
+  sentence: string,
+  buttonName: string,
+) {
+  const { dialog, title, description, body } = parts
+  await expect(description).not.toBeNull()
+  const text = description as HTMLElement
+  await expect(text).toHaveTextContent(sentence)
+  await expect(dialog).toHaveAccessibleDescription(sentence)
+  await expect(body.children).toHaveLength(0)
+  await expect(gapBelow(title, text)).toBe(formSpace.titleToSubtitle)
+  await expect(gapBelow(text, barButton(dialog, buttonName))).toBe(
+    formSpace.headerToBody,
+  )
+}
+
 /** The gaps between the direct children of `parent`, top to bottom. */
 export function gapsBetweenChildren(parent: Element): number[] {
   const kids = [...parent.children]

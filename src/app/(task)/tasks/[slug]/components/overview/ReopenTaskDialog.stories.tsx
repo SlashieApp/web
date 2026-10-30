@@ -9,7 +9,7 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { expect, fn, within } from 'storybook/test'
 
 import {
-  barButton,
+  expectSentenceConfirm,
   openDialog,
 } from '@/app/(dashboard)/components/ui/dialogSpacing.testing'
 import { formSpace } from '@/theme/styles'
@@ -144,22 +144,14 @@ export const Closed: Story = {
   },
 }
 
-/** Form spacing (FE-481): the one sentence is the body, 24 under the title and 20 above the buttons. */
+/** Form spacing (FE-481): the one sentence is the description, 8 under the title and what the dialog is described by; the buttons are 24 under it. */
 export const Spacing: Story = {
   decorators: [cancelled],
   play: async ({ canvasElement }) => {
-    const { dialog, title, description } = await openDialog(
-      canvasElement,
-      'Reopen this task?',
-    )
-    const sentence = within(dialog).getByText(
+    await expectSentenceConfirm(
+      await openDialog(canvasElement, 'Reopen this task?'),
       'It will be open for quotes again, and workers with pending quotes will be told.',
-    )
-
-    await expect(description).toBeNull()
-    await expect(gapBelow(title, sentence)).toBe(formSpace.headerToBody)
-    await expect(gapBelow(sentence, barButton(dialog, 'Reopen task'))).toBe(
-      formSpace.bodyToAction,
+      'Reopen task',
     )
   },
 }

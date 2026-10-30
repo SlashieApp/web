@@ -1,7 +1,5 @@
 'use client'
 
-import { Text } from '@chakra-ui/react'
-
 import { formatMessage } from '@/i18n/loadPageI11n'
 import { useI11n } from '@/i18n/useI11n'
 import { Modal } from '@ui'
@@ -11,7 +9,7 @@ import bag from '../../i11n.json'
 
 /**
  * Asks before the owner reopens the task for quotes (BE-108, BE-113). The
- * body says what happens: a live booking with a suspended worker is
+ * description says what happens: a live booking with a suspended worker is
  * cancelled, or the task (cancelled, or booked with a booking that was
  * cancelled) takes quotes again and the workers with pending quotes are
  * told. It closes once reopened; a failure shows a toast and keeps it open.
@@ -38,6 +36,7 @@ export function ReopenTaskDialog({
       open={open}
       onOpenChange={onOpenChange}
       title={r.title}
+      description={body}
       size="sm"
       cancelLabel={r.dismiss}
       submitLabel={r.confirm}
@@ -47,10 +46,6 @@ export function ReopenTaskDialog({
           if (reopened) onOpenChange(false)
         })
       }}
-    >
-      <Text fontSize="sm" color="text.muted">
-        {body}
-      </Text>
-    </Modal>
+    />
   )
 }

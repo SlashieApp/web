@@ -6,6 +6,7 @@ import {
   bodyColumn,
   expectNoHorizontalOverflow,
   expectPhoneWidth,
+  expectSentenceConfirm,
   gapsBetweenChildren,
   openDialog,
   phone390,
@@ -175,22 +176,14 @@ export const RescheduleErrorSpacing: Story = {
   },
 }
 
-/** Ask to cancel: one sentence is the whole body, 24 under the title and 20 above the buttons. */
+/** Ask to cancel: the one sentence is the description, 8 under the title; the buttons are 24 under it. */
 export const CancelSpacing: Story = {
   render: (args) => <OrderCancelDialog {...args} />,
   play: async ({ canvasElement }) => {
-    const { dialog, title, description } = await openDialog(
-      canvasElement,
-      'Ask to cancel this booking?',
-    )
-    const sentence = within(dialog).getByText(
+    await expectSentenceConfirm(
+      await openDialog(canvasElement, 'Ask to cancel this booking?'),
       'Jordan needs to accept before the booking is cancelled.',
-    )
-
-    await expect(description).toBeNull()
-    await expect(gapBelow(title, sentence)).toBe(formSpace.headerToBody)
-    await expect(gapBelow(sentence, barButton(dialog, 'Ask to cancel'))).toBe(
-      formSpace.bodyToAction,
+      'Ask to cancel',
     )
   },
 }
@@ -201,17 +194,10 @@ export const CancelSpacingPhone: Story = {
   render: (args) => <OrderCancelDialog {...args} />,
   play: async ({ canvasElement }) => {
     expectPhoneWidth(canvasElement)
-    const { dialog, title } = await openDialog(
-      canvasElement,
-      'Ask to cancel this booking?',
-    )
-    const sentence = within(dialog).getByText(
+    await expectSentenceConfirm(
+      await openDialog(canvasElement, 'Ask to cancel this booking?'),
       'Jordan needs to accept before the booking is cancelled.',
-    )
-
-    await expect(gapBelow(title, sentence)).toBe(formSpace.headerToBody)
-    await expect(gapBelow(sentence, barButton(dialog, 'Ask to cancel'))).toBe(
-      formSpace.bodyToAction,
+      'Ask to cancel',
     )
   },
 }

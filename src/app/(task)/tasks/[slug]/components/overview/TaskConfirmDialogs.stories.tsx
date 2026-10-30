@@ -3,8 +3,8 @@ import type { Decorator, Meta, StoryObj } from '@storybook/nextjs-vite'
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test'
 
 import {
-  barButton,
   expectPhoneWidth,
+  expectSentenceConfirm,
   openDialog,
   phone390,
 } from '@/app/(dashboard)/components/ui/dialogSpacing.testing'
@@ -190,8 +190,9 @@ export const Closed: Story = {
 
 /**
  * Form spacing (FE-481, wiki Foundations-Form-Spacing), read between visible
- * edges. A confirm has no field: its one sentence is the body, 24 under the
- * title (not a description: nothing follows it) and 20 above the buttons.
+ * edges. A confirm has no field: its one sentence is the dialog's description,
+ * 8 under the title and what the dialog is described by (round 4), with no
+ * body, and the buttons 24 under it.
  */
 async function expectConfirmSpacing(
   canvasElement: HTMLElement,
@@ -199,13 +200,10 @@ async function expectConfirmSpacing(
   sentenceText: string,
   confirm: string,
 ) {
-  const { dialog, title, description } = await openDialog(canvasElement, name)
-  const sentence = within(dialog).getByText(sentenceText)
-
-  await expect(description).toBeNull()
-  await expect(gapBelow(title, sentence)).toBe(formSpace.headerToBody)
-  await expect(gapBelow(sentence, barButton(dialog, confirm))).toBe(
-    formSpace.bodyToAction,
+  await expectSentenceConfirm(
+    await openDialog(canvasElement, name),
+    sentenceText,
+    confirm,
   )
 }
 
