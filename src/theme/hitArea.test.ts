@@ -55,4 +55,40 @@ describe('hitAreaGrowth', () => {
       mb: '0px',
     })
   })
+
+  it('`below` caps the reach down, so the target is short by what the gap lacks', () => {
+    // A link under its field, above a row 20 away: 4 up, 20 down of the 24 it needs.
+    expect(hitAreaGrowth(20, 4, 20)).toEqual({
+      pt: '4px',
+      pb: '20px',
+      mt: '-4px',
+      mb: '-20px',
+    })
+    expect(hitAreaGrowth(20, 0, 8)).toEqual({
+      pt: '0px',
+      pb: '8px',
+      mt: '0px',
+      mb: '-8px',
+    })
+  })
+
+  it('rows that share a gap take half of it each and never overlap', () => {
+    const gap = formSpace.alternativesGap
+    const row = hitAreaGrowth(20, gap / 2, gap / 2)
+    const px = (value: string | undefined) => Number.parseFloat(value ?? '0')
+    // 20 + 4 + 4 = 28: the 12 above and below that 44 would take overlap the
+    // neighbours by 16, and the lower row would win those pixels.
+    expect(20 + px(row.pt) + px(row.pb)).toBe(28)
+    expect(px(row.pb) + px(row.pt)).toBe(gap)
+    // Without the cap two rows overlap by (24 - gap).
+    const free = hitAreaGrowth(20)
+    expect(px(free.pb) + px(free.pt)).toBeGreaterThan(gap)
+  })
+
+  it('the cap never adds layout space either: padding and margin cancel', () => {
+    const grown = hitAreaGrowth(20, 4, 4)
+    const px = (value: string | undefined) => Number.parseFloat(value ?? '0')
+    expect(px(grown.pt) + px(grown.mt)).toBe(0)
+    expect(px(grown.pb) + px(grown.mb)).toBe(0)
+  })
 })

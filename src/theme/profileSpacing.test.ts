@@ -101,6 +101,8 @@ describe('profile editors: one rhythm from the form pieces', () => {
     expect(photo).toContain('bodyGap="form.headerToBody"')
     expect(photo.match(/gap="form\.controlToHelper"/g)).toHaveLength(2)
     expect(photo).toContain('size="form"')
+    // A refused file or a failed upload is announced.
+    expect(photo).toContain('role="alert"')
   })
 
   it('Admin composer: a FormStack under a heading 24 above it, buttons 8 apart, cohorts a choice group', () => {
@@ -110,7 +112,12 @@ describe('profile editors: one rhythm from the form pieces', () => {
     expect(admin).toContain('{...formControlLabelProps}')
     expect(admin).toContain('gap="form.alternativesGap"')
     expect(admin.match(/size="form"/g)).toHaveLength(2)
-    expect(admin).toContain('hitAreaGrowth(COHORT_LINE_HEIGHT)')
+    // Rows 8 apart each take half of that for their tap target (28), so two
+    // targets never overlap: a click on an upper row cannot tick the next box.
+    expect(admin).toContain('COHORT_REACH = formSpace.alternativesGap / 2')
+    expect(admin).toMatch(
+      /hitAreaGrowth\(\s*COHORT_LINE_HEIGHT,\s*COHORT_REACH,\s*COHORT_REACH,?\s*\)/,
+    )
     expect(admin).not.toContain('minH="44px"')
   })
 })

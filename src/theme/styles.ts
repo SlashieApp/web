@@ -274,16 +274,22 @@ export type HitAreaGrowth = {
  * target may reach up; the rest goes below. It defaults to half the extra
  * (a checkbox row grows evenly). A link under its field sets it to
  * `controlToHelper`, so the target stops at the field's edge instead of
- * covering the field.
+ * covering the field. `below` caps the reach down.
+ *
+ * A later sibling is hit first, so two targets that share a gap must not
+ * overlap, or the one above loses the overlap. Rows `gap` apart each take half
+ * of it: `hitAreaGrowth(20, gap / 2, gap / 2)`. When the gap is short, the
+ * target is under 44 by what it lacks (two 20px rows 8 apart are 28 each).
  */
 export function hitAreaGrowth(
   visualHeight: number,
   above?: number,
+  below?: number,
 ): HitAreaGrowth {
   const extra = Math.max(0, minHitArea - visualHeight)
   if (extra === 0) return {}
   const up = Math.min(extra, above ?? extra / 2)
-  const down = extra - up
+  const down = Math.min(extra - up, below ?? extra)
   return { pt: `${up}px`, pb: `${down}px`, mt: `${-up}px`, mb: `${-down}px` }
 }
 

@@ -167,7 +167,7 @@ export function ProfilePhotoCard({ onSaved }: { onSaved?: () => void } = {}) {
         </HStack>
 
         {error ? (
-          <Text color="status.danger.fg" fontSize="sm">
+          <Text color="status.danger.fg" fontSize="sm" role="alert">
             {error}
           </Text>
         ) : null}

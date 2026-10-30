@@ -150,11 +150,12 @@ export const WrongFileType: Story = {
       canvasElement,
       new File(['not an image'], 'cv.pdf', { type: 'application/pdf' }),
     )
-    await expect(
-      await within(canvasElement).findByText(
-        'Use a JPG, PNG, WebP, HEIC, or AVIF image.',
-      ),
-    ).toBeVisible()
+    // Announced as well as drawn: a screen reader user hears the refusal.
+    const alert = await within(canvasElement).findByRole('alert')
+    await expect(alert).toHaveTextContent(
+      'Use a JPG, PNG, WebP, HEIC, or AVIF image.',
+    )
+    await expect(alert).toBeVisible()
   },
 }
 

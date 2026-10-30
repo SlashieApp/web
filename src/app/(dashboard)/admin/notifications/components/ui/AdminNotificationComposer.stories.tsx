@@ -263,6 +263,38 @@ async function expectComposer(canvasElement: HTMLElement) {
   return { canvas, stack }
 }
 
+/** A cohort's whole tap target: the row the label wraps, padding included. */
+function cohortTarget(canvas: ReturnType<typeof within>, name: string) {
+  return canvas.getByRole('checkbox', { name }).closest('label')
+    ?.lastElementChild as HTMLElement
+}
+
+/**
+ * The cohort rows are 8 apart, so a 44 target would overlap the next row's by
+ * 16 and the lower row would win the overlap: a click on the bottom of an upper
+ * row would tick the next box. Each row takes half the gap instead, 4 above and
+ * 4 below (a 28 target): the targets touch and never overlap.
+ */
+export const CohortTargets: Story = {
+  ...desktop1280,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await canvas.findByRole('heading', { name: 'Send an announcement' })
+    const founding = cohortTarget(canvas, 'Founding workers')
+    const geo = cohortTarget(canvas, 'Watford and Bushey')
+    const box = cohortBox(canvas, 'Founding workers')
+    const target = founding.getBoundingClientRect()
+    const control = box.getBoundingClientRect()
+
+    // 20 visible, 4 reach above and below.
+    await expect(heightOf(founding)).toBe(28)
+    await expect(control.top - target.top).toBe(4)
+    await expect(target.bottom - control.bottom).toBe(4)
+    // The two targets touch and never overlap, so a click goes to the row it is in.
+    await expect(gapBelow(founding, geo)).toBe(0)
+  },
+}
+
 /** Wide: the composer on the spacing system. */
 export const Spacing: Story = {
   ...desktop1280,

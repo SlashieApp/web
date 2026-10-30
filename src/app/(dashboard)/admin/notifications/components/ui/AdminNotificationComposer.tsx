@@ -14,7 +14,7 @@ import {
 } from '@/content/admin/adminNotificationDraft'
 import { formatMessage } from '@/i18n/loadPageI11n'
 import { useI11n } from '@/i18n/useI11n'
-import { hitAreaGrowth } from '@/theme/styles'
+import { formSpace, hitAreaGrowth } from '@/theme/styles'
 import { AdminCohortKey } from '@codegen/schema'
 import {
   Button,
@@ -38,6 +38,9 @@ const COHORTS: {
 
 /** A cohort row is one line of its label: 20 tall, like the checkbox. */
 const COHORT_LINE_HEIGHT = 20
+
+/** How far a row's tap target reaches above and below it: half the gap between rows. */
+const COHORT_REACH = formSpace.alternativesGap / 2
 
 export type AdminNotificationComposerProps = {
   onDryRun: (draft: AdminNotificationDraft) => Promise<void>
@@ -163,7 +166,15 @@ export function AdminNotificationComposer({
                         <HStack
                           gap={3}
                           align="flex-start"
-                          {...hitAreaGrowth(COHORT_LINE_HEIGHT)}
+                          // Rows are 8 apart, so each takes half of that: a 44 target
+                          // would overlap its neighbours by 16 and the lower row
+                          // would win, leaving the upper one 28 and giving a click
+                          // on its last 4px to the next box.
+                          {...hitAreaGrowth(
+                            COHORT_LINE_HEIGHT,
+                            COHORT_REACH,
+                            COHORT_REACH,
+                          )}
                         >
                           <Checkbox.Control
                             borderRadius="md"
