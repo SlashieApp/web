@@ -193,6 +193,16 @@ export const Spacing: Story = {
     await expect(gapBelow(pair, error as HTMLElement)).toBe(
       formSpace.controlToHelper,
     )
+    // The shared error line under a control: 12 on a 16 line, medium, with a
+    // dot, announced as it appears.
+    const line = error as HTMLElement
+    const style = getComputedStyle(line)
+    await expect(style.fontSize).toBe('12px')
+    await expect(style.lineHeight).toBe('16px')
+    await expect(style.fontWeight).toBe('500')
+    await expect(line.getBoundingClientRect().height).toBe(16)
+    await expect(line).toHaveAttribute('role', 'alert')
+    await expect(line.querySelector('[aria-hidden="true"]')).not.toBeNull()
   },
 }
 

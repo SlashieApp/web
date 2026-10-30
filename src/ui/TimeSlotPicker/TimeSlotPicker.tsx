@@ -7,7 +7,7 @@ import { LuPlus, LuX } from 'react-icons/lu'
 import { useLocale } from '@/i18n/LocaleProvider'
 import { formatMessage } from '@/i18n/loadPageI11n'
 import { useI11n } from '@/i18n/useI11n'
-import { formHelperTextStyle, sdlFigure } from '@/theme/styles'
+import { sdlFigure } from '@/theme/styles'
 import {
   TIME_SLOT_DURATION_PRESETS,
   TIME_SLOT_MAX,
@@ -16,6 +16,7 @@ import {
 } from '@/utils/timeSlots'
 
 import { Button } from '../Button'
+import { FormErrorText } from '../FormField/FormErrorText'
 import { FormField } from '../FormField/FormField'
 import { FormStack } from '../FormStack/FormStack'
 import { IconButton } from '../IconButton'
@@ -254,14 +255,7 @@ export function TimeSlotPicker({
                   </Box>
                 </Flex>
                 {error ? (
-                  <Text
-                    {...formHelperTextStyle}
-                    color="status.danger.fg"
-                    px={1}
-                    role="alert"
-                  >
-                    {copy.errors[error]}
-                  </Text>
+                  <FormErrorText>{copy.errors[error]}</FormErrorText>
                 ) : null}
               </Stack>
             </FormStack>
