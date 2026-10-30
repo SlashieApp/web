@@ -59,6 +59,15 @@ describe('select fields: one primitive', () => {
     expect(sort).toContain('htmlFor={sortId}')
     expect(sort).toContain('id={sortId}')
   })
+
+  it('a failed accept above the quotes is announced (role alert)', () => {
+    const quotes = read(
+      'src/app/(task)/tasks/[slug]/components/quotes/QuotesModule.tsx',
+    )
+    expect(quotes).toMatch(
+      /color="status\.danger\.fg" fontSize="sm" role="alert">\s*\{acceptError\}/,
+    )
+  })
 })
 
 describe('Select: the shell is 48 in a field and the whole shell is the target', () => {

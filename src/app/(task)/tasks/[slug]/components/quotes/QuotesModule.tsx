@@ -333,7 +333,7 @@ export function QuotesModule({ slotsCap = 1 }: QuotesModuleProps) {
       }
     >
       {acceptError ? (
-        <Text color="status.danger.fg" fontSize="sm">
+        <Text color="status.danger.fg" fontSize="sm" role="alert">
           {acceptError}
         </Text>
       ) : null}
