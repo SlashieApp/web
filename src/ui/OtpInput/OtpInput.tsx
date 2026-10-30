@@ -37,6 +37,16 @@ export type OtpInputProps = {
   'aria-label'?: string
   /** The id of the element that names the group. */
   'aria-labelledby'?: string
+  /**
+   * Marks every cell invalid (the red border, `aria-invalid`), for a code that
+   * is not in a `FormField`. Inside one, the field's error does it.
+   */
+  invalid?: boolean
+  /**
+   * The ids of the text that describes the group (its help line and its
+   * error), when it is not in a `FormField`. Joined with the field's own.
+   */
+  'aria-describedby'?: string
 }
 
 /**
@@ -98,7 +108,8 @@ function cellsToDigits(cells: string[]): string {
  * `border.default`); the green keyboard focus ring + transition come from
  * `formControlFieldInteraction`. The cells are a `role="group"` (named by
  * `aria-label` or `aria-labelledby`), so the field's helper and error are its
- * description; an error marks every cell `aria-invalid` (a group cannot be).
+ * description; an error (the field's, or `invalid`) marks every cell
+ * `aria-invalid` (a group cannot be).
  * Each cell carries an explicit `aria-label`.
  */
 export const OtpInput = React.forwardRef<HTMLDivElement, OtpInputProps>(
@@ -114,12 +125,20 @@ export const OtpInput = React.forwardRef<HTMLDivElement, OtpInputProps>(
       onComplete,
       'aria-label': ariaLabel,
       'aria-labelledby': ariaLabelledBy,
+      invalid: invalidProp,
+      'aria-describedby': ariaDescribedBy,
     },
     ref,
   ) {
-    const { invalid, id, ...controlProps } = useFormFieldControlProps({
+    const {
+      invalid: fieldInvalid,
+      id,
+      ...controlProps
+    } = useFormFieldControlProps({
       disabled,
+      'aria-describedby': ariaDescribedBy,
     })
+    const invalid = invalidProp ?? fieldInvalid
     const isDisabled = controlProps.disabled
 
     const inputRefs = React.useRef<Array<HTMLInputElement | null>>([])
@@ -255,7 +274,7 @@ export const OtpInput = React.forwardRef<HTMLDivElement, OtpInputProps>(
         maxLength={1}
         disabled={isDisabled}
         aria-label={`Digit ${index + 1} of ${length}`}
-        aria-invalid={controlProps['aria-invalid']}
+        aria-invalid={invalid ? true : undefined}
         {...cellStyles}
         {...cellSizes[size]}
         {...formControlInvalidFieldProps(invalid)}

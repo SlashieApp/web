@@ -13,6 +13,7 @@ import { EVENTS, trackFlowFailed, trackFlowSucceeded } from '@/utils/analytics'
 import { showAppToast } from '@/utils/appToast'
 import { FormField, FormStack, Input, Modal } from '@ui'
 
+import { focusFirstInvalid } from './focusFirstInvalid'
 import bag from './i11n.json'
 import { verificationErrorText } from './verificationError'
 
@@ -24,7 +25,10 @@ type EmailChangeModalProps = {
 
 /**
  * Starts an email change (BE-71): the current password, then a link to the new
- * address. `me.email` stays live until that link is opened.
+ * address. `me.email` stays live until that link is opened. A check that
+ * belongs to one field (not an address, the same address, no password) is that
+ * field's error, 4 under it, with focus moved there; the line under the fields
+ * is only for a failed request.
  */
 export function EmailChangeModal({
   open,
@@ -36,6 +40,10 @@ export function EmailChangeModal({
   const getUser = useUserStore((s) => s.getUser)
   const [newEmail, setNewEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [fieldErrors, setFieldErrors] = useState<{
+    email?: string
+    password?: string
+  }>({})
   const [error, setError] = useState<string | null>(null)
 
   const [requestEmailChange, { loading }] =
@@ -45,6 +53,7 @@ export function EmailChangeModal({
     if (!next) {
       setNewEmail('')
       setPassword('')
+      setFieldErrors({})
       setError(null)
     }
     onOpenChange(next)
@@ -52,20 +61,24 @@ export function EmailChangeModal({
 
   const submit = async () => {
     const email = newEmail.trim().toLowerCase()
+    setError(null)
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      setError(t.invalidEmail)
+      setFieldErrors({ email: t.invalidEmail })
+      focusFirstInvalid()
       return
     }
     if (email === me?.email.trim().toLowerCase()) {
-      setError(t.sameEmail)
+      setFieldErrors({ email: t.sameEmail })
+      focusFirstInvalid()
       return
     }
     if (!password) {
-      setError(t.needPassword)
+      setFieldErrors({ password: t.needPassword })
+      focusFirstInvalid()
       return
     }
 
-    setError(null)
+    setFieldErrors({})
     try {
       const result = await requestEmailChange({
         variables: { newEmail: email, password },
@@ -114,20 +127,33 @@ export function EmailChangeModal({
       submitLoading={loading}
     >
       <FormStack>
-        <FormField label={t.newEmail}>
+        <FormField label={t.newEmail} errorText={fieldErrors.email}>
           <Input
             type="email"
             autoComplete="email"
             value={newEmail}
-            onChange={(e) => setNewEmail(e.target.value)}
+            onChange={(e) => {
+              setNewEmail(e.target.value)
+              if (fieldErrors.email) {
+                setFieldErrors((current) => ({ ...current, email: undefined }))
+              }
+            }}
           />
         </FormField>
-        <FormField label={t.currentPassword}>
+        <FormField label={t.currentPassword} errorText={fieldErrors.password}>
           <Input
             type="password"
             autoComplete="current-password"
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={(e) => {
+              setPassword(e.target.value)
+              if (fieldErrors.password) {
+                setFieldErrors((current) => ({
+                  ...current,
+                  password: undefined,
+                }))
+              }
+            }}
           />
         </FormField>
         {error ? (

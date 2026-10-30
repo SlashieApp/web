@@ -1,6 +1,6 @@
 import { LoginMethod } from '@codegen/schema'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
-import { expect, fn, userEvent, within } from 'storybook/test'
+import { expect, fn, userEvent, waitFor, within } from 'storybook/test'
 
 import { withSession } from '@/app/(auth)/helpers/authStoryDecorator'
 import { storyMe } from '@/app/(auth)/helpers/authStoryFixtures'
@@ -101,6 +101,10 @@ export const ChangeNeedsPassword: Story = {
     await expect(
       await page(canvasElement).findByText('Enter your current password.'),
     ).toBeInTheDocument()
+    // It is Current password's own error.
+    await expect(
+      page(canvasElement).getByLabelText('Current password'),
+    ).toBeInvalid()
   },
 }
 
@@ -156,16 +160,22 @@ export const EnterCode: Story = {
   },
 }
 
-/** Send code with no number: an inline error, announced, nothing is sent. */
+/**
+ * Send code with no number: Mobile number's own error, the field marked
+ * invalid and described by it, focus in the field, nothing is sent.
+ */
 export const MissingNumber: Story = {
   decorators: [withSession({ me: storyMe() })],
   play: async ({ canvasElement }) => {
     await userEvent.click(
       await page(canvasElement).findByRole('button', { name: 'Send code' }),
     )
-    await expect(
-      await page(canvasElement).findByRole('alert'),
-    ).toHaveTextContent('Enter your mobile number.')
+    const input = await page(canvasElement).findByLabelText('Mobile number')
+    await page(canvasElement).findByText('Enter your mobile number.')
+    await expect(input).toBeInvalid()
+    await expect(input).toHaveAccessibleDescription(/Enter your mobile number/)
+    await waitFor(() => expect(input).toHaveFocus())
+    await expect(page(canvasElement).queryByRole('alert')).toBeNull()
   },
 }
 
@@ -184,10 +194,50 @@ export const CodeIncomplete: Story = {
     await userEvent.click(
       await page(canvasElement).findByRole('button', { name: 'Verify' }),
     )
-    // Announced, not just drawn.
-    await expect(
-      await page(canvasElement).findByRole('alert'),
-    ).toHaveTextContent('Enter the 6-digit code from your SMS.')
+    // Announced, not just drawn: the error is the code's own line, the group
+    // is named by the dialog's lead-in and described by its help and error,
+    // every box is invalid and focus is back in the first one.
+    const error = await page(canvasElement).findByRole('alert')
+    await expect(error).toHaveTextContent(
+      'Enter the 6-digit code from your SMS.',
+    )
+    const group = page(canvasElement).getByRole('group', {
+      name: /enter the 6-digit code we sent to/,
+    })
+    await expect(group).toHaveAccessibleDescription(
+      /Codes are valid for 10 minutes.*Enter the 6-digit code from your SMS/,
+    )
+    await expect(group).not.toHaveAttribute('aria-invalid')
+    for (const n of [1, 6]) {
+      await expect(
+        within(group).getByLabelText(`Digit ${n} of 6`),
+      ).toBeInvalid()
+    }
+    await waitFor(() =>
+      expect(within(group).getByLabelText('Digit 1 of 6')).toHaveFocus(),
+    )
+  },
+}
+
+/** The code step names its group even with no error. */
+export const CodeGroupIsNamed: Story = {
+  decorators: [
+    withSession({
+      me: storyMe({
+        phoneVerified: true,
+        pendingPhone: '+447700900456',
+        profile: { contactNumber: PHONE },
+      }),
+    }),
+  ],
+  play: async ({ canvasElement }) => {
+    const group = await page(canvasElement).findByRole('group', {
+      name: /enter the 6-digit code we sent to/,
+    })
+    await expect(group).toHaveAccessibleDescription(
+      /Codes are valid for 10 minutes/,
+    )
+    await expect(within(group).getByLabelText('Digit 1 of 6')).not.toBeInvalid()
   },
 }
 
@@ -279,7 +329,10 @@ export const ChangeNumberSpacing: Story = {
   },
 }
 
-/** A form-level error is one more field group: 20 under the last field, 20 above the buttons. */
+/**
+ * A field's error is part of its field: 4 under the helper (the helper is 4
+ * under the control), then 20 to the buttons below the last field.
+ */
 export const PhoneErrorSpacing: Story = {
   decorators: [
     withSession({
@@ -299,10 +352,49 @@ export const PhoneErrorSpacing: Story = {
       'Enter your current password.',
     )
     const password = fieldOf(dialog, 'Current password')
+    const help = within(password).getByText(/Enter your Slashie password/)
     const send = barButton(dialog, 'Send code')
 
-    await expect(gapBelow(password, error)).toBe(formSpace.fieldGap)
-    await expect(gapBelow(error, send)).toBe(formSpace.bodyToAction)
+    await expect(gapBelow(help, error)).toBe(formSpace.helperGap)
+    await expect(gapBelow(password, send)).toBe(formSpace.bodyToAction)
+  },
+}
+
+/**
+ * A failed request is one more field group: 20 under the last field, 20 above
+ * the buttons, announced as an alert.
+ */
+export const RequestErrorSpacing: Story = {
+  decorators: [
+    withSession({
+      me: storyMe({
+        phoneVerified: true,
+        enabledLoginMethods: [LoginMethod.Google],
+        profile: { contactNumber: PHONE },
+      }),
+      responses: {
+        SendPhoneVerification: {
+          kind: 'graphqlError',
+          code: 'REAUTH_REQUIRED',
+        },
+      },
+    }),
+  ],
+  play: async ({ canvasElement }) => {
+    await userEvent.type(
+      await page(canvasElement).findByLabelText('Mobile number'),
+      '7700900456',
+    )
+    await userEvent.click(
+      page(canvasElement).getByRole('button', { name: 'Send code' }),
+    )
+    const { dialog } = await openDialog(canvasElement, 'Change phone number')
+    const alert = await within(dialog).findByRole('alert')
+    const phone = fieldOf(dialog, 'Mobile number')
+    const send = barButton(dialog, 'Send code')
+
+    await expect(gapBelow(phone, alert)).toBe(formSpace.fieldGap)
+    await expect(gapBelow(alert, send)).toBe(formSpace.bodyToAction)
   },
 }
 
@@ -370,7 +462,10 @@ export const CodeSpacingPhone: Story = {
   },
 }
 
-/** An error on the code step: 20 under the help line, 20 above the buttons. */
+/**
+ * An error on the code step is the code's own line: 4 under the help line
+ * (the help is 4 under the boxes), then 20 above the buttons.
+ */
 export const CodeErrorSpacing: Story = {
   decorators: [withSession({ me: pendingMe() })],
   play: async ({ canvasElement }) => {
@@ -384,7 +479,8 @@ export const CodeErrorSpacing: Story = {
     const help = within(dialog).getByText(/Codes are valid for 10 minutes/)
     const verify = barButton(dialog, 'Verify')
 
-    await expect(gapBelow(help, error)).toBe(formSpace.fieldGap)
+    await expect(gapBelow(help, error)).toBe(formSpace.helperGap)
     await expect(gapBelow(error, verify)).toBe(formSpace.bodyToAction)
+    await expect(heightOf(error)).toBe(16)
   },
 }

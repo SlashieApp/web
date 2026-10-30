@@ -1,7 +1,7 @@
 'use client'
 
 import { useMutation } from '@apollo/client/react'
-import { Box, Text } from '@chakra-ui/react'
+import { Stack, Text } from '@chakra-ui/react'
 import {
   LoginMethod,
   type SendPhoneVerificationMutation,
@@ -9,7 +9,7 @@ import {
   type UpdateMyProfileMutation,
   type VerifyPhoneMutation,
 } from '@codegen/schema'
-import { useCallback, useState } from 'react'
+import { useCallback, useId, useState } from 'react'
 
 import {
   isPhoneVerificationRateLimited,
@@ -31,6 +31,7 @@ import {
   toE164ForApi,
 } from '@/utils/phoneNormalize'
 import {
+  FormErrorText,
   FormField,
   FormStack,
   Input,
@@ -40,6 +41,7 @@ import {
   formControlHelperTextProps,
 } from '@ui'
 
+import { focusFirstInvalid } from './focusFirstInvalid'
 import bag from './i11n.json'
 import { verificationErrorText } from './verificationError'
 
@@ -50,6 +52,17 @@ type PhoneVerificationModalProps = {
 }
 
 type Step = 'phone' | 'code'
+
+/** A check that belongs to one field is that field's error; the rest is `error`. */
+type FieldErrors = { phone?: string; password?: string; code?: string }
+
+/**
+ * The number step's number and password, and the code step's six digits: each
+ * check that fails is its field's error, 4 under it, with focus moved there.
+ * The line under the fields is for a failed request. A Resend on the code step
+ * runs the number and password checks with neither field on screen, so there
+ * they stay the error line.
+ */
 
 export function PhoneVerificationModal({
   open,
@@ -74,8 +87,18 @@ export function PhoneVerificationModal({
   const [phoneDraft, setPhoneDraft] = useState('')
   const [activePhone, setActivePhone] = useState('')
   const [code, setCode] = useState('')
+  const [fieldErrors, setFieldErrors] = useState<FieldErrors>({})
   const [error, setError] = useState<string | null>(null)
   const [rateLimited, setRateLimited] = useState(false)
+  // The code step has no label: its lead-in names the group, and its help line
+  // and error describe it.
+  const codeLeadId = useId()
+  const codeHelpId = useId()
+  const codeErrorId = useId()
+  const clearFieldError = (key: keyof FieldErrors) =>
+    setFieldErrors((current) =>
+      current[key] ? { ...current, [key]: undefined } : current,
+    )
 
   const [updateMyProfile, { loading: saving }] =
     useMutation<UpdateMyProfileMutation>(UpdateMyProfile)
@@ -92,6 +115,7 @@ export function PhoneVerificationModal({
     setActivePhone('')
     setCode('')
     setPassword('')
+    setFieldErrors({})
     setError(null)
     setRateLimited(false)
   }, [savedPhone])
@@ -120,9 +144,19 @@ export function PhoneVerificationModal({
   }
 
   const saveAndSendCode = async () => {
+    setError(null)
+    const reject = (field: 'phone' | 'password', message: string) => {
+      if (step === 'phone') {
+        setFieldErrors({ [field]: message })
+        focusFirstInvalid()
+      } else {
+        setError(message)
+      }
+    }
+
     const trimmed = phoneDraft.trim()
     if (!trimmed) {
-      setError(t.needPhone)
+      reject('phone', t.needPhone)
       return
     }
 
@@ -130,20 +164,20 @@ export function PhoneVerificationModal({
     try {
       e164 = toE164ForApi(trimmed)
     } catch {
-      setError(t.invalidPhone)
+      reject('phone', t.invalidPhone)
       return
     }
 
     if (changing && isSamePhone(e164, savedPhone)) {
-      setError(t.samePhone)
+      reject('phone', t.samePhone)
       return
     }
     if (needsPassword && !password) {
-      setError(t.needPassword)
+      reject('password', t.needPassword)
       return
     }
 
-    setError(null)
+    setFieldErrors({})
     try {
       // Unverified numbers are still saved straight away.
       if (!changing && e164 !== savedPhone) {
@@ -190,8 +224,10 @@ export function PhoneVerificationModal({
     if (verifying) return
 
     const trimmed = (submittedCode ?? code).trim()
+    setError(null)
     if (!/^\d{6}$/.test(trimmed)) {
-      setError(t.needCode)
+      setFieldErrors({ code: t.needCode })
+      focusFirstInvalid()
       return
     }
 
@@ -199,7 +235,7 @@ export function PhoneVerificationModal({
       setCode(submittedCode)
     }
 
-    setError(null)
+    setFieldErrors({})
     try {
       const result = await verifyPhone({ variables: { code: trimmed } })
       if (!result.data?.verifyPhone) throw new Error(t.verifyFailed)
@@ -248,20 +284,34 @@ export function PhoneVerificationModal({
           submitDisabled={rateLimited}
         >
           <FormStack>
-            <FormField label={t.mobileNumber} helperText={t.ukOnly}>
+            <FormField
+              label={t.mobileNumber}
+              helperText={t.ukOnly}
+              errorText={fieldErrors.phone}
+            >
               <PhoneInput
                 value={phoneDraft}
-                onChange={setPhoneDraft}
+                onChange={(next) => {
+                  setPhoneDraft(next)
+                  clearFieldError('phone')
+                }}
                 aria-label={t.mobileNumber}
               />
             </FormField>
             {needsPassword ? (
-              <FormField label={t.currentPassword} helperText={t.passwordHelp}>
+              <FormField
+                label={t.currentPassword}
+                helperText={t.passwordHelp}
+                errorText={fieldErrors.password}
+              >
                 <Input
                   type="password"
                   autoComplete="current-password"
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  onChange={(e) => {
+                    setPassword(e.target.value)
+                    clearFieldError('password')
+                  }}
                 />
               </FormField>
             ) : null}
@@ -278,18 +328,19 @@ export function PhoneVerificationModal({
           onOpenChange={handleOpenChange}
           title={title}
           description={
-            <>
+            <span id={codeLeadId}>
               {codeBefore}
               <Text as="span" fontWeight={600} color="text.default">
                 {maskedPhone}
               </Text>
               {codeAfter}
-            </>
+            </span>
           }
           backLabel={t.back}
           onBack={() => {
             setStep('phone')
             setCode('')
+            setFieldErrors({})
             setError(null)
           }}
           submitLabel={t.verify}
@@ -297,14 +348,23 @@ export function PhoneVerificationModal({
           submitLoading={verifying}
         >
           <FormStack>
-            {/* The code has no label of its own: the description above says
-                what to enter. Its help line sits 4 under the boxes, like a
-                helper under any control. */}
-            <Box>
+            {/* The code has no label of its own: the description above names
+                the group and says what to enter. Its help line sits 4 under
+                the boxes, like a helper under any control, and its error 4
+                under that, as a field's does. */}
+            <div>
               <OtpInput
                 key={activePhone || 'otp'}
                 value={code}
-                onChange={setCode}
+                onChange={(next) => {
+                  setCode(next)
+                  clearFieldError('code')
+                }}
+                aria-labelledby={codeLeadId}
+                aria-describedby={
+                  fieldErrors.code ? `${codeHelpId} ${codeErrorId}` : codeHelpId
+                }
+                invalid={Boolean(fieldErrors.code)}
                 onEnter={(value) => {
                   void confirmCode(value)
                 }}
@@ -312,31 +372,34 @@ export function PhoneVerificationModal({
                   void confirmCode(value)
                 }}
               />
-              <Text
-                mt="form.controlToHelper"
-                px={1}
-                {...formControlHelperTextProps}
-              >
-                {t.codeHelp}{' '}
-                <button
-                  type="button"
-                  style={{
-                    font: 'inherit',
-                    fontWeight: 500,
-                    padding: 0,
-                    border: 'none',
-                    background: 'none',
-                    cursor: rateLimited ? 'not-allowed' : 'pointer',
-                  }}
-                  disabled={rateLimited || sending}
-                  onClick={() => {
-                    if (!rateLimited && !sending) void saveAndSendCode()
-                  }}
-                >
-                  {t.resendCode}
-                </button>
-              </Text>
-            </Box>
+              <Stack gap="form.helperGap" mt="form.controlToHelper" w="full">
+                <Text id={codeHelpId} px={1} {...formControlHelperTextProps}>
+                  {t.codeHelp}{' '}
+                  <button
+                    type="button"
+                    style={{
+                      font: 'inherit',
+                      fontWeight: 500,
+                      padding: 0,
+                      border: 'none',
+                      background: 'none',
+                      cursor: rateLimited ? 'not-allowed' : 'pointer',
+                    }}
+                    disabled={rateLimited || sending}
+                    onClick={() => {
+                      if (!rateLimited && !sending) void saveAndSendCode()
+                    }}
+                  >
+                    {t.resendCode}
+                  </button>
+                </Text>
+                {fieldErrors.code ? (
+                  <FormErrorText id={codeErrorId}>
+                    {fieldErrors.code}
+                  </FormErrorText>
+                ) : null}
+              </Stack>
+            </div>
             {error ? (
               <Text color="status.danger.fg" fontSize="sm" role="alert">
                 {error}

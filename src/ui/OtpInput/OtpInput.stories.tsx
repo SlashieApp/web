@@ -304,3 +304,41 @@ export const GroupSemantics: Story = {
     for (const cell of cells) await expect(cell).toBeInvalid()
   },
 }
+
+/**
+ * Outside a `FormField` (a dialog whose lead-in names the code): `invalid`
+ * marks every cell, `aria-describedby` points at the help and the error, and
+ * `aria-labelledby` names the group. The group is not marked invalid.
+ */
+export const InvalidWithoutField: Story = {
+  render: function InvalidWithoutFieldStory() {
+    const [value, setValue] = useState('12')
+    return (
+      <>
+        <Text id="otp-lead">Enter the 6-digit code we sent you.</Text>
+        <OtpInput
+          value={value}
+          onChange={setValue}
+          aria-labelledby="otp-lead"
+          aria-describedby="otp-help otp-error"
+          invalid
+        />
+        <Text id="otp-help">Codes last 10 minutes.</Text>
+        <Text id="otp-error">Enter the 6-digit code from your SMS.</Text>
+      </>
+    )
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const group = canvas.getByRole('group', {
+      name: 'Enter the 6-digit code we sent you.',
+    })
+    await expect(group).toHaveAccessibleDescription(
+      'Codes last 10 minutes. Enter the 6-digit code from your SMS.',
+    )
+    await expect(group).not.toHaveAttribute('aria-invalid')
+    const cells = within(group).getAllByRole('textbox')
+    await expect(cells).toHaveLength(6)
+    for (const cell of cells) await expect(cell).toBeInvalid()
+  },
+}
