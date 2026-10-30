@@ -17,3 +17,33 @@ export const SOCIAL_BUTTON_SCALE =
 export function socialButtonPx(nativePx: number): number {
   return Math.round(nativePx * SOCIAL_BUTTON_SCALE * 100) / 100
 }
+
+/** Google's own narrowest width for its button, in px (its range is 200 to 400). */
+export const GOOGLE_BUTTON_MIN_W = 200
+
+/**
+ * How Google's button is drawn to fill a container `containerWidth` px wide:
+ * the width it is asked for (`drawnWidth`) and the scale it is shown at.
+ *
+ * Normally that is {@link SOCIAL_BUTTON_SCALE}, drawn narrower so the scaled
+ * button is as wide as the container. Google cannot draw under 200, so a
+ * container narrower than 200 * 1.2 (a dialog on a 280px phone) would clip the
+ * scaled button: there the scale follows the container down instead, and the
+ * button is a little shorter than 48 rather than cut off.
+ */
+export function googleButtonDrawing(containerWidth: number): {
+  drawnWidth: number
+  scale: number
+} {
+  const scale = Math.min(
+    SOCIAL_BUTTON_SCALE,
+    containerWidth / GOOGLE_BUTTON_MIN_W,
+  )
+  return {
+    drawnWidth: Math.max(
+      GOOGLE_BUTTON_MIN_W,
+      Math.floor(containerWidth / scale),
+    ),
+    scale,
+  }
+}

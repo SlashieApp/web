@@ -14,7 +14,7 @@ import {
   getGoogleClientId,
   isGoogleAuthConfigured,
 } from '@/app/(auth)/helpers/googleAuthConfig'
-import { SOCIAL_BUTTON_SCALE } from '@/app/(auth)/helpers/socialButton'
+import { googleButtonDrawing } from '@/app/(auth)/helpers/socialButton'
 import { useUserStore } from '@/app/(auth)/store/user'
 import { useI11n } from '@/i18n/useI11n'
 import { APP_HOME } from '@/utils/appRoutes'
@@ -22,12 +22,6 @@ import { showAppToast } from '@/utils/appToast'
 import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
 
 import bag from '../i11n.json'
-
-/**
- * Google's button is drawn 40px tall and scaled to the form control height (see
- * `socialButton`). Its width range, in px, is Google's own.
- */
-const GOOGLE_BUTTON_MIN_W = 200
 
 type GoogleAuthButtonProps = {
   intent?: AuthRedirectIntent | null
@@ -164,11 +158,9 @@ export function GoogleAuthButton({
 
   if (!isGoogleAuthConfigured()) return null
 
-  // Drawn narrower by the scale, so the scaled button fills the container.
-  const drawnWidth = Math.max(
-    GOOGLE_BUTTON_MIN_W,
-    Math.floor(buttonWidth / SOCIAL_BUTTON_SCALE),
-  )
+  // Drawn narrower by the scale, so the scaled button fills the container; on a
+  // container too narrow for Google's 200 the scale gives way, so it fits.
+  const { drawnWidth, scale } = googleButtonDrawing(buttonWidth)
 
   return (
     <GoogleOAuthProvider clientId={clientId}>
@@ -185,7 +177,7 @@ export function GoogleAuthButton({
           <Box
             position="relative"
             w={`${drawnWidth}px`}
-            transform={`scale(${SOCIAL_BUTTON_SCALE})`}
+            transform={`scale(${scale})`}
             transformOrigin="top left"
           >
             <GoogleLogin
