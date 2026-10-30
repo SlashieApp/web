@@ -243,7 +243,9 @@ function PhotoSection() {
                 id={field.controlId}
                 type="button"
                 variant="secondary"
-                minH="44px"
+                // The photo editor's main button: controlHeight (48), as the
+                // profile photo card's.
+                size="form"
                 loading={photoStage !== null}
                 aria-describedby={field.describedBy}
               >

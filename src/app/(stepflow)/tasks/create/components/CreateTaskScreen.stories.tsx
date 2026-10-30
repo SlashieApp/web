@@ -13,6 +13,7 @@ import {
   expectStepFlowFrame,
   expectWidth,
   phone390,
+  phone390Keyboard,
 } from '@/app/(stepflow)/stepFlowSpacing.testing'
 import {
   storyDateInDays,
@@ -828,6 +829,34 @@ export const DetailsFocusClearsBar: Story = {
   ],
   play: async ({ canvasElement }) => {
     expectWidth(canvasElement, 390)
+    const canvas = within(canvasElement)
+    await canvas.findByRole('heading', { name: 'What needs doing?' })
+    const bar = canvas
+      .getByRole('button', { name: /Continue/ })
+      .closest('[data-step-flow-bar]') as HTMLElement
+    await expect(await controlsUnderBar(bar, { max: 80 })).toEqual([])
+  },
+}
+
+/**
+ * The same with the keyboard up (390 by 500): the Description is tall, and a
+ * field that is only partly visible when it takes focus is scrolled clear of the
+ * pinned Continue bar, not left with its lower part under it.
+ */
+export const DetailsFocusClearsBarKeyboard: Story = {
+  ...phone390Keyboard,
+  decorators: [
+    atStep('details'),
+    (Story) => (
+      <>
+        <style>{STEP_FLOW_BAR_RULE}</style>
+        <Story />
+      </>
+    ),
+  ],
+  play: async ({ canvasElement }) => {
+    expectWidth(canvasElement, 390)
+    await expect(canvasElement.ownerDocument.defaultView?.innerHeight).toBe(500)
     const canvas = within(canvasElement)
     await canvas.findByRole('heading', { name: 'What needs doing?' })
     const bar = canvas

@@ -433,6 +433,21 @@ export const SpacingAbout: Story = {
       formSpace.labelToControl,
     )
     await expectLineUnder(control, photo, /A clear, friendly photo/)
+    // The photo's button is the editor's main button, 48 tall (as the profile
+    // photo card's), centred on the 88 tile.
+    // The button is named by the field's label.
+    const upload = within(photo).getByRole('button', { name: 'Profile photo' })
+    await expect(heightOf(upload)).toBe(formSpace.controlHeight)
+    const tile = control.firstElementChild as HTMLElement
+    await expect(heightOf(tile)).toBe(88)
+    await expect(
+      Math.abs(
+        upload.getBoundingClientRect().top +
+          upload.getBoundingClientRect().height / 2 -
+          (tile.getBoundingClientRect().top +
+            tile.getBoundingClientRect().height / 2),
+      ),
+    ).toBeLessThanOrEqual(0.5)
   },
 }
 

@@ -13,11 +13,12 @@ import { expect, within } from 'storybook/test'
 import {
   gapsBetweenChildren,
   phone390,
+  phone390Keyboard,
 } from '@/app/(dashboard)/components/ui/dialogSpacing.testing'
 import { formSpace } from '@/theme/styles'
 import { gapBelow, gapBeside, heightOf } from '@/ui/FormField/formGap.testing'
 
-export { phone390 }
+export { phone390, phone390Keyboard }
 
 /**
  * A desktop 1280 wide (the step flows' two-column layout starts at 1024).

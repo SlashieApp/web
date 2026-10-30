@@ -48,6 +48,26 @@ export const phone320Short = {
   globals: { viewport: { value: 'phone320Short', isRotated: false } },
 } as const
 
+/**
+ * A phone 390 wide with the keyboard up, 500 tall: the room a form keeps above
+ * the on-screen keyboard. A pinned bar and a tall field (a textarea) both have
+ * to fit in it. Spread it into a story: `{ ...phone390Keyboard }`.
+ */
+export const phone390Keyboard = {
+  parameters: {
+    viewport: {
+      options: {
+        phone390Keyboard: {
+          name: 'Phone 390 by 500 (keyboard up)',
+          styles: { width: '390px', height: '500px' },
+          type: 'mobile',
+        },
+      },
+    },
+  },
+  globals: { viewport: { value: 'phone390Keyboard', isRotated: false } },
+} as const
+
 /** The story really is phone width: a check that a phone story is not measuring a desktop. */
 export function expectPhoneWidth(canvasElement: HTMLElement) {
   expect(canvasElement.ownerDocument.defaultView?.innerWidth).toBe(390)

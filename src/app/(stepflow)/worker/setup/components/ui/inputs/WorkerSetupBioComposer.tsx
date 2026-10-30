@@ -6,7 +6,12 @@ import { LuChevronDown, LuChevronUp, LuPlus } from 'react-icons/lu'
 
 import { formatMessage } from '@/i18n/loadPageI11n'
 import { useI11n } from '@/i18n/useI11n'
-import { hitAreaGrowth, sdlFocusRing, sdlMotion } from '@/theme/styles'
+import {
+  formSpace,
+  hitAreaGrowth,
+  sdlFocusRing,
+  sdlMotion,
+} from '@/theme/styles'
 import { FormField, ProgressBar, Textarea, formControlTextareaProps } from '@ui'
 
 import {
@@ -39,7 +44,7 @@ export type WorkerSetupBioComposerProps = {
  * Form spacing (FE-481): one composite field. The starters, the textarea, the
  * quality meter and the example are `labelToControl` (8) apart, the starters
  * wrap 8 apart, and the example toggle is a 20px line that is 44 to tap, so it
- * adds no space.
+ * adds no space (it reaches up, and 4 down: the helper is 4 under the control).
  */
 export function WorkerSetupBioComposer({
   value,
@@ -169,7 +174,14 @@ export function WorkerSetupBioComposer({
             cursor="pointer"
             borderRadius="md"
             _focusVisible={sdlFocusRing}
-            {...hitAreaGrowth(20)}
+            // 44 to press, reaching up (into the 8 above it and the meter row)
+            // and only `controlToHelper` (4) down: the helper sits 4 under the
+            // control, and the even 12 and 12 a 20px line gets by default ran
+            // into it (36 tall, 40 with the example open). Positioned, so the
+            // grown target paints (and is hit) over the meter's track, which is
+            // positioned too and comes earlier in the page.
+            position="relative"
+            {...hitAreaGrowth(20, 20, formSpace.controlToHelper)}
           >
             {exampleOpen ? copy.hideExample : copy.showExample}
             {exampleOpen ? (

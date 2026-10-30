@@ -9,6 +9,7 @@ import {
   expectStepFlowFrame,
   expectWidth,
   phone390,
+  phone390Keyboard,
   stepFlowOf,
 } from '@/app/(stepflow)/stepFlowSpacing.testing'
 import { formSpace } from '@/theme/styles'
@@ -522,6 +523,76 @@ export const FocusClearsBarPhone: Story = {
     const bar = within(canvasElement).getByRole('button', {
       name: 'Continue',
     }).parentElement?.parentElement as HTMLElement
+    await expect(await controlsUnderBar(bar)).toEqual([])
+  },
+}
+
+/** Tall fields between the inputs: a multi-line field is the one the bar can half cover. */
+const tallFieldsStep = (
+  <>
+    {['Title', 'Category'].map((label) => (
+      <FormField key={label} label={label}>
+        <Input placeholder="Add details" />
+      </FormField>
+    ))}
+    {['Description', 'Notes', 'Access'].map((label) => (
+      <FormField key={label} label={label}>
+        <Textarea placeholder="Add details" minH="172px" />
+      </FormField>
+    ))}
+    <FormField label="Budget">
+      <Input placeholder="Add details" />
+    </FormField>
+  </>
+)
+
+/**
+ * The same with the keyboard up (390 by 500): a 172px textarea that is only
+ * partly above the bar when it takes focus is scrolled clear, its foot above
+ * Continue with the 20 between, which the page's scroll padding alone does not
+ * do (a partly visible control is left where it is). Tabbing down the step
+ * leaves no field under the bar either.
+ */
+export const FocusClearsBarKeyboard: Story = {
+  ...phone390Keyboard,
+  decorators: [
+    (Story) => (
+      <>
+        <style>{STEP_FLOW_BAR_RULE}</style>
+        <Story />
+      </>
+    ),
+  ],
+  args: { ...WithAside.args, aside: undefined, children: tallFieldsStep },
+  play: async ({ canvasElement }) => {
+    expectWidth(canvasElement, 390)
+    await expect(canvasElement.ownerDocument.defaultView?.innerHeight).toBe(500)
+    const canvas = within(canvasElement)
+    const bar = canvas.getByRole('button', { name: 'Continue' }).parentElement
+      ?.parentElement as HTMLElement
+    const textarea = canvas.getByLabelText('Description')
+
+    // Half under the bar: its top 60 above the bar's top, so most of it is hidden.
+    const barTop = () => bar.getBoundingClientRect().top
+    window.scrollBy(0, textarea.getBoundingClientRect().top - (barTop() - 60))
+    await waitFor(() =>
+      expect(
+        Math.abs(textarea.getBoundingClientRect().top - (barTop() - 60)),
+      ).toBeLessThan(2),
+    )
+    await expect(textarea.getBoundingClientRect().bottom).toBeGreaterThan(
+      barTop(),
+    )
+
+    textarea.focus()
+    await waitFor(
+      () =>
+        expect(
+          barTop() - textarea.getBoundingClientRect().bottom,
+        ).toBeGreaterThan(formSpace.bodyToAction - 2),
+      { timeout: 3000 },
+    )
+
     await expect(await controlsUnderBar(bar)).toEqual([])
   },
 }

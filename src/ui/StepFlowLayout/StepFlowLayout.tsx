@@ -1,6 +1,7 @@
 'use client'
 
 import type { MouseEvent, ReactNode } from 'react'
+import { useRef } from 'react'
 
 import {
   Box,
@@ -21,6 +22,7 @@ import { IconButton } from '../IconButton/IconButton'
 import { Link } from '../Link/Link'
 import { Logo } from '../Logo/Logo'
 import { ProgressBar } from '../ProgressBar'
+import { useKeepFocusClearOfBar } from '../focusClearance'
 import { STEP_FLOW_BAR_ATTR } from './stepFlowBar'
 
 /**
@@ -201,7 +203,10 @@ export type StepFlowActionsProps = {
  * field is 20 above Continue at rest. Pinned (`sticky`), it can cover the foot
  * of a page that scrolls under it, so `globals.css` pads `<html>`'s scroll
  * (`STEP_FLOW_BAR_SCROLL_PADDING`): a field or chip that takes keyboard focus
- * stops 20 above it, not behind it.
+ * stops 20 above it, not behind it. A tall field that is only partly under the
+ * bar when it takes focus (the Description, the keyboard up) is scrolled clear
+ * too: the padding alone does not move a partly visible control
+ * (`useKeepFocusClearOfBar`).
  */
 export function StepFlowActions({
   showBack = false,
@@ -214,8 +219,12 @@ export function StepFlowActions({
   onContinue,
   sticky = false,
 }: StepFlowActionsProps) {
+  const barRef = useRef<HTMLDivElement>(null)
+  // Only a pinned bar covers anything: a static one sits after the content.
+  useKeepFocusClearOfBar(barRef, sticky)
   return (
     <Box
+      ref={barRef}
       // A pinned bar tells `globals.css` to keep focused controls above it.
       {...(sticky ? { [STEP_FLOW_BAR_ATTR]: '' } : {})}
       bg="bg.surface"
