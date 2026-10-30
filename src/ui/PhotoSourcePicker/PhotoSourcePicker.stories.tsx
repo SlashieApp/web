@@ -141,29 +141,39 @@ export const TouchScreen: Story = {
   },
 }
 
+/** The sheet's spacing: first button 24 under the title, 8 between, both 48 tall. */
+async function expectSourceSheetSpacing(canvasElement: HTMLElement) {
+  await userEvent.click(
+    within(canvasElement).getByRole('button', { name: 'Add photos' }),
+  )
+  const { dialog, title } = await openDrawer(canvasElement, 'Add a photo')
+  const take = within(dialog).getByRole('button', { name: 'Take photo' })
+  const library = within(dialog).getByRole('button', {
+    name: 'Choose from library',
+  })
+  await expectFirstRowUnderTitle(title, take)
+  await expect(gapBelow(take, library)).toBe(formSpace.alternativesGap)
+  await expect(heightOf(take)).toBe(formSpace.controlHeight)
+  await expect(heightOf(library)).toBe(formSpace.controlHeight)
+}
+
 /**
  * The two choices on the spacing steps (FE-481 menus): the first is 24 under the
- * title, and the two are 8 apart (were 12), as stacked alternatives are. They
- * stay the sheet's 52px buttons: a choice, not a form.
+ * title, and the two are 8 apart (were 12), as stacked alternatives are, and
+ * both are 48 tall (`controlHeight`, was 52).
  */
 export const TouchScreenSpacing: Story = {
   ...phone390,
   tags: ['!autodocs'],
   parameters: { ...phone390.parameters, touchScreen: true },
-  play: async ({ canvasElement }) => {
-    await userEvent.click(
-      within(canvasElement).getByRole('button', { name: 'Add photos' }),
-    )
-    const { dialog, title } = await openDrawer(canvasElement, 'Add a photo')
-    const take = within(dialog).getByRole('button', { name: 'Take photo' })
-    const library = within(dialog).getByRole('button', {
-      name: 'Choose from library',
-    })
-    await expectFirstRowUnderTitle(title, take)
-    await expect(gapBelow(take, library)).toBe(formSpace.alternativesGap)
-    await expect(heightOf(take)).toBe(52)
-    await expect(heightOf(library)).toBe(52)
-  },
+  play: async ({ canvasElement }) => expectSourceSheetSpacing(canvasElement),
+}
+
+/** The same steps on a wide touch screen (a tablet): the buttons are 48 there too. */
+export const TouchScreenSpacingWide: Story = {
+  tags: ['!autodocs'],
+  parameters: { touchScreen: true },
+  play: async ({ canvasElement }) => expectSourceSheetSpacing(canvasElement),
 }
 
 /** Take photo opens our back camera (no input); Use photo hands the shot over, then focus returns. */
