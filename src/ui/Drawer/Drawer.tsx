@@ -28,11 +28,16 @@ import { createPortal } from 'react-dom'
 import { LuX } from 'react-icons/lu'
 
 import { useI11n } from '@/i18n/useI11n'
-import { APP_OVERLAY_Z_INDEX, overlayDescriptionStyle } from '@/theme/styles'
+import {
+  APP_OVERLAY_Z_INDEX,
+  overlayDescriptionStyle,
+  pinnedBarClearance,
+} from '@/theme/styles'
 import { useIsBrowser } from '@/utils/useIsBrowser'
 
 import { Button } from '../Button'
 import { IconButton as UiIconButton } from '../IconButton/IconButton'
+import { DRAWER_BAR_ATTR } from './DrawerBar'
 import bag from './i11n.json'
 import { useDrawerSheet } from './useDrawerSheet'
 
@@ -304,6 +309,15 @@ export function Drawer({
             display="flex"
             flexDirection="column"
             overscrollBehavior="contain"
+            // A pinned DrawerBar covers the foot of the scroll: a control that
+            // takes keyboard focus stops above it, not behind it (WCAG 2.4.11).
+            // Not while focus is in the bar: its buttons sit in that padding,
+            // and focusing one (a press on Save) would scroll the body to its
+            // end.
+            css={{
+              [`&:has([${DRAWER_BAR_ATTR}]):not(:has([${DRAWER_BAR_ATTR}]:focus-within))`]:
+                { scrollPaddingBottom: `${pinnedBarClearance}px` },
+            }}
           >
             {/* As wide as the header, so the body lines up with the title
                 even when a call site widens the panel. */}

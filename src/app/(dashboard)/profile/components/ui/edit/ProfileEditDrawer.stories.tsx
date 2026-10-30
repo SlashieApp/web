@@ -25,6 +25,7 @@ import {
 import { formSpace } from '@/theme/styles'
 import { gapBelow, gapBeside, heightOf } from '@/ui/FormField/formGap.testing'
 import { scrollToEnd } from '@/ui/Modal/taskDialogSpacing.testing'
+import { controlsUnderBar } from '@/ui/focusClearance.testing'
 
 import { ProfileEditDrawer } from './ProfileEditDrawer'
 
@@ -269,6 +270,39 @@ export const WorkerSpacingPhone: Story = {
   play: async ({ canvasElement }) => {
     expectWidth(canvasElement, 390)
     await expectWorker(canvasElement, { wide: false })
+  },
+}
+
+/**
+ * Keyboard focus clears the pinned Cancel and Save bar (WCAG 2.4.11): tabbing
+ * down the worker editor scrolls the years, the radius, the links and the
+ * certification chips to above the bar, never under it. Wide and on a phone.
+ */
+export const WorkerFocusClearsBar: Story = {
+  ...desktop1280,
+  args: { section: 'worker' },
+  decorators: [withSession({ me: storyWorkerMe() })],
+  play: async ({ canvasElement }) => {
+    const { stack, body } = await openEditor(
+      canvasElement,
+      'Edit worker profile',
+    )
+    await expect(body.scrollHeight).toBeGreaterThan(body.clientHeight)
+    await expect(getComputedStyle(body).scrollPaddingBottom).toBe('84px')
+    const { bar } = barOf(stack)
+    await expect(await controlsUnderBar(bar)).toEqual([])
+  },
+}
+
+/** The same at 390, where the fields stack and the body is longer. */
+export const WorkerFocusClearsBarPhone: Story = {
+  ...phone390,
+  args: { section: 'worker' },
+  decorators: [withSession({ me: storyWorkerMe() })],
+  play: async ({ canvasElement }) => {
+    const { stack } = await openEditor(canvasElement, 'Edit worker profile')
+    const { bar } = barOf(stack)
+    await expect(await controlsUnderBar(bar)).toEqual([])
   },
 }
 

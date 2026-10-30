@@ -2,6 +2,9 @@
 
 import { HStack, type StackProps } from '@chakra-ui/react'
 
+/** The attribute a drawer's body looks for to keep focus clear of the pinned bar. */
+export const DRAWER_BAR_ATTR = 'data-drawer-bar'
+
 export type DrawerBarProps = StackProps
 
 /**
@@ -16,10 +19,17 @@ export type DrawerBarProps = StackProps
  * Open the drawer with `endsInBar` so the body adds no padding under the bar:
  * with it the buttons would rest 24 higher at the end of the scroll than while
  * the bar is pinned.
+ *
+ * The bar is pinned over the foot of the body's scroll, so the body keeps a
+ * control that takes keyboard focus above it: the bar carries `data-drawer-bar`,
+ * and a body that holds one has `scroll-padding-bottom` of `pinnedBarClearance`
+ * (the bar and the 20 the last field keeps from it), except while focus is in
+ * the bar itself, so pressing Save does not scroll the body.
  */
 export function DrawerBar(props: DrawerBarProps) {
   return (
     <HStack
+      {...{ [DRAWER_BAR_ATTR]: '' }}
       gap="form.inlineGap"
       justify="flex-end"
       position="sticky"

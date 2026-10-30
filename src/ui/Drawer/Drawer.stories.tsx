@@ -8,6 +8,7 @@ import { formSpace } from '@/theme/styles'
 
 import { Button } from '../Button'
 import { gapBelow, gapBeside } from '../FormField/formGap.testing'
+import { controlsUnderBar } from '../focusClearance.testing'
 import { Drawer, type DrawerPlacement, type DrawerSize } from './Drawer'
 import { DrawerBar } from './DrawerBar'
 import { expectBar, expectNoLines } from './drawerSpacing.testing'
@@ -536,6 +537,55 @@ export const OpenEndsInBar: Story = {
       Math.abs(gapBeside(cancel, save) - formSpace.inlineGap),
     ).toBeLessThanOrEqual(0.5)
     await expectNoLines(dialog)
+  },
+}
+
+/**
+ * Open, a long form ends in a pinned `DrawerBar`: keyboard focus on a field or a
+ * chip stops above the bar, not behind it (WCAG 2.4.11). The body's
+ * `scroll-padding-bottom` is the bar and the 20 the last field keeps from it.
+ */
+export const OpenFocusClearsBar: Story = {
+  tags: ['!autodocs'],
+  args: { ...controlled, placement: 'end', endsInBar: true },
+  render: (args) => (
+    <DrawerDemo {...args} primaryActionLabel={undefined} initialOpen>
+      <Stack gap="form.fieldGap">
+        {Array.from({ length: 30 }, (_, i) => `Field ${i + 1}`).map((label) => (
+          <label key={label}>
+            {label}
+            <input aria-label={label} />
+          </label>
+        ))}
+        <Stack direction="row" gap={2} flexWrap="wrap">
+          {['Add Gas Safe', 'Add NICEIC', 'Add City & Guilds'].map((chip) => (
+            <button key={chip} type="button">
+              {chip}
+            </button>
+          ))}
+        </Stack>
+        <DrawerBar>
+          <Button variant="ghost" size="form">
+            Cancel
+          </Button>
+          <Button size="form">Save</Button>
+        </DrawerBar>
+      </Stack>
+    </DrawerDemo>
+  ),
+  play: async ({ canvasElement }) => {
+    const dialog = await findOpenDialog(canvasElement, 'Filters')
+    const body = dialog.querySelector('.chakra-drawer__body') as HTMLElement
+    await expect(body.scrollHeight).toBeGreaterThan(body.clientHeight)
+    // The body keeps the bar (64) and the 20 above it clear of what has focus.
+    await expect(getComputedStyle(body).scrollPaddingBottom).toBe('84px')
+    const bar = dialog.querySelector('[data-drawer-bar]') as HTMLElement
+    await expect(await controlsUnderBar(bar)).toEqual([])
+    // Pressing Save from the top does not scroll the body: the padding is off
+    // while focus is in the bar, whose buttons sit inside it.
+    body.scrollTop = 0
+    await userEvent.click(within(bar).getByRole('button', { name: 'Save' }))
+    await expect(body.scrollTop).toBe(0)
   },
 }
 
