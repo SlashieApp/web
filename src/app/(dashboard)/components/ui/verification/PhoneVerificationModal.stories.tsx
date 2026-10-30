@@ -156,7 +156,7 @@ export const EnterCode: Story = {
   },
 }
 
-/** Send code with no number: an inline error, nothing is sent. */
+/** Send code with no number: an inline error, announced, nothing is sent. */
 export const MissingNumber: Story = {
   decorators: [withSession({ me: storyMe() })],
   play: async ({ canvasElement }) => {
@@ -164,8 +164,8 @@ export const MissingNumber: Story = {
       await page(canvasElement).findByRole('button', { name: 'Send code' }),
     )
     await expect(
-      await page(canvasElement).findByText('Enter your mobile number.'),
-    ).toBeInTheDocument()
+      await page(canvasElement).findByRole('alert'),
+    ).toHaveTextContent('Enter your mobile number.')
   },
 }
 
@@ -184,11 +184,10 @@ export const CodeIncomplete: Story = {
     await userEvent.click(
       await page(canvasElement).findByRole('button', { name: 'Verify' }),
     )
+    // Announced, not just drawn.
     await expect(
-      await page(canvasElement).findByText(
-        'Enter the 6-digit code from your SMS.',
-      ),
-    ).toBeInTheDocument()
+      await page(canvasElement).findByRole('alert'),
+    ).toHaveTextContent('Enter the 6-digit code from your SMS.')
   },
 }
 

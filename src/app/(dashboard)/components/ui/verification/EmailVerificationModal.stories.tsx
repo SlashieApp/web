@@ -100,11 +100,10 @@ export const Sent: Story = {
   ],
   play: async ({ canvasElement }) => {
     await userEvent.click(await resend(canvasElement))
+    // A confirmation is a polite status, not an alert.
     await expect(
-      await within(canvasElement.ownerDocument.body).findByText(
-        'Verification email sent. Check your inbox.',
-      ),
-    ).toBeInTheDocument()
+      await within(canvasElement.ownerDocument.body).findByRole('status'),
+    ).toHaveTextContent('Verification email sent. Check your inbox.')
   },
 }
 
@@ -123,11 +122,10 @@ export const RateLimited: Story = {
   ],
   play: async ({ canvasElement }) => {
     await userEvent.click(await resend(canvasElement))
+    // A failure is announced at once.
     await expect(
-      await within(canvasElement.ownerDocument.body).findByText(
-        'Please wait 2 minutes before resending.',
-      ),
-    ).toBeInTheDocument()
+      await within(canvasElement.ownerDocument.body).findByRole('alert'),
+    ).toHaveTextContent('Please wait 2 minutes before resending.')
   },
 }
 

@@ -266,7 +266,7 @@ export function PhoneVerificationModal({
               </FormField>
             ) : null}
             {error ? (
-              <Text color="status.danger.fg" fontSize="sm">
+              <Text color="status.danger.fg" fontSize="sm" role="alert">
                 {error}
               </Text>
             ) : null}
@@ -338,7 +338,7 @@ export function PhoneVerificationModal({
               </Text>
             </Box>
             {error ? (
-              <Text color="status.danger.fg" fontSize="sm">
+              <Text color="status.danger.fg" fontSize="sm" role="alert">
                 {error}
               </Text>
             ) : null}

@@ -270,3 +270,37 @@ export const FormSpacing: Story = {
     await expect(gapBelow(last, helper)).toBe(formSpace.controlToHelper)
   },
 }
+
+/**
+ * The cells are one named group: its description is the field's helper and
+ * error, and the cells (not the group) carry the invalid mark. Without an error
+ * and a name there is nothing extra.
+ */
+export const GroupSemantics: Story = {
+  render: function GroupSemanticsStory() {
+    const [value, setValue] = useState('')
+    return (
+      <FormField
+        label="Verification code"
+        errorText="That code is incorrect or has expired."
+      >
+        <OtpInput
+          value={value}
+          onChange={setValue}
+          aria-label="Verification code"
+        />
+      </FormField>
+    )
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const group = canvas.getByRole('group', { name: 'Verification code' })
+    await expect(group).toHaveAccessibleDescription(
+      'That code is incorrect or has expired.',
+    )
+    await expect(group).not.toHaveAttribute('aria-invalid')
+    const cells = within(group).getAllByRole('textbox')
+    await expect(cells).toHaveLength(6)
+    for (const cell of cells) await expect(cell).toBeInvalid()
+  },
+}

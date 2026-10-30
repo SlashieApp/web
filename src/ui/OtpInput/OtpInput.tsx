@@ -33,6 +33,10 @@ export type OtpInputProps = {
   onEnter?: (value: string) => void
   /** Fires when the last digit is entered. */
   onComplete?: (value: string) => void
+  /** Names the group of cells, when no visible label does (the dialog's lead-in). */
+  'aria-label'?: string
+  /** The id of the element that names the group. */
+  'aria-labelledby'?: string
 }
 
 /**
@@ -92,9 +96,10 @@ function cellsToDigits(cells: string[]): string {
  *
  * SDL: cells reference semantic roles only (`bg.surface`, `text.default`,
  * `border.default`); the green keyboard focus ring + transition come from
- * `formControlFieldInteraction`. Error state is wired through `aria-invalid` /
- * `aria-describedby` from the nearest {@link FormField} (never placeholder-only),
- * and each cell carries an explicit `aria-label`.
+ * `formControlFieldInteraction`. The cells are a `role="group"` (named by
+ * `aria-label` or `aria-labelledby`), so the field's helper and error are its
+ * description; an error marks every cell `aria-invalid` (a group cannot be).
+ * Each cell carries an explicit `aria-label`.
  */
 export const OtpInput = React.forwardRef<HTMLDivElement, OtpInputProps>(
   function OtpInput(
@@ -107,6 +112,8 @@ export const OtpInput = React.forwardRef<HTMLDivElement, OtpInputProps>(
       size = 'md',
       onEnter,
       onComplete,
+      'aria-label': ariaLabel,
+      'aria-labelledby': ariaLabelledBy,
     },
     ref,
   ) {
@@ -248,6 +255,7 @@ export const OtpInput = React.forwardRef<HTMLDivElement, OtpInputProps>(
         maxLength={1}
         disabled={isDisabled}
         aria-label={`Digit ${index + 1} of ${length}`}
+        aria-invalid={controlProps['aria-invalid']}
         {...cellStyles}
         {...cellSizes[size]}
         {...formControlInvalidFieldProps(invalid)}
@@ -263,8 +271,11 @@ export const OtpInput = React.forwardRef<HTMLDivElement, OtpInputProps>(
         p={2}
         m={-2}
         id={id}
+        // biome-ignore lint/a11y/useSemanticElements: a fieldset's own layout (min-width, no flex) fights the padded, negative-margin box that holds the focus rings
+        role="group"
+        aria-label={ariaLabel}
+        aria-labelledby={ariaLabelledBy}
         aria-describedby={controlProps['aria-describedby']}
-        aria-invalid={controlProps['aria-invalid']}
       >
         <HStack gap={2} justify="center" w="full">
           {firstGroup.map(renderCell)}

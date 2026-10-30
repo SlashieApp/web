@@ -90,6 +90,8 @@ export function EmailVerificationModal({
               <Text
                 fontSize="sm"
                 color={isSent ? 'text.link' : 'status.danger.fg'}
+                // Read out when it appears: "sent" politely, a failure at once.
+                role={isSent ? 'status' : 'alert'}
               >
                 {status}
               </Text>
