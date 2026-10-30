@@ -259,11 +259,13 @@ export const Phone: Story = {
 
 /**
  * Every box row is at least 44 tall to tap, yet adds no visible space: it
- * reaches into the gaps above and below it. The first row reaches up to the
- * gap under the last field, the last reaches down to the gap above the button,
- * and a press on the visible row always lands on its own box. Rows sit 20
- * apart, so two neighbours' targets share 4px between them (the lower row
- * takes it).
+ * reaches into the gaps above and below it. Rows sit 20 apart, so the three
+ * share the gaps between them without overlap (`checkboxRunReach`): the middle
+ * row takes 12 and 12, its neighbours the 8 that is left of each shared gap,
+ * and the first and last rows take the rest (16) from the free gaps under the
+ * last field and above the button. A press on the visible row always lands on
+ * its own box, and a press on the last pixel of one target never lands on the
+ * next row.
  */
 export const TapTargets: Story = {
   decorators: decorate(),
@@ -283,20 +285,61 @@ export const TapTargets: Story = {
       await expect(row.root.contains(at(x, visible.top + 1))).toBe(true)
       await expect(row.root.contains(at(x, visible.bottom - 1))).toBe(true)
     }
+    // A one-line row is exactly 44: no more than the touch size is taken.
+    await expect(heightOf(p.over18.hit)).toBe(minHitArea)
 
+    // No two targets overlap, and a press on the edge of one lands on it.
+    for (const [upper, lower] of [
+      [p.over18, p.terms],
+      [p.terms, p.marketing],
+    ] as const) {
+      await expect(gapBelow(upper.hit, lower.hit)).toBe(0)
+      const end = upper.hit.getBoundingClientRect()
+      const start = lower.hit.getBoundingClientRect()
+      await expect(upper.root.contains(at(end.left + 4, end.bottom - 1))).toBe(
+        true,
+      )
+      await expect(lower.root.contains(at(start.left + 4, start.top + 1))).toBe(
+        true,
+      )
+    }
+
+    // The ends take the free gap, and stop short of the field and the button.
+    const shell = p.shellOf(p.confirm)
+    await expect(gapBelow(shell, p.over18.hit)).toBe(formSpace.fieldGap - 16)
+    await expect(gapBelow(p.marketing.hit, p.main)).toBe(
+      formSpace.bodyToAction - 16,
+    )
     const first = p.over18.hit.getBoundingClientRect()
-    const last = p.marketing.hit.getBoundingClientRect()
     await expect(
-      p.over18.root.contains(at(first.left + 4, first.top + 1)),
-    ).toBe(true)
-    await expect(
-      p.marketing.root.contains(at(last.left + 4, last.bottom - 1)),
-    ).toBe(true)
-    // The confirm field keeps its own bottom edge.
-    const shell = p.shellOf(p.confirm).getBoundingClientRect()
-    await expect(
-      p.over18.root.contains(at(first.left + 4, shell.bottom - 1)),
+      p.over18.root.contains(
+        at(first.left + 4, shell.getBoundingClientRect().bottom - 1),
+      ),
     ).toBe(false)
+  },
+}
+
+/**
+ * Until both boxes are ticked, Google and Apple only explain themselves: the
+ * hint under Apple is what they are described by, so a screen reader reads why
+ * they do nothing yet. Ticking both boxes removes the hint and the pointer to
+ * it.
+ */
+export const BlockedButtonsAreDescribed: Story = {
+  decorators: decorate(),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const p = await registerParts(canvas)
+    const hint = await canvas.findByText(HINT)
+    await expect(hint.id).not.toBe('')
+    await expect(p.apple).toHaveAccessibleDescription(HINT)
+    await expect(p.google).toHaveAttribute('aria-describedby', hint.id)
+
+    await userEvent.click(canvas.getByText('I confirm I am 18 or over.'))
+    await userEvent.click(canvas.getByText(/I agree to the/))
+    await expect(canvas.queryByText(HINT)).toBeNull()
+    await expect(p.apple).not.toHaveAttribute('aria-describedby')
+    await expect(p.google).not.toHaveAttribute('aria-describedby')
   },
 }
 

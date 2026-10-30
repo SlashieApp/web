@@ -85,15 +85,19 @@ function loadAppleScript(locale: string): Promise<void> {
 export function AppleSignInButton({
   label,
   disabled = false,
+  describedBy,
   onClick,
 }: {
   label: string
   disabled?: boolean
+  /** The id of the text that explains the button (why it is blocked). */
+  describedBy?: string
   onClick: () => void
 }) {
   return (
     <chakra.button
       type="button"
+      aria-describedby={describedBy}
       w="full"
       maxW="400px"
       h="form.controlHeight"
@@ -142,6 +146,8 @@ type AppleAuthButtonProps = {
    */
   blocked?: boolean
   onBlocked?: () => void
+  /** The id of the text that says why the button is blocked (sign up's hint). */
+  describedBy?: string
   /** Runs after sign-in succeeds, before the redirect (e.g. sign-up opt-ins). */
   onSignedIn?: () => Promise<void> | void
   /**
@@ -166,6 +172,7 @@ export function AppleAuthButton({
   fallbackPath = APP_HOME,
   blocked = false,
   onBlocked,
+  describedBy,
   onSignedIn,
   onToken,
   busy = false,
@@ -321,6 +328,7 @@ export function AppleAuthButton({
   return (
     <AppleSignInButton
       label={t.continue}
+      describedBy={describedBy}
       disabled={!ready || loading || busy}
       onClick={() => void onClick()}
     />

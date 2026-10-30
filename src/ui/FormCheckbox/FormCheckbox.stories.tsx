@@ -9,7 +9,7 @@ import { FormField } from '../FormField/FormField'
 import { gapBelow, heightOf } from '../FormField/formGap.testing'
 import { FormStack } from '../FormStack/FormStack'
 import { Input } from '../Input/Input'
-import { FormCheckbox } from './FormCheckbox'
+import { FormCheckbox, checkboxRunReach } from './FormCheckbox'
 
 /**
  * SDL form checkbox: one field group of a form. The visible row is the label's
@@ -178,5 +178,86 @@ export const RowsShareAGap: Story = {
     for (const target of targets) await expect(heightOf(target)).toBe(28)
     await expect(gapBelow(targets[0] as Element, targets[1] as Element)).toBe(0)
     await expect(gapBelow(targets[1] as Element, targets[2] as Element)).toBe(0)
+  },
+}
+
+/**
+ * A run of rows one field gap (20) apart, as on sign up: every row is 44 to
+ * tap, no two targets overlap, and the ends take the free gap outside the run
+ * (16 above the first, 16 below the last), the middle row 12 and 12.
+ */
+export const RunOfRows: Story = {
+  render: () => (
+    <FormStack maxW="360px">
+      <FormField label="Password">
+        <Input />
+      </FormField>
+      <FormCheckbox
+        checked={false}
+        onCheckedChange={() => {}}
+        label="One"
+        {...checkboxRunReach('first')}
+      />
+      <FormCheckbox
+        checked={false}
+        onCheckedChange={() => {}}
+        label="Two"
+        {...checkboxRunReach('middle')}
+      />
+      <FormCheckbox
+        checked={false}
+        onCheckedChange={() => {}}
+        label="Three"
+        {...checkboxRunReach('last')}
+      />
+      <FormField label="Notes">
+        <Input />
+      </FormField>
+    </FormStack>
+  ),
+  play: async ({ canvasElement }) => {
+    await expect(checkboxRunReach('first')).toEqual({
+      reachAbove: 16,
+      reachBelow: 8,
+    })
+    await expect(checkboxRunReach('middle')).toEqual({
+      reachAbove: 12,
+      reachBelow: 12,
+    })
+    await expect(checkboxRunReach('last')).toEqual({
+      reachAbove: 8,
+      reachBelow: 16,
+    })
+
+    const canvas = within(canvasElement)
+    const hits = ['One', 'Two', 'Three'].map(
+      (name) => canvas.getByText(name).parentElement as HTMLElement,
+    )
+    const at = (x: number, y: number) => document.elementFromPoint(x, y)
+    for (const hit of hits) await expect(heightOf(hit)).toBe(minHitArea)
+    // The targets touch and never overlap: a press on the last pixel of a
+    // target lands on its own row, the first pixel of the next on the next.
+    for (const [index, upper] of hits.slice(0, 2).entries()) {
+      const lower = hits[index + 1] as HTMLElement
+      await expect(gapBelow(upper, lower)).toBe(0)
+      const end = upper.getBoundingClientRect()
+      const start = lower.getBoundingClientRect()
+      await expect(
+        upper.closest('label')?.contains(at(end.left + 4, end.bottom - 1)),
+      ).toBe(true)
+      await expect(
+        lower.closest('label')?.contains(at(start.left + 4, start.top + 1)),
+      ).toBe(true)
+    }
+    // The ends stop 4 short of the fields around the run.
+    const shellOf = (label: string) =>
+      (
+        canvas.getByText(label, { selector: 'label' })
+          .parentElement as HTMLElement
+      ).querySelector('input')?.parentElement as HTMLElement
+    await expect(gapBelow(shellOf('Password'), hits[0] as Element)).toBe(4)
+    const notes = canvas.getByText('Notes', { selector: 'label' })
+      .parentElement as HTMLElement
+    await expect(gapBelow(hits[2] as Element, notes)).toBe(4)
   },
 }

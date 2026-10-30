@@ -34,6 +34,11 @@ type GoogleAuthButtonProps = {
   blocked?: boolean
   blockedTitle?: string
   blockedDescription?: string
+  /**
+   * The id of the text that says why the button is blocked (sign up's hint).
+   * It sits on the widget's container: the button itself is Google's iframe.
+   */
+  describedBy?: string
   onBlocked?: () => void
   /** Runs after sign-in succeeds, before the redirect (e.g. sign-up opt-ins). */
   onSignedIn?: () => Promise<void> | void
@@ -53,6 +58,7 @@ export function GoogleAuthButton({
   blocked = false,
   blockedTitle,
   blockedDescription,
+  describedBy,
   onBlocked,
   onSignedIn,
   onToken,
@@ -170,6 +176,7 @@ export function GoogleAuthButton({
         minW={0}
         w="full"
         minH="form.controlHeight"
+        aria-describedby={describedBy}
         opacity={loading ? 0.72 : 1}
         pointerEvents={loading ? 'none' : 'auto'}
       >

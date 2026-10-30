@@ -280,6 +280,8 @@ export type HitAreaGrowth = {
  * overlap, or the one above loses the overlap. Rows `gap` apart each take half
  * of it: `hitAreaGrowth(20, gap / 2, gap / 2)`. When the gap is short, the
  * target is under 44 by what it lacks (two 20px rows 8 apart are 28 each).
+ * A run of rows 20 apart can all be 44 when the ends take the free gap outside
+ * the run: 16 and 8, 12 and 12, 8 and 16 (`checkboxRunReach`).
  */
 export function hitAreaGrowth(
   visualHeight: number,

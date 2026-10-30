@@ -5,7 +5,7 @@ import { Box, Text } from '@chakra-ui/react'
 import type { RegisterMutation } from '@codegen/schema'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { useState } from 'react'
+import { useId, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 
 import authBag from '@/app/(auth)/components/i11n.json'
@@ -49,6 +49,7 @@ import {
   FormStack,
   Input,
   Link,
+  checkboxRunReach,
 } from '@ui'
 
 import Register from '../graphql/Register.gql'
@@ -115,6 +116,9 @@ export function RegisterScreen() {
     key ? t.validation[key as RegisterValidationKey] : undefined
 
   const oauthBlocked = !watch('isOver18') || !watch('agreedToTerms')
+  // The hint under Apple says why Google and Apple do nothing yet; both describe
+  // themselves by it while they are blocked.
+  const consentHintId = useId()
   const marketingOptIn = watch('marketingOptIn')
   const [updateSettings] = useMutation(UpdateMySettings)
   const [registerMutation, { loading }] =
@@ -278,6 +282,7 @@ export function RegisterScreen() {
                     inputRef={field.ref}
                     label={t.over18Label}
                     errorText={fieldError(errors.isOver18?.message)}
+                    {...checkboxRunReach('first')}
                   />
                 )}
               />
@@ -291,6 +296,7 @@ export function RegisterScreen() {
                     onCheckedChange={field.onChange}
                     inputRef={field.ref}
                     errorText={fieldError(errors.agreedToTerms?.message)}
+                    {...checkboxRunReach('middle')}
                     label={
                       <>
                         {t.termsBefore}{' '}
@@ -321,6 +327,7 @@ export function RegisterScreen() {
                     onCheckedChange={field.onChange}
                     inputRef={field.ref}
                     label={t.marketingOptIn}
+                    {...checkboxRunReach('last')}
                   />
                 )}
               />
@@ -360,17 +367,24 @@ export function RegisterScreen() {
                 blocked={oauthBlocked}
                 blockedTitle={t.googleBlockedTitle}
                 blockedDescription={t.googleBlockedDescription}
+                describedBy={oauthBlocked ? consentHintId : undefined}
                 onBlocked={askConsent}
                 onSignedIn={applyMarketingOptIn}
               />
               <AppleAuthButton
                 next={next}
                 blocked={oauthBlocked}
+                describedBy={oauthBlocked ? consentHintId : undefined}
                 onBlocked={askConsent}
                 onSignedIn={applyMarketingOptIn}
               />
               {oauthBlocked ? (
-                <Text fontSize="xs" color="text.muted" lineHeight="tall">
+                <Text
+                  id={consentHintId}
+                  fontSize="xs"
+                  color="text.muted"
+                  lineHeight="tall"
+                >
                   {t.googleConsentHint}
                 </Text>
               ) : null}
