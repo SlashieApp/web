@@ -1,7 +1,7 @@
 import { Box, Stack } from '@chakra-ui/react'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { LuEye, LuLock, LuMail, LuSearch } from 'react-icons/lu'
-import { expect, within } from 'storybook/test'
+import { expect, userEvent, within } from 'storybook/test'
 
 import { FormField } from '../FormField'
 import { IconButton } from '../IconButton/IconButton'
@@ -215,4 +215,95 @@ export const AllVariants: Story = {
       </FormField>
     </Stack>
   ),
+}
+
+/**
+ * The whole shell is the target (FE-481): the strip above and below the text and
+ * the padding at either end are the input's, not dead space around it. A press
+ * 2px inside any edge of a 48px field (the rounded corners aside) lands on the
+ * input and puts the caret in it. The text is where it has always been: 17 from the border (21 for a pill).
+ */
+export const WholeShellIsTheTarget: Story = {
+  render: () => (
+    <Stack gap={4} maxW="420px">
+      <FormField label="Name">
+        <Input defaultValue="Sam" />
+      </FormField>
+      <FormField label="Search">
+        <Input pill defaultValue="Sam" startElement={searchIcon} />
+      </FormField>
+      <FormField label="Password">
+        <Input
+          type="password"
+          defaultValue="secret"
+          endElement={
+            <IconButton aria-label="Show password" variant="ghost" size="sm">
+              <LuEye />
+            </IconButton>
+          }
+        />
+      </FormField>
+    </Stack>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const at = (x: number, y: number) =>
+      canvasElement.ownerDocument.elementFromPoint(x, y)
+
+    // No slots: every edge, 2px inside the border, is the input.
+    const name = canvas.getByLabelText('Name')
+    const shell = name.parentElement as HTMLElement
+    const box = shell.getBoundingClientRect()
+    await expect(box.height).toBe(48)
+    const mid = { x: box.left + box.width / 2, y: box.top + box.height / 2 }
+    for (const [x, y] of [
+      [box.left + 2, mid.y],
+      [box.right - 2, mid.y],
+      [mid.x, box.top + 2],
+      [mid.x, box.bottom - 2],
+    ] as const) {
+      await expect(at(x, y)).toBe(name)
+    }
+    // The input fills the shell, and the text did not move.
+    const input = name.getBoundingClientRect()
+    await expect(input.height).toBe(46)
+    await expect(input.left - box.left).toBe(1)
+    await expect(Number.parseFloat(getComputedStyle(name).paddingLeft)).toBe(16)
+    await expect(Number.parseFloat(getComputedStyle(name).paddingRight)).toBe(
+      16,
+    )
+
+    // A pill keeps its 16 and 4: the text sits 21 from the border.
+    const search = canvas.getByLabelText('Search')
+    await expect(Number.parseFloat(getComputedStyle(search).paddingLeft)).toBe(
+      4,
+    )
+    await expect(
+      search.getBoundingClientRect().left -
+        (search.parentElement as HTMLElement).getBoundingClientRect().left,
+    ).toBeGreaterThan(30)
+
+    // A slot is outside the target; the input still fills the rest of the height.
+    const password = canvas.getByLabelText('Password')
+    const pwShell = (
+      password.parentElement as HTMLElement
+    ).getBoundingClientRect()
+    const pw = password.getBoundingClientRect()
+    await expect(pw.height).toBe(46)
+    await expect(
+      Number.parseFloat(getComputedStyle(password).paddingLeft),
+    ).toBe(16)
+    await expect(
+      Number.parseFloat(getComputedStyle(password).paddingRight),
+    ).toBe(4)
+    await expect(at(pwShell.left + 2, pwShell.top + 2)).toBe(password)
+    const show = canvas.getByRole('button', { name: 'Show password' })
+    await expect(show.getBoundingClientRect().left).toBeGreaterThanOrEqual(
+      pw.right,
+    )
+
+    // A press in the padding puts the caret in the field.
+    await userEvent.click(name)
+    await expect(name).toHaveFocus()
+  },
 }

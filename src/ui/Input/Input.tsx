@@ -33,6 +33,13 @@ export type InputProps = ChakraInputProps & {
  * Bordered text field with optional start/end slots. The native input is
  * borderless inside the shell; focus ring is expressed via the shell border.
  * The shell is 48px tall in a `FormField` (a form), 44px on its own.
+ *
+ * The whole shell is the target (FE-481), as it is for {@link Select}: the
+ * native input fills it edge to edge, and carries the padding on any side that
+ * has no slot, so a press on the strip above and below the text or on the
+ * left and right padding lands in the field, with the caret where it fell.
+ * Only a slot (an icon, a button) is outside the target. A caller's
+ * `rootProps` padding applies to the sides that have a slot.
  */
 export const Input = React.forwardRef<HTMLInputElement, InputProps>(
   function Input(
@@ -55,12 +62,14 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
       'aria-describedby': inputProps['aria-describedby'],
     })
     const minH = useFormControlMinH()
+    const hasStart = startElement != null
+    const hasEnd = endElement != null
 
     return (
       <Box
         pointerEvents="auto"
         display="flex"
-        alignItems="center"
+        alignItems="stretch"
         gap={1}
         w="full"
         minH={minH}
@@ -68,8 +77,10 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
         borderWidth="1px"
         borderColor="border.strong"
         bg="bg.surface"
-        pl={pill ? 4 : 3}
-        pr={3}
+        // A side with a slot keeps the shell's padding; a side without is the
+        // input's own, so the input reaches the border there.
+        pl={hasStart ? (pill ? 4 : 3) : 0}
+        pr={hasEnd ? 3 : 0}
         {...formControlShellInteraction}
         {...formControlInvalidShellProps(invalid)}
         {...(controlProps.disabled
@@ -108,7 +119,10 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
           h="auto"
           minH={0}
           py={2.5}
-          px={1}
+          // The text sits where it always has: 12 (16 for a pill) from the
+          // border and 4 more, or 4 from a slot.
+          pl={hasStart ? 1 : pill ? 5 : 4}
+          pr={hasEnd ? 1 : 4}
           _placeholder={{ color: 'text.subtle' }}
           _disabled={{ color: 'text.subtle', cursor: 'not-allowed' }}
           {...formControlFieldRingless}

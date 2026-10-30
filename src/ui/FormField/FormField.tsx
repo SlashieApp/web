@@ -231,8 +231,6 @@ export const formControlRootProps = {
   minH: 'form.controlHeight',
   w: 'full',
   borderRadius: 'md',
-  pl: 3,
-  pr: 3,
 } satisfies ComponentProps<typeof Box>
 
 /**
