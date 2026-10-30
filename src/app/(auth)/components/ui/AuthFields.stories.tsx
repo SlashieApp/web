@@ -98,6 +98,48 @@ export const CheckboxError: Story = {
 }
 
 /**
+ * The error is announced and tied to the box: a screen reader user who submits
+ * without ticking hears it (`role="alert"`), the box is invalid, and the error
+ * is its description. Without an error, none of that is on the box.
+ */
+export const CheckboxErrorIsAnnounced: Story = {
+  render: () => (
+    <Stack gap={6}>
+      <CheckboxDemo errorText="You must confirm you are 18 or over." />
+    </Stack>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const box = canvas.getByRole('checkbox')
+    const alert = canvas.getByRole('alert')
+    await expect(alert).toHaveTextContent(
+      'You must confirm you are 18 or over.',
+    )
+    await expect(box).toBeInvalid()
+    await expect(box).toHaveAttribute('aria-describedby', alert.id)
+    await expect(box).toHaveAccessibleDescription(
+      'You must confirm you are 18 or over.',
+    )
+  },
+}
+
+/** Ticked, the error is gone and so are the invalid mark and the description. */
+export const CheckboxNoErrorIsPlain: Story = {
+  render: () => (
+    <Stack gap={6}>
+      <CheckboxDemo />
+    </Stack>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const box = canvas.getByRole('checkbox')
+    await expect(canvas.queryByRole('alert')).toBeNull()
+    await expect(box).not.toBeInvalid()
+    await expect(box).not.toHaveAttribute('aria-describedby')
+  },
+}
+
+/**
  * A checkbox is a field group (FE-481): one 20px line between two fields, 20
  * above and below it, its error 4 under it. The row is 44 tall to tap and
  * adds no space.

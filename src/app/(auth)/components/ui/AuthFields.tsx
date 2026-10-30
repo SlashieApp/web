@@ -1,7 +1,7 @@
 'use client'
 
 import { Box, Checkbox, HStack, Stack, Text } from '@chakra-ui/react'
-import { type ReactNode, type Ref, useState } from 'react'
+import { type ReactNode, type Ref, useId, useState } from 'react'
 import { LuEye, LuEyeOff, LuLock, LuMail } from 'react-icons/lu'
 
 import { useI11n } from '@/i18n/useI11n'
@@ -96,6 +96,7 @@ export function AuthCheckbox({
   label: ReactNode
   errorText?: string
 }) {
+  const errorId = useId()
   return (
     <Stack gap="form.controlToHelper">
       <Checkbox.Root
@@ -103,8 +104,12 @@ export function AuthCheckbox({
         checked={checked}
         onCheckedChange={(detail) => onCheckedChange(Boolean(detail.checked))}
         colorPalette="green"
+        invalid={Boolean(errorText)}
       >
-        <Checkbox.HiddenInput ref={inputRef} />
+        <Checkbox.HiddenInput
+          ref={inputRef}
+          aria-describedby={errorText ? errorId : undefined}
+        />
         <HStack gap={3} align="flex-start" {...hitAreaGrowth(ROW_LINE_HEIGHT)}>
           <Checkbox.Control
             borderRadius="md"
@@ -130,7 +135,9 @@ export function AuthCheckbox({
         </HStack>
       </Checkbox.Root>
       {errorText ? (
-        <Text color="status.danger.fg" fontSize="sm">
+        // Announced when it appears (a sign-up blocked by an unticked box), and
+        // the box is invalid and described by it for a screen reader on the box.
+        <Text id={errorId} role="alert" color="status.danger.fg" fontSize="sm">
           {errorText}
         </Text>
       ) : null}
