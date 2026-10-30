@@ -187,7 +187,14 @@ export function Modal({
           [SHORT_VIEWPORT]: { flex: '0 0 auto', overflow: 'visible' },
         }}
       >
-        <Stack gap={6} fontSize="md" color="text.muted" lineHeight="1.625">
+        {/* Direct children are one field apart (20), like a FormStack's: a
+            second block next to a form does not drift to the old 24. */}
+        <Stack
+          gap="form.fieldGap"
+          fontSize="md"
+          color="text.muted"
+          lineHeight="1.625"
+        >
           {children}
         </Stack>
       </DialogBody>

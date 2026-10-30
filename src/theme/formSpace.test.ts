@@ -129,6 +129,11 @@ describe('dialog and drawer frames read the form tokens (FE-481 overlay-chrome)'
     },
   )
 
+  it('the Modal body lays its direct children one field apart (20, not 24)', () => {
+    expect(modal).toContain('gap="form.fieldGap"')
+    expect(modal).not.toMatch(/<Stack\s+gap=\{6\}/)
+  })
+
   it('the Modal bar stays put: the body scrolls inside the dialog', () => {
     expect(modal).toContain('scrollBehavior="inside"')
   })

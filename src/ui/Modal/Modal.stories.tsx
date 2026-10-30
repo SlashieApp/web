@@ -665,6 +665,34 @@ export const OpenWithoutDescription: Story = {
   },
 }
 
+/**
+ * Open with two blocks that are direct children of the frame (a note and a
+ * form): they are one field apart (20), as a FormStack lays its fields, not
+ * the old 24.
+ */
+export const OpenDirectChildrenAreOneFieldApart: Story = {
+  parameters: overlayDocs,
+  args: { title: 'Change email address', submitLabel: 'Save' },
+  render: (args) => (
+    <ModalDemo {...args} initialOpen triggerLabel="Update email">
+      <Text>We will send a link to the new address.</Text>
+      <FormStack>
+        <FormField label="New email">
+          <Input type="email" placeholder="you@example.com" />
+        </FormField>
+      </FormStack>
+    </ModalDemo>
+  ),
+  play: async ({ canvasElement }) => {
+    const { dialog } = await openFrame(canvasElement, 'Change email address')
+    const note = within(dialog).getByText(
+      'We will send a link to the new address.',
+    )
+    const field = fieldOf(dialog, 'New email')
+    await expect(gapBelow(note, field)).toBe(formSpace.fieldGap)
+  },
+}
+
 /** A field error is part of its field: the 20 to the buttons is below it. */
 export const OpenErrorAboveButtons: Story = {
   parameters: overlayDocs,
