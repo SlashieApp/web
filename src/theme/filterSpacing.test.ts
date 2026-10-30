@@ -104,6 +104,19 @@ describe('filter panels: one rhythm from the form pieces', () => {
     expect(filters).toContain('gap="form.alternativesGap"')
   })
 
+  it('the Budget pair error is the shared error line (12 on 16 with a dot), not its own style', () => {
+    const filters = SURFACES.TaskSearchFilters
+    expect(filters).toContain('<FormErrorText>')
+    expect(filters).not.toContain('lineHeight="20px"')
+    const line = read('src/ui/FormField/FormErrorText.tsx')
+    expect(line).toContain("fontSize: 'xs'")
+    expect(line).toContain("lineHeight: '16px'")
+    // FormField draws its error with the same props.
+    expect(read('src/ui/FormField/FormField.tsx')).toContain(
+      '{...formControlErrorTextProps}',
+    )
+  })
+
   it('the search sheet puts the search and its filters in a FormStack', () => {
     expect(SURFACES.MobileTaskSearchSheet).toContain('<FormStack>')
   })

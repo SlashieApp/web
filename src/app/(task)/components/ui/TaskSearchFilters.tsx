@@ -1,7 +1,14 @@
 'use client'
 
-import { HStack, Stack, Text, chakra } from '@chakra-ui/react'
-import { Button, FormField, FormRow, FormStack, Input } from '@ui'
+import { HStack, Stack, chakra } from '@chakra-ui/react'
+import {
+  Button,
+  FormErrorText,
+  FormField,
+  FormRow,
+  FormStack,
+  Input,
+} from '@ui'
 import { useId, useState } from 'react'
 import { LuChevronDown, LuX } from 'react-icons/lu'
 
@@ -312,16 +319,9 @@ export function TaskSearchFilters() {
                 />
               </FormField>
             </FormRow>
-            {/* The pair's error: 4 under the row, on the compact 20px line like a field's helper. */}
+            {/* The pair's error: 4 under the row, the same line as a field's error. */}
             {budgetRangeInvalid ? (
-              <Text
-                fontSize="sm"
-                lineHeight="20px"
-                color="status.danger.fg"
-                role="alert"
-              >
-                {t.budgetInvalid}
-              </Text>
+              <FormErrorText>{t.budgetInvalid}</FormErrorText>
             ) : null}
           </Stack>
         </chakra.fieldset>

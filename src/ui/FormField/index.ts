@@ -7,6 +7,11 @@ export {
 } from './FormField'
 export type { FormFieldProps } from './FormField'
 export {
+  FormErrorDot,
+  FormErrorText,
+  formControlErrorTextProps,
+} from './FormErrorText'
+export {
   formControlInvalidFieldProps,
   formControlInvalidShellProps,
   FormFieldStateContext,

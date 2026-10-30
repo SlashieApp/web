@@ -211,7 +211,9 @@ export const BudgetPanelSpacing: Story = {
       .parentElement as HTMLElement
     const alert = await canvas.findByRole('alert')
     await expect(gapBelow(row, alert)).toBe(formSpace.controlToHelper)
-    // The compact 20px line, so the 4 reads as 4.
-    await expect(heightOf(alert)).toBe(20)
+    // The same line as a field's error: 12 on a 16 line, so the 4 reads as 4.
+    await expect(heightOf(alert)).toBe(16)
+    await expect(getComputedStyle(alert).fontSize).toBe('12px')
+    await expect(getComputedStyle(alert).lineHeight).toBe('16px')
   },
 }

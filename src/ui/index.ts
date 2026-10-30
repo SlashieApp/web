@@ -62,12 +62,15 @@ export {
 } from './FeedbackDialog'
 export { FormAlternatives } from './FormAlternatives'
 export {
+  formControlErrorTextProps,
   formControlHelperTextProps,
   formControlInvalidFieldProps,
   formControlInvalidShellProps,
   formControlLabelProps,
   formControlRootProps,
   formControlTextareaProps,
+  FormErrorDot,
+  FormErrorText,
   FormField,
   FormFieldStateContext,
   useFormControlMinH,

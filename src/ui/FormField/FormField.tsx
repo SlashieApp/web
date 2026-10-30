@@ -17,6 +17,7 @@ import {
 
 import { formHelperTextStyle, sdlFocusRing, sdlMotion } from '@/theme/styles'
 
+import { FormErrorDot, formControlErrorTextProps } from './FormErrorText'
 import { type FormFieldState, FormFieldStateContext } from './formFieldContext'
 
 /** When true, the click is treated as interacting with a real editable control (skip `onControlClick`). */
@@ -208,23 +209,9 @@ export function FormField({
               </HStack>
             ) : null}
             {errorText ? (
-              <FieldErrorText
-                id={errorId}
-                color="status.danger.fg"
-                display="flex"
-                alignItems="center"
-                gap={1.5}
-                px={1}
-              >
-                {/* Status not by color alone: pair an icon + label. */}
-                <Box
-                  as="span"
-                  aria-hidden
-                  flexShrink={0}
-                  boxSize="6px"
-                  borderRadius="full"
-                  bg="status.danger.solid"
-                />
+              <FieldErrorText id={errorId} {...formControlErrorTextProps}>
+                {/* Status not by color alone: pair a dot + label. */}
+                <FormErrorDot />
                 {errorText}
               </FieldErrorText>
             ) : null}
