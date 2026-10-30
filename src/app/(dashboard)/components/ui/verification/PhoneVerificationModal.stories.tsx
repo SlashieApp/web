@@ -172,11 +172,15 @@ export const MissingNumber: Story = {
       await page(canvasElement).findByRole('button', { name: 'Send code' }),
     )
     const input = await page(canvasElement).findByLabelText('Mobile number')
-    await page(canvasElement).findByText('Enter your mobile number.')
+    const error = await page(canvasElement).findByText(
+      'Enter your mobile number.',
+    )
     await expect(input).toBeInvalid()
     await expect(input).toHaveAccessibleDescription(/Enter your mobile number/)
     await waitFor(() => expect(input).toHaveFocus())
-    await expect(page(canvasElement).queryByRole('alert')).toBeNull()
+    // The field's own error is the alert (announced as it appears), and the
+    // only one: no form-level alert next to it.
+    await expect(page(canvasElement).queryAllByRole('alert')).toEqual([error])
   },
 }
 

@@ -81,8 +81,9 @@ async function expectFieldError(
   await expect(input).toHaveAccessibleDescription(message)
   await expect(error.id).not.toBe('')
   await waitFor(() => expect(input).toHaveFocus())
-  // It is the field's own line, not a form-level alert.
-  await expect(page.queryByRole('alert')).toBeNull()
+  // It is the field's own line, announced as it appears (the field error is an
+  // alert), and the only one: no form-level alert next to it.
+  await expect(page.queryAllByRole('alert')).toEqual([error])
   return { input, error }
 }
 

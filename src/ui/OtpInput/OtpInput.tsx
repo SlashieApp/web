@@ -12,6 +12,7 @@ import * as React from 'react'
 import { formControlFieldInteraction, sdlMotion } from '@/theme/styles'
 import {
   formControlInvalidFieldProps,
+  useFormField,
   useFormFieldControlProps,
 } from '../FormField/formFieldContext'
 
@@ -124,9 +125,10 @@ function cellsToDigits(cells: string[]): string {
  * SDL: cells reference semantic roles only (`bg.surface`, `text.default`,
  * `border.default`); the green keyboard focus ring + transition come from
  * `formControlFieldInteraction`. The cells are a `role="group"` (named by
- * `aria-label` or `aria-labelledby`), so the field's helper and error are its
- * description; an error (the field's, or `invalid`) marks every cell
- * `aria-invalid` (a group cannot be).
+ * `aria-label` or `aria-labelledby`, or, inside a `FormField`, by its label),
+ * so the field's helper and error are its description; an error (the field's,
+ * or `invalid`) marks every cell `aria-invalid` (a group cannot be). The group
+ * takes the field's id; each cell has an id of its own.
  * Each cell carries an explicit `aria-label`.
  */
 export const OtpInput = React.forwardRef<HTMLDivElement, OtpInputProps>(
@@ -155,6 +157,15 @@ export const OtpInput = React.forwardRef<HTMLDivElement, OtpInputProps>(
       disabled,
       'aria-describedby': ariaDescribedBy,
     })
+    const field = useFormField()
+    // Inside a FormField the visible label names the group (a label's `for`
+    // cannot point at a group), unless the caller names it another way.
+    const groupLabelledBy =
+      ariaLabelledBy ?? (ariaLabel ? undefined : field?.labelId)
+    // The group takes the field's id (what its label's `for` and the field's
+    // messages name); each cell keeps an id of its own, so ids stay unique.
+    const ownId = React.useId()
+    const cellId = (index: number) => `${id ?? ownId}-digit-${index + 1}`
     const invalid = invalidProp ?? fieldInvalid
     const isDisabled = controlProps.disabled
 
@@ -277,6 +288,7 @@ export const OtpInput = React.forwardRef<HTMLDivElement, OtpInputProps>(
     const renderCell = (index: number) => (
       <ChakraInput
         key={index}
+        id={cellId(index)}
         ref={(el) => {
           inputRefs.current[index] = el
         }}
@@ -310,7 +322,7 @@ export const OtpInput = React.forwardRef<HTMLDivElement, OtpInputProps>(
         // biome-ignore lint/a11y/useSemanticElements: a fieldset's own layout (min-width, no flex) fights the padded, negative-margin box that holds the focus rings
         role="group"
         aria-label={ariaLabel}
-        aria-labelledby={ariaLabelledBy}
+        aria-labelledby={groupLabelledBy}
         aria-describedby={controlProps['aria-describedby']}
       >
         {/* Gaps of 4 below `sm` (480): they and the dash take less of a narrow

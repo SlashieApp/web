@@ -79,6 +79,7 @@ export function FormField({
 }: FormFieldProps) {
   const baseId = useId()
   const controlId = `${baseId}-control`
+  const labelId = `${baseId}-label`
   const helperId = helperText ? `${baseId}-helper` : undefined
   const errorId = errorText ? `${baseId}-error` : undefined
   const invalid = Boolean(errorText)
@@ -88,6 +89,7 @@ export function FormField({
   const fieldState = useMemo<FormFieldState>(
     () => ({
       controlId,
+      labelId,
       invalid,
       disabled: isDisabled,
       required: isRequired,
@@ -97,6 +99,7 @@ export function FormField({
     }),
     [
       controlId,
+      labelId,
       errorId,
       errorText,
       helperId,
@@ -172,6 +175,7 @@ export function FormField({
         {...props}
       >
         <FieldLabel
+          id={labelId}
           htmlFor={controlId}
           {...formControlLabelProps}
           px={1}
@@ -209,7 +213,16 @@ export function FormField({
               </HStack>
             ) : null}
             {errorText ? (
-              <FieldErrorText id={errorId} {...formControlErrorTextProps}>
+              <FieldErrorText
+                id={errorId}
+                // Announced as it appears, like every other error under a
+                // control (`FormErrorText`). Ark's own `aria-live="polite"`
+                // region mounts already holding its message, which readers do
+                // not reliably announce; an alert is.
+                role="alert"
+                aria-live="assertive"
+                {...formControlErrorTextProps}
+              >
                 {/* Status not by color alone: pair a dot + label. */}
                 <FormErrorDot />
                 {errorText}
@@ -234,12 +247,16 @@ export const formControlRootProps = {
 } satisfies ComponentProps<typeof Box>
 
 /**
- * Default label treatment: 14px medium, heading color, `labelToControl` (8)
- * above the control. {@link FormField} applies it; a hand-rolled label that sits
- * on a control reads it too, so the gap is one token.
+ * Default label treatment: 14px on a 20px line, medium, heading color,
+ * `labelToControl` (8) above the control. {@link FormField} applies it; a
+ * hand-rolled label that sits on a control (a choice group's, the security
+ * check's) reads it too, so the gap and the line are one token. The line is
+ * explicit: left to the page's 1.5 it is 21, and a field around it would sit
+ * 1px off the 20 rhythm.
  */
 export const formControlLabelProps = {
   fontSize: '14px',
+  lineHeight: '20px',
   fontWeight: 500,
   color: 'text.default',
   mb: 'form.labelToControl',

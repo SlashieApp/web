@@ -57,6 +57,27 @@ describe('the compact helper line', () => {
   })
 })
 
+describe('the field label and its error (FE-481 round 4)', () => {
+  const read = (file: string) => readFileSync(join(process.cwd(), file), 'utf8')
+  const field = read('src/ui/FormField/FormField.tsx')
+  const turnstile = read('src/app/(auth)/components/ui/TurnstileField.tsx')
+
+  it('the shared label is 14 on a 20 line (left to the page it is 21), and the security check reads it', () => {
+    expect(field).toMatch(/formControlLabelProps = \{[^}]*lineHeight: '20px'/)
+    expect(field).toMatch(/formControlLabelProps = \{[^}]*fontSize: '14px'/)
+    expect(turnstile).toContain('{...formControlLabelProps}')
+    // Not its own 14 on the page's line.
+    expect(turnstile).not.toContain('fontSize="sm"')
+  })
+
+  it('a field error is an alert, announced as it appears, and the label has an id the group can name itself by', () => {
+    expect(field).toMatch(/<FieldErrorText[\s\S]*?role="alert"/)
+    expect(field).toMatch(/<FieldErrorText[\s\S]*?aria-live="assertive"/)
+    expect(field).toContain('id={labelId}')
+    expect(field).toContain('labelId,')
+  })
+})
+
 describe('form tokens in the Chakra system', () => {
   const gapKeys = Object.keys(TABLE).filter((key) => key !== 'controlHeight')
 

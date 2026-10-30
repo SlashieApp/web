@@ -2,7 +2,7 @@ import { Box, Stack, Text } from '@chakra-ui/react'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { useState } from 'react'
 import { LuCalendar } from 'react-icons/lu'
-import { expect, within } from 'storybook/test'
+import { expect, userEvent, within } from 'storybook/test'
 
 import { FormStack } from '../FormStack/FormStack'
 import { Input } from '../Input/Input'
@@ -132,6 +132,47 @@ export const WithError: Story = {
       <Input placeholder="you@example.com" type="email" />
     </FormField>
   ),
+}
+
+/**
+ * An error that appears (a check ran, a server said no) is announced: it is an
+ * alert, like every other error under a control (`FormErrorText`), because a
+ * polite live region that mounts already holding its message is not reliably
+ * read out. Nothing is announced before it; it stays the input's description.
+ */
+export const ErrorIsAnnounced: Story = {
+  render: function ErrorIsAnnouncedStory(args) {
+    const [shown, setShown] = useState(false)
+    return (
+      <Stack gap={3} maxW="400px">
+        <FormField
+          {...args}
+          helperText={undefined}
+          errorText={shown ? 'Enter a valid email address' : undefined}
+        >
+          <Input placeholder="you@example.com" type="email" />
+        </FormField>
+        <button type="button" onClick={() => setShown(true)}>
+          Check
+        </button>
+      </Stack>
+    )
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(canvas.queryByRole('alert')).toBeNull()
+    await userEvent.click(canvas.getByRole('button', { name: 'Check' }))
+    const alert = await canvas.findByRole('alert')
+    await expect(alert).toHaveTextContent('Enter a valid email address')
+    await expect(alert).toHaveAttribute('aria-live', 'assertive')
+    // Still the input's description, still invalid.
+    const input = canvas.getByLabelText('Email')
+    await expect(input).toBeInvalid()
+    await expect(input.getAttribute('aria-describedby')).toContain(alert.id)
+    await expect(input).toHaveAccessibleDescription(
+      'Enter a valid email address',
+    )
+  },
 }
 
 /** Label only: no helper text and no error. */

@@ -4,6 +4,7 @@ import { Box, Text } from '@chakra-ui/react'
 import { useCallback, useRef } from 'react'
 
 import { useColorMode } from '@/ui/color-mode'
+import { formControlLabelProps } from '@ui'
 
 import {
   TURNSTILE_SCRIPT_SRC,
@@ -165,13 +166,13 @@ export function TurnstileField({
 
   return (
     <Box w="full">
+      {/* The form label: the FormField label's 14 on a 20 line, 8 above the
+          widget, inset 4 like the labels of the fields around it. */}
       <Text
         as="label"
         id="turnstile-label"
-        fontSize="sm"
-        fontWeight={500}
-        color="text.default"
-        mb="form.labelToControl"
+        {...formControlLabelProps}
+        px={1}
         display="block"
       >
         {label}

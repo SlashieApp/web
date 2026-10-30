@@ -11,6 +11,12 @@ import {
 export type FormFieldState = {
   /** Id for the native control (`htmlFor` / `id` wiring). */
   controlId: string
+  /**
+   * Id of the field's label. A control that is a group (`OtpInput`'s cells)
+   * names itself with `aria-labelledby` this id, since a label's `for` cannot
+   * point at a group.
+   */
+  labelId: string
   invalid: boolean
   disabled: boolean
   required: boolean

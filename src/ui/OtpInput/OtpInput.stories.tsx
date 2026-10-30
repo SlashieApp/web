@@ -54,7 +54,7 @@ export const Playground: Story = {
   },
 }
 
-/** Real verification flow with persistent label + helper text via FormField. */
+/** Real verification flow with persistent label + helper text via FormField (see InFormField for what it guarantees). */
 export const VerifySmsCode: Story = {
   render: function VerifySmsCodeStory(args) {
     const [value, setValue] = useState('')
@@ -68,6 +68,67 @@ export const VerifySmsCode: Story = {
         </FormField>
       </Stack>
     )
+  },
+}
+
+/**
+ * FormField and OtpInput work together: the visible label names the group (it
+ * was a `for` aimed at a group, which names nothing), the field's helper
+ * describes it, the six cells keep six ids of their own (they all took the
+ * field's id) and the group has the field's id.
+ */
+export const InFormField: Story = {
+  args: { autoFocus: false },
+  render: function InFormFieldStory(args) {
+    const [value, setValue] = useState('')
+    return (
+      <Stack gap={3} maxW="400px">
+        <FormField
+          label="Verification code"
+          helperText="Enter the 6-digit code from your SMS."
+        >
+          <OtpInput {...args} value={value} onChange={setValue} />
+        </FormField>
+      </Stack>
+    )
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const group = canvas.getByRole('group', { name: 'Verification code' })
+    await expect(group).toHaveAccessibleDescription(
+      'Enter the 6-digit code from your SMS.',
+    )
+    // The label's `for` is the group's id, and the group is named by the label.
+    const label = canvas.getByText('Verification code', { selector: 'label' })
+    await expect(label.getAttribute('for')).toBe(group.id)
+    await expect(group.getAttribute('aria-labelledby')).toBe(label.id)
+    // Six cells, six ids, none the group's and none shared.
+    const cells = [...group.querySelectorAll('input')]
+    await expect(cells).toHaveLength(6)
+    const ids = cells.map((cell) => cell.id)
+    await expect(new Set(ids).size).toBe(6)
+    await expect(ids).not.toContain(group.id)
+    await expect(ids.every((id) => id !== '')).toBe(true)
+    // No id on the page is used twice.
+    const all = [...canvasElement.querySelectorAll('[id]')].map((el) => el.id)
+    await expect(new Set(all).size).toBe(all.length)
+  },
+}
+
+/** Standing alone, with an `aria-label`: the group is named by it, cells still have their own ids. */
+export const NamedWithoutField: Story = {
+  args: { autoFocus: false, 'aria-label': 'Verification code' },
+  render: function NamedWithoutFieldStory(args) {
+    const [value, setValue] = useState('')
+    return <OtpInput {...args} value={value} onChange={setValue} />
+  },
+  play: async ({ canvasElement }) => {
+    const group = within(canvasElement).getByRole('group', {
+      name: 'Verification code',
+    })
+    const ids = [...group.querySelectorAll('input')].map((cell) => cell.id)
+    await expect(new Set(ids).size).toBe(6)
+    await expect(ids.every((id) => id !== '')).toBe(true)
   },
 }
 

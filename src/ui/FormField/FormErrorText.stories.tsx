@@ -39,8 +39,10 @@ export const MatchesFormFieldError: Story = {
     const fieldError = canvasElement.querySelector(
       '[data-part="error-text"]',
     ) as HTMLElement
-    const groupError = canvas.getByRole('alert')
+    const groupError = canvas.getByText('Choose one of these.')
     await expect(groupError).toHaveTextContent('Choose one of these.')
+    // Both are announced when they appear: the field's own error is an alert too.
+    await expect(canvas.getAllByRole('alert')).toEqual([fieldError, groupError])
     const read = (element: HTMLElement) => {
       const style = getComputedStyle(element)
       return {
