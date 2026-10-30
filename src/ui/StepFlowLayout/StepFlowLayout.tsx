@@ -21,6 +21,7 @@ import { IconButton } from '../IconButton/IconButton'
 import { Link } from '../Link/Link'
 import { Logo } from '../Logo/Logo'
 import { ProgressBar } from '../ProgressBar'
+import { STEP_FLOW_BAR_ATTR } from './stepFlowBar'
 
 /**
  * SDL StepFlowLayout — the shared shell for multi-step flows (send a quote,
@@ -197,7 +198,10 @@ export type StepFlowActionsProps = {
  *
  * The bar has no dividing line and no padding above the buttons: the body above
  * it ends `bodyToAction` (20) from them (its own bottom padding), so the last
- * field is 20 above Continue at rest.
+ * field is 20 above Continue at rest. Pinned (`sticky`), it can cover the foot
+ * of a page that scrolls under it, so `globals.css` pads `<html>`'s scroll
+ * (`STEP_FLOW_BAR_SCROLL_PADDING`): a field or chip that takes keyboard focus
+ * stops 20 above it, not behind it.
  */
 export function StepFlowActions({
   showBack = false,
@@ -212,6 +216,8 @@ export function StepFlowActions({
 }: StepFlowActionsProps) {
   return (
     <Box
+      // A pinned bar tells `globals.css` to keep focused controls above it.
+      {...(sticky ? { [STEP_FLOW_BAR_ATTR]: '' } : {})}
       bg="bg.surface"
       px={{ base: 4, md: 8, lg: 10 }}
       pt={0}

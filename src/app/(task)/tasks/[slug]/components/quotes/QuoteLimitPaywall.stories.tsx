@@ -2,6 +2,8 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { expect, within } from 'storybook/test'
 
 import { LocaleProvider } from '@/i18n/LocaleProvider'
+import { formSpace } from '@/theme/styles'
+import { gapBelow, heightOf } from '@/ui/FormField/formGap.testing'
 
 import { QuoteLimitPaywall } from './QuoteLimitPaywall'
 
@@ -67,4 +69,21 @@ export const ZhHk: Story = {
 /** Phone width: the same card full width. */
 export const Phone: Story = {
   globals: { viewport: { value: 'mobile1' } },
+}
+
+/**
+ * Form spacing (FE-481), measured between visible edges: the heading is the
+ * header, 24 above the sentence (`headerToBody`); the sentence is 20 above
+ * Go unlimited (`bodyToAction`), which is 48 tall.
+ */
+export const Spacing: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const heading = await canvas.findByRole('heading')
+    const sentence = canvas.getByText(/Your free quotes reset on/)
+    const main = canvas.getByRole('link', { name: 'Go unlimited' })
+    await expect(gapBelow(heading, sentence)).toBe(formSpace.headerToBody)
+    await expect(gapBelow(sentence, main)).toBe(formSpace.bodyToAction)
+    await expect(heightOf(main)).toBe(formSpace.controlHeight)
+  },
 }

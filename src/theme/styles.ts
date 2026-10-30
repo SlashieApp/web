@@ -223,6 +223,21 @@ export const formSpace = {
   controlHeight: 48,
 } as const
 
+/**
+ * A bar pinned to the foot of a scroller (a step flow's Back and Continue, a
+ * drawer's Cancel and Save): a form control tall button and 16 below it, no
+ * padding above.
+ */
+export const pinnedBarHeight = formSpace.controlHeight + 16
+
+/**
+ * How far above a pinned bar a control that takes keyboard focus must stop
+ * (WCAG 2.4.11, Focus Not Obscured): the bar and the 20 (`bodyToAction`) the
+ * last field keeps from it at rest. It is the `scroll-padding-bottom` of
+ * whatever scrolls under the bar.
+ */
+export const pinnedBarClearance = pinnedBarHeight + formSpace.bodyToAction
+
 export type FormSpaceKey = keyof typeof formSpace
 
 /** Every `formSpace` key that is a gap (all but the control height). */

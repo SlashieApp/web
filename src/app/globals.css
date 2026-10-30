@@ -26,6 +26,20 @@ html {
   scroll-behavior: smooth;
 }
 
+/* A step flow's pinned Back / Continue bar (48 button, 16 below it) covers the
+   foot of a page that scrolls under it, on a phone. A field or chip that takes
+   keyboard focus stops 20 above it, not behind it (WCAG 2.4.11), on top of the
+   cookie banner's room above. The value is STEP_FLOW_BAR_SCROLL_PADDING
+   (src/ui/StepFlowLayout/stepFlowBar.ts). */
+html:has([data-step-flow-bar]) {
+  scroll-padding-bottom: calc(
+    var(--cookie-banner-height, -16px) +
+    16px +
+    84px +
+    env(safe-area-inset-bottom, 0px)
+  );
+}
+
 /* The landing's floating Post a task pill (44px, 16px above the edge) is shown
    only with the cookie banner closed: keep focus clear of it as well. */
 html:not([data-cookie-banner-open]):has(

@@ -6,7 +6,7 @@ import { useLocale } from '@/i18n/LocaleProvider'
 import { formatMessage } from '@/i18n/loadPageI11n'
 import type { AppLocale } from '@/i18n/locales'
 import { useI11n } from '@/i18n/useI11n'
-import { Button, Card, Link } from '@ui'
+import { Button, Card, FormStack, Link } from '@ui'
 
 import { TASK_DETAIL_SECTION_CARD } from '../../helpers/taskDetailLayout'
 import bag from '../../i11n.json'
@@ -30,21 +30,25 @@ export function QuoteLimitPaywall({ now = new Date() }: { now?: Date }) {
   const locale = useLocale()
 
   return (
-    // The sentence is 20 above the main button, which is 48 tall like the gate's
-    // other actions (a form column: `bodyToAction`, `size="form"`).
+    // A form column: the heading is the header, 24 above the sentence
+    // (`headerToBody`, the card's own gap), and the sentence is 20 above the
+    // main button (a `FormStack`), which is 48 tall like the gate's other
+    // actions (`size="form"`).
     <Card
       {...TASK_DETAIL_SECTION_CARD}
       heading={t.heading}
-      bodyGap="form.bodyToAction"
+      bodyGap="form.headerToBody"
     >
-      <Text color="text.muted">
-        {formatMessage(t.body, { date: resetDate(now, locale) })}
-      </Text>
-      <Button asChild size="form" w="full">
-        <Link href="/billing" _hover={{ textDecoration: 'none' }}>
-          {t.action}
-        </Link>
-      </Button>
+      <FormStack>
+        <Text color="text.muted">
+          {formatMessage(t.body, { date: resetDate(now, locale) })}
+        </Text>
+        <Button asChild size="form" w="full">
+          <Link href="/billing" _hover={{ textDecoration: 'none' }}>
+            {t.action}
+          </Link>
+        </Button>
+      </FormStack>
     </Card>
   )
 }

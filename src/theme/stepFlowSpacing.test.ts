@@ -204,7 +204,11 @@ describe('sections and fields', () => {
     const paywall = read(
       'src/app/(task)/tasks/[slug]/components/quotes/QuoteLimitPaywall.tsx',
     )
-    expect(paywall).toContain('bodyGap="form.bodyToAction"')
+    // The heading is the header (24 to the sentence); the sentence and the
+    // button are a FormStack (20 apart).
+    expect(paywall).toContain('bodyGap="form.headerToBody"')
+    expect(paywall).not.toContain('bodyGap="form.bodyToAction"')
+    expect(paywall).toContain('<FormStack>')
     expect(paywall).toContain('size="form"')
   })
 

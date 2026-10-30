@@ -19,6 +19,7 @@ import { FormSection } from '../FormSection'
 import { FormStack } from '../FormStack'
 import { Input } from '../Input/Input'
 import { Textarea } from '../Textarea/Textarea'
+import { controlsUnderBar } from '../focusClearance.testing'
 import {
   StepFlowActions,
   StepFlowHeader,
@@ -26,6 +27,7 @@ import {
   StepFlowLayout,
   StepFlowProgress,
 } from './StepFlowLayout'
+import { STEP_FLOW_BAR_RULE } from './stepFlowBar'
 
 /**
  * SDL StepFlowLayout: the shared shell for multi-step flows (send a quote,
@@ -478,6 +480,61 @@ export const SpacingPhone: Story = {
   play: async ({ canvasElement }) => {
     expectWidth(canvasElement, 390)
     await expectStepFlowFrame(canvasElement)
+  },
+}
+
+/** Fourteen fields and a row of suggestion chips: far taller than a phone, so keyboard focus has to scroll. */
+const tallStep = (
+  <>
+    {Array.from({ length: 14 }, (_, i) => `Field ${i + 1}`).map((label) => (
+      <FormField key={label} label={label}>
+        <Input placeholder="Add details" />
+      </FormField>
+    ))}
+    <HStack gap={2} flexWrap="wrap">
+      {['Add Dog walking', 'Add Cleaning', 'Add Gardening'].map((chip) => (
+        <button key={chip} type="button">
+          {chip}
+        </button>
+      ))}
+    </HStack>
+  </>
+)
+
+/**
+ * Keyboard focus clears the pinned bar (WCAG 2.4.11): tabbing down a tall step
+ * scrolls each field and chip to above Continue, never under it. Phone, where
+ * the page scrolls under the bar. The page's `scroll-padding-bottom` is in
+ * `globals.css`, which stories do not load, so the same rule is injected.
+ */
+export const FocusClearsBarPhone: Story = {
+  ...phone390,
+  decorators: [
+    (Story) => (
+      <>
+        <style>{STEP_FLOW_BAR_RULE}</style>
+        <Story />
+      </>
+    ),
+  ],
+  args: { ...WithAside.args, aside: undefined, children: tallStep },
+  play: async ({ canvasElement }) => {
+    const bar = within(canvasElement).getByRole('button', {
+      name: 'Continue',
+    }).parentElement?.parentElement as HTMLElement
+    await expect(await controlsUnderBar(bar)).toEqual([])
+  },
+}
+
+/** The same on desktop, where the panel scrolls above its own bar. */
+export const FocusClearsBarDesktop: Story = {
+  ...desktop1280,
+  args: { ...WithAside.args, children: tallStep },
+  play: async ({ canvasElement }) => {
+    const bar = within(canvasElement).getByRole('button', {
+      name: 'Continue',
+    }).parentElement?.parentElement as HTMLElement
+    await expect(await controlsUnderBar(bar)).toEqual([])
   },
 }
 

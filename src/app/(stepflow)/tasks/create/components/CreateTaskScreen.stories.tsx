@@ -19,6 +19,8 @@ import {
   storyHeicPhoto,
 } from '@/app/(stepflow)/stepflowStoryHelpers'
 import { LocaleProvider } from '@/i18n/LocaleProvider'
+import { STEP_FLOW_BAR_RULE } from '@/ui/StepFlowLayout/stepFlowBar'
+import { controlsUnderBar } from '@/ui/focusClearance.testing'
 
 import {
   type CreateTaskDraftValues,
@@ -804,6 +806,34 @@ export const SpacingDetails: Story = {
       name: 'What needs doing?',
     })
     await expectStepFlowFrame(canvasElement)
+  },
+}
+
+/**
+ * Details on a phone: keyboard focus on a field or a suggestion chip stops
+ * above the pinned Continue bar, not behind it (WCAG 2.4.11). `globals.css`
+ * holds the page's `scroll-padding-bottom`, which stories do not load, so the
+ * same rule is injected.
+ */
+export const DetailsFocusClearsBar: Story = {
+  ...phone390,
+  decorators: [
+    atStep('details'),
+    (Story) => (
+      <>
+        <style>{STEP_FLOW_BAR_RULE}</style>
+        <Story />
+      </>
+    ),
+  ],
+  play: async ({ canvasElement }) => {
+    expectWidth(canvasElement, 390)
+    const canvas = within(canvasElement)
+    await canvas.findByRole('heading', { name: 'What needs doing?' })
+    const bar = canvas
+      .getByRole('button', { name: /Continue/ })
+      .closest('[data-step-flow-bar]') as HTMLElement
+    await expect(await controlsUnderBar(bar, { max: 80 })).toEqual([])
   },
 }
 
