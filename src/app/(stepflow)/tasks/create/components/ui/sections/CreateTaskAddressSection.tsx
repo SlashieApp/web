@@ -40,36 +40,38 @@ export function CreateTaskAddressSection({
   const t = copy.location
 
   return (
-    <FormField
-      label={
-        <HStack as="span" gap={1.5}>
-          <LuLock size={14} aria-hidden />
-          {t.addressLabel}
-        </HStack>
-      }
-      required
-      helperText={privacyHint ? t.addressHelper : undefined}
-      errorText={taskFieldError(copy.errors, streetAddressError)}
-    >
-      {/* The "Use pin address" button hangs 8 under the field it fills. */}
-      <Stack gap="form.alternativesGap">
+    // The field is the input alone, so its helper and error are 4 under it; the
+    // "Use pin address" button is the next piece, 8 under the field (and so
+    // under its error), as a second action hangs under what it fills.
+    <Stack gap="form.alternativesGap">
+      <FormField
+        label={
+          <HStack as="span" gap={1.5}>
+            <LuLock size={14} aria-hidden />
+            {t.addressLabel}
+          </HStack>
+        }
+        required
+        helperText={privacyHint ? t.addressHelper : undefined}
+        errorText={taskFieldError(copy.errors, streetAddressError)}
+      >
         <Input
           {...register('streetAddress')}
           placeholder={t.addressPlaceholder}
         />
-        {onUsePinAddress ? (
-          <Button
-            type="button"
-            variant="secondary"
-            alignSelf="flex-start"
-            disabled={!pinAddress.trim()}
-            onClick={onUsePinAddress}
-          >
-            <LuMapPin size={14} aria-hidden />
-            {t.usePinAddress}
-          </Button>
-        ) : null}
-      </Stack>
-    </FormField>
+      </FormField>
+      {onUsePinAddress ? (
+        <Button
+          type="button"
+          variant="secondary"
+          alignSelf="flex-start"
+          disabled={!pinAddress.trim()}
+          onClick={onUsePinAddress}
+        >
+          <LuMapPin size={14} aria-hidden />
+          {t.usePinAddress}
+        </Button>
+      ) : null}
+    </Stack>
   )
 }

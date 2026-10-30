@@ -184,4 +184,46 @@ describe('sections and fields', () => {
   it('a textarea is a block, so its helper is 4 under it', () => {
     expect(read('src/ui/Textarea/Textarea.tsx')).toContain('display="block"')
   })
+
+  it('the gates in front of the post-a-task and send-quote flows are form columns with 48 buttons', () => {
+    const verify = read(`${CREATE}/layout/shared/CreateTaskVerifyEmailGate.tsx`)
+    // The heading owns the 24 under it: no gapped stack around it.
+    expect(verify).not.toContain('<Stack')
+    expect(verify).toContain('<FormStack>')
+    expect(verify).toContain('size="form"')
+
+    const gate = read(`${QUOTE}/ui/shared/TaskQuoteGateView.tsx`)
+    expect(gate).toContain('<FormHeader')
+    expect(gate).toContain('<FormStack>')
+    expect(gate).not.toContain('<Stack')
+
+    const flow = SURFACES.TaskQuoteFlow
+    expect(flow.match(/<Button asChild w="full" size="form">/g)).toHaveLength(3)
+    expect(flow).not.toContain('<Button asChild w="full">')
+    const paywall = read(
+      'src/app/(task)/tasks/[slug]/components/quotes/QuoteLimitPaywall.tsx',
+    )
+    expect(paywall).toContain('bodyGap="form.bodyToAction"')
+    expect(paywall).toContain('size="form"')
+  })
+
+  it('the address: the field is the input alone, the Use pin address button is the next piece', () => {
+    const address = SURFACES.CreateTaskAddressSection
+    const field = address.slice(
+      address.indexOf('<FormField'),
+      address.indexOf('</FormField>'),
+    )
+    expect(field).toContain('<Input')
+    expect(field).not.toContain('<Button')
+    expect(address).toContain('<Stack gap="form.alternativesGap">')
+  })
+
+  it('a choice group and the category tiles draw their error with the shared error line', () => {
+    for (const file of [
+      'src/ui/RadioButton/RadioButtonGroup.tsx',
+      `${SETUP}/ui/inputs/WorkerSetupCategoryTiles.tsx`,
+    ]) {
+      expect(read(file), file).toContain('<FormErrorText id={errorId}>')
+    }
+  })
 })

@@ -2,12 +2,8 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { useForm } from 'react-hook-form'
 import { expect, userEvent, within } from 'storybook/test'
 
-import {
-  expectPieces,
-  fieldByLabel,
-} from '@/app/(stepflow)/stepFlowSpacing.testing'
 import { formSpace } from '@/theme/styles'
-import { gapBelow } from '@/ui/FormField/formGap.testing'
+import { gapBelow, heightOf } from '@/ui/FormField/formGap.testing'
 import type { CreateTaskFormFieldValues } from '../../../createTaskFormSchema'
 import {
   CreateTaskAddressSection,
@@ -136,27 +132,55 @@ export const WithoutUsePinAddress: Story = {
 }
 
 /**
- * Form spacing (FE-481): the label is 8 above the field, the "Use pin address"
- * button 8 under it, and the privacy hint 4 under the control. The field is 48
- * tall.
+ * Form spacing (FE-481): the label is 8 above the field (48 tall), the privacy
+ * hint 4 under it, and the "Use pin address" button 8 under the field and its
+ * hint: the button is not part of the field's control, so what sits under the
+ * input is its helper or error.
  */
 export const Spacing: Story = {
   args: { privacyHint: true },
   play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
     // The label is an icon and the words in a span: find the span, then its field.
-    const field = within(canvasElement)
-      .getByText(/Exact address/)
-      .closest('label')?.parentElement as HTMLElement
-    const { control, pieces } = await expectPieces(field)
-    await expect(pieces).toHaveLength(2)
-    await expect(pieces[0]?.getBoundingClientRect().height).toBe(
-      formSpace.controlHeight,
+    const field = canvas.getByText(/Exact address/).closest('label')
+      ?.parentElement as HTMLElement
+    const label = field.querySelector('label') as HTMLElement
+    const shell = (field.querySelector('input') as HTMLElement)
+      .parentElement as HTMLElement
+    const hint = within(field).getByText(
+      'Shared only with the worker you accept.',
     )
+    const button = canvas.getByRole('button', { name: 'Use pin address' })
+
+    await expect(gapBelow(label, shell)).toBe(formSpace.labelToControl)
+    await expect(heightOf(shell)).toBe(formSpace.controlHeight)
+    await expect(gapBelow(shell, hint)).toBe(formSpace.controlToHelper)
+    // The button hangs 8 under the field, after its hint.
+    await expect(field.contains(button)).toBe(false)
+    await expect(gapBelow(field, button)).toBe(formSpace.alternativesGap)
+  },
+}
+
+/**
+ * An error is 4 under the input, not under the button, and the button hangs 8
+ * under the error: label, input, 4, error, 8, button.
+ */
+export const SpacingWithError: Story = {
+  args: { streetAddressError: 'addressRequired' },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const field = canvas.getByText(/Exact address/).closest('label')
+      ?.parentElement as HTMLElement
+    const shell = (field.querySelector('input') as HTMLElement)
+      .parentElement as HTMLElement
+    const error = within(field).getByText('Add the exact address.')
+    const button = canvas.getByRole('button', { name: 'Use pin address' })
+
+    await expect(gapBelow(shell, error)).toBe(formSpace.controlToHelper)
+    await expect(gapBelow(error, button)).toBe(formSpace.alternativesGap)
+    // The input still carries the error for a screen reader.
     await expect(
-      gapBelow(
-        control,
-        within(field).getByText('Shared only with the worker you accept.'),
-      ),
-    ).toBe(formSpace.controlToHelper)
+      canvas.getByLabelText(/Exact address/),
+    ).toHaveAccessibleDescription(/Add the exact address\./)
   },
 }

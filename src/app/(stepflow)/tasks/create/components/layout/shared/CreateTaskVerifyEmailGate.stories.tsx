@@ -1,7 +1,10 @@
 import type { Decorator, Meta, StoryObj } from '@storybook/nextjs-vite'
 import { expect, fn, within } from 'storybook/test'
 
+import { stepFlowOf } from '@/app/(stepflow)/stepFlowSpacing.testing'
 import { LocaleProvider } from '@/i18n/LocaleProvider'
+import { formSpace } from '@/theme/styles'
+import { gapBelow, heightOf } from '@/ui/FormField/formGap.testing'
 
 import { CreateTaskVerifyEmailGate } from './CreateTaskVerifyEmailGate'
 
@@ -53,6 +56,29 @@ export const Default: Story = {
       canvas.getByRole('link', { name: 'Close task creation' }),
     ).toBeVisible()
     await expect(args.onShown).toHaveBeenCalledTimes(1)
+  },
+}
+
+/**
+ * Form spacing (FE-481): the title, the description 8 under it, the card 24
+ * under that (the heading owns the 24, no second gap on top of it), and inside
+ * the card the sentence is 20 above Verify email, which is 48 tall.
+ */
+export const Spacing: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await canvas.findByRole('heading', { level: 1 })
+    const { title, description, body: card } = stepFlowOf(canvasElement)
+    const sentence = canvas.getByText(/Confirm alex@example\.com/)
+    const button = canvas.getByRole('link', { name: 'Verify email' })
+    await expect(gapBelow(title, description as HTMLElement)).toBe(
+      formSpace.titleToSubtitle,
+    )
+    await expect(gapBelow(description as HTMLElement, card)).toBe(
+      formSpace.headerToBody,
+    )
+    await expect(gapBelow(sentence, button)).toBe(formSpace.bodyToAction)
+    await expect(heightOf(button)).toBe(formSpace.controlHeight)
   },
 }
 

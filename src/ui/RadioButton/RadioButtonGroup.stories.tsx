@@ -78,9 +78,17 @@ export const Default: Story = {
 export const WithError: Story = {
   args: { errorText: 'Choose how you will pay.' },
   play: async ({ canvasElement }) => {
-    await expect(
-      within(canvasElement).getByRole('radiogroup', { name: "How you'll pay" }),
-    ).toHaveAttribute('aria-invalid', 'true')
+    const group = within(canvasElement).getByRole('radiogroup', {
+      name: "How you'll pay",
+    })
+    await expect(group).toHaveAttribute('aria-invalid', 'true')
+    // The error is the field error line (12 on 16, with a dot), announced when
+    // it appears, and the group is described by it.
+    const alert = within(canvasElement).getByRole('alert')
+    await expect(alert).toHaveTextContent('Choose how you will pay.')
+    await expect(getComputedStyle(alert).fontSize).toBe('12px')
+    await expect(getComputedStyle(alert).lineHeight).toBe('16px')
+    await expect(group).toHaveAccessibleDescription(/Choose how you will pay\./)
   },
 }
 

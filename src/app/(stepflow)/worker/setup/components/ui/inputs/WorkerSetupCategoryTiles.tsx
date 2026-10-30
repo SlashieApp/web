@@ -27,7 +27,7 @@ import {
 
 import { useI11n } from '@/i18n/useI11n'
 import { formHelperTextStyle, sdlFocusRing, sdlMotion } from '@/theme/styles'
-import { formControlLabelProps } from '@ui'
+import { FormErrorText, formControlLabelProps } from '@ui'
 
 import {
   WORKER_PRIMARY_CATEGORIES,
@@ -153,15 +153,7 @@ export function WorkerSetupCategoryTiles({
             </Text>
           ) : null}
           {errorText ? (
-            <Text
-              id={errorId}
-              fontSize="sm"
-              lineHeight="20px"
-              color="status.danger.fg"
-              px={1}
-            >
-              {errorText}
-            </Text>
+            <FormErrorText id={errorId}>{errorText}</FormErrorText>
           ) : null}
         </Stack>
       ) : null}

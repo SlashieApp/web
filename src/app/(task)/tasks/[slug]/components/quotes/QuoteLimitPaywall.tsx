@@ -30,11 +30,17 @@ export function QuoteLimitPaywall({ now = new Date() }: { now?: Date }) {
   const locale = useLocale()
 
   return (
-    <Card {...TASK_DETAIL_SECTION_CARD} heading={t.heading}>
+    // The sentence is 20 above the main button, which is 48 tall like the gate's
+    // other actions (a form column: `bodyToAction`, `size="form"`).
+    <Card
+      {...TASK_DETAIL_SECTION_CARD}
+      heading={t.heading}
+      bodyGap="form.bodyToAction"
+    >
       <Text color="text.muted">
         {formatMessage(t.body, { date: resetDate(now, locale) })}
       </Text>
-      <Button asChild size="sm" w="full">
+      <Button asChild size="form" w="full">
         <Link href="/billing" _hover={{ textDecoration: 'none' }}>
           {t.action}
         </Link>

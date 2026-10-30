@@ -8,7 +8,7 @@ import {
 } from '@/app/(stepflow)/stepFlowSpacing.testing'
 import { storyTaskQuote } from '@/app/(task)/tasks/[slug]/helpers/taskDetailStoryFixtures'
 import { formSpace } from '@/theme/styles'
-import { heightOf } from '@/ui/FormField/formGap.testing'
+import { gapBelow, heightOf } from '@/ui/FormField/formGap.testing'
 
 import { TaskQuoteFlow } from './TaskQuoteFlow'
 import {
@@ -18,6 +18,29 @@ import {
   withQuoteStory,
   withQuoteZhHk,
 } from './taskQuoteStoryFixtures'
+
+/**
+ * A gate in front of the quote form, read the way the spec does (FE-481): the
+ * title, the description 8 under it, the summary card 24 under that, and the
+ * action 20 under the card, 48 tall.
+ */
+async function expectGateSpacing(canvasElement: HTMLElement) {
+  const canvas = within(canvasElement)
+  const title = await canvas.findByRole('heading', { level: 1 })
+  const header = title.parentElement as HTMLElement
+  const description = title.nextElementSibling as HTMLElement
+  const column = header.nextElementSibling as HTMLElement
+  const [summary, action] = [...column.children] as HTMLElement[]
+  await expect(gapBelow(title, description)).toBe(formSpace.titleToSubtitle)
+  await expect(gapBelow(description, summary)).toBe(formSpace.headerToBody)
+  await expect(gapBelow(summary, action as HTMLElement)).toBe(
+    formSpace.fieldGap,
+  )
+  const links = within(column).getAllByRole('link')
+  const main = links[links.length - 1] as HTMLElement
+  await expect(heightOf(main)).toBe(formSpace.controlHeight)
+  return { column, summary, action: action as HTMLElement, main }
+}
 
 const meta: Meta<typeof TaskQuoteFlow> = {
   title: 'Quote flow/TaskQuoteFlow',
@@ -132,9 +155,25 @@ export const SignedOutZhHk: Story = {
   },
 }
 
+/** Signed out: title, 8, description, 24, summary, 20, Log in (48 tall). */
+export const SignedOutSpacing: Story = {
+  decorators: [withQuoteStory({ viewer: 'visitor' })],
+  play: async ({ canvasElement }) => {
+    await expectGateSpacing(canvasElement)
+  },
+}
+
 /** Signed in without a worker profile: the gate offers to create one. */
 export const NoWorkerProfile: Story = {
   decorators: [withQuoteStory({ viewer: 'nonWorker' })],
+}
+
+/** No worker profile: the same gaps, the action 48 tall. */
+export const NoWorkerProfileSpacing: Story = {
+  decorators: [withQuoteStory({ viewer: 'nonWorker' })],
+  play: async ({ canvasElement }) => {
+    await expectGateSpacing(canvasElement)
+  },
 }
 
 /** Worker with an unverified email: the gate points them to their inbox. */
@@ -145,6 +184,19 @@ export const EmailNotVerified: Story = {
       { me: () => ({ emailVerified: false }) },
     ),
   ],
+}
+
+/** Unverified email: the same gaps, the action 48 tall. */
+export const EmailNotVerifiedSpacing: Story = {
+  decorators: [
+    withQuoteStory(
+      { viewer: 'worker' },
+      { me: () => ({ emailVerified: false }) },
+    ),
+  ],
+  play: async ({ canvasElement }) => {
+    await expectGateSpacing(canvasElement)
+  },
 }
 
 const withLimitReached = withQuoteStory(
@@ -172,6 +224,19 @@ export const QuoteLimitReached: Story = {
     await expect(
       canvas.getByRole('link', { name: 'Go unlimited' }),
     ).toHaveAttribute('href', '/billing')
+  },
+}
+
+/**
+ * Out of free quotes: the same header gaps, and the paywall card is a form
+ * column too: its sentence is 20 above Go unlimited, which is 48 tall.
+ */
+export const QuoteLimitReachedSpacing: Story = {
+  decorators: [withLimitReached],
+  play: async ({ canvasElement }) => {
+    const { action, main } = await expectGateSpacing(canvasElement)
+    const sentence = within(action).getByText(/free quotes/)
+    await expect(gapBelow(sentence, main)).toBe(formSpace.bodyToAction)
   },
 }
 

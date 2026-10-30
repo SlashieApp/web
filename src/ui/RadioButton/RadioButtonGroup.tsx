@@ -1,10 +1,11 @@
 'use client'
 
-import { Box, SimpleGrid, Stack, Text } from '@chakra-ui/react'
+import { SimpleGrid, Stack, Text } from '@chakra-ui/react'
 import { type ReactNode, useId } from 'react'
 
 import { formHelperTextStyle } from '@/theme/styles'
 
+import { FormErrorText } from '../FormField/FormErrorText'
 import { formControlLabelProps } from '../FormField/FormField'
 import { RadioButton } from './RadioButton'
 
@@ -99,26 +100,7 @@ export function RadioButtonGroup<T extends string>({
             </Text>
           ))}
           {errorText ? (
-            <Text
-              id={errorId}
-              color="status.danger.fg"
-              fontSize="sm"
-              lineHeight="20px"
-              display="flex"
-              alignItems="center"
-              gap={1.5}
-              px={1}
-            >
-              <Box
-                as="span"
-                aria-hidden
-                flexShrink={0}
-                boxSize="6px"
-                borderRadius="full"
-                bg="status.danger.solid"
-              />
-              {errorText}
-            </Text>
+            <FormErrorText id={errorId}>{errorText}</FormErrorText>
           ) : null}
         </Stack>
       ) : null}

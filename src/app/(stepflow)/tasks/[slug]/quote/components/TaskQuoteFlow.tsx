@@ -129,7 +129,7 @@ export function TaskQuoteFlow() {
           backHref={backToTask}
         >
           <TaskQuoteSummaryCard />
-          <Button asChild w="full">
+          <Button asChild w="full" size="form">
             <Link href={loginHref} _hover={{ textDecoration: 'none' }}>
               {gate.logIn}
             </Link>
@@ -148,7 +148,7 @@ export function TaskQuoteFlow() {
           backHref={backToTask}
         >
           <TaskQuoteSummaryCard />
-          <Button asChild w="full">
+          <Button asChild w="full" size="form">
             <Link
               href={workerSetupHref(`${backToTask}/quote`)}
               _hover={{ textDecoration: 'none' }}
@@ -186,7 +186,7 @@ export function TaskQuoteFlow() {
           backHref={backToTask}
         >
           <TaskQuoteSummaryCard />
-          <Button asChild w="full">
+          <Button asChild w="full" size="form">
             <Link href="/verify-email/sent" _hover={{ textDecoration: 'none' }}>
               {gate.checkInbox}
             </Link>

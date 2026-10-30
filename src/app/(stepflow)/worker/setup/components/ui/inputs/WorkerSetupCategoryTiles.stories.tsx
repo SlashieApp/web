@@ -67,6 +67,15 @@ export const RequiredError: Story = {
     onChange: () => {},
     errorText: 'Choose the kind of work you do most.',
   },
+  play: async ({ canvasElement }) => {
+    // Announced when it appears, on the field's error line (12 on 16).
+    const alert = within(canvasElement).getByRole('alert')
+    await expect(alert).toHaveTextContent(
+      'Choose the kind of work you do most.',
+    )
+    await expect(getComputedStyle(alert).fontSize).toBe('12px')
+    await expect(getComputedStyle(alert).lineHeight).toBe('16px')
+  },
 }
 
 /** Phones: two tiles per row instead of three. */

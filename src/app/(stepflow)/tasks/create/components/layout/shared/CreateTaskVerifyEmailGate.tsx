@@ -1,13 +1,20 @@
 'use client'
 
-import { Box, Stack, Text } from '@chakra-ui/react'
+import { Box, Text } from '@chakra-ui/react'
 import { useCallback, useRef } from 'react'
 
 import { formatMessage } from '@/i18n/loadPageI11n'
 import { useI11n } from '@/i18n/useI11n'
 import { PAGE_GUTTER_X } from '@/theme/pageContainer'
 import { APP_HOME } from '@/utils/appRoutes'
-import { Button, Card, Link, StepFlowHeader, StepFlowHeading } from '@ui'
+import {
+  Button,
+  Card,
+  FormStack,
+  Link,
+  StepFlowHeader,
+  StepFlowHeading,
+} from '@ui'
 
 import bag from '../../../i11n.json'
 
@@ -59,8 +66,10 @@ export function CreateTaskVerifyEmailGate({
         exitHref={APP_HOME}
         closeLabel={t.closeLabel}
       />
-      <Stack
-        gap={6}
+      {/* A plain container: the heading owns the 24 under it (title, 8,
+          description, 24, the card), and the card body is a form column, so
+          the sentence is 20 above the main button, which is 48 tall. */}
+      <Box
         flex={1}
         w="full"
         maxW="lg"
@@ -70,18 +79,18 @@ export function CreateTaskVerifyEmailGate({
       >
         <StepFlowHeading title={v.title} description={v.subtitle} />
         <Card>
-          <Stack gap={3}>
+          <FormStack>
             <Text fontSize="sm" color="text.muted" lineHeight="tall">
               {formatMessage(v.body, { email })}
             </Text>
-            <Button asChild w="full">
+            <Button asChild w="full" size="form">
               <Link href={verifyHref} _hover={{ textDecoration: 'none' }}>
                 {v.cta}
               </Link>
             </Button>
-          </Stack>
+          </FormStack>
         </Card>
-      </Stack>
+      </Box>
     </Box>
   )
 }
