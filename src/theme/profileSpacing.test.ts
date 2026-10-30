@@ -105,6 +105,21 @@ describe('profile editors: one rhythm from the form pieces', () => {
     expect(photo).toContain('role="alert"')
   })
 
+  it('Photo in the drawer: the editor is bare, so the drawer title and description are not repeated by a card', () => {
+    expect(SURFACES.ProfileEditDrawer).toContain('<ProfilePhotoCard bare')
+    const photo = SURFACES.ProfilePhotoCard
+    expect(photo).toContain('bare = false')
+    // Bare returns the editor before the card is built.
+    expect(photo.indexOf('if (bare) return editor')).toBeGreaterThan(-1)
+    expect(photo.indexOf('if (bare) return editor')).toBeLessThan(
+      photo.indexOf('<Card'),
+    )
+  })
+
+  it('the pinned bar keeps a partly covered field above it, not only the scroll padding', () => {
+    expect(SURFACES.DrawerBar).toContain('useKeepFocusClearOfBar(barRef)')
+  })
+
   it('Admin composer: a FormStack under a heading 24 above it, buttons 8 apart, cohorts a choice group', () => {
     const admin = SURFACES.AdminNotificationComposer
     expect(admin).toContain('<FormStack>')

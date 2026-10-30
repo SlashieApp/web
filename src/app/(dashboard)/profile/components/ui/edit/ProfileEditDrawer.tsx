@@ -65,7 +65,9 @@ export function ProfileEditDrawer({
       }}
     >
       {section === 'photo' ? (
-        <ProfilePhotoCard onSaved={() => onOpenChange(null)} />
+        // The drawer's title and description are the card's heading and
+        // sentence: the editor alone, 24 under the description.
+        <ProfilePhotoCard bare onSaved={() => onOpenChange(null)} />
       ) : null}
       {section === 'personal' ? (
         <PersonalInfoEditor

@@ -7,6 +7,7 @@ import {
   storyMe,
   storyWorkerMe,
 } from '@/app/(auth)/helpers/authStoryFixtures'
+import { bodyColumn } from '@/app/(dashboard)/components/ui/dialogSpacing.testing'
 import {
   barOf,
   expectBar,
@@ -21,6 +22,7 @@ import {
   expectWidth,
   fieldByLabel,
   phone390,
+  phone390Keyboard,
 } from '@/app/(stepflow)/stepFlowSpacing.testing'
 import { formSpace } from '@/theme/styles'
 import { gapBelow, gapBeside, heightOf } from '@/ui/FormField/formGap.testing'
@@ -307,6 +309,25 @@ export const WorkerFocusClearsBarPhone: Story = {
 }
 
 /**
+ * The same with the keyboard up: a 390 by 500 phone. The Short bio is tall
+ * (172) and the bar is 64 over the foot of the body, so a field that is only
+ * partly visible has to be scrolled up clear of the bar when it takes focus,
+ * not left with its lower part under it (the caret line of a long bio).
+ */
+export const WorkerFocusClearsBarKeyboard: Story = {
+  ...phone390Keyboard,
+  args: { section: 'worker' },
+  decorators: [withSession({ me: storyWorkerMe() })],
+  play: async ({ canvasElement }) => {
+    expectWidth(canvasElement, 390)
+    await expect(canvasElement.ownerDocument.defaultView?.innerHeight).toBe(500)
+    const { stack } = await openEditor(canvasElement, 'Edit worker profile')
+    const { bar } = barOf(stack)
+    await expect(await controlsUnderBar(bar)).toEqual([])
+  },
+}
+
+/**
  * A refused save shows its line first: a form-level line is a field group, so
  * it is 24 under the description and the first field is 20 under it.
  */
@@ -345,7 +366,54 @@ export const WorkerSaveErrorSpacing: Story = {
   },
 }
 
-/** The photo editor: the card is 24 under the description. */
+/** The bare photo editor's spacing, read between visible edges (see PhotoSpacing). */
+async function expectPhotoDrawer(canvasElement: HTMLElement) {
+  const { dialog, title, description, body } = await openEditor(
+    canvasElement,
+    'Edit profile photo',
+  )
+  // No bar of its own: the upload saves, and the body keeps its padding.
+  await expect(dialog.querySelector('form')).toBeNull()
+  await expect(getComputedStyle(body).paddingBottom).toBe('24px')
+
+  // Nothing repeated: no card (frame, padding, anchor), no second heading,
+  // no second sentence under the drawer's own.
+  await expect(dialog.querySelector('#profile-photo')).toBeNull()
+  await expect(
+    within(dialog).queryByRole('heading', { name: 'Profile photo' }),
+  ).toBeNull()
+  await expect(
+    within(dialog).queryByText(
+      'A clear photo helps customers and workers trust your profile.',
+    ),
+  ).toBeNull()
+  await expect(
+    within(dialog).getAllByText('Upload a clear photo that represents you.'),
+  ).toHaveLength(1)
+
+  // The first block is the photo row: 24 under the description.
+  const editor = bodyColumn(body)
+  await expectTitleBlock(title, description, editor)
+  const row = editor.firstElementChild as HTMLElement
+  await expect(gapBelow(description, row)).toBe(formSpace.headerToBody)
+  const replace = within(dialog).getByRole('button', {
+    name: 'Replace photo',
+  })
+  await expect(heightOf(replace)).toBe(formSpace.controlHeight)
+  await expect(
+    gapBelow(
+      replace,
+      within(dialog).getByText('JPG, PNG, WebP, HEIC, or AVIF. Up to 5MB.'),
+    ),
+  ).toBe(formSpace.controlToHelper)
+}
+
+/**
+ * The photo editor in the drawer: the drawer's title and description are the
+ * header, so the editor is bare (no card frame, padding, heading or sentence of
+ * its own, nothing said twice) and the photo starts 24 under the description,
+ * the button is 48 with the hint 4 under it.
+ */
 export const PhotoSpacing: Story = {
   ...desktop1280,
   args: { section: 'photo' },
@@ -356,17 +424,21 @@ export const PhotoSpacing: Story = {
   ],
   play: async ({ canvasElement }) => {
     expectWidth(canvasElement, 1280)
-    const { dialog, title, description, body } = await openEditor(
-      canvasElement,
-      'Edit profile photo',
-    )
-    // No bar of its own: the upload saves, and the body keeps its padding.
-    await expect(dialog.querySelector('form')).toBeNull()
-    await expect(getComputedStyle(body).paddingBottom).toBe('24px')
-    await expectTitleBlock(
-      title,
-      description,
-      dialog.querySelector('#profile-photo') as HTMLElement,
-    )
+    await expectPhotoDrawer(canvasElement)
+  },
+}
+
+/** The same at 390: the photo and the button sit side by side, the first block still 24 under the description. */
+export const PhotoSpacingPhone: Story = {
+  ...phone390,
+  args: { section: 'photo' },
+  decorators: [
+    withSession({
+      me: storyMe({ profile: { avatarUrl: storyAvatarUrl('SC') } }),
+    }),
+  ],
+  play: async ({ canvasElement }) => {
+    expectWidth(canvasElement, 390)
+    await expectPhotoDrawer(canvasElement)
   },
 }

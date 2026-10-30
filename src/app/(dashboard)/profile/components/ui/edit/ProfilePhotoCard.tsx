@@ -32,7 +32,19 @@ import {
 import bag from '../../../i11n.json'
 import { displayNameFromMe } from '../../../profileDisplayHelpers'
 
-export function ProfilePhotoCard({ onSaved }: { onSaved?: () => void } = {}) {
+/**
+ * The profile photo: the photo, one button and a hint, and a refused file's
+ * reason 4 under them. Standing alone it is a section card with a heading and a
+ * sentence; in the edit drawer (`bare`) the drawer's own title and description
+ * say the same, so the editor is rendered with no frame, padding, heading or
+ * sentence: the photo starts 24 under the description, as the first field of
+ * any other drawer does. The strings stay in the card, they are just not shown
+ * twice.
+ */
+export function ProfilePhotoCard({
+  onSaved,
+  bare = false,
+}: { onSaved?: () => void; bare?: boolean } = {}) {
   const t = useI11n(bag).photo
   const me = useUserStore((s) => s.me)
   const patchMe = useUserStore((s) => s.patchMe)
@@ -104,13 +116,66 @@ export function ProfilePhotoCard({ onSaved }: { onSaved?: () => void } = {}) {
     }
   }
 
+  // Form spacing (FE-481): the photo, the button and the hint are the control,
+  // so the hint and a refused file's reason sit `controlToHelper` (4) under it.
+  // The button is the editor's main button: `controlHeight` (48).
+  const editor = (
+    <Stack gap="form.controlToHelper">
+      <HStack gap={4} align="center" flexWrap="wrap">
+        {tile ? (
+          <PhotoTile state={tile} alt={t.heading} size="96px" round />
+        ) : (
+          <MeAvatar
+            size="xl"
+            name={displayNameFromMe(me)}
+            avatarUrl={previewUrl ?? currentAvatar}
+            rootProps={{ opacity: uploading ? 0.6 : 1 }}
+          />
+        )}
+
+        <Stack gap="form.controlToHelper">
+          {/* The front camera, for a selfie. */}
+          <PhotoSourcePicker
+            camera="user"
+            accept={AVATAR_ACCEPTED_TYPES.join(',')}
+            onFiles={(files) => void handleFile(files[0])}
+          >
+            {(trigger) => (
+              <Button
+                {...trigger}
+                size="form"
+                variant="secondary"
+                alignSelf="flex-start"
+                onClick={() => {
+                  setError(null)
+                  trigger.onClick()
+                }}
+                loading={uploading}
+              >
+                {currentAvatar ? t.replace : t.upload}
+              </Button>
+            )}
+          </PhotoSourcePicker>
+          <Text fontSize="xs" lineHeight="16px" color="text.muted">
+            {t.hint}
+          </Text>
+        </Stack>
+      </HStack>
+
+      {error ? (
+        <Text color="status.danger.fg" fontSize="sm" role="alert">
+          {error}
+        </Text>
+      ) : null}
+    </Stack>
+  )
+
+  if (bare) return editor
+
+  // The card is a title, its sentence and the editor: the sentence is
+  // `titleToSubtitle` (8) under the title and the editor `headerToBody` (24)
+  // under that (the card's `bodyGap`).
   return (
-    // Form spacing (FE-481): the card is a title, its sentence and one field.
-    // The sentence is `titleToSubtitle` (8) under the title and the field
-    // `headerToBody` (24) under that (the card's `bodyGap`); the photo, the
-    // button and the hint are the field's control, so the hint and a refused
-    // file's reason sit `controlToHelper` (4) under it. The button is the
-    // editor's main button: `controlHeight` (48).
     <Card
       layout="section"
       id="profile-photo"
@@ -123,55 +188,7 @@ export function ProfilePhotoCard({ onSaved }: { onSaved?: () => void } = {}) {
           {t.body}
         </Text>
       </Stack>
-
-      <Stack gap="form.controlToHelper">
-        <HStack gap={4} align="center" flexWrap="wrap">
-          {tile ? (
-            <PhotoTile state={tile} alt={t.heading} size="96px" round />
-          ) : (
-            <MeAvatar
-              size="xl"
-              name={displayNameFromMe(me)}
-              avatarUrl={previewUrl ?? currentAvatar}
-              rootProps={{ opacity: uploading ? 0.6 : 1 }}
-            />
-          )}
-
-          <Stack gap="form.controlToHelper">
-            {/* The front camera, for a selfie. */}
-            <PhotoSourcePicker
-              camera="user"
-              accept={AVATAR_ACCEPTED_TYPES.join(',')}
-              onFiles={(files) => void handleFile(files[0])}
-            >
-              {(trigger) => (
-                <Button
-                  {...trigger}
-                  size="form"
-                  variant="secondary"
-                  alignSelf="flex-start"
-                  onClick={() => {
-                    setError(null)
-                    trigger.onClick()
-                  }}
-                  loading={uploading}
-                >
-                  {currentAvatar ? t.replace : t.upload}
-                </Button>
-              )}
-            </PhotoSourcePicker>
-            <Text fontSize="xs" lineHeight="16px" color="text.muted">
-              {t.hint}
-            </Text>
-          </Stack>
-        </HStack>
-
-        {error ? (
-          <Text color="status.danger.fg" fontSize="sm" role="alert">
-            {error}
-          </Text>
-        ) : null}
-      </Stack>
+      {editor}
     </Card>
   )
 }

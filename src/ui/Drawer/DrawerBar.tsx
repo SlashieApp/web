@@ -1,6 +1,9 @@
 'use client'
 
 import { HStack, type StackProps } from '@chakra-ui/react'
+import { useRef } from 'react'
+
+import { useKeepFocusClearOfBar } from '../focusClearance'
 
 /** The attribute a drawer's body looks for to keep focus clear of the pinned bar. */
 export const DRAWER_BAR_ATTR = 'data-drawer-bar'
@@ -24,11 +27,17 @@ export type DrawerBarProps = StackProps
  * control that takes keyboard focus above it: the bar carries `data-drawer-bar`,
  * and a body that holds one has `scroll-padding-bottom` of `pinnedBarClearance`
  * (the bar and the 20 the last field keeps from it), except while focus is in
- * the bar itself, so pressing Save does not scroll the body.
+ * the bar itself, so pressing Save does not scroll the body. A tall control that
+ * is only partly under the bar when it takes focus (a textarea, the keyboard
+ * up) is scrolled clear too: the padding alone does not move a partly visible
+ * control (`useKeepFocusClearOfBar`).
  */
 export function DrawerBar(props: DrawerBarProps) {
+  const barRef = useRef<HTMLDivElement>(null)
+  useKeepFocusClearOfBar(barRef)
   return (
     <HStack
+      ref={barRef}
       {...{ [DRAWER_BAR_ATTR]: '' }}
       gap="form.inlineGap"
       justify="flex-end"

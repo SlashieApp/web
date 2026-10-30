@@ -245,3 +245,45 @@ export const ErrorSpacing: Story = {
     )
   },
 }
+
+/**
+ * Bare, as the edit drawer renders it: just the editor, no card, heading or
+ * sentence. The photo row is the first thing; the button is 48 with the hint 4
+ * under it, and a refused file's reason sits 4 under the row.
+ */
+export const Bare: Story = {
+  args: { bare: true },
+  decorators: [
+    withSession({
+      me: storyMe({ profile: { avatarUrl: storyAvatarUrl('SC') } }),
+    }),
+  ],
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const replace = await canvas.findByRole('button', {
+      name: 'Replace photo',
+    })
+    await expect(canvasElement.querySelector('#profile-photo')).toBeNull()
+    await expect(canvas.queryByRole('heading')).toBeNull()
+    await expect(
+      canvas.queryByText(
+        'A clear photo helps customers and workers trust your profile.',
+      ),
+    ).toBeNull()
+    await expect(heightOf(replace)).toBe(formSpace.controlHeight)
+    const hint = canvas.getByText('JPG, PNG, WebP, HEIC, or AVIF. Up to 5MB.')
+    await expect(gapBelow(replace, hint)).toBe(formSpace.controlToHelper)
+
+    pickFile(
+      canvasElement,
+      new File([new ArrayBuffer(5 * 1024 * 1024 + 1)], 'huge.png', {
+        type: 'image/png',
+      }),
+    )
+    const reason = await canvas.findByText('Image must be 5MB or smaller.')
+    // The reason is in the editor, after the photo row, 4 under it.
+    const row = reason.parentElement?.firstElementChild as Element
+    await expect(row).toContainElement(replace)
+    await expect(gapBelow(row, reason)).toBe(formSpace.controlToHelper)
+  },
+}
