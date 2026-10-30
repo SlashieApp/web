@@ -49,6 +49,7 @@ export function TaskReviewStep({
         errorText={starsError ?? undefined}
       >
         <StarRatingInput
+          aria-label={form.starsLabel}
           value={stars || undefined}
           onChange={onStarsChange}
           disabled={locked}

@@ -13,9 +13,10 @@ import {
   openDialog,
   phone390,
 } from '@/app/(dashboard)/components/ui/dialogSpacing.testing'
-import { formSpace, minHitArea } from '@/theme/styles'
+import { formSpace } from '@/theme/styles'
 
 import { Button } from '../Button/Button'
+import { STAR_TILE } from '../FeedbackDialog/StarRatingInput'
 import { gapBelow, heightOf } from '../FormField/formGap.testing'
 import {
   expectField,
@@ -196,7 +197,7 @@ export const Mobile: Story = {
  * edges. The dialog has no intro, so the stars are the first field, 24 under the
  * title; the stars, the comment and the disclaimer note sit 20 apart (the note is
  * a form-level block); the last block is 20 above the buttons. The star tiles are
- * the 44 tap target with the label 8 above and the hint 4 under.
+ * 32 (their 44 tap target reaches into the gaps) with the label 8 above and the hint 4 under.
  */
 async function expectReviewSpacing(canvasElement: HTMLElement) {
   const { dialog, title, description, body } = await openDialog(
@@ -217,7 +218,7 @@ async function expectReviewSpacing(canvasElement: HTMLElement) {
     formSpace.labelToControl,
   )
   for (const tile of tiles) {
-    await expect(heightOf(tile)).toBe(minHitArea)
+    await expect(heightOf(tile)).toBe(STAR_TILE)
   }
   await expect(gapBelow(tiles[0], lineOf(stars, '1 to 5 stars'))).toBe(
     formSpace.controlToHelper,

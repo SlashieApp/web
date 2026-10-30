@@ -118,8 +118,8 @@ export const SubmitWithoutComment: Story = {
 
 /**
  * Form spacing (FE-481): the label is 8 above the stars, the hint 4 under them
- * and the error 4 under the hint. The stars stay 44 tiles: a rating is not a
- * text field.
+ * and the error 4 under the hint. The stars are 32 tiles with a 44 tap target
+ * that reaches into the gaps: a rating is not a text field.
  */
 export const SpacingStars: Story = {
   args: { starsError: 'Choose a star rating.' },

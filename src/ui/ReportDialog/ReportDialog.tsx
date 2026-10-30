@@ -153,7 +153,7 @@ export function ReportDialog({
           />
         </FormField>
         {submitError ? (
-          <Text fontSize="sm" color="status.danger.fg">
+          <Text fontSize="sm" color="status.danger.fg" role="alert">
             {submitError}
           </Text>
         ) : null}

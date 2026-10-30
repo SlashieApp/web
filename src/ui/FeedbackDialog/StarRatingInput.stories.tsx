@@ -3,12 +3,12 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { useState } from 'react'
 import { expect, fn, userEvent, within } from 'storybook/test'
 
-import { minHitArea } from '@/theme/styles'
+import { formSpace, minHitArea } from '@/theme/styles'
 
 import { FormField } from '../FormField/FormField'
-import { heightOf } from '../FormField/formGap.testing'
-import { starTilesOf } from '../Modal/taskDialogSpacing.testing'
-import { StarRatingInput } from './StarRatingInput'
+import { gapBeside, heightOf } from '../FormField/formGap.testing'
+import { starTargetsOf, starTilesOf } from '../Modal/taskDialogSpacing.testing'
+import { STAR_TILE, StarRatingInput } from './StarRatingInput'
 
 const meta = {
   title: 'UI/FeedbackDialog/StarRatingInput',
@@ -122,20 +122,78 @@ export const AllLevels: Story = {
 }
 
 /**
- * Form spacing (FE-481): the star tile is the control, 44 square (the house tap
- * target; a rating is not a text field, so it keeps 44 rather than the 48 of
- * inputs). A form puts its label 8 above the tile and its helper or error 4
- * below it.
+ * Form spacing (FE-481): the visible star tile is 32 square and the house 44
+ * target grows into the gaps around it, so a gap is measured from the tile (a
+ * rating is not a text field, so it does not take the 48 of inputs). A form puts
+ * its label 8 above the tile and its helper or error 4 below it. The target
+ * reaches 8 up (to the label), 4 down (to the helper) and 6 to each side, so two
+ * neighbouring targets stay 4 apart and never overlap.
  */
 export const TileSize: Story = {
   args: { value: 3 },
   play: async ({ canvasElement }) => {
     const tiles = starTilesOf(canvasElement)
+    const targets = starTargetsOf(canvasElement)
 
     await expect(tiles).toHaveLength(5)
-    for (const tile of tiles) {
-      await expect(heightOf(tile)).toBe(minHitArea)
-      await expect(tile.getBoundingClientRect().width).toBe(minHitArea)
+    await expect(targets).toHaveLength(5)
+    for (const [index, tile] of tiles.entries()) {
+      const box = tile.getBoundingClientRect()
+      await expect(heightOf(tile)).toBe(STAR_TILE)
+      await expect(box.width).toBe(STAR_TILE)
+      // The target is the 44, and the tile is centred sideways in it.
+      const target = (targets[index] as HTMLElement).getBoundingClientRect()
+      await expect(target.width).toBe(minHitArea)
+      await expect(target.height).toBe(minHitArea)
+      await expect(box.left - target.left).toBe((minHitArea - STAR_TILE) / 2)
+      // 8 up, 4 down: the gaps of a label above and a helper below.
+      await expect(box.top - target.top).toBe(formSpace.labelToControl)
+      await expect(target.bottom - box.bottom).toBe(formSpace.controlToHelper)
     }
+    // The targets do not overlap: the next one starts 4 after this one ends.
+    for (let i = 1; i < targets.length; i++) {
+      await expect(
+        gapBeside(targets[i - 1] as Element, targets[i] as Element),
+      ).toBe(4)
+    }
+  },
+}
+
+/**
+ * A named radio group: its name, its description (the field's helper and
+ * error) and its invalid mark come from the field it sits in, and each star is
+ * one of five.
+ */
+export const GroupSemantics: Story = {
+  render: function GroupSemanticsStory() {
+    const [value, setValue] = useState<number | undefined>()
+    return (
+      <FormField
+        label="Rating"
+        helperText="Optional, but required if you chose Rating."
+        errorText="Choose a rating from 1 to 5."
+      >
+        <StarRatingInput
+          aria-label="Rating"
+          value={value}
+          onChange={setValue}
+        />
+      </FormField>
+    )
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const group = canvas.getByRole('radiogroup', { name: 'Rating' })
+    await expect(group).toHaveAccessibleDescription(
+      /Optional, but required if you chose Rating\..*Choose a rating from 1 to 5\./,
+    )
+    await expect(group).toHaveAttribute('aria-invalid', 'true')
+    await expect(within(group).getAllByRole('radio')).toHaveLength(5)
+    await userEvent.click(
+      within(group).getByRole('radio', { name: '4 out of 5 stars' }),
+    )
+    await expect(
+      within(group).getByRole('radio', { name: '4 out of 5 stars' }),
+    ).toBeChecked()
   },
 }

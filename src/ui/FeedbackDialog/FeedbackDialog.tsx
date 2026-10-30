@@ -132,6 +132,7 @@ export function FeedbackDialog({
           errorText={ratingError}
         >
           <StarRatingInput
+            aria-label={t.ratingLabel}
             value={rating}
             disabled={submitting}
             onChange={(next) =>
@@ -166,7 +167,7 @@ export function FeedbackDialog({
           />
         </FormField>
         {submitError ? (
-          <Text fontSize="sm" color="status.danger.fg">
+          <Text fontSize="sm" color="status.danger.fg" role="alert">
             {submitError}
           </Text>
         ) : null}

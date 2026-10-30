@@ -13,7 +13,7 @@ import {
   openDialog,
   phone390,
 } from '@/app/(dashboard)/components/ui/dialogSpacing.testing'
-import { formSpace, minHitArea } from '@/theme/styles'
+import { formSpace } from '@/theme/styles'
 
 import { Button } from '../Button/Button'
 import { gapBelow, heightOf } from '../FormField/formGap.testing'
@@ -27,6 +27,7 @@ import {
 import { FeedbackDialog, type FeedbackDialogProps } from './FeedbackDialog'
 import { FeedbackDialogProvider } from './FeedbackDialogProvider'
 import { FeedbackTrigger } from './FeedbackTrigger'
+import { STAR_TILE } from './StarRatingInput'
 
 const meta = {
   title: 'UI/FeedbackDialog',
@@ -263,7 +264,7 @@ export const Triggers: Story = {
  * Form spacing (FE-481, wiki Foundations-Form-Spacing), read between visible
  * edges: the intro is the Modal description (8 under the title), the first field
  * 24 under it, the five fields 20 apart, and the last 20 above the buttons.
- * Fields are 48 tall with the label 8 above; the star tiles are the 44 tap target, and
+ * Fields are 48 tall with the label 8 above; the star tiles are 32 (their 44 tap target reaches into the gaps), and
  * a helper sits 4 under its control.
  */
 async function expectFeedbackSpacing(canvasElement: HTMLElement) {
@@ -292,14 +293,14 @@ async function expectFeedbackSpacing(canvasElement: HTMLElement) {
   await expectField(name)
   await expectField(email)
 
-  // The stars: 44 tiles 8 under their label, the helper 4 under them.
+  // The stars: 32 tiles (the 44 target reaches past them) 8 under their label, the helper 4 under them.
   const tiles = starTilesOf(rating)
   await expect(tiles).toHaveLength(5)
   await expect(gapBelow(labelOf(rating), tiles[0])).toBe(
     formSpace.labelToControl,
   )
   for (const tile of tiles) {
-    await expect(heightOf(tile)).toBe(minHitArea)
+    await expect(heightOf(tile)).toBe(STAR_TILE)
   }
   await expect(
     gapBelow(

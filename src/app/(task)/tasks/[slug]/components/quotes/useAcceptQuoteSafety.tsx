@@ -90,7 +90,7 @@ export function useAcceptQuoteDialog({
           {q.pickSlot}
         </Text>
         {futureSlots.length === 0 ? (
-          <Text fontSize="sm" color="status.danger.fg">
+          <Text fontSize="sm" color="status.danger.fg" role="alert">
             {q.noFutureSlots}
           </Text>
         ) : (

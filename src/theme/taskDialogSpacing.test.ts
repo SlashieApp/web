@@ -26,6 +26,9 @@ const FORMS = {
 const ALL = {
   ...FORMS,
   StarRatingInput: read('src/ui/FeedbackDialog/StarRatingInput.tsx'),
+  TaskReviewStep: read(
+    'src/app/(stepflow)/tasks/[slug]/review/components/ui/TaskReviewStep.tsx',
+  ),
   OrderRequestDialogs: read(`${OVERVIEW}/OrderRequestDialogs.tsx`),
   OrderCloseControls: read(`${OVERVIEW}/OrderCloseControls.tsx`),
   TaskConfirmDialogs: read(`${OVERVIEW}/TaskConfirmDialogs.tsx`),
@@ -80,9 +83,36 @@ describe('task dialogs: one rhythm from the form pieces', () => {
 })
 
 describe('choice groups and helpers: label 8, rows 8, helper 4', () => {
-  it('the star tiles stay the 44 tap target (a rating is not a text field)', () => {
-    expect(ALL.StarRatingInput).toContain('minH="44px"')
+  it('the star tiles are 32 with the 44 tap target grown into the gaps (a rating is not a text field)', () => {
+    expect(ALL.StarRatingInput).toContain('export const STAR_TILE = 32')
+    expect(ALL.StarRatingInput).toContain(
+      'hitAreaGrowth(STAR_TILE, formSpace.labelToControl)',
+    )
+    expect(ALL.StarRatingInput).toContain('minHitArea')
     expect(ALL.StarRatingInput).not.toContain('form.controlHeight')
+    expect(ALL.StarRatingInput).not.toContain('minH="44px"')
+  })
+
+  it('a failed send, report or accept is announced (role alert), as ReviewForm already did', () => {
+    for (const name of [
+      'ReportDialog',
+      'FeedbackDialog',
+      'ReviewForm',
+    ] as const) {
+      expect(ALL[name], name).toContain('role="alert"')
+    }
+    expect(ALL.useAcceptQuoteSafety).toContain('role="alert"')
+  })
+
+  it('the stars are a named radio group in all three forms', () => {
+    expect(ALL.StarRatingInput).toContain('role="radiogroup"')
+    for (const name of [
+      'FeedbackDialog',
+      'ReviewForm',
+      'TaskReviewStep',
+    ] as const) {
+      expect(ALL[name], name).toMatch(/<StarRatingInput[^>]*\s+aria-label=/)
+    }
   })
 
   it.each(['OrderFailedDialog', 'useAcceptQuoteSafety'] as const)(

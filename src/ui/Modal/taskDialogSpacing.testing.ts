@@ -42,11 +42,17 @@ export function lineOf(field: HTMLElement, text: string | RegExp) {
   return within(field).getByText(text)
 }
 
-/** The five star tiles of a `StarRatingInput`, left to right. */
+/**
+ * The five visible star tiles of a `StarRatingInput`, left to right: what a gap
+ * is measured from. The tap target (`starTargetsOf`) is bigger.
+ */
 export function starTilesOf(scope: HTMLElement): HTMLElement[] {
-  return [...scope.querySelectorAll('input[type="radio"]')].map(
-    (radio) => radio.parentElement as HTMLElement,
-  )
+  return [...scope.querySelectorAll('[data-star-tile]')] as HTMLElement[]
+}
+
+/** The five tap targets of a `StarRatingInput`: its radios, which fill the label's padding box. */
+export function starTargetsOf(scope: HTMLElement): HTMLElement[] {
+  return [...scope.querySelectorAll('input[type="radio"]')] as HTMLElement[]
 }
 
 /**

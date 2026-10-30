@@ -94,6 +94,7 @@ function ReviewFormFields({
             control={form.control}
             render={({ field }) => (
               <StarRatingInput
+                aria-label={t.starsLabel}
                 value={field.value}
                 onChange={field.onChange}
                 disabled={locked}

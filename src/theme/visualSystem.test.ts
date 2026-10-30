@@ -659,7 +659,8 @@ describe('green 400 is a fill, never a thin line (FE-469 D5)', () => {
 
 describe('neutral hover and press tints (FE-469 D3)', () => {
   // A hover or press tint is `bg.subtle`, not mint. Mint is for state: a
-  // selected chip, row or tile keeps `status.success.soft`.
+  // selected chip, row or tile keeps `status.success.soft`. `_groupHover` is a
+  // hover too: the star tile hovers with its (larger) tap target.
   const HOVERS = [
     'src/ui/Header/Header.tsx',
     'src/ui/IconButton/IconButton.tsx',
@@ -677,7 +678,7 @@ describe('neutral hover and press tints (FE-469 D3)', () => {
       const source = readFileSync(join(process.cwd(), file), 'utf8')
       const bodies = [
         ...source.matchAll(
-          /(?:_hover|rowHover|ghostSurfaceHover)\s*[=:]\s*\{\{?([^}]*)\}/g,
+          /(?:_hover|_groupHover|rowHover|ghostSurfaceHover)\s*[=:]\s*\{\{?([^}]*)\}/g,
         ),
       ].map((match) => match[1])
       expect(bodies.length, file).toBeGreaterThan(0)
