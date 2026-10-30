@@ -7,7 +7,7 @@ import { formSpace } from '@/theme/styles'
 
 import { Button } from '../Button'
 import { FormField } from '../FormField/FormField'
-import { gapBelow } from '../FormField/formGap.testing'
+import { gapBelow, gapBeside, heightOf } from '../FormField/formGap.testing'
 import { FormStack } from '../FormStack/FormStack'
 import { Input } from '../Input/Input'
 import { Modal } from './Modal'
@@ -771,5 +771,226 @@ export const OpenNoFooterEnds: Story = {
           note.getBoundingClientRect().bottom,
       ),
     ).toBe(24)
+  },
+}
+
+/**
+ * A viewport of the given size (Storybook's own presets are 320 by 568 and up).
+ * Spread it into a story: `{ ...viewportOf('narrow', 320, 256) }`.
+ */
+function viewportOf(name: string, width: number, height: number) {
+  return {
+    parameters: {
+      viewport: {
+        options: {
+          [name]: {
+            name,
+            styles: { width: `${width}px`, height: `${height}px` },
+            type: 'mobile',
+          },
+        },
+      },
+    },
+    globals: { viewport: { value: name, isRotated: false } },
+  } as const
+}
+
+/**
+ * The frame: the buttons of the bar are 48 tall, like the fields (the spec's
+ * `controlHeight`); the title is 28 under the panel's top with the close button
+ * in its row, centred on it, the 20px glyph on the content's right edge and the
+ * 44px target reaching 12 into the panel's padding, as in `Drawer`.
+ */
+export const OpenFrame: Story = {
+  parameters: overlayDocs,
+  args: {
+    title: 'Add contact phone number',
+    description: phoneDescription,
+    submitLabel: 'Send code',
+  },
+  render: (args) => (
+    <ModalDemo {...args} initialOpen triggerLabel="Verify phone number">
+      {phoneForm}
+    </ModalDemo>
+  ),
+  play: async ({ canvasElement }) => {
+    const { dialog, title, header } = await openFrame(
+      canvasElement,
+      'Add contact phone number',
+    )
+    const send = within(dialog).getByRole('button', { name: 'Send code' })
+    const cancel = within(dialog).getByRole('button', { name: 'Cancel' })
+    await expect(heightOf(send)).toBe(formSpace.controlHeight)
+    await expect(heightOf(cancel)).toBe(formSpace.controlHeight)
+
+    const close = within(dialog).getByRole('button', { name: 'Close' })
+    const panel = dialog.getBoundingClientRect()
+    const titleBox = title.getBoundingClientRect()
+    const closeBox = close.getBoundingClientRect()
+    const headerBox = header.getBoundingClientRect()
+    // The panel has a 1px border: the title is 28 below its inner top.
+    await expect(titleBox.top - headerBox.top).toBe(28)
+    // The close button is level with the title, not floating in the corner.
+    await expect(closeBox.top + closeBox.height / 2).toBeCloseTo(
+      titleBox.top + titleBox.height / 2,
+      1,
+    )
+    await expect(closeBox.height).toBe(44)
+    // The glyph (20, centred in the 44) ends on the content edge: the title's
+    // right edge is the content's, and the target reaches 12 past it.
+    const content = within(dialog)
+      .getByText(phoneDescription)
+      .getBoundingClientRect()
+    await expect(closeBox.right - content.right).toBe(12)
+    await expect(panel.right - closeBox.right).toBeGreaterThan(0)
+  },
+}
+
+/**
+ * Footer buttons that do not fit one line (a phone 320 wide, a long label) wrap
+ * rather than leave the left one outside the dialog: the main button on top,
+ * the two 8 apart, both inside the panel.
+ */
+export const OpenButtonsWrapOnNarrowPhone: Story = {
+  ...viewportOf('narrow phone', 320, 568),
+  parameters: {
+    ...viewportOf('narrow phone', 320, 568).parameters,
+    ...overlayDocs,
+  },
+  args: {
+    title: 'Delete your account',
+    submitLabel: 'Delete my account',
+    submitVariant: 'danger',
+  },
+  render: (args) => (
+    <ModalDemo {...args} initialOpen triggerLabel="Delete account">
+      <Text fontSize="sm" color="text.muted" lineHeight="tall">
+        This cannot be undone.
+      </Text>
+    </ModalDemo>
+  ),
+  play: async ({ canvasElement }) => {
+    await expect(canvasElement.ownerDocument.defaultView?.innerWidth).toBe(320)
+    const { dialog } = await openFrame(canvasElement, 'Delete your account')
+    const panel = dialog.getBoundingClientRect()
+    const cancel = within(dialog).getByRole('button', { name: 'Cancel' })
+    const remove = within(dialog).getByRole('button', {
+      name: 'Delete my account',
+    })
+    for (const button of [cancel, remove]) {
+      const box = button.getBoundingClientRect()
+      await expect(box.left).toBeGreaterThanOrEqual(panel.left)
+      await expect(box.right).toBeLessThanOrEqual(panel.right)
+      await expect(heightOf(button)).toBe(formSpace.controlHeight)
+    }
+    // They wrapped: the main button is above Cancel, 8 apart.
+    await expect(gapBelow(remove, cancel)).toBe(formSpace.alternativesGap)
+  },
+}
+
+/** Two buttons that fit stay on one line, 12 apart (the wrap is only for when they do not). */
+export const OpenButtonsStayOnOneLine: Story = {
+  parameters: overlayDocs,
+  args: { title: 'Add contact phone number', submitLabel: 'Send code' },
+  render: (args) => (
+    <ModalDemo {...args} initialOpen triggerLabel="Verify phone number">
+      {phoneForm}
+    </ModalDemo>
+  ),
+  play: async ({ canvasElement }) => {
+    const { dialog } = await openFrame(
+      canvasElement,
+      'Add contact phone number',
+    )
+    const cancel = within(dialog).getByRole('button', { name: 'Cancel' })
+    const send = within(dialog).getByRole('button', { name: 'Send code' })
+    await expect(gapBeside(cancel, send)).toBe(formSpace.inlineGap)
+    await expect(cancel.getBoundingClientRect().top).toBe(
+      send.getBoundingClientRect().top,
+    )
+  },
+}
+
+/**
+ * A viewport as short as a 1280 by 1024 window at 400% zoom (320 by 256): the
+ * header and the bar would leave the body no room, so the dialog scrolls as a
+ * whole and the buttons stay reachable. Nothing is cut off at the end of the
+ * scroll.
+ */
+export const OpenShortViewportScrolls: Story = {
+  ...viewportOf('reflow 320 by 256', 320, 256),
+  parameters: {
+    ...viewportOf('reflow 320 by 256', 320, 256).parameters,
+    ...overlayDocs,
+  },
+  args: {
+    title: 'Add contact phone number',
+    description: phoneDescription,
+    submitLabel: 'Send code',
+  },
+  render: (args) => (
+    <ModalDemo {...args} initialOpen triggerLabel="Verify phone number">
+      {phoneForm}
+    </ModalDemo>
+  ),
+  play: async ({ canvasElement }) => {
+    await expect(canvasElement.ownerDocument.defaultView?.innerHeight).toBe(256)
+    const { dialog, body } = await openFrame(
+      canvasElement,
+      'Add contact phone number',
+    )
+    // The dialog is what scrolls: the body is not a scroller of its own
+    // (squeezed between the bars it would have no height left).
+    await expect(dialog.scrollHeight).toBeGreaterThan(dialog.clientHeight)
+    await expect(body.scrollHeight).toBe(body.clientHeight)
+    const send = within(dialog).getByRole('button', { name: 'Send code' })
+    const cancel = within(dialog).getByRole('button', { name: 'Cancel' })
+
+    dialog.scrollTop = dialog.scrollHeight
+    await waitFor(() =>
+      expect(dialog.scrollTop + dialog.clientHeight).toBeGreaterThanOrEqual(
+        dialog.scrollHeight - 1,
+      ),
+    )
+    // At the end, both buttons are inside the dialog, whole.
+    const panel = dialog.getBoundingClientRect()
+    for (const button of [send, cancel]) {
+      const box = button.getBoundingClientRect()
+      await expect(box.bottom).toBeLessThanOrEqual(panel.bottom)
+      await expect(box.top).toBeGreaterThanOrEqual(panel.top)
+    }
+  },
+}
+
+/** A short landscape phone (667 by 375) still pins the bar: the body is what scrolls. */
+export const OpenLandscapePhonePinsBar: Story = {
+  ...viewportOf('landscape phone', 667, 375),
+  parameters: {
+    ...viewportOf('landscape phone', 667, 375).parameters,
+    ...overlayDocs,
+  },
+  args: {
+    title: 'Add contact phone number',
+    description: phoneDescription,
+    submitLabel: 'Send code',
+  },
+  render: (args) => (
+    <ModalDemo {...args} initialOpen triggerLabel="Verify phone number">
+      {phoneForm}
+    </ModalDemo>
+  ),
+  play: async ({ canvasElement }) => {
+    await expect(canvasElement.ownerDocument.defaultView?.innerHeight).toBe(375)
+    const { dialog, body } = await openFrame(
+      canvasElement,
+      'Add contact phone number',
+    )
+    // Everything is inside the dialog without scrolling it.
+    await expect(dialog.scrollHeight).toBeLessThanOrEqual(dialog.clientHeight)
+    await expect(body.clientHeight).toBeGreaterThanOrEqual(128)
+    const send = within(dialog).getByRole('button', { name: 'Send code' })
+    await expect(send.getBoundingClientRect().bottom).toBeLessThanOrEqual(
+      dialog.getBoundingClientRect().bottom,
+    )
   },
 }

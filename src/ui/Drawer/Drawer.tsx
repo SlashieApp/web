@@ -336,7 +336,7 @@ export function Drawer({
                 {secondaryActionLabel ? (
                   <Button
                     variant="secondary"
-                    size="lg"
+                    size="form"
                     onClick={() => {
                       onSecondaryAction?.()
                       onOpenChange(false)
@@ -349,7 +349,7 @@ export function Drawer({
                   variant="primary"
                   flex={1}
                   minW={0}
-                  size="lg"
+                  size="form"
                   onClick={() => {
                     onPrimaryAction?.()
                     onOpenChange(false)

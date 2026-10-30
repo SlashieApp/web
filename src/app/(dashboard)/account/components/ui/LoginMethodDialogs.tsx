@@ -21,7 +21,7 @@ import { verificationErrorText } from '@/app/(dashboard)/components/ui/verificat
 import { formatMessage } from '@/i18n/loadPageI11n'
 import { useI11n } from '@/i18n/useI11n'
 import { showAppToast } from '@/utils/appToast'
-import { Button, FormStack, Modal } from '@ui'
+import { FormStack, Modal, ModalButton } from '@ui'
 
 import bag from '../../i11n.json'
 
@@ -119,9 +119,9 @@ export function LinkLoginMethodDialog({
       title={formatMessage(t.linkTitle, { provider })}
       description={formatMessage(t.linkBody, { provider, email })}
       footer={
-        <Button type="button" variant="secondary" onClick={close}>
+        <ModalButton type="button" variant="secondary" onClick={close}>
           {t.cancel}
-        </Button>
+        </ModalButton>
       }
     >
       {/* The provider's button is the main action here: 24 under the

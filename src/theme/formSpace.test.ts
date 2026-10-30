@@ -117,6 +117,41 @@ describe('dialog and drawer frames read the form tokens (FE-481 overlay-chrome)'
     expect(modal).toContain('scrollBehavior="inside"')
   })
 
+  it('the Modal scrolls as a whole on a viewport too short for the bars and a body', () => {
+    expect(modal).toContain("'@media (max-height: 340px)'")
+    expect(modal).toContain('flexShrink={0}')
+  })
+
+  it('the bar buttons are the form control height (48): no md (44) or lg (52) left in a bar', () => {
+    // Modal: every footer button is a ModalButton (`size="form"`).
+    expect(modal).toContain('<Button size="form"')
+    expect(modal).not.toMatch(/<Button\b[^>]*variant=/)
+    // Drawer: the frame's footer buttons.
+    expect(drawer).not.toContain('size="lg"')
+    expect(drawer.match(/size="form"/g)).toHaveLength(2)
+    // A dialog that draws its own footer uses the same button.
+    for (const file of [
+      'src/app/(dashboard)/account/components/ui/DeleteAccountDialog.tsx',
+      'src/app/(dashboard)/account/components/ui/LoginMethodDialogs.tsx',
+    ]) {
+      const source = read(file)
+      expect(source, file).toContain('<ModalButton')
+      expect(source, file).not.toContain('<Button')
+    }
+  })
+
+  it('the Modal header is the Drawer header: close in the title row, title 28 under the top', () => {
+    for (const source of [modal, drawer]) {
+      expect(source).toContain(
+        '<HStack align="center" justify="space-between" gap={3} pt={2}>',
+      )
+      expect(source).toContain('lineHeight="28px"')
+      expect(source).toContain('unstyled')
+      expect(source).toContain('my={-2}')
+      expect(source).toContain('me={-3}')
+    }
+  })
+
   it('the description style is muted 14px, weight 500 at most', () => {
     expect(overlayDescriptionStyle).toEqual({
       color: 'text.muted',

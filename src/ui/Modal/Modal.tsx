@@ -28,6 +28,7 @@ import {
 import { useIsBrowser } from '@/utils/useIsBrowser'
 
 import { Button } from '../Button'
+import type { UiButtonProps } from '../Button/Button'
 import { IconButton as UiIconButton } from '../IconButton/IconButton'
 import bag from './i11n.json'
 
@@ -39,7 +40,8 @@ import bag from './i11n.json'
  * SDL guarantees:
  * - Surface/border/text via roles (`bg.surface`, `border.default`, `text.*`).
  * - Close control is a >=44px `IconButton` that keeps its `aria-label` + focus ring.
- * - Footer primary action is `Button` (44px, green-ink, visible focus).
+ * - Footer buttons are `ModalButton`s (`Button` `size="form"`: 48 tall like the
+ *   fields above them, green-ink primary, visible focus).
  * - Transitions use `sdlMotion`; the scrim/content animation honours reduced motion.
  *
  * Form spacing (FE-481, wiki Foundations-Form-Spacing): the header is the title,
@@ -49,7 +51,14 @@ import bag from './i11n.json'
  * buttons. The footer bar has no dividing line and the header has none either:
  * a rule inside those 24 would crowd them. The header and the bar stay put
  * (`scrollBehavior="inside"`): a tall body scrolls between them, so the buttons
- * are always reachable.
+ * are always reachable. When the viewport is too short for both bars and a
+ * body of any use (`SHORT_VIEWPORT`: 400% zoom, a phone on its side at its
+ * shortest), the whole dialog scrolls instead, as it did before the bar was
+ * pinned: nothing is ever pushed out of the frame.
+ *
+ * The close button is in the title row, as in `Drawer`, so the two frames share
+ * one header: the title 28 under the panel's top, the 20px glyph 12 inside the
+ * 44px target, which reaches into the panel's padding.
  *
  * `size` keeps its legacy `sm | md | lg` names; `description` is new and
  * optional. With `onSubmit`, the body and footer are a form, so Enter in a
@@ -58,12 +67,48 @@ import bag from './i11n.json'
 
 const modalPaddingX = { base: 5, md: 6 } as const
 
+/**
+ * The viewports where the header and the bar would take what the body needs
+ * (a 1280 by 1024 window at 400% zoom is 320 by 256; the header alone is up to
+ * 160 on a narrow one, the bar 64). There the dialog scrolls as a whole.
+ */
+const SHORT_VIEWPORT = '@media (max-height: 340px)'
+
 export type ModalSize = 'sm' | 'md' | 'lg'
 
 const sizeMaxW: Record<ModalSize, string> = {
   sm: '400px',
   md: '480px',
   lg: '560px',
+}
+
+/**
+ * A button of a dialog's bar: 48 tall, like the fields above it (the spec's
+ * `controlHeight`). Its side padding stays 16, the dialog button's own, so a
+ * pair of labels fits the same width as before the height changed.
+ */
+export function ModalButton(props: UiButtonProps) {
+  return <Button size="form" px={4} {...props} />
+}
+
+/**
+ * The buttons of a dialog's bar, right-aligned: `formSpace.inlineGap` (12)
+ * apart on a line. When they do not fit one line (a phone 320 to 344 wide) they
+ * wrap onto their own lines, the main button on top, 8 apart
+ * (`alternativesGap`), instead of leaving the left one outside the dialog.
+ */
+export function ModalActions({ children }: { children: ReactNode }) {
+  return (
+    <HStack
+      columnGap="form.inlineGap"
+      rowGap="form.alternativesGap"
+      w="full"
+      justify="flex-end"
+      flexWrap="wrap-reverse"
+    >
+      {children}
+    </HStack>
+  )
 }
 
 export type ModalProps = {
@@ -138,6 +183,9 @@ export function Modal({
         px={modalPaddingX}
         pt="form.headerToBody"
         pb={showFooter ? 'form.bodyToAction' : 6}
+        css={{
+          [SHORT_VIEWPORT]: { flex: '0 0 auto', overflow: 'visible' },
+        }}
       >
         <Stack gap={6} fontSize="md" color="text.muted" lineHeight="1.625">
           {children}
@@ -154,22 +202,26 @@ export function Modal({
           justifyContent="flex-end"
         >
           {footer ?? (
-            <HStack gap={3} w="full" justify="flex-end">
+            <ModalActions>
               {backLabel ? (
-                <Button type="button" variant="secondary" onClick={handleBack}>
+                <ModalButton
+                  type="button"
+                  variant="secondary"
+                  onClick={handleBack}
+                >
                   {backLabel}
-                </Button>
+                </ModalButton>
               ) : (
-                <Button
+                <ModalButton
                   type="button"
                   variant="secondary"
                   onClick={handleCancel}
                 >
                   {cancelLabel}
-                </Button>
+                </ModalButton>
               )}
               {submitLabel ? (
-                <Button
+                <ModalButton
                   type={onSubmit ? 'submit' : 'button'}
                   variant={submitVariant}
                   loading={submitLoading}
@@ -177,9 +229,9 @@ export function Modal({
                   minW="120px"
                 >
                   {submitLabel}
-                </Button>
+                </ModalButton>
               ) : null}
-            </HStack>
+            </ModalActions>
           )}
         </DialogFooter>
       ) : null}
@@ -215,30 +267,46 @@ export function Modal({
           w="full"
           mx="auto"
           overflow="hidden"
+          css={{ [SHORT_VIEWPORT]: { overflowY: 'auto' } }}
           transitionProperty="opacity, transform"
           transitionDuration={sdlMotion.duration.moderate}
           transitionTimingFunction={sdlMotion.easing.standard}
         >
           <DialogHeader px={modalPaddingX} pt={5} pb={0}>
+            {/* As in `Drawer`: the 44px close button is taller than the title,
+                so its margins (-8) take it out of the row's height, and the
+                row's top padding (8) keeps the title where a 44px row had it.
+                The description is 8 under the title text, not under a row
+                with slack. */}
             <Stack gap="form.titleToSubtitle" w="full">
-              <HStack align="center" justify="space-between" gap={3}>
+              <HStack align="center" justify="space-between" gap={3} pt={2}>
                 <DialogTitle
                   fontFamily="body"
                   fontSize="20px"
                   fontWeight={500}
                   letterSpacing="-0.015em"
                   color="text.default"
-                  lineHeight="short"
+                  lineHeight="28px"
                   flex={1}
                   minW={0}
                 >
                   {title}
                 </DialogTitle>
-                <DialogCloseTrigger asChild>
+                {/* Unstyled: Chakra floats the close button in the panel's
+                    corner, above the title. Here it is in the row, so the two
+                    centre on each other. */}
+                <DialogCloseTrigger asChild unstyled>
                   <UiIconButton
                     aria-label={t.close}
                     variant="ghost"
                     flexShrink={0}
+                    minW="44px"
+                    minH="44px"
+                    my={-2}
+                    // The 20px glyph sits on the content's right edge, as the
+                    // body's controls do; the 44px target reaches into the
+                    // panel's padding.
+                    me={-3}
                   >
                     <LuX size={20} strokeWidth={2} aria-hidden />
                   </UiIconButton>

@@ -111,7 +111,7 @@ export {
   MobileBottomNav,
 } from './MobileBottomNav'
 export { MobileCarousel } from './MobileCarousel/MobileCarousel'
-export { Modal } from './Modal'
+export { Modal, ModalActions, ModalButton } from './Modal'
 export { OtpInput } from './OtpInput'
 export { PhoneInput } from './PhoneInput'
 export { PhotoSourcePicker } from './PhotoSourcePicker'

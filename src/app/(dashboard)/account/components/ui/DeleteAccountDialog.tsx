@@ -1,7 +1,7 @@
 'use client'
 
 import { useMutation } from '@apollo/client/react'
-import { Box, HStack, Stack, Text } from '@chakra-ui/react'
+import { Box, Stack, Text } from '@chakra-ui/react'
 import {
   LoginMethod,
   type MeQuery,
@@ -32,7 +32,15 @@ import {
   getGraphQLErrorCode,
 } from '@/utils/graphqlErrors'
 import { taskOrderSectionHref } from '@/utils/orderHelpers'
-import { Button, FormField, FormStack, Input, Link, Modal } from '@ui'
+import {
+  FormField,
+  FormStack,
+  Input,
+  Link,
+  Modal,
+  ModalActions,
+  ModalButton,
+} from '@ui'
 
 import bag from '../../i11n.json'
 import { ReauthPrompt } from './ReauthPrompt'
@@ -126,13 +134,13 @@ function DeleteBlockedDialog({
       onOpenChange={onOpenChange}
       title={t.deleteBlockedTitle}
       footer={
-        <Button
+        <ModalButton
           type="button"
           variant="secondary"
           onClick={() => onOpenChange(false)}
         >
           {t.deleteBlockedClose}
-        </Button>
+        </ModalButton>
       }
     >
       <LeadInList lead={t.deleteBlockedBody}>
@@ -231,15 +239,15 @@ function DeleteConfirmDialog({
       onOpenChange={close}
       title={t.deleteDialogTitle}
       footer={
-        <HStack gap={3} w="full" justify="flex-end">
-          <Button
+        <ModalActions>
+          <ModalButton
             type="button"
             variant="secondary"
             onClick={() => close(false)}
           >
             {t.deleteCancel}
-          </Button>
-          <Button
+          </ModalButton>
+          <ModalButton
             type="submit"
             form="delete-account-form"
             variant="danger"
@@ -247,8 +255,8 @@ function DeleteConfirmDialog({
             disabled={!canConfirm}
           >
             {t.deleteConfirm}
-          </Button>
-        </HStack>
+          </ModalButton>
+        </ModalActions>
       }
     >
       <FormStack>

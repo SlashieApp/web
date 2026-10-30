@@ -62,12 +62,12 @@ export async function expectLabelAbove(
 /**
  * The bar of a drawer: the last filter is `bodyToAction` (20) above the buttons;
  * with two, they are `inlineGap` (12) apart, the primary one on the right, and
- * every button of the bar is as tall as the frame's (52).
+ * every button of the bar is a form control tall (48), like the fields above.
  */
 export async function expectBar(
   last: Element,
   buttons: HTMLElement[],
-  { height = 52 }: { height?: number } = {},
+  { height = formSpace.controlHeight }: { height?: number } = {},
 ) {
   for (const button of buttons) {
     await expect(gapBelow(last, button)).toBe(formSpace.bodyToAction)
