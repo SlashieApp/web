@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { expect, fn, userEvent, within } from 'storybook/test'
 
+import { expectRingHugsLabel } from '@/app/(auth)/helpers/authSpacing.testing'
 import {
   withAuthWidgets,
   withSession,
@@ -197,6 +198,18 @@ export const TapTargets: Story = {
     await expect(row.height).toBe(minHitArea)
     await expect(p.keepRoot.contains(at(rx, row.top + 1))).toBe(true)
     await expect(p.keepRoot.contains(at(rx, row.bottom - 1))).toBe(true)
+  },
+}
+
+/**
+ * The keyboard ring on "Forgot password?" is drawn on the text line (20 tall),
+ * not around the 44px target it is grown to: the target is padding, and the
+ * ring would otherwise run into the gap above "Keep me signed in".
+ */
+export const ForgotLinkRingHugsText: Story = {
+  play: async ({ canvasElement }) => {
+    const p = await loginParts(within(canvasElement))
+    await expectRingHugsLabel(p.forgot)
   },
 }
 

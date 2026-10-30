@@ -3,7 +3,7 @@
  * card the way the spec does, between visible edges: the status icon, the
  * header (title and subtitle), then what the page puts under it.
  */
-import type { within } from 'storybook/test'
+import { expect, userEvent, type within } from 'storybook/test'
 
 import { gapBelow } from '@/ui/FormField/formGap.testing'
 
@@ -48,4 +48,28 @@ export function gapsBetweenChildren(parent: Element): number[] {
 export function controlShell(field: Element): HTMLElement {
   return (field.querySelector('input') as HTMLElement)
     .parentElement as HTMLElement
+}
+
+/**
+ * Tabs to a link whose 44px target is grown by padding and checks that its
+ * keyboard ring hugs the text line (the label, 20 tall) instead of being drawn
+ * around the whole grown box.
+ */
+export async function expectRingHugsLabel(link: HTMLElement) {
+  for (let i = 0; i < 12 && document.activeElement !== link; i += 1) {
+    await userEvent.tab()
+  }
+  await expect(link).toHaveFocus()
+  const label = link.querySelector('[data-hit-area-label]') as HTMLElement
+  await expect(label).not.toBeNull()
+  await expect(getComputedStyle(link).outlineStyle).toBe('none')
+  await expect(getComputedStyle(label).outlineStyle).toBe('solid')
+  await expect(getComputedStyle(label).outlineWidth).toBe('2px')
+  await expect(label.getBoundingClientRect().height).toBe(20)
+  // The ring's box is inside the grown target, with room above and below.
+  const target = link.getBoundingClientRect()
+  const text = label.getBoundingClientRect()
+  await expect(target.height).toBeGreaterThan(text.height)
+  await expect(text.top).toBeGreaterThanOrEqual(target.top)
+  await expect(text.bottom).toBeLessThanOrEqual(target.bottom)
 }

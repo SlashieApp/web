@@ -1,7 +1,7 @@
 'use client'
 
 import { useMutation } from '@apollo/client/react'
-import { Box, Stack, Text } from '@chakra-ui/react'
+import { Box, Stack, Text, chakra } from '@chakra-ui/react'
 import type { ResetPasswordMutation } from '@codegen/schema'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useRouter, useSearchParams } from 'next/navigation'
@@ -20,7 +20,12 @@ import {
 import { useUserStore } from '@/app/(auth)/store/user'
 import { useLocalizedHref } from '@/i18n/LocaleProvider'
 import { useI11n } from '@/i18n/useI11n'
-import { formSpace, hitAreaGrowth } from '@/theme/styles'
+import {
+  formSpace,
+  hitAreaGrowth,
+  hitAreaLabel,
+  hitAreaLinkFocusRing,
+} from '@/theme/styles'
 import { EVENTS, trackFlowFailed, trackFlowSucceeded } from '@/utils/analytics'
 import { MY_TASKS_HREF } from '@/utils/appRoutes'
 import { setAuthToken } from '@/utils/auth'
@@ -226,13 +231,17 @@ export function ResetPasswordScreen() {
                       display="block"
                       fontWeight={500}
                       color="text.link"
-                      // 44 to tap, reaching up to the alert's edge and down into the gap.
+                      // 44 to tap, reaching up to the alert's edge and down into
+                      // the gap; the keyboard ring hugs the text, not the 44.
                       {...hitAreaGrowth(
                         RESET_LINK_HEIGHT,
                         formSpace.controlToHelper,
                       )}
+                      {...hitAreaLinkFocusRing}
                     >
-                      {t.missingCta}
+                      <chakra.span {...hitAreaLabel}>
+                        {t.missingCta}
+                      </chakra.span>
                     </Link>
                   </Text>
                 ) : null}

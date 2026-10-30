@@ -1,6 +1,6 @@
 'use client'
 
-import { Box } from '@chakra-ui/react'
+import { Box, chakra } from '@chakra-ui/react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Controller, useForm, useWatch } from 'react-hook-form'
 
@@ -24,7 +24,12 @@ import { isSocialAuthConfigured } from '@/app/(auth)/helpers/socialAuthConfig'
 import { useLocale } from '@/i18n/LocaleProvider'
 import { formatMessage } from '@/i18n/loadPageI11n'
 import { useI11n } from '@/i18n/useI11n'
-import { formSpace, hitAreaGrowth } from '@/theme/styles'
+import {
+  formSpace,
+  hitAreaGrowth,
+  hitAreaLabel,
+  hitAreaLinkFocusRing,
+} from '@/theme/styles'
 import {
   Button,
   FormAlternatives,
@@ -168,13 +173,17 @@ export function LoginPanel({
                     fontWeight={500}
                     color="text.link"
                     onClick={() => stashResetEmail(emailValue ?? '')}
-                    // 44 to tap, reaching up to the field's edge and down into the gap.
+                    // 44 to tap, reaching up to the field's edge and down into
+                    // the gap; the keyboard ring hugs the text, not the 44.
                     {...hitAreaGrowth(
                       FORGOT_LINK_HEIGHT,
                       formSpace.controlToHelper,
                     )}
+                    {...hitAreaLinkFocusRing}
                   >
-                    {t.forgotPassword}
+                    <chakra.span {...hitAreaLabel}>
+                      {t.forgotPassword}
+                    </chakra.span>
                   </Link>
                 }
               >

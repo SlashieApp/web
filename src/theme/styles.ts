@@ -400,6 +400,27 @@ export const sdlFocusRing: SystemStyleObject = {
 }
 
 /**
+ * Props for the label of a link or button whose pointer target is grown by
+ * {@link hitAreaGrowth}. The growth is padding, so the control's own outline
+ * would be drawn around the whole 44px box, with the text in its top half. Put
+ * the text in a child with these props and spread
+ * {@link hitAreaLinkFocusRing} on the control: the ring hugs the visible line.
+ */
+export const hitAreaLabel = {
+  'data-hit-area-label': '',
+  display: 'inline-block',
+  borderRadius: 'sm',
+} as const
+
+/** Spread on the control that holds a {@link hitAreaLabel}: its focus ring moves to the label. */
+export const hitAreaLinkFocusRing: SystemStyleObject = {
+  _focusVisible: {
+    outline: 'none',
+    '& > [data-hit-area-label]': sdlFocusRing,
+  },
+}
+
+/**
  * Bordered form shells (`Input`, `Select`). SDL inputs: 8px corners, a 1px
  * `border.strong` hairline and no shadow; the border steps to `border.hover`.
  */

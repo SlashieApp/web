@@ -4,6 +4,7 @@ import { expect, userEvent, within } from 'storybook/test'
 import {
   cardParts,
   controlShell,
+  expectRingHugsLabel,
   formColumn,
   gapsBetweenChildren,
 } from '@/app/(auth)/helpers/authSpacing.testing'
@@ -180,6 +181,8 @@ export const LinkExpired: Story = {
     await expect(
       link.contains(document.elementFromPoint(x, target.bottom - 1)),
     ).toBe(true)
+    // The keyboard ring hugs the text line, not the 44.
+    await expectRingHugsLabel(link)
   },
 }
 
