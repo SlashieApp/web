@@ -60,6 +60,13 @@ const PANEL_EXIT_MS = 160
 const PANEL_PADDING = 2
 
 /**
+ * The tallest a popover panel gets: the viewport less the sticky header it
+ * hangs from (the panel starts 76 down, 8 under the trigger) and 12 of air. A
+ * taller one scrolls inside.
+ */
+const PANEL_MAX_H = 'calc(100dvh - 88px)'
+
+/**
  * Exit motion — mirrors the enter keyframes as a transition back to hidden.
  * `alignTransform` preserves alignment transforms (e.g. centered panels).
  */
@@ -457,7 +464,13 @@ function ClickDropdown({
           borderRadius="xl"
           boxShadow="e3"
           p={PANEL_PADDING}
-          overflow="hidden"
+          // A tall panel (the account menu is about 800 for a worker) stops
+          // short of the viewport and scrolls, so its last rows can be reached
+          // on a short window: the header it hangs from is sticky.
+          maxH={PANEL_MAX_H}
+          overflowX="hidden"
+          overflowY="auto"
+          overscrollBehavior="contain"
           css={closing ? sdlPanelExit(alignTransform) : sdlPanelMotion}
           {...alignProps}
           {...contentProps}

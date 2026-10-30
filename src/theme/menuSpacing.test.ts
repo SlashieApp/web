@@ -81,6 +81,20 @@ describe('menus: one frame from the form spacing', () => {
     expect(LANGUAGE).not.toMatch(/<Stack gap=\{6\}/)
   })
 
+  it('the click panel stops short of the viewport and scrolls inside (the sticky header it hangs from)', () => {
+    expect(DROPDOWN).toContain("const PANEL_MAX_H = 'calc(100dvh - 88px)'")
+    expect(DROPDOWN).toContain('maxH={PANEL_MAX_H}')
+    expect(DROPDOWN).toContain('overflowY="auto"')
+    // It used to clip (overflow hidden) with no height cap.
+    expect(DROPDOWN).not.toMatch(/overflow="hidden"/)
+  })
+
+  it('a failed cancel in the task menu is announced', () => {
+    expect(TASK_MENU).toMatch(
+      /color="status\.danger\.fg"[\s\S]{0,40}role="alert"[\s\S]{0,40}\{cancelError\}/,
+    )
+  })
+
   it('the choice lists stack their rows with the alternatives gap', () => {
     expect(PHOTO_SOURCE).toContain('<Stack gap="form.alternativesGap">')
     expect(PHOTO_SOURCE).not.toMatch(/<Stack gap=\{3\}/)

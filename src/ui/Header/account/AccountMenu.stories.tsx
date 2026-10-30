@@ -260,6 +260,48 @@ export const OpenSpacing: Story = {
   },
 }
 
+/**
+ * A laptop window (1366 by 768) is shorter than the worker's menu (about 800),
+ * and the header it hangs from is sticky: the panel stops short of the bottom
+ * of the window and scrolls inside, so Log out can still be reached.
+ */
+export const OpenShortWindowScrolls: Story = {
+  parameters: {
+    viewport: {
+      options: {
+        laptop768: {
+          name: 'Laptop 1366 by 768',
+          styles: { width: '1366px', height: '768px' },
+          type: 'desktop',
+        },
+      },
+    },
+  },
+  globals: { viewport: { value: 'laptop768', isRotated: false } },
+  decorators: [withMe(meTrial)],
+  render: (args) => <OpenSlot {...args} />,
+  play: async ({ canvasElement }) => {
+    const canvas = await openMenu(canvasElement)
+    const panel = panelOf(canvas.getByRole('button', { name: 'Account menu' }))
+    await settled(panel)
+    await expect(canvasElement.ownerDocument.defaultView?.innerHeight).toBe(768)
+
+    // The panel ends inside the window, with air under it, and scrolls.
+    await expect(panel.getBoundingClientRect().bottom).toBeLessThanOrEqual(756)
+    await expect(panel.scrollHeight).toBeGreaterThan(panel.clientHeight)
+    await expect(getComputedStyle(panel).overflowY).toBe('auto')
+
+    // The last row is reachable: scrolled to the end it is inside the panel.
+    const logOut = canvas.getByRole('button', { name: 'Log out' })
+    panel.scrollTop = panel.scrollHeight
+    await waitFor(() =>
+      expect(logOut.getBoundingClientRect().bottom).toBeLessThanOrEqual(
+        panel.getBoundingClientRect().bottom,
+      ),
+    )
+  },
+}
+
 /** Open, free plan: the menu links to Plan & billing; the quote meter lives on that page. */
 export const OpenWorkerFreePlan: Story = {
   decorators: [withMe(meFree)],

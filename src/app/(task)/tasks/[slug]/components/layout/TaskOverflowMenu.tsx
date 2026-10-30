@@ -337,7 +337,7 @@ export function TaskOverflowActions({
             }}
           />
           {cancelError ? (
-            <Text fontSize="sm" color="status.danger.fg" px={1}>
+            <Text fontSize="sm" color="status.danger.fg" px={1} role="alert">
               {cancelError}
             </Text>
           ) : null}
