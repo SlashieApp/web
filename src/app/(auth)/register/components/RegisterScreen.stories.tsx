@@ -1,5 +1,5 @@
 import type { Decorator, Meta, StoryObj } from '@storybook/nextjs-vite'
-import { expect, userEvent, within } from 'storybook/test'
+import { expect, spyOn, userEvent, waitFor, within } from 'storybook/test'
 
 import { clearRegisterFailCount } from '@/app/(auth)/helpers/authFailCount'
 import {
@@ -320,10 +320,27 @@ export const TapTargets: Story = {
 }
 
 /**
+ * Google draws its button a moment after its script loads: the in-page
+ * `role="button"` node inside the widget's container (not the container, and
+ * not the 0x0 frame beside it).
+ */
+async function googleButtonOf(google: HTMLElement) {
+  return waitFor(
+    () => {
+      const node = google.querySelector<HTMLElement>('[role="button"]')
+      expect(node).not.toBeNull()
+      return node as HTMLElement
+    },
+    { timeout: 8000 },
+  )
+}
+
+/**
  * Until both boxes are ticked, Google and Apple only explain themselves: the
  * hint under Apple is what they are described by, so a screen reader reads why
- * they do nothing yet. Ticking both boxes removes the hint and the pointer to
- * it.
+ * they do nothing yet. For Google that is its own role="button" node (a
+ * description on a wrapper is not read for the focused button). Ticking both
+ * boxes removes the hint and the pointer to it.
  */
 export const BlockedButtonsAreDescribed: Story = {
   decorators: decorate(),
@@ -333,13 +350,82 @@ export const BlockedButtonsAreDescribed: Story = {
     const hint = await canvas.findByText(HINT)
     await expect(hint.id).not.toBe('')
     await expect(p.apple).toHaveAccessibleDescription(HINT)
-    await expect(p.google).toHaveAttribute('aria-describedby', hint.id)
+    const google = await googleButtonOf(p.google)
+    await waitFor(() => expect(google).toHaveAccessibleDescription(HINT))
+    await expect(google).toHaveAttribute('aria-describedby', hint.id)
+    // Nothing on the wrapper: only the control that takes focus is described.
+    await expect(p.google).not.toHaveAttribute('aria-describedby')
 
     await userEvent.click(canvas.getByText('I confirm I am 18 or over.'))
     await userEvent.click(canvas.getByText(/I agree to the/))
     await expect(canvas.queryByText(HINT)).toBeNull()
     await expect(p.apple).not.toHaveAttribute('aria-describedby')
-    await expect(p.google).not.toHaveAttribute('aria-describedby')
+    await waitFor(() => expect(google).not.toHaveAttribute('aria-describedby'))
+  },
+}
+
+/**
+ * Blocked, Enter and Space on Google's button ask for the boxes (each box says
+ * what is missing) instead of reaching Google's own key handler, which would
+ * open its sign-in with the boxes unticked. The keys are sent as events on the
+ * real node and nothing is let through to Google: its popup and credential
+ * request are replaced for the length of the check, so even a miss could not
+ * reach the provider.
+ */
+export const BlockedGoogleKeysAskForConsent: Story = {
+  decorators: decorate(),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const p = await registerParts(canvas)
+    const google = await googleButtonOf(p.google)
+    await waitFor(() => expect(google).toHaveAccessibleDescription(HINT))
+
+    const popup = spyOn(window, 'open').mockImplementation(() => null)
+    const credentials = spyOn(navigator.credentials, 'get').mockRejectedValue(
+      new DOMException('Not sent: story', 'NotAllowedError'),
+    )
+    // Google's own handler would sit on this node: this stands in for it.
+    const reached: string[] = []
+    const onKey = (event: Event) => reached.push(event.type)
+    for (const type of ['keydown', 'keypress', 'keyup']) {
+      google.addEventListener(type, onKey)
+    }
+    try {
+      const ageError = 'You must confirm you are 18 or over to use Slashie.'
+      await expect(canvas.queryByText(ageError)).toBeNull()
+
+      const press = (type: string, key: string) => {
+        const event = new KeyboardEvent(type, {
+          key,
+          code: key === ' ' ? 'Space' : key,
+          bubbles: true,
+          cancelable: true,
+        })
+        google.dispatchEvent(event)
+        return event
+      }
+      await expect(press('keydown', 'Enter').defaultPrevented).toBe(true)
+      await expect(press('keyup', 'Enter').defaultPrevented).toBe(true)
+      await canvas.findByText(ageError)
+      await canvas.findByText(
+        'Please agree to the Terms of Service and Privacy Policy.',
+      )
+      await expect(press('keydown', ' ').defaultPrevented).toBe(true)
+      await expect(press('keyup', ' ').defaultPrevented).toBe(true)
+
+      // Google's handler saw none of it, and Tab still moves on.
+      await expect(reached).toEqual([])
+      await expect(press('keydown', 'Tab').defaultPrevented).toBe(false)
+      await expect(reached).toEqual(['keydown'])
+      await expect(popup).not.toHaveBeenCalled()
+      await expect(credentials).not.toHaveBeenCalled()
+    } finally {
+      for (const type of ['keydown', 'keypress', 'keyup']) {
+        google.removeEventListener(type, onKey)
+      }
+      popup.mockRestore()
+      credentials.mockRestore()
+    }
   },
 }
 

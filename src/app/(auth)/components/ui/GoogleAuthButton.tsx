@@ -4,12 +4,13 @@ import { Box } from '@chakra-ui/react'
 import type { CredentialResponse } from '@react-oauth/google'
 import { GoogleLogin, GoogleOAuthProvider } from '@react-oauth/google'
 import { useRouter } from 'next/navigation'
-import { useCallback, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 import {
   type AuthRedirectIntent,
   resolvePostAuthRedirect,
 } from '@/app/(auth)/helpers/authRedirect'
+import { guardBlockedGoogleButton } from '@/app/(auth)/helpers/blockedGoogleButton'
 import {
   getGoogleClientId,
   isGoogleAuthConfigured,
@@ -36,7 +37,9 @@ type GoogleAuthButtonProps = {
   blockedDescription?: string
   /**
    * The id of the text that says why the button is blocked (sign up's hint).
-   * It sits on the widget's container: the button itself is Google's iframe.
+   * While `blocked`, it is set as `aria-describedby` on Google's own
+   * `role="button"` node (drawn a moment after the script loads, so it is
+   * applied as the node appears), not on a wrapper.
    */
   describedBy?: string
   onBlocked?: () => void
@@ -73,6 +76,7 @@ export function GoogleAuthButton({
   const [isClient, setIsClient] = useState(false)
   const clientReadyRef = useRef(false)
   const resizeRef = useRef<ResizeObserver | null>(null)
+  const containerRef = useRef<HTMLDivElement | null>(null)
 
   // Google draws the button at a fixed pixel width (200 to 400), so follow
   // the container: the auth card gains padding at the desktop breakpoint.
@@ -80,6 +84,7 @@ export function GoogleAuthButton({
   // when it opens, and a scaled box measures narrower, which left Google's
   // button short of Apple's in an account dialog on a phone.
   const onContainerRef = useCallback((node: HTMLDivElement | null) => {
+    containerRef.current = node
     resizeRef.current?.disconnect()
     resizeRef.current = null
     if (!node) return
@@ -106,6 +111,22 @@ export function GoogleAuthButton({
       type: 'warning',
     })
   }, [blockedDescription, blockedTitle, onBlocked, t])
+
+  // While blocked: describe Google's own button and catch Enter and Space
+  // before Google's handler (see blockedGoogleButton). The latest `showBlocked`
+  // is read through a ref so a new callback does not rebuild the guard.
+  const showBlockedRef = useRef(showBlocked)
+  useEffect(() => {
+    showBlockedRef.current = showBlocked
+  }, [showBlocked])
+  useEffect(() => {
+    const node = containerRef.current
+    if (!blocked || !isClient || !node) return
+    return guardBlockedGoogleButton(node, {
+      describedBy,
+      onBlocked: () => showBlockedRef.current(),
+    })
+  }, [blocked, describedBy, isClient])
 
   const onSuccess = useCallback(
     async (credentialResponse: CredentialResponse) => {
@@ -176,7 +197,6 @@ export function GoogleAuthButton({
         minW={0}
         w="full"
         minH="form.controlHeight"
-        aria-describedby={describedBy}
         opacity={loading ? 0.72 : 1}
         pointerEvents={loading ? 'none' : 'auto'}
       >
