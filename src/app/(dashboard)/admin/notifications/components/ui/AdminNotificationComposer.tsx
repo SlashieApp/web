@@ -1,6 +1,6 @@
 'use client'
 
-import { Checkbox, Grid, HStack, Stack, Text } from '@chakra-ui/react'
+import { Grid, HStack, Stack, Text } from '@chakra-ui/react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Controller, useForm } from 'react-hook-form'
 
@@ -14,11 +14,12 @@ import {
 } from '@/content/admin/adminNotificationDraft'
 import { formatMessage } from '@/i18n/loadPageI11n'
 import { useI11n } from '@/i18n/useI11n'
-import { formSpace, hitAreaGrowth } from '@/theme/styles'
+import { formSpace } from '@/theme/styles'
 import { AdminCohortKey } from '@codegen/schema'
 import {
   Button,
   Card,
+  FormCheckbox,
   FormField,
   FormStack,
   Input,
@@ -35,9 +36,6 @@ const COHORTS: {
   { key: AdminCohortKey.FoundingWorkers, labelKey: 'cohortFounding' },
   { key: AdminCohortKey.GeoWatfordBushey, labelKey: 'cohortGeo' },
 ]
-
-/** A cohort row is one line of its label: 20 tall, like the checkbox. */
-const COHORT_LINE_HEIGHT = 20
 
 /** How far a row's tap target reaches above and below it: half the gap between rows. */
 const COHORT_REACH = formSpace.alternativesGap / 2
@@ -151,52 +149,25 @@ export function AdminNotificationComposer({
                   {COHORTS.map((cohort) => {
                     const checked = field.value.includes(cohort.key)
                     return (
-                      <Checkbox.Root
+                      <FormCheckbox
                         key={cohort.key}
                         checked={checked}
-                        onCheckedChange={(detail) => {
-                          const next = new Set(field.value)
-                          if (detail.checked) next.add(cohort.key)
-                          else next.delete(cohort.key)
-                          field.onChange([...next])
+                        onCheckedChange={(next) => {
+                          const keys = new Set(field.value)
+                          if (next) keys.add(cohort.key)
+                          else keys.delete(cohort.key)
+                          field.onChange([...keys])
                         }}
-                        colorPalette="green"
-                      >
-                        <Checkbox.HiddenInput />
-                        <HStack
-                          gap={3}
-                          align="flex-start"
-                          // Rows are 8 apart, so each takes half of that: a 44 target
-                          // would overlap its neighbours by 16 and the lower row
-                          // would win, leaving the upper one 28 and giving a click
-                          // on its last 4px to the next box.
-                          {...hitAreaGrowth(
-                            COHORT_LINE_HEIGHT,
-                            COHORT_REACH,
-                            COHORT_REACH,
-                          )}
-                        >
-                          <Checkbox.Control
-                            borderRadius="md"
-                            borderWidth="0"
-                            bg="bg.surface"
-                            boxShadow="e1"
-                            cursor="pointer"
-                            _checked={{
-                              bg: 'action.primary',
-                              color: 'text.onGreen',
-                            }}
-                          >
-                            <Checkbox.Indicator color="inherit" />
-                          </Checkbox.Control>
-                          <Checkbox.Label
-                            cursor="pointer"
-                            lineHeight={`${COHORT_LINE_HEIGHT}px`}
-                          >
-                            {t[cohort.labelKey]}
-                          </Checkbox.Label>
-                        </HStack>
-                      </Checkbox.Root>
+                        label={t[cohort.labelKey]}
+                        // Rows are 8 apart, so each takes half of that: a 44 target
+                        // would overlap its neighbours by 16 and the lower row
+                        // would win, leaving the upper one 28 and giving a click
+                        // on its last 4px to the next box.
+                        reachAbove={COHORT_REACH}
+                        reachBelow={COHORT_REACH}
+                        // This tool's flat box (a shadow, no border).
+                        controlProps={{ borderWidth: 0, boxShadow: 'e1' }}
+                      />
                     )
                   })}
                 </Stack>

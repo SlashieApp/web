@@ -1,10 +1,15 @@
-import { readFileSync } from 'node:fs'
+import { readFileSync, readdirSync } from 'node:fs'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
 
 import { darkSystem, lightSystem } from './chakraSystem'
-import { formSpace, overlayDescriptionStyle, sdlSpace } from './styles'
+import {
+  formHelperTextStyle,
+  formSpace,
+  overlayDescriptionStyle,
+  sdlSpace,
+} from './styles'
 
 /**
  * The form spacing table (wiki: Foundations-Form-Spacing, FE-481). The Expo app
@@ -38,6 +43,17 @@ describe('formSpace', () => {
     for (const [key, px] of Object.entries(formSpace)) {
       expect(steps, `${key} = ${px}`).toContain(px)
     }
+  })
+})
+
+describe('the compact helper line', () => {
+  // The spec says only "compact" (Helper text uses a compact line height so 4
+  // reads as 4). On the web it is 20, the label's own line; the Expo app must
+  // use the same number (its `formLineHeights.helper` was 18, which makes every
+  // helper line 2 shorter than the web's and the form that much shorter).
+  it('is 20 on the web: the label line', () => {
+    expect(formHelperTextStyle.lineHeight).toBe('20px')
+    expect(formHelperTextStyle.fontSize).toBe('sm')
   })
 })
 
@@ -159,5 +175,39 @@ describe('dialog and drawer frames read the form tokens (FE-481 overlay-chrome)'
       lineHeight: 'tall',
       fontWeight: 500,
     })
+  })
+})
+
+describe('one checkbox row (FE-481 tokens)', () => {
+  // The row (the label's 20px lines, the 44px target that grows into the gaps,
+  // the error 4 under it) is one piece, so auth, post a task and the admin
+  // cohorts cannot drift apart.
+  const sources = (dir: string): string[] =>
+    readdirSync(join(process.cwd(), dir), { withFileTypes: true }).flatMap(
+      (entry) => {
+        const path = `${dir}/${entry.name}`
+        if (entry.isDirectory()) return sources(path)
+        return /\.tsx$/.test(entry.name) && !entry.name.includes('.stories.')
+          ? [path]
+          : []
+      },
+    )
+
+  it('only FormCheckbox builds a Checkbox.Root', () => {
+    const found = sources('src').filter((file) =>
+      readFileSync(join(process.cwd(), file), 'utf8').includes('Checkbox.Root'),
+    )
+    expect(found).toEqual(['src/ui/FormCheckbox/FormCheckbox.tsx'])
+  })
+
+  it('the piece owns the row geometry and the error', () => {
+    const source = readFileSync(
+      join(process.cwd(), 'src/ui/FormCheckbox/FormCheckbox.tsx'),
+      'utf8',
+    )
+    expect(source).toContain('gap="form.controlToHelper"')
+    expect(source).toContain('hitAreaGrowth(FORM_CHECKBOX_LINE_HEIGHT')
+    expect(source).toContain('<FormErrorText id={errorId}>')
+    expect(source).toContain('invalid={Boolean(errorText)}')
   })
 })

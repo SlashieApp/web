@@ -1,12 +1,17 @@
 'use client'
 
-import { Box, Checkbox, HStack, Stack, Text } from '@chakra-ui/react'
-import { type ReactNode, type Ref, useId, useState } from 'react'
+import { Box } from '@chakra-ui/react'
+import { type ReactNode, useState } from 'react'
 import { LuEye, LuEyeOff, LuLock, LuMail } from 'react-icons/lu'
 
 import { useI11n } from '@/i18n/useI11n'
-import { hitAreaGrowth } from '@/theme/styles'
-import { IconButton, Input, type InputProps } from '@ui'
+import {
+  FormCheckbox,
+  type FormCheckboxProps,
+  IconButton,
+  Input,
+  type InputProps,
+} from '@ui'
 
 import bag from '../i11n.json'
 
@@ -69,78 +74,11 @@ export function PasswordInput(props: InputProps) {
   )
 }
 
-/** A checkbox row is one line of its label: 20 tall, like the control. */
-const ROW_LINE_HEIGHT = 20
-
 /**
  * Checkbox for every auth form (remember me, consent). Use with a `Controller`.
- *
- * It is a field group in the form rhythm (FE-481): the visible row is the
- * label's lines (20 each), so the gap above and below it is the field gap, and
- * its error sits `controlToHelper` (4) under it. The 44px hit area grows past
- * the row into the gaps around it, so it adds no space. A label may wrap: the
- * box stays level with its first line.
+ * It is the shared {@link FormCheckbox}: a field group in the form rhythm, its
+ * error announced and tied to the box.
  */
-export function AuthCheckbox({
-  name,
-  checked,
-  onCheckedChange,
-  inputRef,
-  label,
-  errorText,
-}: {
-  name: string
-  checked: boolean
-  onCheckedChange: (checked: boolean) => void
-  inputRef?: Ref<HTMLInputElement>
-  label: ReactNode
-  errorText?: string
-}) {
-  const errorId = useId()
-  return (
-    <Stack gap="form.controlToHelper">
-      <Checkbox.Root
-        name={name}
-        checked={checked}
-        onCheckedChange={(detail) => onCheckedChange(Boolean(detail.checked))}
-        colorPalette="green"
-        invalid={Boolean(errorText)}
-      >
-        <Checkbox.HiddenInput
-          ref={inputRef}
-          aria-describedby={errorText ? errorId : undefined}
-        />
-        <HStack gap={3} align="flex-start" {...hitAreaGrowth(ROW_LINE_HEIGHT)}>
-          <Checkbox.Control
-            borderRadius="md"
-            borderWidth="1px"
-            borderColor="border.strong"
-            bg="bg.surface"
-            _checked={{
-              bg: 'action.primary',
-              borderColor: 'action.primary',
-              color: 'text.onGreen',
-            }}
-          >
-            <Checkbox.Indicator color="inherit" />
-          </Checkbox.Control>
-          <Checkbox.Label
-            fontSize="sm"
-            fontWeight={500}
-            color="text.default"
-            lineHeight={`${ROW_LINE_HEIGHT}px`}
-          >
-            {label}
-          </Checkbox.Label>
-        </HStack>
-      </Checkbox.Root>
-      {errorText ? (
-        // Announced when it appears (a sign-up blocked by an unticked box), and
-        // the box is invalid and described by it for a screen reader on the box.
-        <Text id={errorId} role="alert" color="status.danger.fg" fontSize="sm">
-          {errorText}
-        </Text>
-      ) : null}
-    </Stack>
-  )
+export function AuthCheckbox(props: FormCheckboxProps) {
+  return <FormCheckbox {...props} />
 }

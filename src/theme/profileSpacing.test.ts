@@ -115,9 +115,9 @@ describe('profile editors: one rhythm from the form pieces', () => {
     // Rows 8 apart each take half of that for their tap target (28), so two
     // targets never overlap: a click on an upper row cannot tick the next box.
     expect(admin).toContain('COHORT_REACH = formSpace.alternativesGap / 2')
-    expect(admin).toMatch(
-      /hitAreaGrowth\(\s*COHORT_LINE_HEIGHT,\s*COHORT_REACH,\s*COHORT_REACH,?\s*\)/,
-    )
+    expect(admin).toContain('<FormCheckbox')
+    expect(admin).toContain('reachAbove={COHORT_REACH}')
+    expect(admin).toContain('reachBelow={COHORT_REACH}')
     expect(admin).not.toContain('minH="44px"')
   })
 })

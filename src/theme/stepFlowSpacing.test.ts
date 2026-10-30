@@ -169,8 +169,9 @@ describe('sections and fields', () => {
   })
 
   it('hit areas that grow into the gaps add no space', () => {
+    // The confirmation is the shared FormCheckbox, which grows its own target.
+    expect(SURFACES.CreateTaskConsentSection).toContain('<FormCheckbox')
     for (const name of [
-      'CreateTaskConsentSection',
       'TaskQuoteFlow',
       'WorkerSetupBioComposer',
       'WorkerSetupStepContent',

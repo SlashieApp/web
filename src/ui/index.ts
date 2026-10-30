@@ -60,6 +60,7 @@ export {
   useFeedbackDialog,
   useOpenFeedbackDialog,
 } from './FeedbackDialog'
+export { FORM_CHECKBOX_LINE_HEIGHT, FormCheckbox } from './FormCheckbox'
 export { FormAlternatives } from './FormAlternatives'
 export {
   formControlErrorTextProps,
@@ -199,6 +200,7 @@ export type {
   FeedbackTriggerVariant,
 } from './FeedbackDialog'
 export type { FormAlternativesProps } from './FormAlternatives'
+export type { FormCheckboxProps } from './FormCheckbox'
 export type { FormDividerProps } from './FormDivider'
 export type {
   FormFieldControlProps,
