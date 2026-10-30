@@ -22,9 +22,9 @@ export type TaskSearchBaseProps = {
   pending?: boolean
   autoFocus?: boolean
   /**
-   * A labelled field of a filter panel (My tasks): `controlHeight` tall (48),
-   * like every field of a form. Off, it is the search bar, which keeps the
-   * 44px touch target.
+   * A field of a filter panel (My tasks, the phone Search sheet):
+   * `controlHeight` tall (48), like every field of a form. Off, it is the
+   * search bar over the map, which keeps the 44px touch target.
    */
   asField?: boolean
   onValueChange: (value: string) => void
@@ -188,9 +188,12 @@ export function TaskSearchBase({
 export function TaskSearch({
   mode,
   autoFocus,
+  asField,
 }: {
   mode: 'input' | 'trigger'
   autoFocus?: boolean
+  /** A field of a filter panel: 48 tall. See {@link TaskSearchBaseProps.asField}. */
+  asField?: boolean
 }) {
   const t = useI11n(bag)
   const {
@@ -211,6 +214,7 @@ export function TaskSearch({
         value={mode === 'trigger' ? searchText : searchInput}
         pending={isSearchPending}
         autoFocus={autoFocus}
+        asField={asField}
         onValueChange={setSearchInput}
         onCommit={commitSearch}
         onClear={() => removeBrowseFilterTag({ kind: 'search', label: '' })}

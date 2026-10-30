@@ -43,9 +43,11 @@ export function MobileTaskSearchSheet({
     >
       <Stack gap={3} flex={1} minH={0}>
         {/* The search and its filters are fields of a form (FE-481): the frame
-            puts 24 under the title, and the two are `fieldGap` (20) apart. */}
+            puts 24 under the title, the search is a field (48), like the
+            Date and Budget fields under it, and the two are `fieldGap` (20)
+            apart. */}
         <FormStack>
-          <TaskSearch mode="input" autoFocus />
+          <TaskSearch mode="input" autoFocus asField />
           <TaskSearchFilters />
         </FormStack>
         <TaskList

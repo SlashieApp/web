@@ -82,8 +82,8 @@ export const Open: Story = {
 
 /**
  * Form spacing (FE-481), at a real 390 phone: the search field is 24 under the
- * title, the Date and Budget chips are 20 under it (the search bar keeps its
- * own height, under a field's 48), and an open panel hangs 8 under the chips.
+ * title and 48 tall, like the Date and Budget fields in the panels below, the
+ * chips are 20 under it, and an open panel hangs 8 under the chips.
  */
 export const OpenSpacing: Story = {
   ...phone390,
@@ -95,8 +95,8 @@ export const OpenSpacing: Story = {
     const chips = sheet.getByRole('button', { name: /Date/ })
       .parentElement as HTMLElement
     await expect(gapBelow(title, search)).toBe(formSpace.headerToBody)
-    // The bar is the search bar, not a field of a form: it stays under the 48 of a field.
-    await expect(heightOf(search)).toBeLessThan(formSpace.controlHeight)
+    // In the sheet the search is a field of the form: 48, like every field.
+    await expect(heightOf(search)).toBe(formSpace.controlHeight)
     await expect(gapBelow(search, chips)).toBe(formSpace.fieldGap)
 
     await userEvent.click(sheet.getByRole('button', { name: /Budget/ }))
