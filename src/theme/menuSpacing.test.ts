@@ -67,6 +67,12 @@ describe('menus: one frame from the form spacing', () => {
     expect(ACCOUNT_HEADER).not.toContain('borderBottomWidth')
   })
 
+  it('the account menu header has no top inset in the phone drawer, so the avatar is 24 under the title', () => {
+    expect(ACCOUNT_HEADER).toContain("pt={presentation === 'drawer' ? 0 : 3}")
+    const drawer = read('src/ui/Header/account/MobileNavDrawer.tsx')
+    expect(drawer).toContain('presentation="drawer"')
+  })
+
   it('the language list is a title block: description in the header, then the header gap, no rule', () => {
     expect(LANGUAGE).toContain('gap="form.titleToSubtitle"')
     expect(LANGUAGE).toContain('pt="form.headerToBody"')

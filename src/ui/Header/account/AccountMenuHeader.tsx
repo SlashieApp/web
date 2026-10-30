@@ -12,6 +12,13 @@ export type AccountMenuHeaderProps = {
   displayName: string
   email: string
   onViewProfile?: () => void
+  /**
+   * Where the menu is shown. In the `popover` the block counts as a row and is
+   * inset 12 on top; in the phone `drawer` the drawer's body is the whole step
+   * from the title (`headerToBody`, 24), so there is no inset on top and the
+   * avatar, the first visible thing, is 24 under the title.
+   */
+  presentation?: 'popover' | 'drawer'
 }
 
 /**
@@ -27,12 +34,15 @@ export type AccountMenuHeaderProps = {
  * It counts as a row of the menu: the avatar and the text are inset 12 inside
  * the block (top and left), where a row's label is, so the avatar's left edge
  * and the labels below line up, and the first thing in the panel sits as far from
- * its edge as the first row's label does.
+ * its edge as the first row's label does. In the phone drawer the top inset is
+ * dropped: the drawer already puts 24 between its title and its body, and gaps
+ * are measured to the visible edge (the avatar), so adding 12 made it 36.
  */
 export function AccountMenuHeader({
   displayName,
   email,
   onViewProfile,
+  presentation = 'popover',
 }: AccountMenuHeaderProps) {
   const t = useI11n(bag)
 
@@ -42,7 +52,7 @@ export function AccountMenuHeader({
       align="flex-start"
       gap={3}
       px={3}
-      pt={3}
+      pt={presentation === 'drawer' ? 0 : 3}
       mb="form.headerToBody"
     >
       <MeAvatar size="md" name={displayName.trim() || email} />

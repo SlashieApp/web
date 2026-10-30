@@ -40,7 +40,11 @@ export function MobileNavDrawer({
           with 4px): pull them out to the gutter so the labels line up with the
           title. */}
       <Box mx={-3}>
-        <AccountMenuContent onClose={close} onOpenLanguage={onOpenLanguage} />
+        <AccountMenuContent
+          presentation="drawer"
+          onClose={close}
+          onOpenLanguage={onOpenLanguage}
+        />
       </Box>
     </Drawer>
   )

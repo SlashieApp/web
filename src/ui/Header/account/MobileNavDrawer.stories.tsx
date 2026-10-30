@@ -217,9 +217,11 @@ export const OpenWorkerOnTrial: Story = {
 }
 
 /**
- * The phone account menu on the form spacing (FE-481 menus), at 390: the header
- * block is 24 under the title and 24 above the first row, the avatar sits on the
- * title's left edge, and the groups of rows keep their rules.
+ * The phone account menu on the form spacing (FE-481 menus), at 390: the first
+ * visible thing of the header block (the avatar, and the name beside it) is 24
+ * under the title, measured to the visible edge and not to the block's padding,
+ * the block is 24 above the first row, the avatar sits on the title's left
+ * edge, and the groups of rows keep their rules.
  */
 export const OpenSpacing390: Story = {
   ...phone390,
@@ -233,12 +235,18 @@ export const OpenSpacing390: Story = {
     const header = drawer.querySelector('[data-menu-header]') as HTMLElement
     const link = within(drawer).getByRole('link', { name: 'View profile' })
     const first = within(drawer).getByRole('link', { name: 'Search' })
+    const avatar = header.firstElementChild as HTMLElement
+    const name = within(header).getByText('Sam Carter')
+    // The visible edge: the avatar and the name, not the block's padded box.
     await waitFor(() =>
-      expect(gapBelow(title, header)).toBe(formSpace.headerToBody),
+      expect(gapBelow(title, avatar)).toBe(formSpace.headerToBody),
     )
+    await expect(gapBelow(title, name)).toBe(formSpace.headerToBody)
+    // No top inset in the drawer: the block starts where the avatar does.
+    await expect(getComputedStyle(header).paddingTop).toBe('0px')
+    await expect(gapBelow(title, header)).toBe(formSpace.headerToBody)
     await expect(gapBelow(link, first)).toBe(formSpace.headerToBody)
     // The avatar (inset 12 in its block, which is pulled out 12) and the labels start where the title does.
-    const avatar = header.firstElementChild as HTMLElement
     await expect(
       Math.abs(avatar.getBoundingClientRect().left - textLeft(title)),
     ).toBeLessThanOrEqual(0.5)

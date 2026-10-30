@@ -33,12 +33,15 @@ type AccountMenuContentProps = {
   onClose?: () => void
   /** Opens the full-page language list. Hosted outside this panel so it survives close. */
   onOpenLanguage?: () => void
+  /** The phone drawer sets this: its header block has no top inset (see `AccountMenuHeader`). */
+  presentation?: 'popover' | 'drawer'
 }
 
 /** Account menu panel body — slot into `Dropdown` or pass `onClose` for drawers. */
 export function AccountMenuContent({
   onClose,
   onOpenLanguage,
+  presentation = 'popover',
 }: AccountMenuContentProps = {}) {
   const me = useMe()
   const href = useLocalizedHref()
@@ -69,6 +72,7 @@ export function AccountMenuContent({
         displayName={displayName}
         email={email}
         onViewProfile={close}
+        presentation={presentation}
       />
 
       <AccountNavPanel
