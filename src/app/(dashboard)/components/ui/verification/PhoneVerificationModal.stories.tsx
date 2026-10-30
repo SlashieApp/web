@@ -360,7 +360,9 @@ export const PhoneErrorSpacing: Story = {
     const help = within(password).getByText(/Enter your Slashie password/)
     const send = barButton(dialog, 'Send code')
 
-    await expect(gapBelow(help, error)).toBe(formSpace.helperGap)
+    await expect(gapBelow(help.parentElement as HTMLElement, error)).toBe(
+      formSpace.helperGap,
+    )
     await expect(gapBelow(password, send)).toBe(formSpace.bodyToAction)
   },
 }
@@ -437,7 +439,11 @@ async function expectCodeSpacing(canvasElement: HTMLElement) {
     await expect(heightOf(cell)).toBe(formSpace.controlHeight)
   }
   await expect(gapBelow(last, help)).toBe(formSpace.controlToHelper)
-  await expect(gapBelow(help, verify)).toBe(formSpace.bodyToAction)
+  // The help row is the sentence and the resend link: it ends 20 above the bar
+  // (on a row too narrow for both the link drops under the sentence).
+  await expect(gapBelow(help.parentElement as HTMLElement, verify)).toBe(
+    formSpace.bodyToAction,
+  )
   // The boxes fit the dialog: nothing scrolls sideways.
   expectNoHorizontalOverflow(body)
 }
@@ -530,7 +536,9 @@ export const CodeErrorSpacing: Story = {
     const help = within(dialog).getByText(/Codes are valid for 10 minutes/)
     const verify = barButton(dialog, 'Verify')
 
-    await expect(gapBelow(help, error)).toBe(formSpace.helperGap)
+    await expect(gapBelow(help.parentElement as HTMLElement, error)).toBe(
+      formSpace.helperGap,
+    )
     await expect(gapBelow(error, verify)).toBe(formSpace.bodyToAction)
     await expect(heightOf(error)).toBe(16)
   },
@@ -558,6 +566,9 @@ async function resendParts(canvasElement: HTMLElement) {
     dialog,
     resend,
     help: within(dialog).getByText(/Codes are valid for 10 minutes/),
+    /** The sentence and the link: one row, the link at the right. */
+    row: within(dialog).getByText(/Codes are valid for 10 minutes/)
+      .parentElement as HTMLElement,
     label: resend.querySelector('[data-hit-area-label]') as HTMLElement,
     last: within(dialog).getByLabelText('Digit 6 of 6'),
     verify: barButton(dialog, 'Verify'),
@@ -576,15 +587,29 @@ function linkColour(dialog: HTMLElement) {
 
 /**
  * "Request a resend" is a link, not more help text: the link colour (the sentence
- * is muted), medium weight, 44 to press with no space added (4 into the gap
- * above, the rest down toward the buttons) and a keyboard ring that hugs the
- * text. The help line is still 20 tall, 4 under the boxes and 20 above the bar.
+ * is muted), medium weight, in the helper slot at the right of the help line (as
+ * the app has it), 44 to press with no space added (4 into the gap above, the
+ * rest down toward the buttons) and a keyboard ring that hugs the text. The help
+ * row is still 4 under the boxes and 20 above the bar.
  */
 export const ResendIsALink: Story = {
   decorators: [withSession({ me: resendMe() })],
   play: async ({ canvasElement }) => {
-    const { dialog, resend, help, label, last, verify } =
+    const { dialog, resend, help, row, label, last, verify } =
       await resendParts(canvasElement)
+
+    // Beside the sentence, on its first line, at the right of the row.
+    await expect(
+      Math.abs(
+        label.getBoundingClientRect().top - help.getBoundingClientRect().top,
+      ),
+    ).toBeLessThanOrEqual(1)
+    await expect(
+      row.getBoundingClientRect().right - label.getBoundingClientRect().right,
+    ).toBeLessThanOrEqual(formSpace.controlToHelper + 1)
+    await expect(label.getBoundingClientRect().left).toBeGreaterThan(
+      help.getBoundingClientRect().left,
+    )
 
     await expect(getComputedStyle(resend).color).toBe(linkColour(dialog))
     await expect(getComputedStyle(resend).color).not.toBe(
@@ -597,7 +622,7 @@ export const ResendIsALink: Story = {
     await expect(heightOf(label)).toBe(20)
     await expect(heightOf(help) % 20).toBe(0)
     await expect(gapBelow(last, help)).toBe(formSpace.controlToHelper)
-    await expect(gapBelow(help, verify)).toBe(formSpace.bodyToAction)
+    await expect(gapBelow(row, verify)).toBe(formSpace.bodyToAction)
 
     // Pressed anywhere in a 44px column: 4 above the line, 20 below it (the
     // scan steps in whole pixels, the layout may sit on a fraction).
@@ -627,21 +652,54 @@ export const ResendIsALink: Story = {
   },
 }
 
-/** The same at phone width, where the sentence wraps and the link may sit on the second line. */
+/** The same at 390: the sentence takes two lines beside the link, which is at the right of the first. */
 export const ResendIsALinkPhone: Story = {
   ...phone390,
   decorators: [withSession({ me: resendMe() })],
   play: async ({ canvasElement }) => {
     expectPhoneWidth(canvasElement)
-    const { resend, help, label, last, verify } =
+    const { resend, help, row, label, last, verify } =
       await resendParts(canvasElement)
     await expect(heightOf(label)).toBe(20)
     // However many lines the sentence takes, each is 20.
     await expect(heightOf(help) % 20).toBe(0)
+    await expect(
+      Math.abs(
+        label.getBoundingClientRect().top - help.getBoundingClientRect().top,
+      ),
+    ).toBeLessThanOrEqual(1)
     await expect(gapBelow(last, help)).toBe(formSpace.controlToHelper)
-    await expect(gapBelow(help, verify)).toBe(formSpace.bodyToAction)
+    await expect(gapBelow(row, verify)).toBe(formSpace.bodyToAction)
     await expect(hitExtent(resend).height).toBe(minHitArea)
     await expectRingHugsLabel(resend)
+  },
+}
+
+/**
+ * At 320 there is no room for the sentence and the link side by side (the
+ * sentence would be squeezed to a few words a line): the link drops under the
+ * sentence, still at the right, inside the dialog, and the row still ends 20
+ * above the bar.
+ */
+export const ResendIsALink320: Story = {
+  globals: { viewport: { value: 'mobile1' } },
+  decorators: [withSession({ me: resendMe() })],
+  play: async ({ canvasElement }) => {
+    await expect(canvasElement.ownerDocument.defaultView?.innerWidth).toBe(320)
+    const { dialog, resend, help, row, label, last, verify } =
+      await resendParts(canvasElement)
+    const frame = dialog.getBoundingClientRect()
+    const box = label.getBoundingClientRect()
+    await expect(box.left).toBeGreaterThanOrEqual(frame.left)
+    await expect(box.right).toBeLessThanOrEqual(frame.right)
+    // Under the sentence (its own line), at the right.
+    await expect(box.top).toBeGreaterThanOrEqual(
+      help.getBoundingClientRect().bottom - 1,
+    )
+    await expect(heightOf(row)).toBe(heightOf(help) + 20)
+    await expect(gapBelow(last, help)).toBe(formSpace.controlToHelper)
+    await expect(gapBelow(row, verify)).toBe(formSpace.bodyToAction)
+    await expect(hitExtent(resend).height).toBe(minHitArea)
   },
 }
 

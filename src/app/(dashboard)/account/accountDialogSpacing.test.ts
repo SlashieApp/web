@@ -92,9 +92,13 @@ describe('the verification code boxes', () => {
     expect(phone).toContain('formControlHelperTextProps')
   })
 
-  it('end the help line with a link: link colour, 44 to press with no space added, aria-disabled', () => {
+  it('put a link in the help row, at the right: link colour, 44 to press with no space added, aria-disabled', () => {
     const phone = DIALOGS.PhoneVerificationModal
     expect(phone).toContain('<ResendLink')
+    // The helper slot: the sentence and the link are one row, the link at the right (as the app's).
+    expect(phone).toMatch(
+      /<HStack[\s\S]*?flexWrap="wrap"[\s\S]*?ml="auto"[\s\S]*?<ResendLink/,
+    )
     expect(phone).toContain(
       'hitAreaGrowth(RESEND_LINE_HEIGHT, formSpace.controlToHelper)',
     )

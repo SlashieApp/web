@@ -1,7 +1,7 @@
 'use client'
 
 import { useMutation } from '@apollo/client/react'
-import { Stack, Text, chakra } from '@chakra-ui/react'
+import { Box, HStack, Stack, Text, chakra } from '@chakra-ui/react'
 import {
   LoginMethod,
   type SendPhoneVerificationMutation,
@@ -59,11 +59,12 @@ type PhoneVerificationModalProps = {
 
 type Step = 'phone' | 'code'
 
-/** The resend link sits on the help text's compact 20px line. */
+/** The resend link sits on the help line's compact 20px line. */
 const RESEND_LINE_HEIGHT = 20
 
 /**
- * "Request a resend", at the end of the code's help line: a link in the link
+ * "Request a resend", in the code's helper slot at the right of the help line
+ * (as "Forgot password?" is under a password): a link in the link
  * colour (it was the same grey as the sentence), 44 to press with no space
  * added (the target grows into the 4px gap above it and down to the buttons,
  * and the keyboard ring hugs the text), as "Forgot password?" is. While a
@@ -86,7 +87,7 @@ function ResendLink({
       onClick={() => {
         if (!disabled) onResend()
       }}
-      display="inline-block"
+      display="block"
       px={0}
       border="none"
       bg="transparent"
@@ -431,15 +432,41 @@ export function PhoneVerificationModal({
                 }}
               />
               <Stack gap="form.helperGap" mt="form.controlToHelper" w="full">
-                <Text id={codeHelpId} px={1} {...formControlHelperTextProps}>
-                  {t.codeHelp}{' '}
-                  <ResendLink
-                    disabled={rateLimited || sending}
-                    onResend={() => void saveAndSendCode()}
+                {/* The help line and its action, as a FormField's helper
+                    slot lays them out (and the app's): the sentence on the
+                    left, the resend link at the right, on the same 20px line.
+                    On a row too narrow for both the link drops under the
+                    sentence, still at the right. */}
+                <HStack
+                  columnGap={3}
+                  rowGap={0}
+                  align="flex-start"
+                  w="full"
+                  flexWrap="wrap"
+                >
+                  <Text
+                    id={codeHelpId}
+                    px={1}
+                    flex="1 1 160px"
+                    minW={0}
+                    {...formControlHelperTextProps}
                   >
-                    {t.resendCode}
-                  </ResendLink>
-                </Text>
+                    {t.codeHelp}
+                  </Text>
+                  <Box
+                    flexShrink={0}
+                    ml="auto"
+                    px={1}
+                    {...formControlHelperTextProps}
+                  >
+                    <ResendLink
+                      disabled={rateLimited || sending}
+                      onResend={() => void saveAndSendCode()}
+                    >
+                      {t.resendCode}
+                    </ResendLink>
+                  </Box>
+                </HStack>
                 {fieldErrors.code ? (
                   <FormErrorText id={codeErrorId}>
                     {fieldErrors.code}
