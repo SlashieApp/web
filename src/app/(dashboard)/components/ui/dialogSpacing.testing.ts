@@ -28,6 +28,26 @@ export const phone390 = {
   globals: { viewport: { value: 'phone390', isRotated: false } },
 } as const
 
+/**
+ * A small phone, 320 by 640: the narrowest layout width, and short enough that
+ * a dialog with a re-auth block scrolls its body under the bar (the bar wraps
+ * to two rows at this width). Spread it into a story: `{ ...phone320Short }`.
+ */
+export const phone320Short = {
+  parameters: {
+    viewport: {
+      options: {
+        phone320Short: {
+          name: 'Phone 320 by 640',
+          styles: { width: '320px', height: '640px' },
+          type: 'mobile',
+        },
+      },
+    },
+  },
+  globals: { viewport: { value: 'phone320Short', isRotated: false } },
+} as const
+
 /** The story really is phone width: a check that a phone story is not measuring a desktop. */
 export function expectPhoneWidth(canvasElement: HTMLElement) {
   expect(canvasElement.ownerDocument.defaultView?.innerWidth).toBe(390)

@@ -1,7 +1,7 @@
 'use client'
 
 import { useMutation } from '@apollo/client/react'
-import { Stack, Text } from '@chakra-ui/react'
+import { Stack, Text, chakra } from '@chakra-ui/react'
 import {
   LoginMethod,
   type SendPhoneVerificationMutation,
@@ -23,6 +23,12 @@ import SendPhoneVerification from '@/app/(dashboard)/account/graphql/SendPhoneVe
 import VerifyPhone from '@/app/(dashboard)/account/graphql/VerifyPhone.gql'
 import UpdateMyProfile from '@/app/(dashboard)/profile/graphql/UpdateMyProfile.gql'
 import { useI11n } from '@/i18n/useI11n'
+import {
+  formSpace,
+  hitAreaGrowth,
+  hitAreaLabel,
+  hitAreaLinkFocusRing,
+} from '@/theme/styles'
 import { EVENTS, trackFlowFailed, trackFlowSucceeded } from '@/utils/analytics'
 import { showAppToast } from '@/utils/appToast'
 import {
@@ -52,6 +58,58 @@ type PhoneVerificationModalProps = {
 }
 
 type Step = 'phone' | 'code'
+
+/** The resend link sits on the help text's compact 20px line. */
+const RESEND_LINE_HEIGHT = 20
+
+/**
+ * "Request a resend", at the end of the code's help line: a link in the link
+ * colour (it was the same grey as the sentence), 44 to press with no space
+ * added (the target grows into the 4px gap above it and down to the buttons,
+ * and the keyboard ring hugs the text), as "Forgot password?" is. While a
+ * resend is sending or rate limited it is `aria-disabled`, not `disabled`, so
+ * it stays in the tab order and says why it does nothing.
+ */
+function ResendLink({
+  disabled,
+  onResend,
+  children,
+}: {
+  disabled: boolean
+  onResend: () => void
+  children: string
+}) {
+  return (
+    <chakra.button
+      type="button"
+      aria-disabled={disabled || undefined}
+      onClick={() => {
+        if (!disabled) onResend()
+      }}
+      display="inline-block"
+      px={0}
+      border="none"
+      bg="transparent"
+      fontFamily="inherit"
+      fontSize="inherit"
+      lineHeight="inherit"
+      fontWeight={500}
+      color={disabled ? 'text.muted' : 'text.link'}
+      cursor={disabled ? 'not-allowed' : 'pointer'}
+      {...(disabled
+        ? {}
+        : {
+            _hover: {
+              '& > [data-hit-area-label]': { textDecoration: 'underline' },
+            },
+          })}
+      {...hitAreaGrowth(RESEND_LINE_HEIGHT, formSpace.controlToHelper)}
+      {...hitAreaLinkFocusRing}
+    >
+      <chakra.span {...hitAreaLabel}>{children}</chakra.span>
+    </chakra.button>
+  )
+}
 
 /** A check that belongs to one field is that field's error; the rest is `error`. */
 type FieldErrors = { phone?: string; password?: string; code?: string }
@@ -375,23 +433,12 @@ export function PhoneVerificationModal({
               <Stack gap="form.helperGap" mt="form.controlToHelper" w="full">
                 <Text id={codeHelpId} px={1} {...formControlHelperTextProps}>
                   {t.codeHelp}{' '}
-                  <button
-                    type="button"
-                    style={{
-                      font: 'inherit',
-                      fontWeight: 500,
-                      padding: 0,
-                      border: 'none',
-                      background: 'none',
-                      cursor: rateLimited ? 'not-allowed' : 'pointer',
-                    }}
+                  <ResendLink
                     disabled={rateLimited || sending}
-                    onClick={() => {
-                      if (!rateLimited && !sending) void saveAndSendCode()
-                    }}
+                    onResend={() => void saveAndSendCode()}
                   >
                     {t.resendCode}
-                  </button>
+                  </ResendLink>
                 </Text>
                 {fieldErrors.code ? (
                   <FormErrorText id={codeErrorId}>

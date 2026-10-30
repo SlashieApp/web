@@ -2,10 +2,11 @@ import { LoginMethod } from '@codegen/schema'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test'
 
+import { expectRingHugsLabel } from '@/app/(auth)/helpers/authSpacing.testing'
 import { withSession } from '@/app/(auth)/helpers/authStoryDecorator'
 import { storyMe } from '@/app/(auth)/helpers/authStoryFixtures'
-import { formSpace } from '@/theme/styles'
-import { gapBelow, heightOf } from '@/ui/FormField/formGap.testing'
+import { formSpace, minHitArea } from '@/theme/styles'
+import { gapBelow, heightOf, hitExtent } from '@/ui/FormField/formGap.testing'
 
 import {
   barButton,
@@ -443,7 +444,30 @@ export const CodeSpacing: Story = {
   play: ({ canvasElement }) => expectCodeSpacing(canvasElement),
 }
 
-/** The same gaps at phone width, with all six boxes inside the dialog. */
+/** The six boxes' widths, and the dialog frame they have to sit inside. */
+function codeCells(dialog: HTMLElement) {
+  const cells = [1, 2, 3, 4, 5, 6].map((n) =>
+    within(dialog).getByLabelText(`Digit ${n} of 6`).getBoundingClientRect(),
+  )
+  return { cells, frame: dialog.getBoundingClientRect() }
+}
+
+/** Every box is in the dialog, as wide as the others, and no wider than 44. */
+async function expectBoxesFit(dialog: HTMLElement, width?: number) {
+  const { cells, frame } = codeCells(dialog)
+  for (const cell of cells) {
+    await expect(cell.left).toBeGreaterThanOrEqual(frame.left)
+    await expect(cell.right).toBeLessThanOrEqual(frame.right)
+    await expect(Math.round(cell.width * 100)).toBe(
+      Math.round(cells[0].width * 100),
+    )
+    await expect(cell.width).toBeLessThanOrEqual(44)
+    if (width !== undefined) await expect(cell.width).toBe(width)
+  }
+  return cells[0].width
+}
+
+/** The same gaps at phone width, with all six boxes inside the dialog and 44 wide (there is room). */
 export const CodeSpacingPhone: Story = {
   ...phone390,
   decorators: [withSession({ me: pendingMe() })],
@@ -451,14 +475,37 @@ export const CodeSpacingPhone: Story = {
     expectPhoneWidth(canvasElement)
     await expectCodeSpacing(canvasElement)
     const { dialog } = await openDialog(canvasElement, 'Change phone number')
-    const frame = dialog.getBoundingClientRect()
-    for (const n of [1, 6]) {
-      const cell = within(dialog)
-        .getByLabelText(`Digit ${n} of 6`)
-        .getBoundingClientRect()
-      await expect(cell.left).toBeGreaterThanOrEqual(frame.left)
-      await expect(cell.right).toBeLessThanOrEqual(frame.right)
-    }
+    await expectBoxesFit(dialog, 44)
+  },
+}
+
+/** Wide: 44 wide each, as documented. */
+export const CodeBoxesWide: Story = {
+  decorators: [withSession({ me: pendingMe() })],
+  play: async ({ canvasElement }) => {
+    const { dialog } = await openDialog(canvasElement, 'Change phone number')
+    await expectBoxesFit(dialog, 44)
+  },
+}
+
+/**
+ * At 320 wide (a small phone, or 400% zoom) the dialog has 248 for the boxes:
+ * they shrink together to the largest that fits, both outer boxes inside the
+ * frame (they were 40 wide and 8 and 9 outside it). Where it is wide enough
+ * they are 44 (the 390 and wide stories); at 320 they are the largest that
+ * fits, and the gaps and everything under them are unchanged.
+ */
+export const CodeSpacingPhone320: Story = {
+  globals: { viewport: { value: 'mobile1' } },
+  decorators: [withSession({ me: pendingMe() })],
+  play: async ({ canvasElement }) => {
+    await expect(canvasElement.ownerDocument.defaultView?.innerWidth).toBe(320)
+    await expectCodeSpacing(canvasElement)
+    const { dialog } = await openDialog(canvasElement, 'Change phone number')
+    const width = await expectBoxesFit(dialog)
+    // The largest that fits: wider than the old clipped 40, narrower than 44.
+    await expect(width).toBeGreaterThan(34)
+    await expect(width).toBeLessThan(44)
   },
 }
 
@@ -482,5 +529,157 @@ export const CodeErrorSpacing: Story = {
     await expect(gapBelow(help, error)).toBe(formSpace.helperGap)
     await expect(gapBelow(error, verify)).toBe(formSpace.bodyToAction)
     await expect(heightOf(error)).toBe(16)
+  },
+}
+
+/**
+ * A change waiting for its code, on an account with no password: a resend runs
+ * with nothing to ask for (with a password it asks for it first).
+ */
+const resendMe = () =>
+  storyMe({
+    phoneVerified: true,
+    pendingPhone: '+447700900456',
+    enabledLoginMethods: [LoginMethod.Google],
+    profile: { contactNumber: PHONE },
+  })
+
+/** The code step's resend control and the help sentence it ends. */
+async function resendParts(canvasElement: HTMLElement) {
+  const { dialog } = await openDialog(canvasElement, 'Change phone number')
+  const resend = within(dialog).getByRole('button', {
+    name: 'Request a resend',
+  })
+  return {
+    dialog,
+    resend,
+    help: within(dialog).getByText(/Codes are valid for 10 minutes/),
+    label: resend.querySelector('[data-hit-area-label]') as HTMLElement,
+    last: within(dialog).getByLabelText('Digit 6 of 6'),
+    verify: barButton(dialog, 'Verify'),
+  }
+}
+
+/** The colour the link role has, read off a probe so the check follows the token. */
+function linkColour(dialog: HTMLElement) {
+  const probe = dialog.ownerDocument.createElement('span')
+  probe.style.color = 'var(--chakra-colors-text-link)'
+  dialog.append(probe)
+  const colour = getComputedStyle(probe).color
+  probe.remove()
+  return colour
+}
+
+/**
+ * "Request a resend" is a link, not more help text: the link colour (the sentence
+ * is muted), medium weight, 44 to press with no space added (4 into the gap
+ * above, the rest down toward the buttons) and a keyboard ring that hugs the
+ * text. The help line is still 20 tall, 4 under the boxes and 20 above the bar.
+ */
+export const ResendIsALink: Story = {
+  decorators: [withSession({ me: resendMe() })],
+  play: async ({ canvasElement }) => {
+    const { dialog, resend, help, label, last, verify } =
+      await resendParts(canvasElement)
+
+    await expect(getComputedStyle(resend).color).toBe(linkColour(dialog))
+    await expect(getComputedStyle(resend).color).not.toBe(
+      getComputedStyle(help).color,
+    )
+    await expect(getComputedStyle(resend).fontWeight).toBe('500')
+    await expect(resend).not.toHaveAttribute('aria-disabled')
+
+    // Nothing added to the layout: each line is the help's 20, the gaps are the spec's.
+    await expect(heightOf(label)).toBe(20)
+    await expect(heightOf(help) % 20).toBe(0)
+    await expect(gapBelow(last, help)).toBe(formSpace.controlToHelper)
+    await expect(gapBelow(help, verify)).toBe(formSpace.bodyToAction)
+
+    // Pressed anywhere in a 44px column: 4 above the line, 20 below it (the
+    // scan steps in whole pixels, the layout may sit on a fraction).
+    const reach = hitExtent(resend)
+    const text = label.getBoundingClientRect()
+    await expect(reach.height).toBe(minHitArea)
+    await expect(
+      Math.abs(text.top - reach.top - formSpace.controlToHelper),
+    ).toBeLessThanOrEqual(1)
+    await expect(
+      Math.abs(
+        reach.bottom +
+          1 -
+          text.bottom -
+          (minHitArea - 20 - formSpace.controlToHelper),
+      ),
+    ).toBeLessThanOrEqual(1)
+    // It stops at the bar and does not reach the boxes.
+    await expect(reach.top).toBeGreaterThanOrEqual(
+      Math.floor(last.getBoundingClientRect().bottom),
+    )
+    await expect(reach.bottom + 1).toBeLessThanOrEqual(
+      Math.ceil(verify.getBoundingClientRect().top),
+    )
+
+    await expectRingHugsLabel(resend)
+  },
+}
+
+/** The same at phone width, where the sentence wraps and the link may sit on the second line. */
+export const ResendIsALinkPhone: Story = {
+  ...phone390,
+  decorators: [withSession({ me: resendMe() })],
+  play: async ({ canvasElement }) => {
+    expectPhoneWidth(canvasElement)
+    const { resend, help, label, last, verify } =
+      await resendParts(canvasElement)
+    await expect(heightOf(label)).toBe(20)
+    // However many lines the sentence takes, each is 20.
+    await expect(heightOf(help) % 20).toBe(0)
+    await expect(gapBelow(last, help)).toBe(formSpace.controlToHelper)
+    await expect(gapBelow(help, verify)).toBe(formSpace.bodyToAction)
+    await expect(hitExtent(resend).height).toBe(minHitArea)
+    await expectRingHugsLabel(resend)
+  },
+}
+
+/** A resend that is sending says so: aria-disabled, muted, no second request. */
+export const ResendWhileSending: Story = {
+  // No answer for SendPhoneVerification: the request stays pending.
+  decorators: [withSession({ me: resendMe() })],
+  play: async ({ canvasElement }) => {
+    const { dialog, resend } = await resendParts(canvasElement)
+    await userEvent.click(resend)
+    await waitFor(() => expect(resend).toHaveAttribute('aria-disabled', 'true'))
+    await expect(getComputedStyle(resend).color).not.toBe(linkColour(dialog))
+    await expect(getComputedStyle(resend).cursor).toBe('not-allowed')
+    // Still a stop in the tab order: it says why it does nothing.
+    await expect(resend).not.toBeDisabled()
+  },
+}
+
+/** Rate limited: the same, and pressing it again sends nothing. */
+export const ResendRateLimited: Story = {
+  decorators: [
+    withSession({
+      me: resendMe(),
+      responses: {
+        SendPhoneVerification: {
+          kind: 'graphqlError',
+          code: 'PHONE_VERIFICATION_RATE_LIMITED',
+        },
+      },
+    }),
+  ],
+  play: async ({ canvasElement }) => {
+    const { dialog, resend } = await resendParts(canvasElement)
+    await expect(resend).not.toHaveAttribute('aria-disabled')
+    await userEvent.click(resend)
+    await waitFor(() => expect(resend).toHaveAttribute('aria-disabled', 'true'))
+    await expect(getComputedStyle(resend).color).not.toBe(linkColour(dialog))
+    // An error says why (the request failed); pressing the link again changes nothing.
+    const alert = await within(dialog).findByRole('alert')
+    const message = alert.textContent
+    await userEvent.click(resend)
+    await expect(within(dialog).getByRole('alert').textContent).toBe(message)
+    await expect(resend).toHaveAttribute('aria-disabled', 'true')
   },
 }

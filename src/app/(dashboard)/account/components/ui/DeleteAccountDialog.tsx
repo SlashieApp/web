@@ -46,34 +46,22 @@ import bag from '../../i11n.json'
 import { ReauthPrompt } from './ReauthPrompt'
 
 /**
- * A lead-in sentence and the list it introduces, kept together as one block:
- * the sentence sits 8 above the list (`formSpace.labelToControl`, as a label
- * does) and the items 8 apart. Dot bullets, indented 20.
+ * The bulleted list a dialog's lead-in sentence introduces. The sentence is the
+ * dialog's description (8 under the title, and what a screen reader reads when
+ * the dialog opens); the list is the first block of the body, 24 under it, the
+ * items 8 apart. Dot bullets, indented 20.
  */
-function LeadInList({
-  lead,
-  leadProps,
-  children,
-}: {
-  lead: ReactNode
-  leadProps?: ComponentProps<typeof Text>
-  children: ReactNode
-}) {
+function BulletList({ children }: { children: ReactNode }) {
   return (
-    <Stack gap="form.labelToControl">
-      <Text fontSize="sm" {...leadProps}>
-        {lead}
-      </Text>
-      <Stack
-        as="ul"
-        gap={2}
-        ps={5}
-        listStyleType="disc"
-        fontSize="sm"
-        lineHeight="tall"
-      >
-        {children}
-      </Stack>
+    <Stack
+      as="ul"
+      gap={2}
+      ps={5}
+      listStyleType="disc"
+      fontSize="sm"
+      lineHeight="tall"
+    >
+      {children}
     </Stack>
   )
 }
@@ -133,6 +121,7 @@ function DeleteBlockedDialog({
       open={open}
       onOpenChange={onOpenChange}
       title={t.deleteBlockedTitle}
+      description={t.deleteBlockedBody}
       footer={
         <ModalButton
           type="button"
@@ -143,7 +132,7 @@ function DeleteBlockedDialog({
         </ModalButton>
       }
     >
-      <LeadInList lead={t.deleteBlockedBody}>
+      <BulletList>
         {blockers.map((blocker, index) => (
           <Box as="li" key={blocker.orderId}>
             <Link
@@ -155,7 +144,7 @@ function DeleteBlockedDialog({
             </Link>
           </Box>
         ))}
-      </LeadInList>
+      </BulletList>
     </Modal>
   )
 }
@@ -238,6 +227,7 @@ function DeleteConfirmDialog({
       open={open}
       onOpenChange={close}
       title={t.deleteDialogTitle}
+      description={t.deleteIntro}
       footer={
         <ModalActions>
           <ModalButton
@@ -260,16 +250,13 @@ function DeleteConfirmDialog({
       }
     >
       <FormStack>
-        <LeadInList
-          lead={t.deleteIntro}
-          leadProps={{ fontSize: 'md', fontWeight: 500, color: 'text.default' }}
-        >
+        <BulletList>
           {t.deletePoints.map((point) => (
             <Box as="li" key={point}>
               {point}
             </Box>
           ))}
-        </LeadInList>
+        </BulletList>
 
         <form id="delete-account-form" onSubmit={confirm} noValidate>
           {hasPassword ? (

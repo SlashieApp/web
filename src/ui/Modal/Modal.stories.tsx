@@ -636,6 +636,8 @@ export const OpenWithDescription: Story = {
     )
     // The description is the dialog's accessible description.
     await expect(dialog).toHaveAccessibleDescription(phoneDescription)
+    // A body that fits has nothing under the bar: no edge line at rest.
+    await expect(getComputedStyle(footer as HTMLElement).boxShadow).toBe('none')
   },
 }
 
@@ -662,6 +664,43 @@ export const OpenWithoutDescription: Story = {
 
     await expect(gapBelow(title, field)).toBe(formSpace.headerToBody)
     await expect(gapBelow(field, save)).toBe(formSpace.bodyToAction)
+  },
+}
+
+/**
+ * A confirm that is one sentence: the sentence is the `description` (8 under
+ * the title, and the dialog's accessible description, so it is heard when the
+ * dialog opens) and there is no body. The buttons are 24 under it, the
+ * header's step to the next block, with no extra body padding on top of that.
+ */
+export const OpenDescriptionOnly: Story = {
+  parameters: overlayDocs,
+  args: {
+    title: 'Cancel task',
+    description:
+      'Cancel this task? Workers will no longer be able to send quotes.',
+    size: 'sm',
+    submitLabel: 'Cancel task',
+    submitVariant: 'danger',
+    cancelLabel: 'Keep',
+  },
+  render: (args) => (
+    <ModalDemo {...args} initialOpen triggerLabel="Cancel the task" />
+  ),
+  play: async ({ canvasElement }) => {
+    const { dialog, title } = await openFrame(canvasElement, 'Cancel task')
+    const sentence = within(dialog).getByText(/Cancel this task\?/)
+    const keep = within(dialog).getByRole('button', { name: 'Keep' })
+    const body = dialog.querySelector('.chakra-dialog__body') as HTMLElement
+
+    await expect(dialog).toHaveAccessibleDescription(
+      'Cancel this task? Workers will no longer be able to send quotes.',
+    )
+    await expect(gapBelow(title, sentence)).toBe(formSpace.titleToSubtitle)
+    await expect(gapBelow(sentence, keep)).toBe(formSpace.headerToBody)
+    // Nothing in the body: it is only the step from the header to the bar.
+    await expect(body.children).toHaveLength(0)
+    await expect(heightOf(body)).toBe(formSpace.headerToBody)
   },
 }
 
@@ -774,6 +813,65 @@ export const OpenBarStaysPut: Story = {
     // A scroll position is a whole number and the layout is not, so the end
     // of the scroll can sit up to half a pixel off.
     await expect(gapBelow(last, accept)).toBeCloseTo(formSpace.bodyToAction, 0)
+  },
+}
+
+/**
+ * The same long body, and what shows that there is more: while the body can
+ * scroll further, the bar has a hairline on its top edge (the frame's own
+ * border colour, drawn above the bar, so nothing moves); at the end of the
+ * scroll it goes, and the bar is where it was. A body that fits has no line.
+ */
+export const OpenBarEdgeWhileScrolling: Story = {
+  parameters: overlayDocs,
+  args: {
+    title: 'Before you accept this quote',
+    description: 'Read these through first.',
+    submitLabel: 'Accept quote',
+  },
+  render: (args) => (
+    <ModalDemo {...args} initialOpen triggerLabel="Accept quote">
+      {[...houseRules, ...houseRules].map((rule, index) => (
+        <Text
+          // biome-ignore lint/suspicious/noArrayIndexKey: the rules repeat
+          key={index}
+          fontSize="sm"
+          color="text.muted"
+          lineHeight="tall"
+        >
+          {index + 1}. {rule}
+        </Text>
+      ))}
+    </ModalDemo>
+  ),
+  play: async ({ canvasElement }) => {
+    const { dialog, body, footer } = await openFrame(
+      canvasElement,
+      'Before you accept this quote',
+    )
+    const bar = footer as HTMLElement
+    const edge = () => getComputedStyle(bar).boxShadow
+    const rule = getComputedStyle(dialog).borderTopColor
+    await expect(body.scrollHeight).toBeGreaterThan(body.clientHeight)
+
+    // Top of the scroll: more below, so the bar's edge shows, in the frame's colour.
+    await waitFor(() => expect(edge()).not.toBe('none'))
+    await expect(edge()).toContain(rule)
+    await expect(edge()).toMatch(/0px -1px 0px 0px$/)
+    const barTop = bar.getBoundingClientRect().top
+
+    // Part way: still more below.
+    body.scrollTop = Math.floor((body.scrollHeight - body.clientHeight) / 2)
+    await waitFor(() => expect(edge()).not.toBe('none'))
+
+    // End of the scroll: nothing more, so no line; the bar did not move.
+    body.scrollTop = body.scrollHeight
+    await waitFor(() => expect(edge()).toBe('none'))
+    await expect(bar.getBoundingClientRect().top).toBe(barTop)
+
+    // Back up: it returns.
+    body.scrollTop = 0
+    await waitFor(() => expect(edge()).not.toBe('none'))
   },
 }
 

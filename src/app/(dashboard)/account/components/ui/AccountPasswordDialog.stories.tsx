@@ -1,6 +1,6 @@
 import { LoginMethod } from '@codegen/schema'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
-import { expect, fn, userEvent, within } from 'storybook/test'
+import { expect, fn, userEvent, waitFor, within } from 'storybook/test'
 
 import {
   type StoryResponse,
@@ -19,6 +19,7 @@ import {
   fieldOf,
   labelOf,
   openDialog,
+  phone320Short,
   phone390,
   shellOf,
 } from '../../../components/ui/dialogSpacing.testing'
@@ -341,6 +342,51 @@ export const SetReauthSpacing: Story = {
     if (!block) return
     await expect(gapBelow(alert, block.text)).toBe(formSpace.fieldGap)
     await expect(gapBelow(block.apple, button)).toBe(formSpace.bodyToAction)
+  },
+}
+
+/**
+ * The same re-auth on a 320 by 640 phone: the body is taller than the room
+ * between the header and the two-row bar, so it scrolls under the bar. The bar
+ * shows a hairline while there is more below (the Apple button is cut by it at
+ * the top of the scroll), and at the end of the scroll the line is gone and
+ * Apple is 20 above the buttons, whole.
+ */
+export const SetReauthScrollsAt320: Story = {
+  ...phone320Short,
+  args: {
+    mode: 'set',
+    enabledLoginMethods: [LoginMethod.Google, LoginMethod.Apple],
+  },
+  decorators: [
+    api({ SetPassword: { kind: 'graphqlError', code: 'REAUTH_REQUIRED' } }),
+    withAuthWidgets(),
+  ],
+  play: async ({ canvasElement }) => {
+    await expect(canvasElement.ownerDocument.defaultView?.innerWidth).toBe(320)
+    await save(canvasElement, { next: 'new-password' })
+    const { dialog, body, footer } = await openDialog(
+      canvasElement,
+      'Set a password',
+    )
+    const block = await expectReauthPrompt(dialog, /sign in again first/)
+    if (!block) return
+    const bar = footer as HTMLElement
+    const edge = () => getComputedStyle(bar).boxShadow
+    const button = barButton(dialog, 'Save password')
+
+    // The body scrolls, and says so: more is below.
+    await expect(body.scrollHeight).toBeGreaterThan(body.clientHeight)
+    await waitFor(() => expect(edge()).not.toBe('none'))
+
+    body.scrollTop = body.scrollHeight
+    await waitFor(() => expect(edge()).toBe('none'))
+    // At the end nothing is under the bar: Apple is whole, 20 above it (the
+    // scroll lands on a fraction of a pixel).
+    const gap = gapBelow(block.apple, button)
+    await expect(gap).toBeGreaterThanOrEqual(formSpace.bodyToAction - 1)
+    await expect(gap).toBeLessThanOrEqual(formSpace.bodyToAction + 1)
+    expectNoHorizontalOverflow(body)
   },
 }
 

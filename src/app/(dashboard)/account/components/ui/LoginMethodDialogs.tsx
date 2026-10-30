@@ -205,21 +205,21 @@ export function UnlinkLoginMethodDialog({
         if (!next) close()
       }}
       title={formatMessage(t.unlinkTitle, { provider })}
+      description={formatMessage(t.unlinkBody, { provider })}
       cancelLabel={t.cancel}
       submitLabel={t.unlink}
       onSubmit={() => void unlink()}
       submitLoading={loading}
     >
-      {/* A confirm with no field: the sentence is the body, 24 under the
-          title, and the buttons are 20 below it. */}
-      <FormStack>
-        <Text fontSize="sm">{formatMessage(t.unlinkBody, { provider })}</Text>
-        {error ? (
-          <Text color="status.danger.fg" fontSize="sm" role="alert">
-            {error}
-          </Text>
-        ) : null}
-      </FormStack>
+      {/* A confirm with no field: the sentence is the description (8 under
+          the title, the dialog's accessible description) and the buttons are
+          24 under it. A failed unlink is the one thing in the body: 24 under
+          the description and 20 above the buttons. */}
+      {error ? (
+        <Text color="status.danger.fg" fontSize="sm" role="alert">
+          {error}
+        </Text>
+      ) : null}
     </Modal>
   )
 }

@@ -245,21 +245,26 @@ const BLOCKERS = [
 ]
 
 /**
- * The lead-in and its list are one block: the sentence 8 above the list, the
- * items 8 apart, with dot bullets. The block is the first thing in the body, 24
- * under the title (there is no description: the sentence introduces the list).
+ * The lead-in is the dialog's description (8 under the title, and what the
+ * dialog is described by, so it is read before focus lands in the password
+ * field); the list is the first block of the body, 24 under it, the items 8
+ * apart, with dot bullets.
  */
-async function expectLeadInList(
+async function expectDescribedList(
   dialog: HTMLElement,
   title: HTMLElement,
+  description: HTMLElement | null,
   lead: string,
   items: number,
 ) {
-  const sentence = within(dialog).getByText(lead)
+  await expect(description).not.toBeNull()
+  const sentence = description as HTMLElement
   const list = dialog.querySelector('ul') as HTMLElement
 
-  await expect(gapBelow(title, sentence)).toBe(formSpace.headerToBody)
-  await expect(gapBelow(sentence, list)).toBe(formSpace.labelToControl)
+  await expect(sentence).toHaveTextContent(lead)
+  await expect(dialog).toHaveAccessibleDescription(lead)
+  await expect(gapBelow(title, sentence)).toBe(formSpace.titleToSubtitle)
+  await expect(gapBelow(sentence, list)).toBe(formSpace.headerToBody)
   await expect(list.children).toHaveLength(items)
   for (const gap of gapsBetweenChildren(list)) {
     await expect(gap).toBe(formSpace.labelToControl)
@@ -281,10 +286,10 @@ async function expectDeletePasswordSpacing(canvasElement: HTMLElement) {
     canvasElement,
     'Delete your account?',
   )
-  await expect(description).toBeNull()
-  const { list } = await expectLeadInList(
+  const { list } = await expectDescribedList(
     dialog,
     title,
+    description,
     'Here is what happens:',
     4,
   )
@@ -304,7 +309,7 @@ async function expectDeletePasswordSpacing(canvasElement: HTMLElement) {
   expectNoHorizontalOverflow(body)
 }
 
-/** Password account: block 24 under the title, the field 20 under the list, 20 to the buttons. */
+/** Password account: the description 8 under the title, the list 24 under it, the field 20 under the list, 20 to the buttons. */
 export const PasswordSpacing: Story = {
   decorators: [api()],
   play: ({ canvasElement }) => expectDeletePasswordSpacing(canvasElement),
@@ -365,13 +370,14 @@ export const ReauthSpacing: Story = {
   },
   decorators: [api(), withAuthWidgets()],
   play: async ({ canvasElement }) => {
-    const { dialog, title } = await openDialog(
+    const { dialog, title, description } = await openDialog(
       canvasElement,
       'Delete your account?',
     )
-    const { list } = await expectLeadInList(
+    const { list } = await expectDescribedList(
       dialog,
       title,
+      description,
       'Here is what happens:',
       4,
     )
@@ -418,7 +424,7 @@ export const ReauthedSpacing: Story = {
   },
 }
 
-/** Live bookings: the lead-in 24 under the title, the links 8 apart, the last 20 above Close. */
+/** Live bookings: the lead-in is the description (8 under the title), the links 24 under it and 8 apart, the last 20 above Close. */
 export const BlockedSpacing: Story = {
   args: { deletionBlockers: BLOCKERS },
   decorators: [api()],
@@ -427,10 +433,10 @@ export const BlockedSpacing: Story = {
       canvasElement,
       'Finish your live bookings first',
     )
-    await expect(description).toBeNull()
-    const { list } = await expectLeadInList(
+    const { list } = await expectDescribedList(
       dialog,
       title,
+      description,
       'You can delete your account once these bookings are done or cancelled:',
       3,
     )

@@ -198,8 +198,10 @@ export const LinkAppleSpacing: Story = {
 }
 
 /**
- * Unlink: a confirm with no field, so the sentence is the body: 24 under the
- * title and 20 above the buttons.
+ * Unlink: a confirm with no field, so the sentence is the description: 8 under
+ * the title, what the dialog is described by (focus opens on Close, so it is
+ * read first), and the buttons are 24 under it, the header's step to the next
+ * block. The body has nothing in it.
  */
 export const UnlinkSpacing: Story = {
   decorators: [api()],
@@ -207,23 +209,28 @@ export const UnlinkSpacing: Story = {
     <UnlinkLoginMethodDialog method={method} onClose={onClose} />
   ),
   play: async ({ canvasElement }) => {
-    const { dialog, title, description } = await openDialog(
+    const { dialog, title, description, body } = await openDialog(
       canvasElement,
       'Unlink Google?',
     )
-    const sentence = within(dialog).getByText(
+    await expect(description).not.toBeNull()
+    const sentence = description as HTMLElement
+
+    await expect(sentence).toHaveTextContent(
       /You won't be able to sign in with Google any more/,
     )
-
-    await expect(description).toBeNull()
-    await expect(gapBelow(title, sentence)).toBe(formSpace.headerToBody)
+    await expect(dialog).toHaveAccessibleDescription(
+      /You won't be able to sign in with Google any more/,
+    )
+    await expect(body.children).toHaveLength(0)
+    await expect(gapBelow(title, sentence)).toBe(formSpace.titleToSubtitle)
     await expect(gapBelow(sentence, barButton(dialog, 'Unlink'))).toBe(
-      formSpace.bodyToAction,
+      formSpace.headerToBody,
     )
   },
 }
 
-/** An error from the API is one more block: 20 under the sentence, 20 above the buttons. */
+/** An error from the API is the body: 24 under the description, 20 above the buttons. */
 export const UnlinkErrorSpacing: Story = {
   decorators: [api({ kind: 'graphqlError', code: 'LAST_LOGIN_METHOD' })],
   render: ({ method, onClose }) => (
@@ -239,7 +246,7 @@ export const UnlinkErrorSpacing: Story = {
       /You won't be able to sign in with Google any more/,
     )
 
-    await expect(gapBelow(sentence, alert)).toBe(formSpace.fieldGap)
+    await expect(gapBelow(sentence, alert)).toBe(formSpace.headerToBody)
     await expect(gapBelow(alert, barButton(dialog, 'Unlink'))).toBe(
       formSpace.bodyToAction,
     )

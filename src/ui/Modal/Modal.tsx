@@ -16,6 +16,7 @@ import {
   chakra,
 } from '@chakra-ui/react'
 import type { FormEvent, ReactNode } from 'react'
+import { useCallback, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { LuX } from 'react-icons/lu'
 
@@ -48,8 +49,10 @@ import bag from './i11n.json'
  * then the optional `description` `formSpace.titleToSubtitle` (8) under it, and
  * the first field sits `formSpace.headerToBody` (24) below the header block.
  * The body ends so the last field is `formSpace.bodyToAction` (20) above the
- * buttons. The footer bar has no dividing line and the header has none either:
- * a rule inside those 24 would crowd them. The header and the bar stay put
+ * buttons. The footer bar has no dividing line at rest and the header has none either:
+ * a rule inside those 24 would crowd them. While the body scrolls under the bar
+ * (a tall form in a short window), a hairline shows on the bar's top edge, and
+ * goes at the end of the scroll. The header and the bar stay put
  * (`scrollBehavior="inside"`): a tall body scrolls between them, so the buttons
  * are always reachable. When the viewport is too short for both bars and a
  * body of any use (`SHORT_VIEWPORT`: 400% zoom, a phone on its side at its
@@ -75,6 +78,40 @@ const modalPaddingX = { base: 5, md: 6 } as const
 const SHORT_VIEWPORT = '@media (max-height: 340px)'
 
 export type ModalSize = 'sm' | 'md' | 'lg'
+
+/** The hairline on the bar while the body has more under it: the frame's own edge colour, drawn above the bar so no layout moves. */
+const BAR_SCROLL_EDGE = '0 -1px 0 0 {colors.border.default}'
+
+/**
+ * Whether the element has content below its visible part: a ref callback for
+ * the scrolling body, and the answer. It looks again when the body scrolls and
+ * when the body or its content changes size (an error appears, the window
+ * resizes), so the cue is there exactly while there is more to reach.
+ */
+function useHasMoreBelow() {
+  const [moreBelow, setMoreBelow] = useState(false)
+  const stop = useRef<(() => void) | null>(null)
+  const ref = useCallback((node: HTMLElement | null) => {
+    stop.current?.()
+    stop.current = null
+    if (!node) {
+      setMoreBelow(false)
+      return
+    }
+    const look = () =>
+      setMoreBelow(node.scrollHeight - node.scrollTop - node.clientHeight > 1)
+    look()
+    node.addEventListener('scroll', look, { passive: true })
+    const observer = new ResizeObserver(look)
+    observer.observe(node)
+    for (const child of node.children) observer.observe(child)
+    stop.current = () => {
+      node.removeEventListener('scroll', look)
+      observer.disconnect()
+    }
+  }, [])
+  return [ref, moreBelow] as const
+}
 
 const sizeMaxW: Record<ModalSize, string> = {
   sm: '400px',
@@ -115,9 +152,17 @@ export type ModalProps = {
   open: boolean
   onOpenChange: (open: boolean) => void
   title: string
-  /** Muted line under the title (8 below it): the intro, not body copy. */
+  /**
+   * Muted line under the title (8 below it): the intro, not body copy. It is the
+   * dialog's accessible description, so a confirm's one sentence goes here.
+   */
   description?: ReactNode
-  children: ReactNode
+  /**
+   * The body. A confirm that is only a sentence passes it as `description` and
+   * leaves this out (or `null`): the buttons then sit `headerToBody` (24)
+   * under the description, as the first block after the header.
+   */
+  children?: ReactNode
   size?: ModalSize
   /** Secondary footer action (left). Defaults to "Cancel". */
   cancelLabel?: string
@@ -158,6 +203,8 @@ export function Modal({
 }: ModalProps) {
   const t = useI11n(bag)
   const showFooter = !hideFooter && (footer != null || submitLabel != null)
+  const hasBody = children != null && children !== false
+  const [bodyRef, moreBelow] = useHasMoreBelow()
   const isBrowser = useIsBrowser()
 
   const handleClose = () => onOpenChange(false)
@@ -180,23 +227,28 @@ export function Modal({
   const bodyAndFooter = (
     <>
       <DialogBody
+        ref={bodyRef}
         px={modalPaddingX}
         pt="form.headerToBody"
-        pb={showFooter ? 'form.bodyToAction' : 6}
+        pb={showFooter ? (hasBody ? 'form.bodyToAction' : 0) : 6}
         css={{
           [SHORT_VIEWPORT]: { flex: '0 0 auto', overflow: 'visible' },
         }}
       >
         {/* Direct children are one field apart (20), like a FormStack's: a
-            second block next to a form does not drift to the old 24. */}
-        <Stack
-          gap="form.fieldGap"
-          fontSize="md"
-          color="text.muted"
-          lineHeight="1.625"
-        >
-          {children}
-        </Stack>
+            second block next to a form does not drift to the old 24. With no
+            body (a confirm whose sentence is the description) the padding
+            above is the whole step from the header to the bar. */}
+        {hasBody ? (
+          <Stack
+            gap="form.fieldGap"
+            fontSize="md"
+            color="text.muted"
+            lineHeight="1.625"
+          >
+            {children}
+          </Stack>
+        ) : null}
       </DialogBody>
 
       {showFooter ? (
@@ -207,6 +259,12 @@ export function Modal({
           flexShrink={0}
           gap={3}
           justifyContent="flex-end"
+          // No line at rest. While the body scrolls under the bar a hairline
+          // marks its edge, so a block cut off by it reads as "more below".
+          boxShadow={moreBelow ? BAR_SCROLL_EDGE : 'none'}
+          transitionProperty="box-shadow"
+          transitionDuration={sdlMotion.duration.moderate}
+          transitionTimingFunction={sdlMotion.easing.standard}
         >
           {footer ?? (
             <ModalActions>

@@ -49,14 +49,61 @@ describe('account dialogs: one rhythm from the form pieces', () => {
     'EmailVerificationModal',
     'PhoneVerificationModal',
     'AccountPasswordDialog',
+    'DeleteAccountDialog',
     'LoginMethodDialogs',
   ] as const)('%s puts its intro in the Modal description slot', (name) => {
     expect(DIALOGS[name]).toContain('description=')
   })
 
-  it('the delete dialog keeps the lead-in with its list: no description, one block', () => {
-    expect(DIALOGS.DeleteAccountDialog).not.toContain('description=')
-    expect(DIALOGS.DeleteAccountDialog).toContain('LeadInList')
+  it('the delete dialog and unlink read their lead sentence as the description; the list stays in the body', () => {
+    const del = DIALOGS.DeleteAccountDialog
+    // Both variants (confirm, and blocked by live bookings) have a description.
+    expect(
+      del.match(/description=\{t\.delete(?:Intro|BlockedBody)\}/g),
+    ).toHaveLength(2)
+    expect(del).toContain('<BulletList>')
+    expect(del).not.toContain('LeadInList')
+    // Unlink: the sentence is the description, and the body is only its error.
+    expect(DIALOGS.LoginMethodDialogs).toMatch(
+      /description=\{formatMessage\(t\.unlinkBody/,
+    )
+  })
+})
+
+describe('the verification code boxes', () => {
+  const otp = read('src/ui/OtpInput/OtpInput.tsx')
+
+  it('are as tall as every field in a form, and the padding takes no room', () => {
+    expect(otp).toContain("h: 'form.controlHeight'")
+    // The focus-ring padding is taken back out of the layout, so the gaps are
+    // measured from the boxes' own edges.
+    expect(otp).toMatch(/p=\{2\}\s+m=\{-2\}/)
+  })
+
+  it('share the row up to 44 wide, so six fit a dialog on a 320 phone', () => {
+    // Not a fixed width: a fixed 44 ran 8px out of the dialog at 320.
+    expect(otp).not.toMatch(/\bw: '44px'/)
+    expect(otp).toMatch(/flex: '1 1 0',\s+minW: 0,\s+maxW: '44px'/)
+  })
+
+  it('have their help line 4 under them, like a helper', () => {
+    const phone = DIALOGS.PhoneVerificationModal
+    expect(phone).toContain('mt="form.controlToHelper"')
+    expect(phone).toContain('formControlHelperTextProps')
+  })
+
+  it('end the help line with a link: link colour, 44 to press with no space added, aria-disabled', () => {
+    const phone = DIALOGS.PhoneVerificationModal
+    expect(phone).toContain('<ResendLink')
+    expect(phone).toContain(
+      'hitAreaGrowth(RESEND_LINE_HEIGHT, formSpace.controlToHelper)',
+    )
+    expect(phone).toContain('{...hitAreaLinkFocusRing}')
+    expect(phone).toContain('{...hitAreaLabel}')
+    expect(phone).toContain("'text.link'")
+    expect(phone).toContain('aria-disabled=')
+    // A real disabled button leaves the tab order and says nothing.
+    expect(phone).not.toMatch(/<chakra\.button[^>]*\sdisabled=/)
   })
 })
 
@@ -81,22 +128,5 @@ describe('re-auth: Google and Apple 8 apart, the sentence 8 above them', () => {
     for (const source of Object.values(DIALOGS)) {
       expect(source).not.toContain('FormDivider')
     }
-  })
-})
-
-describe('the verification code boxes', () => {
-  const otp = read('src/ui/OtpInput/OtpInput.tsx')
-
-  it('are as tall as every field in a form, and the padding takes no room', () => {
-    expect(otp).toContain("h: 'form.controlHeight'")
-    // The focus-ring padding is taken back out of the layout, so the gaps are
-    // measured from the boxes' own edges.
-    expect(otp).toMatch(/p=\{2\}\s+m=\{-2\}/)
-  })
-
-  it('have their help line 4 under them, like a helper', () => {
-    const phone = DIALOGS.PhoneVerificationModal
-    expect(phone).toContain('mt="form.controlToHelper"')
-    expect(phone).toContain('formControlHelperTextProps')
   })
 })

@@ -24,9 +24,11 @@ export type OtpInputProps = {
   disabled?: boolean
   autoFocus?: boolean
   /**
-   * Cell size. `md` is 44 wide and the form control height (48) tall, like
-   * every field in a form (default); `lg` is for hero / single-field
-   * verification screens. Defaults to `md`.
+   * Cell size. `md` is up to 44 wide and the form control height (48) tall, like
+   * every field in a form (default); `lg` is up to 52 wide, for hero /
+   * single-field verification screens. Defaults to `md`. The cells are that wide
+   * when the row has room and shrink together, never past their container, when
+   * it does not (a dialog on a 320 phone).
    */
   size?: OtpInputSize
   /** Fires when Enter is pressed and all digits are filled. */
@@ -50,14 +52,29 @@ export type OtpInputProps = {
 }
 
 /**
- * Per-cell sizes. Both meet the 44px min touch target so the field is
- * comfortable on mobile. `md` is as tall as the other fields in a form
- * (`formSpace.controlHeight`, 48) and stays 44 wide so the six cells, the dash
- * and the gaps fit a phone; `lg` is reserved for prominent verification screens.
+ * Per-cell sizes. Both are 44 wide or more where the row has room, so the field
+ * is comfortable on mobile; `md` is as tall as the other fields in a form
+ * (`formSpace.controlHeight`, 48); `lg` is reserved for prominent verification
+ * screens. The width is a ceiling, not a fixed size: the cells share the row
+ * (`flex: 1 1 0`, `minW: 0`) and stop at `maxW`, so on a row too narrow for
+ * six of them (320 wide: a dialog has 248) they get the largest width that fits
+ * instead of running out of the container.
  */
 const cellSizes: Record<OtpInputSize, SystemStyleObject> = {
-  md: { w: '44px', h: 'form.controlHeight', fontSize: 'lg' },
-  lg: { w: '52px', h: '56px', fontSize: 'xl' },
+  md: {
+    flex: '1 1 0',
+    minW: 0,
+    maxW: '44px',
+    h: 'form.controlHeight',
+    fontSize: 'lg',
+  },
+  lg: {
+    flex: '1 1 0',
+    minW: 0,
+    maxW: '52px',
+    h: '56px',
+    fontSize: 'xl',
+  },
 }
 
 /**
@@ -296,10 +313,19 @@ export const OtpInput = React.forwardRef<HTMLDivElement, OtpInputProps>(
         aria-labelledby={ariaLabelledBy}
         aria-describedby={controlProps['aria-describedby']}
       >
-        <HStack gap={2} justify="center" w="full">
+        {/* Gaps of 4 below `sm` (480): they and the dash take less of a narrow
+            row, so the cells are 44 wide down to a 370 phone. From `sm` the
+            dialog is wide enough for 8. */}
+        <HStack gap={{ base: 1, sm: 2 }} justify="center" w="full">
           {firstGroup.map(renderCell)}
           {length > 3 ? (
-            <Text color="text.muted" fontWeight={500} px={1} aria-hidden>
+            <Text
+              color="text.muted"
+              fontWeight={500}
+              px={{ base: 0, sm: 1 }}
+              flexShrink={0}
+              aria-hidden
+            >
               –
             </Text>
           ) : null}
