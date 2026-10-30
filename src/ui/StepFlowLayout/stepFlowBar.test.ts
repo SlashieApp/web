@@ -9,6 +9,7 @@ import {
   STEP_FLOW_BAR_ATTR,
   STEP_FLOW_BAR_RULE,
   STEP_FLOW_BAR_SCROLL_PADDING,
+  STEP_FLOW_BAR_SELECTOR,
 } from './stepFlowBar'
 
 const read = (file: string) => readFileSync(join(process.cwd(), file), 'utf8')
@@ -25,7 +26,12 @@ describe('the pinned bar and keyboard focus (WCAG 2.4.11)', () => {
       'calc(var(--cookie-banner-height, -16px) + 16px + 84px + env(safe-area-inset-bottom, 0px))',
     )
     const globals = read('src/app/globals.css').replace(/\s+/g, ' ')
-    expect(globals).toContain(`html:has([${STEP_FLOW_BAR_ATTR}]) {`)
+    // Not while focus is in the bar: its buttons sit in the padding, and
+    // focusing one would scroll the page to its end.
+    expect(STEP_FLOW_BAR_SELECTOR).toBe(
+      'html:has([data-step-flow-bar]):not(:has([data-step-flow-bar]:focus-within))',
+    )
+    expect(globals).toContain(`${STEP_FLOW_BAR_SELECTOR} {`)
     expect(globals).toContain(
       'scroll-padding-bottom: calc( var(--cookie-banner-height, -16px) + 16px + 84px + env(safe-area-inset-bottom, 0px) );',
     )

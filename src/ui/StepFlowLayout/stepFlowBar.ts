@@ -17,5 +17,13 @@ export const STEP_FLOW_BAR_ATTR = 'data-step-flow-bar'
  */
 export const STEP_FLOW_BAR_SCROLL_PADDING = `calc(var(${COOKIE_BANNER_HEIGHT_VAR}, -16px) + 16px + ${pinnedBarClearance}px + env(safe-area-inset-bottom, 0px))`
 
+/**
+ * Where the padding applies: while a bar is on the page, but not while focus is
+ * in it. The bar sits inside the padded foot of the scroll, so focusing one of
+ * its buttons (a press on Continue, a Tab to Back) would otherwise scroll the
+ * page to its end to bring the button "above" the padding.
+ */
+export const STEP_FLOW_BAR_SELECTOR = `html:has([${STEP_FLOW_BAR_ATTR}]):not(:has([${STEP_FLOW_BAR_ATTR}]:focus-within))`
+
 /** The rule, as `globals.css` has it: stories inject it, since they do not load `globals.css`. */
-export const STEP_FLOW_BAR_RULE = `html:has([${STEP_FLOW_BAR_ATTR}]) { scroll-padding-bottom: ${STEP_FLOW_BAR_SCROLL_PADDING}; }`
+export const STEP_FLOW_BAR_RULE = `${STEP_FLOW_BAR_SELECTOR} { scroll-padding-bottom: ${STEP_FLOW_BAR_SCROLL_PADDING}; }`

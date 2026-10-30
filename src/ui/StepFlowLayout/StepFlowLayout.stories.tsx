@@ -1,7 +1,7 @@
 import { Box, HStack, Stack, Text } from '@chakra-ui/react'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { LuCheck } from 'react-icons/lu'
-import { expect, waitFor, within } from 'storybook/test'
+import { expect, userEvent, waitFor, within } from 'storybook/test'
 
 import {
   desktop1280,
@@ -523,6 +523,35 @@ export const FocusClearsBarPhone: Story = {
       name: 'Continue',
     }).parentElement?.parentElement as HTMLElement
     await expect(await controlsUnderBar(bar)).toEqual([])
+  },
+}
+
+/**
+ * Pressing Continue from the middle of a tall step does not scroll the page: the
+ * bar sits inside the padded foot of the scroll, so the padding is off while
+ * focus is in the bar. Without that, the press scrolls the page to its end.
+ */
+export const PressingContinueKeepsScroll: Story = {
+  ...phone390,
+  decorators: [
+    (Story) => (
+      <>
+        <style>{STEP_FLOW_BAR_RULE}</style>
+        <Story />
+      </>
+    ),
+  ],
+  args: { ...WithAside.args, aside: undefined, children: tallStep },
+  play: async ({ canvasElement }) => {
+    window.scrollTo(0, 300)
+    await waitFor(() => expect(window.scrollY).toBe(300))
+    const button = within(canvasElement).getByRole('button', {
+      name: 'Continue',
+    })
+    await userEvent.click(button)
+    // A moment for any scroll the press would cause.
+    await new Promise((resolve) => setTimeout(resolve, 500))
+    await expect(window.scrollY).toBe(300)
   },
 }
 
