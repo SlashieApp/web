@@ -13,6 +13,7 @@ import {
   type ComponentProps,
   type FormEvent,
   type ReactNode,
+  useId,
   useState,
 } from 'react'
 
@@ -48,13 +49,16 @@ import { ReauthPrompt } from './ReauthPrompt'
 /**
  * The bulleted list a dialog's lead-in sentence introduces. The sentence is the
  * dialog's description (8 under the title, and what a screen reader reads when
- * the dialog opens); the list is the first block of the body, 24 under it, the
- * items 8 apart. Dot bullets, indented 20.
+ * the dialog opens) and the list is read with it (`id`, passed to the Modal's
+ * `describedBy`), so the lead-in does not end on a colon with nothing after it;
+ * the list is the first block of the body, 24 under it, the items 8 apart. Dot
+ * bullets, indented 20.
  */
-function BulletList({ children }: { children: ReactNode }) {
+function BulletList({ id, children }: { id: string; children: ReactNode }) {
   return (
     <Stack
       as="ul"
+      id={id}
       gap={2}
       ps={5}
       listStyleType="disc"
@@ -116,12 +120,14 @@ function DeleteBlockedDialog({
   blockers: readonly DeletionBlocker[]
 }) {
   const t = useI11n(bag)
+  const listId = useId()
   return (
     <Modal
       open={open}
       onOpenChange={onOpenChange}
       title={t.deleteBlockedTitle}
       description={t.deleteBlockedBody}
+      describedBy={listId}
       footer={
         <ModalButton
           type="button"
@@ -132,7 +138,7 @@ function DeleteBlockedDialog({
         </ModalButton>
       }
     >
-      <BulletList>
+      <BulletList id={listId}>
         {blockers.map((blocker, index) => (
           <Box as="li" key={blocker.orderId}>
             <Link
@@ -156,6 +162,7 @@ function DeleteConfirmDialog({
   reauthed,
 }: DeleteAccountDialogProps) {
   const t = useI11n(bag)
+  const listId = useId()
   const locale = useLocale()
   const router = useRouter()
   const href = useLocalizedHref()
@@ -228,6 +235,7 @@ function DeleteConfirmDialog({
       onOpenChange={close}
       title={t.deleteDialogTitle}
       description={t.deleteIntro}
+      describedBy={listId}
       footer={
         <ModalActions>
           <ModalButton
@@ -250,7 +258,7 @@ function DeleteConfirmDialog({
       }
     >
       <FormStack>
-        <BulletList>
+        <BulletList id={listId}>
           {t.deletePoints.map((point) => (
             <Box as="li" key={point}>
               {point}

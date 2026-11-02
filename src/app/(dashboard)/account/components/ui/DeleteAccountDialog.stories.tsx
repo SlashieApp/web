@@ -220,6 +220,10 @@ export const BlockedByLiveBookings: Story = {
     await expect(
       within(dialog).getByRole('link', { name: 'Booking 2' }),
     ).toHaveAttribute('href', '/tasks/task-2#task-order')
+    // The bookings are read with the sentence that introduces them.
+    await expect(dialog).toHaveAccessibleDescription(
+      expect.stringContaining('Booking 2'),
+    )
     await expect(
       within(dialog).queryByRole('button', { name: 'Delete my account' }),
     ).toBeNull()
@@ -245,10 +249,11 @@ const BLOCKERS = [
 ]
 
 /**
- * The lead-in is the dialog's description (8 under the title, and what the
- * dialog is described by, so it is read before focus lands in the password
- * field); the list is the first block of the body, 24 under it, the items 8
- * apart, with dot bullets.
+ * The lead-in is the dialog's description (8 under the title) and the list is
+ * read with it: the dialog is described by the sentence, then the list, so all
+ * of it is heard before focus lands in the password field and the lead-in does
+ * not end on a colon with nothing after it. The list is the first block of the
+ * body, 24 under it, the items 8 apart, with dot bullets.
  */
 async function expectDescribedList(
   dialog: HTMLElement,
@@ -262,7 +267,21 @@ async function expectDescribedList(
   const list = dialog.querySelector('ul') as HTMLElement
 
   await expect(sentence).toHaveTextContent(lead)
-  await expect(dialog).toHaveAccessibleDescription(lead)
+  // Described by the sentence, then the list (both resolve), and what is read
+  // starts with the lead-in and carries every item.
+  const ids = (dialog.getAttribute('aria-describedby') ?? '').split(' ')
+  await expect(ids).toHaveLength(2)
+  const doc = dialog.ownerDocument
+  await expect(doc.getElementById(ids[0])).toBe(sentence)
+  await expect(doc.getElementById(ids[1])).toBe(list)
+  await expect(dialog).toHaveAccessibleDescription(
+    expect.stringMatching(`^${lead}`),
+  )
+  for (const item of list.children) {
+    await expect(dialog).toHaveAccessibleDescription(
+      expect.stringContaining((item.textContent ?? '').trim()),
+    )
+  }
   await expect(gapBelow(title, sentence)).toBe(formSpace.titleToSubtitle)
   await expect(gapBelow(sentence, list)).toBe(formSpace.headerToBody)
   await expect(list.children).toHaveLength(items)

@@ -61,8 +61,11 @@ describe('account dialogs: one rhythm from the form pieces', () => {
     expect(
       del.match(/description=\{t\.delete(?:Intro|BlockedBody)\}/g),
     ).toHaveLength(2)
-    expect(del).toContain('<BulletList>')
+    expect(del.match(/<BulletList id=\{listId\}>/g)).toHaveLength(2)
     expect(del).not.toContain('LeadInList')
+    // The list is read with the sentence: the lead-in ends on a colon, so the
+    // dialog is described by the sentence and then the list (both variants).
+    expect(del.match(/describedBy=\{listId\}/g)).toHaveLength(2)
     // Unlink: the sentence is the description, and the body is only its error.
     expect(DIALOGS.LoginMethodDialogs).toMatch(
       /description=\{formatMessage\(t\.unlinkBody/,
