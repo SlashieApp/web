@@ -2,6 +2,21 @@
 
 import { type RefObject, useEffect } from 'react'
 
+import { formSpace } from '@/theme/styles'
+
+/**
+ * The box a person sees for a focused control. A native input drawn as 1px by
+ * its card (a radio card, a chip) is not what they see or what the focus ring
+ * goes round: that is its label, so it is the label that has to be clear of the
+ * bar. Any other control is its own box.
+ */
+export function focusBoxOf(target: HTMLElement): HTMLElement {
+  if (!(target instanceof HTMLInputElement)) return target
+  const { width, height } = target.getBoundingClientRect()
+  if (width > 2 || height > 2) return target
+  return target.closest('label') ?? target.labels?.[0] ?? target
+}
+
 /**
  * Keeps a control that takes keyboard focus clear of a bar pinned over the foot
  * of its scroller (a step flow's Back and Continue, a drawer's Cancel and Save),
@@ -13,9 +28,11 @@ import { type RefObject, useEffect } from 'react'
  * control that is partly visible (a textarea with its lower part under the bar,
  * with the keyboard up and a short viewport) is left where it is, and the caret
  * line of a long text ends up behind the bar. So after a control takes focus,
- * when its box reaches under the bar, it is scrolled with `block: 'nearest'`,
- * which honours the same padding: the smallest scroll that puts its foot above
- * the bar, with the 20 between.
+ * when its box reaches into the bar or the 20 above it, it is scrolled with
+ * `block: 'nearest'`, which honours the same padding: the smallest scroll that
+ * puts its foot 20 above the bar. The box is the one the person sees
+ * ({@link focusBoxOf}): a radio card, not the 1px input inside it, which the
+ * browser would scroll to and which sits at the card's top.
  *
  * Only controls in the bar's own scroller are moved: a dialog that opens over a
  * page with a bar is not (its own body scrolls).
@@ -25,9 +42,13 @@ export function keepFocusClearOfBar(bar: HTMLElement, target: Element) {
   // A control in a dialog that does not hold the bar: that dialog's own scroll.
   const dialog = target.closest('[role="dialog"]')
   if (dialog && !dialog.contains(bar)) return
-  if (target.getBoundingClientRect().bottom <= bar.getBoundingClientRect().top)
+  const box = focusBoxOf(target)
+  if (
+    box.getBoundingClientRect().bottom <=
+    bar.getBoundingClientRect().top - formSpace.bodyToAction
+  )
     return
-  target.scrollIntoView({ block: 'nearest', inline: 'nearest' })
+  box.scrollIntoView({ block: 'nearest', inline: 'nearest' })
 }
 
 /**
