@@ -32,6 +32,7 @@ import { Button } from '../Button'
 import type { UiButtonProps } from '../Button/Button'
 import { IconButton as UiIconButton } from '../IconButton/IconButton'
 import bag from './i11n.json'
+import { useDescriptionPin } from './useDescriptionPin'
 
 /**
  * SDL Modal. A centred dialog built on Chakra/Ark `Dialog`, so it keeps a focus
@@ -58,6 +59,15 @@ import bag from './i11n.json'
  * body of any use (`SHORT_VIEWPORT`: 400% zoom, a phone on its side at its
  * shortest), the whole dialog scrolls instead, as it did before the bar was
  * pinned: nothing is ever pushed out of the frame.
+ *
+ * The description is pinned under the title while the dialog has room for the
+ * header with it, the bar and a body of any use (`descriptionPin`: the 24, one
+ * 48 field and the 20 above the bar). Past that (a long description in a short
+ * window: a phone on its side, a large text size) it is the first block of the
+ * scrolling body instead, 8 under the title where it was and 24 above the first
+ * field or the bar, so no line of it is cut off, the main button is never
+ * pushed out of the panel, and the title and the bar stay put. The app's
+ * `Dialog` makes the same choice from the same numbers.
  *
  * The close button is in the title row, as in `Drawer`, so the two frames share
  * one header: the title 28 under the panel's top, the 20px glyph 12 inside the
@@ -213,6 +223,17 @@ export function Modal({
   const t = useI11n(bag)
   const showFooter = !hideFooter && (footer != null || submitLabel != null)
   const hasBody = children != null && children !== false
+  const {
+    descriptionInBody,
+    positionerRef,
+    headerRef,
+    footerRef,
+    descriptionRef,
+  } = useDescriptionPin({
+    hasDescription: Boolean(description),
+    hasBody,
+    showFooter,
+  })
   const [bodyRef, moreBelow] = useHasMoreBelow()
   const isBrowser = useIsBrowser()
   // The description's own id, so the dialog's `aria-describedby` can list it
@@ -241,12 +262,26 @@ export function Modal({
     if (!submitDisabled && !submitLoading) onSubmit?.()
   }
 
+  // One description, drawn under the title or, when the dialog has no room for
+  // it there, as the first block of the body (`useDescriptionPin`). In the body
+  // the 24 to the next block (the first field, or the bar when there is no
+  // body) is its own, and the body's top padding is the 8 under the title.
+  const descriptionNode = description ? (
+    <DialogDescription
+      ref={descriptionRef}
+      {...overlayDescriptionStyle}
+      mb={descriptionInBody ? 'form.headerToBody' : undefined}
+    >
+      {description}
+    </DialogDescription>
+  ) : null
+
   const bodyAndFooter = (
     <>
       <DialogBody
         ref={bodyRef}
         px={modalPaddingX}
-        pt="form.headerToBody"
+        pt={descriptionInBody ? 'form.titleToSubtitle' : 'form.headerToBody'}
         pb={showFooter ? (hasBody ? 'form.bodyToAction' : 0) : 6}
         css={{
           [SHORT_VIEWPORT]: { flex: '0 0 auto', overflow: 'visible' },
@@ -256,6 +291,7 @@ export function Modal({
             second block next to a form does not drift to the old 24. With no
             body (a confirm whose sentence is the description) the padding
             above is the whole step from the header to the bar. */}
+        {descriptionInBody ? descriptionNode : null}
         {hasBody ? (
           <Stack
             gap="form.fieldGap"
@@ -270,6 +306,7 @@ export function Modal({
 
       {showFooter ? (
         <DialogFooter
+          ref={footerRef}
           px={modalPaddingX}
           pt={0}
           pb={4}
@@ -333,6 +370,7 @@ export function Modal({
         zIndex={APP_OVERLAY_Z_INDEX}
       />
       <DialogPositioner
+        ref={positionerRef}
         p={4}
         position="fixed"
         inset="0"
@@ -355,7 +393,7 @@ export function Modal({
           transitionDuration={sdlMotion.duration.moderate}
           transitionTimingFunction={sdlMotion.easing.standard}
         >
-          <DialogHeader px={modalPaddingX} pt={5} pb={0}>
+          <DialogHeader ref={headerRef} px={modalPaddingX} pt={5} pb={0}>
             {/* As in `Drawer`: the 44px close button is taller than the title,
                 so its margins (-8) take it out of the row's height, and the
                 row's top padding (8) keeps the title where a 44px row had it.
@@ -395,11 +433,7 @@ export function Modal({
                   </UiIconButton>
                 </DialogCloseTrigger>
               </HStack>
-              {description ? (
-                <DialogDescription {...overlayDescriptionStyle}>
-                  {description}
-                </DialogDescription>
-              ) : null}
+              {descriptionInBody ? null : descriptionNode}
             </Stack>
           </DialogHeader>
 

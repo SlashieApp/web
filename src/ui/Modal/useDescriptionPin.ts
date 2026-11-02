@@ -1,0 +1,121 @@
+'use client'
+
+import { useLayoutEffect, useState } from 'react'
+
+import { descriptionFitsPinned, minBodyHeight } from './descriptionPin'
+
+/** The panel's border, top and bottom: its maximum height includes both. */
+const PANEL_BORDER = 1
+
+type Measures = {
+  header: number
+  footer: number
+  description: number
+  /** The room the panel can take: the window less the positioner's padding. */
+  room: number
+}
+
+/** Nothing measured yet: all the room there is, so the description is pinned. */
+const UNMEASURED: Measures = {
+  header: 0,
+  footer: 0,
+  description: 0,
+  room: Number.POSITIVE_INFINITY,
+}
+
+/**
+ * Where a `Modal` draws its description (see `descriptionPin`): under the title
+ * while the panel has room for the header with it, the bar and a body of any
+ * use, else the first block of the scrolling body. The same choice the app's
+ * `Dialog` makes, from the same numbers.
+ *
+ * It measures what the browser laid out (the header, the bar, the description
+ * wherever it is, and the room the window leaves the panel) and decides before
+ * the first paint, so a dialog that opens with a long description never shows
+ * the bar outside its panel for a frame. It looks again whenever any of them
+ * changes size (a window that turns, a text that wraps, a button that wraps).
+ * Only layout sizes are read (`offsetHeight`), which the dialog's scale-in
+ * animation does not change. The state is dropped when the dialog is gone, so
+ * the next open starts pinned.
+ *
+ * Give each ref to its element: `positioner` (the dialog's positioner, which
+ * the panel's maximum height is a share of), `header`, `footer` (when there is
+ * one) and `description`.
+ */
+export function useDescriptionPin({
+  hasDescription,
+  hasBody,
+  showFooter,
+}: {
+  hasDescription: boolean
+  hasBody: boolean
+  showFooter: boolean
+}) {
+  // The nodes are state, so the measuring effect runs again when one is
+  // swapped (the description is a new element when it moves); the setters are
+  // the ref callbacks.
+  const [positioner, positionerRef] = useState<HTMLElement | null>(null)
+  const [header, headerRef] = useState<HTMLElement | null>(null)
+  const [footer, footerRef] = useState<HTMLElement | null>(null)
+  const [description, descriptionRef] = useState<HTMLElement | null>(null)
+  const [measures, setMeasures] = useState<Measures>(UNMEASURED)
+  const [pinned, setPinned] = useState(true)
+
+  useLayoutEffect(() => {
+    if (!positioner || !header) {
+      setMeasures(UNMEASURED)
+      setPinned(true)
+      return
+    }
+    const measure = () => {
+      const style = getComputedStyle(positioner)
+      const next: Measures = {
+        header: header.offsetHeight,
+        footer: footer?.offsetHeight ?? 0,
+        description: description?.offsetHeight ?? 0,
+        room:
+          positioner.clientHeight -
+          Number.parseFloat(style.paddingTop) -
+          Number.parseFloat(style.paddingBottom),
+      }
+      setMeasures((was) =>
+        was.header === next.header &&
+        was.footer === next.footer &&
+        was.description === next.description &&
+        was.room === next.room
+          ? was
+          : next,
+      )
+    }
+    measure()
+    const observer = new ResizeObserver(measure)
+    for (const node of [positioner, header, footer, description]) {
+      if (node) observer.observe(node)
+    }
+    return () => observer.disconnect()
+  }, [positioner, header, footer, description])
+
+  // No description: nothing to place.
+  const fits =
+    !hasDescription ||
+    descriptionFitsPinned({
+      pinned,
+      header: measures.header,
+      description: measures.description,
+      footer: showFooter ? measures.footer : 0,
+      minBody: minBodyHeight(hasBody),
+      available: measures.room - PANEL_BORDER * 2,
+    })
+  useLayoutEffect(() => {
+    setPinned(fits)
+  }, [fits])
+
+  return {
+    /** Draw the description as the first block of the body, not under the title. */
+    descriptionInBody: hasDescription && !pinned,
+    positionerRef,
+    headerRef,
+    footerRef,
+    descriptionRef,
+  }
+}

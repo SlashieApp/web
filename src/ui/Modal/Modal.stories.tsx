@@ -1168,3 +1168,236 @@ export const OpenLandscapePhonePinsBar: Story = {
     )
   },
 }
+
+/**
+ * A description far longer than any shipped one (about 20 lines on a phone), to
+ * pin what the frame does with it (FE-481 round 7). The description stays
+ * pinned under the title while the dialog has room for the header with it, the
+ * bar and a body of any use (the 24 under the header, one 48 field, the 20
+ * above the bar); past that it is the first block of the scrolling body. Either
+ * way no line of it is cut off, the main button is never pushed out of the
+ * panel, and the title and the bar stay put. The app's `Dialog` draws it the
+ * same way (`descriptionPin`).
+ */
+const longDescription =
+  'We will text a 6 digit code to the number you give us, and nothing else. ' +
+  'The code is valid for ten minutes and can be used once, so keep this page ' +
+  'open until it arrives. Messages can take a minute or two on a busy network, ' +
+  'and a number on a prepaid plan, a roaming plan or a work phone with a ' +
+  'filter may need longer or not receive it at all. If the code has not ' +
+  'arrived after two minutes, check that the number is right, then ask for ' +
+  'another one. We never share the number with a worker or another customer ' +
+  'before you accept a quote, and you can change it or remove it at any time ' +
+  'from your account settings. A verified number lets workers know you are a ' +
+  'real person, helps us reach you if a task changes, and is the only thing ' +
+  'we use it for. If you would rather not give a number, you can close this ' +
+  'window and carry on browsing tasks without sending a quote. Ask us if ' +
+  'you are unsure which number to use.'
+
+const longDescriptionArgs = {
+  title: 'Add contact phone number',
+  description: longDescription,
+  submitLabel: 'Send code',
+} as const
+
+const phoneOnly = (
+  <FormStack>
+    <FormField label="Mobile number">
+      <Input placeholder="+44 7700 900000" />
+    </FormField>
+  </FormStack>
+)
+
+/**
+ * The frame of the dialog with the long description in a window `height` tall
+ * and 390 wide: the panel inside the window, the bar's buttons whole inside the
+ * panel, the title where it always is, and the description whole wherever it is
+ * drawn. In the header it keeps its place; in the body it is the first block,
+ * 8 under the title at the top of the scroll, 24 above the first field (or the
+ * bar, with no body), and its last line scrolls into view with the bar still in
+ * place. Returns whether the description is in the body.
+ */
+async function expectWholeFrame(
+  canvasElement: HTMLElement,
+  height: number,
+  { hasBody }: { hasBody: boolean },
+) {
+  const view = canvasElement.ownerDocument.defaultView as Window
+  await expect(view.innerWidth).toBe(390)
+  await expect(view.innerHeight).toBe(height)
+  const { dialog, title, header, body, footer } = await openFrame(
+    canvasElement,
+    'Add contact phone number',
+  )
+  const bar = footer as HTMLElement
+  const description = dialog.querySelector(
+    '[data-part="description"]',
+  ) as HTMLElement
+  const cancel = within(dialog).getByRole('button', { name: 'Cancel' })
+  const send = within(dialog).getByRole('button', { name: 'Send code' })
+  const first = hasBody ? fieldOf(dialog, 'Mobile number') : null
+  const inBody = body.contains(description)
+  const scrollBodyTo = async (top: number) => {
+    body.scrollTop = top
+    await waitFor(() =>
+      expect(Math.abs(body.scrollTop - top)).toBeLessThan(1.5),
+    )
+  }
+  await expect(dialog).toHaveAccessibleDescription(longDescription)
+
+  // The panel is inside the window and both buttons are whole inside it.
+  const panel = dialog.getBoundingClientRect()
+  const barBox = bar.getBoundingClientRect()
+  await expect(panel.top).toBeGreaterThanOrEqual(0)
+  await expect(panel.bottom).toBeLessThanOrEqual(height)
+  await expect(barBox.bottom).toBeLessThanOrEqual(panel.bottom)
+  for (const button of [cancel, send]) {
+    const box = button.getBoundingClientRect()
+    await expect(box.top).toBeGreaterThanOrEqual(barBox.top)
+    await expect(box.bottom).toBeLessThanOrEqual(barBox.bottom)
+    await expect(heightOf(button)).toBe(formSpace.controlHeight)
+  }
+  // The body is what sits between the header and the bar, not behind either.
+  await expect(body.getBoundingClientRect().bottom).toBeLessThanOrEqual(
+    barBox.top + 0.5,
+  )
+  await expect(body.getBoundingClientRect().top).toBeGreaterThanOrEqual(
+    header.getBoundingClientRect().bottom - 0.5,
+  )
+
+  // At the top of the scroll: the title 28 under the panel, the description 8
+  // under it, the first field 24 under that.
+  await scrollBodyTo(0)
+  await expect(
+    title.getBoundingClientRect().top - header.getBoundingClientRect().top,
+  ).toBe(28)
+  // The bar's edge line shows while the body has more under it, wherever the
+  // description is.
+  const scrolls = body.scrollHeight > body.clientHeight + 1
+  if (scrolls) {
+    await waitFor(() =>
+      expect(getComputedStyle(bar).boxShadow).not.toBe('none'),
+    )
+  }
+  await expect(gapBelow(title, description)).toBe(formSpace.titleToSubtitle)
+  if (first) {
+    await expect(gapBelow(description, first)).toBe(formSpace.headerToBody)
+  }
+
+  // Whole: pinned, it is inside the header; in the body, its last line scrolls
+  // into view.
+  await expect(header.contains(description)).toBe(!inBody)
+  if (inBody) {
+    const shortOf =
+      description.getBoundingClientRect().bottom -
+      body.getBoundingClientRect().bottom
+    await scrollBodyTo(Math.max(0, body.scrollTop + shortOf))
+    await expect(
+      description.getBoundingClientRect().bottom,
+    ).toBeLessThanOrEqual(body.getBoundingClientRect().bottom + 0.5)
+  } else {
+    await expect(
+      description.getBoundingClientRect().bottom,
+    ).toBeLessThanOrEqual(header.getBoundingClientRect().bottom + 0.5)
+  }
+
+  // At the end of the scroll: the last field is 20 above the buttons; with no
+  // body the description is 24 above them.
+  const barTop = bar.getBoundingClientRect().top
+  await scrollBodyTo(body.scrollHeight - body.clientHeight)
+  await expect(gapBelow(first ?? description, cancel)).toBe(
+    hasBody ? formSpace.bodyToAction : formSpace.headerToBody,
+  )
+  // The bar did not move while the body scrolled, and its edge line is gone at
+  // the end.
+  await expect(bar.getBoundingClientRect().top).toBe(barTop)
+  if (scrolls) {
+    await waitFor(() => expect(getComputedStyle(bar).boxShadow).toBe('none'))
+  }
+  return { inBody }
+}
+
+/** Opens the long-description dialog; the `hasBody` ones hold one field. */
+const longDescriptionStory = (
+  height: number,
+  { hasBody = true }: { hasBody?: boolean } = {},
+) =>
+  ({
+    ...viewportOf(`phone 390 by ${height}`, 390, height),
+    parameters: {
+      ...viewportOf(`phone 390 by ${height}`, 390, height).parameters,
+      ...overlayDocs,
+    },
+    args: longDescriptionArgs,
+    render: (args) => (
+      <ModalDemo {...args} initialOpen triggerLabel="Verify phone number">
+        {hasBody ? phoneOnly : null}
+      </ModalDemo>
+    ),
+  }) satisfies Story
+
+/** 844 tall: the dialog has room for the description under the title, so it stays there. */
+export const OpenLongDescriptionPinned: Story = {
+  ...longDescriptionStory(844),
+  play: async ({ canvasElement }) => {
+    const { inBody } = await expectWholeFrame(canvasElement, 844, {
+      hasBody: true,
+    })
+    await expect(inBody).toBe(false)
+  },
+}
+
+/** 700 tall: not enough for the header with it, the bar and a field, so it moves into the body. */
+export const OpenLongDescriptionInBody700: Story = {
+  ...longDescriptionStory(700),
+  play: async ({ canvasElement }) => {
+    const { inBody } = await expectWholeFrame(canvasElement, 700, {
+      hasBody: true,
+    })
+    await expect(inBody).toBe(true)
+  },
+}
+
+/** 560 tall: the body is a window onto the description and the field. */
+export const OpenLongDescriptionInBody560: Story = {
+  ...longDescriptionStory(560),
+  play: async ({ canvasElement }) => {
+    const { inBody } = await expectWholeFrame(canvasElement, 560, {
+      hasBody: true,
+    })
+    await expect(inBody).toBe(true)
+  },
+}
+
+/** 420 tall (a phone on its side with the browser bars up). */
+export const OpenLongDescriptionInBody420: Story = {
+  ...longDescriptionStory(420),
+  play: async ({ canvasElement }) => {
+    const { inBody } = await expectWholeFrame(canvasElement, 420, {
+      hasBody: true,
+    })
+    await expect(inBody).toBe(true)
+  },
+}
+
+/** 345 tall, just above the height where the whole dialog scrolls (340 and under). */
+export const OpenLongDescriptionInBody345: Story = {
+  ...longDescriptionStory(345),
+  play: async ({ canvasElement }) => {
+    const { inBody } = await expectWholeFrame(canvasElement, 345, {
+      hasBody: true,
+    })
+    await expect(inBody).toBe(true)
+  },
+}
+
+/** A long sentence and no body (a confirm): it scrolls on its own between the title and the buttons, 24 above them. */
+export const OpenLongDescriptionOnlyInBody: Story = {
+  ...longDescriptionStory(420, { hasBody: false }),
+  play: async ({ canvasElement }) => {
+    const { inBody } = await expectWholeFrame(canvasElement, 420, {
+      hasBody: false,
+    })
+    await expect(inBody).toBe(true)
+  },
+}

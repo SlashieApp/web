@@ -133,7 +133,11 @@ describe('dialog and drawer frames read the form tokens (FE-481 overlay-chrome)'
     '%s: description 8 under the title, 24 to the first field, 20 to the bar',
     (_name, source) => {
       expect(source).toContain('gap="form.titleToSubtitle"')
-      expect(source).toContain('pt="form.headerToBody"')
+      // Drawer: `pt="form.headerToBody"`. Modal: that, or 8 when the
+      // description is the first block of the body (see the next test).
+      expect(source).toMatch(
+        /pt=(?:"form\.headerToBody"|\{[^}]*'form\.headerToBody'[^}]*\})/,
+      )
       expect(source).toContain('form.bodyToAction')
       expect(source).toContain('{...overlayDescriptionStyle}')
     },
@@ -153,6 +157,20 @@ describe('dialog and drawer frames read the form tokens (FE-481 overlay-chrome)'
   it('the Modal body lays its direct children one field apart (20, not 24)', () => {
     expect(modal).toContain('gap="form.fieldGap"')
     expect(modal).not.toMatch(/<Stack\s+gap=\{6\}/)
+  })
+
+  it('the Modal description moves into the body when it cannot be pinned: 8 under the title, 24 to the next block', () => {
+    // Pinned: the header's 8, then the body's 24. In the body: the body's top
+    // padding is the 8, and the description's own margin is the 24.
+    expect(modal).toContain(
+      "pt={descriptionInBody ? 'form.titleToSubtitle' : 'form.headerToBody'}",
+    )
+    expect(modal).toContain(
+      "mb={descriptionInBody ? 'form.headerToBody' : undefined}",
+    )
+    // One description element, so the dialog's accessible description is the
+    // same wherever it is drawn.
+    expect(modal.match(/<DialogDescription/g)).toHaveLength(1)
   })
 
   it('the Modal bar stays put: the body scrolls inside the dialog', () => {
