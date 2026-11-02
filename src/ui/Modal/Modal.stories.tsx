@@ -1555,3 +1555,48 @@ export const OpenShortWindowKeepsBars246: Story = {
     await expectBarsKept(canvasElement, 246)
   },
 }
+
+/**
+ * A window that shrinks across the line while the dialog is open (FE-481 round
+ * 8, R8-web-resizeframe): the pin is chosen in the resize event, before the next
+ * frame is drawn, so no frame shows the pinned layout in the smaller panel with
+ * the bar outside it. The window cannot be resized from a story, so the
+ * positioner (the window's height) is given the smaller height and the window's
+ * resize event is dispatched. Nothing is awaited after it: a measurement that
+ * waited for the ResizeObserver and a render would have left a frame in between.
+ */
+export const OpenLongDescriptionShrinkBeforeNextFrame: Story = {
+  ...longDescriptionStory(844),
+  play: async ({ canvasElement }) => {
+    const view = canvasElement.ownerDocument.defaultView as Window
+    const { dialog, body, footer } = await openFrame(
+      canvasElement,
+      'Add contact phone number',
+    )
+    const positioner = dialog.closest('[data-part="positioner"]') as HTMLElement
+    const description = () =>
+      dialog.querySelector('[data-part="description"]') as HTMLElement
+    const barInside = () =>
+      (footer as HTMLElement).getBoundingClientRect().bottom <=
+      dialog.getBoundingClientRect().bottom + 0.5
+    // 844 tall: pinned under the title, the bar inside the panel.
+    await expect(body.contains(description())).toBe(false)
+    await expect(barInside()).toBe(true)
+
+    // Shrink to 560 tall: the description is in the body and the bar inside the
+    // panel as soon as the event has been handled.
+    positioner.style.height = '560px'
+    view.dispatchEvent(new Event('resize'))
+    await expect(body.contains(description())).toBe(true)
+    await expect(barInside()).toBe(true)
+    await expect(dialog.getBoundingClientRect().bottom).toBeLessThanOrEqual(
+      560 - 16 + 0.5,
+    )
+
+    // And back up: pinned again in the same pass.
+    positioner.style.height = ''
+    view.dispatchEvent(new Event('resize'))
+    await expect(body.contains(description())).toBe(false)
+    await expect(barInside()).toBe(true)
+  },
+}

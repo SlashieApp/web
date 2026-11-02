@@ -1,6 +1,7 @@
 'use client'
 
 import { useLayoutEffect, useState } from 'react'
+import { flushSync } from 'react-dom'
 
 import {
   bareHeaderHeight,
@@ -43,7 +44,11 @@ const UNMEASURED: Measures = {
  * wherever it is, and the room the window leaves the panel) and decides before
  * the first paint, so a dialog that opens with a long description never shows
  * the bar outside its panel for a frame. It looks again whenever any of them
- * changes size (a window that turns, a text that wraps, a button that wraps).
+ * changes size (a text that wraps, a button that wraps) and, synchronously,
+ * when the window changes size: the resize event is handled before the frame
+ * that has the new size is drawn, so a window that shrinks across the line
+ * never shows one frame of the pinned layout in the smaller panel with the bar
+ * outside it.
  * Only layout sizes are read (`offsetHeight`), which the dialog's scale-in
  * animation does not change. The state is dropped when the dialog is gone, so
  * the next open starts pinned.
@@ -110,7 +115,19 @@ export function useDescriptionPin({
     for (const node of [positioner, header, footer, description]) {
       if (node) observer.observe(node)
     }
-    return () => observer.disconnect()
+    // The window's own resize: measure and render now, before the frame that
+    // has the new size is drawn. A ResizeObserver reports after layout and its
+    // state update renders after that frame, so a window that shrank across
+    // the line would show one frame of the pinned layout in the smaller panel
+    // with the bar outside it. The resize event comes first in the frame; the
+    // layout effect below then chooses the pin from these measures, in the same
+    // synchronous pass.
+    const onResize = () => flushSync(measure)
+    window.addEventListener('resize', onResize)
+    return () => {
+      observer.disconnect()
+      window.removeEventListener('resize', onResize)
+    }
   }, [positioner, header, footer, description])
 
   // No description: nothing to place.
