@@ -430,6 +430,65 @@ export const BlockedGoogleKeysAskForConsent: Story = {
 }
 
 /**
+ * Blocked, a click on Google's button asks for the boxes too. A click is what
+ * assistive technology sends to activate a button (a screen reader's Enter or
+ * VO+Space, a switch, voice control): it lands on the role="button" node
+ * itself, not at a point, so it never meets the pointer overlay, and Google's
+ * button listens for `click` as well as keys. It is sent as a click on the real
+ * node, and also on whatever is on top of the widget at its centre (the
+ * overlay a pointer hits). Nothing is let through to Google: its popup and
+ * credential request are replaced for the length of the check.
+ */
+export const BlockedGoogleClickAsksForConsent: Story = {
+  decorators: decorate(),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const p = await registerParts(canvas)
+    const google = await googleButtonOf(p.google)
+    await waitFor(() => expect(google).toHaveAccessibleDescription(HINT))
+
+    const popup = spyOn(window, 'open').mockImplementation(() => null)
+    const credentials = spyOn(navigator.credentials, 'get').mockRejectedValue(
+      new DOMException('Not sent: story', 'NotAllowedError'),
+    )
+    // Google's own click handler would sit on this node: this stands in for it.
+    const reached: string[] = []
+    const onClick = (event: Event) => reached.push(event.type)
+    google.addEventListener('click', onClick)
+    try {
+      const ageError = 'You must confirm you are 18 or over to use Slashie.'
+      const termsError =
+        'Please agree to the Terms of Service and Privacy Policy.'
+      await expect(canvas.queryByText(ageError)).toBeNull()
+
+      // A click sent at the node itself.
+      google.click()
+      await canvas.findByText(ageError)
+      await canvas.findByText(termsError)
+      await expect(reached).toEqual([])
+
+      // The pointer path: what is on top of the widget takes the click.
+      const box = google.getBoundingClientRect()
+      const top = canvasElement.ownerDocument.elementFromPoint(
+        box.left + box.width / 2,
+        box.top + box.height / 2,
+      )
+      await expect(top).not.toBeNull()
+      await expect(google.contains(top)).toBe(false)
+      await userEvent.click(top as Element)
+      await expect(reached).toEqual([])
+
+      await expect(popup).not.toHaveBeenCalled()
+      await expect(credentials).not.toHaveBeenCalled()
+    } finally {
+      google.removeEventListener('click', onClick)
+      popup.mockRestore()
+      credentials.mockRestore()
+    }
+  },
+}
+
+/**
  * Submitted empty: every field and both required boxes say what's missing,
  * each 4 under what it is about and 20 above the next field.
  */

@@ -112,8 +112,8 @@ export function GoogleAuthButton({
     })
   }, [blockedDescription, blockedTitle, onBlocked, t])
 
-  // While blocked: describe Google's own button and catch Enter and Space
-  // before Google's handler (see blockedGoogleButton). The latest `showBlocked`
+  // While blocked: describe Google's own button and catch Enter, Space and
+  // click before Google's handlers (see blockedGoogleButton). The latest `showBlocked`
   // is read through a ref so a new callback does not rebuild the guard.
   const showBlockedRef = useRef(showBlocked)
   useEffect(() => {
@@ -217,16 +217,12 @@ export function GoogleAuthButton({
               width={`${drawnWidth}`}
             />
             {blocked ? (
-              <Box
-                position="absolute"
-                inset={0}
-                cursor="pointer"
-                onClick={(event) => {
-                  event.preventDefault()
-                  event.stopPropagation()
-                  showBlocked()
-                }}
-              />
+              // Over the widget while blocked: it takes the pointer (and the
+              // pointer cursor) so Google's button is not hovered or pressed.
+              // The prompt itself is asked for by the guard's click catcher on
+              // the container (see blockedGoogleButton), one path for a click
+              // here and for one sent at Google's button.
+              <Box position="absolute" inset={0} cursor="pointer" />
             ) : null}
           </Box>
         ) : null}

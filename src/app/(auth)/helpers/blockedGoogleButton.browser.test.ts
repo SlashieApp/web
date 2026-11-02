@@ -6,8 +6,9 @@ import {
 } from './blockedGoogleButton'
 
 // A stand-in for Google's widget: a container with an in-page div[role=button]
-// that arrives later and has its own key handlers (the ones the guard must
-// keep Enter and Space away from). Nothing here talks to Google.
+// that arrives later and has its own `click` and key handlers (the ones the
+// guard must keep Enter, Space and clicks away from: Google's real button lists
+// click and keydown). Nothing here talks to Google.
 
 const HINT_ID = 'consent-hint'
 
@@ -28,13 +29,13 @@ function mount(): HTMLElement {
   return container
 }
 
-/** Google's button, with spies standing in for its own key handlers. */
+/** Google's button, with spies standing in for its own handlers. */
 function googleButton() {
   const node = document.createElement('div')
   node.setAttribute('role', 'button')
   node.tabIndex = 0
   const seen = vi.fn()
-  for (const type of ['keydown', 'keypress', 'keyup']) {
+  for (const type of ['keydown', 'keypress', 'keyup', 'click']) {
     node.addEventListener(type, seen)
   }
   return { node, seen }
@@ -234,6 +235,68 @@ describe('guardBlockedGoogleButton: Enter and Space', () => {
     stop()
     const event = press(node, 'keydown', 'Enter')
     expect(event.defaultPrevented).toBe(false)
+    expect(seen).toHaveBeenCalledTimes(1)
+    expect(onBlocked).not.toHaveBeenCalled()
+  })
+})
+
+describe('guardBlockedGoogleButton: click', () => {
+  it('asks for the boxes on a click sent at the button itself', () => {
+    // What assistive technology sends to activate a button: a click on the
+    // node, not at a point, so it never touches the pointer overlay.
+    const container = mount()
+    const { node, seen } = googleButton()
+    container.append(node)
+    const { onBlocked } = guard(container, HINT_ID)
+
+    node.click()
+    expect(seen).not.toHaveBeenCalled()
+    expect(onBlocked).toHaveBeenCalledTimes(1)
+  })
+
+  it('catches the click from anywhere in the container, and from inside the button', () => {
+    const container = mount()
+    const { node, seen } = googleButton()
+    const glyph = document.createElement('span')
+    node.append(glyph)
+    const overlay = document.createElement('div')
+    container.append(node, overlay)
+    const { onBlocked } = guard(container, HINT_ID)
+
+    const onGlyph = new MouseEvent('click', { bubbles: true, cancelable: true })
+    glyph.dispatchEvent(onGlyph)
+    expect(onGlyph.defaultPrevented).toBe(true)
+
+    // The overlay over the widget has no handler of its own: its click is the
+    // same one prompt.
+    overlay.click()
+    expect(seen).not.toHaveBeenCalled()
+    expect(onBlocked).toHaveBeenCalledTimes(2)
+  })
+
+  it('does not prompt twice for one press: the keys that are held back make no click', () => {
+    const container = mount()
+    const { node, seen } = googleButton()
+    container.append(node)
+    const { onBlocked } = guard(container, HINT_ID)
+
+    press(node, 'keydown', 'Enter')
+    press(node, 'keyup', 'Enter')
+    press(node, 'keydown', ' ')
+    press(node, 'keyup', ' ')
+    expect(onBlocked).toHaveBeenCalledTimes(2)
+    expect(seen).not.toHaveBeenCalled()
+    node.click()
+    expect(onBlocked).toHaveBeenCalledTimes(3)
+  })
+
+  it('hands the click back to Google once the guard is off', () => {
+    const container = mount()
+    const { node, seen } = googleButton()
+    container.append(node)
+    const { onBlocked, stop } = guard(container, HINT_ID)
+    stop()
+    node.click()
     expect(seen).toHaveBeenCalledTimes(1)
     expect(onBlocked).not.toHaveBeenCalled()
   })

@@ -10,10 +10,14 @@
  *   hint that says why it does nothing yet. A MutationObserver puts it back on
  *   a button that arrives or is redrawn later. (A description on a wrapper
  *   div, or on the container, is not read for the focused button.)
- * - Enter and Space are caught in the capture phase on the container, before
- *   they reach Google's handler: the keys show the same prompt a click on the
- *   pointer overlay does, instead of opening the sign-in with the boxes
- *   unticked.
+ * - Enter, Space and click are caught in the capture phase on the container,
+ *   before they reach Google's handlers (its button listens for `click` and
+ *   `keydown`): each shows the prompt instead of opening the sign-in with the
+ *   boxes unticked. A click is not only the mouse: assistive technology
+ *   activates a button by sending a click at the node itself (a screen
+ *   reader's Enter or VO+Space, a switch, voice control), so the pointer
+ *   overlay over the widget, which only catches pointer hits, is not enough.
+ *   This is the one place the prompt is asked for, the overlay's clicks too.
  *
  * Returns a cleanup that takes both away (the boxes are ticked, or it unmounts).
  */
@@ -62,14 +66,26 @@ export function guardBlockedGoogleButton(
     event.stopPropagation()
     if (event.type === 'keydown' && !event.repeat) onBlocked()
   }
+  // A click asks once, wherever it lands in the container: on the overlay, on
+  // Google's button, or sent at the button by assistive technology. A key that
+  // is held back above cannot also make a click (Enter and Space do not on a
+  // role="button" div, and their default is prevented), so one action is one
+  // prompt.
+  const onClick = (event: MouseEvent) => {
+    event.preventDefault()
+    event.stopPropagation()
+    onBlocked()
+  }
   const keyEvents = ['keydown', 'keypress', 'keyup'] as const
   for (const type of keyEvents) container.addEventListener(type, onKey, true)
+  container.addEventListener('click', onClick, true)
 
   return () => {
     observer.disconnect()
     for (const type of keyEvents) {
       container.removeEventListener(type, onKey, true)
     }
+    container.removeEventListener('click', onClick, true)
     for (const button of described) {
       if (button.getAttribute('aria-describedby') === describedBy) {
         button.removeAttribute('aria-describedby')
