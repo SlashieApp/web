@@ -641,6 +641,54 @@ export const OpenWithDescription: Story = {
   },
 }
 
+/**
+ * A lead-in that introduces a list: the sentence is the description and the
+ * list stays the body, but the dialog is described by both (`describedBy`), so
+ * a screen reader hears the sentence and then what it introduces when the
+ * dialog opens, not a lead-in that ends on a colon. The layout is the same as
+ * without it: the description 8 under the title, the list 24 under that.
+ */
+export const OpenDescriptionIntroducesList: Story = {
+  parameters: overlayDocs,
+  args: {
+    title: 'Remove the shelf',
+    description: 'Here is what happens:',
+    describedBy: 'shelf-consequences',
+    size: 'sm',
+    submitLabel: 'Remove',
+    submitVariant: 'danger',
+  },
+  render: (args) => (
+    <ModalDemo {...args} initialOpen triggerLabel="Remove the shelf">
+      <ul id="shelf-consequences">
+        <li>The shelf comes off the wall.</li>
+        <li>The brackets stay where they are.</li>
+      </ul>
+    </ModalDemo>
+  ),
+  play: async ({ canvasElement }) => {
+    const { dialog, title } = await openFrame(canvasElement, 'Remove the shelf')
+    const sentence = within(dialog).getByText('Here is what happens:')
+    const list = dialog.querySelector('ul') as HTMLElement
+
+    // The sentence first, then the list: both ids resolve.
+    const ids = (dialog.getAttribute('aria-describedby') ?? '').split(' ')
+    await expect(ids).toHaveLength(2)
+    await expect(dialog.ownerDocument.getElementById(ids[0])).toBe(sentence)
+    await expect(dialog.ownerDocument.getElementById(ids[1])).toBe(list)
+    await expect(dialog).toHaveAccessibleDescription(
+      expect.stringMatching('^Here is what happens:'),
+    )
+    await expect(dialog).toHaveAccessibleDescription(
+      expect.stringContaining('The brackets stay where they are.'),
+    )
+
+    // Layout as with a plain description.
+    await expect(gapBelow(title, sentence)).toBe(formSpace.titleToSubtitle)
+    await expect(gapBelow(sentence, list)).toBe(formSpace.headerToBody)
+  },
+}
+
 /** Open with no description: the title, then 24 to the first field. */
 export const OpenWithoutDescription: Story = {
   parameters: overlayDocs,

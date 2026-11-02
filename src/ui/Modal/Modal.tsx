@@ -16,7 +16,7 @@ import {
   chakra,
 } from '@chakra-ui/react'
 import type { FormEvent, ReactNode } from 'react'
-import { useCallback, useRef, useState } from 'react'
+import { useCallback, useId, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { LuX } from 'react-icons/lu'
 
@@ -158,6 +158,14 @@ export type ModalProps = {
    */
   description?: ReactNode
   /**
+   * The id (or ids, space separated) of body content that is read with the
+   * description: a list the description's lead-in introduces ("Here is what
+   * happens:"), so a screen reader hears the whole of it when the dialog opens,
+   * before focus lands on a field. The dialog is described by the description,
+   * then these. Give the element an `id`; the layout does not change.
+   */
+  describedBy?: string
+  /**
    * The body. A confirm that is only a sentence passes it as `description` and
    * leaves this out (or `null`): the buttons then sit `headerToBody` (24)
    * under the description, as the first block after the header.
@@ -187,6 +195,7 @@ export function Modal({
   onOpenChange,
   title,
   description,
+  describedBy,
   children,
   size = 'md',
   cancelLabel = 'Cancel',
@@ -206,6 +215,14 @@ export function Modal({
   const hasBody = children != null && children !== false
   const [bodyRef, moreBelow] = useHasMoreBelow()
   const isBrowser = useIsBrowser()
+  // The description's own id, so the dialog's `aria-describedby` can list it
+  // first and the body content after it.
+  const descriptionId = useId()
+  const describedByIds = describedBy
+    ? [description ? descriptionId : null, describedBy]
+        .filter(Boolean)
+        .join(' ')
+    : undefined
 
   const handleClose = () => onOpenChange(false)
 
@@ -322,6 +339,7 @@ export function Modal({
         zIndex={APP_OVERLAY_Z_INDEX}
       >
         <DialogContent
+          {...(describedByIds ? { 'aria-describedby': describedByIds } : {})}
           bg="bg.surface"
           borderRadius="lg"
           boxShadow="e5"
@@ -400,6 +418,7 @@ export function Modal({
   return (
     <DialogRoot
       open={open}
+      ids={describedBy ? { description: descriptionId } : undefined}
       onOpenChange={(details: { open: boolean }) => onOpenChange(details.open)}
       placement="center"
       motionPreset="scale"
