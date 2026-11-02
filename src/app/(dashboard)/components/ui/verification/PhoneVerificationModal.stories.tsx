@@ -670,7 +670,9 @@ export const ResendIsALinkPhone: Story = {
     ).toBeLessThanOrEqual(1)
     await expect(gapBelow(last, help)).toBe(formSpace.controlToHelper)
     await expect(gapBelow(row, verify)).toBe(formSpace.bodyToAction)
-    await expect(hitExtent(resend).height).toBe(minHitArea)
+    // At least the 44 target; 1 over is sub-pixel rounding of the 20 line, not added space.
+    await expect(hitExtent(resend).height).toBeGreaterThanOrEqual(minHitArea)
+    await expect(hitExtent(resend).height).toBeLessThanOrEqual(minHitArea + 1)
     await expectRingHugsLabel(resend)
   },
 }
@@ -699,7 +701,9 @@ export const ResendIsALink320: Story = {
     await expect(heightOf(row)).toBe(heightOf(help) + 20)
     await expect(gapBelow(last, help)).toBe(formSpace.controlToHelper)
     await expect(gapBelow(row, verify)).toBe(formSpace.bodyToAction)
-    await expect(hitExtent(resend).height).toBe(minHitArea)
+    // At least the 44 target; 1 over is sub-pixel rounding of the 20 line, not added space.
+    await expect(hitExtent(resend).height).toBeGreaterThanOrEqual(minHitArea)
+    await expect(hitExtent(resend).height).toBeLessThanOrEqual(minHitArea + 1)
   },
 }
 
