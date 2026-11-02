@@ -62,7 +62,9 @@ export type WorkerSetupCategoryTilesProps = {
 
 /**
  * The main trade as icon tiles over a native radio set: arrow keys move the
- * choice, it is announced, and shown by the border and tint together.
+ * choice, it is announced, and shown by the border and tint together. The radio
+ * is hidden inside its tile (the tile is its anchor), so focus scrolls to the
+ * tile, and a pinned bar keeps the whole tile clear (`useKeepFocusClearOfBar`).
  *
  * Form spacing (FE-481): a choice group lays out like a field. The legend is the
  * form label, `labelToControl` (8) above the tiles, the tiles are
@@ -106,6 +108,11 @@ export function WorkerSetupCategoryTiles({
           return (
             <Tile
               key={slug}
+              // The anchor of the hidden radio inside: left unpositioned it
+              // sits against a box outside the scroller it lives in (a
+              // drawer's body), so it did not scroll with the cards and focus
+              // never brought a card into view.
+              position="relative"
               display="flex"
               flexDirection="column"
               alignItems="flex-start"

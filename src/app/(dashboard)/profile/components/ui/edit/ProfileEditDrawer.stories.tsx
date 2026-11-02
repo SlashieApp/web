@@ -278,7 +278,9 @@ export const WorkerSpacingPhone: Story = {
 /**
  * Keyboard focus clears the pinned Cancel and Save bar (WCAG 2.4.11): tabbing
  * down the worker editor scrolls the years, the radius, the links and the
- * certification chips to above the bar, never under it. Wide and on a phone.
+ * certification chips to above the bar, never under it, and the arrow keys
+ * through the "What kind of work" cards bring each whole card (not the 1px
+ * radio inside it) above the bar, 20 clear of it. Wide and on a phone.
  */
 export const WorkerFocusClearsBar: Story = {
   ...desktop1280,
@@ -292,7 +294,7 @@ export const WorkerFocusClearsBar: Story = {
     await expect(body.scrollHeight).toBeGreaterThan(body.clientHeight)
     await expect(getComputedStyle(body).scrollPaddingBottom).toBe('84px')
     const { bar } = barOf(stack)
-    await expect(await controlsUnderBar(bar)).toEqual([])
+    await expect(await controlsUnderBar(bar, { radios: true })).toEqual([])
   },
 }
 
@@ -304,7 +306,7 @@ export const WorkerFocusClearsBarPhone: Story = {
   play: async ({ canvasElement }) => {
     const { stack } = await openEditor(canvasElement, 'Edit worker profile')
     const { bar } = barOf(stack)
-    await expect(await controlsUnderBar(bar)).toEqual([])
+    await expect(await controlsUnderBar(bar, { radios: true })).toEqual([])
   },
 }
 
@@ -312,7 +314,9 @@ export const WorkerFocusClearsBarPhone: Story = {
  * The same with the keyboard up: a 390 by 500 phone. The Short bio is tall
  * (172) and the bar is 64 over the foot of the body, so a field that is only
  * partly visible has to be scrolled up clear of the bar when it takes focus,
- * not left with its lower part under it (the caret line of a long bio).
+ * not left with its lower part under it (the caret line of a long bio). So do
+ * the work-type cards: Tab reaches the first and ArrowDown walks the rest, each
+ * card scrolled 20 clear of the bar and never left below the screen.
  */
 export const WorkerFocusClearsBarKeyboard: Story = {
   ...phone390Keyboard,
@@ -323,7 +327,7 @@ export const WorkerFocusClearsBarKeyboard: Story = {
     await expect(canvasElement.ownerDocument.defaultView?.innerHeight).toBe(500)
     const { stack } = await openEditor(canvasElement, 'Edit worker profile')
     const { bar } = barOf(stack)
-    await expect(await controlsUnderBar(bar)).toEqual([])
+    await expect(await controlsUnderBar(bar, { radios: true })).toEqual([])
   },
 }
 

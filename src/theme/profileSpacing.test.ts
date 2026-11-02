@@ -120,6 +120,20 @@ describe('profile editors: one rhythm from the form pieces', () => {
     expect(SURFACES.DrawerBar).toContain('useKeepFocusClearOfBar(barRef)')
   })
 
+  it('the bar keeps a radio card clear as the card, not as its hidden input', () => {
+    const hook = read('src/ui/focusClearance.ts')
+    // The box a person sees: the card (the input's label), 20 clear of the bar.
+    expect(hook).toContain('export function focusBoxOf')
+    expect(hook).toContain("target.closest('label')")
+    expect(hook).toContain('const box = focusBoxOf(target)')
+    expect(hook).toContain('formSpace.bodyToAction')
+    // The cards anchor the hidden radio, so it scrolls with the drawer's body.
+    const tiles = read(
+      'src/app/(stepflow)/worker/setup/components/ui/inputs/WorkerSetupCategoryTiles.tsx',
+    )
+    expect(tiles).toMatch(/<Tile\s+key=\{slug\}[^>]*position="relative"/)
+  })
+
   it('Admin composer: a FormStack under a heading 24 above it, buttons 8 apart, cohorts a choice group', () => {
     const admin = SURFACES.AdminNotificationComposer
     expect(admin).toContain('<FormStack>')
