@@ -17,6 +17,11 @@ export { Button } from './Button'
 export { CameraCapture, CameraSourceContext } from './CameraCapture'
 export { Card } from './Card'
 export {
+  checkboxRunReach,
+  FORM_CHECKBOX_LINE_HEIGHT,
+  FormCheckbox,
+} from './FormCheckbox'
+export {
   ColorModeButton,
   ColorModeIcon,
   ColorModeProvider,
@@ -61,10 +66,10 @@ export {
   useOpenFeedbackDialog,
 } from './FeedbackDialog'
 export {
-  checkboxRunReach,
-  FORM_CHECKBOX_LINE_HEIGHT,
-  FormCheckbox,
-} from './FormCheckbox'
+  focusBoxOf,
+  keepFocusClearOfBar,
+  useKeepFocusClearOfBar,
+} from './focusClearance'
 export { FormAlternatives } from './FormAlternatives'
 export {
   formControlErrorTextProps,
@@ -176,6 +181,7 @@ export type {
   OpenCamera,
 } from './CameraCapture'
 export type { CardProps } from './Card'
+export type { CheckboxRowPosition, FormCheckboxProps } from './FormCheckbox'
 export type {
   ClickDropdownProps,
   DropdownMobilePlacement,
@@ -204,7 +210,6 @@ export type {
   FeedbackTriggerVariant,
 } from './FeedbackDialog'
 export type { FormAlternativesProps } from './FormAlternatives'
-export type { CheckboxRowPosition, FormCheckboxProps } from './FormCheckbox'
 export type { FormDividerProps } from './FormDivider'
 export type {
   FormFieldControlProps,
