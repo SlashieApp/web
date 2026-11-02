@@ -133,15 +133,20 @@ describe('dialog and drawer frames read the form tokens (FE-481 overlay-chrome)'
     '%s: description 8 under the title, 24 to the first field, 20 to the bar',
     (_name, source) => {
       expect(source).toContain('gap="form.titleToSubtitle"')
-      // Drawer: `pt="form.headerToBody"`. Modal: that, or 8 when the
-      // description is the first block of the body (see the next test).
-      expect(source).toMatch(
-        /pt=(?:"form\.headerToBody"|\{[^}]*'form\.headerToBody'[^}]*\})/,
-      )
       expect(source).toContain('form.bodyToAction')
       expect(source).toContain('{...overlayDescriptionStyle}')
     },
   )
+
+  it('the Drawer body starts 24 under the header: the exact token, no expression', () => {
+    expect(drawer).toContain('pt="form.headerToBody"')
+  })
+
+  it('the Modal body starts 24 under the header, or 8 when the description is its first block', () => {
+    expect(modal).toMatch(
+      /pt=(?:"form\.headerToBody"|\{[^}]*'form\.headerToBody'[^}]*\})/,
+    )
+  })
 
   it.each([
     ['Modal', modal],
