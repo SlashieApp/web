@@ -1392,7 +1392,7 @@ export const OpenLongDescriptionInBody420: Story = {
   },
 }
 
-/** 345 tall, just above the height where the whole dialog scrolls (340 and under). */
+/** 345 tall: the description is in the body and the title and the bar stay put (the whole dialog scrolls only under about 246 at 390 wide). */
 export const OpenLongDescriptionInBody345: Story = {
   ...longDescriptionStory(345),
   play: async ({ canvasElement }) => {
