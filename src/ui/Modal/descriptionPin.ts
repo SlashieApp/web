@@ -10,6 +10,13 @@ import { formSpace } from '@/theme/styles'
  * field (or the bar) after it. Either way no line of it is cut off and the
  * main button is never pushed out of the panel; the title and the bar stay put.
  *
+ * Only when even that does not fit (the title block alone, the bar and a body
+ * of any use are more than the window leaves: a wrapped two row bar, a very
+ * large text size, a window a few lines tall) does the dialog scroll as a
+ * whole (round 8, `dialogScrollsWhole`), so nothing is pushed out of the
+ * frame. The same numbers decide it, so a window the app's `Dialog` can lay
+ * out with its title and bar fixed is laid out the same way here.
+ *
  * The app's `Dialog` makes the same choice from the same numbers
  * (`src/ui/Dialog/descriptionPin.ts`): keep the two in step.
  */
@@ -70,4 +77,60 @@ export function descriptionFitsPinned({
     : header + formSpace.titleToSubtitle + description
   const spare = pinned ? 0 : REPIN_MARGIN
   return pinnedHeader + footer + minBody + spare <= available
+}
+
+/**
+ * The title block's height without the description: what the header is when the
+ * description is in the body. When the description is in the header the header
+ * is the title block, `titleToSubtitle` (8) and the description, so it is that
+ * much less. Read from the DOM as measured (where the description is when it
+ * was measured), not from the layout's state, so a measurement taken while the
+ * description moves is still the title block's.
+ */
+export function bareHeaderHeight({
+  header,
+  description,
+  descriptionInHeader,
+}: {
+  header: number
+  description: number
+  descriptionInHeader: boolean
+}): number {
+  return descriptionInHeader
+    ? header - formSpace.titleToSubtitle - description
+    : header
+}
+
+export type WholeScrollInput = {
+  /** `bareHeaderHeight`: the title block alone. */
+  bareHeader: number
+  /** The bar's measured height, 0 when the dialog has none. */
+  footer: number
+  /** `minBodyHeight` for this dialog. */
+  minBody: number
+  /** The room inside the panel: its maximum height less its border. */
+  available: number
+}
+
+/**
+ * Whether the dialog has to scroll as a whole (round 8). The title and the bar
+ * stay put, and only the body scrolls between them, whenever the title block,
+ * the bar and a body of any use (`minBodyHeight`) fit the room; the description
+ * is in the body when it cannot be pinned (`descriptionFitsPinned`). Only past
+ * that, where the body would be squeezed to nothing between the two (a bar that
+ * wraps to two rows, a very large text size, a window a few lines tall), the
+ * whole dialog scrolls, the buttons reachable at the end.
+ *
+ * None of the numbers depends on where the description is, and the scroll
+ * itself can only make them larger (a scrollbar on a whole-scrolling dialog
+ * narrows the bar, which can only wrap it), so the answer does not chase its own
+ * layout.
+ */
+export function dialogScrollsWhole({
+  bareHeader,
+  footer,
+  minBody,
+  available,
+}: WholeScrollInput): boolean {
+  return bareHeader + footer + minBody > available
 }

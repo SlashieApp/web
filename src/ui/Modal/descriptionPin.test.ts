@@ -5,7 +5,9 @@ import { formSpace } from '@/theme/styles'
 import {
   type DescriptionPinInput,
   REPIN_MARGIN,
+  bareHeaderHeight,
   descriptionFitsPinned,
+  dialogScrollsWhole,
   minBodyHeight,
 } from './descriptionPin'
 
@@ -137,5 +139,97 @@ describe('once in the body it does not flip back and forth', () => {
 
   it('stays in the body until it is measured', () => {
     expect(descriptionFitsPinned(inBody(0, 844))).toBe(false)
+  })
+})
+
+describe('the whole dialog scrolls only when nothing else can fit (FE-481 round 8, R8-web-short)', () => {
+  const scrollsAt = (
+    windowHeight: number,
+    {
+      bareHeader = TITLE_BLOCK,
+      footer = BAR,
+      hasBody = true,
+    }: { bareHeader?: number; footer?: number; hasBody?: boolean } = {},
+  ) =>
+    dialogScrollsWhole({
+      bareHeader,
+      footer,
+      minBody: minBodyHeight(hasBody),
+      available: available(windowHeight),
+    })
+
+  it('keeps the title and the bar fixed in every short window that has the room: 56 + 64 + 92 is a 246 tall window', () => {
+    // The windows the old 340 rule scrolled as a whole, and the app laid out
+    // with its title and bar fixed (body 146, 186, 176, 106, 166).
+    for (const windowHeight of [340, 330, 320, 300, 260, 250, 246]) {
+      expect(scrollsAt(windowHeight), `${windowHeight}`).toBe(false)
+    }
+    expect(TITLE_BLOCK + BAR + minBodyHeight(true) + 32 + 2).toBe(246)
+  })
+
+  it('scrolls the whole dialog below that, where the body between the bars would be under 92', () => {
+    for (const windowHeight of [245, 240, 200, 180]) {
+      expect(scrollsAt(windowHeight), `${windowHeight}`).toBe(true)
+    }
+  })
+
+  it('a sentence-only confirm needs only the 24 under the title: it keeps the bars down to 178', () => {
+    expect(scrollsAt(178, { hasBody: false })).toBe(false)
+    expect(scrollsAt(177, { hasBody: false })).toBe(true)
+  })
+
+  it('a title that wraps to two lines (84 at 320 wide) or a bar that wraps to two rows (120) asks for more room', () => {
+    // 84 + 64 + 92 + 34 = 274.
+    expect(scrollsAt(274, { bareHeader: 84 })).toBe(false)
+    expect(scrollsAt(273, { bareHeader: 84 })).toBe(true)
+    // 56 + 120 + 92 + 34 = 302.
+    expect(scrollsAt(302, { footer: 120 })).toBe(false)
+    expect(scrollsAt(301, { footer: 120 })).toBe(true)
+  })
+
+  it('a dialog with no bar needs only the title block and a body', () => {
+    expect(scrollsAt(182, { footer: 0 })).toBe(false)
+    expect(scrollsAt(181, { footer: 0 })).toBe(true)
+  })
+
+  it('never while nothing is measured', () => {
+    expect(
+      dialogScrollsWhole({
+        bareHeader: 0,
+        footer: 0,
+        minBody: minBodyHeight(true),
+        available: Number.POSITIVE_INFINITY,
+      }),
+    ).toBe(false)
+  })
+
+  it('does not depend on where the description is: the title block is the same measured either way', () => {
+    for (const description of [23, 91, 455]) {
+      const pinned = bareHeaderHeight({
+        header: TITLE_BLOCK + formSpace.titleToSubtitle + description,
+        description,
+        descriptionInHeader: true,
+      })
+      const inBody = bareHeaderHeight({
+        header: TITLE_BLOCK,
+        description,
+        descriptionInHeader: false,
+      })
+      expect(pinned).toBe(TITLE_BLOCK)
+      expect(inBody).toBe(TITLE_BLOCK)
+    }
+  })
+
+  it('whenever the description fits pinned, the dialog does not scroll as a whole', () => {
+    for (const windowHeight of [246, 300, 375, 560, 700, 844]) {
+      for (const description of [23, 91, 137, 455]) {
+        if (pinnedAt(description, windowHeight)) {
+          expect(
+            scrollsAt(windowHeight),
+            `${description} in ${windowHeight}`,
+          ).toBe(false)
+        }
+      }
+    }
   })
 })

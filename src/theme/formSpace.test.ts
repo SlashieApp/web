@@ -177,8 +177,13 @@ describe('dialog and drawer frames read the form tokens (FE-481 overlay-chrome)'
     expect(modal).toContain('scrollBehavior="inside"')
   })
 
-  it('the Modal scrolls as a whole on a viewport too short for the bars and a body', () => {
-    expect(modal).toContain("'@media (max-height: 340px)'")
+  it('the Modal scrolls as a whole only when the title block, the bar and a body do not fit: measured, not a fixed window height', () => {
+    // No window-height media query: a short window that has the room keeps the
+    // title and the bar fixed, as the app's Dialog does (FE-481 round 8).
+    expect(modal).not.toContain('max-height')
+    expect(modal).not.toContain('@media')
+    expect(modal).toContain("overflowY={scrollsWhole ? 'auto' : 'hidden'}")
+    expect(modal).toContain("flex={scrollsWhole ? '0 0 auto' : undefined}")
     expect(modal).toContain('flexShrink={0}')
   })
 

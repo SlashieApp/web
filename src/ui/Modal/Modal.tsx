@@ -55,10 +55,13 @@ import { useDescriptionPin } from './useDescriptionPin'
  * (a tall form in a short window), a hairline shows on the bar's top edge, and
  * goes at the end of the scroll. The header and the bar stay put
  * (`scrollBehavior="inside"`): a tall body scrolls between them, so the buttons
- * are always reachable. When the viewport is too short for both bars and a
- * body of any use (`SHORT_VIEWPORT`: 400% zoom, a phone on its side at its
- * shortest), the whole dialog scrolls instead, as it did before the bar was
- * pinned: nothing is ever pushed out of the frame.
+ * are always reachable. Only when the window has no room for the title block,
+ * the bar and a body of any use (`dialogScrollsWhole`: a bar that wraps to two
+ * rows, a very large text size, a window under about 250 tall) does the whole
+ * dialog scroll instead, as it did before the bar was
+ * pinned: nothing is ever pushed out of the frame. That is measured from the
+ * laid out heights, not a fixed window height, so a phone on its side or a
+ * short window that has the room keeps the title and the bar fixed.
  *
  * The description is pinned under the title while the dialog has room for the
  * header with it, the bar and a body of any use (`descriptionPin`: the 24, one
@@ -79,13 +82,6 @@ import { useDescriptionPin } from './useDescriptionPin'
  */
 
 const modalPaddingX = { base: 5, md: 6 } as const
-
-/**
- * The viewports where the header and the bar would take what the body needs
- * (a 1280 by 1024 window at 400% zoom is 320 by 256; the header alone is up to
- * 160 on a narrow one, the bar 64). There the dialog scrolls as a whole.
- */
-const SHORT_VIEWPORT = '@media (max-height: 340px)'
 
 export type ModalSize = 'sm' | 'md' | 'lg'
 
@@ -225,6 +221,7 @@ export function Modal({
   const hasBody = children != null && children !== false
   const {
     descriptionInBody,
+    scrollsWhole,
     positionerRef,
     headerRef,
     footerRef,
@@ -283,9 +280,10 @@ export function Modal({
         px={modalPaddingX}
         pt={descriptionInBody ? 'form.titleToSubtitle' : 'form.headerToBody'}
         pb={showFooter ? (hasBody ? 'form.bodyToAction' : 0) : 6}
-        css={{
-          [SHORT_VIEWPORT]: { flex: '0 0 auto', overflow: 'visible' },
-        }}
+        // Not the scroller when the whole dialog is: squeezed between the bars
+        // the body would have no height left.
+        flex={scrollsWhole ? '0 0 auto' : undefined}
+        overflow={scrollsWhole ? 'visible' : undefined}
       >
         {/* Direct children are one field apart (20), like a FormStack's: a
             second block next to a form does not drift to the old 24. With no
@@ -387,8 +385,8 @@ export function Modal({
           maxH="full"
           w="full"
           mx="auto"
-          overflow="hidden"
-          css={{ [SHORT_VIEWPORT]: { overflowY: 'auto' } }}
+          overflowX="hidden"
+          overflowY={scrollsWhole ? 'auto' : 'hidden'}
           transitionProperty="opacity, transform"
           transitionDuration={sdlMotion.duration.moderate}
           transitionTimingFunction={sdlMotion.easing.standard}

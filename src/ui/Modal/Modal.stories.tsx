@@ -1086,10 +1086,12 @@ export const OpenButtonsStayOnOneLine: Story = {
 }
 
 /**
- * A viewport as short as a 1280 by 1024 window at 400% zoom (320 by 256): the
- * header and the bar would leave the body no room, so the dialog scrolls as a
- * whole and the buttons stay reachable. Nothing is cut off at the end of the
- * scroll.
+ * A viewport as short as a 1280 by 1024 window at 400% zoom (320 by 256), with
+ * a title that wraps to two lines at 320 wide: the title block (84), the bar
+ * (64) and a body of any use (92) are more than the 222 the window leaves, so
+ * the dialog scrolls as a whole and the buttons stay reachable. Nothing is cut
+ * off at the end of the scroll. A window that has the room keeps the title and
+ * the bar fixed (`OpenShortWindowKeepsBars` and the stories after it).
  */
 export const OpenShortViewportScrolls: Story = {
   ...viewportOf('reflow 320 by 256', 320, 256),
@@ -1220,10 +1222,14 @@ const phoneOnly = (
 async function expectWholeFrame(
   canvasElement: HTMLElement,
   height: number,
-  { hasBody }: { hasBody: boolean },
+  {
+    hasBody,
+    width = 390,
+    endGapTolerance = 0,
+  }: { hasBody: boolean; width?: number; endGapTolerance?: number },
 ) {
   const view = canvasElement.ownerDocument.defaultView as Window
-  await expect(view.innerWidth).toBe(390)
+  await expect(view.innerWidth).toBe(width)
   await expect(view.innerHeight).toBe(height)
   const { dialog, title, header, body, footer } = await openFrame(
     canvasElement,
@@ -1305,9 +1311,15 @@ async function expectWholeFrame(
   // body the description is 24 above them.
   const barTop = bar.getBoundingClientRect().top
   await scrollBodyTo(body.scrollHeight - body.clientHeight)
-  await expect(gapBelow(first ?? description, cancel)).toBe(
-    hasBody ? formSpace.bodyToAction : formSpace.headerToBody,
-  )
+  // `endGapTolerance` is for a description whose height is not a whole number
+  // of pixels (318.5 at 568 wide): `scrollHeight` is an integer, so the scroll
+  // stops up to half a pixel short of the end. The layout's gap is the token.
+  await expect(
+    Math.abs(
+      gapBelow(first ?? description, cancel) -
+        (hasBody ? formSpace.bodyToAction : formSpace.headerToBody),
+    ),
+  ).toBeLessThanOrEqual(endGapTolerance)
   // The bar did not move while the body scrolled, and its edge line is gone at
   // the end.
   await expect(bar.getBoundingClientRect().top).toBe(barTop)
@@ -1320,12 +1332,12 @@ async function expectWholeFrame(
 /** Opens the long-description dialog; the `hasBody` ones hold one field. */
 const longDescriptionStory = (
   height: number,
-  { hasBody = true }: { hasBody?: boolean } = {},
+  { hasBody = true, width = 390 }: { hasBody?: boolean; width?: number } = {},
 ) =>
   ({
-    ...viewportOf(`phone 390 by ${height}`, 390, height),
+    ...viewportOf(`phone ${width} by ${height}`, width, height),
     parameters: {
-      ...viewportOf(`phone 390 by ${height}`, 390, height).parameters,
+      ...viewportOf(`phone ${width} by ${height}`, width, height).parameters,
       ...overlayDocs,
     },
     args: longDescriptionArgs,
@@ -1399,5 +1411,147 @@ export const OpenLongDescriptionOnlyInBody: Story = {
       hasBody: false,
     })
     await expect(inBody).toBe(true)
+  },
+}
+
+/**
+ * The windows the whole dialog used to scroll in (340 tall and under) when they
+ * have the room for the title block, the bar and a 92 body (FE-481 round 8,
+ * R8-web-short): the title and the bar stay fixed and only the body scrolls,
+ * the same frame as the app's `Dialog` (body 146 at 390 by 300, 186 at 340, 106
+ * at 260, 166 at 568 by 320, 102 at 320 by 256). `expectWholeFrame` checks the
+ * bar is inside the panel and the title where it always is; this adds that the
+ * dialog itself does not scroll, and the body's height: the window less the 16
+ * inset each side, the 2 border, the title block (56) and the bar (64).
+ */
+async function expectBarsKept(
+  canvasElement: HTMLElement,
+  height: number,
+  {
+    width = 390,
+    titleBlock = 56,
+    endGapTolerance = 0,
+  }: { width?: number; titleBlock?: number; endGapTolerance?: number } = {},
+) {
+  const { inBody } = await expectWholeFrame(canvasElement, height, {
+    hasBody: true,
+    width,
+    endGapTolerance,
+  })
+  const { dialog, body, header } = await openFrame(
+    canvasElement,
+    'Add contact phone number',
+  )
+  await expect(dialog.scrollHeight).toBeLessThanOrEqual(dialog.clientHeight)
+  await expect(dialog.scrollTop).toBe(0)
+  await expect(getComputedStyle(dialog).overflowY).toBe('hidden')
+  await expect(header.getBoundingClientRect().height).toBe(titleBlock)
+  await expect(body.clientHeight).toBe(height - 32 - 2 - titleBlock - 64)
+  await expect(body.scrollHeight).toBeGreaterThan(body.clientHeight)
+  return { inBody }
+}
+
+/** 390 by 300 (a phone on its side with the browser bars up): the whole dialog does not scroll, the body is 146. */
+export const OpenShortWindowKeepsBars: Story = {
+  ...longDescriptionStory(300),
+  play: async ({ canvasElement }) => {
+    const { inBody } = await expectBarsKept(canvasElement, 300)
+    await expect(inBody).toBe(true)
+  },
+}
+
+/** 390 by 340, the old line: it is the same as at 345, the title and the bar fixed (body 186). */
+export const OpenShortWindowKeepsBars340: Story = {
+  ...longDescriptionStory(340),
+  play: async ({ canvasElement }) => {
+    await expectBarsKept(canvasElement, 340)
+  },
+}
+
+/** 390 by 260, as short as the bars and a 92 body allow short of 246: body 106. */
+export const OpenShortWindowKeepsBars260: Story = {
+  ...longDescriptionStory(260),
+  play: async ({ canvasElement }) => {
+    await expectBarsKept(canvasElement, 260)
+  },
+}
+
+/** A phone on its side, 568 by 320: the body is 166 under the 56 title block. */
+export const OpenShortWindowKeepsBarsLandscape: Story = {
+  ...longDescriptionStory(320, { width: 568 }),
+  play: async ({ canvasElement }) => {
+    await expectBarsKept(canvasElement, 320, {
+      width: 568,
+      endGapTolerance: 0.5,
+    })
+  },
+}
+
+/** The 400% zoom window of 320 by 256 with a title that fits one line: the bars are kept (body 102). */
+export const OpenShortViewportKeepsBars: Story = {
+  ...viewportOf('reflow 320 by 256', 320, 256),
+  parameters: {
+    ...viewportOf('reflow 320 by 256', 320, 256).parameters,
+    ...overlayDocs,
+  },
+  args: { ...longDescriptionArgs, title: 'Add phone' },
+  render: (args) => (
+    <ModalDemo {...args} initialOpen triggerLabel="Verify phone number">
+      {phoneOnly}
+    </ModalDemo>
+  ),
+  play: async ({ canvasElement }) => {
+    const view = canvasElement.ownerDocument.defaultView as Window
+    await expect(view.innerWidth).toBe(320)
+    await expect(view.innerHeight).toBe(256)
+    const { dialog, body, header, footer } = await openFrame(
+      canvasElement,
+      'Add phone',
+    )
+    await expect(dialog.scrollHeight).toBeLessThanOrEqual(dialog.clientHeight)
+    await expect(header.getBoundingClientRect().height).toBe(56)
+    await expect(body.clientHeight).toBe(256 - 32 - 2 - 56 - 64)
+    await expect(
+      (footer as HTMLElement).getBoundingClientRect().bottom,
+    ).toBeLessThanOrEqual(dialog.getBoundingClientRect().bottom)
+  },
+}
+
+/**
+ * One line short of room: 390 by 245 is 1 less than the title block (56), the
+ * bar (64), a 92 body, the 32 inset and the 2 border (246), so the whole dialog
+ * scrolls as a whole and the buttons are reachable at the end; 246 keeps the
+ * bars (the next story).
+ */
+export const OpenWholeScrollBelowRoomForBody: Story = {
+  ...longDescriptionStory(245),
+  play: async ({ canvasElement }) => {
+    const view = canvasElement.ownerDocument.defaultView as Window
+    await expect(view.innerHeight).toBe(245)
+    const { dialog, body } = await openFrame(
+      canvasElement,
+      'Add contact phone number',
+    )
+    await expect(dialog.scrollHeight).toBeGreaterThan(dialog.clientHeight)
+    await expect(body.scrollHeight).toBe(body.clientHeight)
+    const send = within(dialog).getByRole('button', { name: 'Send code' })
+    dialog.scrollTop = dialog.scrollHeight
+    await waitFor(() =>
+      expect(dialog.scrollTop + dialog.clientHeight).toBeGreaterThanOrEqual(
+        dialog.scrollHeight - 1,
+      ),
+    )
+    const panel = dialog.getBoundingClientRect()
+    const box = send.getBoundingClientRect()
+    await expect(box.bottom).toBeLessThanOrEqual(panel.bottom)
+    await expect(box.top).toBeGreaterThanOrEqual(panel.top)
+  },
+}
+
+/** 390 by 246: exactly the room for the title block, the bar and a 92 body, so the bars are kept. */
+export const OpenShortWindowKeepsBars246: Story = {
+  ...longDescriptionStory(246),
+  play: async ({ canvasElement }) => {
+    await expectBarsKept(canvasElement, 246)
   },
 }

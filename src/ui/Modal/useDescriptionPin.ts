@@ -2,13 +2,20 @@
 
 import { useLayoutEffect, useState } from 'react'
 
-import { descriptionFitsPinned, minBodyHeight } from './descriptionPin'
+import {
+  bareHeaderHeight,
+  descriptionFitsPinned,
+  dialogScrollsWhole,
+  minBodyHeight,
+} from './descriptionPin'
 
 /** The panel's border, top and bottom: its maximum height includes both. */
 const PANEL_BORDER = 1
 
 type Measures = {
   header: number
+  /** The title block alone: the header less the description when it is in the header. */
+  bare: number
   footer: number
   description: number
   /** The room the panel can take: the window less the positioner's padding. */
@@ -18,6 +25,7 @@ type Measures = {
 /** Nothing measured yet: all the room there is, so the description is pinned. */
 const UNMEASURED: Measures = {
   header: 0,
+  bare: 0,
   footer: 0,
   description: 0,
   room: Number.POSITIVE_INFINITY,
@@ -27,7 +35,9 @@ const UNMEASURED: Measures = {
  * Where a `Modal` draws its description (see `descriptionPin`): under the title
  * while the panel has room for the header with it, the bar and a body of any
  * use, else the first block of the scrolling body. The same choice the app's
- * `Dialog` makes, from the same numbers.
+ * `Dialog` makes, from the same numbers. It also says whether the dialog has to
+ * scroll as a whole: only when the title block, the bar and a body of any use do
+ * not fit even with the description in the body (`dialogScrollsWhole`).
  *
  * It measures what the browser laid out (the header, the bar, the description
  * wherever it is, and the room the window leaves the panel) and decides before
@@ -69,10 +79,17 @@ export function useDescriptionPin({
     }
     const measure = () => {
       const style = getComputedStyle(positioner)
+      const descriptionHeight = description?.offsetHeight ?? 0
       const next: Measures = {
         header: header.offsetHeight,
+        bare: bareHeaderHeight({
+          header: header.offsetHeight,
+          description: descriptionHeight,
+          descriptionInHeader:
+            description != null && header.contains(description),
+        }),
         footer: footer?.offsetHeight ?? 0,
-        description: description?.offsetHeight ?? 0,
+        description: descriptionHeight,
         room:
           positioner.clientHeight -
           Number.parseFloat(style.paddingTop) -
@@ -80,6 +97,7 @@ export function useDescriptionPin({
       }
       setMeasures((was) =>
         was.header === next.header &&
+        was.bare === next.bare &&
         was.footer === next.footer &&
         was.description === next.description &&
         was.room === next.room
@@ -113,6 +131,16 @@ export function useDescriptionPin({
   return {
     /** Draw the description as the first block of the body, not under the title. */
     descriptionInBody: hasDescription && !pinned,
+    /**
+     * Scroll the dialog as a whole: not even the title block, the bar and a body
+     * of any use fit, so the body between the bars would have no room.
+     */
+    scrollsWhole: dialogScrollsWhole({
+      bareHeader: measures.bare,
+      footer: showFooter ? measures.footer : 0,
+      minBody: minBodyHeight(hasBody),
+      available: measures.room - PANEL_BORDER * 2,
+    }),
     positionerRef,
     headerRef,
     footerRef,
