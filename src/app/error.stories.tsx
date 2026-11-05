@@ -2,44 +2,19 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { expect, fn, userEvent, within } from 'storybook/test'
 
 import { LocaleProvider } from '@/i18n/LocaleProvider'
+import {
+  boxOf,
+  expectPx,
+  expectWindowWidth,
+  viewportAt,
+} from '@/ui/PageContainer/pageLines.testing'
+import { expectCentredCardBox } from '@/ui/StatusCard/statusCard.testing'
 
 import RootError from './error'
-
-/**
- * Story-only: a private, in-memory `localStorage` for this page. The real one
- * is shared by every test file running at once and survives between visits,
- * and an "accepted" cookie choice would let the next `capture()` start PostHog
- * with the production token, so these stories never touch it.
- */
-function stubLocalStorage(initial: Record<string, string> = {}) {
-  const data = new Map(Object.entries(initial))
-  const storage: Storage = {
-    get length() {
-      return data.size
-    },
-    clear: () => data.clear(),
-    getItem: (key) => data.get(key) ?? null,
-    key: (index) => [...data.keys()][index] ?? null,
-    removeItem: (key) => {
-      data.delete(key)
-    },
-    setItem: (key, value) => {
-      data.set(key, String(value))
-    },
-  }
-  const original = Object.getOwnPropertyDescriptor(window, 'localStorage')
-  Object.defineProperty(window, 'localStorage', {
-    configurable: true,
-    value: storage,
-  })
-  return () => {
-    if (original) Object.defineProperty(window, 'localStorage', original)
-    else Reflect.deleteProperty(window, 'localStorage')
-  }
-}
+import { stubLocalStorage } from './storyLocalStorage.testing'
 
 const meta = {
-  title: 'Shell/RootError',
+  title: 'Auth/Status/RootError',
   component: RootError,
   tags: ['autodocs'],
   parameters: {
@@ -58,7 +33,18 @@ export default meta
 type Story = StoryObj<typeof meta>
 
 /** Root error boundary: branded message with a primary Try again and a link to search. */
-export const Default: Story = {}
+export const Default: Story = {
+  ...viewportAt(1366),
+  play: async ({ canvasElement }) => {
+    expectWindowWidth(canvasElement, 1366)
+    const card = within(canvasElement).getByRole('region', {
+      name: 'Something went wrong',
+    })
+    // R6: the shared card, 448 wide, centred.
+    expectCentredCardBox(canvasElement, card)
+    expectPx(boxOf(card).width, 448)
+  },
+}
 
 /** Clicking Try again calls the boundary's `reset` once. */
 export const Retry: Story = {
@@ -70,9 +56,17 @@ export const Retry: Story = {
   },
 }
 
-/** Phone width: the card keeps its 1rem page gutters. */
+/** Phone width: the card is the container, 358 wide at 390. */
 export const Mobile: Story = {
-  globals: { viewport: { value: 'mobile1', isRotated: false } },
+  ...viewportAt(390),
+  play: async ({ canvasElement }) => {
+    expectWindowWidth(canvasElement, 390)
+    const card = within(canvasElement).getByRole('region', {
+      name: 'Something went wrong',
+    })
+    expectCentredCardBox(canvasElement, card)
+    expectPx(boxOf(card).width, 358)
+  },
 }
 
 /** Traditional Chinese copy, picked from the `/zh-hk` URL prefix. */

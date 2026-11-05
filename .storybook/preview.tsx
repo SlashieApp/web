@@ -214,7 +214,6 @@ const preview: Preview = {
           'Messages',
           'Dashboard',
           'Worker setup',
-          'Worker profile',
           'Workers',
           'Public profile',
           'Auth',

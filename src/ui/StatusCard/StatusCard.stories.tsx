@@ -7,19 +7,15 @@ import {
 } from 'react-icons/lu'
 import { expect, within } from 'storybook/test'
 
-import { STATUS_CARD_MAX_W_CSS } from '@/theme/pageContainer'
-
 import { Button } from '../Button'
 import {
   boxOf,
   expectPx,
   expectWindowWidth,
-  lines,
   viewportAt,
 } from '../PageContainer/pageLines.testing'
 import { StatusCard } from './StatusCard'
-
-const CARD_PX = Number.parseFloat(STATUS_CARD_MAX_W_CSS) * 16
+import { expectCentredCardBox } from './statusCard.testing'
 
 const meta = {
   title: 'UI/StatusCard',
@@ -67,10 +63,7 @@ const cardOf = (canvasElement: HTMLElement, name: string) =>
  * plus the gutters it is the container.
  */
 async function expectCentredCard(canvasElement: HTMLElement, name: string) {
-  const { width, logo, menu } = lines(canvasElement)
-  const box = boxOf(cardOf(canvasElement, name))
-  expectPx(box.width, Math.min(CARD_PX, menu - logo), 'card width')
-  expectPx(box.left + box.width / 2, width / 2, 'card is centred in the window')
+  expectCentredCardBox(canvasElement, cardOf(canvasElement, name))
 }
 
 /** A not-found page: the logo, a large code, a message and two actions. The page on its own. */

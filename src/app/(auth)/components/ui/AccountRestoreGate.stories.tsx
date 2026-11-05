@@ -3,6 +3,13 @@ import { expect, userEvent, waitFor, within } from 'storybook/test'
 
 import { formSpace } from '@/theme/styles'
 import { gapBelow, heightOf } from '@/ui/FormField/formGap.testing'
+import {
+  boxOf,
+  expectPx,
+  expectWindowWidth,
+  viewportAt,
+} from '@/ui/PageContainer/pageLines.testing'
+import { expectCentredCardBox } from '@/ui/StatusCard/statusCard.testing'
 
 import { withSession } from '../../helpers/authStoryDecorator'
 import { storyMe } from '../../helpers/authStoryFixtures'
@@ -12,7 +19,7 @@ const DELETION_DATE = '2026-11-12T12:00:00.000Z'
 const scheduledMe = storyMe({ deletionScheduledFor: DELETION_DATE })
 
 const meta = {
-  title: 'Auth/AccountRestoreGate',
+  title: 'Auth/Parts/AccountRestoreGate',
   component: AccountRestoreScreen,
   parameters: { layout: 'fullscreen' },
   args: { scheduledFor: DELETION_DATE },
@@ -48,8 +55,18 @@ async function expectStatusSpacing(canvas: Canvas) {
   await expect(header.lastElementChild).toBe(note)
 }
 
+const CARD_NAME = 'Your account is scheduled for deletion'
+
+/** R6: the shared status card, centred, 448 wide (the container on a phone). */
+const expectStatusCard = (canvasElement: HTMLElement) =>
+  expectCentredCardBox(
+    canvasElement,
+    within(canvasElement).getByRole('region', { name: CARD_NAME }),
+  )
+
 /** Signed in while the account is waiting for deletion. */
 export const Default: Story = {
+  ...viewportAt(1366),
   decorators: [withSession({ me: scheduledMe })],
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
@@ -62,6 +79,9 @@ export const Default: Story = {
       canvas.getByRole('button', { name: 'Restore my account' }),
     ).toBeEnabled()
     await expectStatusSpacing(canvas)
+    expectWindowWidth(canvasElement, 1366)
+    expectStatusCard(canvasElement)
+    expectPx(boxOf(canvas.getByRole('region', { name: CARD_NAME })).width, 448)
   },
 }
 
@@ -87,12 +107,19 @@ export const Restoring: Story = {
   },
 }
 
-/** Phones: the card fills the width, with the same gaps. */
+/** Phones: the card is the container (358 at 390), with the same gaps. */
 export const Phone: Story = {
-  globals: { viewport: { value: 'mobile1' } },
+  ...viewportAt(390),
   decorators: [withSession({ me: scheduledMe })],
   play: async ({ canvasElement }) => {
     await expectStatusSpacing(within(canvasElement))
+    expectWindowWidth(canvasElement, 390)
+    expectStatusCard(canvasElement)
+    expectPx(
+      boxOf(within(canvasElement).getByRole('region', { name: CARD_NAME }))
+        .width,
+      358,
+    )
   },
 }
 

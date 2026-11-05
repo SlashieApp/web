@@ -7,6 +7,13 @@ import { expect, userEvent, within } from 'storybook/test'
 
 import { useUserStore } from '@/app/(auth)/store/user'
 import { LocaleProvider } from '@/i18n/LocaleProvider'
+import {
+  boxOf,
+  expectPx,
+  expectWindowWidth,
+  viewportAt,
+} from '@/ui/PageContainer/pageLines.testing'
+import { expectCentredCardBox } from '@/ui/StatusCard/statusCard.testing'
 
 import { UnsubscribeScreen } from './UnsubscribeScreen'
 
@@ -50,7 +57,7 @@ const failsOnce = new ApolloLink(() => {
 })
 
 const meta = {
-  title: 'Shell/UnsubscribeScreen',
+  title: 'Auth/Status/UnsubscribeScreen',
   component: UnsubscribeScreen,
   tags: ['autodocs'],
   parameters: {
@@ -85,12 +92,20 @@ export const Loading: Story = {
 
 /** The token worked: confirmation plus a link to turn emails back on in Account settings. */
 export const Unsubscribed: Story = {
+  ...viewportAt(1366),
   play: async ({ canvasElement }) => {
     await expect(
       await within(canvasElement).findByRole('heading', {
         name: "You're unsubscribed",
       }),
     ).toBeVisible()
+    // R6: the shared status card, 448 wide, centred.
+    const card = within(canvasElement).getByRole('region', {
+      name: "You're unsubscribed",
+    })
+    expectWindowWidth(canvasElement, 1366)
+    expectCentredCardBox(canvasElement, card)
+    expectPx(boxOf(card).width, 448)
   },
 }
 
@@ -143,9 +158,25 @@ export const RetrySucceeds: Story = {
   },
 }
 
-/** Phone width: confirmation card on a small screen. */
+/**
+ * Phone width: the card is the container (358 at 390), and the "Turn it back
+ * on" link wraps inside it instead of pushing the page sideways.
+ */
 export const Mobile: Story = {
-  globals: { viewport: { value: 'mobile1', isRotated: false } },
+  ...viewportAt(390),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const card = (
+      await canvas.findByRole('heading', { name: "You're unsubscribed" })
+    ).closest('section') as HTMLElement
+    expectWindowWidth(canvasElement, 390)
+    expectCentredCardBox(canvasElement, card)
+    expectPx(boxOf(card).width, 358)
+    const link = canvas.getByRole('link', { name: /Account settings/ })
+    expect(boxOf(link).right).toBeLessThanOrEqual(boxOf(card).right)
+    const root = canvasElement.ownerDocument.documentElement
+    expect(root.scrollWidth).toBeLessThanOrEqual(root.clientWidth)
+  },
 }
 
 /** Traditional Chinese copy, picked from the `/zh-hk` URL prefix. */

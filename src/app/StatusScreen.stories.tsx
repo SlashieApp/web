@@ -2,6 +2,13 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import NextLink from 'next/link'
 import { expect, within } from 'storybook/test'
 
+import {
+  boxOf,
+  expectPx,
+  expectWindowWidth,
+  viewportAt,
+} from '@/ui/PageContainer/pageLines.testing'
+import { expectCentredCardBox } from '@/ui/StatusCard/statusCard.testing'
 import { Button } from '@ui'
 
 import { StatusScreen } from './StatusScreen'
@@ -10,8 +17,16 @@ import messages from './i11n.json'
 const t = messages.en
 const zh = messages.zh_hk
 
+/** The card is a region named by its title. */
+const cardOf = (canvasElement: HTMLElement, name: string) =>
+  within(canvasElement).getByRole('region', { name })
+
+/** R6: centred in the container, 448 wide (the container on a phone). */
+const expectCentredCard = (canvasElement: HTMLElement, name: string) =>
+  expectCentredCardBox(canvasElement, cardOf(canvasElement, name))
+
 const meta = {
-  title: 'Shell/StatusScreen',
+  title: 'Auth/Status/StatusScreen',
   component: StatusScreen,
   tags: ['autodocs'],
   parameters: {
@@ -32,6 +47,7 @@ type Story = StoryObj<typeof meta>
 
 /** Unknown URL: large 404 code, message, a primary search action and a ghost home link. */
 export const NotFound: Story = {
+  ...viewportAt(1366),
   args: { code: t.notFoundCode },
   render: (args) => (
     <StatusScreen
@@ -49,7 +65,9 @@ export const NotFound: Story = {
     />
   ),
   play: async ({ canvasElement }) => {
+    expectWindowWidth(canvasElement, 1366)
     await expect(within(canvasElement).getByText('404')).toBeVisible()
+    expectCentredCard(canvasElement, t.notFoundTitle)
   },
 }
 
@@ -115,11 +133,40 @@ export const LongText: Story = {
   ),
 }
 
-/** Phone width: the card keeps its 1rem page gutters. */
+/** Phone width: the card is the container, 358 wide at 390 (the 16 page gutters). */
 export const Mobile: Story = {
-  globals: { viewport: { value: 'mobile1', isRotated: false } },
+  ...viewportAt(390),
   args: { code: t.notFoundCode },
   render: NotFound.render,
+  play: async ({ canvasElement }) => {
+    expectWindowWidth(canvasElement, 390)
+    expectCentredCard(canvasElement, t.notFoundTitle)
+    expectPx(boxOf(cardOf(canvasElement, t.notFoundTitle)).width, 358)
+  },
+}
+
+/** lg: the same 448 card, centred. */
+export const Lg: Story = {
+  ...viewportAt(1024),
+  args: { code: t.notFoundCode },
+  render: NotFound.render,
+  play: async ({ canvasElement }) => {
+    expectWindowWidth(canvasElement, 1024)
+    expectCentredCard(canvasElement, t.notFoundTitle)
+    expectPx(boxOf(cardOf(canvasElement, t.notFoundTitle)).width, 448)
+  },
+}
+
+/** Wide window: still 448 and centred, never stretched to the 80rem container. */
+export const Wide: Story = {
+  ...viewportAt(1920),
+  args: { code: t.notFoundCode },
+  render: NotFound.render,
+  play: async ({ canvasElement }) => {
+    expectWindowWidth(canvasElement, 1920)
+    expectCentredCard(canvasElement, t.notFoundTitle)
+    expectPx(boxOf(cardOf(canvasElement, t.notFoundTitle)).width, 448)
+  },
 }
 
 /** Traditional Chinese copy. */
