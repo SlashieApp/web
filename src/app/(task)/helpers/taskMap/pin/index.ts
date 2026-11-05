@@ -34,16 +34,6 @@ export function taskLngLat(
   return { lat, lng }
 }
 
-export function tasksCoordsSig(tasks: TaskMapTask[]): string {
-  return tasks
-    .map((t) => {
-      const ll = taskLngLat(t)
-      return ll ? `${t.id}:${ll.lat},${ll.lng}` : ''
-    })
-    .filter(Boolean)
-    .join('|')
-}
-
 export function tasksMarkerSig(tasks: TaskMapTask[]): string {
   return tasks
     .map((t) => {
@@ -104,27 +94,6 @@ export function referenceMarkerElement(): HTMLDivElement {
   })
 
   root.append(dot, pill)
-  return root
-}
-
-/**
- * Standalone task-location dot matching the browse map's selected task pin
- * (brand-green dot, white ring, soft glow). Non-interactive — use as a Mapbox
- * `Marker` element with center anchor for single-location maps (e.g. task detail).
- */
-export function taskPinDotElement(): HTMLDivElement {
-  const root = document.createElement('div')
-  root.setAttribute('aria-hidden', 'true')
-  Object.assign(root.style, {
-    width: '16px',
-    height: '16px',
-    borderRadius: '50%',
-    background: PIN.greenBright,
-    border: '2.5px solid #ffffff',
-    boxShadow: `0 0 0 3px ${PIN.greenPale}, ${PIN.shadow}`,
-    zIndex: PIN_Z_INDEX.selected,
-    pointerEvents: 'none',
-  })
   return root
 }
 

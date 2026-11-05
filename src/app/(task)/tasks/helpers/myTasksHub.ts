@@ -5,6 +5,7 @@ import {
 import type { TaskDetailViewName } from '@/app/(task)/tasks/[slug]/views/types'
 import { currentTaskOrder, orderBookedDatetime } from '@/utils/orderHelpers'
 import { formatGbpMajor, priceToPence } from '@/utils/price'
+import { startOfLocalDay } from '@/utils/startOfLocalDay'
 import { taskPublicLocationLabel } from '@/utils/taskLocationDisplay'
 
 /** The hub's sections, in page order (like Uber's Activity screen). */
@@ -187,10 +188,6 @@ function timeOf(value: unknown): number {
   if (typeof value !== 'string' && typeof value !== 'number') return 0
   const parsed = new Date(value).getTime()
   return Number.isNaN(parsed) ? 0 : parsed
-}
-
-function startOfLocalDay(date: Date): number {
-  return new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime()
 }
 
 function quoteRank(status: string): number {

@@ -25,16 +25,6 @@ const LABELS = {
   MOVING: 'Moving',
 } as const satisfies Record<TaskCreateCategoryValue, string>
 
-export const TASK_CREATE_CATEGORY_OPTIONS = TASK_CREATE_CATEGORY_VALUES.map(
-  (value) => ({
-    value,
-    label: LABELS[value],
-  }),
-)
-
-/** Zod helper for task create/edit forms */
-export const taskCreateCategorySchema = z.enum(TASK_CREATE_CATEGORY_VALUES)
-
 /** Human-readable label for API category strings */
 export function taskCategoryDisplayLabel(
   category: string | null | undefined,

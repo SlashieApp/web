@@ -1,6 +1,7 @@
 import { taskCategoryDisplayLabel } from '@/app/(task)/helpers/taskCategories'
 import { buildSearchUrl } from '@/app/(task)/search/helpers/searchQueryParams'
 import type { OrderItem } from '@/utils/orderHelpers'
+import { startOfLocalDay } from '@/utils/startOfLocalDay'
 import type { TaskDatetimeLike } from '@/utils/taskJobSchedule'
 
 import {
@@ -42,10 +43,6 @@ export function taskDetailLocationTown(label: string): string {
     .filter((part) => part && !PLACE_NOISE.test(part))
   const places = parts.filter((part) => !STREET_LINE.test(part))
   return (places.at(-1) ?? parts.at(-1) ?? label).trim()
-}
-
-function startOfLocalDay(date: Date): number {
-  return new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime()
 }
 
 /**

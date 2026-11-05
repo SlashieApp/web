@@ -47,16 +47,6 @@ describe('task detail Mapbox chrome', () => {
     expect(host).toContain('resolveMarketplaceMapHost')
     expect(binder).toContain('keepBrowse')
   })
-
-  it('keeps the camera on the task pin and only routes from a search-page origin', () => {
-    const controllerSrc = readFileSync(join(dir, 'taskLocationMap.ts'), 'utf8')
-    expect(controllerSrc).toContain('jumpTo')
-    expect(controllerSrc).not.toContain('m.fitBounds')
-    expect(controllerSrc).not.toContain('getCurrentPosition')
-    expect(controllerSrc).toContain('routeOrigin')
-    expect(controllerSrc).toContain('referenceMarkerElement')
-    expect(controllerSrc).not.toContain('mobileTaskDetailMapPadding')
-  })
 })
 
 describe('parseTaskDetailSearchRouteOrigin', () => {

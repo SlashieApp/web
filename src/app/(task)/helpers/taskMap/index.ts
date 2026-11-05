@@ -22,8 +22,6 @@ export {
   taskLngLat,
   taskMarkerElement,
   taskPinContentSig,
-  taskPinDotElement,
-  tasksCoordsSig,
   tasksMarkerSig,
 } from './pin'
 export type { TaskMapPinHandle } from './pin'

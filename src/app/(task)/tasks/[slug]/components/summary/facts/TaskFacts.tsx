@@ -26,6 +26,7 @@ import { useLocale } from '@/i18n/LocaleProvider'
 import { formatMessage } from '@/i18n/loadPageI11n'
 import { useI11n } from '@/i18n/useI11n'
 import { sdlEyebrow, sdlFigure, sdlFocusRing } from '@/theme/styles'
+import { mapsDirectionsUrl } from '@/utils/mapsDirectionsUrl'
 import { orderBookedDatetime } from '@/utils/orderHelpers'
 import { formatPrice } from '@/utils/price'
 import { formatTimeSlotLabel, isTimeSlotPast } from '@/utils/timeSlots'
@@ -395,10 +396,6 @@ export function BookedTimeFact() {
       />
     </DetailRow>
   )
-}
-
-function mapsDirectionsUrl(lat: number, lng: number): string {
-  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${lat},${lng}`)}`
 }
 
 /**

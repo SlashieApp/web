@@ -15,16 +15,6 @@ import {
 
 import type { BrowseReferenceLocation } from './browseReferenceLocation'
 
-export function startOfLocalDay(d = new Date()) {
-  return new Date(d.getFullYear(), d.getMonth(), d.getDate())
-}
-
-export function endOfLocalDay(d = new Date()) {
-  const x = startOfLocalDay(d)
-  x.setHours(23, 59, 59, 999)
-  return x
-}
-
 export function formatBudget(task: TaskListItem): {
   main: string
   sub: string
@@ -62,25 +52,6 @@ export function formatBudget(task: TaskListItem): {
   }
 }
 
-export function inferBadge(task: TaskListItem): { text?: string } {
-  const fixed = budgetToPence(task.budget)
-  const t = `${task.title} ${task.description}`.toLowerCase()
-  if (t.includes('emergency') || t.includes('urgent') || t.includes('burst')) {
-    return { text: 'Emergency' }
-  }
-  if (task.description.length > 280 || (fixed != null && fixed >= 50_000)) {
-    return { text: 'Big project' }
-  }
-  return {}
-}
-
-/** Display name for browse cards: canonical `profile.name`. */
-export function taskPosterDisplayName(task: TaskListItem): string {
-  const profileName = task.poster?.profile?.name?.trim()
-  if (profileName) return profileName
-  return 'Task owner'
-}
-
 /** Public display name for a worker (`profile.name`). */
 export function workerDisplayName(
   worker:
@@ -91,24 +62,6 @@ export function workerDisplayName(
     | undefined,
 ): string {
   return worker?.profile?.name?.trim() || 'Worker'
-}
-
-/** Worker's legal name (`Worker.legalName`); use when legal identity is required. */
-export function workerLegalName(
-  worker:
-    | {
-        legalName?: string | null
-      }
-    | null
-    | undefined,
-): string | null {
-  const name = worker?.legalName?.trim()
-  return name || null
-}
-
-export function taskPosterAvatarUrl(task: TaskListItem): string | undefined {
-  const u = task.poster?.profile?.avatarUrl?.trim()
-  return u || undefined
 }
 
 /** Matches initial `submittedRadiusMiles` in browse context. */

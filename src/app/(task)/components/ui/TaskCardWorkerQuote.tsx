@@ -32,15 +32,12 @@ import { formatMessage } from '@/i18n/loadPageI11n'
 import { useI11n } from '@/i18n/useI11n'
 import { sdlFigure, sdlMotion } from '@/theme/styles'
 import { formatPounds, formatRelativePosted } from '@/utils/dashboardHelpers'
+import { mapsDirectionsUrl } from '@/utils/mapsDirectionsUrl'
 import { isOrderClosed, taskOrderSectionHref } from '@/utils/orderHelpers'
 import { taskPublicLocationLabel } from '@/utils/taskLocationDisplay'
 import { Badge, Button, Card, ImagePreview, Link, Thumbnail } from '@ui'
 
 import type { TaskCardWorkerQuoteProps } from './TaskCard'
-
-function mapsDirectionsUrl(lat: number, lng: number): string {
-  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${lat},${lng}`)}`
-}
 
 function stopCardToggle(event: MouseEvent) {
   event.stopPropagation()

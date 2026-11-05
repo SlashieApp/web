@@ -93,28 +93,6 @@ function useReceiptDownload() {
   }
 }
 
-/**
- * The main action as a small button on its own, for a `quoted` or `button`
- * model (Messages' pinned card shows the facts itself).
- */
-export function MainCtaButton({ model }: { model: TaskDetailMainCtaModel }) {
-  const onReceipt = useReceiptDownload()
-  if (model.receipt) {
-    return (
-      <Button type="button" size="sm" variant="secondary" onClick={onReceipt}>
-        {model.buttonLabel}
-      </Button>
-    )
-  }
-  return (
-    <Button asChild size="sm" variant="secondary">
-      <Link href={model.href ?? ''} _hover={{ textDecoration: 'none' }}>
-        {model.buttonLabel}
-      </Link>
-    </Button>
-  )
-}
-
 function MainCtaControl({
   model,
   fill,

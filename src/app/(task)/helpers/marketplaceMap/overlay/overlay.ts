@@ -334,6 +334,3 @@ export function overlayCss(surface: OverlaySurface): SystemStyleObject {
 export function mapFadeOverlayCss(surface: OverlaySurface): SystemStyleObject {
   return overlayCss(surface)
 }
-
-export const SEARCH_MOBILE_MAP_CTRL_BOTTOM = overlayCtrlBottomOffsetForMobile()
-export const SEARCH_MAPBOX_WATERMARK_CSS = overlayWatermarkCss()
