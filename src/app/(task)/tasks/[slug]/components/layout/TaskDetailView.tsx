@@ -3,12 +3,8 @@
 import { Box } from '@chakra-ui/react'
 
 import { useI11n } from '@/i18n/useI11n'
-import {
-  PAGE_CONTAINER_MAX_W,
-  PAGE_CONTAINER_MAX_W_CSS,
-  PAGE_GUTTER_X,
-} from '@/theme/pageContainer'
-import { StickyHeader } from '@ui'
+import { PAGE_CONTAINER_MAX_W, PAGE_GUTTER_X } from '@/theme/pageContainer'
+import { PageContainer, StickyHeader } from '@ui'
 
 import {
   TASK_DETAIL_DESKTOP_MAP_SPACER,
@@ -28,8 +24,15 @@ import { useTaskTitle } from './TaskTitle'
 /** Pull the full money chrome + tabs onto the hero (chrome is ~9rem). */
 const MOBILE_MAP_CHROME_OVERLAP = '-9.25rem'
 
-/** The body's gutters (the tabs, from lg the page column): the bar's row lines up with them. */
-const BODY_GUTTER_X = { base: 4, lg: PAGE_GUTTER_X.lg } as const
+/**
+ * The tabs' own gutters below lg (the page gutters), where the body runs
+ * edge to edge; from lg the page container brings them.
+ */
+const TABS_GUTTER_X = {
+  base: PAGE_GUTTER_X.base,
+  md: PAGE_GUTTER_X.md,
+  lg: 0,
+} as const
 
 /**
  * Responsive task detail: one tree for both form factors (avoids the SSR
@@ -41,7 +44,7 @@ const BODY_GUTTER_X = { base: 4, lg: PAGE_GUTTER_X.lg } as const
  * opens on a tap (FE-465).
  *
  * `<lg`: map hero, fitted-style sticky chrome, role-aware bottom pin.
- * `lg+`: full page column (`sizes.page` / 90rem) over the map background —
+ * `lg+`: full page container (`sizes.page`, 80rem) over the map background —
  * never the search-list column width.
  */
 export function TaskDetailView() {
@@ -58,7 +61,7 @@ export function TaskDetailView() {
       backAriaLabel={t.nav.goBackAria}
       option={<TaskHelpOverflowTrigger overlay />}
       contentMaxW={PAGE_CONTAINER_MAX_W}
-      contentPx={BODY_GUTTER_X}
+      contentPx={PAGE_GUTTER_X}
       titleMaxLines={TASK_TITLE_MAX_LINES}
     >
       <Box position="relative" bg="transparent" w="full" minW={0}>
@@ -87,23 +90,13 @@ export function TaskDetailView() {
             pointerEvents="none"
             aria-hidden
           />
-          <Box
-            w="full"
-            maxW={PAGE_CONTAINER_MAX_W}
-            mx="auto"
-            px={{ base: 0, lg: PAGE_GUTTER_X.lg }}
-            pointerEvents="none"
-            css={{
-              width: '100%',
-              maxWidth: PAGE_CONTAINER_MAX_W_CSS,
-            }}
-          >
+          <PageContainer gutters="lg" pointerEvents="none">
             <Box pointerEvents="auto" w="full" minW={0}>
               <Reveal>
-                <TaskDetailTabs fittedBelowLg px={{ base: 4, lg: 0 }} />
+                <TaskDetailTabs fittedBelowLg px={TABS_GUTTER_X} />
               </Reveal>
             </Box>
-          </Box>
+          </PageContainer>
           <Box pointerEvents="auto">
             <Box
               display={{ base: 'block', lg: 'none' }}

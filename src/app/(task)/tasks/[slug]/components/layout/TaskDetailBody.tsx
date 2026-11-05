@@ -1,12 +1,9 @@
 'use client'
 
-import { Box, HStack, Text } from '@chakra-ui/react'
-
 import { useI11n } from '@/i18n/useI11n'
-import { PAGE_GUTTER_X } from '@/theme/pageContainer'
 import { APP_HOME } from '@/utils/appRoutes'
 import { findScrollParent } from '@/utils/findScrollParent'
-import { Button, Card, Link } from '@ui'
+import { Button, Link, StatusCard } from '@ui'
 
 import { useTaskDetail } from '../../context/TaskDetailProvider'
 import bag from '../../i11n.json'
@@ -51,29 +48,22 @@ function TaskDetailContent() {
 
   if (error && !task && !seed) {
     return (
-      <Box
-        bg="bg.canvas"
-        color="text.default"
-        minH="100dvh"
-        px={PAGE_GUTTER_X}
-        py={{ base: 8, md: 10 }}
-      >
-        <Card layout="section" heading={t.error.heading} maxW="lg" mx="auto">
-          <Text color="text.muted" mb={4} role="alert">
-            {t.error.description}
-          </Text>
-          <HStack gap={3} flexWrap="wrap">
-            <Button type="button" onClick={() => refetch()}>
+      <StatusCard
+        title={t.error.heading}
+        body={<span role="alert">{t.error.description}</span>}
+        actions={
+          <>
+            <Button type="button" size="form" onClick={() => refetch()}>
               {t.error.retry}
             </Button>
-            <Button asChild variant="secondary">
+            <Button asChild variant="secondary" size="form">
               <Link href={APP_HOME} _hover={{ textDecoration: 'none' }}>
                 {t.error.browse}
               </Link>
             </Button>
-          </HStack>
-        </Card>
-      </Box>
+          </>
+        }
+      />
     )
   }
 

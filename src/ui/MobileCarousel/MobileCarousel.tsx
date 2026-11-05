@@ -6,11 +6,15 @@ import { useCallback, useRef, useState } from 'react'
 import type { ReactNode, PointerEvent as ReactPointerEvent } from 'react'
 
 import { TABLET_MQ } from '@/theme/breakpoints'
+import { PAGE_GUTTER_X } from '@/theme/pageContainer'
 
 /** Chakra `md` breakpoint for carousel peek behavior. */
 const MD_MEDIA = TABLET_MQ
-/** Horizontal inset on carousel viewport. */
-const CAROUSEL_INSET = { base: 2, md: 3 } as const
+/**
+ * Horizontal inset on the carousel viewport: the page gutter on a phone, so a
+ * card sits inside the page container over the map (R5).
+ */
+const CAROUSEL_INSET = { base: PAGE_GUTTER_X.base, md: 3 } as const
 /** Extra peek on md+ so adjacent slides show at the edges. */
 const SLIDE_PEEK_MD_PX = 52
 /** Movement above this (px) counts as a carousel drag, not a card tap. */

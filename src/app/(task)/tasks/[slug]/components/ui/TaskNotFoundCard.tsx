@@ -1,47 +1,43 @@
-import { Box, Container, Stack, Text } from '@chakra-ui/react'
-
 import { APP_HOME } from '@/utils/appRoutes'
-import { Button, Card, Link } from '@ui'
+import { Button, Link, StatusCard } from '@ui'
 
 import { TaskNotFoundTracker } from '../analytics/TaskNotFoundTracker'
 
-/** Full-page "task not found" state, rendered by the detail + quote pages. */
+/**
+ * "Task not found", rendered by the detail and quote pages: the shared
+ * `StatusCard` (R6), centred in the page container at the one card width.
+ * The quote page has no site header or shell, so it passes `fullPage`.
+ */
 export function TaskNotFoundCard({
   eyebrow,
-  heading = 'Task not found',
-  description = 'This task is not available. It may have been removed or you do not have access to view it.',
-  browseLabel = 'Search tasks',
+  heading,
+  description,
+  browseLabel,
+  fullPage = false,
 }: {
   eyebrow?: string
-  heading?: string
-  description?: string
-  /** Way out to search; this route has no header or bottom nav. */
-  browseLabel?: string
+  heading: string
+  description: string
+  /** Way out to search; the quote route has no header or bottom nav. */
+  browseLabel: string
+  /** The card is the whole page (the quote route has no shell around it). */
+  fullPage?: boolean
 }) {
   return (
-    <Box bg="bg.canvas" color="text.default" minH="100dvh">
-      <Stack gap={0}>
-        <Box as="section" py={{ base: 8, md: 10 }}>
-          <Container>
-            <Stack gap={8}>
-              <Card layout="section" eyebrow={eyebrow} heading={heading}>
-                <TaskNotFoundTracker />
-                <Text color="text.muted">{description}</Text>
-                <Button
-                  asChild
-                  variant="secondary"
-                  alignSelf="flex-start"
-                  mt={4}
-                >
-                  <Link href={APP_HOME} _hover={{ textDecoration: 'none' }}>
-                    {browseLabel}
-                  </Link>
-                </Button>
-              </Card>
-            </Stack>
-          </Container>
-        </Box>
-      </Stack>
-    </Box>
+    <StatusCard
+      fullPage={fullPage}
+      eyebrow={eyebrow}
+      title={heading}
+      body={description}
+      actions={
+        <Button asChild variant="secondary" size="form">
+          <Link href={APP_HOME} _hover={{ textDecoration: 'none' }}>
+            {browseLabel}
+          </Link>
+        </Button>
+      }
+    >
+      <TaskNotFoundTracker />
+    </StatusCard>
   )
 }

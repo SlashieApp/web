@@ -9,6 +9,7 @@ import { toBrowseTaskCard } from '@/app/(task)/helpers/toBrowseTaskCard'
 import { useOpenTaskDetailFromBrowse } from '@/app/(task)/helpers/useOpenTaskDetailFromBrowse'
 import { captureSearchCardImpression } from '@/app/(task)/search/components/analytics/searchCardImpression'
 import { useI11n } from '@/i18n/useI11n'
+import { PAGE_GUTTER_X } from '@/theme/pageContainer'
 import { MobileCarousel } from '@ui'
 
 import { useTaskBrowseData } from '../../../context/TaskBrowseProvider'
@@ -46,7 +47,7 @@ export function MobileTaskCarousel() {
   if (isInitialTasksLoad) {
     return (
       <Box
-        px={{ base: 2, md: 3 }}
+        px={{ base: PAGE_GUTTER_X.base, md: 3 }}
         overflow="hidden"
         aria-busy
         aria-label={t.loadingTasks}
@@ -71,7 +72,7 @@ export function MobileTaskCarousel() {
   if (tasks.length === 0) {
     if (!canShowBrowseEmptyState) return null
     return (
-      <Box px={{ base: 2, md: 3 }}>
+      <Box px={{ base: PAGE_GUTTER_X.base, md: 3 }}>
         <TaskEmptyState />
       </Box>
     )

@@ -107,6 +107,26 @@ export const Gate: Story = {
     expectCentredCard(canvasElement, 'Verify your email'),
 }
 
+/** A small label above the title (the task page's "Task not found"). */
+export const WithEyebrow: Story = {
+  ...viewportAt(1366),
+  args: { eyebrow: 'Task', title: 'Task not found' },
+  render: (args) => (
+    <StatusCard
+      {...args}
+      actions={
+        <Button variant="secondary" size="form">
+          Search tasks
+        </Button>
+      }
+    />
+  ),
+  play: async ({ canvasElement }) => {
+    await expect(within(canvasElement).getByText('Task')).toBeVisible()
+    await expectCentredCard(canvasElement, 'Task not found')
+  },
+}
+
 /** An error: a danger icon and a retry. */
 export const ErrorCard: Story = {
   ...viewportAt(1366),

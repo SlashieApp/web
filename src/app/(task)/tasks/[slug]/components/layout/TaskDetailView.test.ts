@@ -19,8 +19,9 @@ describe('TaskDetailView desktop column', () => {
     expect(PAGE_CONTAINER_MAX_W).toBe('page')
     // Page width tightened to 80rem in 8024b97 (2026-09-21).
     expect(PAGE_CONTAINER_MAX_W_CSS).toBe('80rem')
-    expect(src).toContain('PAGE_CONTAINER_MAX_W')
-    expect(src).toContain('PAGE_CONTAINER_MAX_W_CSS')
+    // The shared page container, not a hand-built maxW (FE-493).
+    expect(src).toContain('<PageContainer')
+    expect(src).not.toContain('PAGE_CONTAINER_MAX_W_CSS')
     expect(src).not.toContain('SEARCH_LIST_COLUMN_W')
     expect(src).not.toContain('460px')
   })
@@ -48,7 +49,8 @@ describe('TaskDetailView desktop column', () => {
     expect(src).toContain('option={<TaskHelpOverflowTrigger overlay />}')
     // The bar lines up with the page body's gutters and column.
     expect(src).toContain('contentMaxW={PAGE_CONTAINER_MAX_W}')
-    expect(src).toContain('contentPx={BODY_GUTTER_X}')
+    expect(src).toContain('contentPx={PAGE_GUTTER_X}')
+    expect(src).not.toContain('BODY_GUTTER_X')
     // Nothing is pinned at the old docked title row any more.
     expect(src).not.toContain('TaskBackButton')
     expect(src).not.toContain('TASK_DETAIL_STUCK')

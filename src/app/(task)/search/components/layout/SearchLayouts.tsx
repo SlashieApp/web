@@ -1,15 +1,11 @@
 'use client'
 
-import { Box, Container, HStack, Stack } from '@chakra-ui/react'
+import { Box, HStack, Stack } from '@chakra-ui/react'
 
 import { useI11n } from '@/i18n/useI11n'
-import {
-  PAGE_CONTAINER_MAX_W,
-  PAGE_GUTTER_X,
-  SEARCH_LIST_COLUMN_W,
-} from '@/theme/pageContainer'
+import { SEARCH_LIST_COLUMN_W } from '@/theme/pageContainer'
 import { sdlMotion } from '@/theme/styles'
-import { GetAppButton, Logo } from '@ui'
+import { GetAppButton, Logo, PageContainer } from '@ui'
 
 import { useMarketplaceMapState } from '../../../context/MarketplaceMapSession'
 import { useTaskBrowseData } from '../../../context/TaskBrowseProvider'
@@ -51,12 +47,7 @@ export function WebSearchLayout() {
         justifyContent="center"
         pointerEvents="none"
       >
-        <Container
-          maxW={PAGE_CONTAINER_MAX_W}
-          px={PAGE_GUTTER_X}
-          h="full"
-          w="full"
-        >
+        <PageContainer h="full" w="full">
           <Box
             py={2}
             w={{ base: 'full', md: SEARCH_LIST_COLUMN_W }}
@@ -83,7 +74,7 @@ export function WebSearchLayout() {
               <TaskList header={<SearchResultsListTitle />} />
             </Box>
           </Box>
-        </Container>
+        </PageContainer>
       </Box>
 
       <TaskBrowseSearchThisAreaButton overlay />
@@ -153,7 +144,7 @@ export function MobileSearchLayout() {
         display="flex"
         justifyContent="center"
       >
-        <Container maxW={PAGE_CONTAINER_MAX_W} px={PAGE_GUTTER_X} w="full">
+        <PageContainer>
           {/* Brand above the search bar on phones and tablets (FE-208). The box
               holds the height so the bar doesn't jump when the logo mounts;
               it sits outside the stack's map-control margin to stay centred. */}
@@ -201,7 +192,7 @@ export function MobileSearchLayout() {
               <TaskTag />
             </HStack>
           </Stack>
-        </Container>
+        </PageContainer>
       </Box>
 
       <Box

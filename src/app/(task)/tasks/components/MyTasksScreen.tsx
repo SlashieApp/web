@@ -12,9 +12,9 @@ import { useMyRequests } from '@/app/(dashboard)/helpers/useMyRequests'
 import { useLocalizedHref } from '@/i18n/LocaleProvider'
 import { formatMessage } from '@/i18n/loadPageI11n'
 import { useI11n } from '@/i18n/useI11n'
-import { PAGE_CONTAINER_MAX_W, PAGE_GUTTER_X } from '@/theme/pageContainer'
 import { EVENTS, capture } from '@/utils/analytics'
 import { buildTaskFilter } from '@/utils/taskListQuery'
+import { PageContainer } from '@ui'
 
 import { buildMyTasksHub } from '../helpers/myTasksHub'
 import {
@@ -185,12 +185,10 @@ export function MyTasksScreen() {
   return (
     <AccountAuthGate>
       <Box ref={onMountRef} bg="bg.canvas" minH="100%">
-        <Stack
+        <PageContainer
+          display="flex"
+          flexDirection="column"
           gap={4}
-          w="full"
-          maxW={PAGE_CONTAINER_MAX_W}
-          mx="auto"
-          px={PAGE_GUTTER_X}
           py={{ base: 4, md: 6 }}
         >
           <Stack gap={1}>
@@ -256,7 +254,7 @@ export function MyTasksScreen() {
               />
             </Stack>
           </Flex>
-        </Stack>
+        </PageContainer>
       </Box>
     </AccountAuthGate>
   )

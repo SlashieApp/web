@@ -5,7 +5,7 @@ import { type ReactNode, useId } from 'react'
 import type { IconType } from 'react-icons'
 
 import { STATUS_CARD_MAX_W } from '@/theme/pageContainer'
-import { sdlFigure } from '@/theme/styles'
+import { sdlEyebrow, sdlFigure } from '@/theme/styles'
 
 import { FormAlternatives } from '../FormAlternatives'
 import { Logo } from '../Logo'
@@ -23,6 +23,8 @@ const TONE = {
 
 export type StatusCardProps = {
   title: string
+  /** A small uppercase label above the title. */
+  eyebrow?: string
   /** The message under the title. */
   body?: ReactNode
   /** More under the body, in the same text block (a small note). */
@@ -55,7 +57,8 @@ export type StatusCardProps = {
  * container and always `STATUS_CARD_MAX_W` wide (28rem, 448px), the same as
  * the auth card: one width for every centred card, at every viewport.
  *
- * Slots, top to bottom: `logo`, `icon` or `code`, `title`, `body` and
+ * Slots, top to bottom: `logo`, `icon` or `code`, `title` (with an optional
+ * `eyebrow` above it), `body` and
  * `children`, then `actions`; `footer` sits under the card. Spacing follows
  * the form spacing table (wiki Foundations-Form-Spacing): the header block's
  * parts are 20 apart, title and text 8, then 24 to the actions, which are 8
@@ -63,6 +66,7 @@ export type StatusCardProps = {
  */
 export function StatusCard({
   title,
+  eyebrow,
   body,
   children,
   icon: Icon,
@@ -120,9 +124,18 @@ export function StatusCard({
           </Text>
         ) : null}
         <Stack gap="form.titleToSubtitle">
-          <Heading as={headingAs} id={titleId} fontSize="xl">
-            {title}
-          </Heading>
+          {eyebrow ? (
+            <Stack gap={1}>
+              <Text {...sdlEyebrow}>{eyebrow}</Text>
+              <Heading as={headingAs} id={titleId} fontSize="xl">
+                {title}
+              </Heading>
+            </Stack>
+          ) : (
+            <Heading as={headingAs} id={titleId} fontSize="xl">
+              {title}
+            </Heading>
+          )}
           {body ? (
             <Text color="text.muted" lineHeight="tall">
               {body}
