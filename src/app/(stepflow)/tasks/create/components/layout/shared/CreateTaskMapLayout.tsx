@@ -1,12 +1,6 @@
 'use client'
 
-import {
-  Box,
-  Grid,
-  Stack,
-  type SystemStyleObject,
-  Text,
-} from '@chakra-ui/react'
+import { Box, Stack, type SystemStyleObject, Text } from '@chakra-ui/react'
 import {
   type CSSProperties,
   type FocusEvent,
@@ -20,12 +14,14 @@ import {
 import { marketplaceMapMotion } from '@/app/(task)/helpers/marketplaceMap/motion'
 import { TASK_DETAIL_DESKTOP_MAP_SPACER } from '@/app/(task)/tasks/[slug]/helpers/taskDetailLayout'
 import { WEB_MIN_PX } from '@/theme/breakpoints'
-import { PAGE_CONTAINER_MAX_W, PAGE_GUTTER_X } from '@/theme/pageContainer'
 import { sdlMotion } from '@/theme/styles'
 import {
+  PageContainer,
+  STEP_FLOW_PX,
   StepFlowActions,
   type StepFlowActionsProps,
   StepFlowBody,
+  StepFlowColumn,
   StepFlowHeading,
 } from '@ui'
 
@@ -301,19 +297,17 @@ export function CreateTaskMapLayout({
         </Box>
 
         {mapFull ? (
-          <Box
+          <PageContainer
+            gutters="lg"
             position="relative"
             zIndex={1}
             mt="auto"
-            w="full"
-            maxW={PAGE_CONTAINER_MAX_W}
-            mx="auto"
-            px={{ base: 0, lg: PAGE_GUTTER_X.lg }}
             pb={{ base: 0, lg: 6 }}
             pointerEvents="none"
           >
             <Box
               ref={cardRef}
+              data-create-task-card=""
               maxW={{ lg: DESKTOP_LOCATION_CARD_W }}
               bg="bg.surface"
               borderTopRadius="2xl"
@@ -329,7 +323,7 @@ export function CreateTaskMapLayout({
                   the body still ends `bodyToAction` above Continue. */}
               <Stack
                 gap={{ base: 2, lg: 4 }}
-                px={{ base: 4, md: 8, lg: 6 }}
+                px={{ base: STEP_FLOW_PX.base, md: STEP_FLOW_PX.md, lg: 6 }}
                 pt={{ base: 2, lg: 5 }}
                 pb="form.bodyToAction"
               >
@@ -339,7 +333,7 @@ export function CreateTaskMapLayout({
               </Stack>
               <StepFlowActions {...actions} sticky />
             </Box>
-          </Box>
+          </PageContainer>
         ) : (
           <>
             <Box
@@ -363,31 +357,24 @@ export function CreateTaskMapLayout({
                     formFullScreen ? { base: 'none', lg: 'block' } : 'block'
                   }
                 >
-                  <Box
-                    maxW={PAGE_CONTAINER_MAX_W}
-                    mx="auto"
-                    px={PAGE_GUTTER_X}
-                    display="flex"
-                  >
+                  <PageContainer display="flex">
                     <Box pointerEvents="auto">{bandOverlay}</Box>
-                  </Box>
+                  </PageContainer>
                 </Box>
               ) : null}
             </Box>
-            <Grid
+            <PageContainer
+              gutters="lg"
               position="relative"
               zIndex={1}
               flex={1}
-              templateColumns={{
+              display="grid"
+              gridTemplateColumns={{
                 base: '1fr',
                 lg: 'minmax(280px, 320px) minmax(0, 1fr)',
               }}
               gap={{ base: 0, lg: 8 }}
               alignItems={{ base: 'stretch', lg: 'start' }}
-              maxW={PAGE_CONTAINER_MAX_W}
-              mx="auto"
-              w="full"
-              px={{ base: 0, lg: PAGE_GUTTER_X.lg }}
               pb={{ base: 0, lg: 8 }}
               css={stageEnterCss}
             >
@@ -414,18 +401,22 @@ export function CreateTaskMapLayout({
               >
                 <Box
                   flex={1}
-                  px={{ base: 4, md: 8, lg: 10 }}
+                  px={STEP_FLOW_PX}
                   pt={{ base: 5, md: 8 }}
                   pb="form.bodyToAction"
                   css={fieldsClearStickyBarCss}
                   onFocus={keepFocusedFieldInView}
                 >
-                  {heading}
-                  <StepFlowBody errorText={errorText}>{children}</StepFlowBody>
+                  <StepFlowColumn>
+                    {heading}
+                    <StepFlowBody errorText={errorText}>
+                      {children}
+                    </StepFlowBody>
+                  </StepFlowColumn>
                 </Box>
-                <StepFlowActions {...actions} sticky />
+                <StepFlowActions {...actions} sticky inColumn />
               </Box>
-            </Grid>
+            </PageContainer>
           </>
         )}
       </Box>

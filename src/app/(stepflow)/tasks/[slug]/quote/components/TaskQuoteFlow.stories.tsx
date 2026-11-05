@@ -2,6 +2,7 @@ import { QuoteStatus, TaskStatus } from '@codegen/schema'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { expect, userEvent, within } from 'storybook/test'
 
+import { expectGateCard } from '@/app/(stepflow)/stepFlowPageRules.testing'
 import {
   desktop1280,
   gapBelowContent,
@@ -9,6 +10,7 @@ import {
 import { storyTaskQuote } from '@/app/(task)/tasks/[slug]/helpers/taskDetailStoryFixtures'
 import { formSpace } from '@/theme/styles'
 import { gapBelow, heightOf } from '@/ui/FormField/formGap.testing'
+import { viewportAt } from '@/ui/PageContainer/pageLines.testing'
 
 import { TaskQuoteFlow } from './TaskQuoteFlow'
 import {
@@ -22,14 +24,16 @@ import {
 /**
  * A gate in front of the quote form, read the way the spec does (FE-481): the
  * title, the description 8 under it, the summary card 24 under that, and the
- * action 20 under the card, 48 tall.
+ * action 20 under the card, 48 tall. The gate is the centred status card (R6).
  */
 async function expectGateSpacing(canvasElement: HTMLElement) {
   const canvas = within(canvasElement)
   const title = await canvas.findByRole('heading', { level: 1 })
-  const header = title.parentElement as HTMLElement
+  // The gate is the status card: its actions (a form column) follow the header.
+  const card = canvas.getByRole('region', { name: title.textContent ?? '' })
   const description = title.nextElementSibling as HTMLElement
-  const column = header.nextElementSibling as HTMLElement
+  const column = (card.lastElementChild as HTMLElement)
+    .firstElementChild as HTMLElement
   const [summary, action] = [...column.children] as HTMLElement[]
   await expect(gapBelow(title, description)).toBe(formSpace.titleToSubtitle)
   await expect(gapBelow(description, summary)).toBe(formSpace.headerToBody)
@@ -163,6 +167,25 @@ export const SignedOutSpacing: Story = {
   },
 }
 
+/** R6: the signed-out gate is the 448 card, on a phone and on a wide desktop. */
+export const SignedOutCardPhone: Story = {
+  decorators: [withQuoteStory({ viewer: 'visitor' })],
+  ...viewportAt(390),
+  play: async ({ canvasElement }) => {
+    await within(canvasElement).findByRole('heading', { level: 1 })
+    expectGateCard(canvasElement, 390)
+  },
+}
+
+export const SignedOutCardDesktopWide: Story = {
+  decorators: [withQuoteStory({ viewer: 'visitor' })],
+  ...viewportAt(1920),
+  play: async ({ canvasElement }) => {
+    await within(canvasElement).findByRole('heading', { level: 1 })
+    expectGateCard(canvasElement, 1920)
+  },
+}
+
 /** Signed in without a worker profile: the gate offers to create one. */
 export const NoWorkerProfile: Story = {
   decorators: [withQuoteStory({ viewer: 'nonWorker' })],
@@ -237,6 +260,16 @@ export const QuoteLimitReachedSpacing: Story = {
     const { action, main } = await expectGateSpacing(canvasElement)
     const sentence = within(action).getByText(/free quotes/)
     await expect(gapBelow(sentence, main)).toBe(formSpace.bodyToAction)
+  },
+}
+
+/** R6: the paywall sits inside the same 448 card. */
+export const QuoteLimitReachedCard: Story = {
+  decorators: [withLimitReached],
+  ...viewportAt(1366),
+  play: async ({ canvasElement }) => {
+    await within(canvasElement).findByRole('heading', { level: 1 })
+    expectGateCard(canvasElement, 1366)
   },
 }
 

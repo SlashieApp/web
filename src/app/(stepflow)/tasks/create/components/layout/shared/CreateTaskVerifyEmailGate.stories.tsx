@@ -1,10 +1,14 @@
 import type { Decorator, Meta, StoryObj } from '@storybook/nextjs-vite'
 import { expect, fn, within } from 'storybook/test'
 
-import { stepFlowOf } from '@/app/(stepflow)/stepFlowSpacing.testing'
+import {
+  expectGateCard,
+  expectStepFlowHeader,
+} from '@/app/(stepflow)/stepFlowPageRules.testing'
 import { LocaleProvider } from '@/i18n/LocaleProvider'
 import { formSpace } from '@/theme/styles'
 import { gapBelow, heightOf } from '@/ui/FormField/formGap.testing'
+import { viewportAt } from '@/ui/PageContainer/pageLines.testing'
 
 import { CreateTaskVerifyEmailGate } from './CreateTaskVerifyEmailGate'
 
@@ -60,27 +64,47 @@ export const Default: Story = {
 }
 
 /**
- * Form spacing (FE-481): the title, the description 8 under it, the card 24
- * under that (the heading owns the 24, no second gap on top of it), and inside
- * the card the sentence is 20 above Verify email, which is 48 tall.
+ * Form spacing (FE-481): the gate is the status card: the title, the
+ * subtitle and the reason 8 apart, then 24 to Verify email, which is 48 tall.
  */
 export const Spacing: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
-    await canvas.findByRole('heading', { level: 1 })
-    const { title, description, body: card } = stepFlowOf(canvasElement)
+    const title = await canvas.findByRole('heading', { level: 1 })
+    const description = canvas.getByText('Verify your email before you post.')
     const sentence = canvas.getByText(/Confirm alex@example\.com/)
     const button = canvas.getByRole('link', { name: 'Verify email' })
-    await expect(gapBelow(title, description as HTMLElement)).toBe(
+    await expect(gapBelow(title, description)).toBe(formSpace.titleToSubtitle)
+    await expect(gapBelow(description, sentence)).toBe(
       formSpace.titleToSubtitle,
     )
-    await expect(gapBelow(description as HTMLElement, card)).toBe(
-      formSpace.headerToBody,
-    )
-    await expect(gapBelow(sentence, button)).toBe(formSpace.bodyToAction)
+    await expect(gapBelow(sentence, button)).toBe(formSpace.headerToBody)
     await expect(heightOf(button)).toBe(formSpace.controlHeight)
   },
 }
+
+/**
+ * R2 and R6 at every width: the flow header on the logo line, spanning the
+ * container, and the gate the one 448 card, centred.
+ */
+const widths = [390, 820, 1024, 1366, 1920] as const
+
+function railStory(width: (typeof widths)[number]): Story {
+  return {
+    ...viewportAt(width),
+    play: async ({ canvasElement }) => {
+      await within(canvasElement).findByRole('heading', { level: 1 })
+      expectStepFlowHeader(canvasElement, width)
+      expectGateCard(canvasElement, width)
+    },
+  }
+}
+
+export const Window390: Story = railStory(390)
+export const Window820: Story = railStory(820)
+export const Window1024: Story = railStory(1024)
+export const Window1366: Story = railStory(1366)
+export const Window1920: Story = railStory(1920)
 
 /** Phone: the same screen, full width. */
 export const Phone: Story = {

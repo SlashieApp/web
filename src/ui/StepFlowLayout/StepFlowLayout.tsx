@@ -5,7 +5,7 @@ import { useRef } from 'react'
 
 import {
   Box,
-  Grid,
+  type BoxProps,
   HStack,
   Stack,
   Text,
@@ -14,13 +14,14 @@ import {
 } from '@chakra-ui/react'
 import { LuArrowLeft, LuArrowRight, LuX } from 'react-icons/lu'
 
-import { PAGE_CONTAINER_MAX_W, PAGE_GUTTER_X } from '@/theme/pageContainer'
+import { READABLE_COLUMN_MAX_W } from '@/theme/pageContainer'
 
 import { Button } from '../Button/Button'
 import { FormStack } from '../FormStack/FormStack'
 import { IconButton } from '../IconButton/IconButton'
 import { Link } from '../Link/Link'
 import { Logo } from '../Logo/Logo'
+import { PageContainer } from '../PageContainer'
 import { ProgressBar } from '../ProgressBar'
 import { useKeepFocusClearOfBar } from '../focusClearance'
 import { STEP_FLOW_BAR_ATTR } from './stepFlowBar'
@@ -40,6 +41,15 @@ import { STEP_FLOW_BAR_ATTR } from './stepFlowBar'
  * The layout owns structure only — step state, validation, and navigation
  * stay in each flow's context/config. Compose the flow's own stepper and
  * progress data through the slots.
+ *
+ * Page layout (FE-493): the header sits in the page container, so Close and the
+ * logo start on the logo line and the bar spans logo line to menu line at every
+ * width (R1, R2). Below lg the flow is one column (R3): the step's heading,
+ * fields and action bar are a readable column of 45rem, left-aligned on the
+ * logo line ({@link StepFlowColumn}); the progress strip and the context
+ * region above it are bands that span the container (R5). From lg the stepper
+ * rail and the step panel fill the container (a rail + panel flow is not a
+ * single column; Ryan to confirm).
  *
  * Form spacing (FE-481, wiki Foundations-Form-Spacing): the step heading is the
  * title, then the description `formSpace.titleToSubtitle` (8) under it, and the
@@ -80,12 +90,10 @@ export function StepFlowHeader({
       borderBottomWidth="1px"
       borderColor="border.default"
     >
-      <HStack
+      <PageContainer
+        display="flex"
+        alignItems="center"
         gap={{ base: 2, md: 4 }}
-        w="full"
-        maxW={PAGE_CONTAINER_MAX_W}
-        mx="auto"
-        px={PAGE_GUTTER_X}
         minH={{ base: '56px', md: '64px' }}
       >
         <IconButton asChild aria-label={closeLabel} variant="ghost">
@@ -116,8 +124,31 @@ export function StepFlowHeader({
           flexShrink={0}
           aria-hidden
         />
-      </HStack>
+      </PageContainer>
     </Box>
+  )
+}
+
+/**
+ * Horizontal padding of a step. Below lg it is the page gutter (16, 24 from
+ * md), so a step starts on the logo line (R3); from lg it is the inset inside
+ * the raised panel.
+ */
+export const STEP_FLOW_PX = { base: 4, md: 6, lg: 10 } as const
+
+/**
+ * The step's content width. Below lg a step flow is one column (R3): at most
+ * `READABLE_COLUMN_MAX_W` (45rem, 720), LEFT-aligned on the logo line, never
+ * centred. From lg the step sits in its panel and fills it.
+ */
+export function StepFlowColumn(props: BoxProps) {
+  return (
+    <Box
+      w="full"
+      minW={0}
+      maxW={{ base: READABLE_COLUMN_MAX_W, lg: 'none' }}
+      {...props}
+    />
   )
 }
 
@@ -191,6 +222,11 @@ export type StepFlowActionsProps = {
   onBack?: () => void
   onContinue?: () => void
   sticky?: boolean
+  /**
+   * Keep the buttons in the step's readable column below lg (R3), so Continue
+   * ends where the fields do. The bar itself still runs edge to edge.
+   */
+  inColumn?: boolean
 }
 
 /**
@@ -218,6 +254,7 @@ export function StepFlowActions({
   onBack,
   onContinue,
   sticky = false,
+  inColumn = false,
 }: StepFlowActionsProps) {
   const barRef = useRef<HTMLDivElement>(null)
   // Only a pinned bar covers anything: a static one sits after the content.
@@ -228,7 +265,7 @@ export function StepFlowActions({
       // A pinned bar tells `globals.css` to keep focused controls above it.
       {...(sticky ? { [STEP_FLOW_BAR_ATTR]: '' } : {})}
       bg="bg.surface"
-      px={{ base: 4, md: 8, lg: 10 }}
+      px={STEP_FLOW_PX}
       pt={0}
       position={sticky ? 'sticky' : 'static'}
       bottom={0}
@@ -236,7 +273,15 @@ export function StepFlowActions({
       flexShrink={0}
       pb={{ base: 'calc(16px + env(safe-area-inset-bottom))', lg: 4 }}
     >
-      <HStack justify="space-between" gap={3} w="full" align="center">
+      <HStack
+        justify="space-between"
+        gap={3}
+        w="full"
+        align="center"
+        maxW={
+          inColumn ? { base: READABLE_COLUMN_MAX_W, lg: 'none' } : undefined
+        }
+      >
         {showBack ? (
           <IconButton
             type="button"
@@ -305,13 +350,15 @@ export function StepFlowProgress({
   return (
     <Box
       w="full"
-      px={{ base: 4, md: 6 }}
+      px={STEP_FLOW_PX}
       py={3}
       bg="bg.surface"
       borderBottomWidth="1px"
       borderColor="border.default"
     >
-      <ProgressBar value={value} label={label} trackLabel={trackLabel} />
+      <StepFlowColumn>
+        <ProgressBar value={value} label={label} trackLabel={trackLabel} />
+      </StepFlowColumn>
     </Box>
   )
 }
@@ -363,7 +410,7 @@ function StepFlowPanel({
         flex={1}
         minH={0}
         overflowY="auto"
-        px={{ base: 4, md: 8, lg: 10 }}
+        px={STEP_FLOW_PX}
         pt={{ base: 5, md: 8 }}
         pb="form.bodyToAction"
       >
@@ -432,31 +479,30 @@ export function StepFlowLayout({
           {mobileTop}
           {progress}
           <Box flex={1} minH={0} overflowY="auto" bg="bg.surface">
-            <Box px={4} pt={5} pb="form.bodyToAction">
-              <StepFlowHeading
-                title={title}
-                description={description}
-                headingRef={headingRef}
-              />
-              <StepFlowBody errorText={errorText}>{children}</StepFlowBody>
+            <Box px={STEP_FLOW_PX} pt={5} pb="form.bodyToAction">
+              <StepFlowColumn>
+                <StepFlowHeading
+                  title={title}
+                  description={description}
+                  headingRef={headingRef}
+                />
+                <StepFlowBody errorText={errorText}>{children}</StepFlowBody>
+              </StepFlowColumn>
             </Box>
           </Box>
-          <StepFlowActions {...actions} sticky />
+          <StepFlowActions {...actions} sticky inColumn />
         </Stack>
       ) : (
         <Box flex={1} minH={0} overflow="hidden">
-          <Grid
-            templateColumns={
+          <PageContainer
+            display="grid"
+            gridTemplateColumns={
               aside
                 ? 'minmax(240px, 280px) minmax(0, 1fr) minmax(280px, 340px)'
                 : 'minmax(280px, 320px) minmax(0, 1fr)'
             }
             gap={aside ? 6 : 8}
-            maxW={PAGE_CONTAINER_MAX_W}
-            mx="auto"
-            w="full"
             h="full"
-            px={PAGE_GUTTER_X}
             py={8}
           >
             <Box pt={2} px={2} overflowY="auto" minH={0}>
@@ -490,7 +536,7 @@ export function StepFlowLayout({
                 {aside}
               </Box>
             ) : null}
-          </Grid>
+          </PageContainer>
         </Box>
       )}
     </Stack>

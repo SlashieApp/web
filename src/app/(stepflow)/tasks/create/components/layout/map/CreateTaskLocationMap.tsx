@@ -13,7 +13,7 @@ import {
   overlayWatermarkCss,
 } from '@/app/(task)/helpers/marketplaceMap/overlay/overlay'
 import { useIsTouchMobileDevice } from '@/app/(task)/helpers/touchMobileDevice'
-import { PAGE_CONTAINER_MAX_W, PAGE_GUTTER_X } from '@/theme/pageContainer'
+import { PageContainer } from '@ui'
 
 import {
   BELOW_TASK_LOCATION_SEARCH,
@@ -185,11 +185,7 @@ export function CreateTaskLocationMap({
           zIndex={MAPBOX_CTRL_Z_INDEX + 1}
           pointerEvents="none"
         >
-          <Box
-            maxW={PAGE_CONTAINER_MAX_W}
-            mx="auto"
-            px={{ base: 3, lg: PAGE_GUTTER_X.lg }}
-          >
+          <PageContainer>
             <Box maxW={{ lg: '420px' }} pointerEvents="auto">
               <TaskLocationSearchBar
                 value={location}
@@ -199,7 +195,7 @@ export function CreateTaskLocationMap({
                 locating={locating}
               />
             </Box>
-          </Box>
+          </PageContainer>
         </Box>
       )}
     </Box>

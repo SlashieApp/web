@@ -157,8 +157,10 @@ export { SlideToConfirm } from './SlideToConfirm'
 export { SpotIllustration } from './SpotIllustration/SpotIllustration'
 export { StatusCard } from './StatusCard'
 export {
+  STEP_FLOW_PX,
   StepFlowActions,
   StepFlowBody,
+  StepFlowColumn,
   StepFlowHeader,
   StepFlowHeading,
   StepFlowLayout,

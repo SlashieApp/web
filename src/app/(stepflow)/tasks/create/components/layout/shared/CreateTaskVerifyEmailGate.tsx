@@ -5,16 +5,8 @@ import { useCallback, useRef } from 'react'
 
 import { formatMessage } from '@/i18n/loadPageI11n'
 import { useI11n } from '@/i18n/useI11n'
-import { PAGE_GUTTER_X } from '@/theme/pageContainer'
 import { APP_HOME } from '@/utils/appRoutes'
-import {
-  Button,
-  Card,
-  FormStack,
-  Link,
-  StepFlowHeader,
-  StepFlowHeading,
-} from '@ui'
+import { Button, Link, StatusCard, StepFlowHeader } from '@ui'
 
 import bag from '../../../i11n.json'
 
@@ -33,7 +25,8 @@ export type CreateTaskVerifyEmailGateProps = {
 /**
  * `create.verifyEmail` (FE-447): before the first step, an unverified email
  * gets the title, the reason and Verify email, as in the app, so nobody fills
- * in the flow to be stopped at Review.
+ * in the flow to be stopped at Review. The gate is a centred status card (R6)
+ * under the flow header (R2).
  */
 export function CreateTaskVerifyEmailGate({
   email,
@@ -66,31 +59,23 @@ export function CreateTaskVerifyEmailGate({
         exitHref={APP_HOME}
         closeLabel={t.closeLabel}
       />
-      {/* A plain container: the heading owns the 24 under it (title, 8,
-          description, 24, the card), and the card body is a form column, so
-          the sentence is 20 above the main button, which is 48 tall. */}
-      <Box
-        flex={1}
-        w="full"
-        maxW="lg"
-        mx="auto"
-        px={PAGE_GUTTER_X}
-        py={{ base: 6, md: 10 }}
+      {/* The centred card every gate and status page uses (R6, 448): the
+          title, the subtitle and the reason, then the main button. */}
+      <StatusCard
+        title={v.title}
+        body={v.subtitle}
+        actions={
+          <Button asChild w="full" size="form">
+            <Link href={verifyHref} _hover={{ textDecoration: 'none' }}>
+              {v.cta}
+            </Link>
+          </Button>
+        }
       >
-        <StepFlowHeading title={v.title} description={v.subtitle} />
-        <Card>
-          <FormStack>
-            <Text fontSize="sm" color="text.muted" lineHeight="tall">
-              {formatMessage(v.body, { email })}
-            </Text>
-            <Button asChild w="full" size="form">
-              <Link href={verifyHref} _hover={{ textDecoration: 'none' }}>
-                {v.cta}
-              </Link>
-            </Button>
-          </FormStack>
-        </Card>
-      </Box>
+        <Text color="text.muted" lineHeight="tall">
+          {formatMessage(v.body, { email })}
+        </Text>
+      </StatusCard>
     </Box>
   )
 }

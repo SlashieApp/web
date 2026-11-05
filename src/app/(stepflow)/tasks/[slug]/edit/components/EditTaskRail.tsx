@@ -97,7 +97,7 @@ export function EditTaskMobileBar({
     <HStack
       gap={3}
       justify="space-between"
-      px={4}
+      px={{ base: 4, md: 6 }}
       py={2}
       bg="bg.surface"
       borderBottomWidth="1px"

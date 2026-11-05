@@ -186,15 +186,17 @@ describe('sections and fields', () => {
     expect(read('src/ui/Textarea/Textarea.tsx')).toContain('display="block"')
   })
 
-  it('the gates in front of the post-a-task and send-quote flows are form columns with 48 buttons', () => {
+  it('the gates in front of the post-a-task and send-quote flows are the centred status card (R6) with 48 buttons', () => {
     const verify = read(`${CREATE}/layout/shared/CreateTaskVerifyEmailGate.tsx`)
-    // The heading owns the 24 under it: no gapped stack around it.
+    // One card width for every gate (448): no hand-built column or card.
+    expect(verify).toContain('<StatusCard')
     expect(verify).not.toContain('<Stack')
-    expect(verify).toContain('<FormStack>')
+    expect(verify).not.toContain('<Card')
     expect(verify).toContain('size="form"')
 
     const gate = read(`${QUOTE}/ui/shared/TaskQuoteGateView.tsx`)
-    expect(gate).toContain('<FormHeader')
+    // The summary card and the action are one form column (20 apart).
+    expect(gate).toContain('<StatusCard')
     expect(gate).toContain('<FormStack>')
     expect(gate).not.toContain('<Stack')
 

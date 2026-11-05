@@ -2,11 +2,10 @@
 
 import type { ReactNode } from 'react'
 
-import { Box } from '@chakra-ui/react'
 import { LuArrowLeft } from 'react-icons/lu'
 
 import { useI11n } from '@/i18n/useI11n'
-import { FormHeader, FormStack, Link } from '@ui'
+import { FormStack, Link, StatusCard } from '@ui'
 
 import bag from '../../../i11n.json'
 
@@ -25,12 +24,9 @@ function BackToTaskLink({ href }: { href: string }) {
       fontSize="sm"
       fontWeight={500}
       color="text.link"
-      display="flex"
+      display="inline-flex"
       alignItems="center"
       gap={1}
-      w="fit-content"
-      // 24 to the header, as the column's gap was.
-      mb={6}
       _hover={{ textDecoration: 'none', color: 'text.link' }}
     >
       <LuArrowLeft size={16} aria-hidden />
@@ -41,9 +37,10 @@ function BackToTaskLink({ href }: { href: string }) {
 
 /**
  * A gate in front of the quote form (signed out, no worker profile, limit
- * reached, email to verify). Form spacing (FE-481): the header is the title,
- * the description 8 under it, then 24 to the first block; the summary card and
- * the action are one form column, 20 apart.
+ * reached, email to verify): the centred status card every gate uses (R6,
+ * 448), on a page of its own. The card is the title, the description 8 under
+ * it, then 24 to the first block; the summary card and the action are one form
+ * column, 20 apart. The way back to the task is under the card.
  */
 export function TaskQuoteGateView({
   title,
@@ -52,17 +49,12 @@ export function TaskQuoteGateView({
   backHref,
 }: TaskQuoteGateViewProps) {
   return (
-    <Box
-      flex={1}
-      px={{ base: 4, md: 8 }}
-      py={{ base: 6, md: 10 }}
-      maxW="lg"
-      mx="auto"
-      w="full"
-    >
-      {backHref ? <BackToTaskLink href={backHref} /> : null}
-      <FormHeader title={title} description={description} />
-      <FormStack>{children}</FormStack>
-    </Box>
+    <StatusCard
+      fullPage
+      title={title}
+      body={description}
+      actions={<FormStack>{children}</FormStack>}
+      footer={backHref ? <BackToTaskLink href={backHref} /> : undefined}
+    />
   )
 }
