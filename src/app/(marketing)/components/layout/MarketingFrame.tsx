@@ -10,9 +10,9 @@ import {
 import type { ReactNode } from 'react'
 import type { IconType } from 'react-icons'
 
-import { PAGE_CONTAINER_MAX_W } from '@/theme/pageContainer'
 import { sdlEyebrow } from '@/theme/styles'
 import { HEADER_MIN_HEIGHT } from '@/ui/Header/shell/headerShell'
+import { PageContainer } from '@/ui/PageContainer'
 
 /**
  * The marketing frame (FE-471, tone train 2): the pieces every marketing
@@ -90,9 +90,8 @@ export function MarketingFrame({
         display={{ base: 'none', lg: 'block' }}
         pointerEvents="none"
       >
-        <Box
-          mx="auto"
-          maxW={PAGE_CONTAINER_MAX_W}
+        <PageContainer
+          gutters="none"
           h="full"
           borderInlineWidth="1px"
           borderColor="border.default"

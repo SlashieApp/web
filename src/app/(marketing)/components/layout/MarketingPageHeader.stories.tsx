@@ -24,7 +24,6 @@ const meta = {
   args: {
     title: 'Terms of Service',
     description: 'Last updated: 8 July 2026',
-    contentMaxW: '45rem',
     children: (
       <Text color="text.muted" h="200vh" pt={4}>
         Page content
@@ -107,7 +106,6 @@ export const PricingTitle: Story = {
   args: {
     title: 'Membership',
     description: undefined,
-    contentMaxW: undefined,
     children: (
       <Heading as="h2" size="2xl" pt={8} pb="150vh">
         Simple plans. Clear quotes.

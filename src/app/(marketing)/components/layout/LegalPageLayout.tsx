@@ -1,9 +1,9 @@
-import { Box, Container, Heading, Stack, Text } from '@chakra-ui/react'
+import { Box, Heading, Stack, Text } from '@chakra-ui/react'
 import type { ReactNode } from 'react'
 
 import type { LegalDocument } from '@/content/legal/types'
-import { PAGE_CONTAINER_MAX_W, PAGE_GUTTER_X } from '@/theme/pageContainer'
 import { Link } from '@/ui'
+import { PageContainer } from '@/ui/PageContainer'
 
 import { type LegalColumn, LegalEyebrow } from './LegalEyebrow'
 import { MarketingFrame, SECTION_PY, SectionRule } from './MarketingFrame'
@@ -92,8 +92,8 @@ function linkifyEmails(paragraph: string): ReactNode[] {
  * /help/safety), in the marketing frame (FE-471, tone train 2): a white page,
  * from `lg` a rail down each side of the page column, and a full-width rule
  * under the page header. The page header (FE-458) keeps the title as the h1
- * and "Last updated" under it; it sits outside a `<Container>` and says its
- * colour and column, so the rule can run edge to edge. The policy is one
+ * and "Last updated" under it; it sits outside the page container and says its
+ * colour, so the rule can run edge to edge. The policy is one
  * landmark named by the title: the intro, then each section as a hairline row
  * with its heading (an h2, `heading-lg`) beside its text, which sits in a
  * 65 to 75 character reading column (`LEGAL_MEASURE`). Copy comes from
@@ -120,8 +120,6 @@ export function LegalPageLayout({
         eyebrow={<LegalEyebrow column={column} />}
         description={`${document.lastUpdatedLabel ?? 'Last updated'}: ${document.lastUpdated}`}
         background="bg.surface"
-        contentMaxW={PAGE_CONTAINER_MAX_W}
-        contentPx={PAGE_GUTTER_X}
       >
         <SectionRule />
         <Box
@@ -130,7 +128,7 @@ export function LegalPageLayout({
           data-legal-document=""
           pb={POLICY_PB}
         >
-          <Container>
+          <PageContainer>
             {hasIntro ? (
               <Box
                 data-legal-intro=""
@@ -188,7 +186,7 @@ export function LegalPageLayout({
                 </Stack>
               </Box>
             ))}
-          </Container>
+          </PageContainer>
         </Box>
       </MarketingPageHeader>
     </MarketingFrame>

@@ -1,6 +1,5 @@
 import {
   Box,
-  Container,
   Grid,
   HStack,
   Heading,
@@ -17,6 +16,7 @@ import { SLASHIE_GITHUB_URL, SLASHIE_LINKEDIN_URL } from '@/content/social'
 import type { AppLocale } from '@/i18n/locales'
 import { withLocale } from '@/i18n/navigation'
 import { sdlEyebrow } from '@/theme/styles'
+import { PageContainer } from '@/ui/PageContainer'
 import { Button, Link } from '@ui'
 
 import {
@@ -71,7 +71,7 @@ function AboutSection({
       py={SECTION_PY}
       {...dataAttrs}
     >
-      <Container>{children}</Container>
+      <PageContainer>{children}</PageContainer>
     </Box>
   )
 }
@@ -320,7 +320,7 @@ export function AboutScreen({
 
       <SectionRule />
       <Box py={SECTION_PY} data-about-story="">
-        <Container>
+        <PageContainer>
           <Grid
             templateColumns={{
               base: 'minmax(0, 1fr)',
@@ -373,7 +373,7 @@ export function AboutScreen({
               </Reveal>
             </Box>
           </Grid>
-        </Container>
+        </PageContainer>
       </Box>
 
       <SectionRule />

@@ -9,7 +9,7 @@ import {
   SECTION_PY,
   SectionHead,
 } from '@/app/(marketing)/components/layout/MarketingFrame'
-import { PAGE_CONTAINER_MAX_W, PAGE_GUTTER_X } from '@/theme/pageContainer'
+import { PageContainer } from '@/ui/PageContainer'
 
 import { Reveal } from '../Reveal'
 import { STICKY_PHONE_W, StepPhone, StickyPhone } from '../phone/PhoneDemo'
@@ -235,12 +235,7 @@ export function LandingStory({
         // "See how it works" lands the section under the sticky header.
         scrollMarginTop={STORY_HEADER_H}
       >
-        <Box
-          maxW={PAGE_CONTAINER_MAX_W}
-          mx="auto"
-          px={PAGE_GUTTER_X}
-          py={SECTION_PY}
-        >
+        <PageContainer py={SECTION_PY}>
           {/* From lg two halves, as the 3D scene's formations expect: the
               steps (with the index) on the left, the phone on the right. */}
           <Grid
@@ -298,7 +293,7 @@ export function LandingStory({
               </Box>
             </Box>
           </Grid>
-        </Box>
+        </PageContainer>
       </Box>
     </Box>
   )

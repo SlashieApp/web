@@ -49,7 +49,12 @@ export function pageGutterPx(viewportWidth: number): number {
   return PAGE_GUTTER_PX.base
 }
 
-const PAGE_CONTAINER_PX = Number.parseFloat(PAGE_CONTAINER_MAX_W_CSS) * 16
+/**
+ * The page container's width (`sizes.page`, 80rem) in px. Rails, the landing's
+ * scene and the map showcase size themselves to it.
+ */
+export const PAGE_CONTAINER_PX =
+  Number.parseFloat(PAGE_CONTAINER_MAX_W_CSS) * 16
 
 /**
  * The logo line: where the site header's logo, and so every page's own header

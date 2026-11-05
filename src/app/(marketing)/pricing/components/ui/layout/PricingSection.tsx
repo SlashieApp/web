@@ -1,8 +1,9 @@
-import { Box, Container, Grid, type GridProps } from '@chakra-ui/react'
+import { Box, Grid, type GridProps } from '@chakra-ui/react'
 import type { ReactNode } from 'react'
 
 import { SECTION_PY } from '@/app/(marketing)/components/layout/MarketingFrame'
 import { Reveal } from '@/app/(marketing)/components/ui/landing/Reveal'
+import { PageContainer } from '@/ui/PageContainer'
 
 /**
  * The section's grid: one column, and from `xl` the head (4fr) beside the
@@ -52,14 +53,14 @@ export function PricingSection({
       py={SECTION_PY}
       {...dataAttrs}
     >
-      <Container>
+      <PageContainer>
         <Grid {...PRICING_SPLIT}>
           <Reveal>{head}</Reveal>
           <Reveal delayMs={80} minW={0}>
             {children}
           </Reveal>
         </Grid>
-      </Container>
+      </PageContainer>
     </Box>
   )
 }

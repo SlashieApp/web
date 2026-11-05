@@ -4,7 +4,6 @@ import {
   Accordion,
   Box,
   type BoxProps,
-  Container,
   Grid,
   HStack,
   Stack,
@@ -26,7 +25,6 @@ import { useLocale } from '@/i18n/LocaleProvider'
 import { formatMessage } from '@/i18n/loadPageI11n'
 import { LOCALE_LABELS } from '@/i18n/locales'
 import { useI11n } from '@/i18n/useI11n'
-import { PAGE_CONTAINER_MAX_W, PAGE_GUTTER_X } from '@/theme/pageContainer'
 import { sdlEyebrow, sdlFocusRing, sdlMotion } from '@/theme/styles'
 import { openCookieSettings } from '@/utils/analytics'
 import { APP_HOME, SAFETY_HREF } from '@/utils/appRoutes'
@@ -34,6 +32,7 @@ import { APP_HOME, SAFETY_HREF } from '@/utils/appRoutes'
 import { FeedbackTrigger } from '../FeedbackDialog/FeedbackTrigger'
 import { Link } from '../Link/Link'
 import { Logo } from '../Logo/Logo'
+import { PageContainer } from '../PageContainer'
 import messages from './i11n.json'
 
 /**
@@ -223,12 +222,7 @@ export function Footer({
       py={variant === 'minimal' ? 6 : { base: 10, md: 12 }}
       {...boxProps}
     >
-      <Container
-        maxW={PAGE_CONTAINER_MAX_W}
-        px={PAGE_GUTTER_X}
-        position="relative"
-        zIndex={1}
-      >
+      <PageContainer position="relative" zIndex={1}>
         {variant === 'minimal' ? (
           <Stack gap={3}>
             <HStack
@@ -365,7 +359,7 @@ export function Footer({
             </Stack>
           </Stack>
         )}
-      </Container>
+      </PageContainer>
       <LanguageSwitcher open={languageOpen} onOpenChange={setLanguageOpen} />
     </Box>
   )

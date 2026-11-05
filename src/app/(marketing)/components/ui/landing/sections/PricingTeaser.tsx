@@ -1,4 +1,4 @@
-import { Box, Container, Grid, HStack, Heading, Text } from '@chakra-ui/react'
+import { Box, Grid, HStack, Heading, Text } from '@chakra-ui/react'
 import NextLink from 'next/link'
 import { LuSparkles, LuTag } from 'react-icons/lu'
 
@@ -9,6 +9,8 @@ import {
   SECTION_PY,
   SectionHead,
 } from '@/app/(marketing)/components/layout/MarketingFrame'
+import { PageContainer } from '@/ui/PageContainer'
+
 import { Reveal } from '../Reveal'
 
 export type LandingPricing = {
@@ -135,7 +137,7 @@ export function PricingTeaser({
       bg="bg.surface"
       py={SECTION_PY}
     >
-      <Container>
+      <PageContainer>
         <Grid
           templateColumns={{
             base: 'minmax(0, 1fr)',
@@ -198,7 +200,7 @@ export function PricingTeaser({
             </Button>
           </Reveal>
         </Grid>
-      </Container>
+      </PageContainer>
     </Box>
   )
 }

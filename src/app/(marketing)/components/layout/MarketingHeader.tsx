@@ -3,7 +3,6 @@
 import {
   Box,
   type BoxProps,
-  Container,
   HStack,
   Image,
   Stack,
@@ -17,9 +16,9 @@ import { AccountSuspendedBanner } from '@/app/(auth)/components/ui/AccountSuspen
 import { useLocale } from '@/i18n/LocaleProvider'
 import { loadPageI11n } from '@/i18n/loadPageI11n'
 import { stripLocalePrefix } from '@/i18n/navigation'
-import { PAGE_CONTAINER_MAX_W, PAGE_GUTTER_X } from '@/theme/pageContainer'
 import { useOpenFeedbackDialog } from '@/ui/FeedbackDialog/FeedbackDialogProvider'
 import { HEADER_MIN_HEIGHT, HeaderToolbarSeparator } from '@/ui/Header'
+import { PageContainer } from '@/ui/PageContainer'
 import { APP_HOME, MARKETING_HOME, SAFETY_HREF } from '@/utils/appRoutes'
 import { openAppOnAndroid } from '@/utils/nativeApp'
 import { Button, Drawer, IconButton, Link } from '@ui'
@@ -434,7 +433,10 @@ export function MarketingHeader(props: MarketingHeaderProps) {
         overflow="visible"
         bg={transparent ? 'transparent' : isFramed ? 'bg.surface' : 'bg.canvas'}
         color="text.default"
-        borderWidth="1px"
+        // Top and bottom only: a side border would push the logo and the menu
+        // 1px in from the page gutters (the logo and menu lines, FE-493 W12).
+        borderTopWidth="1px"
+        borderBottomWidth="1px"
         borderColor={transparent ? 'transparent' : 'border.default'}
         transition="background-color 0.25s ease, border-color 0.25s ease"
         minH={HEADER_MIN_HEIGHT}
@@ -445,9 +447,7 @@ export function MarketingHeader(props: MarketingHeaderProps) {
         {...props}
       >
         <SkipLink label={copy.skipToContent} />
-        <Container
-          maxW={PAGE_CONTAINER_MAX_W}
-          px={PAGE_GUTTER_X}
+        <PageContainer
           w="full"
           minH={HEADER_MIN_HEIGHT}
           overflow="visible"
@@ -459,7 +459,7 @@ export function MarketingHeader(props: MarketingHeaderProps) {
             isLanding={isLanding}
             copy={copy}
           />
-        </Container>
+        </PageContainer>
       </Box>
     </>
   )

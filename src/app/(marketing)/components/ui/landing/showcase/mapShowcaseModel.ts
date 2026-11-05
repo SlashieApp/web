@@ -1,6 +1,6 @@
 import { formatMessage } from '@/i18n/loadPageI11n'
 import { BREAKPOINT_PX } from '@/theme/breakpoints'
-import { PAGE_CONTAINER_MAX_W_CSS } from '@/theme/pageContainer'
+import { PAGE_CONTAINER_PX } from '@/theme/pageContainer'
 
 import type { DemoTaskId, PhoneCopy } from '../phone/phoneCopy'
 
@@ -105,9 +105,6 @@ export const MAP_ASPECT = {
   lg: 11 / 5,
 } as const
 
-/** The page column's width (`sizes.page`, 80rem), in px. The map is as wide as it. */
-const PAGE_COLUMN_PX = Number.parseFloat(PAGE_CONTAINER_MAX_W_CSS) * 16
-
 /** The layout the map uses on a viewport this wide. */
 export function layoutAt(viewportWidth: number): MapLayout {
   return viewportWidth >= BREAKPOINT_PX.md ? 'wide' : 'narrow'
@@ -122,7 +119,7 @@ export function mapSizeAt(viewportWidth: number): {
   width: number
   height: number
 } {
-  const width = Math.min(viewportWidth, PAGE_COLUMN_PX)
+  const width = Math.min(viewportWidth, PAGE_CONTAINER_PX)
   const aspect =
     viewportWidth >= BREAKPOINT_PX.lg
       ? MAP_ASPECT.lg

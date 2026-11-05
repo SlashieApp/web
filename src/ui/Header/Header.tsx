@@ -4,7 +4,6 @@ import {
   Badge,
   Box,
   type BoxProps,
-  Container,
   HStack,
   Skeleton,
   Stack,
@@ -17,7 +16,6 @@ import { useUserStore } from '@/app/(auth)/store/user'
 import { useMessagesOptional } from '@/app/(messages)/messages/context/MessagesProvider'
 import { formatMessage } from '@/i18n/loadPageI11n'
 import { useI11n } from '@/i18n/useI11n'
-import { PAGE_CONTAINER_MAX_W, PAGE_GUTTER_X } from '@/theme/pageContainer'
 import { sdlFigure } from '@/theme/styles'
 import {
   APP_HOME,
@@ -36,6 +34,7 @@ import { IconButton } from '../IconButton'
 import { Link } from '../Link'
 import { Logo } from '../Logo'
 import { MESSAGES_HREF } from '../MobileBottomNav/mobileBottomNavLayout'
+import { PageContainer } from '../PageContainer'
 
 import { AccountMenu } from './account/AccountMenu'
 import { accountNavLinkRowProps } from './account/accountNavLinkProps'
@@ -296,7 +295,10 @@ export function Header({
         bg="bg.canvas"
         color="text.default"
         boxShadow="none"
-        borderWidth="1px"
+        // Top and bottom only: a side border would push the logo and the menu
+        // 1px in from the page gutters (the logo and menu lines, FE-493 W12).
+        borderTopWidth="1px"
+        borderBottomWidth="1px"
         borderColor="border.default"
         minH={HEADER_MIN_HEIGHT}
         // No mobile header in the app (Mobile-Navigation-IA): the bottom bar
@@ -307,9 +309,7 @@ export function Header({
         top={0}
         {...props}
       >
-        <Container
-          maxW={PAGE_CONTAINER_MAX_W}
-          px={PAGE_GUTTER_X}
+        <PageContainer
           w="full"
           minH={HEADER_MIN_HEIGHT}
           overflow="visible"
@@ -317,7 +317,7 @@ export function Header({
           alignItems="center"
         >
           {children ?? <AppHeaderNavigation hasSession={hasSession} />}
-        </Container>
+        </PageContainer>
       </Box>
     </>
   )

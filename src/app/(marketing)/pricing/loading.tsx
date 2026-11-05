@@ -1,17 +1,11 @@
-import {
-  Box,
-  Container,
-  Grid,
-  SimpleGrid,
-  Skeleton,
-  Stack,
-} from '@chakra-ui/react'
+import { Box, Grid, SimpleGrid, Skeleton, Stack } from '@chakra-ui/react'
 
 import {
   MarketingFrame,
   SECTION_PY,
   SectionRule,
 } from '@/app/(marketing)/components/layout/MarketingFrame'
+import { PageContainer } from '@/ui/PageContainer'
 import { Footer } from '@ui'
 
 import { PRICING_SPLIT } from './components/ui/layout/PricingSection'
@@ -25,7 +19,7 @@ export default function PricingLoading() {
   return (
     <>
       <MarketingFrame bg="bg.surface">
-        <Container>
+        <PageContainer>
           {/* The 56px bar and the large "Membership" 8px under it (FE-458). */}
           <Box h="56px" aria-hidden />
           <Skeleton
@@ -34,10 +28,10 @@ export default function PricingLoading() {
             mt={2}
             mb={{ base: 4, md: 6 }}
           />
-        </Container>
+        </PageContainer>
         <SectionRule />
         <Box as="section" py={SECTION_PY}>
-          <Container>
+          <PageContainer>
             <Grid {...PRICING_SPLIT}>
               <Stack gap={3}>
                 <Skeleton h="41px" w="min(24rem, 90%)" />
@@ -49,11 +43,11 @@ export default function PricingLoading() {
                 <Skeleton h="440px" borderRadius="lg" />
               </SimpleGrid>
             </Grid>
-          </Container>
+          </PageContainer>
         </Box>
         <SectionRule />
         <Box as="section" py={SECTION_PY}>
-          <Container>
+          <PageContainer>
             <Grid {...PRICING_SPLIT}>
               <Skeleton h="41px" w="min(14rem, 60%)" />
               <Stack gap={0}>
@@ -62,7 +56,7 @@ export default function PricingLoading() {
                 <Skeleton h="88px" />
               </Stack>
             </Grid>
-          </Container>
+          </PageContainer>
         </Box>
       </MarketingFrame>
       <Footer />

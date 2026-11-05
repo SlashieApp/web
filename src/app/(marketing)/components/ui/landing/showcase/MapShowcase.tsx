@@ -1,18 +1,10 @@
 'use client'
 
-import {
-  Box,
-  Container,
-  HStack,
-  Heading,
-  Stack,
-  Text,
-  chakra,
-} from '@chakra-ui/react'
+import { Box, HStack, Heading, Stack, Text, chakra } from '@chakra-ui/react'
 import { useId, useRef, useState } from 'react'
 import { LuMapPin } from 'react-icons/lu'
 
-import { PAGE_CONTAINER_MAX_W, PAGE_GUTTER_X } from '@/theme/pageContainer'
+import { PAGE_GUTTER_X } from '@/theme/pageContainer'
 import {
   sdlElevation,
   sdlFigure,
@@ -20,6 +12,7 @@ import {
   sdlMotion,
   sdlOverlaySurface,
 } from '@/theme/styles'
+import { PageContainer } from '@/ui/PageContainer'
 import { Badge, Card } from '@ui'
 
 import { Reveal } from '../Reveal'
@@ -388,7 +381,7 @@ export function MapShowcase({ copy }: { copy: PhoneCopy }) {
       data-map-showcase=""
       bg="bg.canvas"
     >
-      <Container maxW={PAGE_CONTAINER_MAX_W} px={0}>
+      <PageContainer gutters="none">
         <Reveal>
           <Box position="relative">
             <Box
@@ -463,7 +456,7 @@ export function MapShowcase({ copy }: { copy: PhoneCopy }) {
             </Box>
           </Box>
         </Reveal>
-      </Container>
+      </PageContainer>
     </Box>
   )
 }

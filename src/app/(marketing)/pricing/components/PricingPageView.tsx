@@ -3,7 +3,6 @@ import {
   SectionRule,
 } from '@/app/(marketing)/components/layout/MarketingFrame'
 import { MarketingPageHeader } from '@/app/(marketing)/components/layout/MarketingPageHeader'
-import { PAGE_CONTAINER_MAX_W, PAGE_GUTTER_X } from '@/theme/pageContainer'
 
 import type { PricingRecord } from '../helpers/getPricingForPage'
 import type messages from '../i11n.json'
@@ -25,9 +24,9 @@ type PricingCopy = (typeof messages)['en']
  * the questions. Everything but the footer and the view's analytics: the page
  * (`page.tsx`) adds those under it.
  *
- * The page header sits outside a `<Container>` and says its colour and column
- * (the same measure and gutters as one), so the rules can run edge to edge
- * inside it; each section brings its own `<Container>`.
+ * The page header sits outside the page container and says its colour, so the
+ * rules can run edge to edge inside it; each section brings its own
+ * `PageContainer`.
  *
  * With no plans from the API (`pricing: null`) the plans section shows the
  * "Pricing isn't loading" card and the questions are left out, as before.
@@ -47,12 +46,7 @@ export function PricingPageView({
   return (
     // The page header's bar is opaque and 10 deep: the rails go over it.
     <MarketingFrame bg="bg.surface" railsZIndex={11}>
-      <MarketingPageHeader
-        title={copy.title}
-        background="bg.surface"
-        contentMaxW={PAGE_CONTAINER_MAX_W}
-        contentPx={PAGE_GUTTER_X}
-      >
+      <MarketingPageHeader title={copy.title} background="bg.surface">
         <SectionRule />
         <PricingSection
           data-pricing-plans-section=""

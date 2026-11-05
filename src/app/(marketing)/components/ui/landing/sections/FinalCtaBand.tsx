@@ -1,9 +1,11 @@
-import { Box, Container, HStack, Heading, Stack, Text } from '@chakra-ui/react'
+import { Box, HStack, Heading, Stack, Text } from '@chakra-ui/react'
 import NextLink from 'next/link'
 
 import { Button } from '@ui'
 
 import { SECTION_PY } from '@/app/(marketing)/components/layout/MarketingFrame'
+import { PageContainer } from '@/ui/PageContainer'
+
 import { Magnetic } from '../Magnetic'
 import { Reveal } from '../Reveal'
 
@@ -49,7 +51,7 @@ export function FinalCtaBand({
       aria-labelledby={FINAL_CTA_HEADING_ID}
       py={SECTION_PY}
     >
-      <Container>
+      <PageContainer>
         <Stack
           align="center"
           textAlign="center"
@@ -92,7 +94,7 @@ export function FinalCtaBand({
             </HStack>
           </Reveal>
         </Stack>
-      </Container>
+      </PageContainer>
     </Box>
   )
 }

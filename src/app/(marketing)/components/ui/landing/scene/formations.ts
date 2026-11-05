@@ -1,5 +1,5 @@
 import { BREAKPOINT_PX } from '@/theme/breakpoints'
-import { PAGE_CONTAINER_MAX_W_CSS } from '@/theme/pageContainer'
+import { PAGE_CONTAINER_PX } from '@/theme/pageContainer'
 
 import { STORY_STAGES, type StoryStage } from '../story/storyState'
 
@@ -257,9 +257,6 @@ export function peekLayoutFor(stage: StoryStage): PeekLayout {
   return FORMATION_FOR_STAGE[stage] === 'gather' ? 'centred' : 'steps'
 }
 
-/** The page column's width (`sizes.page`, 80rem), in px: the rails stand on its edges. */
-export const PAGE_COLUMN_PX = Number.parseFloat(PAGE_CONTAINER_MAX_W_CSS) * 16
-
 /** The air a prop keeps between its outer edge and a rail. */
 export const RAIL_MARGIN_PX = 16
 
@@ -338,7 +335,7 @@ export function phoneStripPx(
   viewportPx: number,
   heightPx: number,
 ): { from: number; to: number } {
-  const page = Math.min(viewportPx, PAGE_COLUMN_PX)
+  const page = Math.min(viewportPx, PAGE_CONTAINER_PX)
   const content = page - 2 * STORY_GUTTER_PX
   const column =
     viewportPx >= BREAKPOINT_PX.xl
@@ -361,7 +358,7 @@ export function railMarginStripPx(viewportPx: number): {
   from: number
   to: number
 } {
-  const rail = Math.min(viewportPx, PAGE_COLUMN_PX) / 2
+  const rail = Math.min(viewportPx, PAGE_CONTAINER_PX) / 2
   return { from: rail + RAIL_MARGIN_PX, to: viewportPx / 2 - RAIL_MARGIN_PX }
 }
 
@@ -404,7 +401,7 @@ export function placeProp({
   if (placement === 'column') {
     // The whole prop, not its centre, stays inside the rails (the page column,
     // or the screen where that is narrower), with a margin.
-    const rail = Math.min(viewportPx, PAGE_COLUMN_PX) / 2
+    const rail = Math.min(viewportPx, PAGE_CONTAINER_PX) / 2
     const limit = Math.max(0, rail - RAIL_MARGIN_PX - halfPx)
     return { x: Math.max(-limit, Math.min(limit, xPx)), fit: 1 }
   }

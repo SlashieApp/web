@@ -3,6 +3,8 @@ import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
 
+import { PAGE_CONTAINER_PX } from '@/theme/pageContainer'
+
 import { STORY_STAGES } from '../story/storyState'
 import {
   CAMERA_Z,
@@ -10,7 +12,6 @@ import {
   COMPACT_OBJECTS,
   FOOTER_MARGIN_PX,
   HEADER_MARGIN_PX,
-  PAGE_COLUMN_PX,
   PARKED_STAGE,
   PEEK_CLEARANCE_PX,
   PHONE_CLEARANCE_PX,
@@ -269,13 +270,15 @@ describe('placeX, in the page column', () => {
 
   it('holds the whole prop inside the rails, not its centre', () => {
     // The page column is 640px a side: the prop's outer edge stops 16px short.
-    const limit = PAGE_COLUMN_PX / 2 - RAIL_MARGIN_PX - 100
+    const limit = PAGE_CONTAINER_PX / 2 - RAIL_MARGIN_PX - 100
     expect(place(900, 100, 1920)).toBe(limit)
     expect(place(-900, 100, 1920)).toBe(-limit)
     // So its outer edge is inside the rail whatever its width.
     for (const half of [60, 100, 115]) {
       const x = place(900, half, 1920)
-      expect(x + half).toBeLessThanOrEqual(PAGE_COLUMN_PX / 2 - RAIL_MARGIN_PX)
+      expect(x + half).toBeLessThanOrEqual(
+        PAGE_CONTAINER_PX / 2 - RAIL_MARGIN_PX,
+      )
     }
   })
 
@@ -471,7 +474,7 @@ describe('phoneStripPx', () => {
   it('starts at the phone frame and ends inside the right rail', () => {
     const { from, to } = phoneStripPx(1366, 768)
     // The page column is 1280px: its rail is 640px from the centre.
-    expect(to).toBe(PAGE_COLUMN_PX / 2 - RAIL_MARGIN_PX)
+    expect(to).toBe(PAGE_CONTAINER_PX / 2 - RAIL_MARGIN_PX)
     // The phone is 294px wide, centred in the 576px right column of the content.
     const phoneCentre = 640 - 32 - 576 / 2
     expect(from).toBeCloseTo(
@@ -587,7 +590,7 @@ describe('placeProp, in the strip beside the phone', () => {
         const half = PROP_REACH[id].halfWidth * perUnit * near * pose.s
         expect(fit, `${id} at ${width}`).toBe(1)
         expect(x - half, `${id} at ${width}`).toBeGreaterThanOrEqual(
-          PAGE_COLUMN_PX / 2,
+          PAGE_CONTAINER_PX / 2,
         )
         expect(x + half, `${id} at ${width}`).toBeLessThanOrEqual(width / 2)
       }
@@ -605,7 +608,7 @@ describe('placeProp, in the strip beside the phone', () => {
         const near = CAMERA_Z / (CAMERA_Z - pose.z)
         const half =
           PROP_REACH[id].halfWidth * perUnit * near * pose.s * aspectFit * fit
-        const rail = PAGE_COLUMN_PX / 2
+        const rail = PAGE_CONTAINER_PX / 2
         const crosses = x - half < rail && x + half > rail
         expect(crosses, `${id} at ${width}`).toBe(false)
       }

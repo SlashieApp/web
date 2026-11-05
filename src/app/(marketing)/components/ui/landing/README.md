@@ -553,10 +553,10 @@ and the view's analytics. The views (who sees which button) are unchanged:
   The page header's bar is opaque and sits 10 deep, so the page passes
   `railsZIndex={11}` and the rails run unbroken from the site header.
 - **Page header (FE-458) stays.** The big "Membership" is the page's one h1 and
-  collapses into the bar as before. The header now sits outside a `<Container>`
-  (so the rules can run edge to edge) and says its column and colour:
-  `MarketingPageHeader` takes `contentMaxW`, `contentPx` (the Container's measure
-  and gutters) and `background`.
+  collapses into the bar as before. The header now sits outside the page container
+  (so the rules can run edge to edge) and says its colour: `MarketingPageHeader`
+  takes `background`, and brings the container's measure and gutters itself
+  (FE-493: Back and the title start on the logo line and span the container, R2).
 - **Sections** are `PricingSection`: a landmark named by its h2 (`aria-labelledby`),
   `SECTION_PY`, the page column. Below `xl` the head sits over the content; from
   `xl` the head is the left column (4fr) and the content the right one (8fr),
@@ -664,8 +664,8 @@ each `page.tsx` only loads the copy and adds the footer under the frame.
   (`FRAMED_ROUTES`). The page header's bar is opaque and 10 deep, so the layout passes
   `railsZIndex={11}` and the rails run unbroken from the site header, as on `/pricing`.
 - **Page header (FE-458) stays.** The title is the page's one h1 and collapses into the bar
-  as before, with "Last updated" under it. The header sits outside a `<Container>` and says
-  its column and colour (`contentMaxW`, `contentPx`, `background`), as on `/pricing`.
+  as before, with "Last updated" under it. The header sits outside the page container and says
+  its colour (`background`), as on `/pricing`; it brings the container's column itself.
 - **Eyebrow.** The title carries the footer's column name over it, with a small green 600
   icon: "Legal" (法律) on `/terms`, `/privacy` and `/cookies`, "Support" (支援) on
   `/help/safety`, which sits under Support in the footer (`LegalEyebrow`, a client

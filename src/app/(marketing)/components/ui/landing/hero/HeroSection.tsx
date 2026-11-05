@@ -1,10 +1,10 @@
-import { Box, Container, Heading, List, Stack, Text } from '@chakra-ui/react'
+import { Box, Heading, List, Stack, Text } from '@chakra-ui/react'
 import { LuCheck } from 'react-icons/lu'
 
 import { SECTION_PY } from '@/app/(marketing)/components/layout/MarketingFrame'
-import { PAGE_CONTAINER_MAX_W, PAGE_GUTTER_X } from '@/theme/pageContainer'
 import { sdlMotion } from '@/theme/styles'
 import { HEADER_MIN_HEIGHT } from '@/ui/Header/shell/headerShell'
+import { PageContainer } from '@/ui/PageContainer'
 
 import { HeroHowItWorksLink } from './HeroHowItWorksLink'
 import { HeroSearchCta } from './HeroSearchCta'
@@ -93,7 +93,7 @@ export function HeroSection({ copy, ctas }: HeroSectionProps) {
         pointerEvents="none"
         bgImage={HERO_GLOW}
       />
-      <Container maxW={PAGE_CONTAINER_MAX_W} px={PAGE_GUTTER_X}>
+      <PageContainer>
         <Stack
           align="center"
           textAlign="center"
@@ -175,7 +175,7 @@ export function HeroSection({ copy, ctas }: HeroSectionProps) {
             <HeroHowItWorksLink>{ctas.seeHowItWorks}</HeroHowItWorksLink>
           </Box>
         </Stack>
-      </Container>
+      </PageContainer>
     </Box>
   )
 }
