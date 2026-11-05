@@ -5,7 +5,10 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { NEVER } from 'rxjs'
 import { expect, userEvent, waitFor, within } from 'storybook/test'
 
+import { expectContainersOnLines } from '@/app/(marketing)/components/layout/marketingLines.testing'
+
 import { FeedbackDialogProvider } from '../FeedbackDialog/FeedbackDialogProvider'
+import { viewportAt } from '../PageContainer/pageLines.testing'
 import { Footer, type UiFooterVariant } from './Footer'
 
 const SDL_VARIANTS: UiFooterVariant[] = ['default', 'minimal']
@@ -175,5 +178,41 @@ export const FeedbackDialogOpen: Story = {
         ).toBeVisible(),
       { timeout: 3000 },
     )
+  },
+}
+
+/** R1 (FE-493): the footer's content on the logo line and the menu line at 390 (phone). */
+export const PageLines390: Story = {
+  ...viewportAt(390),
+  args: { variant: 'default' },
+  play: async ({ canvasElement }) => {
+    expectContainersOnLines(canvasElement)
+  },
+}
+
+/** R1 (FE-493): the footer's content on the logo line and the menu line at 1024 (tablet). */
+export const PageLines1024: Story = {
+  ...viewportAt(1024),
+  args: { variant: 'default' },
+  play: async ({ canvasElement }) => {
+    expectContainersOnLines(canvasElement)
+  },
+}
+
+/** R1 (FE-493): the footer's content on the logo line and the menu line at 1366 (laptop). */
+export const PageLines1366: Story = {
+  ...viewportAt(1366),
+  args: { variant: 'default' },
+  play: async ({ canvasElement }) => {
+    expectContainersOnLines(canvasElement)
+  },
+}
+
+/** R1 (FE-493): the footer's content on the logo line and the menu line at 1920 (wide desktop). */
+export const PageLines1920: Story = {
+  ...viewportAt(1920),
+  args: { variant: 'default' },
+  play: async ({ canvasElement }) => {
+    expectContainersOnLines(canvasElement)
   },
 }

@@ -1,9 +1,11 @@
-import { Box, Container, Stack } from '@chakra-ui/react'
+import { Box, Stack } from '@chakra-ui/react'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { LuMapPin, LuUsers, LuWallet } from 'react-icons/lu'
 import { expect, within } from 'storybook/test'
 
 import messages from '@/app/(marketing)/i11n.json'
+import { PageContainer } from '@/ui/PageContainer'
+import { viewportAt } from '@/ui/PageContainer/pageLines.testing'
 
 import {
   MarketingFrame,
@@ -11,6 +13,11 @@ import {
   SectionHead,
   SectionRule,
 } from './MarketingFrame'
+import {
+  expectContainersOnLines,
+  expectRailsOnContainerEdge,
+  expectRulesFullBleed,
+} from './marketingLines.testing'
 
 const { story, pricingTeaser, finalCta } = messages.en.landing
 
@@ -36,7 +43,7 @@ function Section({
       py={SECTION_PY}
       data-testid="section"
     >
-      <Container>{children}</Container>
+      <PageContainer>{children}</PageContainer>
     </Box>
   )
 }
@@ -217,7 +224,7 @@ export const SectionHeadDefault: Story = {
 /** The head's other shapes: a body, no eyebrow, and an `h3` inside a section. */
 export const SectionHeadVariants: Story = {
   render: () => (
-    <Container py={SECTION_PY}>
+    <PageContainer py={SECTION_PY}>
       <Stack gap={14}>
         <SectionHead
           eyebrow={story.worker.eyebrow}
@@ -233,7 +240,7 @@ export const SectionHeadVariants: Story = {
           body={story.customer.steps.post.body}
         />
       </Stack>
-    </Container>
+    </PageContainer>
   ),
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
@@ -257,7 +264,7 @@ export const SectionHeadVariants: Story = {
  */
 export const SectionHeadTitleSize: Story = {
   render: () => (
-    <Container py={SECTION_PY}>
+    <PageContainer py={SECTION_PY}>
       <Stack gap={14}>
         <SectionHead heading={pricingTeaser.heading} headingId="lead" />
         <SectionHead
@@ -266,7 +273,7 @@ export const SectionHeadTitleSize: Story = {
           size="title"
         />
       </Stack>
-    </Container>
+    </PageContainer>
   ),
   globals: { viewport: { value: 'desktop', isRotated: false } },
   play: async ({ canvasElement }) => {
@@ -316,5 +323,45 @@ export const RailsAboveABar: Story = {
     await expect(getComputedStyle(railsOf('raised-frame')).pointerEvents).toBe(
       'none',
     )
+  },
+}
+
+/** R1, R5 (FE-493): the sections on the logo and menu lines, the rails on the container edge from lg, the rules edge to edge at 390 (phone). */
+export const PageLines390: Story = {
+  ...viewportAt(390),
+  play: async ({ canvasElement }) => {
+    expectContainersOnLines(canvasElement)
+    expectRailsOnContainerEdge(canvasElement, 390)
+    expectRulesFullBleed(canvasElement, 390)
+  },
+}
+
+/** R1, R5 (FE-493): the sections on the logo and menu lines, the rails on the container edge from lg, the rules edge to edge at 1024 (tablet). */
+export const PageLines1024: Story = {
+  ...viewportAt(1024),
+  play: async ({ canvasElement }) => {
+    expectContainersOnLines(canvasElement)
+    expectRailsOnContainerEdge(canvasElement, 1024)
+    expectRulesFullBleed(canvasElement, 1024)
+  },
+}
+
+/** R1, R5 (FE-493): the sections on the logo and menu lines, the rails on the container edge from lg, the rules edge to edge at 1366 (laptop). */
+export const PageLines1366: Story = {
+  ...viewportAt(1366),
+  play: async ({ canvasElement }) => {
+    expectContainersOnLines(canvasElement)
+    expectRailsOnContainerEdge(canvasElement, 1366)
+    expectRulesFullBleed(canvasElement, 1366)
+  },
+}
+
+/** R1, R5 (FE-493): the sections on the logo and menu lines, the rails on the container edge from lg, the rules edge to edge at 1920 (wide desktop). */
+export const PageLines1920: Story = {
+  ...viewportAt(1920),
+  play: async ({ canvasElement }) => {
+    expectContainersOnLines(canvasElement)
+    expectRailsOnContainerEdge(canvasElement, 1920)
+    expectRulesFullBleed(canvasElement, 1920)
   },
 }

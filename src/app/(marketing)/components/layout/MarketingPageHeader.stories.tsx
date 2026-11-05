@@ -5,10 +5,15 @@ import { expect, waitFor, within } from 'storybook/test'
 import { useUserStore } from '@/app/(auth)/store/user'
 import { LocaleProvider } from '@/i18n/LocaleProvider'
 import { FeedbackDialogProvider } from '@/ui/FeedbackDialog/FeedbackDialogProvider'
+import { viewportAt } from '@/ui/PageContainer/pageLines.testing'
 
 import chromeMessages from '../../i11n.chrome.json'
 import { MarketingHeader } from './MarketingHeader'
 import { MarketingPageHeader } from './MarketingPageHeader'
+import {
+  expectPageHeaderOnLines,
+  expectSiteHeaderOnLines,
+} from './marketingLines.testing'
 
 /** The live `getUser` calls the API (`.env` is production). */
 const realGetUser = useUserStore.getState().getUser
@@ -37,7 +42,8 @@ const meta = {
       <FeedbackDialogProvider onSubmit={async () => true}>
         <Box bg="bg.subtle" minH="100dvh">
           <MarketingHeader />
-          <Box px={4} pb={10}>
+          {/* The page header brings the container's gutters itself. */}
+          <Box pb={10}>
             <Story />
           </Box>
         </Box>
@@ -159,5 +165,41 @@ export const ZhHk: Story = {
     await expect(
       canvas.getByRole('button', { name: chromeMessages.zh_hk.goBack }),
     ).toBeVisible()
+  },
+}
+
+/** R2 (FE-493): the title starts on the logo line and the header row spans the container to the menu line at 390 (phone). */
+export const PageLines390: Story = {
+  ...viewportAt(390),
+  play: async ({ canvasElement }) => {
+    expectSiteHeaderOnLines(canvasElement, 390)
+    expectPageHeaderOnLines(canvasElement)
+  },
+}
+
+/** R2 (FE-493): the title starts on the logo line and the header row spans the container to the menu line at 1024 (tablet). */
+export const PageLines1024: Story = {
+  ...viewportAt(1024),
+  play: async ({ canvasElement }) => {
+    expectSiteHeaderOnLines(canvasElement, 1024)
+    expectPageHeaderOnLines(canvasElement)
+  },
+}
+
+/** R2 (FE-493): the title starts on the logo line and the header row spans the container to the menu line at 1366 (laptop). */
+export const PageLines1366: Story = {
+  ...viewportAt(1366),
+  play: async ({ canvasElement }) => {
+    expectSiteHeaderOnLines(canvasElement, 1366)
+    expectPageHeaderOnLines(canvasElement)
+  },
+}
+
+/** R2 (FE-493): the title starts on the logo line and the header row spans the container to the menu line at 1920 (wide desktop). */
+export const PageLines1920: Story = {
+  ...viewportAt(1920),
+  play: async ({ canvasElement }) => {
+    expectSiteHeaderOnLines(canvasElement, 1920)
+    expectPageHeaderOnLines(canvasElement)
   },
 }

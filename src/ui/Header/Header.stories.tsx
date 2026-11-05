@@ -13,12 +13,14 @@ import { NEVER } from 'rxjs'
 import { expect, userEvent, waitFor, within } from 'storybook/test'
 
 import { type MeSnapshot, useUserStore } from '@/app/(auth)/store/user'
+import { expectSiteHeaderOnLines } from '@/app/(marketing)/components/layout/marketingLines.testing'
 import { messagesValue } from '@/app/(messages)/messages/components/messagesStoryFixtures'
 import { MessagesContext } from '@/app/(messages)/messages/context/MessagesProvider'
 import { AUTH_COOKIE_NAME } from '@/utils/auth'
 
 import { Button } from '../Button'
 import { FeedbackDialogProvider } from '../FeedbackDialog/FeedbackDialogProvider'
+import { viewportAt } from '../PageContainer/pageLines.testing'
 
 import { Header } from './Header'
 
@@ -486,5 +488,100 @@ export const AllVariants: Story = {
         ))}
       </Stack>
     )
+  },
+}
+
+/** R1 (FE-493): the logo on the logo line and the last action on the menu line, to the pixel (the header shows from lg) at 1024 (tablet). */
+export const GuestLines1024: Story = {
+  ...viewportAt(1024),
+  parameters: {
+    ...viewportAt(1024).parameters,
+    nextjs: { navigation: { pathname: '/' } },
+  },
+  decorators: [
+    (Story) => {
+      seedMe(null)
+      return <Story />
+    },
+  ],
+  render: () => <Header />,
+  play: async ({ canvasElement }) => {
+    expectSiteHeaderOnLines(canvasElement, 1024)
+  },
+}
+
+/** R1 (FE-493): the logo on the logo line and the last action on the menu line, to the pixel (the header shows from lg) at 1366 (laptop). */
+export const GuestLines1366: Story = {
+  ...viewportAt(1366),
+  parameters: {
+    ...viewportAt(1366).parameters,
+    nextjs: { navigation: { pathname: '/' } },
+  },
+  decorators: [
+    (Story) => {
+      seedMe(null)
+      return <Story />
+    },
+  ],
+  render: () => <Header />,
+  play: async ({ canvasElement }) => {
+    expectSiteHeaderOnLines(canvasElement, 1366)
+  },
+}
+
+/** R1 (FE-493): the logo on the logo line and the last action on the menu line, to the pixel (the header shows from lg) at 1920 (wide desktop). */
+export const GuestLines1920: Story = {
+  ...viewportAt(1920),
+  parameters: {
+    ...viewportAt(1920).parameters,
+    nextjs: { navigation: { pathname: '/' } },
+  },
+  decorators: [
+    (Story) => {
+      seedMe(null)
+      return <Story />
+    },
+  ],
+  render: () => <Header />,
+  play: async ({ canvasElement }) => {
+    expectSiteHeaderOnLines(canvasElement, 1920)
+  },
+}
+
+/** R1 (FE-493), signed in: the same lines with the full toolbar and the account menu at 1024 (tablet). */
+export const BrowseLines1024: Story = {
+  ...viewportAt(1024),
+  parameters: {
+    ...viewportAt(1024).parameters,
+    nextjs: { navigation: { pathname: '/' } },
+  },
+  decorators: [
+    (Story) => {
+      seedMe(meWorker)
+      return <Story />
+    },
+  ],
+  render: () => <Header />,
+  play: async ({ canvasElement }) => {
+    expectSiteHeaderOnLines(canvasElement, 1024)
+  },
+}
+
+/** R1 (FE-493), signed in: the same lines with the full toolbar and the account menu at 1920 (wide desktop). */
+export const BrowseLines1920: Story = {
+  ...viewportAt(1920),
+  parameters: {
+    ...viewportAt(1920).parameters,
+    nextjs: { navigation: { pathname: '/' } },
+  },
+  decorators: [
+    (Story) => {
+      seedMe(meWorker)
+      return <Story />
+    },
+  ],
+  render: () => <Header />,
+  play: async ({ canvasElement }) => {
+    expectSiteHeaderOnLines(canvasElement, 1920)
   },
 }

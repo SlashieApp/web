@@ -5,8 +5,10 @@ import { expect, waitFor, within } from 'storybook/test'
 import chromeMessages from '@/app/(marketing)/i11n.chrome.json'
 import pricingBag from '@/app/(marketing)/pricing/i11n.json'
 import { FeedbackDialogProvider } from '@/ui/FeedbackDialog/FeedbackDialogProvider'
+import { viewportAt } from '@/ui/PageContainer/pageLines.testing'
 
 import { MarketingHeader } from '../../components/layout/MarketingHeader'
+import { expectMarketingPage } from '../../components/layout/marketingLines.testing'
 import { PricingPageView } from './PricingPageView'
 import {
   buildStoryMe,
@@ -551,5 +553,37 @@ export const TraditionalChinese: Story = {
       canvas.getByRole('region', { name: pricingBag.zh_hk.faq.heading }),
     ).toBeVisible()
     await expect(canvas.getByText('免費 6 個月')).toBeVisible()
+  },
+}
+
+/** R1, R2, R5 (FE-493): the site header, the title and the sections on the logo and menu lines, the rails on the container edge from lg (32px outside the lines), the rules edge to edge at 390 (phone). */
+export const PageLines390: Story = {
+  ...viewportAt(390),
+  play: async ({ canvasElement }) => {
+    expectMarketingPage(canvasElement, 390, { header: true })
+  },
+}
+
+/** R1, R2, R5 (FE-493): the site header, the title and the sections on the logo and menu lines, the rails on the container edge from lg (32px outside the lines), the rules edge to edge at 1024 (tablet). */
+export const PageLines1024: Story = {
+  ...viewportAt(1024),
+  play: async ({ canvasElement }) => {
+    expectMarketingPage(canvasElement, 1024, { header: true })
+  },
+}
+
+/** R1, R2, R5 (FE-493): the site header, the title and the sections on the logo and menu lines, the rails on the container edge from lg (32px outside the lines), the rules edge to edge at 1366 (laptop). */
+export const PageLines1366: Story = {
+  ...viewportAt(1366),
+  play: async ({ canvasElement }) => {
+    expectMarketingPage(canvasElement, 1366, { header: true })
+  },
+}
+
+/** R1, R2, R5 (FE-493): the site header, the title and the sections on the logo and menu lines, the rails on the container edge from lg (32px outside the lines), the rules edge to edge at 1920 (wide desktop). */
+export const PageLines1920: Story = {
+  ...viewportAt(1920),
+  play: async ({ canvasElement }) => {
+    expectMarketingPage(canvasElement, 1920, { header: true })
   },
 }

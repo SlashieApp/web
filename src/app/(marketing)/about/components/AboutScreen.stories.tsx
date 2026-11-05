@@ -3,6 +3,9 @@ import type { Decorator, Meta, StoryObj } from '@storybook/nextjs-vite'
 import { expect, within } from 'storybook/test'
 
 import marketingMessages from '@/app/(marketing)/i11n.json'
+import { viewportAt } from '@/ui/PageContainer/pageLines.testing'
+
+import { expectMarketingPage } from '../../components/layout/marketingLines.testing'
 
 import messages from '../i11n.json'
 import { AboutScreen } from './AboutScreen'
@@ -517,5 +520,49 @@ export const TraditionalChinese: Story = {
       'href',
       '/zh-hk/register?next=%2Ftasks%2Fcreate',
     )
+  },
+}
+
+/** R1, R2, R5 (FE-493): the title and the sections on the logo and menu lines, the rails on the container edge from lg (32px outside the lines), the rules edge to edge at 390 (phone). */
+export const PageLines390: Story = {
+  ...viewportAt(390),
+  play: async ({ canvasElement }) => {
+    expectMarketingPage(canvasElement, 390, {
+      header: false,
+      pageHeader: false,
+    })
+  },
+}
+
+/** R1, R2, R5 (FE-493): the title and the sections on the logo and menu lines, the rails on the container edge from lg (32px outside the lines), the rules edge to edge at 1024 (tablet). */
+export const PageLines1024: Story = {
+  ...viewportAt(1024),
+  play: async ({ canvasElement }) => {
+    expectMarketingPage(canvasElement, 1024, {
+      header: false,
+      pageHeader: false,
+    })
+  },
+}
+
+/** R1, R2, R5 (FE-493): the title and the sections on the logo and menu lines, the rails on the container edge from lg (32px outside the lines), the rules edge to edge at 1366 (laptop). */
+export const PageLines1366: Story = {
+  ...viewportAt(1366),
+  play: async ({ canvasElement }) => {
+    expectMarketingPage(canvasElement, 1366, {
+      header: false,
+      pageHeader: false,
+    })
+  },
+}
+
+/** R1, R2, R5 (FE-493): the title and the sections on the logo and menu lines, the rails on the container edge from lg (32px outside the lines), the rules edge to edge at 1920 (wide desktop). */
+export const PageLines1920: Story = {
+  ...viewportAt(1920),
+  play: async ({ canvasElement }) => {
+    expectMarketingPage(canvasElement, 1920, {
+      header: false,
+      pageHeader: false,
+    })
   },
 }

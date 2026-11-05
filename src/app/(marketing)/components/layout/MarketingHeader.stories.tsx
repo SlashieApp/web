@@ -7,8 +7,10 @@ import { expect, userEvent, waitFor, within } from 'storybook/test'
 import { type MeSnapshot, useUserStore } from '@/app/(auth)/store/user'
 import { LocaleProvider } from '@/i18n/LocaleProvider'
 import { FeedbackDialogProvider } from '@/ui/FeedbackDialog/FeedbackDialogProvider'
+import { viewportAt } from '@/ui/PageContainer/pageLines.testing'
 
 import { MarketingHeader } from './MarketingHeader'
+import { expectSiteHeaderOnLines } from './marketingLines.testing'
 
 /** The live `getUser` calls the API (`.env` is production). */
 const realGetUser = useUserStore.getState().getUser
@@ -380,5 +382,53 @@ export const SuspendedAccount: Story = {
   },
   play: async ({ canvasElement }) => {
     await expect(within(canvasElement).getByRole('alert')).toBeVisible()
+  },
+}
+
+/** R1 (FE-493): the logo on the logo line and the last action on the menu line, to the pixel (no side border takes from the gutter) at 390 (phone). */
+export const PageLines390: Story = {
+  ...viewportAt(390),
+  parameters: {
+    ...viewportAt(390).parameters,
+    nextjs: { navigation: { pathname: '/terms' } },
+  },
+  play: async ({ canvasElement }) => {
+    expectSiteHeaderOnLines(canvasElement, 390)
+  },
+}
+
+/** R1 (FE-493): the logo on the logo line and the last action on the menu line, to the pixel (no side border takes from the gutter) at 1024 (tablet). */
+export const PageLines1024: Story = {
+  ...viewportAt(1024),
+  parameters: {
+    ...viewportAt(1024).parameters,
+    nextjs: { navigation: { pathname: '/terms' } },
+  },
+  play: async ({ canvasElement }) => {
+    expectSiteHeaderOnLines(canvasElement, 1024)
+  },
+}
+
+/** R1 (FE-493): the logo on the logo line and the last action on the menu line, to the pixel (no side border takes from the gutter) at 1366 (laptop). */
+export const PageLines1366: Story = {
+  ...viewportAt(1366),
+  parameters: {
+    ...viewportAt(1366).parameters,
+    nextjs: { navigation: { pathname: '/terms' } },
+  },
+  play: async ({ canvasElement }) => {
+    expectSiteHeaderOnLines(canvasElement, 1366)
+  },
+}
+
+/** R1 (FE-493): the logo on the logo line and the last action on the menu line, to the pixel (no side border takes from the gutter) at 1920 (wide desktop). */
+export const PageLines1920: Story = {
+  ...viewportAt(1920),
+  parameters: {
+    ...viewportAt(1920).parameters,
+    nextjs: { navigation: { pathname: '/terms' } },
+  },
+  play: async ({ canvasElement }) => {
+    expectSiteHeaderOnLines(canvasElement, 1920)
   },
 }

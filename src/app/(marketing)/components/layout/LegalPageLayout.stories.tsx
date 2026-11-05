@@ -7,8 +7,10 @@ import safetyBag from '@/app/(marketing)/help/safety/i11n.json'
 import privacyBag from '@/app/(marketing)/privacy/i11n.json'
 import termsBag from '@/app/(marketing)/terms/i11n.json'
 import { LocaleProvider } from '@/i18n/LocaleProvider'
+import { viewportAt } from '@/ui/PageContainer/pageLines.testing'
 
 import { LegalPageLayout } from './LegalPageLayout'
+import { expectMarketingPage } from './marketingLines.testing'
 
 /** The character the product's copy never uses, built here so no source line carries it. */
 const EM_DASH = String.fromCodePoint(0x2014)
@@ -538,5 +540,41 @@ export const Mobile: Story = {
     )
     const root = canvasElement.ownerDocument.documentElement
     await expect(root.scrollWidth).toBeLessThanOrEqual(root.clientWidth)
+  },
+}
+
+/** R1, R2, R5 (FE-493): the title and the rows on the logo and menu lines, the rails on the container edge from lg (32px outside the lines), the rules edge to edge at 390 (phone). */
+export const PageLines390: Story = {
+  ...viewportAt(390),
+  args: { document: termsBag.en },
+  play: async ({ canvasElement }) => {
+    expectMarketingPage(canvasElement, 390, { header: false })
+  },
+}
+
+/** R1, R2, R5 (FE-493): the title and the rows on the logo and menu lines, the rails on the container edge from lg (32px outside the lines), the rules edge to edge at 1024 (tablet). */
+export const PageLines1024: Story = {
+  ...viewportAt(1024),
+  args: { document: termsBag.en },
+  play: async ({ canvasElement }) => {
+    expectMarketingPage(canvasElement, 1024, { header: false })
+  },
+}
+
+/** R1, R2, R5 (FE-493): the title and the rows on the logo and menu lines, the rails on the container edge from lg (32px outside the lines), the rules edge to edge at 1366 (laptop). */
+export const PageLines1366: Story = {
+  ...viewportAt(1366),
+  args: { document: termsBag.en },
+  play: async ({ canvasElement }) => {
+    expectMarketingPage(canvasElement, 1366, { header: false })
+  },
+}
+
+/** R1, R2, R5 (FE-493): the title and the rows on the logo and menu lines, the rails on the container edge from lg (32px outside the lines), the rules edge to edge at 1920 (wide desktop). */
+export const PageLines1920: Story = {
+  ...viewportAt(1920),
+  args: { document: termsBag.en },
+  play: async ({ canvasElement }) => {
+    expectMarketingPage(canvasElement, 1920, { header: false })
   },
 }
