@@ -2,6 +2,13 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { expect, userEvent, waitFor, within } from 'storybook/test'
 
 import { storyTaskDetail } from '@/app/(task)/tasks/[slug]/helpers/taskDetailStoryFixtures'
+import {
+  boxOf,
+  expectPx,
+  expectWindowWidth,
+  lines,
+  viewportAt,
+} from '@/ui/PageContainer/pageLines.testing'
 import { MessagesScreen } from './MessagesScreen'
 
 import { messagesStory } from './messagesStoryDecorator'
@@ -139,5 +146,113 @@ export const PhoneThread: Story = {
         name: 'Message Jordan Lee',
       }),
     ).toBeVisible()
+  },
+}
+
+/** The inbox and chat panel: the page container's one child. */
+function panelOf(canvasElement: HTMLElement) {
+  const panel = canvasElement.querySelector(
+    '[data-page-container]',
+  )?.firstElementChild
+  if (!panel) throw new Error('Messages panel not found')
+  return panel
+}
+
+/**
+ * R7: from lg the panel sits inside the container gutters, so its edges are
+ * the site header's logo line and menu line (FE-457). The inbox is 360 wide
+ * with the chat beside it.
+ */
+async function expectPanelInsideGutters(
+  canvasElement: HTMLElement,
+  width: number,
+) {
+  expectWindowWidth(canvasElement, width)
+  await within(canvasElement).findByRole('log')
+  const { logo, menu } = lines(canvasElement)
+  const panel = boxOf(panelOf(canvasElement))
+  expectPx(panel.left, logo, 'the panel starts on the logo line')
+  expectPx(panel.right, menu, 'and ends on the menu line')
+  const inbox = within(canvasElement).getByRole('navigation', {
+    name: 'Messages',
+  })
+  expectPx(boxOf(inbox).left, logo + 1, 'the inbox is the left column')
+}
+
+/** Lg (1024): gutters 32. */
+export const InsideGuttersLg: Story = {
+  ...viewportAt(1024),
+  args: { threadId: STORY_THREAD_ID },
+  decorators: messagesStory({
+    viewer: 'owner',
+    inbox,
+    thread: open,
+    items,
+    ...FRAME,
+  }),
+  play: ({ canvasElement }) => expectPanelInsideGutters(canvasElement, 1024),
+}
+
+/** 1366: the container is 80rem and centred, the panel is 1216 wide. */
+export const InsideGutters1366: Story = {
+  ...viewportAt(1366),
+  args: { threadId: STORY_THREAD_ID },
+  decorators: messagesStory({
+    viewer: 'owner',
+    inbox,
+    thread: open,
+    items,
+    ...FRAME,
+  }),
+  play: async ({ canvasElement }) => {
+    await expectPanelInsideGutters(canvasElement, 1366)
+    expectPx(boxOf(panelOf(canvasElement)).width, 1216)
+  },
+}
+
+/** 1920: the panel stays on the logo and menu lines, the page background shows either side. */
+export const InsideGutters1920: Story = {
+  ...viewportAt(1920),
+  args: { threadId: STORY_THREAD_ID },
+  decorators: messagesStory({
+    viewer: 'owner',
+    inbox,
+    thread: open,
+    items,
+    ...FRAME,
+  }),
+  play: async ({ canvasElement }) => {
+    await expectPanelInsideGutters(canvasElement, 1920)
+    expectPx(boxOf(panelOf(canvasElement)).width, 1216)
+  },
+}
+
+/** Below lg the panel has no gutters: it runs edge to edge, as the phone inbox does. */
+export const EdgeToEdgeOnPhone: Story = {
+  ...viewportAt(390),
+  decorators: messagesStory({ viewer: 'owner', inbox, height: '560px' }),
+  play: async ({ canvasElement }) => {
+    expectWindowWidth(canvasElement, 390)
+    await within(canvasElement).findByRole('link', {
+      name: /Mount bookshelf on living room wall/,
+    })
+    const panel = boxOf(panelOf(canvasElement))
+    expectPx(panel.left, 0)
+    expectPx(panel.right, 390)
+  },
+}
+
+/** Tablet portrait (820, below lg): still no gutters. */
+export const EdgeToEdgeOnTablet: Story = {
+  ...viewportAt(820),
+  decorators: messagesStory({ viewer: 'owner', inbox, height: '560px' }),
+  play: async ({ canvasElement }) => {
+    expectWindowWidth(canvasElement, 820)
+    await within(canvasElement).findByRole('link', {
+      name: /Mount bookshelf on living room wall/,
+    })
+    const panel = boxOf(panelOf(canvasElement))
+    expectPx(panel.left, 0)
+    expectPx(panel.right, 820)
   },
 }
