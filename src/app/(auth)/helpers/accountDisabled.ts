@@ -20,8 +20,6 @@ export {
   subscribeAccountDisabled,
 }
 
-export const ACCOUNT_SUSPENDED_CONTACT_EMAIL = 'accounts@slashie.app' as const
-
 type DisabledLike = { disabled?: boolean | null } | null | undefined
 
 export function isMeAccountDisabled(me: DisabledLike) {

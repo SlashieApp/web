@@ -3,20 +3,9 @@ import type { MeSnapshot } from '@/app/(auth)/store/user'
 import { getGraphQLErrorCode } from '@/utils/graphqlErrors'
 import { toE164ForApi } from '@/utils/phoneNormalize'
 
-export const INVALID_PHONE_NUMBER_ERROR_CODE = 'INVALID_PHONE_NUMBER' as const
 export const PHONE_VERIFICATION_RATE_LIMITED_ERROR_CODE =
   'PHONE_VERIFICATION_RATE_LIMITED' as const
-export const PHONE_VERIFICATION_NOT_REQUESTED_ERROR_CODE =
-  'PHONE_VERIFICATION_NOT_REQUESTED' as const
-export const INVALID_VERIFICATION_CODE_ERROR_CODE =
-  'INVALID_VERIFICATION_CODE' as const
-export const TWILIO_VERIFY_NOT_CONFIGURED_ERROR_CODE =
-  'TWILIO_VERIFY_NOT_CONFIGURED' as const
-export const PHONE_VERIFICATION_FAILED_ERROR_CODE =
-  'PHONE_VERIFICATION_FAILED' as const
 export const PHONE_NOT_VERIFIED_ERROR_CODE = 'PHONE_NOT_VERIFIED' as const
-export const PROFILE_PHONE_REQUIRED_ERROR_CODE =
-  'PROFILE_PHONE_REQUIRED' as const
 
 /** `me.phoneVerified` is the source of truth; profile mirrors it for the owner. */
 export function isPhoneVerified(me: MeSnapshot | null | undefined): boolean {

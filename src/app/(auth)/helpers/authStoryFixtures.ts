@@ -19,14 +19,6 @@ export function storyAvatarUrl(initials: string, fill = '#2f7d5b'): string {
   return `data:image/svg+xml,${encodeURIComponent(svg)}`
 }
 
-/**
- * An ISO time `minutes` ago, so "2h ago" style copy reads the same any day.
- * Half a minute is added so the label survives the time a test run takes.
- */
-export function storyMinutesAgo(minutes: number): string {
-  return new Date(Date.now() - (minutes * 60 + 30) * 1000).toISOString()
-}
-
 export type StoryMembershipKind =
   | 'free'
   | 'freeLimitReached'
