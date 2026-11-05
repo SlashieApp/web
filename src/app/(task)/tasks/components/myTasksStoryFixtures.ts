@@ -3,9 +3,27 @@ import type { MyTaskHubRow, MyTaskHubSection } from '../helpers/myTasksHub'
 const PHOTO =
   'https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=300&h=300&fit=crop'
 
-/** A local date and time in 2026, as the hub's ISO instants. */
+/**
+ * The year the fixtures sit in: the current one, the same source the card uses
+ * to decide whether a date needs its year (FE-491), so a label never depends on
+ * the day the stories run.
+ */
+const YEAR = new Date().getFullYear()
+
+/** A local date and time this year, as the hub's ISO instants. */
 function at(month: number, day: number, hour = 0, minute = 0): string {
-  return new Date(2026, month - 1, day, hour, minute).toISOString()
+  return new Date(YEAR, month - 1, day, hour, minute).toISOString()
+}
+
+/** The weekday of a fixture date, as the card writes it ("Tue", "Wednesday"). */
+export function storyWeekday(
+  month: number,
+  day: number,
+  weekday: 'short' | 'long',
+): string {
+  return new Intl.DateTimeFormat('en-GB', { weekday }).format(
+    new Date(YEAR, month - 1, day),
+  )
 }
 
 function row(

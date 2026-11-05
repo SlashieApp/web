@@ -1,7 +1,6 @@
 import { TaskDateTimeType } from '@codegen/schema'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { useState } from 'react'
-import { expect } from 'storybook/test'
 
 import { storyDateInDays } from '@/app/(stepflow)/stepflowStoryHelpers'
 

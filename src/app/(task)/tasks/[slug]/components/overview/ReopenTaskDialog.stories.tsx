@@ -12,8 +12,6 @@ import {
   expectSentenceConfirm,
   openDialog,
 } from '@/app/(dashboard)/components/ui/dialogSpacing.testing'
-import { formSpace } from '@/theme/styles'
-import { gapBelow } from '@/ui/FormField/formGap.testing'
 
 import { withTaskDetailStory } from '../../helpers/taskDetailStoryDecorator'
 import {

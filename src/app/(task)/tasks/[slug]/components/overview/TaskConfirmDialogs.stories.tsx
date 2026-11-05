@@ -9,8 +9,6 @@ import {
   phone390,
 } from '@/app/(dashboard)/components/ui/dialogSpacing.testing'
 import { LocaleProvider } from '@/i18n/LocaleProvider'
-import { formSpace } from '@/theme/styles'
-import { gapBelow } from '@/ui/FormField/formGap.testing'
 
 import { withTaskDetailStory } from '../../helpers/taskDetailStoryDecorator'
 import {

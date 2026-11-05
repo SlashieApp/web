@@ -5,7 +5,11 @@ import { expect, fn, userEvent, within } from 'storybook/test'
 import { LocaleProvider } from '@/i18n/LocaleProvider'
 
 import { MY_TASKS_VIEWS } from '../../views'
-import { allSections, emptySections } from '../myTasksStoryFixtures'
+import {
+  allSections,
+  emptySections,
+  storyWeekday,
+} from '../myTasksStoryFixtures'
 import { MyTasksList } from './MyTasksList'
 
 const meta = {
@@ -49,7 +53,9 @@ export const AllSections: Story = {
     const upcoming = within(canvas.getByRole('region', { name: 'Upcoming' }))
     await expect(upcoming.getAllByRole('listitem')).toHaveLength(5)
     await expect(upcoming.getByText('Overdue')).toBeVisible()
-    await expect(upcoming.getByText('On Wednesday')).toBeVisible()
+    await expect(
+      upcoming.getByText(`On ${storyWeekday(10, 28, 'long')}`),
+    ).toBeVisible()
     await expect(
       upcoming.getByRole('link', { name: /^Mark done: / }),
     ).toBeVisible()

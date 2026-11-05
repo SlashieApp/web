@@ -65,7 +65,6 @@ export function TaskCardWorkerQuote({
   const progressSteps = workerQuoteCardProgressSteps(task, quote, workerOrder)
   const quotePence = workerQuotePricePence(quote, workerOrder)
   const orderClosed = workerOrder ? isOrderClosed(workerOrder.status) : false
-  const taskHref = `/tasks/${task.id}`
   const jobHref = taskOrderSectionHref(task.id)
   const categoryLabel = taskCategoriesSummary(task.categories)
   const priceKindLabel = budgetKindLabel(task.budget?.type)

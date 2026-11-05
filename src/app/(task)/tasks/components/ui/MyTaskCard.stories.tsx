@@ -10,7 +10,7 @@ import {
   openPopover,
 } from '@/ui/Dropdown/menuSpacing.testing'
 
-import { storyRows } from '../myTasksStoryFixtures'
+import { storyRows, storyWeekday } from '../myTasksStoryFixtures'
 import { MyTaskCard } from './MyTaskCard'
 
 const meta = {
@@ -55,7 +55,9 @@ async function openMenu(canvasElement: HTMLElement, title: string) {
 export const UpcomingWithMenu: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
-    await expect(canvas.getByText('On Wednesday')).toBeVisible()
+    await expect(
+      canvas.getByText(`On ${storyWeekday(10, 28, 'long')}`),
+    ).toBeVisible()
     const line = canvas.getByText('28 Oct, 16:25 · Southwark · £120')
     await expect(line).toBeVisible()
     const title = canvas.getByRole('link', { name: 'Mount a 55-inch TV' })
@@ -125,7 +127,9 @@ export const UpcomingLater: Story = {
   args: { row: storyRows.upcomingDate },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
-    await expect(canvas.getByText('Tue 3 Nov')).toBeVisible()
+    await expect(
+      canvas.getByText(`${storyWeekday(11, 3, 'short')} 3 Nov`),
+    ).toBeVisible()
     await expect(canvas.getByText('3 Nov, 09:30 · Camden · £150')).toBeVisible()
   },
 }
@@ -228,7 +232,7 @@ export const PastCardReview: Story = {
   args: { row: storyRows.pastReview },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
-    await expect(canvas.getByText(/^20 Oct( 2026)? · £95$/)).toBeVisible()
+    await expect(canvas.getByText('20 Oct · £95')).toBeVisible()
     await expect(canvas.getByText('Completed')).toBeVisible()
     await expect(
       canvas.getByRole('link', { name: 'Review: Deep-clean a studio flat' }),

@@ -6,7 +6,6 @@ import { describe, expect, it } from 'vitest'
 import { formSpace, pinnedBarClearance, pinnedBarHeight } from '@/theme/styles'
 
 import {
-  STEP_FLOW_BAR_ATTR,
   STEP_FLOW_BAR_RULE,
   STEP_FLOW_BAR_SCROLL_PADDING,
   STEP_FLOW_BAR_SELECTOR,
