@@ -4,6 +4,15 @@ import { expect, fn, userEvent, waitFor, within } from 'storybook/test'
 
 import { withStoryApollo } from '@/app/(worker)/workers/components/storyApollo'
 import { LocaleProvider } from '@/i18n/LocaleProvider'
+import { pageGutterPx } from '@/theme/pageContainer'
+import {
+  boxOf,
+  expectPx,
+  expectWindowWidth,
+  lines,
+  viewportAt,
+} from '@/ui/PageContainer/pageLines.testing'
+import { expectCentredCardBox } from '@/ui/StatusCard/statusCard.testing'
 
 import { PublicProfileScreen } from './PublicProfileScreen'
 import {
@@ -574,6 +583,109 @@ export const PhoneLoading: Story = {
 export const PhoneCustomer: Story = {
   ...CustomerVisitor,
   globals: { viewport: { value: 'mobile1' } },
+}
+
+/**
+ * R2, R4: the page container is the page. The header row (Back, the title)
+ * starts on the logo line and spans the container, and so does the content
+ * under it, at every width.
+ */
+async function expectOnTheLines(canvasElement: HTMLElement, width: number) {
+  expectWindowWidth(canvasElement, width)
+  await within(canvasElement).findByRole('button', { name: 'Back' })
+  const { logo, menu } = lines(canvasElement)
+  const row = boxOf(barRow(canvasElement))
+  expectPx(row.left, logo, 'the header row starts on the logo line')
+  expectPx(row.right, menu, 'and ends on the menu line')
+  const container = canvasElement.querySelector('[data-page-container]')
+  if (!container) throw new Error('The page is not in a page container')
+  const gutter = pageGutterPx(width)
+  expectPx(boxOf(container).left + gutter, logo, 'the container is the page')
+  expectPx(boxOf(container).right - gutter, menu)
+}
+
+/** A visitor's worker profile (hero, sections, a rail from lg) at 1366: the whole container. */
+export const OnTheLines1366: Story = {
+  ...viewportAt(1366),
+  args: { view: 'worker.visitor', model: sampleWorker() },
+  play: ({ canvasElement }) => expectOnTheLines(canvasElement, 1366),
+}
+
+/** At 1920 the container stops at 80rem and stays centred. */
+export const OnTheLines1920: Story = {
+  ...viewportAt(1920),
+  args: { view: 'worker.visitor', model: sampleWorker() },
+  play: ({ canvasElement }) => expectOnTheLines(canvasElement, 1920),
+}
+
+/** Lg (1024): gutters 32. */
+export const OnTheLines1024: Story = {
+  ...viewportAt(1024),
+  args: { view: 'worker.visitor', model: sampleWorker() },
+  play: ({ canvasElement }) => expectOnTheLines(canvasElement, 1024),
+}
+
+/** Phone at 390: gutters 16. */
+export const OnTheLinesPhone: Story = {
+  ...viewportAt(390),
+  args: { view: 'worker.visitor', model: sampleWorker() },
+  play: ({ canvasElement }) => expectOnTheLines(canvasElement, 390),
+}
+
+/** The customer view (one column, no rail) fills the container too. */
+export const CustomerOnTheLines1366: Story = {
+  ...viewportAt(1366),
+  args: { view: 'customer.visitor', model: sampleCustomer() },
+  play: ({ canvasElement }) => expectOnTheLines(canvasElement, 1366),
+}
+
+/** The loading outline sits on the same lines as the profile it becomes. */
+export const LoadingOnTheLines1366: Story = {
+  ...viewportAt(1366),
+  args: { view: 'loading', model: null },
+  play: ({ canvasElement }) => expectOnTheLines(canvasElement, 1366),
+}
+
+/**
+ * R2, R6: an unavailable or failed profile keeps the Back header on the lines
+ * and shows the shared status card, centred and 448 wide.
+ */
+async function expectStatusPage(canvasElement: HTMLElement, width: number) {
+  expectWindowWidth(canvasElement, width)
+  await within(canvasElement).findByRole('button', { name: 'Back' })
+  const { logo, menu } = lines(canvasElement)
+  const row = boxOf(barRow(canvasElement))
+  expectPx(row.left, logo, 'the header row starts on the logo line')
+  expectPx(row.right, menu, 'and ends on the menu line')
+  expectCentredCardBox(
+    canvasElement,
+    within(canvasElement).getByRole('region'),
+    'status card',
+  )
+}
+
+export const UnavailableOnTheLines1366: Story = {
+  ...viewportAt(1366),
+  args: { view: 'unavailable', model: null },
+  play: ({ canvasElement }) => expectStatusPage(canvasElement, 1366),
+}
+
+export const LoadErrorOnTheLines1920: Story = {
+  ...viewportAt(1920),
+  args: { view: 'loadError', model: null },
+  play: ({ canvasElement }) => expectStatusPage(canvasElement, 1920),
+}
+
+export const UnavailableOnTheLines1024: Story = {
+  ...viewportAt(1024),
+  args: { view: 'unavailable', model: null },
+  play: ({ canvasElement }) => expectStatusPage(canvasElement, 1024),
+}
+
+export const UnavailableOnTheLinesPhone: Story = {
+  ...viewportAt(390),
+  args: { view: 'unavailable', model: null },
+  play: ({ canvasElement }) => expectStatusPage(canvasElement, 390),
 }
 
 /** zh-HK: the same view in Chinese. */
