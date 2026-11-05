@@ -60,7 +60,7 @@ export function UnsubscribeScreen({ token }: { token: string | null }) {
   )
 
   const accountLink = (label: string) => (
-    <Button asChild variant="secondary">
+    <Button asChild variant="secondary" whiteSpace="normal" textAlign="center">
       <Link href="/account" _hover={{ textDecoration: 'none' }}>
         {label}
       </Link>

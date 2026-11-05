@@ -504,7 +504,7 @@ describe('page shells', () => {
     'src/app/(stepflow)/layout.tsx',
     'src/app/(dashboard)/components/layout/AccountShell.tsx',
     'src/app/(stepflow)/tasks/[slug]/quote/components/TaskQuoteFlow.tsx',
-    'src/app/StatusScreen.tsx',
+    'src/ui/StatusCard/StatusCard.tsx',
     'src/ui/StepFlowLayout/StepFlowLayout.tsx',
   ]
 

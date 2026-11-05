@@ -1,9 +1,9 @@
 'use client'
 
-import { Box, Heading, Stack, Text } from '@chakra-ui/react'
+import { Box } from '@chakra-ui/react'
 import { Component, type ErrorInfo, type ReactNode } from 'react'
 
-import { Button } from '@ui'
+import { Button, StatusCard } from '@ui'
 
 import {
   redirectToLandingIfAppRoute,
@@ -58,23 +58,16 @@ export class AnalyticsErrorBoundary extends Component<
     if (!this.state.hasError) return this.props.children
 
     return (
-      <Box
-        minH="40vh"
-        display="flex"
-        alignItems="center"
-        justifyContent="center"
-        px={6}
-        py={12}
-      >
-        <Stack gap={4} maxW="md" textAlign="center">
-          <Heading size="md">Something went wrong</Heading>
-          <Text color="text.muted" fontSize="sm">
-            An unexpected error occurred. Try again or refresh the page.
-          </Text>
-          <Button size="sm" variant="primary" onClick={this.handleRetry}>
-            Try again
-          </Button>
-        </Stack>
+      <Box minH="40vh" display="flex" flexDirection="column">
+        <StatusCard
+          title="Something went wrong"
+          body="An unexpected error occurred. Try again or refresh the page."
+          actions={
+            <Button size="sm" variant="primary" onClick={this.handleRetry}>
+              Try again
+            </Button>
+          }
+        />
       </Box>
     )
   }

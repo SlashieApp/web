@@ -1,6 +1,6 @@
 'use client'
 
-import { Box, Heading, Stack, Text } from '@chakra-ui/react'
+import { Box } from '@chakra-ui/react'
 import { usePathname, useRouter } from 'next/navigation'
 import { useCallback, useRef, useState } from 'react'
 
@@ -8,7 +8,7 @@ import { SessionLoading } from '@/app/(auth)/components/ui/SessionLoading'
 import { useUserStore } from '@/app/(auth)/store/user'
 import { useI11n } from '@/i18n/useI11n'
 import { getAuthToken } from '@/utils/auth'
-import { Button } from '@ui'
+import { Button, StatusCard } from '@ui'
 
 import bag from '../../i11n.json'
 
@@ -27,36 +27,23 @@ export function SessionError({
   const t = useI11n(bag).session
 
   return (
-    <Stack
-      role="alert"
-      minH="100dvh"
-      align="center"
-      justify="center"
-      gap={4}
-      px={4}
-      textAlign="center"
-      bg="bg.canvas"
-    >
-      <Heading as="h1" fontSize="xl" color="text.default">
-        {t.errorTitle}
-      </Heading>
-      <Text color="text.muted" maxW="22rem">
-        {t.errorBody}
-      </Text>
-      <Stack
-        direction={{ base: 'column', sm: 'row' }}
-        gap={2}
-        w={{ base: 'full', sm: 'auto' }}
-        maxW="22rem"
-      >
-        <Button type="button" onClick={onRetry}>
-          {t.retry}
-        </Button>
-        <Button type="button" variant="ghost" onClick={onLogout}>
-          {t.logout}
-        </Button>
-      </Stack>
-    </Stack>
+    <Box role="alert">
+      <StatusCard
+        fullPage
+        title={t.errorTitle}
+        body={t.errorBody}
+        actions={
+          <>
+            <Button type="button" onClick={onRetry}>
+              {t.retry}
+            </Button>
+            <Button type="button" variant="ghost" onClick={onLogout}>
+              {t.logout}
+            </Button>
+          </>
+        }
+      />
+    </Box>
   )
 }
 

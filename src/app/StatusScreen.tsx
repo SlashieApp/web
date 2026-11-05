@@ -1,10 +1,12 @@
-import { Box, Heading, Stack, Text } from '@chakra-ui/react'
 import type { ReactNode } from 'react'
 
-import { sdlFigure } from '@/theme/styles'
-import { Logo } from '@ui'
+import { StatusCard } from '@ui'
 
-/** Branded full-page message for the root 404 and error screens. */
+/**
+ * Branded full-page message for the root 404 and error screens, the
+ * unsubscribe page and the step-flow gates. The card is the shared
+ * `StatusCard` (R6): centred in the page container, one width.
+ */
 export function StatusScreen({
   code,
   title,
@@ -17,53 +19,13 @@ export function StatusScreen({
   actions: ReactNode
 }) {
   return (
-    <Box
-      as="main"
-      minH="100dvh"
-      display="flex"
-      alignItems="center"
-      justifyContent="center"
-      px={4}
-      py={12}
-      bg="bg.canvas"
-    >
-      <Stack
-        w="full"
-        maxW="28rem"
-        align="center"
-        textAlign="center"
-        gap={5}
-        p={{ base: 6, md: 8 }}
-        bg="bg.surface"
-        borderRadius="xl"
-        boxShadow="e3"
-      >
-        <Logo />
-        {code ? (
-          <Text
-            fontFamily="display"
-            fontSize="5xl"
-            {...sdlFigure}
-            letterSpacing="-0.035em"
-            lineHeight={1}
-            color="text.muted"
-            aria-hidden
-          >
-            {code}
-          </Text>
-        ) : null}
-        <Stack gap={2}>
-          <Heading as="h1" fontSize="xl">
-            {title}
-          </Heading>
-          <Text color="text.muted" lineHeight="tall">
-            {body}
-          </Text>
-        </Stack>
-        <Stack w="full" gap={2}>
-          {actions}
-        </Stack>
-      </Stack>
-    </Box>
+    <StatusCard
+      fullPage
+      logo
+      code={code}
+      title={title}
+      body={body}
+      actions={actions}
+    />
   )
 }
