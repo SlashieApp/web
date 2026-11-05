@@ -55,9 +55,31 @@ with the others `text.subtle`, so the Post task button is its only green.
 | --- | --- | --- |
 | `sizes.page` | `80rem` (Chakra `8xl`) | Default `<Container>` max width, the header's width (`PAGE_CONTAINER_MAX_W`). Every page's content container uses it (FE-453); full-width maps, bands and backgrounds stay edge to edge. |
 | `PAGE_CONTAINER_MAX_W` | `'page'` | Box/Grid overlays that cannot be a `<Container>`. |
-| `PAGE_GUTTER_X` | `{ base: 4, md: 6, lg: 8 }` | Same gutters as `<Container>`. |
+| `PAGE_GUTTER_X` | `{ base: 4, md: 6, lg: 8 }` | Same gutters as `<Container>`: 16 below md, 24 from md, 32 from lg. |
+| `sizes.pageColumn` | `45rem` (720px) | The readable column of a single-column page (`READABLE_COLUMN_MAX_W`). Left-aligned on the logo line, never centred. |
+| `sizes.statusCard` | `28rem` (448px) | The one width of every centred card, the auth card and the status, gate and error cards (`STATUS_CARD_MAX_W`). |
 
-Page shells use **`<Container>`** with no `maxW` override. Do not invent `7xl` / `1200px` page widths.
+Page shells use **`<PageContainer>`** (`@ui`), not a hand-built `<Container>` or `maxW` / `mx` / `px` on a Box. Do not invent `7xl` / `1200px` page widths.
+
+### Page layout rules (FE-493)
+
+The site header's content box in the page container defines the **logo line** (left) and the **menu line** (right). `logoLineLeft(vw)` and `menuLineRight(vw)` in `src/theme/pageContainer.ts` give them (gutter plus half of what the window has beyond 80rem); the header is hidden below lg, but the gutters (16, 24 from md) are the same, so a page starts where it would under the header.
+
+| Rule | What | Component |
+| --- | --- | --- |
+| R1 | Every page's content sits in the page container: 80rem, gutters 16 / 24 / 32, centred. | `PageContainer` |
+| R2 | The page header (Back, the title, a description) starts on the logo line and spans the full container, at every width. | `PageLayout` (`StickyHeader`) |
+| R3 | Single-column pages (Account, Billing, admin notifications, settings-style pages) keep a 720 column, LEFT-aligned on the logo line. | `PageLayout width="column"` |
+| R4 | Wide pages (Profile, My tasks, task detail, lists, Messages) fill the container, with an optional rail. | `PageLayout width="wide"` |
+| R5 | Full-bleed elements (maps, bands, covers, page backgrounds) go edge to edge; their content sits in the container. | `PageBleed` |
+| R6 | Centred cards (auth forms, auth status pages, status, gate and error cards) stay centred, all at one width. | `StatusCard` (28rem) |
+| R7 | Messages: from lg the inbox and chat panel sits inside the container gutters. | `PageContainer gutters="lg"` |
+
+- **`PageContainer`** is Chakra's `Container` with `PAGE_CONTAINER_MAX_W` and `PAGE_GUTTER_X` set. `gutters`: `all` (default), `lg` (none below lg, for an inbox or a map that runs edge to edge on phones), `none`. **`PageBleed`** is the full-bleed form: an outer box that takes the background, border or media, with a `PageContainer` inside for the content.
+- **`PageLayout`** brings its own `PageContainer`: do not wrap it in one. `width="column"` (default) puts the body in a 45rem column on the logo line; `width="wide"` uses the whole container, and `sidebar` adds a rail on the right from lg (stacked under the body below it, `sidebarOnMobile={false}` hides it there). `afterHeader` sits between the header and the body, in the column on a column page. The signed-in dashboard pages use it through `DashboardPageLayout`, which wires Back and its label.
+- **`StatusCard`** is the card for status, gate and error screens: slots `logo`, `icon` (with `tone`) or `code`, `title`, `body` and `children`, `actions`, `footer`. `fullPage` makes it the whole page (a `main` filling the viewport, as the root 404 does); otherwise it is centred in the container of the page it is shown in. Width is 28rem (448): the width the status screens already had; the auth card was 416 (the shell's gutters took 32 out of the 448), so it moves to 448 when `AuthShell` puts its gutters outside the card. Spacing follows Foundations-Form-Spacing: header parts 20 apart, title to text 8, 24 to the actions, actions 8 apart.
+- **No shared rail layout.** The existing two-column layouts are not one layout: three have the rail on the right (the dashboard `1.85fr / minmax(280px, 1fr)`, the public profile `1fr / 340px` with a sticky rail, task detail `2fr / 1fr`), the rest have it on the left (My tasks 19rem, the step flows 280 to 320 plus an aside, Messages 360 with a border) or over a map (Search 460). No rule R1 to R7 unifies them, and one component would either move pixels or be a `Grid` with the ratio, side, gap and stickiness all passed in. The rail `PageLayout` draws is the dashboard's, and stays inside it.
+- Stories (`UI/PageContainer`, `UI/PageLayout`, `UI/StatusCard`) measure the logo line, the 720 column and the card width at 390, 820, 1024, 1366 and 1920 with play checks (`pageLines.testing.ts`).
 
 Marketing pages sit in the marketing frame (FE-471, `src/app/(marketing)/components/layout/MarketingFrame.tsx`):
 a white page, from `lg` a 1px `border.default` rail down each side of this same page column, a full-width
@@ -131,7 +153,7 @@ Pages import primitives from `@ui` (barrel auto-generated — `bun run exports-g
 | --- | --- | --- |
 | `@ui` controls | Button, Input, Textarea, Select, PhoneInput, OtpInput, FormField, RadioButton, Slider, IconButton | `UI/*` |
 | `@ui` display | Card, Badge, Avatar, Thumbnail, Rating, DetailRow, InfoBar, Toast, ProgressBar, Stepper, Tabs, ScheduleChip, SpotIllustration, MapCard, ImageGallery, Logo, Link | `UI/*` |
-| `@ui` layout | Drawer, Dropdown, Modal, MobileCarousel, StepFlowLayout | `UI/*` |
+| `@ui` layout | Drawer, Dropdown, Modal, MobileCarousel, StepFlowLayout, PageContainer, PageLayout, StatusCard | `UI/*` |
 | `@ui` shell | Header, Footer, MobileBottomNav | `Shell/*` |
 | `@ui` presentational + adapter | LanguageSwitcher (`src/ui`) + connected `src/i18n/LanguageSwitcher.tsx` | `ui/LanguageSwitcher` |
 

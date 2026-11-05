@@ -126,6 +126,12 @@ export {
 export { MobileCarousel } from './MobileCarousel/MobileCarousel'
 export { Modal, ModalActions, ModalButton } from './Modal'
 export { OtpInput } from './OtpInput'
+export {
+  PAGE_CONTAINER_GUTTERS,
+  PageBleed,
+  PageContainer,
+} from './PageContainer'
+export { PageLayout } from './PageLayout'
 export { PhoneInput } from './PhoneInput'
 export { PhotoSourcePicker } from './PhotoSourcePicker'
 export { PhotoTile } from './PhotoTile'
@@ -149,6 +155,7 @@ export { Select } from './Select'
 export { Slider } from './Slider'
 export { SlideToConfirm } from './SlideToConfirm'
 export { SpotIllustration } from './SpotIllustration/SpotIllustration'
+export { StatusCard } from './StatusCard'
 export {
   StepFlowActions,
   StepFlowBody,
@@ -234,6 +241,12 @@ export type {
 } from './MobileCarousel/MobileCarousel'
 export type { ModalProps, ModalSize } from './Modal'
 export type { OtpInputProps, OtpInputSize } from './OtpInput'
+export type {
+  PageBleedProps,
+  PageContainerGutters,
+  PageContainerProps,
+} from './PageContainer'
+export type { PageLayoutProps } from './PageLayout'
 export type { PhoneInputProps } from './PhoneInput'
 export type {
   PhotoSourcePickerProps,
@@ -279,6 +292,7 @@ export type {
   SpotIllustrationProps,
   SpotIllustrationVariant,
 } from './SpotIllustration/SpotIllustration'
+export type { StatusCardProps, StatusCardTone } from './StatusCard'
 export type {
   StepFlowActionsProps,
   StepFlowHeaderProps,

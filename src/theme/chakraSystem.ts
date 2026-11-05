@@ -8,7 +8,12 @@ import {
 } from '@chakra-ui/react'
 
 import { chakraBreakpoints } from './breakpoints'
-import { PAGE_CONTAINER_MAX_W_CSS, PAGE_GUTTER_X } from './pageContainer'
+import {
+  PAGE_CONTAINER_MAX_W_CSS,
+  PAGE_GUTTER_X,
+  READABLE_COLUMN_MAX_W_CSS,
+  STATUS_CARD_MAX_W_CSS,
+} from './pageContainer'
 import {
   type FormGapKey,
   formSpace,
@@ -198,6 +203,10 @@ const sharedTheme = {
       sizes: {
         /** Page column — default `<Container>` max width (worker detail). */
         page: { value: PAGE_CONTAINER_MAX_W_CSS },
+        /** Readable column of a single-column page, left-aligned (R3): `maxW="pageColumn"`. */
+        pageColumn: { value: READABLE_COLUMN_MAX_W_CSS },
+        /** The one width of every centred card, auth and status (R6): `maxW="statusCard"`. */
+        statusCard: { value: STATUS_CARD_MAX_W_CSS },
         /** Fields, main buttons and Google / Apple in forms: `minH="form.controlHeight"`. */
         form: { controlHeight: { value: `${formSpace.controlHeight}px` } },
       },
