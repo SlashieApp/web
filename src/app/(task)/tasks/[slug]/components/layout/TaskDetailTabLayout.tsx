@@ -207,6 +207,7 @@ export function TaskDetailTabLayout({
         ) : null}
         <Stack gap={5} w="full" pt={5} pb={6}>
           <Grid
+            data-task-detail-body=""
             templateColumns={splitColumns}
             columnGap={6}
             alignItems="start"

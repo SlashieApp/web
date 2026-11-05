@@ -13,7 +13,9 @@ import {
   storyWorker,
   storyWorkerMe,
 } from '@/app/(auth)/helpers/authStoryFixtures'
+import { expectMyTasksOnLines } from '@/app/(task)/helpers/taskPageRules.testing'
 import { LocaleProvider } from '@/i18n/LocaleProvider'
+import { viewportAt } from '@/ui/PageContainer/pageLines.testing'
 
 import { MyTasksScreen } from './MyTasksScreen'
 
@@ -557,3 +559,27 @@ export const TraditionalChinese: Story = {
     await expect(canvas.queryByText('你的活動')).toBeNull()
   },
 }
+
+// ------------------------------------------------ layout rules (FE-493)
+
+/**
+ * R2 and R4 on a real window of each width: the title starts on the logo line
+ * and the page fills the container, logo line to menu line (the filters rail
+ * and the list sit inside it).
+ */
+function onTheLines(width: number): Story {
+  return {
+    decorators: postsAndQuotes,
+    ...viewportAt(width),
+    play: async ({ canvasElement }) => {
+      await listLoaded(canvasElement)
+      expectMyTasksOnLines(canvasElement, width)
+    },
+  }
+}
+
+export const OnTheLines390: Story = onTheLines(390)
+export const OnTheLines820: Story = onTheLines(820)
+export const OnTheLines1024: Story = onTheLines(1024)
+export const OnTheLines1366: Story = onTheLines(1366)
+export const OnTheLines1920: Story = onTheLines(1920)

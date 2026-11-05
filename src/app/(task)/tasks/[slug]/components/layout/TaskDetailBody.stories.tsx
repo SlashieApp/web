@@ -10,6 +10,13 @@ import {
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { expect, within } from 'storybook/test'
 
+import { expectTaskDetailOnLines } from '@/app/(task)/helpers/taskPageRules.testing'
+import {
+  expectWindowWidth,
+  viewportAt,
+} from '@/ui/PageContainer/pageLines.testing'
+import { expectCentredCardBox } from '@/ui/StatusCard/statusCard.testing'
+
 import { TaskDetailProvider } from '../../context/TaskDetailProvider'
 import { withTaskDetailStory } from '../../helpers/taskDetailStoryDecorator'
 import { withTaskDetailPending } from '../../helpers/taskDetailStoryExtras'
@@ -109,25 +116,84 @@ export const LoadingFromSearchCard: Story = {
   },
 }
 
-/** The task request failed: an error card with Try again and Browse tasks. */
+/**
+ * The task request failed: the shared status card (R6) with Try again and
+ * Search tasks, centred in the container at the one card width.
+ */
 export const LoadError: Story = {
-  ...desktop,
+  ...viewportAt(1366),
   decorators: [withTaskDetailPending('error')],
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
     await canvas.findByRole('alert')
     await canvas.findByRole('button', { name: 'Try again' })
+    expectWindowWidth(canvasElement, 1366)
+    expectCentredCardBox(
+      canvasElement,
+      canvas.getByRole('region', { name: "Couldn't load this task" }),
+      'load error',
+    )
   },
 }
 
-/** No such task (or no access): the full-page "Task not found" card. */
-export const NotFound: Story = {
-  ...desktop,
-  ...page({ viewer: 'visitor', task: undefined }),
+/** The error card on a phone: the card fills the container. */
+export const LoadErrorPhone: Story = {
+  ...viewportAt(390),
+  decorators: [withTaskDetailPending('error')],
   play: async ({ canvasElement }) => {
-    await within(canvasElement).findByText('Task not found')
+    const canvas = within(canvasElement)
+    await canvas.findByRole('button', { name: 'Try again' })
+    expectWindowWidth(canvasElement, 390)
+    expectCentredCardBox(
+      canvasElement,
+      canvas.getByRole('region', { name: "Couldn't load this task" }),
+      'load error',
+    )
   },
 }
+
+/**
+ * No such task (or no access): the "Task not found" status card (R6), centred
+ * in the container at the one card width.
+ */
+export const NotFound: Story = {
+  ...viewportAt(1366),
+  ...page({ viewer: 'visitor', task: undefined }),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await canvas.findByText('Task not found')
+    expectWindowWidth(canvasElement, 1366)
+    expectCentredCardBox(
+      canvasElement,
+      canvas.getByRole('region', { name: 'Task not found' }),
+      'not found',
+    )
+  },
+}
+
+// ------------------------------------------------ layout rules (FE-493)
+
+/**
+ * R2 and R4 on a real window of each width: Back and the title start on the
+ * logo line, the header row ends on the menu line, and the body fills the
+ * container. The owner's view has a rail, so the body is the wide grid.
+ */
+function onTheLines(width: number): Story {
+  return {
+    ...viewportAt(width),
+    ...page({ viewer: 'owner', task: openTask }),
+    play: async ({ canvasElement }) => {
+      await expectTitle(canvasElement, TITLE)
+      expectTaskDetailOnLines(canvasElement, width)
+    },
+  }
+}
+
+export const OnTheLines390: Story = onTheLines(390)
+export const OnTheLines820: Story = onTheLines(820)
+export const OnTheLines1024: Story = onTheLines(1024)
+export const OnTheLines1366: Story = onTheLines(1366)
+export const OnTheLines1920: Story = onTheLines(1920)
 
 // ------------------------------------------------------------- viewers
 

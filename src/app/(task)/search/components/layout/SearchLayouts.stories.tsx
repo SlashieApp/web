@@ -2,6 +2,13 @@ import { Box } from '@chakra-ui/react'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { expect, userEvent, waitFor, within } from 'storybook/test'
 
+import {
+  expectCardStripOnGutters,
+  expectSearchChromeInContainer,
+  expectSearchListColumn,
+} from '@/app/(task)/helpers/taskPageRules.testing'
+import { viewportAt } from '@/ui/PageContainer/pageLines.testing'
+
 import { browseDatePresetRange } from '../../../helpers/taskBrowseHelpers'
 import { withTaskBrowseStory } from '../../../helpers/taskBrowseStoryDecorator'
 import {
@@ -226,3 +233,47 @@ export const MobileSheetOpen: Story = {
     await within(canvasElement.ownerDocument.body).findByRole('dialog')
   },
 }
+
+// ------------------------------------------------ layout rules (FE-493)
+
+/**
+ * R4 and R5 on a desktop window: the list column over the map starts on the
+ * logo line and is 460 wide, inside the page container (the map itself runs
+ * edge to edge).
+ */
+function webOnTheLines(width: number): Story {
+  return {
+    ...viewportAt(width),
+    decorators: [withTaskBrowseStory()],
+    play: async ({ canvasElement }) => {
+      await within(canvasElement).findByRole('button', {
+        name: /Mount a 55-inch TV/,
+      })
+      expectSearchListColumn(canvasElement, width)
+    },
+  }
+}
+
+export const WebOnTheLines1024: Story = webOnTheLines(1024)
+export const WebOnTheLines1366: Story = webOnTheLines(1366)
+export const WebOnTheLines1920: Story = webOnTheLines(1920)
+
+/**
+ * R5 on a phone and a tablet: the logo, search bar and chips over the map sit
+ * in the page container; on a phone the first card sits on the gutters.
+ */
+function mobileOnTheLines(width: number, cards: boolean): Story {
+  return {
+    ...viewportAt(width),
+    ...mobileLayout,
+    decorators: [withTaskBrowseStory({ isDesktop: false })],
+    play: async ({ canvasElement }) => {
+      await within(canvasElement).findByText(storyBrowseTasks[0].title)
+      expectSearchChromeInContainer(canvasElement, width)
+      if (cards) expectCardStripOnGutters(canvasElement, width)
+    },
+  }
+}
+
+export const MobileOnTheLines390: Story = mobileOnTheLines(390, true)
+export const MobileOnTheLines820: Story = mobileOnTheLines(820, false)

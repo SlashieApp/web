@@ -49,6 +49,7 @@ export function WebSearchLayout() {
       >
         <PageContainer h="full" w="full">
           <Box
+            data-search-list-column=""
             py={2}
             w={{ base: 'full', md: SEARCH_LIST_COLUMN_W }}
             maxW={SEARCH_LIST_COLUMN_W}
