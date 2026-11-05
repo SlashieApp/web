@@ -15,9 +15,11 @@ import {
   storyWorkerMe,
 } from '@/app/(auth)/helpers/authStoryFixtures'
 import type { MeSnapshot } from '@/app/(auth)/store/user'
+import { expectColumnPage } from '@/app/(dashboard)/components/layout/pageRules.testing'
 import { storyPricing } from '@/app/(marketing)/pricing/components/pricingStoryFixtures'
 import Pricing from '@/app/(marketing)/pricing/graphql/Pricing.gql'
 import { LocaleProvider } from '@/i18n/LocaleProvider'
+import { viewportAt } from '@/ui/PageContainer/pageLines.testing'
 
 import { BillingScreen } from './BillingScreen'
 
@@ -280,7 +282,7 @@ export const ZhHk: Story = {
 /** Phones: one column, Back in the header, the button in the first screen. */
 export const Phone: Story = {
   ...screenFor(worker('free')),
-  globals: { viewport: { value: 'mobile1' } },
+  ...viewportAt(390),
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
     await expect(
@@ -289,5 +291,37 @@ export const Phone: Story = {
     await expect(
       canvas.getByRole('button', { name: 'Start free trial' }),
     ).toBeVisible()
+    expectColumnPage(canvasElement, 390)
+  },
+}
+
+/**
+ * Desktop (R2, R3): the header on the logo line and spanning the container,
+ * the plan card in a 720 column left-aligned on the same line, never centred.
+ */
+export const Tablet: Story = {
+  ...screenFor(worker('free')),
+  ...viewportAt(1024),
+  play: async ({ canvasElement }) => {
+    await within(canvasElement).findByRole('heading', { level: 1 })
+    expectColumnPage(canvasElement, 1024)
+  },
+}
+
+export const Desktop: Story = {
+  ...screenFor(worker('active')),
+  ...viewportAt(1366),
+  play: async ({ canvasElement }) => {
+    await within(canvasElement).findByRole('heading', { level: 1 })
+    expectColumnPage(canvasElement, 1366)
+  },
+}
+
+export const DesktopWide: Story = {
+  ...screenFor(worker('free')),
+  ...viewportAt(1920),
+  play: async ({ canvasElement }) => {
+    await within(canvasElement).findByRole('heading', { level: 1 })
+    expectColumnPage(canvasElement, 1920)
   },
 }

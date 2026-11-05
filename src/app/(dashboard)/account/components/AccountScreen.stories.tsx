@@ -5,7 +5,9 @@ import { expect, within } from 'storybook/test'
 import { withSession } from '@/app/(auth)/helpers/authStoryDecorator'
 import { storyMe, storyWorkerMe } from '@/app/(auth)/helpers/authStoryFixtures'
 import type { MeSnapshot } from '@/app/(auth)/store/user'
+import { expectColumnPage } from '@/app/(dashboard)/components/layout/pageRules.testing'
 import { LocaleProvider } from '@/i18n/LocaleProvider'
+import { viewportAt } from '@/ui/PageContainer/pageLines.testing'
 
 import { AccountScreen } from './AccountScreen'
 import { STORY_VAPID_KEY, seedVapidKey } from './accountStoryFixtures'
@@ -171,13 +173,46 @@ export const ZhHk: Story = {
   },
 }
 
-/** Phones: one column with Back in the header. */
+/** Phones: one column with Back in the header, the column the width of the container. */
 export const Phone: Story = {
-  globals: { viewport: { value: 'mobile1' } },
+  ...viewportAt(390),
   decorators: [session(storyMe())],
   play: async ({ canvasElement }) => {
     await expect(
       await within(canvasElement).findByRole('button', { name: 'Go back' }),
     ).toBeVisible()
+    expectColumnPage(canvasElement, 390)
+  },
+}
+
+/**
+ * Desktop (R2, R3): the header on the logo line and spanning the container,
+ * the 720 column left-aligned on the same line. Checked at tablet, laptop and
+ * wide desktop: the column never centres.
+ */
+export const Tablet: Story = {
+  ...viewportAt(1024),
+  decorators: [session(storyMe())],
+  play: async ({ canvasElement }) => {
+    await within(canvasElement).findByRole('heading', { level: 1 })
+    expectColumnPage(canvasElement, 1024)
+  },
+}
+
+export const Desktop: Story = {
+  ...viewportAt(1366),
+  decorators: [session(storyWorkerMe())],
+  play: async ({ canvasElement }) => {
+    await within(canvasElement).findByRole('heading', { level: 1 })
+    expectColumnPage(canvasElement, 1366)
+  },
+}
+
+export const DesktopWide: Story = {
+  ...viewportAt(1920),
+  decorators: [session(storyMe())],
+  play: async ({ canvasElement }) => {
+    await within(canvasElement).findByRole('heading', { level: 1 })
+    expectColumnPage(canvasElement, 1920)
   },
 }

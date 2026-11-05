@@ -8,7 +8,9 @@ import {
   storyWorkerMe,
 } from '@/app/(auth)/helpers/authStoryFixtures'
 import type { MeSnapshot } from '@/app/(auth)/store/user'
+import { expectWidePage } from '@/app/(dashboard)/components/layout/pageRules.testing'
 import { LocaleProvider } from '@/i18n/LocaleProvider'
+import { viewportAt } from '@/ui/PageContainer/pageLines.testing'
 
 import { ProfileScreen } from './ProfileScreen'
 
@@ -151,7 +153,7 @@ export const ZhHk: Story = {
 /** Phones: the next step comes first, above the hero. */
 export const Phone: Story = {
   ...screenFor(storyWorkerMe({ phoneVerified: false })),
-  globals: { viewport: { value: 'mobile1' } },
+  ...viewportAt(390),
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
     await expect(
@@ -159,6 +161,39 @@ export const Phone: Story = {
     ).toBeVisible()
     const steps = canvas.getAllByText('Your next step')
     await expect(steps.some((step) => step.checkVisibility())).toBe(true)
+    expectWidePage(canvasElement, 390)
+  },
+}
+
+/**
+ * Desktop (R2, R4): a wide page. The header starts on the logo line and spans
+ * the container, and the page fills it, logo line to menu line, with the rail
+ * on the right from lg. It does not take the 720 column.
+ */
+export const Tablet: Story = {
+  ...screenFor(storyWorkerMe()),
+  ...viewportAt(1024),
+  play: async ({ canvasElement }) => {
+    await within(canvasElement).findByRole('heading', { level: 1 })
+    expectWidePage(canvasElement, 1024)
+  },
+}
+
+export const Desktop: Story = {
+  ...screenFor(storyWorkerMe()),
+  ...viewportAt(1366),
+  play: async ({ canvasElement }) => {
+    await within(canvasElement).findByRole('heading', { level: 1 })
+    expectWidePage(canvasElement, 1366)
+  },
+}
+
+export const DesktopWide: Story = {
+  ...screenFor(storyMe()),
+  ...viewportAt(1920),
+  play: async ({ canvasElement }) => {
+    await within(canvasElement).findByRole('heading', { level: 1 })
+    expectWidePage(canvasElement, 1920)
   },
 }
 
