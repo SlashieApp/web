@@ -2,6 +2,7 @@ import { OrderStatus } from '@codegen/schema'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { expect, userEvent, waitFor, within } from 'storybook/test'
 
+import { stepFlowRulesAt } from '@/app/(stepflow)/stepFlowPageRules.testing'
 import { TaskReviewScreen } from './TaskReviewScreen'
 import {
   rateAndContinue,
@@ -199,4 +200,34 @@ export const Loading: Story = {
 export const Mobile: Story = {
   decorators: newReview,
   globals: { viewport: { value: 'mobile1' } },
+}
+
+/**
+ * Page layout (R2, R3): the flow header on the logo line, the step a 720 column
+ * left-aligned on it below lg, and the rail and the panel filling the container
+ * from lg.
+ */
+export const Rules390: Story = {
+  decorators: newReview,
+  ...stepFlowRulesAt(390),
+}
+
+export const Rules820: Story = {
+  decorators: newReview,
+  ...stepFlowRulesAt(820),
+}
+
+export const Rules1024: Story = {
+  decorators: newReview,
+  ...stepFlowRulesAt(1024),
+}
+
+export const Rules1366: Story = {
+  decorators: newReview,
+  ...stepFlowRulesAt(1366),
+}
+
+export const Rules1920: Story = {
+  decorators: newReview,
+  ...stepFlowRulesAt(1920),
 }

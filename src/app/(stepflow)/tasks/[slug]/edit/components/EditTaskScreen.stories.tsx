@@ -4,6 +4,7 @@ import { expect, userEvent, waitFor, within } from 'storybook/test'
 
 import type { MeSnapshot } from '@/app/(auth)/store/user'
 import { getContactOptions } from '@/app/(dashboard)/profile/profileEligibility'
+import { stepFlowRulesAt } from '@/app/(stepflow)/stepFlowPageRules.testing'
 import {
   desktop1280,
   expectGaps,
@@ -21,6 +22,7 @@ import { storyTaskDetail } from '@/app/(task)/tasks/[slug]/helpers/taskDetailSto
 import { LocaleProvider } from '@/i18n/LocaleProvider'
 import { formSpace } from '@/theme/styles'
 import { gapBelow } from '@/ui/FormField/formGap.testing'
+import { boxOf, expectPx, lines } from '@/ui/PageContainer/pageLines.testing'
 
 import { EditTaskScreen } from './EditTaskScreen'
 
@@ -324,4 +326,45 @@ export const SpacingPhone: Story = {
     await expectEditSections(canvasElement)
     await expectStepFlowFrame(canvasElement, { button: 'Save changes' })
   },
+}
+
+/**
+ * Page layout (R2, R3): the flow header on the logo line, the step a 720 column
+ * left-aligned on it below lg, and the rail and the panel filling the container
+ * from lg.
+ */
+/**
+ * Below lg the status and the guest view are one row above the form: its
+ * content is on the logo line and ends on the menu line.
+ */
+function rulesWithBarAt(width: number): Story {
+  const rules = stepFlowRulesAt(width, /^save/i)
+  return {
+    ...rules,
+    play: async (context) => {
+      await rules.play(context)
+      const { logo, menu } = lines(context.canvasElement)
+      const preview = context.canvasElement.querySelector('a[href$="/preview"]')
+      await expect(preview, 'the guest view link').not.toBeNull()
+      const bar = (preview as Element).parentElement as Element
+      expectPx(boxOf(bar.firstElementChild as Element).left, logo)
+      expectPx(boxOf(preview as Element).right, menu)
+    },
+  }
+}
+
+export const Rules390: Story = rulesWithBarAt(390)
+
+export const Rules820: Story = rulesWithBarAt(820)
+
+export const Rules1024: Story = {
+  ...stepFlowRulesAt(1024, /^save/i),
+}
+
+export const Rules1366: Story = {
+  ...stepFlowRulesAt(1366, /^save/i),
+}
+
+export const Rules1920: Story = {
+  ...stepFlowRulesAt(1920, /^save/i),
 }

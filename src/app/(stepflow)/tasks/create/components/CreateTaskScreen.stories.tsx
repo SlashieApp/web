@@ -9,6 +9,10 @@ import { expect, userEvent, waitFor, within } from 'storybook/test'
 import type { MeSnapshot } from '@/app/(auth)/store/user'
 import { getContactOptions } from '@/app/(dashboard)/profile/profileEligibility'
 import {
+  compactMapRulesAt,
+  stepFlowRulesAt,
+} from '@/app/(stepflow)/stepFlowPageRules.testing'
+import {
   desktop1280,
   expectStepFlowFrame,
   expectWidth,
@@ -877,4 +881,64 @@ export const SpacingReviewPhone: Story = {
     })
     await expectStepFlowFrame(canvasElement, { button: 'Post task' })
   },
+}
+
+/**
+ * Page layout (R2, R3): the details step, the flow header on the logo line and
+ * the form a 720 column left-aligned on it below lg; from lg the stepper rail
+ * and the form panel fill the container.
+ */
+export const DetailsRules390: Story = {
+  decorators: [atStep('details')],
+  ...stepFlowRulesAt(390),
+}
+
+export const DetailsRules820: Story = {
+  decorators: [atStep('details')],
+  ...stepFlowRulesAt(820),
+}
+
+export const DetailsRules1024: Story = {
+  decorators: [atStep('details')],
+  ...stepFlowRulesAt(1024),
+}
+
+export const DetailsRules1366: Story = {
+  decorators: [atStep('details')],
+  ...stepFlowRulesAt(1366),
+}
+
+export const DetailsRules1920: Story = {
+  decorators: [atStep('details')],
+  ...stepFlowRulesAt(1920),
+}
+
+/**
+ * R5: the location step keeps its compact map card; the card (its content on
+ * phones and tablets) sits on the container line, under the flow header on the
+ * logo line.
+ */
+export const LocationRules390: Story = {
+  decorators: [fresh],
+  ...compactMapRulesAt(390),
+}
+
+export const LocationRules820: Story = {
+  decorators: [fresh],
+  ...compactMapRulesAt(820),
+}
+
+export const LocationRules1024: Story = {
+  decorators: [fresh],
+  ...compactMapRulesAt(1024),
+}
+
+export const LocationRules1366: Story = {
+  decorators: [fresh],
+  ...compactMapRulesAt(1366),
+}
+
+export const LocationRules1920: Story = {
+  decorators: [fresh],
+  ...compactMapRulesAt(1920),
 }

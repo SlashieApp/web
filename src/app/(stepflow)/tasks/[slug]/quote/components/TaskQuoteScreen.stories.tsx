@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { expect, userEvent, waitFor, within } from 'storybook/test'
 
+import { stepFlowRulesAt } from '@/app/(stepflow)/stepFlowPageRules.testing'
 import { Button } from '@ui'
 
 import bag from '../i11n.json'
@@ -185,4 +186,34 @@ export const ReviewStepZhHk: Story = {
     await expect(canvas.getByRole('button', { name: '返回' })).toBeVisible()
     await expect(canvas.getByRole('button', { name: '傳送報價' })).toBeVisible()
   },
+}
+
+/**
+ * Page layout (R2, R3): the flow header on the logo line, the step a 720 column
+ * left-aligned on it below lg, and the rail, the panel and the task beside it filling the container
+ * from lg.
+ */
+export const Rules390: Story = {
+  decorators: emptyForm,
+  ...stepFlowRulesAt(390),
+}
+
+export const Rules820: Story = {
+  decorators: emptyForm,
+  ...stepFlowRulesAt(820),
+}
+
+export const Rules1024: Story = {
+  decorators: emptyForm,
+  ...stepFlowRulesAt(1024),
+}
+
+export const Rules1366: Story = {
+  decorators: emptyForm,
+  ...stepFlowRulesAt(1366),
+}
+
+export const Rules1920: Story = {
+  decorators: emptyForm,
+  ...stepFlowRulesAt(1920),
 }

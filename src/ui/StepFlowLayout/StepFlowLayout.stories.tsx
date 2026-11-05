@@ -4,6 +4,10 @@ import { LuCheck } from 'react-icons/lu'
 import { expect, userEvent, waitFor, within } from 'storybook/test'
 
 import {
+  expectStepColumn,
+  expectStepFlowHeader,
+} from '@/app/(stepflow)/stepFlowPageRules.testing'
+import {
   desktop1280,
   expectNoBarLine,
   expectStepFlowFrame,
@@ -13,6 +17,7 @@ import {
   stepFlowOf,
 } from '@/app/(stepflow)/stepFlowSpacing.testing'
 import { formSpace } from '@/theme/styles'
+import { viewportAt } from '@/ui/PageContainer/pageLines.testing'
 
 import { FormField } from '../FormField'
 import { gapBelow, heightOf } from '../FormField/formGap.testing'
@@ -928,3 +933,34 @@ export const Progress: PartStory = {
     />
   ),
 }
+
+/**
+ * Page layout rules (FE-493), at five window widths. The header is in the page
+ * container (R1, R2): Close on the logo line, the bar ending on the menu line.
+ * Below lg the step is one column (R3): 720 (or the container, when narrower),
+ * left-aligned on the logo line, and Continue ends inside it. From lg the
+ * stepper rail and the panel fill the container, logo line to menu line.
+ */
+function rulesAt(width: number): Story {
+  return {
+    args: { ...TwoColumn.args },
+    ...viewportAt(width),
+    render: (args) => <StepFlowLayout {...args} header={demoHeader} />,
+    play: async ({ canvasElement }) => {
+      const canvas = within(canvasElement)
+      await canvas.findByRole('heading', { level: 1 })
+      expectStepFlowHeader(canvasElement, width)
+      expectStepColumn(
+        canvasElement,
+        width,
+        canvas.getByRole('button', { name: /Continue/ }),
+      )
+    },
+  }
+}
+
+export const Rules390: Story = rulesAt(390)
+export const Rules820: Story = rulesAt(820)
+export const Rules1024: Story = rulesAt(1024)
+export const Rules1366: Story = rulesAt(1366)
+export const Rules1920: Story = rulesAt(1920)

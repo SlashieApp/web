@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { expect, within } from 'storybook/test'
 
+import { stepFlowRulesAt } from '@/app/(stepflow)/stepFlowPageRules.testing'
 import { WorkerSetupScreen } from './WorkerSetupScreen'
 import {
   STORY_WORKER_AVATAR,
@@ -228,4 +229,34 @@ export const ZhHkPhoneReview: Story = {
       await within(canvasElement).findByRole('button', { name: '開始報價' }),
     ).toBeVisible()
   },
+}
+
+/**
+ * Page layout (R2, R3): the flow header on the logo line, the step a 720 column
+ * left-aligned on it below lg, and the rail and the panel filling the container
+ * from lg.
+ */
+export const Rules390: Story = {
+  decorators: [withWorkerSetup({ screen: 'about' })],
+  ...stepFlowRulesAt(390),
+}
+
+export const Rules820: Story = {
+  decorators: [withWorkerSetup({ screen: 'about' })],
+  ...stepFlowRulesAt(820),
+}
+
+export const Rules1024: Story = {
+  decorators: [withWorkerSetup({ screen: 'about' })],
+  ...stepFlowRulesAt(1024),
+}
+
+export const Rules1366: Story = {
+  decorators: [withWorkerSetup({ screen: 'about' })],
+  ...stepFlowRulesAt(1366),
+}
+
+export const Rules1920: Story = {
+  decorators: [withWorkerSetup({ screen: 'about' })],
+  ...stepFlowRulesAt(1920),
 }
