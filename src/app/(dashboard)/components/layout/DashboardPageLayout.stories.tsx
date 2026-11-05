@@ -4,6 +4,14 @@ import type { ReactNode } from 'react'
 import { LuInfo, LuUser } from 'react-icons/lu'
 import { expect, waitFor, within } from 'storybook/test'
 
+import { READABLE_COLUMN_MAX_W_CSS } from '@/theme/pageContainer'
+import {
+  boxOf,
+  expectPx,
+  expectWindowWidth,
+  lines,
+  viewportAt,
+} from '@/ui/PageContainer/pageLines.testing'
 import { Link } from '@ui'
 
 import { DashboardPageLayout } from './DashboardPageLayout'
@@ -54,14 +62,49 @@ const meta = {
 export default meta
 type Story = StoryObj<typeof meta>
 
-/** Desktop: one readable column, the title is the h1, with Back above it at every width. */
+/**
+ * Desktop: the header on the logo line spanning the container, then one
+ * readable column of 720, left-aligned on the same line (R2, R3). The title is
+ * the h1, with Back above it at every width.
+ */
 export const Default: Story = {
+  ...viewportAt(1366),
   play: async ({ canvasElement }) => {
+    expectWindowWidth(canvasElement, 1366)
     const canvas = within(canvasElement)
-    await expect(
-      canvas.getByRole('heading', { level: 1, name: 'Account' }),
-    ).toBeVisible()
+    const title = canvas.getByRole('heading', { level: 1, name: 'Account' })
+    await expect(title).toBeVisible()
     await expect(canvas.getByRole('button', { name: 'Go back' })).toBeVisible()
+    const { logo, menu } = lines(canvasElement)
+    const column = canvasElement.querySelector('[data-page-layout-column]')
+    expectPx(boxOf(title).left, logo, 'the title is on the logo line')
+    expectPx(
+      boxOf(canvasElement.querySelector('[data-sticky-header-row]') as Element)
+        .right,
+      menu,
+      'the header spans the container',
+    )
+    expectPx(
+      boxOf(column as Element).left,
+      logo,
+      'the column is on the logo line',
+    )
+    expectPx(
+      boxOf(column as Element).width,
+      Number.parseFloat(READABLE_COLUMN_MAX_W_CSS) * 16,
+      'the column is 720',
+    )
+  },
+}
+
+/** Wide desktop: the column stays on the logo line, it does not centre. */
+export const DefaultWide: Story = {
+  ...viewportAt(1920),
+  play: async ({ canvasElement }) => {
+    expectWindowWidth(canvasElement, 1920)
+    const column = canvasElement.querySelector('[data-page-layout-column]')
+    expectPx(boxOf(column as Element).left, lines(canvasElement).logo)
+    expectPx(boxOf(column as Element).left, 352)
   },
 }
 
