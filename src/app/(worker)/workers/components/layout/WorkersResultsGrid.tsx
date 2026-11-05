@@ -13,6 +13,7 @@ import {
 import { useTaskBrowseData } from '@/app/(task)/context/TaskBrowseProvider'
 import { formatMessage } from '@/i18n/loadPageI11n'
 import { useI11n } from '@/i18n/useI11n'
+import { milesToKmRounded } from '@/utils/geoDistance'
 import { Button, Card, SpotIllustration } from '@ui'
 
 import { publicProfilePath } from '@/app/helpers/publicProfilePath'
@@ -20,7 +21,6 @@ import { useWorkerSearch } from '../../context/WorkerSearchProvider'
 import {
   buildWorkerActiveFilterTags,
   formatWorkersListTitle,
-  milesToKmRounded,
   workerAvatarUrl,
   workerDisplayName,
   workerExperienceShortLabel,

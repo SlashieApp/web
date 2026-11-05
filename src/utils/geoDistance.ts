@@ -39,3 +39,13 @@ export function formatDistanceAwayLabel(
   if (miles < 10) return `${miles.toFixed(1)} miles away`
   return `${Math.round(miles)} miles away`
 }
+
+/** Search radius in whole kilometres, from miles (the radius is stored in miles). */
+export function milesToKmRounded(miles: number): number {
+  return Math.round(miles * 1.60934)
+}
+
+/** Search radius in miles, from kilometres: whole miles, at least 1. */
+export function kmToMilesRounded(km: number): number {
+  return Math.max(1, Math.round(km / 1.60934))
+}

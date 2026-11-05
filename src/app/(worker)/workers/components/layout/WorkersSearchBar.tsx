@@ -7,13 +7,11 @@ import { useTaskBrowseData } from '@/app/(task)/context/TaskBrowseProvider'
 import { formatMessage } from '@/i18n/loadPageI11n'
 import { useI11n } from '@/i18n/useI11n'
 import { sdlMotion } from '@/theme/styles'
+import { milesToKmRounded } from '@/utils/geoDistance'
 import { Button, Card } from '@ui'
 
 import { useWorkerSearch } from '../../context/WorkerSearchProvider'
-import {
-  buildWorkerActiveFilterTags,
-  milesToKmRounded,
-} from '../../helpers/workerSearchHelpers'
+import { buildWorkerActiveFilterTags } from '../../helpers/workerSearchHelpers'
 import bag from '../../i11n.json'
 import {
   WorkersAreaInput,

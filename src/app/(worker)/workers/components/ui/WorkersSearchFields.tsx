@@ -8,13 +8,10 @@ import { useTaskBrowseData } from '@/app/(task)/context/TaskBrowseProvider'
 import { formatMessage } from '@/i18n/loadPageI11n'
 import { useI11n } from '@/i18n/useI11n'
 import { sdlEyebrow, sdlFigure, sdlFocusRing } from '@/theme/styles'
+import { kmToMilesRounded, milesToKmRounded } from '@/utils/geoDistance'
 import { Button, Input, Slider } from '@ui'
 
 import { useWorkerSearch } from '../../context/WorkerSearchProvider'
-import {
-  kmToMilesRounded,
-  milesToKmRounded,
-} from '../../helpers/workerSearchHelpers'
 import bag from '../../i11n.json'
 
 export const WORKERS_FILTER_LABEL = sdlEyebrow

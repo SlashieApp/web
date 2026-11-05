@@ -146,15 +146,6 @@ export function taskScheduleCompactLabel(
   }).format(when)
 }
 
-/** "5 quotes" card label. Public `tasks` browse doesn't select quotes → null (row hidden). */
-export function milesToKmRounded(miles: number): number {
-  return Math.round(miles * 1.60934)
-}
-
-export function kmToMilesRounded(km: number): number {
-  return Math.max(1, Math.round(km / 1.60934))
-}
-
 function truncateChipLabel(s: string, maxLen: number): string {
   if (s.length <= maxLen) return s
   return `${s.slice(0, maxLen - 1)}…`

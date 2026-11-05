@@ -62,14 +62,6 @@ export function formatWorkersListTitle(
   return `${count} ${noun} near ${browseNearPlaceLabel(areaLabel)}`
 }
 
-export function milesToKmRounded(miles: number): number {
-  return Math.round(miles * 1.60934)
-}
-
-export function kmToMilesRounded(km: number): number {
-  return Math.max(1, Math.round(km / 1.60934))
-}
-
 export type WorkerFilterTag =
   | { kind: 'search'; label: string }
   | { kind: 'verified'; label: string }
