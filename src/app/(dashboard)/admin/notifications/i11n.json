@@ -26,7 +26,6 @@
     "countZero": "No one matches that audience.",
     "audit": "Audit id {id}",
     "sent": "Announcement sent",
-    "needDryRun": "Check recipients again before sending.",
     "targetRequired": "Choose at least one person or cohort.",
     "errorFallback": "Couldn’t send that announcement."
   },
@@ -57,7 +56,6 @@
     "countZero": "沒有人符合這個對象。",
     "audit": "審計編號 {id}",
     "sent": "公告已發送",
-    "needDryRun": "傳送前請再核對人數。",
     "targetRequired": "請至少選擇一個人或一個群組。",
     "errorFallback": "未能發送公告。"
   }
