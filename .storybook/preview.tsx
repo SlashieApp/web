@@ -193,6 +193,7 @@ const preview: Preview = {
             'Accessibility',
           ],
           'UI',
+          'Layout',
           'Shell',
           'Task detail',
           [
