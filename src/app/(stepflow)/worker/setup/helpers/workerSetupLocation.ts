@@ -4,9 +4,6 @@ import { mapboxForwardGeocode } from '@/utils/mapboxGeocode'
 
 import type { WorkerSetupFormState } from './workerSetupFormState'
 
-export const WORKER_SETUP_LOCATION_GEOCODE_ERROR =
-  "We couldn't find that place. Try a city name or full postcode (e.g. London or WD17 2AW)."
-
 function mapboxToken(): string | null {
   const token = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN?.trim()
   return token || null

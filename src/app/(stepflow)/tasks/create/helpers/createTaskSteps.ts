@@ -2,8 +2,6 @@ import { CREATE_TASK_STEPS, type CreateTaskStepId } from '../views'
 
 const ORDER = CREATE_TASK_STEPS.map((view) => view.step)
 
-export const CREATE_TASK_FIRST_STEP: CreateTaskStepId = 'location'
-
 export function createTaskNextStep(
   id: CreateTaskStepId,
 ): CreateTaskStepId | null {

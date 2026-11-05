@@ -48,12 +48,6 @@ export function taskQuoteSubStepIndex(id: TaskQuoteSubStepId): number {
   return TASK_QUOTE_FLAT_STEPS.findIndex((step) => step.id === id)
 }
 
-export function taskQuoteSubStepConfig(
-  id: TaskQuoteSubStepId,
-): TaskQuoteSubStepConfig | undefined {
-  return TASK_QUOTE_FLAT_STEPS.find((step) => step.id === id)
-}
-
 export function taskQuoteMajorIndexForSubStep(id: TaskQuoteSubStepId): number {
   for (let i = 0; i < TASK_QUOTE_MAJOR_STEPS.length; i += 1) {
     if (TASK_QUOTE_MAJOR_STEPS[i].subSteps.some((sub) => sub.id === id)) {

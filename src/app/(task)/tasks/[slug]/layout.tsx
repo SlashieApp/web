@@ -6,19 +6,9 @@ import {
   loadPageI11n,
   metadataFromI11n,
 } from '@/i18n/loadPageI11n'
+import { absoluteUrlFromEnv } from '@/utils/absoluteUrl'
 import { getTaskForTaskDetailPage } from './helpers/getTaskForTaskDetailPage'
 import bag from './i11n.json'
-
-function absoluteUrlFromEnv(pathOrUrl: string): string {
-  if (/^https?:\/\//i.test(pathOrUrl)) return pathOrUrl
-  const base =
-    process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, '') ||
-    (process.env.VERCEL_URL
-      ? `https://${process.env.VERCEL_URL.replace(/\/$/, '')}`
-      : '')
-  if (!base) return pathOrUrl
-  return `${base}${pathOrUrl.startsWith('/') ? '' : '/'}${pathOrUrl}`
-}
 
 export async function generateMetadata({
   params,

@@ -145,15 +145,6 @@ function SeedAccount({
   return children
 }
 
-/** Signed in as the story worker, or signed out with `null`. */
-export function withWorkerAccount(me: MeSnapshot | null): Decorator {
-  return (Story) => (
-    <SeedAccount me={me}>
-      <Story />
-    </SeedAccount>
-  )
-}
-
 /** Setup context plus the signed-in account; the profile screen by default. */
 export function withWorkerSetup(
   overrides: Partial<WorkerSetupContextValue> = {},
