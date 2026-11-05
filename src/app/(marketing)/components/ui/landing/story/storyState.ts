@@ -107,14 +107,6 @@ export function useStoryStage(): StoryStage {
   )
 }
 
-export function useSceneVisible(): boolean {
-  return useSyncExternalStore(
-    subscribeStory,
-    () => state.sceneVisible,
-    () => true,
-  )
-}
-
 export function useSceneReady(): boolean {
   return useSyncExternalStore(
     subscribeStory,

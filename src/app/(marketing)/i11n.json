@@ -13,13 +13,10 @@
     },
     "header": {
       "skipToContent": "Skip to content",
-      "menuIconTitle": "Menu",
-      "menuTitle": "Menu",
       "openMenu": "Open menu",
       "languageLabel": "Language",
       "languages": {
-        "en": "EN",
-        "zhTW": "繁中"
+        "en": "EN"
       },
       "nav": {
         "pricing": "Pricing",
@@ -310,13 +307,10 @@
     },
     "header": {
       "skipToContent": "跳到主要內容",
-      "menuIconTitle": "選單",
-      "menuTitle": "選單",
       "openMenu": "開啟選單",
       "languageLabel": "語言",
       "languages": {
-        "en": "EN",
-        "zhTW": "繁中"
+        "en": "EN"
       },
       "nav": {
         "pricing": "收費",

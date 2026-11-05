@@ -101,12 +101,7 @@ export {
   StickyHeader,
   StickyHeaderTitle,
 } from './StickyHeader'
-export {
-  Header,
-  HEADER_MIN_HEIGHT,
-  HEADER_PADDING_X,
-  HeaderToolbarSeparator,
-} from './Header'
+export { Header, HEADER_MIN_HEIGHT, HeaderToolbarSeparator } from './Header'
 export { IconButton } from './IconButton'
 export { ImageGallery } from './ImageGallery'
 export { ImagePreview } from './ImagePreview'
