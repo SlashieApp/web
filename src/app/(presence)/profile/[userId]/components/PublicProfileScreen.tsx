@@ -1,6 +1,6 @@
 'use client'
 
-import { Box, Container, Grid, HStack, Stack, Text } from '@chakra-ui/react'
+import { Box, Grid, HStack, Stack, Text } from '@chakra-ui/react'
 import { LuEyeOff, LuHeart } from 'react-icons/lu'
 
 import { ReportControl } from '@/content/trust/ReportControl'
@@ -12,6 +12,7 @@ import {
   HEADER_BAR_H,
   HEADER_OVERLAY_BUTTON,
   Link,
+  PageContainer,
   StickyHeader,
 } from '@ui'
 
@@ -134,9 +135,7 @@ function Page({
 }) {
   return (
     <Box pb={barSpace ? { base: 44, lg: 12 } : { base: 10, lg: 12 }}>
-      <Container maxW={PAGE_CONTAINER_MAX_W} px={PAGE_GUTTER_X}>
-        {children}
-      </Container>
+      <PageContainer>{children}</PageContainer>
     </Box>
   )
 }

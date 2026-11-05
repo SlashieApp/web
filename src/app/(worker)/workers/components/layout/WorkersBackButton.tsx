@@ -4,10 +4,9 @@ import { Box } from '@chakra-ui/react'
 import { LuArrowLeft } from 'react-icons/lu'
 
 import { useI11n } from '@/i18n/useI11n'
-import { PAGE_CONTAINER_MAX_W, PAGE_GUTTER_X } from '@/theme/pageContainer'
 import { sdlMotion } from '@/theme/styles'
 import { useGoBack } from '@/utils/goBack'
-import { IconButton } from '@ui'
+import { IconButton, PageContainer } from '@ui'
 
 import bag from '../../i11n.json'
 
@@ -32,7 +31,7 @@ export function WorkersBackButton() {
       zIndex={2}
       pointerEvents="none"
     >
-      <Box w="full" maxW={PAGE_CONTAINER_MAX_W} mx="auto" px={PAGE_GUTTER_X}>
+      <PageContainer>
         <Box pointerEvents="auto" w="fit-content">
           <IconButton
             type="button"
@@ -49,7 +48,7 @@ export function WorkersBackButton() {
             <LuArrowLeft />
           </IconButton>
         </Box>
-      </Box>
+      </PageContainer>
     </Box>
   )
 }

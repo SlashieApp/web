@@ -3,7 +3,7 @@
 import { Box, VisuallyHidden } from '@chakra-ui/react'
 
 import { useI11n } from '@/i18n/useI11n'
-import { PAGE_CONTAINER_MAX_W, PAGE_GUTTER_X } from '@/theme/pageContainer'
+import { PageContainer } from '@ui'
 
 import bag from '../i11n.json'
 import { ThreadList } from './ThreadList'
@@ -20,13 +20,7 @@ export function MessagesScreen({ threadId }: { threadId: string | null }) {
   const open = Boolean(threadId)
 
   return (
-    <Box
-      h="full"
-      w="full"
-      maxW={PAGE_CONTAINER_MAX_W}
-      mx="auto"
-      px={{ base: 0, lg: PAGE_GUTTER_X.lg }}
-    >
+    <PageContainer gutters="lg" h="full">
       <Box
         h="full"
         display="grid"
@@ -55,6 +49,6 @@ export function MessagesScreen({ threadId }: { threadId: string | null }) {
           <ThreadView key={threadId ?? 'none'} threadId={threadId} />
         </Box>
       </Box>
-    </Box>
+    </PageContainer>
   )
 }

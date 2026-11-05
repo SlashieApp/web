@@ -1,10 +1,11 @@
 'use client'
 
-import { Box, Container } from '@chakra-ui/react'
+import { Box } from '@chakra-ui/react'
 import { useRef } from 'react'
 
 import { BrowseGeolocationInit } from '@/app/(task)/components/analytics/BrowseGeolocationInit'
 import { TaskBrowseProvider } from '@/app/(task)/context/TaskBrowseProvider'
+import { PageContainer } from '@ui'
 
 import {
   type WorkerSearchInitialState,
@@ -44,9 +45,9 @@ function WorkersDirectory() {
           zIndex={2}
         >
           <WorkersStickySearch />
-          <Container pt={{ base: 4, md: 6 }} pb={{ base: 8, md: 10 }}>
+          <PageContainer pt={{ base: 4, md: 6 }} pb={{ base: 8, md: 10 }}>
             <WorkersResultsGrid />
-          </Container>
+          </PageContainer>
         </Box>
       </Box>
     </Box>

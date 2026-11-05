@@ -1,16 +1,17 @@
 'use client'
 
-import { Box, Container } from '@chakra-ui/react'
+import { Box } from '@chakra-ui/react'
 import { useCallback, useRef, useState } from 'react'
 
-import { PAGE_CONTAINER_MAX_W, PAGE_GUTTER_X } from '@/theme/pageContainer'
 import { sdlMotion } from '@/theme/styles'
+import { PageBleed } from '@ui'
 
 import { WorkersSearchBar } from './WorkersSearchBar'
 
 /**
  * Search bar sits over the map, then pins to the top of the scrolling
- * `<main>` and expands to the full pane width (no side gutters).
+ * `<main>`. Its background and shadow run edge to edge when it is stuck, but
+ * the search itself stays in the page container, on the logo line (R5).
  */
 export function WorkersStickySearch() {
   const [stuck, setStuck] = useState(false)
@@ -47,7 +48,7 @@ export function WorkersStickySearch() {
   return (
     <>
       <Box ref={sentinelRef} aria-hidden h="1px" w="full" />
-      <Box
+      <PageBleed
         position="sticky"
         top={0}
         zIndex={20}
@@ -58,17 +59,8 @@ export function WorkersStickySearch() {
         transitionDuration={sdlMotion.duration.moderate}
         transitionTimingFunction={sdlMotion.easing.standard}
       >
-        <Container
-          maxW={stuck ? '100%' : PAGE_CONTAINER_MAX_W}
-          px={stuck ? 0 : PAGE_GUTTER_X}
-          w="full"
-          transitionProperty="padding, max-width"
-          transitionDuration={sdlMotion.duration.moderate}
-          transitionTimingFunction={sdlMotion.easing.standard}
-        >
-          <WorkersSearchBar stuck={stuck} />
-        </Container>
-      </Box>
+        <WorkersSearchBar stuck={stuck} />
+      </PageBleed>
     </>
   )
 }
