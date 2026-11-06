@@ -9,7 +9,7 @@ import {
   SECTION_PY,
   SectionHead,
 } from '@/app/(marketing)/components/layout/MarketingFrame'
-import { PageContainer } from '@/ui/PageContainer'
+import { PageBleed } from '@/ui/PageContainer'
 
 import { Reveal } from '../Reveal'
 
@@ -130,77 +130,75 @@ export function PricingTeaser({
   pricingHref: string
 }) {
   return (
-    <Box
+    <PageBleed
       as="section"
       data-pricing-teaser=""
       aria-labelledby={PRICING_TEASER_HEADING_ID}
       bg="bg.surface"
       py={SECTION_PY}
     >
-      <PageContainer>
+      <Grid
+        templateColumns={{
+          base: 'minmax(0, 1fr)',
+          lg: 'minmax(0, 5fr) minmax(0, 7fr)',
+        }}
+        // The cards span both rows beside the head and the pill: the head
+        // keeps its height and the pill sits right under it.
+        templateRows={{ lg: 'auto 1fr' }}
+        columnGap={{ lg: 16, xl: 24 }}
+        rowGap={{ base: 8, md: 10 }}
+        alignItems="start"
+      >
+        <Reveal gridColumn={{ lg: 1 }} gridRow={{ lg: 1 }}>
+          <SectionHead
+            icon={LuTag}
+            eyebrow={eyebrow}
+            heading={copy.heading}
+            headingId={PRICING_TEASER_HEADING_ID}
+            body={copy.body}
+          />
+        </Reveal>
+
         <Grid
+          data-pricing-plans=""
           templateColumns={{
             base: 'minmax(0, 1fr)',
-            lg: 'minmax(0, 5fr) minmax(0, 7fr)',
+            md: 'repeat(2, minmax(0, 1fr))',
           }}
-          // The cards span both rows beside the head and the pill: the head
-          // keeps its height and the pill sits right under it.
-          templateRows={{ lg: 'auto 1fr' }}
-          columnGap={{ lg: 16, xl: 24 }}
-          rowGap={{ base: 8, md: 10 }}
-          alignItems="start"
+          gap={{ base: 4, md: 5 }}
+          gridColumn={{ lg: 2 }}
+          gridRow={{ lg: '1 / span 2' }}
+          w="full"
         >
-          <Reveal gridColumn={{ lg: 1 }} gridRow={{ lg: 1 }}>
-            <SectionHead
-              icon={LuTag}
-              eyebrow={eyebrow}
-              heading={copy.heading}
-              headingId={PRICING_TEASER_HEADING_ID}
-              body={copy.body}
+          <Reveal h="full">
+            <PlanCard
+              data-pricing-plan="free"
+              label={copy.freePlanLabel}
+              headline={pricing.freeHeadline}
+              body={copy.freeBody}
             />
           </Reveal>
+          <Reveal delayMs={120} h="full">
+            <PlanCard
+              data-pricing-plan="premium"
+              premium
+              label={pricing.productName}
+              headline={pricing.headline}
+              body={pricing.subline}
+            />
+          </Reveal>
+        </Grid>
 
-          <Grid
-            data-pricing-plans=""
-            templateColumns={{
-              base: 'minmax(0, 1fr)',
-              md: 'repeat(2, minmax(0, 1fr))',
-            }}
-            gap={{ base: 4, md: 5 }}
-            gridColumn={{ lg: 2 }}
-            gridRow={{ lg: '1 / span 2' }}
-            w="full"
-          >
-            <Reveal h="full">
-              <PlanCard
-                data-pricing-plan="free"
-                label={copy.freePlanLabel}
-                headline={pricing.freeHeadline}
-                body={copy.freeBody}
-              />
-            </Reveal>
-            <Reveal delayMs={120} h="full">
-              <PlanCard
-                data-pricing-plan="premium"
-                premium
-                label={pricing.productName}
-                headline={pricing.headline}
-                body={pricing.subline}
-              />
-            </Reveal>
-          </Grid>
-
-          <Reveal delayMs={160} gridColumn={{ lg: 1 }} gridRow={{ lg: 2 }}>
-            {/* The outline pill, not a plum fill: plum is the paid plan's
+        <Reveal delayMs={160} gridColumn={{ lg: 1 }} gridRow={{ lg: 2 }}>
+          {/* The outline pill, not a plum fill: plum is the paid plan's
                 (label, sparkle, hairline), and this link goes to the pricing
                 page, not to that plan. A second filled accent would sit beside
                 the page's green on a phone. */}
-            <Button asChild variant="secondary">
-              <NextLink href={pricingHref}>{ctaLabel}</NextLink>
-            </Button>
-          </Reveal>
-        </Grid>
-      </PageContainer>
-    </Box>
+          <Button asChild variant="secondary">
+            <NextLink href={pricingHref}>{ctaLabel}</NextLink>
+          </Button>
+        </Reveal>
+      </Grid>
+    </PageBleed>
   )
 }

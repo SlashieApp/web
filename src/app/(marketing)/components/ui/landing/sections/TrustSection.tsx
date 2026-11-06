@@ -3,7 +3,7 @@ import { LuCheck } from 'react-icons/lu'
 
 import { SECTION_PY } from '@/app/(marketing)/components/layout/MarketingFrame'
 import { PAGE_GUTTER_X } from '@/theme/pageContainer'
-import { PageContainer } from '@/ui/PageContainer'
+import { PageBleed } from '@/ui/PageContainer'
 
 import { Reveal } from '../Reveal'
 
@@ -64,65 +64,59 @@ export function trustCellPadding(index: number, count: number) {
  */
 export function TrustSection({ points }: { points: readonly string[] }) {
   return (
-    <Box data-trust="" bg="bg.surface">
-      <PageContainer gutters="none">
-        <List.Root
-          ps={0}
-          listStyle="none"
-          display="grid"
-          gridTemplateColumns={{
-            base: 'minmax(0, 1fr)',
-            md: 'repeat(2, minmax(0, 1fr))',
-            lg: 'repeat(4, minmax(0, 1fr))',
-          }}
-        >
-          {points.map((point, index) => (
-            <List.Item
-              key={point}
-              data-trust-point=""
-              px={PAGE_GUTTER_X}
-              {...trustCellPadding(index, points.length)}
-              borderColor="border.default"
-              // One column: a line above every point but the first. Two columns:
-              // a line above the second row and before the right-hand column.
-              // Four: a line before every point but the first.
-              borderTopWidth={{
-                base: index === 0 ? 0 : '1px',
-                md: index < 2 ? 0 : '1px',
-                lg: 0,
-              }}
-              borderInlineStartWidth={{
-                base: 0,
-                md: index % 2 === 1 ? '1px' : 0,
-                lg: index === 0 ? 0 : '1px',
-              }}
-            >
-              <Reveal delayMs={index * 70}>
-                <HStack gap={3} align="flex-start">
-                  <Box
-                    as="span"
-                    display="inline-flex"
-                    alignItems="center"
-                    height="24px"
-                    color="accent.active"
-                    flexShrink={0}
-                    aria-hidden
-                  >
-                    <LuCheck size={20} strokeWidth={2.5} />
-                  </Box>
-                  <Text
-                    textStyle="text-md"
-                    fontWeight={500}
-                    color="text.default"
-                  >
-                    {point}
-                  </Text>
-                </HStack>
-              </Reveal>
-            </List.Item>
-          ))}
-        </List.Root>
-      </PageContainer>
-    </Box>
+    <PageBleed data-trust="" bg="bg.surface" gutters="none">
+      <List.Root
+        ps={0}
+        listStyle="none"
+        display="grid"
+        gridTemplateColumns={{
+          base: 'minmax(0, 1fr)',
+          md: 'repeat(2, minmax(0, 1fr))',
+          lg: 'repeat(4, minmax(0, 1fr))',
+        }}
+      >
+        {points.map((point, index) => (
+          <List.Item
+            key={point}
+            data-trust-point=""
+            px={PAGE_GUTTER_X}
+            {...trustCellPadding(index, points.length)}
+            borderColor="border.default"
+            // One column: a line above every point but the first. Two columns:
+            // a line above the second row and before the right-hand column.
+            // Four: a line before every point but the first.
+            borderTopWidth={{
+              base: index === 0 ? 0 : '1px',
+              md: index < 2 ? 0 : '1px',
+              lg: 0,
+            }}
+            borderInlineStartWidth={{
+              base: 0,
+              md: index % 2 === 1 ? '1px' : 0,
+              lg: index === 0 ? 0 : '1px',
+            }}
+          >
+            <Reveal delayMs={index * 70}>
+              <HStack gap={3} align="flex-start">
+                <Box
+                  as="span"
+                  display="inline-flex"
+                  alignItems="center"
+                  height="24px"
+                  color="accent.active"
+                  flexShrink={0}
+                  aria-hidden
+                >
+                  <LuCheck size={20} strokeWidth={2.5} />
+                </Box>
+                <Text textStyle="text-md" fontWeight={500} color="text.default">
+                  {point}
+                </Text>
+              </HStack>
+            </Reveal>
+          </List.Item>
+        ))}
+      </List.Root>
+    </PageBleed>
   )
 }

@@ -32,7 +32,7 @@ import { APP_HOME, SAFETY_HREF } from '@/utils/appRoutes'
 import { FeedbackTrigger } from '../FeedbackDialog/FeedbackTrigger'
 import { Link } from '../Link/Link'
 import { Logo } from '../Logo/Logo'
-import { PageContainer } from '../PageContainer'
+import { PageBleed } from '../PageContainer'
 import messages from './i11n.json'
 
 /**
@@ -212,7 +212,7 @@ export function Footer({
   )
 
   return (
-    <Box
+    <PageBleed
       as="footer"
       position="relative"
       overflow="hidden"
@@ -220,148 +220,147 @@ export function Footer({
       borderTopWidth="1px"
       borderColor="border.default"
       py={variant === 'minimal' ? 6 : { base: 10, md: 12 }}
+      contentProps={{ position: 'relative', zIndex: 1 }}
       {...boxProps}
     >
-      <PageContainer position="relative" zIndex={1}>
-        {variant === 'minimal' ? (
-          <Stack gap={3}>
-            <HStack
-              justify="space-between"
-              flexWrap="wrap"
-              gap={4}
-              fontSize="sm"
-              color="text.muted"
-            >
-              <Text>{resolvedCopyright}</Text>
-              {legalRow}
-            </HStack>
-            <Text fontSize="xs" color="text.muted">
-              {registrationLine}
-            </Text>
-            {/* Legal pages use this variant: keep the language switch. */}
-            {languageButton}
-          </Stack>
-        ) : (
-          <Stack gap={{ base: 8, lg: 12 }}>
-            <Grid
-              templateColumns={{
-                base: 'minmax(0, 1fr)',
-                lg: 'minmax(0, 1.3fr) repeat(5, minmax(0, 0.75fr))',
-              }}
-              gap={{ base: 8, lg: 8 }}
-              alignItems="flex-start"
-            >
-              <Stack gap={3} maxW="md">
-                <Logo />
-                <Text fontSize="sm" color="text.muted" lineHeight="tall">
-                  {resolvedTagline}
-                </Text>
-                <Text fontSize="xs" color="text.muted" lineHeight="tall">
-                  {t.openSourceNote}
-                </Text>
-                {languageButton}
-                <HStack gap={1} ml={-2.5}>
-                  {socialLinks.map((link) => {
-                    const Icon = link.icon
-                    return (
-                      <Link
-                        key={link.href}
-                        href={link.href}
-                        aria-label={link.label}
-                        title={link.label}
-                        {...externalLinkProps}
-                        display="inline-flex"
-                        alignItems="center"
-                        justifyContent="center"
-                        boxSize="44px"
-                        borderRadius="full"
-                        color="text.muted"
-                        _hover={{ color: 'text.link', bg: 'bg.surface' }}
-                        {...linkMotion}
-                      >
-                        <Icon size={18} aria-hidden />
-                      </Link>
-                    )
-                  })}
-                </HStack>
-              </Stack>
-
-              {groups.map((group) => (
-                <Box key={group.key} display={{ base: 'none', lg: 'block' }}>
-                  <FooterColumn label={group.label}>{group.items}</FooterColumn>
-                </Box>
-              ))}
-
-              <Accordion.Root
-                multiple
-                collapsible
-                variant="plain"
-                display={{ base: 'block', lg: 'none' }}
-                borderTopWidth="1px"
-                borderColor="border.default"
-              >
-                {groups.map((group) => (
-                  <Accordion.Item
-                    key={group.key}
-                    value={group.key}
-                    borderBottomWidth="1px"
-                    borderColor="border.default"
-                  >
-                    <Accordion.ItemTrigger
-                      minH="52px"
-                      cursor="pointer"
-                      fontSize="sm"
-                      fontWeight={500}
-                      color="text.default"
-                      _focusVisible={sdlFocusRing}
+      {variant === 'minimal' ? (
+        <Stack gap={3}>
+          <HStack
+            justify="space-between"
+            flexWrap="wrap"
+            gap={4}
+            fontSize="sm"
+            color="text.muted"
+          >
+            <Text>{resolvedCopyright}</Text>
+            {legalRow}
+          </HStack>
+          <Text fontSize="xs" color="text.muted">
+            {registrationLine}
+          </Text>
+          {/* Legal pages use this variant: keep the language switch. */}
+          {languageButton}
+        </Stack>
+      ) : (
+        <Stack gap={{ base: 8, lg: 12 }}>
+          <Grid
+            templateColumns={{
+              base: 'minmax(0, 1fr)',
+              lg: 'minmax(0, 1.3fr) repeat(5, minmax(0, 0.75fr))',
+            }}
+            gap={{ base: 8, lg: 8 }}
+            alignItems="flex-start"
+          >
+            <Stack gap={3} maxW="md">
+              <Logo />
+              <Text fontSize="sm" color="text.muted" lineHeight="tall">
+                {resolvedTagline}
+              </Text>
+              <Text fontSize="xs" color="text.muted" lineHeight="tall">
+                {t.openSourceNote}
+              </Text>
+              {languageButton}
+              <HStack gap={1} ml={-2.5}>
+                {socialLinks.map((link) => {
+                  const Icon = link.icon
+                  return (
+                    <Link
+                      key={link.href}
+                      href={link.href}
+                      aria-label={link.label}
+                      title={link.label}
+                      {...externalLinkProps}
+                      display="inline-flex"
+                      alignItems="center"
+                      justifyContent="center"
+                      boxSize="44px"
+                      borderRadius="full"
+                      color="text.muted"
+                      _hover={{ color: 'text.link', bg: 'bg.surface' }}
+                      {...linkMotion}
                     >
-                      <Text as="span" flex={1} textAlign="start">
-                        {group.label}
-                      </Text>
-                      <Accordion.ItemIndicator color="text.muted" />
-                    </Accordion.ItemTrigger>
-                    <Accordion.ItemContent>
-                      <Accordion.ItemBody pt={0} pb={3}>
-                        <Stack
-                          as="nav"
-                          aria-label={group.label}
-                          gap={0}
-                          align="flex-start"
-                        >
-                          {group.items}
-                        </Stack>
-                      </Accordion.ItemBody>
-                    </Accordion.ItemContent>
-                  </Accordion.Item>
-                ))}
-              </Accordion.Root>
-            </Grid>
+                      <Icon size={18} aria-hidden />
+                    </Link>
+                  )
+                })}
+              </HStack>
+            </Stack>
 
-            <Stack
-              gap={2}
-              pt={{ base: 2, md: 1 }}
+            {groups.map((group) => (
+              <Box key={group.key} display={{ base: 'none', lg: 'block' }}>
+                <FooterColumn label={group.label}>{group.items}</FooterColumn>
+              </Box>
+            ))}
+
+            <Accordion.Root
+              multiple
+              collapsible
+              variant="plain"
+              display={{ base: 'block', lg: 'none' }}
               borderTopWidth="1px"
               borderColor="border.default"
             >
-              <HStack
-                justify="space-between"
-                flexWrap="wrap"
-                gap={3}
-                fontSize="sm"
-                color="text.muted"
-                pt={5}
-              >
-                <Text>{resolvedCopyright}</Text>
-                <Text fontSize="xs" color="text.muted">
-                  {registrationLine}
-                </Text>
-              </HStack>
-            </Stack>
+              {groups.map((group) => (
+                <Accordion.Item
+                  key={group.key}
+                  value={group.key}
+                  borderBottomWidth="1px"
+                  borderColor="border.default"
+                >
+                  <Accordion.ItemTrigger
+                    minH="52px"
+                    cursor="pointer"
+                    fontSize="sm"
+                    fontWeight={500}
+                    color="text.default"
+                    _focusVisible={sdlFocusRing}
+                  >
+                    <Text as="span" flex={1} textAlign="start">
+                      {group.label}
+                    </Text>
+                    <Accordion.ItemIndicator color="text.muted" />
+                  </Accordion.ItemTrigger>
+                  <Accordion.ItemContent>
+                    <Accordion.ItemBody pt={0} pb={3}>
+                      <Stack
+                        as="nav"
+                        aria-label={group.label}
+                        gap={0}
+                        align="flex-start"
+                      >
+                        {group.items}
+                      </Stack>
+                    </Accordion.ItemBody>
+                  </Accordion.ItemContent>
+                </Accordion.Item>
+              ))}
+            </Accordion.Root>
+          </Grid>
+
+          <Stack
+            gap={2}
+            pt={{ base: 2, md: 1 }}
+            borderTopWidth="1px"
+            borderColor="border.default"
+          >
+            <HStack
+              justify="space-between"
+              flexWrap="wrap"
+              gap={3}
+              fontSize="sm"
+              color="text.muted"
+              pt={5}
+            >
+              <Text>{resolvedCopyright}</Text>
+              <Text fontSize="xs" color="text.muted">
+                {registrationLine}
+              </Text>
+            </HStack>
           </Stack>
-        )}
-      </PageContainer>
+        </Stack>
+      )}
       <LanguageSwitcher open={languageOpen} onOpenChange={setLanguageOpen} />
-    </Box>
+    </PageBleed>
   )
 }
 

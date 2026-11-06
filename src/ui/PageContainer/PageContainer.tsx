@@ -67,6 +67,10 @@ export function PageContainer({
 export type PageBleedProps = Omit<BoxProps, 'children'> & {
   /** Gutters of the container inside the bleed. */
   gutters?: PageContainerGutters
+  /** Style props for the container inside the bleed (its layout, stacking). */
+  contentProps?: Omit<PageContainerProps, 'gutters' | 'children'>
+  /** The outer, full-bleed box. */
+  ref?: Ref<HTMLDivElement>
   children?: ReactNode
 }
 
@@ -78,12 +82,15 @@ export type PageBleedProps = Omit<BoxProps, 'children'> & {
  */
 export function PageBleed({
   gutters = 'all',
+  contentProps,
   children,
   ...props
 }: PageBleedProps) {
   return (
     <Box w="full" {...props}>
-      <PageContainer gutters={gutters}>{children}</PageContainer>
+      <PageContainer gutters={gutters} {...contentProps}>
+        {children}
+      </PageContainer>
     </Box>
   )
 }

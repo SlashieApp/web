@@ -10,7 +10,7 @@ import {
   onCookieSettingsOpen,
   setCookieConsent,
 } from '@/utils/analytics'
-import { Button, Link, PageContainer } from '@ui'
+import { Button, Link, PageBleed } from '@ui'
 
 import {
   COOKIE_BANNER_HEIGHT_VAR,
@@ -73,7 +73,7 @@ export function CookieConsentBanner() {
   }
 
   return (
-    <Box
+    <PageBleed
       ref={publishHeight}
       as="section"
       aria-label={t.ariaLabel}
@@ -85,42 +85,40 @@ export function CookieConsentBanner() {
       py={{ base: 4, md: 5 }}
       boxShadow="e3"
     >
-      <PageContainer>
-        <Stack
-          direction={{ base: 'column', md: 'row' }}
-          gap={{ base: 4, md: 6 }}
-          align={{ base: 'stretch', md: 'center' }}
-          justify="space-between"
+      <Stack
+        direction={{ base: 'column', md: 'row' }}
+        gap={{ base: 4, md: 6 }}
+        align={{ base: 'stretch', md: 'center' }}
+        justify="space-between"
+      >
+        <Text fontSize="sm" color="text.default" lineHeight="1.55">
+          {policyBefore}
+          <Link href="/cookies" fontSize="sm">
+            {t.policy}
+          </Link>
+          {policyAfter}
+        </Text>
+        <HStack
+          gap={3}
+          flexShrink={0}
+          justify={{ base: 'flex-end', md: 'initial' }}
         >
-          <Text fontSize="sm" color="text.default" lineHeight="1.55">
-            {policyBefore}
-            <Link href="/cookies" fontSize="sm">
-              {t.policy}
-            </Link>
-            {policyAfter}
-          </Text>
-          <HStack
-            gap={3}
-            flexShrink={0}
-            justify={{ base: 'flex-end', md: 'initial' }}
+          <Button
+            variant="secondary"
+            size="md"
+            onClick={() => decide('rejected')}
           >
-            <Button
-              variant="secondary"
-              size="md"
-              onClick={() => decide('rejected')}
-            >
-              {t.essentialOnly}
-            </Button>
-            <Button
-              variant="secondary"
-              size="md"
-              onClick={() => decide('accepted')}
-            >
-              {t.acceptAll}
-            </Button>
-          </HStack>
-        </Stack>
-      </PageContainer>
-    </Box>
+            {t.essentialOnly}
+          </Button>
+          <Button
+            variant="secondary"
+            size="md"
+            onClick={() => decide('accepted')}
+          >
+            {t.acceptAll}
+          </Button>
+        </HStack>
+      </Stack>
+    </PageBleed>
   )
 }

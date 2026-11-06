@@ -34,7 +34,7 @@ import { IconButton } from '../IconButton'
 import { Link } from '../Link'
 import { Logo } from '../Logo'
 import { MESSAGES_HREF } from '../MobileBottomNav/mobileBottomNavLayout'
-import { PageContainer } from '../PageContainer'
+import { PageBleed } from '../PageContainer'
 
 import { AccountMenu } from './account/AccountMenu'
 import { accountNavLinkRowProps } from './account/accountNavLinkProps'
@@ -287,7 +287,7 @@ export function Header({
   return (
     <>
       <AppStatusBanners />
-      <Box
+      <PageBleed
         as="header"
         isolation="isolate"
         zIndex={30}
@@ -307,18 +307,17 @@ export function Header({
         alignItems="center"
         position="sticky"
         top={0}
+        contentProps={{
+          w: 'full',
+          minH: HEADER_MIN_HEIGHT,
+          overflow: 'visible',
+          display: 'flex',
+          alignItems: 'center',
+        }}
         {...props}
       >
-        <PageContainer
-          w="full"
-          minH={HEADER_MIN_HEIGHT}
-          overflow="visible"
-          display="flex"
-          alignItems="center"
-        >
-          {children ?? <AppHeaderNavigation hasSession={hasSession} />}
-        </PageContainer>
-      </Box>
+        {children ?? <AppHeaderNavigation hasSession={hasSession} />}
+      </PageBleed>
     </>
   )
 }

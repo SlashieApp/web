@@ -2,7 +2,7 @@ import { Box, Grid, Heading, Stack, Text } from '@chakra-ui/react'
 import type { ReactNode } from 'react'
 
 import { PAGE_GUTTER_X } from '@/theme/pageContainer'
-import { PageContainer } from '@/ui/PageContainer'
+import { PageBleed } from '@/ui/PageContainer'
 
 import { Reveal } from '../Reveal'
 import type { PhoneCopy, StoryCopy } from '../phone/phoneCopy'
@@ -68,60 +68,59 @@ export function BentoSection({
   phone: PhoneCopy
 }) {
   return (
-    <Box
+    <PageBleed
       as="section"
       aria-labelledby={BENTO_KEYS.map(bentoTitleId).join(' ')}
       data-bento=""
       bg="bg.surface"
+      gutters="none"
     >
-      <PageContainer gutters="none">
-        <Grid
-          templateColumns={{
-            base: 'minmax(0, 1fr)',
-            lg: 'repeat(3, minmax(0, 1fr))',
-          }}
-          templateRows={{ lg: 'auto 1fr' }}
-        >
-          {BENTO_KEYS.map((key, index) => (
-            <Grid
-              key={key}
-              data-bento-cell={key}
-              px={PAGE_GUTTER_X}
-              py={BENTO_CELL_PY}
-              columnGap={10}
-              rowGap={{ base: 6, lg: 8 }}
-              templateColumns={{
-                base: 'minmax(0, 1fr)',
-                md: 'repeat(2, minmax(0, 1fr))',
-                lg: 'minmax(0, 1fr)',
-              }}
-              // From lg every cell spans both rows and shares them.
-              gridRow={{ lg: 'span 2' }}
-              templateRows={{ lg: 'subgrid' }}
-              borderColor="border.default"
-              borderTopWidth={{ base: index === 0 ? 0 : '1px', lg: 0 }}
-              borderInlineStartWidth={{ base: 0, lg: index === 0 ? 0 : '1px' }}
-            >
-              <Reveal delayMs={index * 70}>
-                <Stack gap={3}>
-                  <Heading
-                    as="h2"
-                    id={bentoTitleId(key)}
-                    textStyle="heading-lg"
-                    textWrap="balance"
-                  >
-                    {steps[key].title}
-                  </Heading>
-                  <Text textStyle="text-md" color="text.muted">
-                    {steps[key].body}
-                  </Text>
-                </Stack>
-              </Reveal>
-              {snippetFor(key, phone)}
-            </Grid>
-          ))}
-        </Grid>
-      </PageContainer>
-    </Box>
+      <Grid
+        templateColumns={{
+          base: 'minmax(0, 1fr)',
+          lg: 'repeat(3, minmax(0, 1fr))',
+        }}
+        templateRows={{ lg: 'auto 1fr' }}
+      >
+        {BENTO_KEYS.map((key, index) => (
+          <Grid
+            key={key}
+            data-bento-cell={key}
+            px={PAGE_GUTTER_X}
+            py={BENTO_CELL_PY}
+            columnGap={10}
+            rowGap={{ base: 6, lg: 8 }}
+            templateColumns={{
+              base: 'minmax(0, 1fr)',
+              md: 'repeat(2, minmax(0, 1fr))',
+              lg: 'minmax(0, 1fr)',
+            }}
+            // From lg every cell spans both rows and shares them.
+            gridRow={{ lg: 'span 2' }}
+            templateRows={{ lg: 'subgrid' }}
+            borderColor="border.default"
+            borderTopWidth={{ base: index === 0 ? 0 : '1px', lg: 0 }}
+            borderInlineStartWidth={{ base: 0, lg: index === 0 ? 0 : '1px' }}
+          >
+            <Reveal delayMs={index * 70}>
+              <Stack gap={3}>
+                <Heading
+                  as="h2"
+                  id={bentoTitleId(key)}
+                  textStyle="heading-lg"
+                  textWrap="balance"
+                >
+                  {steps[key].title}
+                </Heading>
+                <Text textStyle="text-md" color="text.muted">
+                  {steps[key].body}
+                </Text>
+              </Stack>
+            </Reveal>
+            {snippetFor(key, phone)}
+          </Grid>
+        ))}
+      </Grid>
+    </PageBleed>
   )
 }

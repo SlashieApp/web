@@ -12,7 +12,7 @@ import {
   sdlMotion,
   sdlOverlaySurface,
 } from '@/theme/styles'
-import { PageContainer } from '@/ui/PageContainer'
+import { PageBleed } from '@/ui/PageContainer'
 import { Badge, Card } from '@ui'
 
 import { Reveal } from '../Reveal'
@@ -375,88 +375,83 @@ export function MapShowcase({ copy }: { copy: PhoneCopy }) {
   }
 
   return (
-    <Box
+    <PageBleed
       as="section"
       aria-labelledby={headingId}
       data-map-showcase=""
       bg="bg.canvas"
+      gutters="none"
     >
-      <PageContainer gutters="none">
-        <Reveal>
-          <Box position="relative">
+      <Reveal>
+        <Box position="relative">
+          <Box
+            position="relative"
+            overflow="hidden"
+            // Under the map on a phone the card sits on the band: a hairline
+            // closes the map. From md the card floats over it and the rule
+            // below the section closes it.
+            borderBottomWidth={{ base: '1px', md: 0 }}
+            borderColor="border.default"
+            bg="bg.subtle"
+            aspectRatio={{
+              base: '9 / 10',
+              sm: '3 / 2',
+              md: '9 / 5',
+              lg: '11 / 5',
+            }}
+          >
+            <MapArt />
             <Box
-              position="relative"
-              overflow="hidden"
-              // Under the map on a phone the card sits on the band: a hairline
-              // closes the map. From md the card floats over it and the rule
-              // below the section closes it.
-              borderBottomWidth={{ base: '1px', md: 0 }}
-              borderColor="border.default"
-              bg="bg.subtle"
-              aspectRatio={{
-                base: '9 / 10',
-                sm: '3 / 2',
-                md: '9 / 5',
-                lg: '11 / 5',
-              }}
-            >
-              <MapArt />
-              <Box
-                position="absolute"
-                top={4}
-                left={4}
-                zIndex={3}
-                display="flex"
-                alignItems="center"
-                h="36px"
-                px={3}
-                gap={2}
-                css={sdlOverlaySurface}
-                borderRadius="full"
-                color="text.default"
-              >
-                <Box as="span" display="inline-flex" color="text.muted">
-                  <LuMapPin size={16} aria-hidden />
-                </Box>
-                <Heading as="h2" id={headingId} textStyle="label-md">
-                  {copy.search.workerPlaceholder}
-                </Heading>
-              </Box>
-              {tasks.map((task) => (
-                <MapPin
-                  key={task.id}
-                  task={task}
-                  selected={task.id === selected.id}
-                  onSelect={select}
-                />
-              ))}
-            </Box>
-            <Box
-              ref={cardRef}
-              aria-live="polite"
-              position={{ base: 'static', md: 'absolute' }}
-              left={{ md: `${CARD_INSET_PX}px` }}
-              bottom={{ md: `${CARD_INSET_PX}px` }}
-              w={{ base: 'full', md: `${CARD_WIDTH_PX}px` }}
-              maxW="full"
-              px={{ base: PAGE_GUTTER_X.base, md: 0 }}
-              py={{ base: 4, md: 0 }}
+              position="absolute"
+              top={4}
+              left={4}
               zIndex={3}
-              // `scrollIntoView` keeps it clear of the sticky header (56 or
-              // 64px) above and a little air below, and `globals.css` adds the
-              // open cookie banner to the bottom, so the card is never under it.
-              scrollMarginTop={{ base: '72px', md: '80px' }}
-              scrollMarginBottom="16px"
+              display="flex"
+              alignItems="center"
+              h="36px"
+              px={3}
+              gap={2}
+              css={sdlOverlaySurface}
+              borderRadius="full"
+              color="text.default"
             >
-              <ShowcaseCard
-                key={selected.id}
-                task={selected}
-                animate={picked}
-              />
+              <Box as="span" display="inline-flex" color="text.muted">
+                <LuMapPin size={16} aria-hidden />
+              </Box>
+              <Heading as="h2" id={headingId} textStyle="label-md">
+                {copy.search.workerPlaceholder}
+              </Heading>
             </Box>
+            {tasks.map((task) => (
+              <MapPin
+                key={task.id}
+                task={task}
+                selected={task.id === selected.id}
+                onSelect={select}
+              />
+            ))}
           </Box>
-        </Reveal>
-      </PageContainer>
-    </Box>
+          <Box
+            ref={cardRef}
+            aria-live="polite"
+            position={{ base: 'static', md: 'absolute' }}
+            left={{ md: `${CARD_INSET_PX}px` }}
+            bottom={{ md: `${CARD_INSET_PX}px` }}
+            w={{ base: 'full', md: `${CARD_WIDTH_PX}px` }}
+            maxW="full"
+            px={{ base: PAGE_GUTTER_X.base, md: 0 }}
+            py={{ base: 4, md: 0 }}
+            zIndex={3}
+            // `scrollIntoView` keeps it clear of the sticky header (56 or
+            // 64px) above and a little air below, and `globals.css` adds the
+            // open cookie banner to the bottom, so the card is never under it.
+            scrollMarginTop={{ base: '72px', md: '80px' }}
+            scrollMarginBottom="16px"
+          >
+            <ShowcaseCard key={selected.id} task={selected} animate={picked} />
+          </Box>
+        </Box>
+      </Reveal>
+    </PageBleed>
   )
 }

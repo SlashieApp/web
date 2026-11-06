@@ -21,7 +21,7 @@ import { FormStack } from '../FormStack/FormStack'
 import { IconButton } from '../IconButton/IconButton'
 import { Link } from '../Link/Link'
 import { Logo } from '../Logo/Logo'
-import { PageContainer } from '../PageContainer'
+import { PageBleed, PageContainer } from '../PageContainer'
 import { ProgressBar } from '../ProgressBar'
 import { useKeepFocusClearOfBar } from '../focusClearance'
 import { STEP_FLOW_BAR_ATTR } from './stepFlowBar'
@@ -84,48 +84,47 @@ export function StepFlowHeader({
   onExit,
 }: StepFlowHeaderProps) {
   return (
-    <Box
+    <PageBleed
       as="header"
       bg="bg.surface"
       borderBottomWidth="1px"
       borderColor="border.default"
+      contentProps={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: { base: 2, md: 4 },
+        minH: { base: '56px', md: '64px' },
+      }}
     >
-      <PageContainer
-        display="flex"
-        alignItems="center"
-        gap={{ base: 2, md: 4 }}
-        minH={{ base: '56px', md: '64px' }}
+      <IconButton asChild aria-label={closeLabel} variant="ghost">
+        <Link href={exitHref} onClick={onExit}>
+          <LuX size={20} aria-hidden />
+        </Link>
+      </IconButton>
+      <Logo
+        containerProps={{
+          flexShrink: 0,
+          display: { base: 'none', md: 'flex' },
+        }}
+      />
+      <Text
+        flex={1}
+        minW={0}
+        fontSize="md"
+        fontWeight={500}
+        color="text.default"
+        textAlign={{ base: 'left', md: 'center' }}
+        truncate
       >
-        <IconButton asChild aria-label={closeLabel} variant="ghost">
-          <Link href={exitHref} onClick={onExit}>
-            <LuX size={20} aria-hidden />
-          </Link>
-        </IconButton>
-        <Logo
-          containerProps={{
-            flexShrink: 0,
-            display: { base: 'none', md: 'flex' },
-          }}
-        />
-        <Text
-          flex={1}
-          minW={0}
-          fontSize="md"
-          fontWeight={500}
-          color="text.default"
-          textAlign={{ base: 'left', md: 'center' }}
-          truncate
-        >
-          {title}
-        </Text>
-        <Box
-          display={{ base: 'none', md: 'block' }}
-          w="44px"
-          flexShrink={0}
-          aria-hidden
-        />
-      </PageContainer>
-    </Box>
+        {title}
+      </Text>
+      <Box
+        display={{ base: 'none', md: 'block' }}
+        w="44px"
+        flexShrink={0}
+        aria-hidden
+      />
+    </PageBleed>
   )
 }
 
