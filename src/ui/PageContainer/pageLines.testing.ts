@@ -1,6 +1,6 @@
 import { expect } from 'storybook/test'
 
-import { logoLineLeft, menuLineRight } from '@/theme/pageContainer'
+import { logoLineLeft, menuLineRight } from './pageMeasures.testing'
 
 /**
  * Story helpers for the layout rules: a window of a given width, and the

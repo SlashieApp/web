@@ -1,7 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { expect, within } from 'storybook/test'
 
-import { pageGutterPx } from '@/theme/pageContainer'
 import {
   boxOf,
   expectPx,
@@ -9,6 +8,7 @@ import {
   lines,
   viewportAt,
 } from '@/ui/PageContainer/pageLines.testing'
+import { pageGutterPx } from '@/ui/PageContainer/pageMeasures.testing'
 
 import { WorkersScreen } from './WorkersScreen'
 import { withWorkersApollo } from './workersStoryDecorator'

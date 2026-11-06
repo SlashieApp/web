@@ -5,7 +5,6 @@ import { LuEyeOff, LuHeart } from 'react-icons/lu'
 
 import { ReportControl } from '@/content/trust/ReportControl'
 import { useI11n } from '@/i18n/useI11n'
-import { PAGE_CONTAINER_MAX_W, PAGE_GUTTER_X } from '@/theme/pageContainer'
 import { HEADER_MIN_HEIGHT } from '@/ui/Header/shell/headerShell'
 import {
   Button,
@@ -82,8 +81,7 @@ export function PublicProfileScreen({
         background="bg.canvas"
         onBack={onBack}
         backAriaLabel={t.back}
-        contentMaxW={PAGE_CONTAINER_MAX_W}
-        contentPx={PAGE_GUTTER_X}
+        contained
       >
         {status}
       </StickyHeader>

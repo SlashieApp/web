@@ -49,8 +49,9 @@ function TaskDetailContent() {
   if (error && !task && !seed) {
     return (
       <StatusCard
+        role="alert"
         title={t.error.heading}
-        body={<span role="alert">{t.error.description}</span>}
+        body={t.error.description}
         actions={
           <>
             <Button type="button" size="form" onClick={() => refetch()}>

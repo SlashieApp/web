@@ -19,6 +19,7 @@ import {
 } from 'react'
 import { LuArrowLeft } from 'react-icons/lu'
 
+import { PAGE_CONTAINER_MAX_W, PAGE_GUTTER_X } from '@/theme/pageContainer'
 import { sdlFocusRing } from '@/theme/styles'
 
 import { IconButton } from '../IconButton/IconButton'
@@ -73,14 +74,15 @@ export type StickyHeaderProps = {
   background?: BoxProps['bg']
   /** Where the bar sticks: 0, or under a sticky site header. */
   stickyTop?: StickyTop
-  /** The page's column: the widest the bar's row and the big title get. */
-  contentMaxW?: BoxProps['maxW']
   /**
-   * Gutters for a header that is not inside the page's `<Container>`: the
-   * bar's row then brings them and centres its column. Inside a Container
-   * leave it out, the Container has them.
+   * The header sits in the page container (R1, R2): the bar's row and the big
+   * title are as wide as the container (80rem), centred, with its gutters, so
+   * Back and the title start on the logo line. Leave it out only for a header
+   * that is already inside a `PageContainer`.
    */
-  contentPx?: BoxProps['px']
+  contained?: boolean
+  /** A narrower column than the container (or than the page, when not `contained`). */
+  contentMaxW?: BoxProps['maxW']
   /**
    * A map or cover sits behind the bar (task details, a public profile): the
    * bar floats over it and is transparent until the title collapses into it,
@@ -311,8 +313,8 @@ export function StickyHeader({
   option,
   background = 'bg.canvas',
   stickyTop = 0,
+  contained = false,
   contentMaxW,
-  contentPx,
   overMedia = false,
   titleMaxLines,
   children,
@@ -324,7 +326,10 @@ export function StickyHeader({
   }, [])
 
   const hasTitle = title !== undefined
-  const column = { maxW: contentMaxW, px: contentPx }
+  const column = {
+    maxW: contentMaxW ?? (contained ? PAGE_CONTAINER_MAX_W : undefined),
+    px: contained ? PAGE_GUTTER_X : undefined,
+  }
   const buttonTop = `${(BAR_H - BUTTON_BOX) / 2}px`
   // Over a map or cover Back and the option button are round chips inside the
   // margin, their outer edges on the content's; on a plain bar the glyphs sit
@@ -459,9 +464,9 @@ export function StickyHeader({
             <Box
               pt={`${TITLE_GAP}px`}
               pb={{ base: 4, md: 6 }}
-              maxW={contentMaxW}
-              px={contentPx}
-              mx={contentPx == null ? undefined : 'auto'}
+              maxW={column.maxW}
+              px={column.px}
+              mx={column.px == null ? undefined : 'auto'}
             >
               {eyebrow ? <Box mb={2}>{eyebrow}</Box> : null}
               <StickyHeaderTitle>{title}</StickyHeaderTitle>

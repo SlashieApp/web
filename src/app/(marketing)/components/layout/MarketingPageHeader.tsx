@@ -3,7 +3,6 @@
 import type { ReactNode } from 'react'
 
 import { useI11n } from '@/i18n/useI11n'
-import { PAGE_CONTAINER_MAX_W, PAGE_GUTTER_X } from '@/theme/pageContainer'
 import { useGoBack } from '@/utils/goBack'
 import { StickyHeader, type StickyHeaderProps } from '@ui'
 
@@ -30,8 +29,7 @@ type MarketingPageHeaderProps = Pick<
  * A page in the marketing frame (FE-471) is white and its sections run edge to
  * edge between full-width rules, so it puts the header outside a page
  * container and says its colour (`background`, the bar's). The header brings
- * the container's measure and gutters itself (`PAGE_CONTAINER_MAX_W`,
- * `PAGE_GUTTER_X`): Back and the title start on the logo line and span the
+ * the container's measure and gutters itself (`contained`): Back and the title start on the logo line and span the
  * full container at every width (R2).
  */
 export function MarketingPageHeader({
@@ -52,8 +50,7 @@ export function MarketingPageHeader({
       onBack={onBack}
       backAriaLabel={t.goBack}
       stickyTop={MARKETING_HEADER_H}
-      contentMaxW={PAGE_CONTAINER_MAX_W}
-      contentPx={PAGE_GUTTER_X}
+      contained
       background={background}
     >
       {children}

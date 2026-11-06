@@ -37,6 +37,12 @@ const COLUMN_PX = Number.parseFloat(READABLE_COLUMN_MAX_W_CSS) * 16
  * also asserts the header itself is on its lines, so a page that drifts and a
  * header that drifts both fail. The checks are the same helpers the page
  * stories use (`pageLines.testing`, `statusCard.testing`).
+ *
+ * This overview covers the shared primitives only (`PageContainer`,
+ * `PageBleed`, `PageLayout`, `StatusCard`, the step-flow column) on drawn demo
+ * pages. The real pages are checked in their own stories (the `On The Lines`,
+ * `Rules` and card-width stories next to each screen), which is where a page
+ * that drifts from a primitive is caught.
  */
 
 /** The site header: logo left, menu right, both in the page container. */

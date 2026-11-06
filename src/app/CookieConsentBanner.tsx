@@ -1,6 +1,6 @@
 'use client'
 
-import { Box, Container, HStack, Stack, Text } from '@chakra-ui/react'
+import { Box, HStack, Stack, Text } from '@chakra-ui/react'
 import { useCallback, useEffect, useState } from 'react'
 
 import { useI11n } from '@/i18n/useI11n'
@@ -10,7 +10,7 @@ import {
   onCookieSettingsOpen,
   setCookieConsent,
 } from '@/utils/analytics'
-import { Button, Link } from '@ui'
+import { Button, Link, PageContainer } from '@ui'
 
 import {
   COOKIE_BANNER_HEIGHT_VAR,
@@ -85,7 +85,7 @@ export function CookieConsentBanner() {
       py={{ base: 4, md: 5 }}
       boxShadow="e3"
     >
-      <Container>
+      <PageContainer>
         <Stack
           direction={{ base: 'column', md: 'row' }}
           gap={{ base: 4, md: 6 }}
@@ -120,7 +120,7 @@ export function CookieConsentBanner() {
             </Button>
           </HStack>
         </Stack>
-      </Container>
+      </PageContainer>
     </Box>
   )
 }

@@ -62,9 +62,13 @@ export const SignedOut: Story = {
 
 /** The session error card: the shared status card (R6), centred, 448 wide. */
 const expectSessionCard = async (canvasElement: HTMLElement, width: number) => {
-  const card = await within(canvasElement).findByRole('region', {
+  const card = await within(canvasElement).findByRole('alert', {
     name: "We couldn't load your account",
   })
+  // The alert is the card itself: no live region around the page's main.
+  expect(card.tagName).toBe('SECTION')
+  expect(card.querySelector('main')).toBeNull()
+  expect(canvasElement.querySelectorAll('[role="alert"]')).toHaveLength(1)
   expectCentredCardBox(canvasElement, card)
   expectPx(boxOf(card).width, width)
 }

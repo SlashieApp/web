@@ -48,8 +48,7 @@ describe('TaskDetailView desktop column', () => {
     expect(src).toContain('useTaskBack')
     expect(src).toContain('option={<TaskHelpOverflowTrigger overlay />}')
     // The bar lines up with the page body's gutters and column.
-    expect(src).toContain('contentMaxW={PAGE_CONTAINER_MAX_W}')
-    expect(src).toContain('contentPx={PAGE_GUTTER_X}')
+    expect(src).toMatch(/<StickyHeader[\s\S]*?\bcontained\b/)
     expect(src).not.toContain('BODY_GUTTER_X')
     // Nothing is pinned at the old docked title row any more.
     expect(src).not.toContain('TaskBackButton')

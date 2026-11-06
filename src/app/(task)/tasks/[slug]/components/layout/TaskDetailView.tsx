@@ -3,7 +3,7 @@
 import { Box } from '@chakra-ui/react'
 
 import { useI11n } from '@/i18n/useI11n'
-import { PAGE_CONTAINER_MAX_W, PAGE_GUTTER_X } from '@/theme/pageContainer'
+import { PAGE_GUTTER_X } from '@/theme/pageContainer'
 import { PageContainer, StickyHeader } from '@ui'
 
 import {
@@ -60,8 +60,7 @@ export function TaskDetailView() {
       onBack={onBack}
       backAriaLabel={t.nav.goBackAria}
       option={<TaskHelpOverflowTrigger overlay />}
-      contentMaxW={PAGE_CONTAINER_MAX_W}
-      contentPx={PAGE_GUTTER_X}
+      contained
       titleMaxLines={TASK_TITLE_MAX_LINES}
     >
       <Box position="relative" bg="transparent" w="full" minW={0}>

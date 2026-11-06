@@ -4,7 +4,6 @@ import { expect, fn, userEvent, waitFor, within } from 'storybook/test'
 
 import { withStoryApollo } from '@/app/(worker)/workers/components/storyApollo'
 import { LocaleProvider } from '@/i18n/LocaleProvider'
-import { pageGutterPx } from '@/theme/pageContainer'
 import {
   boxOf,
   expectPx,
@@ -12,6 +11,7 @@ import {
   lines,
   viewportAt,
 } from '@/ui/PageContainer/pageLines.testing'
+import { pageGutterPx } from '@/ui/PageContainer/pageMeasures.testing'
 import { expectCentredCardBox } from '@/ui/StatusCard/statusCard.testing'
 
 import { PublicProfileScreen } from './PublicProfileScreen'

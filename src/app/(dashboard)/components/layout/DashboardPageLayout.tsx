@@ -16,10 +16,10 @@ export type DashboardPageLayoutProps = {
   /** Between the header and the body (hero, notices). */
   afterHeader?: ReactNode
   /**
-   * `narrow`: one readable column (45rem), left-aligned on the logo line (R3).
+   * `column`: one readable column (45rem), left-aligned on the logo line (R3).
    * `wide`: the page width, with an optional rail (R4).
    */
-  width?: 'narrow' | 'wide'
+  width?: 'column' | 'wide'
   /** Rail beside the body on large screens; stacks under it on phones. */
   sidebar?: ReactNode
   /** When false, the rail is desktop-only (default true). */
@@ -35,7 +35,7 @@ export type DashboardPageLayoutProps = {
  * body is one readable column or the full width with a rail.
  */
 export function DashboardPageLayout({
-  width = 'narrow',
+  width = 'column',
   ...props
 }: DashboardPageLayoutProps) {
   const t = useI11n(bag)
@@ -44,7 +44,7 @@ export function DashboardPageLayout({
   return (
     <PageLayout
       {...props}
-      width={width === 'narrow' ? 'column' : 'wide'}
+      width={width}
       onBack={onBack}
       backAriaLabel={t.page.backAria}
     />

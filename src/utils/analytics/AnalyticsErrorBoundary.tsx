@@ -63,7 +63,7 @@ export class AnalyticsErrorBoundary extends Component<
           title="Something went wrong"
           body="An unexpected error occurred. Try again or refresh the page."
           actions={
-            <Button size="sm" variant="primary" onClick={this.handleRetry}>
+            <Button size="form" variant="primary" onClick={this.handleRetry}>
               Try again
             </Button>
           }

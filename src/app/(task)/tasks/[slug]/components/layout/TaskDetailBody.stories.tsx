@@ -125,14 +125,12 @@ export const LoadError: Story = {
   decorators: [withTaskDetailPending('error')],
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
-    await canvas.findByRole('alert')
+    const card = await canvas.findByRole('alert', {
+      name: "Couldn't load this task",
+    })
     await canvas.findByRole('button', { name: 'Try again' })
     expectWindowWidth(canvasElement, 1366)
-    expectCentredCardBox(
-      canvasElement,
-      canvas.getByRole('region', { name: "Couldn't load this task" }),
-      'load error',
-    )
+    expectCentredCardBox(canvasElement, card, 'load error')
   },
 }
 
@@ -142,13 +140,12 @@ export const LoadErrorPhone: Story = {
   decorators: [withTaskDetailPending('error')],
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
+    const card = await canvas.findByRole('alert', {
+      name: "Couldn't load this task",
+    })
     await canvas.findByRole('button', { name: 'Try again' })
     expectWindowWidth(canvasElement, 390)
-    expectCentredCardBox(
-      canvasElement,
-      canvas.getByRole('region', { name: "Couldn't load this task" }),
-      'load error',
-    )
+    expectCentredCardBox(canvasElement, card, 'load error')
   },
 }
 

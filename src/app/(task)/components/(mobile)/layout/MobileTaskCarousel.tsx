@@ -47,7 +47,7 @@ export function MobileTaskCarousel() {
   if (isInitialTasksLoad) {
     return (
       <Box
-        px={{ base: PAGE_GUTTER_X.base, md: 3 }}
+        px={{ base: PAGE_GUTTER_X.base, md: PAGE_GUTTER_X.md }}
         overflow="hidden"
         aria-busy
         aria-label={t.loadingTasks}
@@ -72,7 +72,7 @@ export function MobileTaskCarousel() {
   if (tasks.length === 0) {
     if (!canShowBrowseEmptyState) return null
     return (
-      <Box px={{ base: PAGE_GUTTER_X.base, md: 3 }}>
+      <Box px={{ base: PAGE_GUTTER_X.base, md: PAGE_GUTTER_X.md }}>
         <TaskEmptyState />
       </Box>
     )

@@ -27,23 +27,22 @@ export function SessionError({
   const t = useI11n(bag).session
 
   return (
-    <Box role="alert">
-      <StatusCard
-        fullPage
-        title={t.errorTitle}
-        body={t.errorBody}
-        actions={
-          <>
-            <Button type="button" onClick={onRetry}>
-              {t.retry}
-            </Button>
-            <Button type="button" variant="ghost" onClick={onLogout}>
-              {t.logout}
-            </Button>
-          </>
-        }
-      />
-    </Box>
+    <StatusCard
+      fullPage
+      role="alert"
+      title={t.errorTitle}
+      body={t.errorBody}
+      actions={
+        <>
+          <Button type="button" size="form" onClick={onRetry}>
+            {t.retry}
+          </Button>
+          <Button type="button" size="form" variant="ghost" onClick={onLogout}>
+            {t.logout}
+          </Button>
+        </>
+      }
+    />
   )
 }
 

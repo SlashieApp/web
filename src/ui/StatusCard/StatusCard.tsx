@@ -46,8 +46,11 @@ export type StatusCardProps = {
    * it sits in the page it is shown in, centred in the container.
    */
   fullPage?: boolean
-  /** Heading level of the title; `h1` unless the page has its own. */
-  headingAs?: 'h1' | 'h2'
+  /**
+   * Announce the card to screen readers as an alert (an error the person did
+   * not ask for). It sits on the card, never on the `main` around it.
+   */
+  role?: 'alert'
 }
 
 /**
@@ -76,13 +79,14 @@ export function StatusCard({
   actions,
   footer,
   fullPage = false,
-  headingAs = 'h1',
+  role,
 }: StatusCardProps) {
   const titleId = useId()
 
   const card = (
     <Stack
       as="section"
+      role={role}
       aria-labelledby={titleId}
       w="full"
       maxW={STATUS_CARD_MAX_W}
@@ -124,18 +128,12 @@ export function StatusCard({
           </Text>
         ) : null}
         <Stack gap="form.titleToSubtitle">
-          {eyebrow ? (
-            <Stack gap={1}>
-              <Text {...sdlEyebrow}>{eyebrow}</Text>
-              <Heading as={headingAs} id={titleId} fontSize="xl">
-                {title}
-              </Heading>
-            </Stack>
-          ) : (
-            <Heading as={headingAs} id={titleId} fontSize="xl">
+          <Stack gap={1}>
+            {eyebrow ? <Text {...sdlEyebrow}>{eyebrow}</Text> : null}
+            <Heading as="h1" id={titleId} fontSize="xl">
               {title}
             </Heading>
-          )}
+          </Stack>
           {body ? (
             <Text color="text.muted" lineHeight="tall">
               {body}
