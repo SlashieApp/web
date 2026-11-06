@@ -224,20 +224,6 @@ export const WideWithRailPhone: Story = {
   },
 }
 
-/** The rail can be desktop-only. */
-export const RailDesktopOnly: Story = {
-  ...viewportAt(390),
-  args: {
-    width: 'wide',
-    title: 'Profile',
-    sidebar: rail,
-    sidebarOnMobile: false,
-  },
-  play: async ({ canvasElement }) => {
-    await expect(within(canvasElement).getByTestId('rail')).not.toBeVisible()
-  },
-}
-
 /** Title, description, Back: one h1. */
 export const Header: Story = {
   ...viewportAt(1366),

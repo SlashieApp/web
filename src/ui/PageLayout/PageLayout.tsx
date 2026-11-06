@@ -8,7 +8,7 @@ import { READABLE_COLUMN_MAX_W } from '@/theme/pageContainer'
 import { PageContainer } from '../PageContainer'
 import { StickyHeader, type StickyHeaderProps } from '../StickyHeader'
 
-export type PageLayoutProps = Pick<
+type PageLayoutBase = Pick<
   StickyHeaderProps,
   | 'title'
   | 'eyebrow'
@@ -18,22 +18,38 @@ export type PageLayoutProps = Pick<
   | 'option'
   | 'titleMaxLines'
 > & {
-  /**
-   * `column`: one readable column of 45rem (720px), LEFT-aligned on the logo
-   * line (R3): Account, Billing, settings-style pages, single-column flows.
-   * `wide`: the full container, logo line to menu line, with an optional rail
-   * (R4): Profile, My tasks, lists.
-   */
-  width?: 'column' | 'wide'
   /** Between the header and the body (hero, notices); in the column on a `column` page. */
   afterHeader?: ReactNode
-  /** Rail beside the body on large screens; stacks under it on phones. `wide` only. */
-  sidebar?: ReactNode
-  /** When false, the rail is desktop-only (default true). */
-  sidebarOnMobile?: boolean
   rootRef?: Ref<HTMLDivElement>
-  children: ReactNode
+  /** The body. A page with nothing under its header (an unavailable page) leaves it out. */
+  children?: ReactNode
 }
+
+/**
+ * The width of the body, and the rail only a wide page may have (R3: a single
+ * column has no rail; R4: a wide page fills the container, with an optional
+ * rail).
+ */
+type PageLayoutWidth =
+  | {
+      /**
+       * One readable column of 45rem (720px), LEFT-aligned on the logo line
+       * (R3): Account, Billing, settings-style pages, single-column flows.
+       */
+      width?: 'column'
+      sidebar?: never
+    }
+  | {
+      /**
+       * The full container, logo line to menu line, with an optional rail
+       * (R4): Profile, My tasks, lists.
+       */
+      width: 'wide'
+      /** Rail beside the body from lg; stacks under it on phones. */
+      sidebar?: ReactNode
+    }
+
+export type PageLayoutProps = PageLayoutBase & PageLayoutWidth
 
 /**
  * The page layout rule as one component. Inside the page container (R1):
@@ -60,7 +76,6 @@ export function PageLayout({
   width = 'column',
   afterHeader,
   sidebar,
-  sidebarOnMobile = true,
   rootRef,
   children,
 }: PageLayoutProps) {
@@ -76,14 +91,7 @@ export function PageLayout({
       <Stack gap={4} minW={0}>
         {children}
       </Stack>
-      <Stack
-        gap={4}
-        minW={0}
-        display={{
-          base: sidebarOnMobile ? 'flex' : 'none',
-          lg: 'flex',
-        }}
-      >
+      <Stack gap={4} minW={0}>
         {sidebar}
       </Stack>
     </Grid>
