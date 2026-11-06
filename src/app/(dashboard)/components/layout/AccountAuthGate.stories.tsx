@@ -4,6 +4,7 @@ import { expect, waitFor, within } from 'storybook/test'
 
 import { withSession } from '@/app/(auth)/helpers/authStoryDecorator'
 import { storyMe } from '@/app/(auth)/helpers/authStoryFixtures'
+import { AppShell } from '@/ui/AppShell'
 import {
   boxOf,
   expectPx,
@@ -69,6 +70,9 @@ const expectSessionCard = async (canvasElement: HTMLElement, width: number) => {
   expect(card.tagName).toBe('SECTION')
   expect(card.querySelector('main')).toBeNull()
   expect(canvasElement.querySelectorAll('[role="alert"]')).toHaveLength(1)
+  // The gate sits outside the shell here: the card's page box is the one main.
+  expect(canvasElement.querySelectorAll('main')).toHaveLength(1)
+  expect(card.closest('main')).not.toBeNull()
   expectCentredCardBox(canvasElement, card)
   expectPx(boxOf(card).width, width)
 }
@@ -99,6 +103,37 @@ export const LoadFailedPhone: Story = {
   play: async ({ canvasElement }) => {
     expectWindowWidth(canvasElement, 390)
     await expectSessionCard(canvasElement, 358)
+    await expect(
+      within(canvasElement).getByRole('button', { name: 'Try again' }),
+    ).toBeVisible()
+  },
+}
+
+/**
+ * Inside an app shell (My tasks): the shell's body is already the page's
+ * `main`, so the session error card is not a second one.
+ */
+export const LoadFailedInShell: Story = {
+  ...viewportAt(1366),
+  args: { insideShell: true },
+  decorators: [
+    (Story) => (
+      <AppShell>
+        <Story />
+      </AppShell>
+    ),
+    withSession({ token: true }),
+  ],
+  play: async ({ canvasElement }) => {
+    const card = await within(canvasElement).findByRole('alert', {
+      name: "We couldn't load your account",
+    })
+    expect(card.tagName).toBe('SECTION')
+    expect(canvasElement.querySelectorAll('[role="alert"]')).toHaveLength(1)
+    const mains = canvasElement.querySelectorAll('main')
+    expect(mains).toHaveLength(1)
+    // The one main is the shell's, and it holds the card.
+    expect(mains[0].contains(card)).toBe(true)
     await expect(
       within(canvasElement).getByRole('button', { name: 'Try again' }),
     ).toBeVisible()

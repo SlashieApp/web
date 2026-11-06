@@ -15,6 +15,7 @@ import {
 } from '@/app/(auth)/helpers/authStoryFixtures'
 import { expectMyTasksOnLines } from '@/app/(task)/helpers/taskPageRules.testing'
 import { LocaleProvider } from '@/i18n/LocaleProvider'
+import { AppShell } from '@/ui/AppShell'
 import { viewportAt } from '@/ui/PageContainer/pageLines.testing'
 
 import { MyTasksScreen } from './MyTasksScreen'
@@ -561,6 +562,29 @@ export const TraditionalChinese: Story = {
 }
 
 // ------------------------------------------------ layout rules (FE-493)
+
+/**
+ * The account did not load, in the real app shell: the session error card is
+ * the only content, and the page still has exactly one `main` (the shell's).
+ */
+export const LoadFailedInShell: Story = {
+  ...viewportAt(1366),
+  decorators: [
+    (Story) => (
+      <AppShell>
+        <Story />
+      </AppShell>
+    ),
+    withSession({ token: true }),
+  ],
+  play: async ({ canvasElement }) => {
+    const card = await within(canvasElement).findByRole('alert', {
+      name: "We couldn't load your account",
+    })
+    expect(canvasElement.querySelectorAll('main')).toHaveLength(1)
+    expect(canvasElement.querySelector('main')?.contains(card)).toBe(true)
+  },
+}
 
 /**
  * R2 and R4 on a real window of each width: the title starts on the logo line

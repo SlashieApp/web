@@ -183,7 +183,7 @@ export function MyTasksScreen() {
   )
 
   return (
-    <AccountAuthGate>
+    <AccountAuthGate insideShell>
       <Box ref={onMountRef} bg="bg.canvas" minH="100%">
         <PageContainer
           display="flex"

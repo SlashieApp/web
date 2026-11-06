@@ -47,6 +47,12 @@ export type StatusCardProps = {
    */
   fullPage?: boolean
   /**
+   * With `fullPage`: render the page-filling box as a `main` landmark
+   * (default). Pass `false` when the card is shown inside a shell that already
+   * has a `main` (a page must have exactly one). The layout does not change.
+   */
+  landmark?: boolean
+  /**
    * Announce the card to screen readers as an alert (an error the person did
    * not ask for). It sits on the card, never on the `main` around it.
    */
@@ -79,6 +85,7 @@ export function StatusCard({
   actions,
   footer,
   fullPage = false,
+  landmark = true,
   role,
 }: StatusCardProps) {
   const titleId = useId()
@@ -160,7 +167,7 @@ export function StatusCard({
   if (fullPage) {
     return (
       <Box
-        as="main"
+        as={landmark ? 'main' : 'div'}
         minH="100dvh"
         display="flex"
         alignItems="center"

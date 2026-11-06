@@ -14,21 +14,30 @@ import bag from '../../i11n.json'
 
 type AccountAuthGateProps = {
   children: React.ReactNode
+  /**
+   * The gate is mounted inside an app shell whose body is already the page's
+   * `main` (My tasks): the session error card then is not a second one.
+   */
+  insideShell?: boolean
 }
 
 /** `me` failed but the session is still there: say so instead of logging out. */
 export function SessionError({
   onRetry,
   onLogout,
+  insideShell = false,
 }: {
   onRetry: () => void
   onLogout: () => void
+  /** Inside an app shell that has the `main`: the card is not a `main` itself. */
+  insideShell?: boolean
 }) {
   const t = useI11n(bag).session
 
   return (
     <StatusCard
       fullPage
+      landmark={!insideShell}
       role="alert"
       title={t.errorTitle}
       body={t.errorBody}
@@ -53,7 +62,10 @@ export function SessionError({
  * fails but the token survived (network or server trouble), it offers Try
  * again rather than a sign-in.
  */
-export function AccountAuthGate({ children }: AccountAuthGateProps) {
+export function AccountAuthGate({
+  children,
+  insideShell = false,
+}: AccountAuthGateProps) {
   const me = useUserStore((s) => s.me)
   const isLoading = useUserStore((s) => s.isLoading)
   const getUser = useUserStore((s) => s.getUser)
@@ -81,7 +93,13 @@ export function AccountAuthGate({ children }: AccountAuthGateProps) {
 
   if (!me) {
     if (hasToken && getAuthToken()) {
-      return <SessionError onRetry={() => void getUser()} onLogout={logout} />
+      return (
+        <SessionError
+          onRetry={() => void getUser()}
+          onLogout={logout}
+          insideShell={insideShell}
+        />
+      )
     }
     const redirectPath = pathname?.startsWith('/') ? pathname : '/tasks'
     if (!redirectedRef.current) {
