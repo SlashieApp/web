@@ -31,7 +31,8 @@ async function expectGateSpacing(canvasElement: HTMLElement) {
   const title = await canvas.findByRole('heading', { level: 1 })
   // The gate is the status card: its actions (a form column) follow the header.
   const card = canvas.getByRole('region', { name: title.textContent ?? '' })
-  const description = title.nextElementSibling as HTMLElement
+  // The text block holds the title (in its own wrapper) and the description.
+  const description = title.parentElement?.nextElementSibling as HTMLElement
   const column = (card.lastElementChild as HTMLElement)
     .firstElementChild as HTMLElement
   const [summary, action] = [...column.children] as HTMLElement[]

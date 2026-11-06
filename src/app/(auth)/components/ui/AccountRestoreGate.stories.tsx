@@ -42,9 +42,11 @@ async function expectStatusSpacing(canvas: Canvas) {
   const note = canvas.getByText(/Restoring brings your profile back/)
   const restore = canvas.getByRole('button', { name: 'Restore my account' })
   const signOut = canvas.getByRole('button', { name: 'Sign out' })
-  const header = title.parentElement as HTMLElement
+  // The card's text block: the title (in its own wrapper) and the note under it.
+  const text = title.parentElement?.parentElement as HTMLElement
+  const header = text.parentElement as HTMLElement
 
-  await expect(gapBelow(title, title.nextElementSibling as Element)).toBe(
+  await expect(gapBelow(title, text.children[1])).toBe(
     formSpace.titleToSubtitle,
   )
   await expect(gapBelow(header, restore)).toBe(formSpace.headerToBody)
@@ -52,7 +54,7 @@ async function expectStatusSpacing(canvas: Canvas) {
   await expect(heightOf(restore)).toBe(formSpace.controlHeight)
   await expect(heightOf(signOut)).toBe(formSpace.controlHeight)
   // The note is the last line of the header block.
-  await expect(header.lastElementChild).toBe(note)
+  await expect(text.lastElementChild).toBe(note)
 }
 
 const CARD_NAME = 'Your account is scheduled for deletion'
