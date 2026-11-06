@@ -30,7 +30,7 @@ const ALL = {
     'src/app/(stepflow)/tasks/[slug]/review/components/ui/TaskReviewStep.tsx',
   ),
   OrderRequestDialogs: read(`${OVERVIEW}/OrderRequestDialogs.tsx`),
-  OrderCloseControls: read(`${OVERVIEW}/OrderCloseControls.tsx`),
+  OrderCloseCard: read(`${OVERVIEW}/OrderCloseCard.tsx`),
   TaskConfirmDialogs: read(`${OVERVIEW}/TaskConfirmDialogs.tsx`),
   ReopenTaskDialog: read(`${OVERVIEW}/ReopenTaskDialog.tsx`),
   useAcceptQuoteSafety: read(`${QUOTES}/useAcceptQuoteSafety.tsx`),
@@ -132,9 +132,7 @@ describe('choice groups and helpers: label 8, rows 8, helper 4', () => {
   })
 
   it('the Done dialog puts "what Done means" 4 under the slide', () => {
-    expect(ALL.OrderCloseControls).toContain(
-      '<Stack gap="form.controlToHelper">',
-    )
+    expect(ALL.OrderCloseCard).toContain('<Stack gap="form.controlToHelper">')
   })
 })
 

@@ -18,7 +18,7 @@ import { useTaskDetail } from '../../context/TaskDetailProvider'
 import type { TaskDetailMainCtaModel } from '../../helpers/taskDetailMainCtaModel'
 import bag from '../../i11n.json'
 import type { TaskDetailPrimaryAction } from '../../views'
-import { OrderCloseControls } from '../overview/OrderCloseControls'
+import { OrderCloseCard } from '../overview/OrderCloseCard'
 import { ReopenTaskDialog } from '../overview/ReopenTaskDialog'
 import { TaskDetailSplitCta } from '../ui/TaskDetailSplitCta'
 import { Reveal } from './Reveal'
@@ -104,7 +104,7 @@ function MainCtaControl({
 }) {
   const onReceipt = useReceiptDownload()
 
-  if (model.presentation === 'close') return <OrderCloseControls />
+  if (model.presentation === 'close') return <OrderCloseCard />
 
   if (isButtonOnlyMainCta(model) || !model.content) {
     const Icon = BUTTON_ICONS[model.action]

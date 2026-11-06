@@ -9,7 +9,7 @@ import { gapBelow } from '@/ui/FormField/formGap.testing'
 
 import { withTaskDetailStory } from '../../helpers/taskDetailStoryDecorator'
 import { storyTaskOrder } from '../../helpers/taskDetailStoryFixtures'
-import { OrderCloseControls, OrderDoneDialog } from './OrderCloseControls'
+import { OrderCloseCard, OrderDoneDialog } from './OrderCloseCard'
 
 /**
  * Closing a booking: once the booked time has started and you have not acted,
@@ -18,11 +18,11 @@ import { OrderCloseControls, OrderDoneDialog } from './OrderCloseControls'
  * `OrderFailedDialog`).
  */
 const meta = {
-  title: 'Task detail/Overview/OrderCloseControls',
-  component: OrderCloseControls,
+  title: 'Task detail/Overview/OrderCloseCard',
+  component: OrderCloseCard,
   tags: ['autodocs'],
   parameters: { layout: 'padded' },
-} satisfies Meta<typeof OrderCloseControls>
+} satisfies Meta<typeof OrderCloseCard>
 
 export default meta
 type Story = StoryObj<typeof meta>
@@ -88,7 +88,7 @@ export const Ready: Story = {
   },
 }
 
-/** A 390 phone's bottom bar (342 inside the card): still one row, the text wraps. */
+/** A 390 phone's bottom bar (342 inside the card): still one row, and the status stays on one line. */
 export const PhoneRow: Story = {
   decorators: [
     ready,
@@ -102,11 +102,60 @@ export const PhoneRow: Story = {
     await within(canvasElement).findByText('Slide to mark Done', {
       exact: false,
     })
-    const { eyebrow, track, r } = parts(canvasElement)
+    const { eyebrow, date, track, r } = parts(canvasElement)
     const text = eyebrow.parentElement as HTMLElement
     await expect(r(track).width).toBeGreaterThanOrEqual(200)
     await expect(r(track).left).toBeGreaterThanOrEqual(r(text).right)
     await expect(r(text).top).toBeLessThan(r(track).bottom)
+    // "Job time has started" stays on one line (the same as Expo); a long date
+    // may wrap in the 130 left of the slide, as on Expo.
+    await expect(r(eyebrow).height).toBeLessThan(24)
+    await expect(date.textContent?.length).toBeGreaterThan(0)
+  },
+}
+
+/**
+ * The switch is at 336 inside the card (124 text, 12, 200 slide), as on Expo:
+ * a 368 box (336 inside) is one row, a 366 box (334 inside) wraps.
+ */
+export const SwitchWidth: Story = {
+  decorators: [
+    ready,
+    (Story) => (
+      <Box>
+        <Box w="368px" data-case="row">
+          <Story />
+        </Box>
+        <Box w="366px" data-case="wrapped">
+          <Story />
+        </Box>
+      </Box>
+    ),
+  ],
+  play: async ({ canvasElement }) => {
+    await within(canvasElement).findAllByText('Slide to mark Done', {
+      exact: false,
+    })
+    const pick = (name: string) => {
+      const host = canvasElement.querySelector(
+        `[data-case="${name}"]`,
+      ) as HTMLElement
+      const track = within(host).getByRole('button', {
+        name: 'Slide to mark Done',
+      }).parentElement as HTMLElement
+      const text = within(host).getByText('Job time has started')
+        .parentElement as HTMLElement
+      return { track, text }
+    }
+    const row = pick('row')
+    const wrapped = pick('wrapped')
+    const r = (el: Element) => el.getBoundingClientRect()
+    await expect(r(row.track).left).toBeGreaterThan(r(row.text).right)
+    await expect(r(row.track).width).toBeGreaterThanOrEqual(200)
+    await expect(r(wrapped.track).top).toBeGreaterThanOrEqual(
+      r(wrapped.text).bottom,
+    )
+    await expect(r(wrapped.track).width).toBe(334)
   },
 }
 

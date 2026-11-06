@@ -54,15 +54,16 @@ function DoneMeaning({ align }: { align: 'start' | 'center' }) {
 const CARD_CSS = { containerType: 'inline-size' } as const
 
 /**
- * Narrower than the status text (100), a gap (12) and the slide (200): the
- * slide wraps under the text at full width.
+ * Narrower than the status text (124, "Job time has started" on one line), a
+ * gap (12) and the slide (200), so 336 inside the card: the slide wraps under
+ * the text at full width. The same numbers as Expo (`OrderCloseCard`).
  */
 const ROW_CSS = {
   display: 'grid',
   gridTemplateColumns: 'minmax(0, 1fr)',
   alignItems: 'center',
-  '@container (min-width: 312px)': {
-    gridTemplateColumns: 'minmax(0, auto) minmax(200px, 1fr)',
+  '@container (min-width: 336px)': {
+    gridTemplateColumns: 'minmax(124px, auto) minmax(200px, 1fr)',
   },
 } as const
 
@@ -75,7 +76,7 @@ const ROW_CSS = {
  * too (`OrderDoneDialog`, `OrderFailedDialog`). Nothing while the booking is
  * frozen by a suspension (BE-108).
  */
-export function OrderCloseControls() {
+export function OrderCloseCard() {
   const { orderClose, permissions, mainCta } = useTaskDetail()
 
   if (!orderClose?.canClose || !permissions.showOrderActions) return null

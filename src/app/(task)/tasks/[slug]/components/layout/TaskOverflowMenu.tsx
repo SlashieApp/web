@@ -36,7 +36,7 @@ import { useTaskDetail } from '../../context/TaskDetailProvider'
 import { availableActions } from '../../helpers/taskDetailActions'
 import { orderCounterpart } from '../../helpers/taskDetailUtils'
 import type { TaskDetailAction } from '../../views'
-import { OrderDoneDialog } from '../overview/OrderCloseControls'
+import { OrderDoneDialog } from '../overview/OrderCloseCard'
 import { OrderFailedDialog } from '../overview/OrderFailedDialog'
 import {
   OrderCancelDialog,

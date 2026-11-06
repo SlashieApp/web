@@ -182,7 +182,7 @@ headline first.
 |---|---|---|---|---|
 | `bottomPin.reschedule` | ANSWER_RESCHEDULE | `*.booked.rescheduleByThem` | no | Their times with Use this time, Keep current time (`RequestFact`) |
 | `bottomPin.cancel` | ANSWER_CANCEL | `*.booked.cancelByThem` | no | Accept cancellation, Keep booking (`RequestFact`) |
-| `bottomPin.markDone` | MARK_DONE | `*.booked.ready` | no | Slide to mark Done, Something went wrong (`OrderCloseControls`) |
+| `bottomPin.markDone` | MARK_DONE | `*.booked.ready` | no | Slide to mark Done, Something went wrong (`OrderCloseCard`) |
 | `bottomPin.confirmDone` | CONFIRM_DONE | `*.booked.theyMarkedDone` | yes (auto-complete date) | Slide to mark Done, Something went wrong |
 | `bottomPin.answerFailed` | ANSWER_FAILED | `*.booked.theyMarkedFailed` | yes | Slide to mark Done, Something went wrong |
 | `bottomPin.conflict` | CONFLICT | `*.conflict.*` | yes | Open task |

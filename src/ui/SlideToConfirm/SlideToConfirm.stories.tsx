@@ -121,5 +121,39 @@ export const Compact: Story = {
     await expect(track.getBoundingClientRect().height).toBe(48)
     await expect(thumb.getBoundingClientRect().width).toBe(40)
     await expect(thumb.getBoundingClientRect().height).toBe(40)
+    // Centred: the same space above and below the thumb.
+    const t = thumb.getBoundingClientRect()
+    const k = track.getBoundingClientRect()
+    await expect(t.top - k.top).toBe(k.bottom - t.bottom)
+  },
+}
+
+/** Compact and armed, in the 200 the Done card gives it: "Tap again to mark Done" is one line. */
+export const CompactArmed: Story = {
+  args: { compact: true },
+  decorators: [
+    (Story) => (
+      <div style={{ width: 200 }}>
+        <Story />
+      </div>
+    ),
+  ],
+  play: async ({ canvasElement }) => {
+    const thumb = within(canvasElement).getByRole('button', {
+      name: 'Slide to mark Done',
+    })
+    thumb.focus()
+    await userEvent.keyboard('{Enter}')
+    const armed = await within(canvasElement).findByText(
+      'Tap again to mark Done',
+      { selector: 'p' },
+    )
+    // The label's text is one line: one client rect for its text.
+    const range = document.createRange()
+    range.selectNodeContents(armed)
+    await expect(range.getClientRects()).toHaveLength(1)
+    const t = thumb.getBoundingClientRect()
+    const k = (thumb.parentElement as HTMLElement).getBoundingClientRect()
+    await expect(t.top - k.top).toBe(k.bottom - t.bottom)
   },
 }

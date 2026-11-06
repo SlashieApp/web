@@ -3,7 +3,7 @@
 import { Box, Stack, Text } from '@chakra-ui/react'
 import type { ThreadFieldsFragment } from '@codegen/schema'
 
-import { OrderCloseControls } from '@/app/(task)/tasks/[slug]/components/overview/OrderCloseControls'
+import { OrderCloseCard } from '@/app/(task)/tasks/[slug]/components/overview/OrderCloseCard'
 import { useSummaryLines } from '@/app/(task)/tasks/[slug]/components/summary/TaskSummary'
 import { RequestFact } from '@/app/(task)/tasks/[slug]/components/summary/facts/BookingActionFacts'
 import { useTaskDetail } from '@/app/(task)/tasks/[slug]/context/TaskDetailProvider'
@@ -63,7 +63,7 @@ export function ThreadBottomPin({
       {config.controls === 'request' ? <RequestFact /> : null}
       {config.controls === 'close' ? (
         <Box py={2}>
-          <OrderCloseControls />
+          <OrderCloseCard />
         </Box>
       ) : null}
       {config.controls === 'openTask' ? (

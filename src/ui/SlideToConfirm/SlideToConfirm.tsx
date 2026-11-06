@@ -30,8 +30,9 @@ export type SlideToConfirmProps = {
   disabled?: boolean
   loading?: boolean
   /**
-   * A 48 tall track (40 thumb, 4 padding) for a row beside text, as on the
-   * Done card. The default is 56 tall.
+   * A 48 tall track (40 thumb, 4 padding, 12 label) for a row beside text, as
+   * on the Done card; even "Tap again to mark Done" is one line in 200. The
+   * default is 56 tall.
    */
   compact?: boolean
 }
@@ -157,8 +158,8 @@ export function SlideToConfirm({
         alignItems="center"
         justifyContent="center"
         pl={`${thumbPx}px`}
-        pr={4}
-        fontSize="sm"
+        pr={compact ? 2 : 4}
+        fontSize={compact ? 'xs' : 'sm'}
         fontWeight={500}
         color="status.success.fg"
         textAlign="center"
@@ -173,7 +174,10 @@ export function SlideToConfirm({
         aria-disabled={inert || undefined}
         disabled={disabled}
         position="absolute"
-        top={`${TRACK_PAD_PX}px`}
+        // Compact: centred, so a 40 thumb has the same space above and below
+        // the 48 track (the border is 1, or 2 when armed). Default: 4 down.
+        top={compact ? '50%' : `${TRACK_PAD_PX}px`}
+        mt={compact ? `-${thumbPx / 2}px` : undefined}
         left={`${TRACK_PAD_PX}px`}
         w={`${thumbPx}px`}
         h={`${thumbPx}px`}
