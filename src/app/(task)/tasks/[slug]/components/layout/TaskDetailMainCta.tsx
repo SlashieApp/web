@@ -1,13 +1,12 @@
 'use client'
 
-import { Box, Stack, type SystemStyleObject, Text } from '@chakra-ui/react'
+import { Box, type SystemStyleObject } from '@chakra-ui/react'
 import { useState } from 'react'
 import { createPortal } from 'react-dom'
 import type { IconType } from 'react-icons'
 import { LuEye, LuLogIn, LuRepeat, LuRotateCcw, LuSearch } from 'react-icons/lu'
 
 import { WEB_MQ } from '@/theme/breakpoints'
-import { sdlFigure } from '@/theme/styles'
 import { useIsBrowser } from '@/utils/useIsBrowser'
 import { Button, Link, MOBILE_BOTTOM_NAV_MAX_W } from '@ui'
 
@@ -105,23 +104,7 @@ function MainCtaControl({
 }) {
   const onReceipt = useReceiptDownload()
 
-  if (model.presentation === 'close') {
-    return (
-      <Box w="full" bg="bg.surface" borderRadius="xl" boxShadow="e3" p={4}>
-        <Stack gap={3}>
-          {model.content ? (
-            <Stack gap={0}>
-              <Text fontSize="xs" fontWeight={500} color="text.muted">
-                {model.content.eyebrow}
-              </Text>
-              <Text {...sdlFigure}>{model.content.value}</Text>
-            </Stack>
-          ) : null}
-          <OrderCloseControls />
-        </Stack>
-      </Box>
-    )
-  }
+  if (model.presentation === 'close') return <OrderCloseControls />
 
   if (isButtonOnlyMainCta(model) || !model.content) {
     const Icon = BUTTON_ICONS[model.action]

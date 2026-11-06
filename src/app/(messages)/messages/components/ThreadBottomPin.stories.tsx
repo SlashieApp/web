@@ -113,16 +113,17 @@ export const Cancel: Story = {
   },
 }
 
-/** bottomPin.markDone: the booked start has passed: slide to mark Done, or report a problem. */
+/** bottomPin.markDone: the booked start has passed: the one-row Done card (Something went wrong is in the thread menu). */
 export const MarkDone: Story = {
   ...ask('worker', bookedTask(), needs(ThreadAttentionKind.MarkDone)),
   play: async ({ canvasElement }) => {
     const canvas = await shows(canvasElement, 'bottomPin.markDone')
-    await expect(canvas.getByText('Job time has started')).toBeVisible()
+    // The pin's headline and the card's status line say the same.
+    await expect(canvas.getAllByText('Job time has started')).toHaveLength(2)
     await expect(canvas.getByText('Slide to mark Done')).toBeVisible()
     await expect(
-      canvas.getByRole('button', { name: 'Something went wrong' }),
-    ).toBeVisible()
+      canvas.queryByRole('button', { name: 'Something went wrong' }),
+    ).toBeNull()
   },
 }
 

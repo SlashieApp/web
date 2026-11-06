@@ -109,3 +109,17 @@ export const Confirming: Story = {
     await expect(thumb.style.transform).not.toBe('translateX(0px)')
   },
 }
+
+/** Compact: a 40 thumb in the 4 padding, so the track is 48 tall (the Done card's row). */
+export const Compact: Story = {
+  args: { compact: true },
+  play: async ({ canvasElement }) => {
+    const thumb = within(canvasElement).getByRole('button', {
+      name: 'Slide to mark Done',
+    })
+    const track = thumb.parentElement as HTMLElement
+    await expect(track.getBoundingClientRect().height).toBe(48)
+    await expect(thumb.getBoundingClientRect().width).toBe(40)
+    await expect(thumb.getBoundingClientRect().height).toBe(40)
+  },
+}

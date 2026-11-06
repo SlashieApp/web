@@ -136,14 +136,17 @@ export const BookedMessage: Story = {
   },
 }
 
-/** Booked time has started: slide Done, or "something went wrong". */
+/** Booked time has started: the one-row Done card (Something went wrong is in Help & actions). */
 export const WorkerReadyToClose: Story = {
   ...desktop,
   ...cta({ viewer: 'worker', task: bookedTask, order: storyTaskOrder() }),
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
     await canvas.findByText('Slide to mark Done')
-    await canvas.findByRole('button', { name: 'Something went wrong' })
+    await canvas.findByText('Job time has started')
+    await expect(
+      canvas.queryByRole('button', { name: 'Something went wrong' }),
+    ).toBeNull()
   },
 }
 

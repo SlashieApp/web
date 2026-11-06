@@ -13,6 +13,8 @@ import { LuArrowRight, LuCheck } from 'react-icons/lu'
 import { sdlFocusRing, sdlMotion } from '@/theme/styles'
 
 const THUMB_PX = 48
+/** `compact`: a 40 thumb in the same 4 padding, so the track is 48 tall. */
+const COMPACT_THUMB_PX = 40
 const TRACK_PAD_PX = 4
 /** Share of the track the thumb must cross before release confirms. */
 const CONFIRM_AT = 0.85
@@ -27,6 +29,11 @@ export type SlideToConfirmProps = {
   onConfirm: () => void
   disabled?: boolean
   loading?: boolean
+  /**
+   * A 48 tall track (40 thumb, 4 padding) for a row beside text, as on the
+   * Done card. The default is 56 tall.
+   */
+  compact?: boolean
 }
 
 /**
@@ -41,7 +48,9 @@ export function SlideToConfirm({
   onConfirm,
   disabled = false,
   loading = false,
+  compact = false,
 }: SlideToConfirmProps) {
+  const thumbPx = compact ? COMPACT_THUMB_PX : THUMB_PX
   const trackRef = useRef<HTMLDivElement>(null)
   const dragRef = useRef<{ startX: number; moved: boolean } | null>(null)
   const [offset, setOffset] = useState(0)
@@ -67,7 +76,7 @@ export function SlideToConfirm({
   const maxOffset = () =>
     Math.max(
       0,
-      (trackRef.current?.offsetWidth ?? 0) - THUMB_PX - TRACK_PAD_PX * 2,
+      (trackRef.current?.offsetWidth ?? 0) - thumbPx - TRACK_PAD_PX * 2,
     )
 
   const confirm = () => {
@@ -131,7 +140,7 @@ export function SlideToConfirm({
     <Box
       ref={trackRef}
       position="relative"
-      h={`${THUMB_PX + TRACK_PAD_PX * 2}px`}
+      h={`${thumbPx + TRACK_PAD_PX * 2}px`}
       w="full"
       borderRadius="full"
       bg="status.success.soft"
@@ -147,7 +156,7 @@ export function SlideToConfirm({
         display="flex"
         alignItems="center"
         justifyContent="center"
-        pl={`${THUMB_PX}px`}
+        pl={`${thumbPx}px`}
         pr={4}
         fontSize="sm"
         fontWeight={500}
@@ -166,8 +175,8 @@ export function SlideToConfirm({
         position="absolute"
         top={`${TRACK_PAD_PX}px`}
         left={`${TRACK_PAD_PX}px`}
-        w={`${THUMB_PX}px`}
-        h={`${THUMB_PX}px`}
+        w={`${thumbPx}px`}
+        h={`${thumbPx}px`}
         borderRadius="full"
         bg="action.primary"
         color="text.onGreen"
