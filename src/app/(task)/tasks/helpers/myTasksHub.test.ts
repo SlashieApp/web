@@ -880,3 +880,21 @@ describe('buildMyTasksHub prices', () => {
     expect(rowFor(sections, 'none')?.priceLabel).toBe('')
   })
 })
+
+describe('buildMyTasksHub status pill', () => {
+  it('gives a booked job the status pill task detail shows (Awarded), and nothing before it is booked or once it is over', () => {
+    const booked = hostedBooking('booked', {})
+    const done = hostedBooking('done', { status: 'COMPLETED' })
+    const open = task({ id: 'open', title: 'open', status: 'OPEN' })
+    const sections = buildMyTasksHub({
+      now: NOW,
+      userId: ME,
+      posted: [booked.posted, done.posted, open],
+      sentQuotes: [],
+      orders: [booked.order, done.order],
+    })
+    expect(rowFor(sections, 'booked')?.status).toBe('AWARDED')
+    expect(rowFor(sections, 'done')?.status).toBeNull()
+    expect(rowFor(sections, 'open')?.status).toBeNull()
+  })
+})

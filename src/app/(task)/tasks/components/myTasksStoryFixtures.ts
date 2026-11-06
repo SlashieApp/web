@@ -15,17 +15,6 @@ function at(month: number, day: number, hour = 0, minute = 0): string {
   return new Date(YEAR, month - 1, day, hour, minute).toISOString()
 }
 
-/** The weekday of a fixture date, as the card writes it ("Tue", "Wednesday"). */
-export function storyWeekday(
-  month: number,
-  day: number,
-  weekday: 'short' | 'long',
-): string {
-  return new Intl.DateTimeFormat('en-GB', { weekday }).format(
-    new Date(YEAR, month - 1, day),
-  )
-}
-
 function row(
   base: Pick<MyTaskHubRow, 'id' | 'title' | 'section'> & Partial<MyTaskHubRow>,
 ): MyTaskHubRow {
@@ -38,6 +27,7 @@ function row(
     liveQuoteCount: 0,
     outcome: null,
     endedAt: null,
+    status: base.section === 'upcoming' ? 'AWARDED' : null,
     action: null,
     orderId: null,
     suspended: false,

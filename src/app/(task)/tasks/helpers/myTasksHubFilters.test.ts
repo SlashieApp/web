@@ -26,6 +26,7 @@ function row(
     liveQuoteCount: 0,
     outcome: null,
     endedAt: null,
+    status: null,
     action: null,
     orderId: null,
     suspended: false,

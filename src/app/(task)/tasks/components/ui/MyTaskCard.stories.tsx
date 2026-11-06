@@ -10,8 +10,9 @@ import {
   openPopover,
 } from '@/ui/Dropdown/menuSpacing.testing'
 
-import { storyRows, storyWeekday } from '../myTasksStoryFixtures'
+import { storyRows } from '../myTasksStoryFixtures'
 import { MyTaskCard } from './MyTaskCard'
+import { expectRowAnatomy } from './myTaskRow.testing'
 
 const meta = {
   title: 'My tasks/MyTaskCard',
@@ -51,15 +52,19 @@ async function openMenu(canvasElement: HTMLElement, title: string) {
   return body
 }
 
-/** Upcoming, your booked job this week: "On Wednesday", then date and time, area and price; a tap anywhere opens the task; nothing to do, so the ⋮ menu. */
+/** Upcoming, your booked job this week: the date and time above the title, the Hosted and Awarded pills, then area and price; a tap anywhere opens the task; nothing to do, so the ⋮ menu. */
 export const UpcomingWithMenu: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
-    await expect(
-      canvas.getByText(`On ${storyWeekday(10, 28, 'long')}`),
-    ).toBeVisible()
-    const line = canvas.getByText('28 Oct, 16:25 · Southwark · £120')
+    await expect(canvas.getByText('28 Oct, 16:25')).toBeVisible()
+    await expect(canvas.getByText('Hosted')).toBeVisible()
+    await expect(canvas.getByText('Awarded')).toBeVisible()
+    const line = canvas.getByText('Southwark · £120')
     await expect(line).toBeVisible()
+    await expectRowAnatomy(canvasElement, 'Mount a 55-inch TV', {
+      time: true,
+      pills: 2,
+    })
     const title = canvas.getByRole('link', { name: 'Mount a 55-inch TV' })
     await expect(title).toHaveAttribute(
       'href',
@@ -71,8 +76,6 @@ export const UpcomingWithMenu: Story = {
       name: 'Options for Mount a 55-inch TV',
     })
     await expect(options.contains(tapTarget(options))).toBe(true)
-    // A card has no photo.
-    await expect(canvas.queryByRole('img')).toBeNull()
     const menu = await openMenu(canvasElement, 'Mount a 55-inch TV')
     await expect(menu.queryByRole('link', { name: 'Edit task' })).toBeNull()
   },
@@ -83,10 +86,26 @@ export const UpcomingOverdue: Story = {
   args: { row: storyRows.upcomingOverdue },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
-    await expect(canvas.getByText('Overdue')).toBeVisible()
-    await expect(
-      canvas.getByRole('link', { name: 'Mark done: Replace a light fitting' }),
-    ).toHaveAttribute('href', '/tasks/upcoming-overdue?from=tasks#task-order')
+    const overdue = canvas.getByText('Overdue')
+    await expect(overdue).toBeVisible()
+    await expect(getComputedStyle(overdue).color).not.toBe(
+      getComputedStyle(canvas.getByText('Hosted')).color,
+    )
+    await expectRowAnatomy(canvasElement, 'Replace a light fitting', {
+      time: true,
+      pills: 2,
+    })
+    // The button is on the right of the row, level with the text.
+    const mark = canvas.getByRole('link', {
+      name: 'Mark done: Replace a light fitting',
+    })
+    await expect(mark).toHaveAttribute(
+      'href',
+      '/tasks/upcoming-overdue?from=tasks#task-order',
+    )
+    await expect(mark.getBoundingClientRect().left).toBeGreaterThan(
+      overdue.getBoundingClientRect().right,
+    )
     await expect(
       canvas.queryByRole('button', { name: /^Options for/ }),
     ).toBeNull()
@@ -98,19 +117,20 @@ export const UpcomingConfirmDone: Story = {
   args: { row: storyRows.upcomingToday },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
-    await expect(canvas.getByText('Today')).toBeVisible()
+    await expect(canvas.getByText('22 Oct, 09:00')).toBeVisible()
+    await expect(canvas.getByText('Quoted')).toBeVisible()
     await expect(
       canvas.getByRole('link', { name: 'Confirm done: Deep-clean an oven' }),
     ).toBeVisible()
   },
 }
 
-/** Upcoming, a job you won that the customer asked to move: Tomorrow, Answer reschedule. */
+/** Upcoming, a job you won that the customer asked to move: its date and time, Answer reschedule. */
 export const UpcomingAnswerReschedule: Story = {
   args: { row: storyRows.upcomingReschedule },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
-    await expect(canvas.getByText('Tomorrow')).toBeVisible()
+    await expect(canvas.getByText('23 Oct, 10:00')).toBeVisible()
     await expect(
       canvas.getByRole('link', {
         name: 'Answer reschedule: Hang a mirror in the hall',
@@ -122,15 +142,13 @@ export const UpcomingAnswerReschedule: Story = {
   },
 }
 
-/** Upcoming, more than a week out: the date leads. */
+/** Upcoming, more than a week out: the date and time lead. */
 export const UpcomingLater: Story = {
   args: { row: storyRows.upcomingDate },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
-    await expect(
-      canvas.getByText(`${storyWeekday(11, 3, 'short')} 3 Nov`),
-    ).toBeVisible()
-    await expect(canvas.getByText('3 Nov, 09:30 · Camden · £150')).toBeVisible()
+    await expect(canvas.getByText('3 Nov, 09:30')).toBeVisible()
+    await expect(canvas.getByText('Camden · £150')).toBeVisible()
   },
 }
 
@@ -141,6 +159,11 @@ export const OpenCompareQuotes: Story = {
     const canvas = within(canvasElement)
     const line = canvas.getByText('3 quotes · £80')
     await expect(line).toBeVisible()
+    // Hosted only: no status pill before it is booked.
+    await expect(canvas.getByText('Hosted')).toBeVisible()
+    await expectRowAnatomy(canvasElement, 'Fix a leaking kitchen tap', {
+      pills: 1,
+    })
     const compare = canvas.getByRole('link', {
       name: 'Compare quotes: Fix a leaking kitchen tap',
     })
@@ -163,6 +186,8 @@ export const OpenNoQuotes: Story = {
     await expect(
       within(canvasElement).getByText('No quotes yet · £60'),
     ).toBeVisible()
+    // No photo: the category icon, in the same 56 square.
+    await expectRowAnatomy(canvasElement, 'Clear out a garage', { pills: 1 })
     const menu = await openMenu(canvasElement, 'Clear out a garage')
     await expect(menu.getByRole('link', { name: 'Edit task' })).toHaveAttribute(
       'href',
@@ -221,29 +246,33 @@ export const OpenQuoteSent: Story = {
     await expect(
       within(canvasElement).getByText('Quote sent · £75'),
     ).toBeVisible()
+    await expect(within(canvasElement).getByText('Quoted')).toBeVisible()
     const menu = await openMenu(canvasElement, 'Assemble a standing desk')
     await expect(menu.getByRole('button', { name: /Report/ })).toBeVisible()
     await expect(menu.queryByRole('link', { name: 'Edit task' })).toBeNull()
   },
 }
 
-/** Past, the newest, not reviewed yet: no photo; date and price, Completed, and Review (to the review form). */
-export const PastCardReview: Story = {
-  args: { row: storyRows.pastReview },
+/** Past, not reviewed yet: Hosted and Completed pills, date and price, and Review (to the review form). */
+export const PastReview: Story = {
+  args: { row: storyRows.pastReview, layout: 'row' },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
     await expect(canvas.getByText('20 Oct · £95')).toBeVisible()
+    await expect(canvas.getByText('Hosted')).toBeVisible()
     await expect(canvas.getByText('Completed')).toBeVisible()
+    await expectRowAnatomy(canvasElement, 'Deep-clean a studio flat', {
+      pills: 2,
+    })
     await expect(
       canvas.getByRole('link', { name: 'Review: Deep-clean a studio flat' }),
     ).toHaveAttribute('href', '/tasks/past-review/review?orderId=order-review')
-    await expect(canvas.queryByRole('img')).toBeNull()
   },
 }
 
-/** Past, the newest, cancelled: Cancelled and the ⋮ menu. */
-export const PastCardMenu: Story = {
-  args: { row: storyRows.pastCancelled },
+/** Past, cancelled: the Cancelled pill and the ⋮ menu. */
+export const PastCancelled: Story = {
+  args: { row: storyRows.pastCancelled, layout: 'row' },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
     await expect(canvas.getByText('Cancelled')).toBeVisible()
@@ -253,12 +282,14 @@ export const PastCardMenu: Story = {
   },
 }
 
-/** Past row: how it ended and the price in the line (no end date known), with the ⋮ menu. */
+/** Past row: how it ended is a pill; the line has the price (no end date known); the ⋮ menu. */
 export const PastRow: Story = {
   args: { row: storyRows.pastClosed, layout: 'row' },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
-    await expect(canvas.getByText('Closed · £90')).toBeVisible()
+    await expect(canvas.getByText('Closed')).toBeVisible()
+    await expect(canvas.getByText('£90')).toBeVisible()
+    await expect(canvas.getByText('Quoted')).toBeVisible()
     await expect(
       canvas.getByRole('button', { name: 'Options for Clear a small garden' }),
     ).toBeVisible()
@@ -267,13 +298,14 @@ export const PastRow: Story = {
 
 /**
  * Past row: your quote is still pending while someone else is booked (BE-113).
- * The status is in the line, and there is no button, only the ⋮ menu.
+ * The status is a pill, and there is no button, only the ⋮ menu.
  */
 export const PastRowBookedByOther: Story = {
   args: { row: storyRows.pastBookedByOther, layout: 'row' },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
-    await expect(canvas.getByText('Booked by someone else · £80')).toBeVisible()
+    await expect(canvas.getByText('Booked by someone else')).toBeVisible()
+    await expect(canvas.getByText('£80')).toBeVisible()
     await expect(
       canvas.getByRole('button', { name: 'Options for Paint a fence' }),
     ).toBeVisible()
@@ -288,7 +320,7 @@ export const PastRowTaskCompleted: Story = {
   args: { row: storyRows.pastTaskCompleted, layout: 'row' },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
-    await expect(canvas.getByText('Task completed · £140')).toBeVisible()
+    await expect(canvas.getByText('Task completed')).toBeVisible()
     await expect(
       canvas.getByRole('button', { name: 'Options for Tile a bathroom wall' }),
     ).toBeVisible()
@@ -303,7 +335,7 @@ export const PastRowOtherBookingEnded: Story = {
   args: { row: storyRows.pastOtherBookingEnded, layout: 'row' },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
-    await expect(canvas.getByText('Booking cancelled · £60')).toBeVisible()
+    await expect(canvas.getByText('Booking cancelled')).toBeVisible()
     await expect(
       canvas.getByRole('button', { name: 'Options for Fit a curtain rail' }),
     ).toBeVisible()
@@ -313,22 +345,15 @@ export const PastRowOtherBookingEnded: Story = {
   },
 }
 
-/** The newest Past task as a card: the status as a neutral badge, no button (BE-113). */
-export const PastCardBookedByOther: Story = {
-  args: { row: storyRows.pastBookedByOther },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement)
-    await expect(canvas.getByText('Booked by someone else')).toBeVisible()
-    await expect(
-      canvas.getByRole('button', { name: 'Options for Paint a fence' }),
-    ).toBeVisible()
-  },
-}
-
 /** Phone width: a row with its button. */
 export const Phone: Story = {
   args: { row: storyRows.openCompare, layout: 'row' },
   globals: { viewport: { value: 'mobile1', isRotated: false } },
+  play: async ({ canvasElement }) => {
+    await expectRowAnatomy(canvasElement, 'Fix a leaking kitchen tap', {
+      pills: 1,
+    })
+  },
 }
 
 /** Traditional Chinese copy (from the `/zh-hk` URL prefix). */
@@ -344,10 +369,10 @@ export const TraditionalChinese: Story = {
   args: { row: storyRows.upcomingReschedule },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
-    await expect(canvas.getByText('明天')).toBeVisible()
-    await expect(
-      canvas.getByText('10月23日 10:00 · Hackney · £120'),
-    ).toBeVisible()
+    await expect(canvas.getByText('10月23日 10:00')).toBeVisible()
+    await expect(canvas.getByText('我報價')).toBeVisible()
+    await expect(canvas.getByText('已選定')).toBeVisible()
+    await expect(canvas.getByText('Hackney · £120')).toBeVisible()
     await expect(
       canvas.getByRole('link', { name: '回應改期：Hang a mirror in the hall' }),
     ).toBeVisible()

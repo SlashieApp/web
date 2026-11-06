@@ -65,9 +65,9 @@ function ActionButton({
 }
 
 /**
- * One section. Upcoming is all cards; Open is all rows; Past leads with a
- * card for the newest, then rows, collapsed to the newest few unless
- * filtering. An empty section says so.
+ * One section. Upcoming is in cards; Open and Past are flat rows with the
+ * same content, Past collapsed to the newest few unless filtering. An empty
+ * section says so.
  */
 function Section({
   section,
@@ -101,16 +101,11 @@ function Section({
         </Text>
       ) : (
         <Stack as="ul" gap={2} listStyleType="none" m={0} p={0}>
-          {rows.map((row, index) => (
+          {rows.map((row) => (
             <li key={row.id}>
               <MyTaskCard
                 row={row}
-                layout={
-                  section.id === 'upcoming' ||
-                  (section.id === 'past' && index === 0)
-                    ? 'card'
-                    : 'row'
-                }
+                layout={section.id === 'upcoming' ? 'card' : 'row'}
               />
             </li>
           ))}

@@ -5,11 +5,7 @@ import { expect, fn, userEvent, within } from 'storybook/test'
 import { LocaleProvider } from '@/i18n/LocaleProvider'
 
 import { MY_TASKS_VIEWS } from '../../views'
-import {
-  allSections,
-  emptySections,
-  storyWeekday,
-} from '../myTasksStoryFixtures'
+import { allSections, emptySections } from '../myTasksStoryFixtures'
 import { MyTasksList } from './MyTasksList'
 
 const meta = {
@@ -44,7 +40,7 @@ function headings(canvasElement: HTMLElement) {
     .map((heading) => heading.textContent)
 }
 
-/** `list`, posts and quotes: Upcoming cards (Overdue first), Open rows, Past led by a card; Past shows 3 of 5 until Show all. */
+/** `list`, posts and quotes: Upcoming cards (Overdue first), Open rows, Past all rows; Past shows 3 of 5 until Show all. */
 export const AllSections: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
@@ -53,9 +49,7 @@ export const AllSections: Story = {
     const upcoming = within(canvas.getByRole('region', { name: 'Upcoming' }))
     await expect(upcoming.getAllByRole('listitem')).toHaveLength(5)
     await expect(upcoming.getByText('Overdue')).toBeVisible()
-    await expect(
-      upcoming.getByText(`On ${storyWeekday(10, 28, 'long')}`),
-    ).toBeVisible()
+    await expect(upcoming.getByText('28 Oct, 16:25')).toBeVisible()
     await expect(
       upcoming.getByRole('link', { name: /^Mark done: / }),
     ).toBeVisible()

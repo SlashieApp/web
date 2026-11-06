@@ -16,12 +16,14 @@ import {
   LuZap,
 } from 'react-icons/lu'
 
+import { TaskRolePill } from '@/app/(task)/components/ui/TaskRolePill'
 import { taskDetailHrefFromMyTasks } from '@/app/(task)/helpers/openTaskDetailFromBrowse'
 import { setTaskHandoff } from '@/app/(task)/helpers/taskCardHandoff'
+import { TaskStatusPill } from '@/app/(task)/tasks/[slug]/components/ui/TaskStatusPill'
 import { useLocale } from '@/i18n/LocaleProvider'
 import { formatMessage } from '@/i18n/loadPageI11n'
 import { useI11n } from '@/i18n/useI11n'
-import { sdlFocusRing } from '@/theme/styles'
+import { sdlFigure, sdlFocusRing } from '@/theme/styles'
 import { TASK_ORDER_SECTION_ID } from '@/utils/orderHelpers'
 import { Badge, Button, Card, Link, Thumbnail } from '@ui'
 
@@ -75,35 +77,7 @@ function formatDate(
   ).format(new Date(at))
 }
 
-/** Upcoming's heading: Today, Tomorrow, On Wednesday, Thu 5 Nov, Overdue, Before 5 Nov or Flexible. */
-function dayLabel(when: MyTaskWhen, t: Copy, locale: string): string {
-  switch (when.day) {
-    case 'flexible':
-      return t.when.flexible
-    case 'overdue':
-      return t.when.overdue
-    case 'today':
-      return t.when.today
-    case 'tomorrow':
-      return t.when.tomorrow
-    case 'weekday':
-      return formatMessage(t.when.weekday, {
-        weekday: formatDate(when.at, locale, { weekday: 'long' }),
-      })
-    case 'date':
-      return formatDate(when.at, locale, {
-        weekday: 'short',
-        day: 'numeric',
-        month: 'short',
-      })
-    case 'before':
-      return formatMessage(t.when.before, {
-        date: formatDate(when.at, locale, { day: 'numeric', month: 'short' }),
-      })
-  }
-}
-
-/** The booked date and time under the heading, "28 Oct, 16:25"; nothing when flexible or a Before date. */
+/** The booked date and time, "28 Oct, 16:25"; nothing when flexible or a Before date. */
 function timeLabel(when: MyTaskWhen | null, t: Copy, locale: string): string {
   if (!when || when.day === 'flexible' || when.day === 'before') return ''
   const date = formatDate(when.at, locale, { day: 'numeric', month: 'short' })
@@ -116,6 +90,21 @@ function timeLabel(when: MyTaskWhen | null, t: Copy, locale: string): string {
       hourCycle: 'h23',
     }),
   })
+}
+
+/**
+ * Upcoming's time line, above the title: Overdue, the booked date and time
+ * ("28 Oct, 16:25"), or Flexible / Before 5 Nov when there is no booked time.
+ */
+function upcomingTime(when: MyTaskWhen, t: Copy, locale: string): string {
+  if (when.day === 'overdue') return t.when.overdue
+  if (when.day === 'flexible') return t.when.flexible
+  if (when.day === 'before') {
+    return formatMessage(t.when.before, {
+      date: formatDate(when.at, locale, { day: 'numeric', month: 'short' }),
+    })
+  }
+  return timeLabel(when, t, locale)
 }
 
 /** When it ended ("28 Oct"; with the year when it isn't this year). */
@@ -141,23 +130,14 @@ function joined(...parts: string[]): string {
   return parts.filter(Boolean).join(' · ')
 }
 
-/** The muted line under the title. */
-function detailLine(
-  row: MyTaskHubRow,
-  layout: Layout,
-  t: Copy,
-  locale: string,
-): string {
+/** The muted line under the pills. How a Past task ended is its pill, not text. */
+function detailLine(row: MyTaskHubRow, t: Copy, locale: string): string {
   if (row.section === 'open') return joined(quotesLabel(row, t), row.priceLabel)
   if (row.section === 'past') {
-    const ended = endedLabel(row.endedAt, locale)
-    // The card shows how it ended as a badge; a row says it in the line.
-    const outcome =
-      layout === 'row' && row.outcome ? t.outcomes[row.outcome] : ''
-    return joined(outcome, ended, row.priceLabel)
+    return joined(endedLabel(row.endedAt, locale), row.priceLabel)
   }
-  // Upcoming: the card leads with the day.
-  return joined(timeLabel(row.when, t, locale), row.location, row.priceLabel)
+  // Upcoming: the time leads, above the title.
+  return joined(row.location, row.priceLabel)
 }
 
 /** The task at the button's action, or the review form. */
@@ -177,18 +157,11 @@ function actionHref(row: MyTaskHubRow, action: MyTaskAction): string {
  * The title is the link to the task; its overlay makes the whole card or row
  * tappable. Inline (not Link's inline-flex) so the two-line clamp applies.
  */
-function TitleLink({
-  row,
-  fontSize,
-}: {
-  row: MyTaskHubRow
-  fontSize: 'md' | 'lg'
-}) {
+function TitleLink({ row }: { row: MyTaskHubRow }) {
   return (
     <Text
-      fontSize={fontSize}
+      fontSize="md"
       fontWeight={500}
-      letterSpacing={fontSize === 'lg' ? '-0.01em' : undefined}
       color="text.default"
       lineHeight="1.3"
       lineClamp={2}
@@ -268,20 +241,47 @@ function OverOverlay({ children, ...rest }: BoxProps) {
 export type MyTaskCardProps = {
   row: MyTaskHubRow
   /**
-   * `card`: an Upcoming job led by its day, or the newest Past task (no
-   * photo, with how it ended). `row`: a compact row with a square photo.
+   * `card`: Upcoming's frame. `row`: Open and Past, flat. Both show the same
+   * photo, text column and button.
    */
   layout: Layout
 }
 
+/** The role pill, then the status pill once booked or how a Past task ended; 8 apart. */
+function PillLine({ row }: { row: MyTaskHubRow }) {
+  const t = useI11n(bag)
+  const role = row.roles.includes('hosted') ? 'hosted' : 'quoted'
+  return (
+    <HStack gap={2} mt={1} flexWrap="wrap" data-testid="my-task-pills">
+      <TaskRolePill role={role} />
+      {row.outcome ? (
+        <Badge
+          dot
+          shape="pill"
+          variant={row.outcome === 'completed' ? 'success' : 'neutral'}
+        >
+          {t.outcomes[row.outcome]}
+        </Badge>
+      ) : row.status ? (
+        <TaskStatusPill status={row.status} />
+      ) : null}
+    </HStack>
+  )
+}
+
 /**
- * One task on My Tasks. Tapping it opens the task. It shows the one button
- * task detail waits on you for (or Review), else the ⋮ menu.
+ * One task on My Tasks, the same in every section: the photo (else the
+ * category's icon), then the title, a line of pills and the muted line.
+ * Upcoming adds its time above the title and sits in a card. Tapping it opens
+ * the task. It shows the one button task detail waits on you for (or Review),
+ * else the ⋮ menu.
  */
 export function MyTaskCard({ row, layout }: MyTaskCardProps) {
   const t = useI11n(bag)
   const locale = useLocale()
-  const line = detailLine(row, layout, t, locale)
+  const line = detailLine(row, t, locale)
+  // Only Upcoming rows have a time.
+  const time = row.when ? upcomingTime(row.when, t, locale) : ''
   // Every row can have one, so its name says which task.
   const end = row.action ? (
     <Button
@@ -306,84 +306,60 @@ export function MyTaskCard({ row, layout }: MyTaskCardProps) {
     <MyTaskCardMenu row={row} />
   )
 
+  // The button drops under the text when the row is too narrow for both.
+  const content = (
+    <HStack gap={3} rowGap={1} flexWrap="wrap">
+      <HStack gap={3} flex="1 1 12rem" minW={0}>
+        <RowThumbnail row={row} />
+        <Stack gap={0} flex={1} minW={0}>
+          {time ? (
+            <Text
+              {...sdlFigure}
+              fontSize="lg"
+              fontWeight={500}
+              letterSpacing="-0.01em"
+              lineHeight="1.3"
+              mb={0.5}
+              color={
+                row.when?.day === 'overdue'
+                  ? 'status.danger.fg'
+                  : 'text.default'
+              }
+            >
+              {time}
+            </Text>
+          ) : null}
+          <TitleLink row={row} />
+          <PillLine row={row} />
+          {line ? (
+            <Text fontSize="sm" color="text.muted" lineClamp={2} mt={1}>
+              {line}
+            </Text>
+          ) : null}
+        </Stack>
+      </HStack>
+      <OverOverlay ms="auto">{end}</OverOverlay>
+    </HStack>
+  )
+
   if (layout === 'row') {
-    // The button drops under the text when the row is too narrow for both.
     return (
-      <HStack
+      <Box
         position="relative"
-        gap={3}
-        rowGap={1}
-        flexWrap="wrap"
         px={2}
         py={2}
         mx={-2}
         borderRadius="lg"
         _hover={{ bg: 'bg.subtle' }}
       >
-        <HStack gap={3} flex="1 1 12rem" minW={0}>
-          <RowThumbnail row={row} />
-          <Stack gap={0.5} flex={1} minW={0}>
-            <TitleLink row={row} fontSize="md" />
-            {line ? (
-              <Text fontSize="sm" color="text.muted" lineClamp={2}>
-                {line}
-              </Text>
-            ) : null}
-          </Stack>
-        </HStack>
-        <OverOverlay ms="auto">{end}</OverOverlay>
-      </HStack>
+        {content}
+      </Box>
     )
   }
 
-  // Only Upcoming rows have a day.
-  const day = row.when ? dayLabel(row.when, t, locale) : null
-
   return (
     <Card position="relative" maxW="full" p={4} _hover={{ bg: 'bg.subtle' }}>
-      <HStack align="flex-start" gap={3}>
-        <Stack gap={1} flex={1} minW={0}>
-          {day ? (
-            <Text
-              fontSize="lg"
-              fontWeight={500}
-              letterSpacing="-0.01em"
-              color={
-                row.when?.day === 'overdue'
-                  ? 'status.danger.fg'
-                  : 'text.default'
-              }
-              lineHeight="1.3"
-            >
-              {day}
-            </Text>
-          ) : null}
-          <TitleLink row={row} fontSize={day ? 'md' : 'lg'} />
-          {line ? (
-            <Text fontSize="sm" color="text.muted">
-              {line}
-            </Text>
-          ) : null}
-        </Stack>
-        {row.action ? null : (
-          <OverOverlay mt={-2} me={-2}>
-            {end}
-          </OverOverlay>
-        )}
-      </HStack>
-      {row.outcome || row.action ? (
-        <HStack gap={3} mt={3} align="center" flexWrap="wrap">
-          {row.outcome ? (
-            <Badge
-              dot
-              variant={row.outcome === 'completed' ? 'success' : 'neutral'}
-            >
-              {t.outcomes[row.outcome]}
-            </Badge>
-          ) : null}
-          {row.action ? <OverOverlay ms="auto">{end}</OverOverlay> : null}
-        </HStack>
-      ) : null}
+      {content}
     </Card>
   )
 }

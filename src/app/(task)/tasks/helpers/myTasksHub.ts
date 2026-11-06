@@ -1,3 +1,5 @@
+import type { TaskStatusValue } from '@/app/(task)/tasks/[slug]/components/ui/TaskStatusPill'
+import { TASK_DETAIL_VIEWS } from '@/app/(task)/tasks/[slug]/views'
 import {
   getTaskDetailView,
   liveQuoteCount,
@@ -157,6 +159,8 @@ export type MyTaskHubRow = {
   outcome: MyTaskOutcome | null
   /** Past only: when the booking closed (ISO). Null when the hub has no end date. */
   endedAt: string | null
+  /** Upcoming only: the status pill task detail shows for the booking ("Awarded"). */
+  status: TaskStatusValue | null
   /** The one button; null shows the ⋮ menu. */
   action: MyTaskAction | null
   /** Your order on the task (Review opens its review form). */
@@ -354,30 +358,17 @@ function priceLabel(
   return pence ? formatGbpMajor(pence / 100) : ''
 }
 
-/**
- * Review on a completed job you can still review; otherwise what task
- * detail's view waits on you for (Past has nothing else to ask). Nothing on
- * a suspended task or a frozen booking (BE-108): the API would refuse it.
- */
-function actionFor(input: {
+/** The view task detail would open for this viewer on a task that isn't over. */
+function viewFor(input: {
   task: MyTaskSource
-  section: MyTaskSectionId
-  outcome: MyTaskOutcome | null
   order: MyTaskOrderSource | null
   hosted: boolean
   othersQuotes: readonly MyTaskQuoteSource[]
   userId: string
   now: Date
-}): MyTaskAction | null {
+}): TaskDetailViewName {
   const { task, order, hosted, userId } = input
-  if (task.suspension || order?.counterpartySuspension) return null
-  if (input.section === 'past') {
-    return input.outcome === 'completed' &&
-      order?.reviewState?.canSubmit === true
-      ? 'review'
-      : null
-  }
-  const view = getTaskDetailView(
+  return getTaskDetailView(
     {
       status: task.status,
       bookingStatus: task.bookingStatus ?? '',
@@ -388,7 +379,29 @@ function actionFor(input: {
     { userId, hasWorkerProfile: true },
     input.now,
   )
-  return ACTION_BY_VIEW[view] ?? null
+}
+
+/**
+ * Review on a completed job you can still review; otherwise what task
+ * detail's view waits on you for (Past has nothing else to ask). Nothing on
+ * a suspended task or a frozen booking (BE-108): the API would refuse it.
+ */
+function actionFor(input: {
+  task: MyTaskSource
+  section: MyTaskSectionId
+  outcome: MyTaskOutcome | null
+  order: MyTaskOrderSource | null
+  view: TaskDetailViewName | null
+}): MyTaskAction | null {
+  const { task, order, view } = input
+  if (task.suspension || order?.counterpartySuspension) return null
+  if (input.section === 'past') {
+    return input.outcome === 'completed' &&
+      order?.reviewState?.canSubmit === true
+      ? 'review'
+      : null
+  }
+  return view ? (ACTION_BY_VIEW[view] ?? null) : null
 }
 
 /** Upcoming and Open: when it happens. Past: when it ended (see `sortMs`). */
@@ -477,6 +490,10 @@ export function buildMyTasksHub(input: {
       now,
     )
     const closedMs = section === 'past' ? timeOf(order?.closedAt) : 0
+    const view =
+      section === 'past'
+        ? null
+        : viewFor({ task, order, hosted, othersQuotes, userId, now })
     const roles: MyTaskRole[] = []
     if (hosted) roles.push('hosted')
     if (myQuote) roles.push('quoted')
@@ -494,16 +511,9 @@ export function buildMyTasksHub(input: {
       liveQuoteCount: hosted ? liveQuoteCount(othersQuotes) : 0,
       outcome,
       endedAt: closedMs ? new Date(closedMs).toISOString() : null,
-      action: actionFor({
-        task,
-        section,
-        outcome,
-        order,
-        hosted,
-        othersQuotes,
-        userId,
-        now,
-      }),
+      status:
+        section === 'upcoming' && view ? TASK_DETAIL_VIEWS[view].pill : null,
+      action: actionFor({ task, section, outcome, order, view }),
       orderId: order?.id ?? null,
       suspended: Boolean(task.suspension),
       // Past: no end time in the data means when you quoted, else posted it.

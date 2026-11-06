@@ -25,6 +25,7 @@ import {
 import { setTaskHandoff } from '../../helpers/taskCardHandoff'
 import bag from '../i11n.json'
 import { TaskCardWorkerQuote } from './TaskCardWorkerQuote'
+import { TaskRolePill } from './TaskRolePill'
 
 /** One row of pills; anything past the edge fades out before the ⋮ button. */
 const BADGE_ROW_FADE = {
@@ -315,9 +316,7 @@ function TaskCardBrowse(props: TaskCardBrowseProps) {
                   }
                 >
                   {viewerRole ? (
-                    <Badge shape="pill" variant="neutral" flexShrink={0}>
-                      {t.viewerRole[viewerRole]}
-                    </Badge>
+                    <TaskRolePill role={viewerRole} flexShrink={0} />
                   ) : null}
                   {tags.map((tag) => (
                     <Badge
