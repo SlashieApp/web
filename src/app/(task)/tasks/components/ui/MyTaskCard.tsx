@@ -1,6 +1,13 @@
 'use client'
 
-import { Box, type BoxProps, HStack, Stack, Text } from '@chakra-ui/react'
+import {
+  Box,
+  type BoxProps,
+  HStack,
+  Skeleton,
+  Stack,
+  Text,
+} from '@chakra-ui/react'
 import type { IconType } from 'react-icons'
 import {
   LuBike,
@@ -361,5 +368,44 @@ export function MyTaskCard({ row, layout }: MyTaskCardProps) {
     <Card position="relative" maxW="full" p={4} _hover={{ bg: 'bg.subtle' }}>
       {content}
     </Card>
+  )
+}
+
+/**
+ * The loading shape of a section: its heading, then three rows with the
+ * photo's square and the three text lines (title, pills, muted line), in the
+ * row's paddings and line heights, so nothing moves when the list arrives.
+ */
+export function MyTasksListSkeleton() {
+  return (
+    <Stack gap={3} aria-hidden data-testid="my-tasks-skeleton">
+      <Box h="30px" display="flex" alignItems="center">
+        <Skeleton h="18px" w="96px" borderRadius="md" />
+      </Box>
+      <Stack gap={2} as="ul" listStyleType="none" m={0} p={0}>
+        {[0, 1, 2].map((key) => (
+          <HStack as="li" key={key} gap={3} px={2} py={2} mx={-2}>
+            <Skeleton boxSize="56px" flexShrink={0} borderRadius="md" />
+            <Stack gap={0} flex={1} minW={0}>
+              <Box h="1.3em" fontSize="md" display="flex" alignItems="center">
+                <Skeleton h="1em" w="70%" borderRadius="md" />
+              </Box>
+              <Box mt={1} h="26px" display="flex" alignItems="center">
+                <Skeleton h="full" w="40%" borderRadius="full" />
+              </Box>
+              <Box
+                mt={1}
+                h="1.5em"
+                fontSize="sm"
+                display="flex"
+                alignItems="center"
+              >
+                <Skeleton h="1em" w="55%" borderRadius="md" />
+              </Box>
+            </Stack>
+          </HStack>
+        ))}
+      </Stack>
+    </Stack>
   )
 }

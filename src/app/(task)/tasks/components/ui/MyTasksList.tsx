@@ -3,7 +3,6 @@
 import { Box, HStack, Heading, Stack, Text } from '@chakra-ui/react'
 import { useState } from 'react'
 
-import { TaskCard } from '@/app/(task)/components/ui/TaskCard'
 import { formatMessage } from '@/i18n/loadPageI11n'
 import { useI11n } from '@/i18n/useI11n'
 import { Button, Link } from '@ui'
@@ -11,7 +10,7 @@ import { Button, Link } from '@ui'
 import type { MyTaskHubSection } from '../../helpers/myTasksHub'
 import bag from '../../i11n.json'
 import type { MyTasksAction, MyTasksViewConfig } from '../../views'
-import { MyTaskCard } from './MyTaskCard'
+import { MyTaskCard, MyTasksListSkeleton } from './MyTaskCard'
 
 /** Past shows the newest few until asked for the rest. */
 const PAST_PREVIEW = 3
@@ -145,13 +144,11 @@ export function MyTasksList({
 
   if (config.body === 'skeleton') {
     return (
-      <Stack gap={3} aria-busy="true">
+      <Stack aria-busy="true">
         <Text srOnly aria-live="polite">
           {t.loading}
         </Text>
-        <TaskCard loading />
-        <TaskCard loading />
-        <TaskCard loading />
+        <MyTasksListSkeleton />
       </Stack>
     )
   }

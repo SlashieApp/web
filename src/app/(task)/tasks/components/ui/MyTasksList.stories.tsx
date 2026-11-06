@@ -5,7 +5,8 @@ import { expect, fn, userEvent, within } from 'storybook/test'
 import { LocaleProvider } from '@/i18n/LocaleProvider'
 
 import { MY_TASKS_VIEWS } from '../../views'
-import { allSections, emptySections } from '../myTasksStoryFixtures'
+import { allSections, emptySections, storyRows } from '../myTasksStoryFixtures'
+import { MyTasksListSkeleton } from './MyTaskCard'
 import { MyTasksList } from './MyTasksList'
 
 const meta = {
@@ -118,9 +119,88 @@ export const RefreshFailed: Story = {
   },
 }
 
-/** `loading`: placeholders on the first load. */
+/** `loading`: a section heading, then three rows (a 56 square and three text lines) on the first load. */
 export const Loading: Story = {
   args: { config: MY_TASKS_VIEWS.loading, sections: [] },
+  play: async ({ canvasElement }) => {
+    const skeleton = canvasElement.querySelector(
+      '[data-testid="my-tasks-skeleton"]',
+    )
+    await expect(skeleton).not.toBeNull()
+    await expect(skeleton?.querySelectorAll('li')).toHaveLength(3)
+  },
+}
+
+const near = (label: string, actual: number, expected: number) =>
+  expect(
+    Math.abs(actual - expected),
+    `${label}: ${actual} vs ${expected}`,
+  ).toBeLessThanOrEqual(0.5)
+
+/**
+ * The skeleton is drawn like the rows it stands for: heading, rows and gaps
+ * are the same heights, and the squares sit where the photos will, so
+ * nothing jumps when the list arrives.
+ */
+export const SkeletonMatchesRows: Story = {
+  args: {
+    sections: [{ id: 'open', rows: [storyRows.openNoQuotes] }],
+  },
+  render: (args) => (
+    <>
+      <MyTasksListSkeleton />
+      <Box h={10} />
+      <MyTasksList {...args} />
+    </>
+  ),
+  play: async ({ canvasElement }) => {
+    const skeleton = canvasElement.querySelector(
+      '[data-testid="my-tasks-skeleton"]',
+    ) as HTMLElement
+    const region = within(canvasElement).getByRole('region', { name: 'Open' })
+    const heading = region.querySelector('h2') as HTMLElement
+    const skeletonHeading = skeleton.firstElementChild as HTMLElement
+    near(
+      'heading height',
+      skeletonHeading.getBoundingClientRect().height,
+      heading.getBoundingClientRect().height,
+    )
+
+    const skeletonRow = skeleton.querySelector('li') as HTMLElement
+    const realRow = region.querySelector('li > div') as HTMLElement
+    const a = skeletonRow.getBoundingClientRect()
+    const b = realRow.getBoundingClientRect()
+    near('row height', a.height, b.height)
+    near('row left', a.left, b.left)
+    near('row width', a.width, b.width)
+    // Heading to first row: the same gap.
+    near(
+      'heading gap',
+      a.top - skeletonHeading.getBoundingClientRect().bottom,
+      b.top - heading.getBoundingClientRect().bottom,
+    )
+    // The square sits where the photo does, 56 by 56.
+    const square = skeletonRow.firstElementChild as HTMLElement
+    const photo = realRow.querySelector('[aria-hidden]') as HTMLElement
+    near(
+      'square left',
+      square.getBoundingClientRect().left,
+      photo.getBoundingClientRect().left,
+    )
+    near(
+      'square top',
+      square.getBoundingClientRect().top - a.top,
+      photo.getBoundingClientRect().top - b.top,
+    )
+    near('square w', square.getBoundingClientRect().width, 56)
+    near('square h', square.getBoundingClientRect().height, 56)
+    // Three rows 8 apart, like the list.
+    const rows = [...skeleton.querySelectorAll('li')].map((row) =>
+      row.getBoundingClientRect(),
+    )
+    near('gap 1', rows[1].top - rows[0].bottom, 8)
+    near('gap 2', rows[2].top - rows[1].bottom, 8)
+  },
 }
 
 /** `searching`: placeholders while new filters load. */
