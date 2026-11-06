@@ -83,7 +83,7 @@ export async function scrollStepToEnd(from: HTMLElement) {
 
 /** The bar's top edge draws no line. */
 export async function expectNoBarLine(main: HTMLElement) {
-  const bar = main.parentElement?.parentElement as HTMLElement
+  const bar = main.parentElement?.parentElement?.parentElement as HTMLElement
   await expect(getComputedStyle(bar).borderTopWidth).toBe('0px')
   await expect(getComputedStyle(bar).borderBottomWidth).toBe('0px')
 }
@@ -114,6 +114,10 @@ export async function expectStepFlowFrame(
 ) {
   const found = stepFlowOf(canvasElement, button)
   const { title, description, body } = found
+  // The page's one `main` holds the step's title; the header sits outside it.
+  const mains = canvasElement.querySelectorAll('main')
+  await expect(mains).toHaveLength(1)
+  await expect(mains[0]?.contains(title)).toBe(true)
   const main = found.main as HTMLElement
   const first = body.firstElementChild as HTMLElement
   const last = body.lastElementChild as HTMLElement

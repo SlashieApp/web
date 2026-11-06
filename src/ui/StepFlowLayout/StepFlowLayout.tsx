@@ -221,15 +221,12 @@ export type StepFlowActionsProps = {
   onBack?: () => void
   onContinue?: () => void
   sticky?: boolean
-  /**
-   * Keep the buttons in the step's readable column below lg (R3), so Continue
-   * ends where the fields do. The bar itself still runs edge to edge.
-   */
-  inColumn?: boolean
 }
 
 /**
- * Back / Continue bar. Sticky on mobile; static inside the desktop panel.
+ * Back / Continue bar. Sticky on mobile; static inside the desktop panel. The
+ * buttons sit in the step's column (`StepFlowColumn`, R3), so below lg Continue
+ * ends where the fields do; the bar itself still runs edge to edge.
  * Back is the arrow alone (44px), named by `backLabel`. Continue is the form
  * height (48).
  *
@@ -253,7 +250,6 @@ export function StepFlowActions({
   onBack,
   onContinue,
   sticky = false,
-  inColumn = false,
 }: StepFlowActionsProps) {
   const barRef = useRef<HTMLDivElement>(null)
   // Only a pinned bar covers anything: a static one sits after the content.
@@ -272,57 +268,51 @@ export function StepFlowActions({
       flexShrink={0}
       pb={{ base: 'calc(16px + env(safe-area-inset-bottom))', lg: 4 }}
     >
-      <HStack
-        justify="space-between"
-        gap={3}
-        w="full"
-        align="center"
-        maxW={
-          inColumn ? { base: READABLE_COLUMN_MAX_W, lg: 'none' } : undefined
-        }
-      >
-        {showBack ? (
-          <IconButton
+      <StepFlowColumn>
+        <HStack justify="space-between" gap={3} w="full" align="center">
+          {showBack ? (
+            <IconButton
+              type="button"
+              aria-label={backLabel}
+              color="text.link"
+              flexShrink={0}
+              onClick={onBack}
+            >
+              <LuArrowLeft size={20} aria-hidden />
+            </IconButton>
+          ) : (
+            // Desktop only: holds Back's place (a zero-width spacer would
+            // still take the 12px gap).
+            <Box
+              flexShrink={0}
+              w="44px"
+              display={{ base: 'none', lg: 'block' }}
+            />
+          )}
+          <Button
             type="button"
-            aria-label={backLabel}
-            color="text.link"
-            flexShrink={0}
-            onClick={onBack}
+            variant="primary"
+            size="form"
+            onClick={onContinue}
+            loading={continueLoading}
+            loadingText={continueLoadingText}
+            // A busy label such as "正在上載第 2 張相片（共 3 張）" may take two
+            // lines on a narrow phone rather than spill out of the button.
+            whiteSpace="normal"
+            h="auto"
+            // minW 0, not full: flex fills the row without overflowing it.
+            minW={{ base: 0, lg: 'auto' }}
+            flex={{ base: 1, lg: 'none' }}
+            ml="auto"
+            px={6}
           >
-            <LuArrowLeft size={20} aria-hidden />
-          </IconButton>
-        ) : (
-          // Desktop only: holds Back's place (a zero-width spacer would
-          // still take the 12px gap).
-          <Box
-            flexShrink={0}
-            w="44px"
-            display={{ base: 'none', lg: 'block' }}
-          />
-        )}
-        <Button
-          type="button"
-          variant="primary"
-          size="form"
-          onClick={onContinue}
-          loading={continueLoading}
-          loadingText={continueLoadingText}
-          // A busy label such as "正在上載第 2 張相片（共 3 張）" may take two
-          // lines on a narrow phone rather than spill out of the button.
-          whiteSpace="normal"
-          h="auto"
-          // minW 0, not full: flex fills the row without overflowing it.
-          minW={{ base: 0, lg: 'auto' }}
-          flex={{ base: 1, lg: 'none' }}
-          ml="auto"
-          px={6}
-        >
-          <HStack gap={2}>
-            <span>{continueLabel}</span>
-            {isFinal ? null : <LuArrowRight size={18} aria-hidden />}
-          </HStack>
-        </Button>
-      </HStack>
+            <HStack gap={2}>
+              <span>{continueLabel}</span>
+              {isFinal ? null : <LuArrowRight size={18} aria-hidden />}
+            </HStack>
+          </Button>
+        </HStack>
+      </StepFlowColumn>
       {/* Always in the page, so each new step is announced (politely, once). */}
       <VisuallyHidden aria-live="polite" aria-atomic="true">
         {continueLoading ? continueLoadingText : null}
@@ -477,7 +467,7 @@ export function StepFlowLayout({
         <Stack flex={1} minH={0} gap={0}>
           {mobileTop}
           {progress}
-          <Box flex={1} minH={0} overflowY="auto" bg="bg.surface">
+          <Box as="main" flex={1} minH={0} overflowY="auto" bg="bg.surface">
             <Box px={STEP_FLOW_PX} pt={5} pb="form.bodyToAction">
               <StepFlowColumn>
                 <StepFlowHeading
@@ -489,10 +479,10 @@ export function StepFlowLayout({
               </StepFlowColumn>
             </Box>
           </Box>
-          <StepFlowActions {...actions} sticky inColumn />
+          <StepFlowActions {...actions} sticky />
         </Stack>
       ) : (
-        <Box flex={1} minH={0} overflow="hidden">
+        <Box as="main" flex={1} minH={0} overflow="hidden">
           <PageContainer
             display="grid"
             gridTemplateColumns={

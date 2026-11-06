@@ -414,7 +414,7 @@ export function CreateTaskMapLayout({
                     </StepFlowBody>
                   </StepFlowColumn>
                 </Box>
-                <StepFlowActions {...actions} sticky inColumn />
+                <StepFlowActions {...actions} sticky />
               </Box>
             </PageContainer>
           </>

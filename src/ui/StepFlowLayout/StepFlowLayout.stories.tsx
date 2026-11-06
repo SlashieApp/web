@@ -527,7 +527,7 @@ export const FocusClearsBarPhone: Story = {
   play: async ({ canvasElement }) => {
     const bar = within(canvasElement).getByRole('button', {
       name: 'Continue',
-    }).parentElement?.parentElement as HTMLElement
+    }).parentElement?.parentElement?.parentElement as HTMLElement
     await expect(await controlsUnderBar(bar)).toEqual([])
   },
 }
@@ -638,7 +638,7 @@ export const FocusClearsBarDesktop: Story = {
   play: async ({ canvasElement }) => {
     const bar = within(canvasElement).getByRole('button', {
       name: 'Continue',
-    }).parentElement?.parentElement as HTMLElement
+    }).parentElement?.parentElement?.parentElement as HTMLElement
     await expect(await controlsUnderBar(bar)).toEqual([])
   },
 }
@@ -783,7 +783,7 @@ export const ActionsWithBack: PartStory = {
     const main = canvas.getByRole('button', { name: /Continue/ })
     await expect(heightOf(main)).toBe(formSpace.controlHeight)
     await expectNoBarLine(main)
-    const bar = main.parentElement?.parentElement as HTMLElement
+    const bar = main.parentElement?.parentElement?.parentElement as HTMLElement
     await expect(getComputedStyle(bar).paddingTop).toBe('0px')
   },
 }
@@ -948,8 +948,13 @@ function rulesAt(width: number): Story {
     render: (args) => <StepFlowLayout {...args} header={demoHeader} />,
     play: async ({ canvasElement }) => {
       const canvas = within(canvasElement)
-      await canvas.findByRole('heading', { level: 1 })
+      const title = await canvas.findByRole('heading', { level: 1 })
       expectStepFlowHeader(canvasElement, width)
+      // One `main` holds the step; the flow header sits outside it.
+      const mains = canvasElement.querySelectorAll('main')
+      await expect(mains).toHaveLength(1)
+      await expect(mains[0]?.contains(title)).toBe(true)
+      await expect(mains[0]?.contains(canvas.getByRole('banner'))).toBe(false)
       expectStepColumn(
         canvasElement,
         width,
