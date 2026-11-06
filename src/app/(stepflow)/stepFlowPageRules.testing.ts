@@ -110,6 +110,42 @@ export function expectStepColumn(
   const box = contentBox(grid)
   expectPx(box.left, logo, 'the stepper rail starts on the logo line')
   expectPx(box.right, menu, 'the panel ends on the menu line')
+  expectStepFillsPanel(title as Element, width)
+}
+
+/** The nearest ancestor with horizontal padding: the panel's padded step area. */
+function paddedAncestor(element: Element) {
+  let node = element.parentElement
+  while (node) {
+    if (Number.parseFloat(getComputedStyle(node).paddingLeft) > 0) return node
+    node = node.parentElement
+  }
+  return null
+}
+
+/**
+ * From lg the step is NOT narrowed to the 720 column (the decided exception:
+ * rail + panel fill the container): the heading block takes the panel's whole
+ * padded area, edge to edge. Where that area is wider than 720 (the panel is
+ * 784 at 1366 and 1920 for a flow without an aside), it is wider than the
+ * column cap too. At 1024 the panel is narrower than 720, so this holds with
+ * or without a cap there: it is the 1366 and 1920 runs that catch one.
+ */
+function expectStepFillsPanel(title: Element, width: number) {
+  const heading = boxOf(title.parentElement as Element)
+  const padded = paddedAncestor(title)
+  expect(padded, 'the step has a padded panel area').not.toBeNull()
+  const area = contentBox(padded as Element)
+  expectPx(
+    heading.left,
+    area.left,
+    `the step starts at the panel edge (${width})`,
+  )
+  expectPx(
+    heading.right,
+    area.right,
+    `the step fills the panel, not capped at the 720 column (${width})`,
+  )
 }
 
 /**
