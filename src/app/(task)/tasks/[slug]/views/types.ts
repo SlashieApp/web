@@ -87,6 +87,8 @@ export type TaskSummaryFact =
 
 /** Booking actions the view adds to the Help & actions card. */
 export type TaskDetailAction =
+  /** While the Done card shows: "Something went wrong" (opens the Failed dialog). */
+  | 'markFailed'
   | 'reschedule'
   | 'cancelBooking'
   /** Withdraw the viewer's own pending reschedule or cancellation. */

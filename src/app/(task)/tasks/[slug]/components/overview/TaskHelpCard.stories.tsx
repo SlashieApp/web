@@ -274,6 +274,56 @@ export const Conflict: Story = {
   },
 }
 
+/**
+ * The Done card is showing (booked time has started, you have not acted):
+ * "Something went wrong" is the first entry, ahead of Share task.
+ */
+export const ReadyToClose: Story = {
+  ...help({ viewer: 'worker', task: bookedTask, order: storyTaskOrder() }),
+  play: async ({ canvasElement }) => {
+    const r = rows(canvasElement)
+    const first = await r.has('Something went wrong')
+    await expect(first).toBe(within(canvasElement).getAllByRole('button')[0])
+    await expect(first.querySelector('svg')).not.toBeNull()
+    r.lacks('Something went wrong?')
+    await r.has('Share task')
+  },
+}
+
+/** The other person marked it Done and you have not: the Done card shows, so does the entry. */
+export const TheyMarkedDone: Story = {
+  ...help({
+    viewer: 'owner',
+    task: bookedTask,
+    order: storyTaskOrder({
+      counterpartyCloseAction: done,
+      autoDoneAt: '2026-10-22T10:00:00.000Z',
+    }),
+  }),
+  play: async ({ canvasElement }) => {
+    await rows(canvasElement).has('Something went wrong')
+  },
+}
+
+/** Before the booked time there is no Done card, so no entry. */
+export const NotReadyToClose: Story = {
+  ...OwnerBookedBeforeStart,
+  play: async ({ canvasElement }) => {
+    const r = rows(canvasElement)
+    await r.has('Reschedule')
+    r.lacks('Something went wrong')
+  },
+}
+
+/** "Something went wrong" opens the reasons dialog. */
+export const SomethingWrongDialog: Story = {
+  ...ReadyToClose,
+  play: async ({ canvasElement }) => {
+    await userEvent.click(await rows(canvasElement).has('Something went wrong'))
+    await dialog(canvasElement, 'What went wrong?')
+  },
+}
+
 /** You marked it Done and are waiting: "Something went wrong?". */
 export const IMarkedDone: Story = {
   ...help({
@@ -285,7 +335,9 @@ export const IMarkedDone: Story = {
     }),
   }),
   play: async ({ canvasElement }) => {
-    await rows(canvasElement).has('Something went wrong?')
+    const r = rows(canvasElement)
+    await r.has('Something went wrong?')
+    r.lacks('Something went wrong')
   },
 }
 

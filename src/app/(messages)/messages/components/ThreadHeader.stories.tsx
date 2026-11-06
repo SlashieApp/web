@@ -55,6 +55,13 @@ const bookedTask = storyTaskDetail({
   ],
 })
 
+/** Booked and started: nobody has marked it yet. */
+const readyTask = storyTaskDetail({
+  status: TaskStatus.Awarded,
+  quotes: [storyTaskQuote({ status: QuoteStatus.Accepted })],
+  orders: [storyTaskOrder()],
+})
+
 /**
  * Task threads render inside the task's detail context, as the thread
  * mounts them; the Slashie thread has no task.
@@ -301,6 +308,25 @@ export const BookedMenu: Story = {
     await expect(
       menu.getByRole('button', { name: 'Cancel booking' }),
     ).toBeInTheDocument()
+  },
+}
+
+/**
+ * The booked time has started and you have not acted (the Done card shows in
+ * the pin): "Something went wrong" is the first entry of the thread menu.
+ */
+export const ReadyToCloseMenu: Story = {
+  decorators: messagesStory({ viewer: 'owner', task: readyTask }),
+  play: async ({ canvasElement }) => {
+    const menu = await openMenu(canvasElement)
+    const first = await menu.findByRole('button', {
+      name: 'Something went wrong',
+    })
+    await expect(menu.getAllByRole('button', { hidden: false })).toContain(
+      first,
+    )
+    await userEvent.click(first)
+    await menu.findByRole('dialog', { name: 'What went wrong?' })
   },
 }
 

@@ -59,4 +59,26 @@ describe('availableActions', () => {
     expect(availableActions('visitor.awarded', withdrawable)).toEqual([])
     expect(availableActions('loading', booking)).toEqual([])
   })
+
+  it('offers Something went wrong first, only while the Done card shows', () => {
+    for (const view of [
+      'owner.booked.ready',
+      'owner.booked.theyMarkedDone',
+      'owner.booked.theyMarkedFailed',
+      'worker.booked.ready',
+      'worker.booked.theyMarkedDone',
+      'worker.booked.theyMarkedFailed',
+    ] as const) {
+      expect(availableActions(view, booking, true), view).toEqual([
+        'markFailed',
+      ])
+      // Before the booked time, or on a frozen booking: no Done card.
+      expect(availableActions(view, booking, false), view).toEqual([])
+      expect(availableActions(view, none, true), view).toEqual([])
+    }
+    // After acting, the view offers the switch, never both.
+    expect(availableActions('owner.booked.iMarkedDone', booking, true)).toEqual(
+      ['switchToFailed'],
+    )
+  })
 })

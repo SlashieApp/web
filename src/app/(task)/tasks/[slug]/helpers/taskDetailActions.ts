@@ -7,7 +7,8 @@ import type { TaskDetailPermissions } from './getTaskDetailPermissions'
  * live booking that isn't frozen (BE-108), but reporting the other person
  * stays. Withdraw quote follows the API (`canWithdrawQuote`): a pending quote
  * can go once someone else is booked or the booking ended (BE-116), and the
- * owner isn't told.
+ * owner isn't told. "Something went wrong" is offered while the Done card
+ * shows (`canClose`: the booked time has started on a live booking).
  */
 export function availableActions(
   view: TaskDetailViewName,
@@ -15,9 +16,13 @@ export function availableActions(
     TaskDetailPermissions,
     'showOrderActions' | 'canWithdrawQuote'
   >,
+  canClose = false,
 ): TaskDetailAction[] {
   return (TASK_DETAIL_VIEWS[view].actions ?? []).filter((action) => {
     if (action === 'withdrawQuote') return permissions.canWithdrawQuote
+    if (action === 'markFailed') {
+      return canClose && permissions.showOrderActions
+    }
     return permissions.showOrderActions || action === 'reportOtherParty'
   })
 }

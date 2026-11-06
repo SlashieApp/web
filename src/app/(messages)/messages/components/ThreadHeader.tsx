@@ -5,6 +5,7 @@ import type { ThreadFieldsFragment } from '@codegen/schema'
 import { type ReactNode, useState } from 'react'
 import { LuArrowLeft, LuEllipsis } from 'react-icons/lu'
 
+import { OrderFailedDialog } from '@/app/(task)/tasks/[slug]/components/overview/OrderFailedDialog'
 import {
   OrderCancelDialog,
   OrderRescheduleDialog,
@@ -15,6 +16,8 @@ import {
   WithdrawQuoteDialog,
 } from '@/app/(task)/tasks/[slug]/components/overview/TaskConfirmDialogs'
 import { useTaskDetail } from '@/app/(task)/tasks/[slug]/context/TaskDetailProvider'
+import { availableActions } from '@/app/(task)/tasks/[slug]/helpers/taskDetailActions'
+import taskBag from '@/app/(task)/tasks/[slug]/i11n.json'
 import { publicProfilePath } from '@/app/helpers/publicProfilePath'
 import { ReportControl } from '@/content/trust/ReportControl'
 import { formatMessage } from '@/i18n/loadPageI11n'
@@ -144,8 +147,10 @@ function ReportItem({
 function TaskThreadMenu({ thread, onToggleBlock }: HeaderProps) {
   const t = useI11n(bag)
   const m = t.menu
-  const { task, permissions } = useTaskDetail()
+  const { task, permissions, view, orderClose } = useTaskDetail()
   const booking = useOrderRequestOptions()
+  const wrong = useI11n(taskBag).close.somethingWrong
+  const [failedOpen, setFailedOpen] = useState(false)
   const [rescheduleOpen, setRescheduleOpen] = useState(false)
   const [cancelOpen, setCancelOpen] = useState(false)
   const [withdrawQuoteOpen, setWithdrawQuoteOpen] = useState(false)
@@ -159,9 +164,19 @@ function TaskThreadMenu({ thread, onToggleBlock }: HeaderProps) {
     frozen: permissions.isFrozen,
   })
 
+  // First entry while the Done card shows: it opens the Failed dialog.
+  const canMarkFailed = availableActions(
+    view,
+    permissions,
+    orderClose?.canClose,
+  ).includes('markFailed')
+
   return (
     <>
       <ThreadMenu>
+        {canMarkFailed ? (
+          <MenuItem label={wrong} onSelect={() => setFailedOpen(true)} />
+        ) : null}
         {actions.map((action) => (
           <MenuItem
             key={action}
@@ -193,6 +208,7 @@ function TaskThreadMenu({ thread, onToggleBlock }: HeaderProps) {
       />
       {booking ? (
         <>
+          <OrderFailedDialog open={failedOpen} onOpenChange={setFailedOpen} />
           <OrderRescheduleDialog
             open={rescheduleOpen}
             onOpenChange={setRescheduleOpen}

@@ -111,6 +111,7 @@ const ACTION_DIALOG: Record<
   Exclude<TaskDetailAction, 'reportOtherParty' | 'withdrawRequest'>,
   TaskDialog
 > = {
+  markFailed: 'failed',
   reschedule: 'reschedule',
   cancelBooking: 'cancel',
   askToCancel: 'cancel',
@@ -123,6 +124,7 @@ const BOOKING_ICONS: Record<
   Exclude<TaskDetailAction, 'reportOtherParty'>,
   ReactNode
 > = {
+  markFailed: <LuCircleAlert />,
   reschedule: <LuCalendarClock />,
   cancelBooking: <LuCalendarX />,
   askToCancel: <LuCalendarX />,
@@ -199,12 +201,13 @@ function BookingActions({
     myOrder,
     me,
     permissions,
+    orderClose,
     runOrderAction,
     orderActionPending,
   } = useTaskDetail()
   const t = useI11n(bag)
   if (!task) return null
-  const actions = availableActions(view, permissions)
+  const actions = availableActions(view, permissions, orderClose?.canClose)
   const counterpartName = myOrder
     ? orderCounterpart(task, myOrder, permissions.isOwner, t).name
     : ''
@@ -214,6 +217,7 @@ function BookingActions({
       ? 'cancelRescheduleRequest'
       : 'withdrawCancellation'
   const labels = {
+    markFailed: t.close.somethingWrong,
     reschedule: t.requests.reschedule,
     cancelBooking: t.requests.cancelBooking,
     askToCancel: t.conflict.askToCancel,

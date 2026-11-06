@@ -419,3 +419,28 @@ export const PhoneRescheduleOpensDialog: Story = {
     )
   },
 }
+
+/**
+ * Phone, the Done card showing: "Something went wrong" is the first row of the
+ * sheet, and opens the reasons dialog after the sheet closes.
+ */
+export const PhoneSomethingWrongFirst: Story = {
+  ...phone,
+  ...menu({ viewer: 'worker', task: bookedTask, order: storyTaskOrder() }),
+  play: async ({ canvasElement }) => {
+    const sheet = await openMenu(canvasElement, true)
+    const first = await sheet.findByRole('button', {
+      name: 'Something went wrong',
+    })
+    const rows = [...sheet.getByRole('dialog').querySelectorAll('a, button')]
+    await expect(
+      rows.filter((row) => row.getAttribute('aria-label') !== 'Close')[0],
+    ).toBe(first)
+    await userEvent.click(first)
+    await waitFor(() =>
+      expect(
+        sheet.getByRole('dialog', { name: 'What went wrong?' }),
+      ).toBeVisible(),
+    )
+  },
+}

@@ -13,5 +13,6 @@ export const workerBookedReady: TaskDetailViewConfig = {
     'description',
     'photos',
   ],
+  actions: ['markFailed'],
   primaryAction: 'markDone',
 }

@@ -6,5 +6,6 @@ export const workerBookedTheyMarkedDone: TaskDetailViewConfig = {
   headline: 'theyMarkedDoneHeadline',
   subline: 'theyMarkedDoneSubline',
   facts: ['otherParty', 'agreedPrice', 'bookedTime', 'description', 'photos'],
+  actions: ['markFailed'],
   primaryAction: 'markDone',
 }
