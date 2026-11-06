@@ -34,6 +34,11 @@ export type StatusCardProps = {
   tone?: StatusCardTone
   /** A large figure above the title, for an error code such as 404 (decorative). */
   code?: string
+  /**
+   * A way out on top of the card, left-aligned, 24 above the title (a page
+   * with no site header: Back to the task). Give it a 44px target.
+   */
+  back?: ReactNode
   /** The Slashie logo at the top of the card (a page of its own, with no site header). */
   logo?: boolean
   /** Buttons under the message, stacked, 8 apart. Give each `size="form"`. */
@@ -66,7 +71,7 @@ export type StatusCardProps = {
  * container and always `STATUS_CARD_MAX_W` wide (28rem, 448px), the same as
  * the auth card: one width for every centred card, at every viewport.
  *
- * Slots, top to bottom: `logo`, `icon` or `code`, `title` (with an optional
+ * Slots, top to bottom: `back` (left-aligned), `logo`, `icon` or `code`, `title` (with an optional
  * `eyebrow` above it), `body` and
  * `children`, then `actions`; `footer` sits under the card. Spacing follows
  * the form spacing table (wiki Foundations-Form-Spacing): the header block's
@@ -78,6 +83,7 @@ export function StatusCard({
   eyebrow,
   body,
   children,
+  back,
   icon: Icon,
   tone = 'neutral',
   code,
@@ -105,6 +111,11 @@ export function StatusCard({
       borderRadius="xl"
       boxShadow="e3"
     >
+      {back ? (
+        <Box display="flex" alignSelf="flex-start">
+          {back}
+        </Box>
+      ) : null}
       <Stack align="center" gap={5} w="full">
         {logo ? <Logo /> : null}
         {Icon ? (
