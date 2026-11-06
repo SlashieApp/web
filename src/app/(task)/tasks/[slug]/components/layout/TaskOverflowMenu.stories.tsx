@@ -396,6 +396,12 @@ export const PhoneOwnerOpenTaskSpacing: Story = {
     await expect(rows).toHaveLength(4)
     await expectFirstRowUnderTitle(title, rows[0] as Element)
     await expectRowsAreRows(rows, 4)
+    // The rows start on the sheet title's left line.
+    for (const row of rows) {
+      await expect(row.getBoundingClientRect().left).toBe(
+        title.getBoundingClientRect().left,
+      )
+    }
   },
 }
 

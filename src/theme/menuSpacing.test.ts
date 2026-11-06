@@ -52,8 +52,8 @@ describe('menus: one frame from the form spacing', () => {
 
   it('the task menu adds no padding inside the panel: the panel owns it', () => {
     expect(TASK_MENU).not.toContain('p={packed')
-    expect(TASK_MENU).toContain(
-      '<Stack gap={1} minW={packed ? \'220px\' : undefined} w="full">',
+    expect(TASK_MENU).toMatch(
+      /<Stack\s+gap=\{1\}\s+minW=\{packed \? '220px' : undefined\}\s+w="full"/,
     )
   })
 

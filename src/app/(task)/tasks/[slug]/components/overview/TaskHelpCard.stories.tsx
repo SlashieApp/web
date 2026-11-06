@@ -290,6 +290,36 @@ export const ReadyToClose: Story = {
   },
 }
 
+/**
+ * Every row's icon starts on the left line of the "Help & actions" heading
+ * (rows used to be indented 17 further), with the label 8 after the icon. The
+ * rows keep their 44 height and 4 apart.
+ */
+export const RowsOnTheHeadingLine: Story = {
+  ...ReadyToClose,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await rows(canvasElement).has('Something went wrong')
+    const heading = canvas.getByText('Help & actions')
+    const line = heading.getBoundingClientRect().left
+    const list = [...canvasElement.querySelectorAll('button, a')]
+    await expect(list.length).toBeGreaterThanOrEqual(4)
+    for (const [i, row] of list.entries()) {
+      const box = row.getBoundingClientRect()
+      const icon = (
+        row.querySelector('svg') as SVGElement
+      ).getBoundingClientRect()
+      await expect(box.left, row.textContent ?? '').toBe(line)
+      await expect(icon.left, row.textContent ?? '').toBe(line)
+      await expect(box.height).toBe(44)
+      if (i > 0) {
+        const above = list[i - 1].getBoundingClientRect()
+        await expect(box.top - above.bottom).toBe(4)
+      }
+    }
+  },
+}
+
 /** The other person marked it Done and you have not: the Done card shows, so does the entry. */
 export const TheyMarkedDone: Story = {
   ...help({

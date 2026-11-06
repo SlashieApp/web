@@ -29,6 +29,7 @@ import {
   IconButton,
   Link,
   useDropdownClose,
+  useInsideDrawer,
 } from '@ui'
 
 import { useTaskDetail } from '../../context/TaskDetailProvider'
@@ -271,6 +272,16 @@ function BookingActions({
   )
 }
 
+/**
+ * Rows start on the left line of what heads them: the Help & actions heading
+ * on the card, the sheet's title in the phone drawer. The rows keep their 44
+ * and lose only the left and right padding, so nothing visible is added. In the
+ * desktop popover the panel's own 8 insets them, so they keep theirs.
+ */
+const FLUSH_ROWS = {
+  '& > button, & > a': { paddingInline: 0, borderInlineWidth: 0 },
+} as const
+
 export function TaskOverflowActions({
   onDone,
   onOpenDialog,
@@ -288,12 +299,18 @@ export function TaskOverflowActions({
   const close = onDone ?? (() => {})
   const t = useI11n(bag)
   const { task, permissions, cancelError } = useTaskDetail()
+  const insideDrawer = useInsideDrawer()
   const onShare = useShareTask(task?.title?.trim() || t.fallbackTask)
 
   if (!task) return null
 
   return (
-    <Stack gap={1} minW={packed ? '220px' : undefined} w="full">
+    <Stack
+      gap={1}
+      minW={packed ? '220px' : undefined}
+      w="full"
+      css={packed && !insideDrawer ? undefined : FLUSH_ROWS}
+    >
       <BookingActions onDone={close} onOpenDialog={onOpenDialog} />
       <MenuAction
         icon={<LuShare2 />}
