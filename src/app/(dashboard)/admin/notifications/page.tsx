@@ -1,7 +1,6 @@
 'use client'
 
 import { useMutation } from '@apollo/client/react'
-import { Text } from '@chakra-ui/react'
 import type { AdminSendSystemFlashMutation } from '@codegen/schema'
 import { useCallback, useState } from 'react'
 
@@ -79,11 +78,7 @@ export default function AdminNotificationsPage() {
       <DashboardPageLayout
         title={t.unavailableTitle}
         description={t.unavailableBody}
-      >
-        <Text color="text.muted" maxW="520px">
-          {t.unavailableBody}
-        </Text>
-      </DashboardPageLayout>
+      />
     )
   }
 

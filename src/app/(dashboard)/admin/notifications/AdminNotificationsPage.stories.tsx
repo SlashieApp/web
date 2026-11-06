@@ -85,6 +85,10 @@ export const NotAnOperator: Story = {
     await expect(
       canvas.queryByRole('button', { name: 'Check recipients' }),
     ).toBeNull()
+    // The sentence is the header's description, once: no second copy in the body.
+    await expect(
+      canvas.getAllByText('This page is for Slashie operators.'),
+    ).toHaveLength(1)
     expectColumnPage(canvasElement, 1366)
   },
 }
