@@ -84,14 +84,28 @@ function formatDate(
   ).format(new Date(at))
 }
 
-/** The booked date and time, "28 Oct, 16:25"; nothing when flexible or a Before date. */
-function timeLabel(when: MyTaskWhen | null, t: Copy, locale: string): string {
-  if (!when || when.day === 'flexible' || when.day === 'before') return ''
-  const date = formatDate(when.at, locale, { day: 'numeric', month: 'short' })
-  if (!when.time) return date
+/** "28 Oct"; with the year when it isn't this year. */
+function shortDate(at: string, locale: string): string {
+  const thisYear = new Date(at).getFullYear() === new Date().getFullYear()
+  return formatDate(at, locale, {
+    day: 'numeric',
+    month: 'short',
+    ...(thisYear ? {} : { year: 'numeric' }),
+  })
+}
+
+/** "{date}, 16:25", or the date alone when no time of day is set. */
+function withTime(
+  date: string,
+  at: string,
+  hasTime: boolean,
+  t: Copy,
+  locale: string,
+): string {
+  if (!hasTime) return date
   return formatMessage(t.when.dateTime, {
     date,
-    time: formatDate(when.at, locale, {
+    time: formatDate(at, locale, {
       hour: '2-digit',
       minute: '2-digit',
       hourCycle: 'h23',
@@ -99,30 +113,43 @@ function timeLabel(when: MyTaskWhen | null, t: Copy, locale: string): string {
   })
 }
 
-/**
- * Upcoming's time line, above the title: Overdue, the booked date and time
- * ("28 Oct, 16:25"), or Flexible / Before 5 Nov when there is no booked time.
- */
-function upcomingTime(when: MyTaskWhen, t: Copy, locale: string): string {
-  if (when.day === 'overdue') return t.when.overdue
-  if (when.day === 'flexible') return t.when.flexible
-  if (when.day === 'before') {
-    return formatMessage(t.when.before, {
-      date: formatDate(when.at, locale, { day: 'numeric', month: 'short' }),
-    })
-  }
-  return timeLabel(when, t, locale)
+/** The booked date and time, "28 Oct, 16:25"; nothing when flexible or a Before date. */
+function timeLabel(when: MyTaskWhen | null, t: Copy, locale: string): string {
+  if (!when || when.day === 'flexible' || when.day === 'before') return ''
+  return withTime(shortDate(when.at, locale), when.at, when.time, t, locale)
 }
 
-/** When it ended ("28 Oct"; with the year when it isn't this year). */
-function endedLabel(at: string | null, locale: string): string {
-  if (!at) return ''
-  const thisYear = new Date(at).getFullYear() === new Date().getFullYear()
-  return formatDate(at, locale, {
-    day: 'numeric',
-    month: 'short',
-    ...(thisYear ? {} : { year: 'numeric' }),
-  })
+/**
+ * Upcoming's time line, above the title: Overdue (its booked date and time
+ * move to the muted line), Today / Tomorrow / On Wednesday with the time of
+ * day, the booked date and time ("28 Oct, 16:25"), or Flexible / Before 5 Nov
+ * when there is no booked time.
+ */
+function upcomingTime(when: MyTaskWhen, t: Copy, locale: string): string {
+  switch (when.day) {
+    case 'overdue':
+      return t.when.overdue
+    case 'flexible':
+      return t.when.flexible
+    case 'before':
+      return formatMessage(t.when.before, { date: shortDate(when.at, locale) })
+    case 'today':
+      return withTime(t.when.today, when.at, when.time, t, locale)
+    case 'tomorrow':
+      return withTime(t.when.tomorrow, when.at, when.time, t, locale)
+    case 'weekday':
+      return withTime(
+        formatMessage(t.when.weekday, {
+          weekday: formatDate(when.at, locale, { weekday: 'long' }),
+        }),
+        when.at,
+        when.time,
+        t,
+        locale,
+      )
+    case 'date':
+      return timeLabel(when, t, locale)
+  }
 }
 
 /** "3 quotes" on your open task; "Quote sent" on a quote you sent. */
@@ -141,10 +168,16 @@ function joined(...parts: string[]): string {
 function detailLine(row: MyTaskHubRow, t: Copy, locale: string): string {
   if (row.section === 'open') return joined(quotesLabel(row, t), row.priceLabel)
   if (row.section === 'past') {
-    return joined(endedLabel(row.endedAt, locale), row.priceLabel)
+    return joined(
+      row.endedAt ? shortDate(row.endedAt, locale) : '',
+      row.priceLabel,
+    )
   }
-  // Upcoming: the time leads, above the title.
-  return joined(row.location, row.priceLabel)
+  // Upcoming: the time leads, above the title. An overdue row keeps when it
+  // was booked for here, under its red Overdue.
+  const booked =
+    row.when?.day === 'overdue' ? timeLabel(row.when, t, locale) : ''
+  return joined(booked, row.location, row.priceLabel)
 }
 
 /** The task at the button's action, or the review form. */

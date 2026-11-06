@@ -56,7 +56,7 @@ async function openMenu(canvasElement: HTMLElement, title: string) {
 export const UpcomingWithMenu: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
-    await expect(canvas.getByText('28 Oct, 16:25')).toBeVisible()
+    await expect(canvas.getByText(/^On [A-Za-z]+, 16:25$/)).toBeVisible()
     await expect(canvas.getByText('Hosted')).toBeVisible()
     await expect(canvas.getByText('Awarded')).toBeVisible()
     const line = canvas.getByText('Southwark · £120')
@@ -88,6 +88,10 @@ export const UpcomingOverdue: Story = {
     const canvas = within(canvasElement)
     const overdue = canvas.getByText('Overdue')
     await expect(overdue).toBeVisible()
+    // When it was booked for stays, in the muted line.
+    await expect(
+      canvas.getByText('21 Oct, 09:00 · Islington · £150'),
+    ).toBeVisible()
     await expect(getComputedStyle(overdue).color).not.toBe(
       getComputedStyle(canvas.getByText('Hosted')).color,
     )
@@ -117,7 +121,7 @@ export const UpcomingConfirmDone: Story = {
   args: { row: storyRows.upcomingToday },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
-    await expect(canvas.getByText('22 Oct, 09:00')).toBeVisible()
+    await expect(canvas.getByText('Today, 09:00')).toBeVisible()
     await expect(canvas.getByText('Quoted')).toBeVisible()
     await expect(
       canvas.getByRole('link', { name: 'Confirm done: Deep-clean an oven' }),
@@ -130,7 +134,7 @@ export const UpcomingAnswerReschedule: Story = {
   args: { row: storyRows.upcomingReschedule },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
-    await expect(canvas.getByText('23 Oct, 10:00')).toBeVisible()
+    await expect(canvas.getByText('Tomorrow, 10:00')).toBeVisible()
     await expect(
       canvas.getByRole('link', {
         name: 'Answer reschedule: Hang a mirror in the hall',
@@ -369,7 +373,7 @@ export const TraditionalChinese: Story = {
   args: { row: storyRows.upcomingReschedule },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
-    await expect(canvas.getByText('10月23日 10:00')).toBeVisible()
+    await expect(canvas.getByText('明天 10:00')).toBeVisible()
     await expect(canvas.getByText('我報價')).toBeVisible()
     await expect(canvas.getByText('已選定')).toBeVisible()
     await expect(canvas.getByText('Hackney · £120')).toBeVisible()
