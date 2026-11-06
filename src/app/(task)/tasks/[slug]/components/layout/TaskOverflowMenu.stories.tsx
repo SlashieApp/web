@@ -396,11 +396,13 @@ export const PhoneOwnerOpenTaskSpacing: Story = {
     await expect(rows).toHaveLength(4)
     await expectFirstRowUnderTitle(title, rows[0] as Element)
     await expectRowsAreRows(rows, 4)
-    // The rows start on the sheet title's left line.
+    // The rows' icons start on the sheet title's left line (the box is 8 wider).
+    const line = title.getBoundingClientRect().left
     for (const row of rows) {
-      await expect(row.getBoundingClientRect().left).toBe(
-        title.getBoundingClientRect().left,
-      )
+      await expect(row.getBoundingClientRect().left).toBe(line - 8)
+      await expect(
+        (row.querySelector('svg') as SVGElement).getBoundingClientRect().left,
+      ).toBe(line)
     }
   },
 }

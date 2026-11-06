@@ -292,7 +292,8 @@ export const ReadyToClose: Story = {
 
 /**
  * Every row's icon starts on the left line of the "Help & actions" heading
- * (rows used to be indented 17 further), with the label 8 after the icon. The
+ * (rows used to be indented 17 further), with the label 8 after the icon and
+ * the row's box 8 wider each side for its hover fill. The
  * rows keep their 44 height and 4 apart.
  */
 export const RowsOnTheHeadingLine: Story = {
@@ -309,7 +310,8 @@ export const RowsOnTheHeadingLine: Story = {
       const icon = (
         row.querySelector('svg') as SVGElement
       ).getBoundingClientRect()
-      await expect(box.left, row.textContent ?? '').toBe(line)
+      // The box reaches 8 past the line (the hover fill), the icon is on it.
+      await expect(box.left, row.textContent ?? '').toBe(line - 8)
       await expect(icon.left, row.textContent ?? '').toBe(line)
       await expect(box.height).toBe(44)
       if (i > 0) {

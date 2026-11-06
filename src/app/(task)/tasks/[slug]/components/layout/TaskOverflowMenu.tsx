@@ -274,12 +274,19 @@ function BookingActions({
 
 /**
  * Rows start on the left line of what heads them: the Help & actions heading
- * on the card, the sheet's title in the phone drawer. The rows keep their 44
- * and lose only the left and right padding, so nothing visible is added. In the
- * desktop popover the panel's own 8 insets them, so they keep theirs.
+ * on the card, the sheet's title in the phone drawer. Each row's box reaches 8
+ * past that line on both sides and pads 8 back in, so the icon and label sit
+ * on the line, the hover fill has room round them (as on Expo) and the 44 row
+ * adds no visible space. In the desktop popover the panel's own 8 insets them,
+ * so they keep their own padding.
  */
 const FLUSH_ROWS = {
-  '& > button, & > a': { paddingInline: 0, borderInlineWidth: 0 },
+  '& > button, & > a': {
+    marginInline: '-2',
+    width: 'calc(100% + {spacing.4})',
+    paddingInline: '2',
+    borderInlineWidth: 0,
+  },
 } as const
 
 export function TaskOverflowActions({
