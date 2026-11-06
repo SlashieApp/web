@@ -1,5 +1,7 @@
 import { QuoteStatus, TaskDateTimeType, TaskStatus } from '@codegen/schema'
 
+import { startOfLocalDay } from '@/utils/startOfLocalDay'
+
 export type TaskDatetimeLike = {
   date?: string | null
   time?: string | null
@@ -31,12 +33,9 @@ export function scheduleChipForTask(
   const when = parseTaskScheduleDate(datetime)
   if (!when) return null
 
-  const startOfDay = (d: Date) =>
-    new Date(d.getFullYear(), d.getMonth(), d.getDate())
-
   const dayMs = 24 * 60 * 60 * 1000
-  const taskDay = startOfDay(when).getTime()
-  const today = startOfDay(now).getTime()
+  const taskDay = startOfLocalDay(when)
+  const today = startOfLocalDay(now)
   const tomorrow = today + dayMs
 
   if (taskDay < today) return 'overdue'

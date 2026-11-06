@@ -44,7 +44,7 @@ const TABS_GUTTER_X = {
  * opens on a tap (FE-465).
  *
  * `<lg`: map hero, fitted-style sticky chrome, role-aware bottom pin.
- * `lg+`: full page container (`sizes.page`, 80rem) over the map background —
+ * `lg+`: full page container (`sizes.page`, 80rem) over the map background,
  * never the search-list column width.
  */
 export function TaskDetailView() {
