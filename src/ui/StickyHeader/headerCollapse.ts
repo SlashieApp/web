@@ -10,9 +10,24 @@ export const BAR_H = 56
 /** The big title rests this far under the bar. */
 export const TITLE_GAP = 8
 
-/** The big title is 34px; the bar's one-line copy is 18px. */
+/** The big title is 34px (`heading-xl`); the bar's one-line copy is 18px. */
 export const TITLE_PX = 34
 export const BAR_TITLE_PX = 18
+
+/**
+ * The big title's size, a step of the SDL type scale: `xl` (`heading-xl`,
+ * 34/41) for page headers, `lg` (`heading-lg`, 24/30) for the task page, one
+ * step smaller at every width.
+ */
+export type TitleSize = 'xl' | 'lg'
+
+export const TITLE_SIZES = {
+  xl: { px: TITLE_PX, line: 41, tracking: '-0.03em' },
+  lg: { px: 24, line: 30, tracking: '-0.02em' },
+} as const satisfies Record<
+  TitleSize,
+  { px: number; line: number; tracking: string }
+>
 
 /** The bar copy's top, from the row's top (a 24px line centred in the row). */
 export const BAR_TITLE_TOP = 16
@@ -98,9 +113,12 @@ export function barTitleRight(chips: boolean, hasOption: boolean): number {
   return BUTTON_BOX - buttonOutset(chips) + BAR_TITLE_GAP
 }
 
-/** The moving title's scale: 34px down to 18px, linear in p, from its top left. */
-export function titleScale(p: number): number {
-  return 1 - clamp01(p) * (1 - BAR_TITLE_PX / TITLE_PX)
+/**
+ * The moving title's scale: its size (34px, or 24px for the task page) down to
+ * 18px, linear in p, from its top left.
+ */
+export function titleScale(p: number, titlePx: number = TITLE_PX): number {
+  return 1 - clamp01(p) * (1 - BAR_TITLE_PX / titlePx)
 }
 
 /**
@@ -148,6 +166,8 @@ export function collapseFrame(
   scrollY: number,
   start: number,
   reducedMotion: boolean,
+  /** The big title's size in px; the bar copy is always 18. */
+  titlePx: number = TITLE_PX,
 ): CollapseFrame {
   const distance = scrollY - start
   if (reducedMotion) {
@@ -166,7 +186,7 @@ export function collapseFrame(
   return {
     p,
     moving: distance > 0,
-    scale: titleScale(p),
+    scale: titleScale(p, titlePx),
     movingOpacity: fade.title,
     barTitleOpacity: fade.bar,
     barBgOpacity: p,

@@ -45,6 +45,19 @@ export type TaskDetailTabLayoutProps = {
 const COMPACT_MAX_PX = WEB_MIN_PX - 1
 
 /**
+ * The room under the title's last line, before the chips: 12 on phones, 16
+ * from md (Chakra steps 3 and 4).
+ */
+const TITLE_TO_CHIPS = { base: 3, md: 4 } as const
+
+/**
+ * A lone-button CTA is a 44 button beside 32 chips, bottom-aligned with them:
+ * it rises this far above the chip row (44 - 32), so the chips keep the room
+ * above and the button sits where it always did, in the title's room.
+ */
+const LONE_CTA_RISE = '-12px'
+
+/**
  * Web main CTA: half the row (wider than the 1/3 rail cards), capped at the
  * floating nav width.
  */
@@ -149,7 +162,7 @@ export function TaskDetailTabLayout({
         position="relative"
         px={px}
         pt={2}
-        pb={1}
+        pb={TITLE_TO_CHIPS}
         css={COMPACT_TITLE_FADE_CSS}
       >
         <Box maxW={besideCtaMaxW}>{title}</Box>
@@ -185,7 +198,11 @@ export function TaskDetailTabLayout({
                 {meta}
               </Box>
               {mainCta && !cardCta ? (
-                <Box display={{ base: 'none', lg: 'block' }} flexShrink={0}>
+                <Box
+                  display={{ base: 'none', lg: 'block' }}
+                  flexShrink={0}
+                  mt={LONE_CTA_RISE}
+                >
                   {mainCta}
                 </Box>
               ) : null}

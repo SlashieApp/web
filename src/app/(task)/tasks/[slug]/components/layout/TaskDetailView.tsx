@@ -62,6 +62,7 @@ export function TaskDetailView() {
       option={<TaskHelpOverflowTrigger overlay />}
       contained
       titleMaxLines={TASK_TITLE_MAX_LINES}
+      titleSize="lg"
     >
       <Box position="relative" bg="transparent" w="full" minW={0}>
         <Box

@@ -3,6 +3,7 @@ import { findScrollParent } from '@/utils/findScrollParent'
 import {
   BAR_H,
   type CollapseFrame,
+  TITLE_PX,
   collapseFrame,
   collapseStart,
   titlePosition,
@@ -147,7 +148,13 @@ export function attachHeaderCollapse(frame: HTMLElement): () => void {
       barBottom: stuckTop + BAR_H,
     })
     apply(
-      collapseFrame(scrollY, start, reduced),
+      collapseFrame(
+        scrollY,
+        start,
+        reduced,
+        // The title's own size: the task page's is a step smaller.
+        Number.parseFloat(getComputedStyle(title).fontSize) || TITLE_PX,
+      ),
       {
         title: titleRect,
         frame: frame.getBoundingClientRect(),

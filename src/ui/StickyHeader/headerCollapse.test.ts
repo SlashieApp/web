@@ -126,6 +126,20 @@ describe('collapseProgress', () => {
   })
 })
 
+describe('titleScale for the task page title (24px)', () => {
+  it('ends at the bar copy size, 18px', () => {
+    expect(titleScale(0, 24)).toBe(1)
+    expect(titleScale(1, 24)).toBeCloseTo(18 / 24, 10)
+    expect(24 * titleScale(1, 24)).toBeCloseTo(18, 10)
+    expect(collapseFrame(60, 0, false, 24).scale).toBeCloseTo(18 / 24, 10)
+  })
+
+  it('keeps the 34px default for every other page', () => {
+    expect(titleScale(1)).toBeCloseTo(18 / 34, 10)
+    expect(collapseFrame(60, 0, false).scale).toBeCloseTo(18 / 34, 10)
+  })
+})
+
 describe('titleScale', () => {
   it('goes from 34px to 18px, linear in p', () => {
     expect(titleScale(0)).toBe(1)

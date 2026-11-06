@@ -13,7 +13,8 @@ import { storyTaskDetail } from '../../helpers/taskDetailStoryFixtures'
 import { TaskTitle, useTaskTitle } from './TaskTitle'
 
 /**
- * The task title, the page's one h1 (34px): under the map with the chips under
+ * The task title, the page's one h1 (24px, `heading-lg`, a step under the other
+ * page headers' 34): under the map with the chips under
  * it. It scrolls with the page and collapses into the page header's bar (see
  * Task detail/Page), where Back and the options menu are. It shows at most 3
  * lines: a longer title ends with an ellipsis and is a toggle that shows all of
@@ -32,8 +33,8 @@ const TITLE = 'Mount bookshelf on living room wall'
 const LONG_TITLE =
   'Mount a floating bookshelf, three picture rails and a TV bracket across the living room and hallway before the weekend'
 
-/** The title's line: heading-xl is 34/41. */
-const LINE = 41
+/** The title's line: heading-lg is 24/30. */
+const LINE = 30
 
 /** What task details puts around the title: the page header, clamping it to 3 lines. */
 function TitleInHeader({ children }: { children: ReactNode }) {
@@ -44,6 +45,7 @@ function TitleInHeader({ children }: { children: ReactNode }) {
       background="bg.canvas"
       title={title}
       titleMaxLines={TASK_TITLE_MAX_LINES}
+      titleSize="lg"
     >
       {children}
     </StickyHeader>
@@ -72,7 +74,9 @@ export const Default: Story = {
       name: TITLE,
     })
     const style = getComputedStyle(h1)
-    expect(style.fontSize).toBe('34px')
+    expect(style.fontSize).toBe('24px')
+    expect(style.lineHeight).toBe('30px')
+    expect(style.letterSpacing).toBe('-0.48px')
     expect(style.fontWeight).toBe('500')
     // No toggle on a short title.
     expect(within(h1).queryByRole('button')).toBeNull()

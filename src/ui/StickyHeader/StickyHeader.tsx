@@ -31,7 +31,8 @@ import {
   BUTTON_BOX,
   GLYPH_PX,
   TITLE_GAP,
-  TITLE_PX,
+  TITLE_SIZES,
+  type TitleSize,
   barTitleLeft,
   barTitleRight,
   buttonOutset,
@@ -97,23 +98,32 @@ export type StickyHeaderProps = {
    * whole title, and the copy moving into the bar follows what is shown.
    */
   titleMaxLines?: number
+  /**
+   * The big title's step of the SDL type scale: `xl` (34/41, the default) or
+   * `lg` (24/30), which the task page uses. The bar copy is 18 either way.
+   */
+  titleSize?: TitleSize
   /** The page. It scrolls under the bar, which sticks to the top of it. */
   children?: ReactNode
 }
 
-/** `heading-xl` is 34/41, so the title's line is 41px (the app's PAGE_TITLE_LINE_HEIGHT). */
-const TITLE_LINE_HEIGHT_PX = 41
-
-/** The big title's look, for the h1 and for the copy that moves into the bar. */
-const TITLE_STYLE = {
-  fontFamily: 'heading',
-  fontSize: `${TITLE_PX}px`,
-  fontWeight: 500,
-  letterSpacing: '-0.03em',
-  lineHeight: `${TITLE_LINE_HEIGHT_PX}px`,
-  color: 'text.default',
-  overflowWrap: 'anywhere',
-} as const
+/**
+ * The big title's look, for the h1 and for the copy that moves into the bar:
+ * `heading-xl` (34/41, the app's PAGE_TITLE_LINE_HEIGHT), or `heading-lg`
+ * (24/30) for the task page.
+ */
+function titleStyle(size: TitleSize) {
+  const { px, line, tracking } = TITLE_SIZES[size]
+  return {
+    fontFamily: 'heading',
+    fontSize: `${px}px`,
+    fontWeight: 500,
+    letterSpacing: tracking,
+    lineHeight: `${line}px`,
+    color: 'text.default',
+    overflowWrap: 'anywhere',
+  } as const
+}
 
 /**
  * The bar's icon buttons hold a 24px glyph. Chakra sizes an icon button's svg
@@ -154,12 +164,15 @@ function topFor(stickyTop: StickyTop, extra = 0): BoxProps['top'] {
 /** What the header tells its big title about `titleMaxLines`. */
 type TitleClamp = {
   maxLines?: number
+  /** The big title's step of the type scale. */
+  size: TitleSize
   /** All of a clamped title shows. */
   expanded: boolean
   setExpanded: (expanded: boolean) => void
 }
 
 const TitleClampContext = createContext<TitleClamp>({
+  size: 'xl',
   expanded: false,
   setExpanded: () => {},
 })
@@ -180,7 +193,8 @@ export function StickyHeaderTitle({
   children,
   ...rest
 }: Omit<HeadingProps, 'as'>) {
-  const { maxLines, expanded, setExpanded } = useContext(TitleClampContext)
+  const { maxLines, size, expanded, setExpanded } =
+    useContext(TitleClampContext)
   const [overflows, setOverflows] = useState(false)
   // Whether the title needs more lines than it may show, as its width changes
   // or its font loads.
@@ -191,7 +205,7 @@ export function StickyHeaderTitle({
         if (!node.isConnected) return
         const lineHeight =
           Number.parseFloat(getComputedStyle(node).lineHeight) ||
-          TITLE_LINE_HEIGHT_PX
+          TITLE_SIZES[size].line
         setOverflows(node.scrollHeight > lineHeight * maxLines + 1)
       }
       check()
@@ -200,7 +214,7 @@ export function StickyHeaderTitle({
       observer.observe(node)
       return () => observer.disconnect()
     },
-    [maxLines],
+    [maxLines, size],
   )
 
   // Only a title's text is clamped; a skeleton stands in as it is.
@@ -245,7 +259,12 @@ export function StickyHeaderTitle({
   }
 
   return (
-    <Heading as="h1" data-sticky-header-title="" {...TITLE_STYLE} {...rest}>
+    <Heading
+      as="h1"
+      data-sticky-header-title=""
+      {...titleStyle(size)}
+      {...rest}
+    >
       {content}
     </Heading>
   )
@@ -314,6 +333,7 @@ export function StickyHeader({
   contained = false,
   overMedia = false,
   titleMaxLines,
+  titleSize = 'xl',
   children,
 }: StickyHeaderProps) {
   const detachRef = useRef<(() => void) | null>(null)
@@ -340,10 +360,11 @@ export function StickyHeader({
   const clamp = useMemo<TitleClamp>(
     () => ({
       maxLines: titleMaxLines,
+      size: titleSize,
       expanded,
       setExpanded: (open) => setOpenTitle(open && hasTitle ? title : null),
     }),
-    [titleMaxLines, expanded, hasTitle, title],
+    [titleMaxLines, titleSize, expanded, hasTitle, title],
   )
 
   return (
@@ -496,7 +517,7 @@ export function StickyHeader({
           transformOrigin="0 0"
           // The same lines as the heading shows.
           lineClamp={expanded ? undefined : titleMaxLines}
-          {...TITLE_STYLE}
+          {...titleStyle(titleSize)}
         >
           {title}
         </Box>

@@ -35,6 +35,27 @@ async function expectTitle(canvasElement: HTMLElement) {
   )
 }
 
+/**
+ * The task title is one step smaller than the other pages' (heading-lg, 24/30)
+ * and the chips sit 12 under its last line on phones, 16 from md.
+ */
+async function expectTitleSizeAndGap(canvasElement: HTMLElement, gap: number) {
+  const h1 = await expectTitle(canvasElement)
+  const style = getComputedStyle(h1)
+  await expect(style.fontSize).toBe('24px')
+  await expect(style.lineHeight).toBe('30px')
+  const chip = [...canvasElement.querySelectorAll<HTMLElement>('a, div')].find(
+    (el) =>
+      getComputedStyle(el).minHeight === '32px' &&
+      getComputedStyle(el).whiteSpace === 'nowrap',
+  ) as HTMLElement
+  await waitFor(() =>
+    expect(
+      chip.getBoundingClientRect().top - h1.getBoundingClientRect().bottom,
+    ).toBe(gap),
+  )
+}
+
 const bar = (canvasElement: HTMLElement) =>
   canvasElement.querySelector('[data-sticky-header-bar]') as HTMLElement
 
@@ -111,6 +132,7 @@ export const Desktop: Story = {
   decorators: [withTaskDetailStory({ viewer: 'owner' }, { maxWidth: '100%' })],
   play: async ({ canvasElement }) => {
     await expectTitle(canvasElement)
+    await expectTitleSizeAndGap(canvasElement, 16)
     await expectBar(canvasElement)
     await expectBarOrder(canvasElement)
   },
@@ -132,6 +154,7 @@ export const Tablet: Story = {
   decorators: [withTaskDetailStory({ viewer: 'owner' }, { maxWidth: '100%' })],
   play: async ({ canvasElement }) => {
     await expectTitle(canvasElement)
+    await expectTitleSizeAndGap(canvasElement, 16)
     await expectBar(canvasElement)
   },
 }
@@ -142,6 +165,7 @@ export const Phone: Story = {
   decorators: [withTaskDetailStory({ viewer: 'worker' }, { maxWidth: '100%' })],
   play: async ({ canvasElement }) => {
     await expectTitle(canvasElement)
+    await expectTitleSizeAndGap(canvasElement, 12)
     await expectBar(canvasElement)
     await expectBarOrder(canvasElement)
   },
@@ -160,8 +184,8 @@ export const PhoneScrolled: Story = {
 const LONG_TITLE =
   'Mount a floating bookshelf, three picture rails and a TV bracket across the living room and hallway before the weekend'
 
-/** The big title's line: heading-xl is 34/41. */
-const TITLE_LINE = 41
+/** The big title's line: the task page's title is heading-lg, 24/30. */
+const TITLE_LINE = 30
 
 /** The first link under the title: the page's content moves with the title's height. */
 const linkBelow = (canvasElement: HTMLElement, h1: HTMLElement) =>
