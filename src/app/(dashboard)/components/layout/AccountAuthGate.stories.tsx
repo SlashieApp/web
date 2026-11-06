@@ -73,7 +73,7 @@ const expectSessionCard = async (canvasElement: HTMLElement, width: number) => {
   // The gate sits outside the shell here: the card's page box is the one main.
   expect(canvasElement.querySelectorAll('main')).toHaveLength(1)
   expect(card.closest('main')).not.toBeNull()
-  expectCentredCardBox(canvasElement, card)
+  expectCentredCardBox(canvasElement, card, 'card', { alert: true })
   expectPx(boxOf(card).width, width)
 }
 

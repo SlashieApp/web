@@ -12,11 +12,14 @@ export function StatusScreen({
   title,
   body,
   actions,
+  role,
 }: {
   code?: string
   title: string
   body: string
   actions: ReactNode
+  /** `alert` for an error the person did not ask for. */
+  role?: 'alert'
 }) {
   return (
     <StatusCard
@@ -26,6 +29,7 @@ export function StatusScreen({
       title={title}
       body={body}
       actions={actions}
+      role={role}
     />
   )
 }

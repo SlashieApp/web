@@ -1,3 +1,5 @@
+import { expect } from 'storybook/test'
+
 import { STATUS_CARD_MAX_W_CSS } from '@/theme/pageContainer'
 
 import { boxOf, expectPx, lines } from '../PageContainer/pageLines.testing'
@@ -6,11 +8,11 @@ import { boxOf, expectPx, lines } from '../PageContainer/pageLines.testing'
 export const STATUS_CARD_PX = Number.parseFloat(STATUS_CARD_MAX_W_CSS) * 16
 
 /**
- * R6: a centred card is `STATUS_CARD_PX` wide and centred in the window (the
- * container is centred in it), or the whole container when the window is
- * narrower than the card plus the gutters. Story helper, not in the barrel.
+ * R6, the width part: a box is `STATUS_CARD_PX` wide and centred in the
+ * window (the container is centred in it), or the whole container when the
+ * window is narrower than the card plus the gutters. Story helper, not in the barrel.
  */
-export function expectCentredCardBox(
+export function expectCentredBox(
   canvasElement: HTMLElement,
   card: Element,
   message = 'card',
@@ -23,4 +25,28 @@ export function expectCentredCardBox(
     width / 2,
     `${message} is centred in the window`,
   )
+}
+
+/**
+ * Every StatusCard story runs this: the card is centred at 448 (R6), its
+ * title is the one `h1` of the card and names it, and an unexpected error
+ * (`alert`) announces itself from the card (never from a wrapper around the
+ * `main`). Story helper, not in the barrel.
+ */
+export function expectCentredCardBox(
+  canvasElement: HTMLElement,
+  card: Element,
+  message = 'card',
+  options: { alert?: boolean } = {},
+) {
+  expectCentredBox(canvasElement, card, message)
+  const titles = card.querySelectorAll('h1')
+  expect(titles, `${message} has one h1`).toHaveLength(1)
+  expect(
+    card.getAttribute('aria-labelledby'),
+    `${message} is named by it`,
+  ).toBe(titles[0]?.id)
+  if (options.alert) {
+    expect(card.getAttribute('role'), `${message} is an alert`).toBe('alert')
+  }
 }

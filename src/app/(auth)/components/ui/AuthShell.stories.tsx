@@ -7,7 +7,7 @@ import {
   expectWindowWidth,
   viewportAt,
 } from '@/ui/PageContainer/pageLines.testing'
-import { expectCentredCardBox } from '@/ui/StatusCard/statusCard.testing'
+import { expectCentredBox } from '@/ui/StatusCard/statusCard.testing'
 import { Button } from '@ui'
 
 import { AuthCard } from './AuthCard'
@@ -37,7 +37,7 @@ type Story = StoryObj<typeof meta>
  */
 function expectAuthColumn(canvasElement: HTMLElement, width: number) {
   const column = within(canvasElement).getByRole('main')
-  expectCentredCardBox(canvasElement, column, 'auth column')
+  expectCentredBox(canvasElement, column, 'auth column')
   expectPx(boxOf(column).width, width, 'auth column width')
 }
 

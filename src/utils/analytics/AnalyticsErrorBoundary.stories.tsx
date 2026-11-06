@@ -43,7 +43,7 @@ export default meta
 type Story = StoryObj<typeof meta>
 
 const cardOf = (canvasElement: HTMLElement) =>
-  within(canvasElement).getByRole('region', { name: 'Something went wrong' })
+  within(canvasElement).getByRole('alert', { name: 'Something went wrong' })
 
 /** A page failed to render: the shared status card (R6), centred, 448 wide. */
 export const Default: Story = {
@@ -51,7 +51,9 @@ export const Default: Story = {
   play: async ({ canvasElement }) => {
     await within(canvasElement).findByRole('button', { name: 'Try again' })
     expectWindowWidth(canvasElement, 1366)
-    expectCentredCardBox(canvasElement, cardOf(canvasElement))
+    expectCentredCardBox(canvasElement, cardOf(canvasElement), 'card', {
+      alert: true,
+    })
     expectPx(boxOf(cardOf(canvasElement)).width, 448)
   },
 }
@@ -62,7 +64,9 @@ export const Phone: Story = {
   play: async ({ canvasElement }) => {
     await within(canvasElement).findByRole('button', { name: 'Try again' })
     expectWindowWidth(canvasElement, 390)
-    expectCentredCardBox(canvasElement, cardOf(canvasElement))
+    expectCentredCardBox(canvasElement, cardOf(canvasElement), 'card', {
+      alert: true,
+    })
     expectPx(boxOf(cardOf(canvasElement)).width, 358)
   },
 }

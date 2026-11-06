@@ -60,10 +60,13 @@ export class AnalyticsErrorBoundary extends Component<
     return (
       <Box minH="40vh" display="flex" flexDirection="column">
         <StatusCard
+          role="alert"
           title="Something went wrong"
           body="An unexpected error occurred. Try again or refresh the page."
           actions={
-            <Button size="form" variant="primary" onClick={this.handleRetry}>
+            // Stays size sm, as before FE-493: the one card action that is not
+            // size form (see docs/ui-consistency.md, to confirm with Ryan).
+            <Button size="sm" variant="primary" onClick={this.handleRetry}>
               Try again
             </Button>
           }

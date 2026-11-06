@@ -21,7 +21,25 @@ const TONE = {
   danger: { bg: 'status.danger.soft', color: 'status.danger.fg' },
 } as const
 
-export type StatusCardProps = {
+type StatusCardFullPage =
+  | {
+      /**
+       * The card is the whole page (the root 404 and error screens, a gate in
+       * front of the app): a `main` that fills the viewport, centred.
+       * Otherwise it sits in the page it is shown in, centred in the
+       * container.
+       */
+      fullPage: true
+      /**
+       * Render the page-filling box as a `main` landmark (default). Pass
+       * `false` when the card is shown inside a shell that already has a
+       * `main` (a page must have exactly one). The layout does not change.
+       */
+      landmark?: boolean
+    }
+  | { fullPage?: false; landmark?: never }
+
+export type StatusCardProps = StatusCardFullPage & {
   title: string
   /** A small uppercase label above the title. */
   eyebrow?: string
@@ -46,18 +64,6 @@ export type StatusCardProps = {
   /** One muted line under the card. */
   footer?: ReactNode
   /**
-   * The card is the whole page (the root 404 and error screens, a gate in
-   * front of the app): a `main` that fills the viewport, centred. Otherwise
-   * it sits in the page it is shown in, centred in the container.
-   */
-  fullPage?: boolean
-  /**
-   * With `fullPage`: render the page-filling box as a `main` landmark
-   * (default). Pass `false` when the card is shown inside a shell that already
-   * has a `main` (a page must have exactly one). The layout does not change.
-   */
-  landmark?: boolean
-  /**
    * Announce the card to screen readers as an alert (an error the person did
    * not ask for). It sits on the card, never on the `main` around it.
    */
@@ -71,12 +77,11 @@ export type StatusCardProps = {
  * container and always `STATUS_CARD_MAX_W` wide (28rem, 448px), the same as
  * the auth card: one width for every centred card, at every viewport.
  *
- * Slots, top to bottom: `back` (left-aligned), `logo`, `icon` or `code`, `title` (with an optional
- * `eyebrow` above it), `body` and
- * `children`, then `actions`; `footer` sits under the card. Spacing follows
- * the form spacing table (wiki Foundations-Form-Spacing): the header block's
- * parts are 20 apart, title and text 8, then 24 to the actions, which are 8
- * apart.
+ * Slots, top to bottom: `back` (left-aligned), `logo`, `icon` or `code`,
+ * `title` (with an optional `eyebrow` above it), `body` and `children`, then
+ * `actions`; `footer` sits under the card. Spacing follows the form spacing
+ * table (wiki Foundations-Form-Spacing): the header block's parts are 20
+ * apart, title and text 8, then 24 to the actions, which are 8 apart.
  */
 export function StatusCard({
   title,
@@ -112,7 +117,15 @@ export function StatusCard({
       boxShadow="e3"
     >
       {back ? (
-        <Box display="flex" alignSelf="flex-start">
+        <Box
+          display="flex"
+          alignSelf="flex-start"
+          // The slot owns its 44px target and the 24 above the title: the
+          // card's 24 gap less the 12 the taller box adds under the text.
+          // A single child stretches to the full 44.
+          minH="44px"
+          mb={-3}
+        >
           {back}
         </Box>
       ) : null}

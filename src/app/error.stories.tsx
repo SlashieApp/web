@@ -37,11 +37,11 @@ export const Default: Story = {
   ...viewportAt(1366),
   play: async ({ canvasElement }) => {
     expectWindowWidth(canvasElement, 1366)
-    const card = within(canvasElement).getByRole('region', {
+    const card = within(canvasElement).getByRole('alert', {
       name: 'Something went wrong',
     })
     // R6: the shared card, 448 wide, centred.
-    expectCentredCardBox(canvasElement, card)
+    expectCentredCardBox(canvasElement, card, 'card', { alert: true })
     expectPx(boxOf(card).width, 448)
   },
 }
@@ -61,10 +61,10 @@ export const Mobile: Story = {
   ...viewportAt(390),
   play: async ({ canvasElement }) => {
     expectWindowWidth(canvasElement, 390)
-    const card = within(canvasElement).getByRole('region', {
+    const card = within(canvasElement).getByRole('alert', {
       name: 'Something went wrong',
     })
-    expectCentredCardBox(canvasElement, card)
+    expectCentredCardBox(canvasElement, card, 'card', { alert: true })
     expectPx(boxOf(card).width, 358)
   },
 }

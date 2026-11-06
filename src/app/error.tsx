@@ -41,6 +41,7 @@ export default function RootError({
 
   return (
     <StatusScreen
+      role="alert"
       title={t.errorTitle}
       body={t.errorBody}
       actions={

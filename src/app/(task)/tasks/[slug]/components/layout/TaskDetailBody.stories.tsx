@@ -130,7 +130,7 @@ export const LoadError: Story = {
     })
     await canvas.findByRole('button', { name: 'Try again' })
     expectWindowWidth(canvasElement, 1366)
-    expectCentredCardBox(canvasElement, card, 'load error')
+    expectCentredCardBox(canvasElement, card, 'load error', { alert: true })
   },
 }
 
@@ -145,7 +145,7 @@ export const LoadErrorPhone: Story = {
     })
     await canvas.findByRole('button', { name: 'Try again' })
     expectWindowWidth(canvasElement, 390)
-    expectCentredCardBox(canvasElement, card, 'load error')
+    expectCentredCardBox(canvasElement, card, 'load error', { alert: true })
   },
 }
 

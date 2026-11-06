@@ -27,10 +27,6 @@ function BackToTaskLink({ href }: { href: string }) {
       display="inline-flex"
       alignItems="center"
       gap={1}
-      // A 44px target; the text stays 24 above the title, as before: the
-      // card's 24 gap less the 12 the taller box adds under the text.
-      minH="44px"
-      mb={-3}
       _hover={{ textDecoration: 'none', color: 'text.link' }}
     >
       <LuArrowLeft size={16} aria-hidden />
