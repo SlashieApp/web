@@ -503,7 +503,8 @@ describe('page shells', () => {
     'src/app/(messages)/layout.tsx',
     'src/app/(stepflow)/layout.tsx',
     'src/app/(dashboard)/components/layout/AccountShell.tsx',
-    'src/app/(stepflow)/tasks/[slug]/quote/components/TaskQuoteFlow.tsx',
+    // The quote flow paints no page of its own (FE-493): its gates are
+    // fullPage StatusCards and the flow is StepFlowLayout, both listed here.
     'src/ui/StatusCard/StatusCard.tsx',
     'src/ui/StepFlowLayout/StepFlowLayout.tsx',
   ]

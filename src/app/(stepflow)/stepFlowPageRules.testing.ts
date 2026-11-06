@@ -22,7 +22,7 @@ import { expectCentredCardBox } from '@/ui/StatusCard/statusCard.testing'
  *   narrower), LEFT-aligned on the logo line, never centred.
  * - From lg a step flow is a stepper rail and a raised panel that fill the
  *   container, logo line to menu line (a rail + panel flow is not a single
- *   column; Ryan to confirm, see the layout audit W9).
+ *   column; Ryan confirmed on 5 Nov, layout audit W9).
  * - R5: the post-a-task map step (the compact card) sits on the container
  *   line.
  * - R6: a gate is the centred status card, one width.

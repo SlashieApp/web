@@ -441,7 +441,7 @@ export const StepFlowBelowLg820: Story = {
   play: ({ canvasElement }) => expectStepFlowColumn(canvasElement, 820),
 }
 
-/** Step flow from lg: rail plus panel fill the container (Ryan to confirm, audit W9). */
+/** Step flow from lg: rail plus panel fill the container (Ryan confirmed on 5 Nov, audit W9). */
 export const StepFlowRailPanel1366: Story = {
   ...viewportAt(1366),
   args: { type: 'step-flow-rail-panel' },

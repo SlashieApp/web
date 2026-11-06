@@ -122,77 +122,69 @@ export function TaskQuoteFlow() {
 
   if (!isAuthenticated) {
     return (
-      <Box minH="100dvh" bg="bg.canvas">
-        <TaskQuoteGateView
-          title={t.cta.sendQuote}
-          description={gate.signInBody}
-          backHref={backToTask}
-        >
-          <TaskQuoteSummaryCard />
-          <Button asChild w="full" size="form">
-            <Link href={loginHref} _hover={{ textDecoration: 'none' }}>
-              {gate.logIn}
-            </Link>
-          </Button>
-        </TaskQuoteGateView>
-      </Box>
+      <TaskQuoteGateView
+        title={t.cta.sendQuote}
+        description={gate.signInBody}
+        backHref={backToTask}
+      >
+        <TaskQuoteSummaryCard />
+        <Button asChild w="full" size="form">
+          <Link href={loginHref} _hover={{ textDecoration: 'none' }}>
+            {gate.logIn}
+          </Link>
+        </Button>
+      </TaskQuoteGateView>
     )
   }
 
   if (!hasWorkerProfile) {
     return (
-      <Box minH="100dvh" bg="bg.canvas">
-        <TaskQuoteGateView
-          title={t.cta.sendQuote}
-          description={gate.workerProfileBody}
-          backHref={backToTask}
-        >
-          <TaskQuoteSummaryCard />
-          <Button asChild w="full" size="form">
-            <Link
-              href={workerSetupHref(`${backToTask}/quote`)}
-              _hover={{ textDecoration: 'none' }}
-            >
-              {gate.createWorkerProfile}
-            </Link>
-          </Button>
-        </TaskQuoteGateView>
-      </Box>
+      <TaskQuoteGateView
+        title={t.cta.sendQuote}
+        description={gate.workerProfileBody}
+        backHref={backToTask}
+      >
+        <TaskQuoteSummaryCard />
+        <Button asChild w="full" size="form">
+          <Link
+            href={workerSetupHref(`${backToTask}/quote`)}
+            _hover={{ textDecoration: 'none' }}
+          >
+            {gate.createWorkerProfile}
+          </Link>
+        </Button>
+      </TaskQuoteGateView>
     )
   }
 
   // The monthly limit caps distinct tasks; edits on a quoted task are unlimited.
   if (quoteLimitReached && !existingQuote) {
     return (
-      <Box minH="100dvh" bg="bg.canvas">
-        <TaskQuoteGateView
-          title={t.cta.sendQuote}
-          description={gate.limitBody}
-          backHref={backToTask}
-        >
-          <TaskQuoteSummaryCard />
-          <QuoteLimitPaywall />
-        </TaskQuoteGateView>
-      </Box>
+      <TaskQuoteGateView
+        title={t.cta.sendQuote}
+        description={gate.limitBody}
+        backHref={backToTask}
+      >
+        <TaskQuoteSummaryCard />
+        <QuoteLimitPaywall />
+      </TaskQuoteGateView>
     )
   }
 
   if (me && !isEmailVerified(me)) {
     return (
-      <Box minH="100dvh" bg="bg.canvas">
-        <TaskQuoteGateView
-          title={gate.verifyEmailTitle}
-          description={t.provider.verifyEmailBeforeQuote}
-          backHref={backToTask}
-        >
-          <TaskQuoteSummaryCard />
-          <Button asChild w="full" size="form">
-            <Link href="/verify-email/sent" _hover={{ textDecoration: 'none' }}>
-              {gate.checkInbox}
-            </Link>
-          </Button>
-        </TaskQuoteGateView>
-      </Box>
+      <TaskQuoteGateView
+        title={gate.verifyEmailTitle}
+        description={t.provider.verifyEmailBeforeQuote}
+        backHref={backToTask}
+      >
+        <TaskQuoteSummaryCard />
+        <Button asChild w="full" size="form">
+          <Link href="/verify-email/sent" _hover={{ textDecoration: 'none' }}>
+            {gate.checkInbox}
+          </Link>
+        </Button>
+      </TaskQuoteGateView>
     )
   }
 

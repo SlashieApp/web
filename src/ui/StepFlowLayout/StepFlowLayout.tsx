@@ -49,7 +49,7 @@ import { STEP_FLOW_BAR_ATTR } from './stepFlowBar'
  * logo line ({@link StepFlowColumn}); the progress strip and the context
  * region above it are bands that span the container (R5). From lg the stepper
  * rail and the step panel fill the container (a rail + panel flow is not a
- * single column; Ryan to confirm).
+ * single column; Ryan confirmed on 5 Nov).
  *
  * Form spacing (FE-481, wiki Foundations-Form-Spacing): the step heading is the
  * title, then the description `formSpace.titleToSubtitle` (8) under it, and the
