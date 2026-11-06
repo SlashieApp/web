@@ -104,7 +104,7 @@ export const Unsubscribed: Story = {
       name: "You're unsubscribed",
     })
     expectWindowWidth(canvasElement, 1366)
-    expectCentredCardBox(canvasElement, card)
+    expectCentredCardBox(canvasElement, card, 'card', { page: true })
     expectPx(boxOf(card).width, 448)
   },
 }
@@ -170,7 +170,7 @@ export const Mobile: Story = {
       await canvas.findByRole('heading', { name: "You're unsubscribed" })
     ).closest('section') as HTMLElement
     expectWindowWidth(canvasElement, 390)
-    expectCentredCardBox(canvasElement, card)
+    expectCentredCardBox(canvasElement, card, 'card', { page: true })
     expectPx(boxOf(card).width, 358)
     const link = canvas.getByRole('link', { name: /Account settings/ })
     expect(boxOf(link).right).toBeLessThanOrEqual(boxOf(card).right)

@@ -41,7 +41,10 @@ export const Default: Story = {
       name: 'Something went wrong',
     })
     // R6: the shared card, 448 wide, centred.
-    expectCentredCardBox(canvasElement, card, 'card', { alert: true })
+    expectCentredCardBox(canvasElement, card, 'card', {
+      alert: true,
+      page: true,
+    })
     expectPx(boxOf(card).width, 448)
   },
 }
@@ -64,7 +67,10 @@ export const Mobile: Story = {
     const card = within(canvasElement).getByRole('alert', {
       name: 'Something went wrong',
     })
-    expectCentredCardBox(canvasElement, card, 'card', { alert: true })
+    expectCentredCardBox(canvasElement, card, 'card', {
+      alert: true,
+      page: true,
+    })
     expectPx(boxOf(card).width, 358)
   },
 }

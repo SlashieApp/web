@@ -31,13 +31,15 @@ export function expectCentredBox(
  * Every StatusCard story runs this: the card is centred at 448 (R6), its
  * title is the one `h1` of the card and names it, and an unexpected error
  * (`alert`) announces itself from the card (never from a wrapper around the
- * `main`). Story helper, not in the barrel.
+ * `main`). A page has at most one `main`, with the card inside it; a card that
+ * is the page (`page`: a `fullPage` card where no app shell gives the `main`)
+ * must be that one `main`. Story helper, not in the barrel.
  */
 export function expectCentredCardBox(
   canvasElement: HTMLElement,
   card: Element,
   message = 'card',
-  options: { alert?: boolean } = {},
+  options: { alert?: boolean; page?: boolean } = {},
 ) {
   expectCentredBox(canvasElement, card, message)
   const titles = card.querySelectorAll('h1')
@@ -48,5 +50,13 @@ export function expectCentredCardBox(
   ).toBe(titles[0]?.id)
   if (options.alert) {
     expect(card.getAttribute('role'), `${message} is an alert`).toBe('alert')
+  }
+  const mains = canvasElement.querySelectorAll('main')
+  expect(mains.length, `${message}: one main at most`).toBeLessThanOrEqual(1)
+  if (mains.length === 1) {
+    expect(mains[0]?.contains(card), `${message} is inside the main`).toBe(true)
+  }
+  if (options.page) {
+    expect(mains, `${message} is the page: its one main`).toHaveLength(1)
   }
 }

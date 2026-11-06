@@ -23,7 +23,9 @@ const cardOf = (canvasElement: HTMLElement, name: string) =>
 
 /** R6: centred in the container, 448 wide (the container on a phone). */
 const expectCentredCard = (canvasElement: HTMLElement, name: string) =>
-  expectCentredCardBox(canvasElement, cardOf(canvasElement, name))
+  expectCentredCardBox(canvasElement, cardOf(canvasElement, name), 'card', {
+    page: true,
+  })
 
 const meta = {
   title: 'Auth/Status/StatusScreen',

@@ -64,6 +64,8 @@ const expectStatusCard = (canvasElement: HTMLElement) =>
   expectCentredCardBox(
     canvasElement,
     within(canvasElement).getByRole('region', { name: CARD_NAME }),
+    'card',
+    { page: true },
   )
 
 /** Signed in while the account is waiting for deletion. */

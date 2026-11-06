@@ -1,6 +1,5 @@
 'use client'
 
-import { Box } from '@chakra-ui/react'
 import { Component, type ErrorInfo, type ReactNode } from 'react'
 
 import { Button, StatusCard } from '@ui'
@@ -58,20 +57,19 @@ export class AnalyticsErrorBoundary extends Component<
     if (!this.state.hasError) return this.props.children
 
     return (
-      <Box minH="40vh" display="flex" flexDirection="column">
-        <StatusCard
-          role="alert"
-          title="Something went wrong"
-          body="An unexpected error occurred. Try again or refresh the page."
-          actions={
-            // Stays size sm, as before FE-493: the one card action that is not
-            // size form (see docs/ui-consistency.md, to confirm with Ryan).
-            <Button size="sm" variant="primary" onClick={this.handleRetry}>
-              Try again
-            </Button>
-          }
-        />
-      </Box>
+      // The boundary wraps the whole app, so when it trips the shell and its
+      // main are gone: the card is the page and its one main (fullPage).
+      <StatusCard
+        fullPage
+        role="alert"
+        title="Something went wrong"
+        body="An unexpected error occurred. Try again or refresh the page."
+        actions={
+          <Button size="form" variant="primary" onClick={this.handleRetry}>
+            Try again
+          </Button>
+        }
+      />
     )
   }
 }
