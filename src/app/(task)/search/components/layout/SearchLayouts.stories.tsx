@@ -4,6 +4,7 @@ import { expect, userEvent, waitFor, within } from 'storybook/test'
 
 import {
   expectCardStripOnGutters,
+  expectCardStripOnTablet,
   expectSearchChromeInContainer,
   expectSearchListColumn,
 } from '@/app/(task)/helpers/taskPageRules.testing'
@@ -260,9 +261,14 @@ export const WebOnTheLines1920: Story = webOnTheLines(1920)
 
 /**
  * R5 on a phone and a tablet: the logo, search bar and chips over the map sit
- * in the page container; on a phone the first card sits on the gutters.
+ * in the page container; on a phone the first card sits on the gutters, on a
+ * tablet the strip's window is the gutters (24) and the cards snap centred in
+ * it with the next one peeking in.
  */
-function mobileOnTheLines(width: number, cards: boolean): Story {
+function mobileOnTheLines(
+  width: number,
+  cards: 'phone' | 'tablet' | false,
+): Story {
   return {
     ...viewportAt(width),
     ...mobileLayout,
@@ -270,10 +276,13 @@ function mobileOnTheLines(width: number, cards: boolean): Story {
     play: async ({ canvasElement }) => {
       await within(canvasElement).findByText(storyBrowseTasks[0].title)
       expectSearchChromeInContainer(canvasElement, width)
-      if (cards) expectCardStripOnGutters(canvasElement, width)
+      if (cards === 'phone') expectCardStripOnGutters(canvasElement, width)
+      if (cards === 'tablet') expectCardStripOnTablet(canvasElement, width)
     },
   }
 }
 
-export const MobileOnTheLines390: Story = mobileOnTheLines(390, true)
-export const MobileOnTheLines820: Story = mobileOnTheLines(820, false)
+export const MobileOnTheLines390: Story = mobileOnTheLines(390, 'phone')
+export const MobileOnTheLines768: Story = mobileOnTheLines(768, 'tablet')
+export const MobileOnTheLines820: Story = mobileOnTheLines(820, 'tablet')
+export const MobileOnTheLines1023: Story = mobileOnTheLines(1023, 'tablet')

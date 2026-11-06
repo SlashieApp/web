@@ -18,6 +18,13 @@ const CAROUSEL_INSET = {
   base: PAGE_GUTTER_X.base,
   md: PAGE_GUTTER_X.md,
 } as const
+/** The same inset in rem (a spacing step is 0.25rem), for the edge fade. */
+const CAROUSEL_INSET_REM = {
+  base: `${PAGE_GUTTER_X.base / 4}rem`,
+  md: `${PAGE_GUTTER_X.md / 4}rem`,
+} as const
+/** Length of the soft edge on a peeking neighbour. */
+const EDGE_FADE_PX = 24
 /** Extra peek on md+ so adjacent slides show at the edges. */
 const SLIDE_PEEK_MD_PX = 52
 /** Movement above this (px) counts as a carousel drag, not a card tap. */
@@ -328,14 +335,12 @@ export function MobileCarousel<T extends { id: string }>({
   const selectionActive = Boolean(selectedId)
   const snapIndex = api?.selectedScrollSnap() ?? -1
 
+  // The fade runs over the first and last 24px of the strip's content box (the
+  // part inside the page gutters), where a peeking neighbour is cut.
+  const edgeFade = `linear-gradient(to right, rgba(0,0,0,0) var(--carousel-inset), rgba(0,0,0,1) calc(var(--carousel-inset) + ${EDGE_FADE_PX}px), rgba(0,0,0,1) calc(100% - var(--carousel-inset) - ${EDGE_FADE_PX}px), rgba(0,0,0,0) calc(100% - var(--carousel-inset)))`
   const edgeFadeMask =
     centeringPadPx > 0
-      ? {
-          maskImage:
-            'linear-gradient(to right, rgba(0,0,0,0) 0%, rgba(0,0,0,1) 24px, rgba(0,0,0,1) calc(100% - 24px), rgba(0,0,0,0) 100%)',
-          WebkitMaskImage:
-            'linear-gradient(to right, rgba(0,0,0,0) 0%, rgba(0,0,0,1) 24px, rgba(0,0,0,1) calc(100% - 24px), rgba(0,0,0,0) 100%)',
-        }
+      ? { maskImage: edgeFade, WebkitMaskImage: edgeFade }
       : undefined
 
   return (
@@ -347,7 +352,11 @@ export function MobileCarousel<T extends { id: string }>({
       mb={0}
       cursor={disabled ? 'default' : isGrabbing ? 'grabbing' : 'grab'}
       style={edgeFadeMask}
-      css={{ touchAction: 'pan-y' }}
+      css={{
+        touchAction: 'pan-y',
+        '--carousel-inset': CAROUSEL_INSET_REM.base,
+        [`@media ${MD_MEDIA}`]: { '--carousel-inset': CAROUSEL_INSET_REM.md },
+      }}
       onPointerDown={onCarouselPointerDown}
       onPointerMove={onCarouselPointerMove}
       onPointerUp={onCarouselPointerUp}

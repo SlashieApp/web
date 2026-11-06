@@ -133,6 +133,23 @@ export function expectSearchChromeInContainer(
   expectContainerOnLines(canvasElement, container, 'search chrome')
 }
 
+/** The slides of the card strip: fixed-width flex items of its track. */
+function stripSlides(canvasElement: HTMLElement) {
+  const slides = [...canvasElement.querySelectorAll<HTMLElement>('div')].filter(
+    (element) => {
+      const style = getComputedStyle(element)
+      return (
+        style.flexShrink === '0' &&
+        style.flexGrow === '0' &&
+        /^[\d.]+px$/.test(style.flexBasis) &&
+        element.getBoundingClientRect().width > 200
+      )
+    },
+  )
+  expect(slides.length, 'cards in the strip').toBeGreaterThan(0)
+  return slides
+}
+
 /**
  * A card over the map on a phone sits on the page gutters (R5): the card
  * strip's slide runs from the logo line to the menu line. A slide is a
@@ -144,19 +161,45 @@ export function expectCardStripOnGutters(
 ) {
   expectWindowWidth(canvasElement, width)
   const { logo, menu } = lines(canvasElement)
-  const slide = [...canvasElement.querySelectorAll<HTMLElement>('div')].find(
-    (element) => {
-      const style = getComputedStyle(element)
-      return (
-        style.flexShrink === '0' &&
-        style.flexGrow === '0' &&
-        /^[\d.]+px$/.test(style.flexBasis) &&
-        element.getBoundingClientRect().width > 200
-      )
-    },
-  )
-  expect(slide, 'a card in the strip').toBeDefined()
-  const box = boxOf(slide as Element)
+  const box = boxOf(stripSlides(canvasElement)[0])
   expectPx(box.left, logo, 'the card starts on the gutter')
   expectPx(box.right, menu, 'the card ends on the gutter')
+}
+
+/**
+ * The card strip on a tablet (768 to 1023, the 24 gutter): the strip's window
+ * is the page gutters (logo line to menu line); the snapped first card sits
+ * whole and centred inside it (never clipped by a gutter); the next card
+ * peeks in at the edge (at least 40px of it shows, and not all of it).
+ */
+export function expectCardStripOnTablet(
+  canvasElement: HTMLElement,
+  width: number,
+) {
+  expectWindowWidth(canvasElement, width)
+  const { logo, menu } = lines(canvasElement)
+  const [first, next] = stripSlides(canvasElement)
+  const strip = first.parentElement?.parentElement as HTMLElement
+  const style = getComputedStyle(strip)
+  const viewport = strip.getBoundingClientRect()
+  const left = viewport.left + Number.parseFloat(style.paddingLeft)
+  const right = viewport.right - Number.parseFloat(style.paddingRight)
+  expectPx(left, logo, 'the strip window starts on the logo line')
+  expectPx(right, menu, 'the strip window ends on the menu line')
+  const card = boxOf(first)
+  expect(
+    card.left,
+    'the card is not clipped on the left',
+  ).toBeGreaterThanOrEqual(left - 1)
+  expect(
+    card.right,
+    'the card is not clipped on the right',
+  ).toBeLessThanOrEqual(right + 1)
+  expectPx(card.left - left, right - card.right, 'the card is centred')
+  expect(next, 'a neighbour card').toBeDefined()
+  const peek = right - boxOf(next).left
+  expect(peek, 'the next card peeks in').toBeGreaterThanOrEqual(40)
+  expect(peek, 'the next card is not wholly in view').toBeLessThan(
+    boxOf(next).width,
+  )
 }
