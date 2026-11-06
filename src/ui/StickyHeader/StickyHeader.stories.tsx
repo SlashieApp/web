@@ -95,6 +95,15 @@ const withPane =
     </Pane>
   )
 
+/** A phone-width column in the pane: the whole page, bar included, is 22rem. */
+const withNarrowPane: Decorator = (Story) => (
+  <Pane scrollTop={0}>
+    <Box maxW="22rem" mx="auto">
+      <Story />
+    </Box>
+  </Pane>
+)
+
 const part = (root: HTMLElement, name: string) => {
   const el = root.querySelector<HTMLElement>(`[data-sticky-header-${name}]`)
   if (!el) throw new Error(`no ${name}`)
@@ -320,12 +329,12 @@ const LONG_TITLE =
   'Replace the cracked bathroom tiles and re-grout the shower tray in the upstairs flat before the end of the month'
 
 /**
- * A long title wraps under the bar in a phone-width column (`contentMaxW`),
+ * A long title wraps under the bar in a phone-width column (`withNarrowPane`),
  * and ends as one line with an ellipsis in it.
  */
 export const LongWrappingTitle: Story = {
-  args: { title: LONG_TITLE, description: undefined, contentMaxW: '22rem' },
-  decorators: [withPane()],
+  args: { title: LONG_TITLE, description: undefined },
+  decorators: [withNarrowPane],
   render: Top.render,
   play: async ({ canvasElement, args }) => {
     const h1 = within(canvasElement).getByRole('heading', {
@@ -809,8 +818,6 @@ const CLAMP_ARGS = {
   ...MEDIA_ARGS,
   title: CLAMP_TITLE,
   titleMaxLines: 3,
-  // A phone-width column for the bar's row too (the page's is `narrow`).
-  contentMaxW: '22rem',
 } as const
 
 const clampRender: Story['render'] = (args) => (
@@ -834,7 +841,7 @@ const titleToggle = (root: HTMLElement) =>
  */
 export const LongTitleClamped: Story = {
   args: CLAMP_ARGS,
-  decorators: [withPane()],
+  decorators: [withNarrowPane],
   render: clampRender,
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
@@ -864,7 +871,7 @@ export const LongTitleClamped: Story = {
  */
 export const LongTitleExpanded: Story = {
   args: CLAMP_ARGS,
-  decorators: [withPane()],
+  decorators: [withNarrowPane],
   render: clampRender,
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
@@ -923,7 +930,7 @@ export const LongTitleExpanded: Story = {
  */
 export const LongTitleCollapsing: Story = {
   args: CLAMP_ARGS,
-  decorators: [withPane()],
+  decorators: [withNarrowPane],
   render: clampRender,
   play: async ({ canvasElement }) => {
     const h1 = heading(canvasElement)
@@ -976,7 +983,7 @@ export const LongTitleCollapsing: Story = {
 /** A title that fits in three lines is plain text: no toggle, no `aria-expanded`. */
 export const ShortTitlePlain: Story = {
   args: { ...CLAMP_ARGS, title: 'Mount bookshelf on living room wall' },
-  decorators: [withPane()],
+  decorators: [withNarrowPane],
   render: clampRender,
   play: async ({ canvasElement, args }) => {
     await settle()

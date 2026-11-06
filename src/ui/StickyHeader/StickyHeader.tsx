@@ -81,8 +81,6 @@ export type StickyHeaderProps = {
    * that is already inside a `PageContainer`.
    */
   contained?: boolean
-  /** A narrower column than the container (or than the page, when not `contained`). */
-  contentMaxW?: BoxProps['maxW']
   /**
    * A map or cover sits behind the bar (task details, a public profile): the
    * bar floats over it and is transparent until the title collapses into it,
@@ -314,7 +312,6 @@ export function StickyHeader({
   background = 'bg.canvas',
   stickyTop = 0,
   contained = false,
-  contentMaxW,
   overMedia = false,
   titleMaxLines,
   children,
@@ -327,7 +324,7 @@ export function StickyHeader({
 
   const hasTitle = title !== undefined
   const column = {
-    maxW: contentMaxW ?? (contained ? PAGE_CONTAINER_MAX_W : undefined),
+    maxW: contained ? PAGE_CONTAINER_MAX_W : undefined,
     px: contained ? PAGE_GUTTER_X : undefined,
   }
   const buttonTop = `${(BAR_H - BUTTON_BOX) / 2}px`

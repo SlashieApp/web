@@ -29,8 +29,9 @@ type MarketingPageHeaderProps = Pick<
  * A page in the marketing frame (FE-471) is white and its sections run edge to
  * edge between full-width rules, so it puts the header outside a page
  * container and says its colour (`background`, the bar's). The header brings
- * the container's measure and gutters itself (`contained`): Back and the title start on the logo line and span the
- * full container at every width (R2).
+ * the container's measure and gutters itself (`contained`): Back and the
+ * title start on the logo line and span the full container at every width
+ * (R2).
  */
 export function MarketingPageHeader({
   title,
