@@ -14,7 +14,7 @@ import { formatMessage } from '@/i18n/loadPageI11n'
 import { useI11n } from '@/i18n/useI11n'
 import { EVENTS, capture } from '@/utils/analytics'
 import { buildTaskFilter } from '@/utils/taskListQuery'
-import { PageContainer } from '@ui'
+import { PageBleed } from '@ui'
 
 import { buildMyTasksHub } from '../helpers/myTasksHub'
 import {
@@ -184,78 +184,81 @@ export function MyTasksScreen() {
 
   return (
     <AccountAuthGate insideShell>
-      <Box ref={onMountRef} bg="bg.canvas" minH="100%">
-        <PageContainer
-          display="flex"
-          flexDirection="column"
-          gap={4}
-          py={{ base: 4, md: 6 }}
-        >
-          <Stack gap={1}>
-            <HStack justify="space-between" align="center" gap={3}>
-              <Heading as="h1" size="lg" color="text.default" minW={0}>
-                {t.title}
-              </Heading>
-              {config.search ? (
-                <MyTasksFilters
-                  query={query}
-                  categories={categories}
-                  showRole={showRole}
-                  onApply={applyQuery}
-                />
-              ) : null}
-            </HStack>
-            <Text fontSize="sm" color="text.muted" lineHeight="1.5">
-              {t.description}
-            </Text>
-          </Stack>
-
-          <Flex
-            direction={{ base: 'column', lg: 'row' }}
-            align={{ base: 'stretch', lg: 'flex-start' }}
-            gap={{ base: 4, lg: RAIL_GAP }}
-          >
+      <PageBleed
+        ref={onMountRef}
+        bg="bg.canvas"
+        minH="100%"
+        contentProps={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 4,
+          py: { base: 4, md: 6 },
+        }}
+      >
+        <Stack gap={1}>
+          <HStack justify="space-between" align="center" gap={3}>
+            <Heading as="h1" size="lg" color="text.default" minW={0}>
+              {t.title}
+            </Heading>
             {config.search ? (
-              <MyTasksFiltersRail
+              <MyTasksFilters
                 query={query}
                 categories={categories}
                 showRole={showRole}
-                onChange={applyQuery}
+                onApply={applyQuery}
               />
             ) : null}
-            {railRoom ? (
-              <Box
-                display={{ base: 'none', lg: 'block' }}
-                w={MY_TASKS_RAIL_W}
-                flexShrink={0}
-              />
+          </HStack>
+          <Text fontSize="sm" color="text.muted" lineHeight="1.5">
+            {t.description}
+          </Text>
+        </Stack>
+
+        <Flex
+          direction={{ base: 'column', lg: 'row' }}
+          align={{ base: 'stretch', lg: 'flex-start' }}
+          gap={{ base: 4, lg: RAIL_GAP }}
+        >
+          {config.search ? (
+            <MyTasksFiltersRail
+              query={query}
+              categories={categories}
+              showRole={showRole}
+              onChange={applyQuery}
+            />
+          ) : null}
+          {railRoom ? (
+            <Box
+              display={{ base: 'none', lg: 'block' }}
+              w={MY_TASKS_RAIL_W}
+              flexShrink={0}
+            />
+          ) : null}
+
+          <Stack gap={4} flex={{ lg: 1 }} minW={0}>
+            {blocker ? <MyTasksQuoteBlocker blocker={blocker} /> : null}
+
+            {config.body === 'groups' ? (
+              <Text srOnly aria-live="polite">
+                {formatMessage(
+                  visibleCount === 1
+                    ? t.filters.resultCountOne
+                    : t.filters.resultCount,
+                  { count: visibleCount },
+                )}
+              </Text>
             ) : null}
-
-            <Stack gap={4} flex={{ lg: 1 }} minW={0}>
-              {blocker ? <MyTasksQuoteBlocker blocker={blocker} /> : null}
-
-              {config.body === 'groups' ? (
-                <Text srOnly aria-live="polite">
-                  {formatMessage(
-                    visibleCount === 1
-                      ? t.filters.resultCountOne
-                      : t.filters.resultCount,
-                    { count: visibleCount },
-                  )}
-                </Text>
-              ) : null}
-              <MyTasksList
-                config={config}
-                sections={visibleSections}
-                filtered={filtered}
-                errorMessage={errorMessage}
-                onRetry={onRetry}
-                onClearFilters={clearAll}
-              />
-            </Stack>
-          </Flex>
-        </PageContainer>
-      </Box>
+            <MyTasksList
+              config={config}
+              sections={visibleSections}
+              filtered={filtered}
+              errorMessage={errorMessage}
+              onRetry={onRetry}
+              onClearFilters={clearAll}
+            />
+          </Stack>
+        </Flex>
+      </PageBleed>
     </AccountAuthGate>
   )
 }
