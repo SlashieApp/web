@@ -1,0 +1,16 @@
+# The worker Post a task carried (FE-507): their name for the prompt, and
+# whether this viewer can still ask them. No prompt unless `canAskToQuote`.
+query QuoteInviteWorker($userId: ID!) {
+  publicProfile(userId: $userId) {
+    id
+    profile {
+      name
+    }
+    worker {
+      id
+      viewer {
+        canAskToQuote
+      }
+    }
+  }
+}

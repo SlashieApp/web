@@ -1,6 +1,7 @@
 'use client'
 
 import { TaskDetailProvider } from '../../context/TaskDetailProvider'
+import { TaskAskAfterPost } from '../overview/TaskAskAfterPost'
 import { TaskDetailBody } from './TaskDetailBody'
 
 /**
@@ -12,6 +13,7 @@ export function TaskDetailScreen({ taskId }: { taskId: string }) {
   return (
     <TaskDetailProvider taskId={taskId}>
       <TaskDetailBody taskId={taskId} />
+      <TaskAskAfterPost />
     </TaskDetailProvider>
   )
 }

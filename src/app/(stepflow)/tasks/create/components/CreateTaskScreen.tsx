@@ -24,6 +24,10 @@ import CreateTask from '@/app/(stepflow)/tasks/create/graphql/CreateTask.gql'
 import { MARKETPLACE_MAP_MOTION_MS } from '@/app/(task)/helpers/marketplaceMap/motion'
 import { taskToEditFormValues } from '@/app/(task)/helpers/taskEditHelpers'
 import TaskForEdit from '@/app/(task)/tasks/[slug]/graphql/TaskForEdit.gql'
+import {
+  parseAskWorkerParam,
+  taskPathAsking,
+} from '@/content/quoteInvitations/askWorkerParam'
 import { useLocalizedHref } from '@/i18n/LocaleProvider'
 import { formatMessage } from '@/i18n/loadPageI11n'
 import { useI11n } from '@/i18n/useI11n'
@@ -111,6 +115,11 @@ function readRepostTaskId(): string | null {
   )
 }
 
+/** `?askWorker=<worker user id>`: ask this worker to quote once the task is posted (FE-507). */
+function readAskWorkerId(): string | null {
+  return parseAskWorkerParam(window.location.search)
+}
+
 function readStartCentre(): CreateTaskStartCentre {
   return resolveCreateTaskStartCentre({ search: window.location.search })
 }
@@ -184,6 +193,7 @@ export function CreateTaskScreen({
 
   const [startCentre] = useState(readStartCentre)
   const [repostTaskId] = useState(readRepostTaskId)
+  const [askWorkerId] = useState(readAskWorkerId)
   // An explicit start (repost, a /search centre) wins over an old draft.
   const [draft] = useState(() => {
     const storage = draftStorage()
@@ -499,7 +509,15 @@ export function CreateTaskScreen({
         photos: photos.files.length,
         photos_failed: failed,
       })
-      router.replace(localize(`/tasks/${taskId}`))
+      // With a worker carried from their profile, the new task's page asks
+      // whether to ask them to quote. Nothing is sent before that tap.
+      router.replace(
+        localize(
+          askWorkerId
+            ? taskPathAsking(taskId, askWorkerId)
+            : `/tasks/${taskId}`,
+        ),
+      )
       return true
     } catch (err: unknown) {
       trackFlowFailed(EVENTS.task_create_fail, err, {

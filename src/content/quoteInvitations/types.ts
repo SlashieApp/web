@@ -39,3 +39,13 @@ export type DismissQuoteInvitationMutationVariables = { taskId: string }
 export type DismissQuoteInvitationMutation = {
   dismissQuoteInvitation: { taskId: string; dismissedAt: string }
 }
+
+export type QuoteInviteWorkerQueryVariables = { userId: string }
+
+export type QuoteInviteWorkerQuery = {
+  publicProfile?: {
+    id: string
+    profile: { name?: string | null }
+    worker?: { id: string; viewer?: { canAskToQuote: boolean } | null } | null
+  } | null
+}
