@@ -45,10 +45,12 @@ function MenuItem({
   label,
   onSelect,
   danger = false,
+  disabled = false,
 }: {
   label: string
   onSelect: () => void
   danger?: boolean
+  disabled?: boolean
 }) {
   const close = useDropdownClose()
   return (
@@ -57,6 +59,7 @@ function MenuItem({
       w="full"
       justifyContent="flex-start"
       color={danger ? 'status.danger.fg' : undefined}
+      disabled={disabled}
       onClick={() => {
         close()
         onSelect()
@@ -147,7 +150,8 @@ function ReportItem({
 function TaskThreadMenu({ thread, onToggleBlock }: HeaderProps) {
   const t = useI11n(bag)
   const m = t.menu
-  const { task, permissions, view, orderClose } = useTaskDetail()
+  const { task, permissions, view, orderClose, orderActionPending } =
+    useTaskDetail()
   const booking = useOrderRequestOptions()
   const wrong = useI11n(taskBag).close.somethingWrong
   const [failedOpen, setFailedOpen] = useState(false)
@@ -175,7 +179,11 @@ function TaskThreadMenu({ thread, onToggleBlock }: HeaderProps) {
     <>
       <ThreadMenu>
         {canMarkFailed ? (
-          <MenuItem label={wrong} onSelect={() => setFailedOpen(true)} />
+          <MenuItem
+            label={wrong}
+            disabled={orderActionPending != null}
+            onSelect={() => setFailedOpen(true)}
+          />
         ) : null}
         {actions.map((action) => (
           <MenuItem

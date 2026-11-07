@@ -1,8 +1,9 @@
 import { QuoteStatus, TaskStatus, ThreadAttentionKind } from '@codegen/schema'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
-import { expect, fn, userEvent, within } from 'storybook/test'
+import { expect, fn, userEvent, waitFor, within } from 'storybook/test'
 
 import { desktop1280 } from '@/app/(stepflow)/stepFlowSpacing.testing'
+import { OrderCloseCard } from '@/app/(task)/tasks/[slug]/components/overview/OrderCloseCard'
 import { TaskDetailProvider } from '@/app/(task)/tasks/[slug]/context/TaskDetailProvider'
 import {
   STORY_OWNER_ID,
@@ -327,6 +328,35 @@ export const ReadyToCloseMenu: Story = {
     )
     await userEvent.click(first)
     await menu.findByRole('dialog', { name: 'What went wrong?' })
+  },
+}
+
+/**
+ * An order action is running (the Done slide was confirmed, the network has
+ * not answered): "Something went wrong" is off in the menu, as the old Done
+ * card button was.
+ */
+export const ReadyToCloseMenuActing: Story = {
+  decorators: messagesStory({ viewer: 'owner', task: readyTask }),
+  // The Done card sits in the thread's pin, in the same task context.
+  render: (args) => (
+    <TaskDetailProvider taskId={STORY_TASK_ID} captureView={false}>
+      <ThreadHeader {...args} />
+      <OrderCloseCard />
+    </TaskDetailProvider>
+  ),
+  play: async ({ canvasElement }) => {
+    const thumb = await within(canvasElement).findByRole('button', {
+      name: 'Slide to mark Done',
+    })
+    thumb.focus()
+    await userEvent.keyboard('{Enter}')
+    await userEvent.keyboard('{Enter}')
+    const menu = await openMenu(canvasElement)
+    const wrong = await menu.findByRole('button', {
+      name: 'Something went wrong',
+    })
+    await waitFor(() => expect(wrong).toBeDisabled())
   },
 }
 

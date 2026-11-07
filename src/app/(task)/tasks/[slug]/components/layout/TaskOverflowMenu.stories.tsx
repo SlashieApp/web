@@ -27,7 +27,11 @@ import {
   storyTaskOrder,
   storyTaskQuote,
 } from '../../helpers/taskDetailStoryFixtures'
-import { TaskHelpOverflowTrigger } from './TaskOverflowMenu'
+import { OrderCloseCard } from '../overview/OrderCloseCard'
+import {
+  TaskHelpOverflowTrigger,
+  TaskOverflowActions,
+} from './TaskOverflowMenu'
 
 /**
  * The task options menu: a popover on web, a bottom sheet on phones. It holds
@@ -449,6 +453,41 @@ export const PhoneSomethingWrongFirst: Story = {
       expect(
         sheet.getByRole('dialog', { name: 'What went wrong?' }),
       ).toBeVisible(),
+    )
+  },
+}
+
+/**
+ * While an order action runs (the Done slide was confirmed and the answer has
+ * not come), "Something went wrong" is off, as the old Done card button was:
+ * no second, conflicting action can start from Help & actions.
+ */
+export const SomethingWrongOffWhileActing: Story = {
+  ...desktop,
+  ...menu({ viewer: 'worker', task: bookedTask, order: storyTaskOrder() }),
+  render: () => (
+    <>
+      <OrderCloseCard />
+      <TaskOverflowActions onOpenDialog={() => {}} />
+    </>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const wrong = await canvas.findByRole('button', {
+      name: 'Something went wrong',
+    })
+    await expect(wrong).toBeEnabled()
+    const thumb = await canvas.findByRole('button', {
+      name: 'Slide to mark Done',
+    })
+    thumb.focus()
+    // Enter arms, a second Enter confirms; the story's network never answers.
+    await userEvent.keyboard('{Enter}')
+    await userEvent.keyboard('{Enter}')
+    await waitFor(() =>
+      expect(
+        canvas.getByRole('button', { name: 'Something went wrong' }),
+      ).toBeDisabled(),
     )
   },
 }

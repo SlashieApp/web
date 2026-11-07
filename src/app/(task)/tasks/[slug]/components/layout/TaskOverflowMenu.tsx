@@ -142,6 +142,7 @@ function MenuAction({
   onClick,
   danger,
   loading,
+  disabled,
 }: {
   icon: React.ReactNode
   label: string
@@ -149,6 +150,7 @@ function MenuAction({
   onClick?: () => void
   danger?: boolean
   loading?: boolean
+  disabled?: boolean
 }) {
   const color = danger ? 'status.danger.fg' : undefined
   if (href) {
@@ -174,6 +176,7 @@ function MenuAction({
       w="full"
       onClick={onClick}
       loading={loading}
+      disabled={disabled}
       color={color}
     >
       {icon}
@@ -259,6 +262,9 @@ function BookingActions({
             loading={
               action === 'withdrawRequest' && orderActionPending === withdraw
             }
+            // The Done card's button was off while an order action ran: a
+            // second, conflicting action must not start from here either.
+            disabled={action === 'markFailed' && orderActionPending != null}
             onClick={() => {
               onDone()
               if (action === 'withdrawRequest') {
