@@ -8,9 +8,9 @@ import type { BottomPinViewInput, BottomPinViewName } from './types'
  * Each ask, the task detail views that show it, and the bottom pin for it.
  * Compare quotes has none: the quote cards in the timeline handle it.
  *
- * Partial on purpose: the API adds asks over time (QUOTE_INVITATION, BE-123),
- * and a kind this build has no pin for must show nothing, not crash the
- * thread, and must not break the type check when the schema is regenerated.
+ * Partial on purpose: the API adds asks over time, and a kind this build has
+ * no pin for must show nothing, not crash the thread, and must not break the
+ * type check when the schema is regenerated.
  */
 const BOTTOM_PIN_BY_ASK: Partial<
   Record<
@@ -37,6 +37,13 @@ const BOTTOM_PIN_BY_ASK: Partial<
   [ThreadAttentionKind.AnswerFailed]: {
     views: ['owner.booked.theyMarkedFailed', 'worker.booked.theyMarkedFailed'],
     pin: 'bottomPin.answerFailed',
+  },
+  // A customer asked this worker to quote (BE-123, FE-507): only while task
+  // detail is the open, not-quoted view, so a quote sent, Not for me or a
+  // task that moved on never leaves buttons the API would refuse.
+  [ThreadAttentionKind.QuoteInvitation]: {
+    views: ['worker.open.notQuoted'],
+    pin: 'bottomPin.quoteInvitation',
   },
   [ThreadAttentionKind.Conflict]: {
     views: [

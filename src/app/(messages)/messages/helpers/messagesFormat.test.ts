@@ -91,6 +91,15 @@ describe('flashAction', () => {
         body: '',
       }),
     ).toEqual({ kind: 'task', href: '/tasks/t1' })
+    // The quote invitation's link opens the task (FE-507).
+    expect(
+      flashAction({
+        type: ThreadItemType.Flash,
+        flashKind: FlashKind.QuoteInvited,
+        taskId: 't1',
+        body: '',
+      }),
+    ).toEqual({ kind: 'task', href: '/tasks/t1' })
     expect(
       flashAction({ type: ThreadItemType.Message, taskId: 't1', body: 'hi' }),
     ).toBeNull()

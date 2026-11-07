@@ -347,3 +347,48 @@ export const LongMessage: Story = {
     },
   },
 }
+
+/**
+ * The quote invitation (FE-507): one flash, worded by the API for the viewer.
+ * A line like the others: title, time, body. No card, no quote, no price, and
+ * nothing to press.
+ */
+export const QuoteInvitedWorkerLine: Story = {
+  args: {
+    item: event(
+      'line-invited-worker',
+      FlashKind.QuoteInvited,
+      'Asked to quote',
+      'Alex Chen asked you to quote on this task.',
+    ),
+  },
+  decorators: [asWorker],
+  play: async ({ canvasElement }) => {
+    await line(canvasElement, FlashKind.QuoteInvited)
+    const canvas = within(canvasElement)
+    await expect(canvas.getByText('Asked to quote')).toBeVisible()
+    await expect(
+      canvas.getByText('Alex Chen asked you to quote on this task.'),
+    ).toBeVisible()
+    await expect(canvas.queryByText(/£/)).toBeNull()
+  },
+}
+
+/** The same flash for the customer, worded for them. */
+export const QuoteInvitedOwnerLine: Story = {
+  args: {
+    item: event(
+      'line-invited-owner',
+      FlashKind.QuoteInvited,
+      'Asked to quote',
+      'You asked Jordan Lee to quote.',
+    ),
+  },
+  decorators: [asOwner],
+  play: async ({ canvasElement }) => {
+    await line(canvasElement, FlashKind.QuoteInvited)
+    await expect(
+      within(canvasElement).getByText('You asked Jordan Lee to quote.'),
+    ).toBeVisible()
+  },
+}

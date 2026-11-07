@@ -121,6 +121,7 @@ export type BottomPinViewName =
   | 'bottomPin.confirmDone'
   | 'bottomPin.answerFailed'
   | 'bottomPin.conflict'
+  | 'bottomPin.quoteInvitation'
 
 export type BottomPinViewInput = {
   /** `thread.attention`: what the API says waits on the viewer. */
@@ -136,7 +137,8 @@ export type BottomPinViewConfig = {
    * `request`: task detail's answer buttons for a reschedule or cancellation.
    * `close`: its Done card (slide to mark Done; Something went wrong is the
    * thread menu's first entry). `openTask`: a link to sort a conflict out on
-   * task detail.
+   * task detail. `invitation`: "{customer} asked you to quote" with Send a
+   * quote and Not for me (FE-507).
    */
-  controls: 'request' | 'close' | 'openTask'
+  controls: 'request' | 'close' | 'openTask' | 'invitation'
 }

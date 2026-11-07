@@ -17,10 +17,25 @@ const pin = (kind: ThreadAttentionKind | null, view: TaskDetailViewName) => {
 
 describe('getBottomPinView', () => {
   it('shows nothing for an ask this build does not know yet, instead of crashing', () => {
-    // A kind the API added after this build (QUOTE_INVITATION, BE-123).
-    const unknown = 'QUOTE_INVITATION' as ThreadAttentionKind
+    // A kind the API adds after this build.
+    const unknown = 'SOMETHING_NEW' as ThreadAttentionKind
     expect(pin(unknown, 'worker.open.notQuoted')).toBeNull()
     expect(pin(unknown, 'owner.booked.ready')).toBeNull()
+  })
+
+  it('asks a worker who was asked to quote: Send a quote or Not for me (FE-507)', () => {
+    expect(
+      pin(ThreadAttentionKind.QuoteInvitation, 'worker.open.notQuoted'),
+    ).toBe('bottomPin.quoteInvitation')
+  })
+
+  it('hides the invitation once task detail is not the open, not-quoted view', () => {
+    const kind = ThreadAttentionKind.QuoteInvitation
+    expect(pin(kind, 'worker.open.quoted')).toBeNull()
+    expect(pin(kind, 'worker.bookedByOther')).toBeNull()
+    expect(pin(kind, 'worker.open.closed')).toBeNull()
+    expect(pin(kind, 'visitor.cancelled')).toBeNull()
+    expect(pin(kind, 'loading')).toBeNull()
   })
 
   it('asks you to answer their reschedule request', () => {

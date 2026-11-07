@@ -92,7 +92,9 @@
       "yourQuote": "Your quote",
       "agreed": "{price} agreed",
       "needsYou": "Needs you",
-      "openTask": "Open task"
+      "openTask": "Open task",
+      "sendQuote": "Send a quote",
+      "notForMe": "Not for me"
     },
     "openTask": "Open task: {title}"
   },
@@ -189,7 +191,9 @@
       "yourQuote": "你的報價",
       "agreed": "議定價 {price}",
       "needsYou": "待你處理",
-      "openTask": "開啟任務"
+      "openTask": "開啟任務",
+      "sendQuote": "傳送報價",
+      "notForMe": "不適合我"
     },
     "openTask": "開啟任務：{title}"
   }

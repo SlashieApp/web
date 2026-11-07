@@ -56,6 +56,8 @@ export type MessagesStoryConfig = {
    * thread is open: `task` is what shows first, then this.
    */
   taskNext?: TaskDetailRecord
+  /** Canned answers by operation name (a mutation); anything else never resolves. */
+  responses?: Record<string, StoryResponse>
   /** Fixed frame height for thread and screen stories. */
   height?: string
   maxW?: string
@@ -114,6 +116,9 @@ function forCache(task: TaskDetailRecord) {
     p ? { contactNumber: null, ...p, avatarUrl: null } : p
   return {
     ...task,
+    // The `Task` query asks for these (FE-507); the fixtures leave them off.
+    quoteInvitations: task.quoteInvitations ?? null,
+    viewerQuoteInvitation: task.viewerQuoteInvitation ?? null,
     images: [],
     poster: task.poster && {
       ...task.poster,
@@ -188,6 +193,7 @@ export function messagesStory<TArgs>(
     taskNext,
   } = config
   const responses: Record<string, StoryResponse> = {
+    ...config.responses,
     ...(threadRequest === 'failed' && {
       MessageThread: { kind: 'networkError' },
     }),

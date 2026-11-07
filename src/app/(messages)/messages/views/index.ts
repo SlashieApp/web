@@ -3,6 +3,7 @@ import { bottomPinCancel } from './bottomPin.cancel'
 import { bottomPinConfirmDone } from './bottomPin.confirmDone'
 import { bottomPinConflict } from './bottomPin.conflict'
 import { bottomPinMarkDone } from './bottomPin.markDone'
+import { bottomPinQuoteInvitation } from './bottomPin.quoteInvitation'
 import { bottomPinReschedule } from './bottomPin.reschedule'
 import { inboxEmpty } from './inbox.empty'
 import { inboxError } from './inbox.error'
@@ -98,4 +99,5 @@ export const BOTTOM_PIN_VIEWS: Record<BottomPinViewName, BottomPinViewConfig> =
     'bottomPin.confirmDone': bottomPinConfirmDone,
     'bottomPin.answerFailed': bottomPinAnswerFailed,
     'bottomPin.conflict': bottomPinConflict,
+    'bottomPin.quoteInvitation': bottomPinQuoteInvitation,
   }

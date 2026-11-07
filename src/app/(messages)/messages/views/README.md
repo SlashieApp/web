@@ -135,6 +135,7 @@ newest item it stays in view when the pins load or change size.
 | Message | A bubble, mine on the right |
 | `QUOTE_RECEIVED` (the worker's "quote sent") | The full quote card: worker, price, proposed times, message, live status; the poster accepts here (time picker + safety notice), the only answer there is, and only while the task is OPEN and not suspended: once someone is booked the other quotes stay PENDING but can't be accepted (BE-113); a suspended worker's quote shows "Account suspended" with Accept off (BE-108) |
 | `SYSTEM_ANNOUNCEMENT` (Slashie thread) | A card: picture, title, body |
+| `QUOTE_INVITED` (FE-507) | A line like the others: the API words title and body for the viewer ("{customer} asked you to quote on this task." for the worker, "You asked {worker} to quote." for the customer). Its link (`flashAction`) is the task; no push change (it opens the thread) |
 | Every other flash | One centred line: the flash's title (plus the quote's price on quote outcomes), time, then its body. No card, no buttons; `REVIEW_PROMPT` keeps its Leave a review link. The worker's `TASK_CANCELLED` and `TASK_REOPENED` (BE-108, title and body from the API) are lines too, without the price |
 
 A quote's status reads Awaiting reply (PENDING), Accepted, Withdrawn,
@@ -186,6 +187,7 @@ headline first.
 | `bottomPin.confirmDone` | CONFIRM_DONE | `*.booked.theyMarkedDone` | yes (auto-complete date) | The Done card |
 | `bottomPin.answerFailed` | ANSWER_FAILED | `*.booked.theyMarkedFailed` | yes | The Done card |
 | `bottomPin.conflict` | CONFLICT | `*.conflict.*` | yes | Open task |
+| `bottomPin.quoteInvitation` | QUOTE_INVITATION | `worker.open.notQuoted` | no | "{customer} asked you to quote" (`task.viewerQuoteInvitation.customerName`) with Send a quote (`/tasks/{id}/quote`) and Not for me (`dismissQuoteInvitation`, silent: no toast, the customer is not told; then the task and the inbox are read again, and the pin goes at once). Hidden once dismissed (FE-507) |
 
 Something went wrong is not in the pin: it is the first entry of the
 thread menu (`ThreadHeader`) while the booking can be closed, as it is the
