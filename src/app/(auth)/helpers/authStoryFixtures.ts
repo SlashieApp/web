@@ -281,6 +281,7 @@ export function storyMe(overrides: StoryMeOverrides = {}): MeSnapshot {
       isProfilePrivate: false,
       language: UserLanguage.En,
       marketingEmails: false,
+      acceptsQuoteInvitations: true,
       ...settings,
     },
   }

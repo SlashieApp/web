@@ -88,6 +88,7 @@ function buildMe({
       isProfilePrivate: false,
       language: UserLanguage.En,
       marketingEmails: false,
+      acceptsQuoteInvitations: true,
     },
     workerEligibility: membership !== null,
     worker: membership && {

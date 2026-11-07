@@ -70,6 +70,7 @@ export function buildStoryMe(
       isProfilePrivate: false,
       language: UserLanguage.En,
       marketingEmails: false,
+      acceptsQuoteInvitations: true,
     },
     worker: worker && {
       id: 'worker-1',

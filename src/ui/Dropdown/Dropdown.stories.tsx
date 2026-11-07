@@ -53,6 +53,7 @@ const accountMenuMe: MeSnapshot = {
     isProfilePrivate: false,
     language: UserLanguage.En,
     marketingEmails: false,
+    acceptsQuoteInvitations: true,
   },
   workerEligibility: true,
   worker: {

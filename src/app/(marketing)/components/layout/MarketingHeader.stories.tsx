@@ -31,6 +31,7 @@ const suspendedMe: MeSnapshot = {
     isProfilePrivate: false,
     language: UserLanguage.En,
     marketingEmails: false,
+    acceptsQuoteInvitations: true,
   },
   worker: null,
 }

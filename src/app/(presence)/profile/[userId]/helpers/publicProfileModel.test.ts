@@ -151,6 +151,8 @@ describe('toPublicProfileModel', () => {
             contactAction: WorkerContactAction.AcceptQuoteFirst,
             relatedTaskId: null,
             relatedQuoteId: null,
+            canAskToQuote: false,
+            askableTasks: [],
           },
         },
       }),
