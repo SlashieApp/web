@@ -1,7 +1,7 @@
 'use client'
 
 import { Box, type SystemStyleObject } from '@chakra-ui/react'
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import type { IconType } from 'react-icons'
 import { LuEye, LuLogIn, LuRepeat, LuRotateCcw, LuSearch } from 'react-icons/lu'
@@ -16,6 +16,7 @@ import { showAppToast } from '@/utils/appToast'
 
 import { useTaskDetail } from '../../context/TaskDetailProvider'
 import type { TaskDetailMainCtaModel } from '../../helpers/taskDetailMainCtaModel'
+import { usePinHeightVar } from '../../helpers/usePinHeightVar'
 import bag from '../../i11n.json'
 import type { TaskDetailPrimaryAction } from '../../views'
 import { OrderCloseCard } from '../overview/OrderCloseCard'
@@ -162,6 +163,8 @@ export function TaskDetailMainCta() {
   const { mainCta } = useTaskDetail()
   const isBrowser = useIsBrowser()
   const [reopenOpen, setReopenOpen] = useState(false)
+  const pinRef = useRef<HTMLDivElement>(null)
+  usePinHeightVar(pinRef)
 
   if (!mainCta) return null
 
@@ -173,6 +176,7 @@ export function TaskDetailMainCta() {
 
   const compactPin = (
     <Box
+      ref={pinRef}
       data-task-detail-main-cta
       data-task-detail-pin={mainCta.presentation}
       css={{

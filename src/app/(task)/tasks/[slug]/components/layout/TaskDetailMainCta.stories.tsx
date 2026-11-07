@@ -11,6 +11,10 @@ import { expect, userEvent, waitFor, within } from 'storybook/test'
 
 import { AppToastHost } from '@/utils/appToast'
 
+import {
+  TASK_DETAIL_PIN_CLEARANCE,
+  TASK_DETAIL_PIN_HEIGHT_VAR,
+} from '../../helpers/taskDetailPinClearance'
 import { withTaskDetailStory } from '../../helpers/taskDetailStoryDecorator'
 import { withOrderReviewSeed } from '../../helpers/taskDetailStoryExtras'
 import {
@@ -565,11 +569,11 @@ export const PhoneReadyToClose: Story = {
 
 // ------------------------------------------------ asked to quote (FE-507)
 
-const asked = (dismissed: boolean) =>
+const asked = (dismissed: boolean, customerName = 'Alex Chen') =>
   storyTaskDetail({
     quotes: [competitorQuote],
     viewerQuoteInvitation: {
-      customerName: 'Alex Chen',
+      customerName,
       createdAt: '2026-06-01T10:00:00.000Z',
       dismissed,
     },
@@ -627,5 +631,46 @@ export const PhoneWorkerAskedToQuote: Story = {
     await expect(note.getBoundingClientRect().right).toBeLessThanOrEqual(
       window.innerWidth,
     )
+  },
+}
+
+/** The space kept under the page for the pin, as the page's spacer resolves it. */
+function clearancePx(): number {
+  const probe = document.createElement('div')
+  probe.style.height = TASK_DETAIL_PIN_CLEARANCE
+  probe.style.width = '1px'
+  document.body.append(probe)
+  const height = probe.getBoundingClientRect().height
+  probe.remove()
+  return height
+}
+
+function pinHeightPx(): number {
+  // The web copy of the control is hidden on phones (height 0).
+  const heights = [...document.querySelectorAll('[data-task-detail-pin]')].map(
+    (element) => element.getBoundingClientRect().height,
+  )
+  return Math.max(0, ...heights)
+}
+
+/** Phone: the note makes the pin taller; the page's clearance still covers it. */
+export const PhoneAskedClearanceCoversPin: Story = {
+  ...phone,
+  ...cta({
+    viewer: 'worker',
+    task: asked(false, 'Alexandria Montgomery-Featherstonehaugh'),
+  }),
+  play: async ({ canvasElement }) => {
+    const body = pin(canvasElement)
+    await body.findByRole('link', { name: 'Send quote' })
+    await waitFor(() =>
+      expect(clearancePx()).toBeGreaterThanOrEqual(pinHeightPx()),
+    )
+    // The measured height is what lifts the clearance over the fixed 7.5rem.
+    await expect(
+      document.documentElement.style.getPropertyValue(
+        TASK_DETAIL_PIN_HEIGHT_VAR,
+      ),
+    ).toBe(`${pinHeightPx()}px`)
   },
 }
