@@ -84,9 +84,18 @@ function story(
     canAskToQuote?: boolean
     ask?: StoryResponse
   } = {},
-): Pick<Story, 'decorators'> {
+): Pick<Story, 'decorators' | 'parameters'> {
   const { canAskToQuote = true, ask = sentAnswer, ...rest } = config
   return {
+    // The router's view of the address, which the prompt reads.
+    parameters: {
+      nextjs: {
+        navigation: {
+          pathname: `/tasks/${TASK.id}`,
+          query: param === null ? {} : { askWorker: param },
+        },
+      },
+    },
     decorators: [
       withTaskDetailStory({
         viewer: 'owner',

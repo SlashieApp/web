@@ -1,6 +1,7 @@
 'use client'
 
 import { useQuery } from '@apollo/client/react'
+import { useSearchParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
 
 import { AskAfterPostPrompt } from '@/content/quoteInvitations/AskAfterPostPrompt'
@@ -23,12 +24,6 @@ import { EVENTS, capture } from '@/utils/analytics'
 
 import { useTaskDetail } from '../../context/TaskDetailProvider'
 import bag from '../../i11n.json'
-
-/** `?askWorker=` as a valid id, or null. Browser only: the server has no address. */
-function readCarriedWorker(): string | null {
-  if (typeof window === 'undefined') return null
-  return parseAskWorkerParam(window.location.search)
-}
 
 /**
  * Takes `?askWorker=` off the address, valid or not, so a reload does not
@@ -55,7 +50,12 @@ function stripCarriedWorker() {
 export function TaskAskAfterPost() {
   const { task, permissions, refetch } = useTaskDetail()
   const fallbackName = useI11n(bag).fallbackWorker
-  const [workerId] = useState(readCarriedWorker)
+  // From the router, not window.location: on a client navigation from Post a
+  // task the address bar still shows the old page while this renders.
+  const searchParams = useSearchParams()
+  const [workerId] = useState(() =>
+    parseAskWorkerParam(searchParams.toString()),
+  )
   useEffect(stripCarriedWorker, [])
   const [closed, setClosed] = useState(false)
   const invite = useAskWorkerToQuote()
