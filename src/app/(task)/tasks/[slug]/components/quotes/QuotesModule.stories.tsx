@@ -7,6 +7,7 @@ import {
   phone390,
 } from '@/app/(dashboard)/components/ui/dialogSpacing.testing'
 import { gapBeside, heightOf } from '@/ui/FormField/formGap.testing'
+import { viewportAt } from '@/ui/PageContainer/pageLines.testing'
 
 import { withTaskDetailStory } from '../../helpers/taskDetailStoryDecorator'
 import {
@@ -743,3 +744,31 @@ export const AskedPhone: Story = {
     expectPhoneWidth(canvasElement)
   },
 }
+
+/** The group at each width: inside the card, rows 44 or taller, nothing wider than the window. */
+async function expectAskedFits(canvasElement: HTMLElement, width: number) {
+  const canvas = await expectAskedGroup(canvasElement)
+  // The group's own rows (the quote rows above have their own avatar links).
+  const group = canvas.getByRole('region', { name: 'Asked to quote' })
+  const rows = within(group).getAllByRole('link')
+  const card = canvasElement.querySelector('#task-quotes') as HTMLElement
+  const cardBox = card.getBoundingClientRect()
+  for (const row of rows) {
+    const box = row.getBoundingClientRect()
+    await expect(box.height).toBeGreaterThanOrEqual(44)
+    await expect(box.left).toBeGreaterThanOrEqual(cardBox.left)
+    await expect(box.right).toBeLessThanOrEqual(cardBox.right + 0.5)
+  }
+  await expect(cardBox.right).toBeLessThanOrEqual(width)
+  await expect(document.documentElement.scrollWidth).toBeLessThanOrEqual(width)
+}
+
+const askedOnTheLines = (width: number): Story => ({
+  ...AskedAfterTheQuotes,
+  ...viewportAt(width),
+  play: ({ canvasElement }) => expectAskedFits(canvasElement, width),
+})
+export const AskedAt390: Story = askedOnTheLines(390)
+export const AskedAt820: Story = askedOnTheLines(820)
+export const AskedAt1024: Story = askedOnTheLines(1024)
+export const AskedAt1366: Story = askedOnTheLines(1366)

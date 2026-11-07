@@ -69,6 +69,27 @@ live (PENDING) quotes only. `{name}` is the other person on the booking.
 | `visitor.completed` | The same, `bookingStatus` COMPLETED. | Completed | Task completed | This task is no longer taking quotes. | location, categories, postedBy, description, photos | - | none |
 | `visitor.cancelled` | Anyone except the owner on a CANCELLED task. | Cancelled | Task cancelled | This task is no longer active. | location, categories, postedBy, description, photos | - | none |
 
+## Asked to quote (FE-507)
+
+A customer can ask one worker to quote on an open task (wiki
+`Quote-Invitations.md`). Two small additions, neither a new view:
+
+- **Owner, Quotes section:** `task.quoteInvitations` (owner only) is the
+  "Asked to quote" group after the quotes: avatar, name and "No quote yet",
+  each linking to the worker's profile. Only when the list is not empty, and
+  it keeps the section on screen when there are no quotes yet (with the
+  section's "Workers can send quotes while your task is open." line).
+- **Worker, `worker.open.notQuoted`:** while `task.viewerQuoteInvitation`
+  exists and `dismissed` is false, a one-line note by Send quote: "{customer}
+  asked you to quote" (`taskDetailMainCtaModel` `invitedBy`). It is gone once
+  they say Not for me (in Messages' bottom pin). `worker.open.closed` and the
+  other views do not carry it.
+
+After Post a task carried a worker (`?askWorker=<24-hex id>`), the owner's page
+asks "Ask {name} to quote on this task?" (`TaskAskAfterPost`): only when that
+worker's profile says the viewer can ask, and the parameter leaves the address
+at once.
+
 ## Rules worth knowing
 
 - The task status enum is OPEN, AWARDED, CANCELLED, DRAFT. There is no
