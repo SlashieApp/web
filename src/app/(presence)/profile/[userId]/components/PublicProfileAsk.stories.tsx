@@ -1,3 +1,6 @@
+import type { ApolloLink } from '@apollo/client/core'
+import { ApolloProvider } from '@apollo/client/react'
+import { Observable } from '@apollo/client/utilities'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test'
 
@@ -5,10 +8,14 @@ import {
   barButton,
   openDialog,
 } from '@/app/(dashboard)/components/ui/dialogSpacing.testing'
-import { withStoryApollo } from '@/app/(worker)/workers/components/storyApollo'
+import {
+  createStoryApolloClient,
+  withStoryApollo,
+} from '@/app/(worker)/workers/components/storyApollo'
 import type { AskableTaskChoice } from '@/content/quoteInvitations/types'
 import { LocaleProvider } from '@/i18n/LocaleProvider'
 import { viewportAt } from '@/ui/PageContainer/pageLines.testing'
+import { usePublicProfileActions } from '../helpers/usePublicProfileActions'
 
 import { PublicProfileScreen } from './PublicProfileScreen'
 import {
@@ -166,6 +173,66 @@ export const Refused: Story = {
     await userEvent.click(await visibleMain(canvasElement, 'Ask Alex to quote'))
     const { dialog } = await openDialog(canvasElement, 'Ask Alex to quote')
     await expect(within(dialog).getByRole('alert')).toBeVisible()
+  },
+}
+
+/**
+ * The real ask hook against a story API that refuses the ask as already sent:
+ * the dialog stays open with the line, and the profile is read again so the
+ * stale row can update (review B6). Nothing reaches the real API.
+ */
+function AlreadySentHarness({ onAsked }: { onAsked: () => void }) {
+  const model = sampleWorker({
+    id: WORKER_ID,
+    viewer: sampleAskableViewer(TASKS),
+  })
+  const actions = usePublicProfileActions(model, null, onAsked)
+  return (
+    <PublicProfileScreen
+      view="worker.askable"
+      model={model}
+      onRetry={() => {}}
+      now={STORY_NOW}
+      {...actions}
+    />
+  )
+}
+
+const refusingClient = createStoryApolloClient(
+  () =>
+    new Observable<ApolloLink.Result>((observer) => {
+      observer.next({
+        data: null,
+        errors: [
+          {
+            message: 'QUOTE_INVITE_ALREADY_SENT',
+            extensions: { code: 'QUOTE_INVITE_ALREADY_SENT' },
+          },
+        ],
+      } as ApolloLink.Result)
+      observer.complete()
+    }),
+)
+
+export const RefusedRefreshesTheProfile: Story = {
+  render: (args) => (
+    <ApolloProvider client={refusingClient}>
+      <AlreadySentHarness onAsked={() => args.onRetry?.()} />
+    </ApolloProvider>
+  ),
+  play: async ({ canvasElement, args }) => {
+    await userEvent.click(await visibleMain(canvasElement, 'Ask Alex to quote'))
+    const { dialog } = await openDialog(canvasElement, 'Ask Alex to quote')
+    const d = within(dialog)
+    await userEvent.click(d.getAllByRole('radio')[0])
+    await userEvent.click(barButton(dialog, 'Ask Alex to quote'))
+    await waitFor(() =>
+      expect(d.getByRole('alert')).toHaveTextContent(
+        "You've already asked Alex about this task.",
+      ),
+    )
+    await expect(dialog).toBeVisible()
+    await expect(args.onRetry).toHaveBeenCalledTimes(1)
   },
 }
 

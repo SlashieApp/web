@@ -22,7 +22,10 @@ import type { PublicProfileModel } from './publicProfileModel'
 export function usePublicProfileActions(
   model: PublicProfileModel | null,
   excludeTaskId: string | null,
-  /** After an invitation went through: read the profile again, so the row says "Asked". */
+  /**
+   * After an ask, sent or refused: read the profile again, so the row says
+   * "Asked" and a row that went stale (asked meanwhile, task closed) updates.
+   */
   onAsked?: () => void,
 ) {
   const t = useI11n(bag).hero
@@ -69,7 +72,7 @@ export function usePublicProfileActions(
       workerName,
       surface: 'profile',
     })
-    if (ok) onAsked?.()
+    onAsked?.()
     return ok
   }
   const ask = {
