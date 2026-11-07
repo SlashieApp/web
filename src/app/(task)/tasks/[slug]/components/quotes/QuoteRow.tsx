@@ -223,7 +223,7 @@ function avatarGradient(seed: string): string {
 }
 
 /** Photo, or initials on a name-seeded gradient when there is none. */
-function QuoteAvatar({
+export function QuoteAvatar({
   name,
   avatarLabel,
   avatarUrl,

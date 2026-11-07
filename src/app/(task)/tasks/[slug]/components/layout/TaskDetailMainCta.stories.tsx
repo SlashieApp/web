@@ -562,3 +562,70 @@ export const PhoneReadyToClose: Story = {
     )
   },
 }
+
+// ------------------------------------------------ asked to quote (FE-507)
+
+const asked = (dismissed: boolean) =>
+  storyTaskDetail({
+    quotes: [competitorQuote],
+    viewerQuoteInvitation: {
+      customerName: 'Alex Chen',
+      createdAt: '2026-06-01T10:00:00.000Z',
+      dismissed,
+    },
+  })
+
+/** Worker asked to quote: a one-line note by Send quote. */
+export const WorkerAskedToQuote: Story = {
+  ...desktop,
+  ...cta({ viewer: 'worker', task: asked(false) }),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await canvas.findByRole('link', { name: 'Send quote' })
+    await expect(canvas.getByText('Alex Chen asked you to quote')).toBeVisible()
+  },
+}
+
+/** Not for me: the note is gone and Send quote stays. */
+export const WorkerDismissedInvitation: Story = {
+  ...desktop,
+  ...cta({ viewer: 'worker', task: asked(true) }),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await canvas.findByRole('link', { name: 'Send quote' })
+    await expect(canvas.queryByText(/asked you to quote/)).toBeNull()
+  },
+}
+
+/** Nobody asked: no note. */
+export const WorkerNotAsked: Story = {
+  ...desktop,
+  ...cta({
+    viewer: 'worker',
+    task: storyTaskDetail({ quotes: [competitorQuote] }),
+  }),
+  play: async ({ canvasElement }) => {
+    await within(canvasElement).findByRole('link', { name: 'Send quote' })
+    await expect(
+      within(canvasElement).queryByText(/asked you to quote/),
+    ).toBeNull()
+  },
+}
+
+/** Phone: the note is in the pinned bar with the button. */
+export const PhoneWorkerAskedToQuote: Story = {
+  ...phone,
+  ...cta({ viewer: 'worker', task: asked(false) }),
+  play: async ({ canvasElement }) => {
+    const body = pin(canvasElement)
+    await body.findByRole('link', { name: 'Send quote' })
+    // The web copy of the control is hidden on phones; the pin's is the one shown.
+    const notes = body.getAllByText('Alex Chen asked you to quote')
+    const shown = notes.filter((element) => element.checkVisibility())
+    await expect(shown).toHaveLength(1)
+    const note = shown[0]
+    await expect(note.getBoundingClientRect().right).toBeLessThanOrEqual(
+      window.innerWidth,
+    )
+  },
+}

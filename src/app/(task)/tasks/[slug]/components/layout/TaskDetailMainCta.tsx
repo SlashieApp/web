@@ -142,6 +142,7 @@ function MainCtaControl({
       eyebrow={model.content.eyebrow}
       value={model.content.value}
       meta={model.content.meta}
+      note={model.content.note}
       fullWidth={fill || model.presentation === 'quoted'}
       action={{
         label: model.buttonLabel,

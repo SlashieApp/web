@@ -12,6 +12,8 @@ export type TaskDetailSplitCtaProps = {
   value: ReactNode
   /** Muted line beside the value (e.g. `Fixed price · Cash`). */
   meta?: ReactNode
+  /** One muted line under the value, such as who asked for the quote. */
+  note?: ReactNode
   /** Right half. `href` navigates; `onClick` runs in place. */
   action?: { label: string; href?: string; onClick?: () => void }
   /** Stretch to the container (compact pin). */
@@ -31,6 +33,7 @@ export function TaskDetailSplitCta({
   eyebrow,
   value,
   meta,
+  note,
   action,
   fullWidth = false,
 }: TaskDetailSplitCtaProps) {
@@ -83,6 +86,11 @@ export function TaskDetailSplitCta({
             </Text>
           ) : null}
         </HStack>
+        {note ? (
+          <Text fontSize="xs" color="text.muted" lineHeight="short">
+            {note}
+          </Text>
+        ) : null}
       </Stack>
       {action ? (
         <Box display="flex" flexShrink={0}>

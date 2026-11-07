@@ -619,3 +619,127 @@ export const C2AcceptNoFutureTimes: Story = {
     )
   },
 }
+
+// ------------------------------------------------- asked to quote (FE-507)
+
+const ASKED = [
+  {
+    workerUserId: '64b7f0c2a1d3e4f5a6b7c8d1',
+    name: 'Priya Shah',
+    avatarUrl: null,
+    createdAt: '2026-06-02T10:00:00.000Z',
+  },
+  {
+    workerUserId: '64b7f0c2a1d3e4f5a6b7c8d2',
+    name: 'Tom Hughes',
+    avatarUrl: null,
+    createdAt: '2026-06-01T10:00:00.000Z',
+  },
+]
+
+/** The group rows: each a link to the worker's profile, "No quote yet" under the name. */
+async function expectAskedGroup(canvasElement: HTMLElement) {
+  const canvas = within(canvasElement)
+  await canvas.findByText('Asked to quote')
+  const priya = await canvas.findByRole('link', {
+    name: 'View profile for Priya Shah',
+  })
+  await expect(priya).toHaveAttribute(
+    'href',
+    expect.stringContaining('/profile/64b7f0c2a1d3e4f5a6b7c8d1'),
+  )
+  await expect(canvas.getAllByText('No quote yet')).toHaveLength(ASKED.length)
+  return canvas
+}
+
+/** Owner, quotes and workers asked: the group sits after the quotes. */
+export const AskedAfterTheQuotes: Story = {
+  decorators: [
+    withTaskDetailStory(
+      {
+        viewer: 'owner',
+        task: storyTaskDetail({
+          quotes: [competitorA, competitorB],
+          quoteInvitations: ASKED,
+        }),
+      },
+      QUOTE_LIST,
+    ),
+  ],
+  play: async ({ canvasElement }) => {
+    const canvas = await expectAskedGroup(canvasElement)
+    const lastQuote = canvas.getAllByRole('button', { name: 'Accept' }).at(-1)
+    const heading = canvas.getByText('Asked to quote')
+    await expect(
+      (lastQuote?.compareDocumentPosition(heading) ?? 0) &
+        Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy()
+  },
+}
+
+/** Owner, nobody has quoted yet: the section stays, with the group under the empty line. */
+export const AskedWithNoQuotesYet: Story = {
+  decorators: [
+    withTaskDetailStory(
+      {
+        viewer: 'owner',
+        task: storyTaskDetail({ quotes: [], quoteInvitations: ASKED }),
+      },
+      QUOTE_LIST,
+    ),
+  ],
+  play: async ({ canvasElement }) => {
+    const canvas = await expectAskedGroup(canvasElement)
+    await expect(
+      canvas.getByText('Workers can send quotes while your task is open.'),
+    ).toBeVisible()
+    await expect(canvas.queryByRole('button', { name: 'Accept' })).toBeNull()
+  },
+}
+
+/** Owner, none asked: no group, and with no quotes the section stays hidden as before. */
+export const NoneAsked: Story = {
+  decorators: [
+    withTaskDetailStory(
+      {
+        viewer: 'owner',
+        task: storyTaskDetail({ quotes: [], quoteInvitations: [] }),
+      },
+      QUOTE_LIST,
+    ),
+  ],
+  play: async ({ canvasElement }) => {
+    await expect(within(canvasElement).queryByText('Asked to quote')).toBeNull()
+    await expect(within(canvasElement).queryByText('Quotes')).toBeNull()
+  },
+}
+
+/** Nobody but the owner gets the list: the API sends null, and a worker sees no group. */
+export const AskedNotShownToWorkers: Story = {
+  decorators: [
+    withTaskDetailStory(
+      {
+        viewer: 'worker',
+        task: storyTaskDetail({
+          quotes: [publicA],
+          quoteInvitations: ASKED,
+        }),
+      },
+      QUOTE_LIST,
+    ),
+  ],
+  play: async ({ canvasElement }) => {
+    await within(canvasElement).findByText('Quotes')
+    await expect(within(canvasElement).queryByText('Asked to quote')).toBeNull()
+  },
+}
+
+/** Phone: the rows fit 390 wide. */
+export const AskedPhone: Story = {
+  ...AskedAfterTheQuotes,
+  ...phone390,
+  play: async ({ canvasElement }) => {
+    await expectAskedGroup(canvasElement)
+    expectPhoneWidth(canvasElement)
+  },
+}

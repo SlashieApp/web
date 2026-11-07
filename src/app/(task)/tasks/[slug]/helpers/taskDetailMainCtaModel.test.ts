@@ -82,6 +82,18 @@ describe('buildTaskDetailMainCta', () => {
     })
   })
 
+  it('adds who asked to Send quote only for a worker who was asked (FE-507)', () => {
+    expect(cta('sendQuote', { invitedBy: 'Ava' })?.content?.note).toBe(
+      'Ava asked you to quote',
+    )
+    expect(cta('sendQuote')?.content?.note).toBeUndefined()
+    expect(cta('sendQuote', { invitedBy: null })?.content?.note).toBeUndefined()
+    // The note belongs to Send quote alone.
+    expect(
+      cta('editQuote', { invitedBy: 'Ava' })?.content?.note,
+    ).toBeUndefined()
+  })
+
   it('signed-in customer is sent to worker setup with the earn line', () => {
     expect(cta('becomeWorker')).toMatchObject({
       buttonLabel: 'Become a worker',

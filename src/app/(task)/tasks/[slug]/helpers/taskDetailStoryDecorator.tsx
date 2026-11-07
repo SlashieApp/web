@@ -86,6 +86,18 @@ function TaskDetailStorySeed({
             status: task.status,
             bookingStatus: task.bookingStatus,
             canReopen: task.canReopen,
+            quoteInvitations: task.quoteInvitations
+              ? task.quoteInvitations.map((invitation) => ({
+                  __typename: 'TaskQuoteInvitation',
+                  ...invitation,
+                }))
+              : null,
+            viewerQuoteInvitation: task.viewerQuoteInvitation
+              ? {
+                  __typename: 'ViewerQuoteInvitation',
+                  ...task.viewerQuoteInvitation,
+                }
+              : null,
             location: task.location
               ? { __typename: 'TaskLocation', ...task.location }
               : null,

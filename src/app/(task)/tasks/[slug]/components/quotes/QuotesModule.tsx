@@ -23,6 +23,7 @@ import {
   workerQuoteAvatarLabel,
 } from '../../helpers/taskDetailUtils'
 import bag from '../../i11n.json'
+import { AskedToQuoteGroup } from './AskedToQuoteGroup'
 import { QuoteRow, type QuoteRowStatus } from './QuoteRow'
 import { useAcceptQuoteSafety } from './useAcceptQuoteSafety'
 
@@ -277,7 +278,10 @@ export function QuotesModule({ slotsCap = 1 }: QuotesModuleProps) {
     isOpen: permissions.isOpen,
     myQuoteId: myQuote?.id ?? null,
   })
-  if (rows.length === 0) return null
+  // The owner's "Asked to quote" group (FE-507), after the quotes. It keeps
+  // the section on screen with no quotes yet.
+  const asked = isOwner ? (task.quoteInvitations ?? []) : []
+  if (rows.length === 0 && asked.length === 0) return null
 
   const quoteRow = (quote: TaskQuote, index: number) => {
     const content = quoteRowContent(quote, q, intlLocale)
@@ -327,9 +331,11 @@ export function QuotesModule({ slotsCap = 1 }: QuotesModuleProps) {
       id="task-quotes"
       eyebrow={q.heading}
       headingAccessory={
-        <Badge variant="neutral" size="sm" shape="pill">
-          {rows.length}
-        </Badge>
+        rows.length > 0 ? (
+          <Badge variant="neutral" size="sm" shape="pill">
+            {rows.length}
+          </Badge>
+        ) : undefined
       }
     >
       {acceptError ? (
@@ -365,7 +371,18 @@ export function QuotesModule({ slotsCap = 1 }: QuotesModuleProps) {
           </Select>
         </HStack>
       ) : null}
-      <Stack gap={0}>{rows.map(quoteRow)}</Stack>
+      {rows.length > 0 ? (
+        <Stack gap={0}>{rows.map(quoteRow)}</Stack>
+      ) : (
+        <Text fontSize="sm" color="text.muted">
+          {q.subtitles.C1}
+        </Text>
+      )}
+      <AskedToQuoteGroup
+        invitations={asked}
+        taskId={task.id}
+        withTopDivider={rows.length > 0}
+      />
       {acceptSafetyDialog}
     </Card>
   )

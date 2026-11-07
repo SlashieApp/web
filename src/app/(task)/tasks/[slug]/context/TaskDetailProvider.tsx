@@ -63,7 +63,10 @@ import {
   resolveTaskDetailTab,
   writeTaskDetailHash,
 } from '@/app/(task)/tasks/[slug]/helpers/taskDetailTabs'
-import type { TaskDetailRecord } from '@/app/(task)/tasks/[slug]/helpers/taskDetailUtils'
+import type {
+  TaskClientRecord,
+  TaskDetailRecord,
+} from '@/app/(task)/tasks/[slug]/helpers/taskDetailUtils'
 import { taskQueryVariables } from '@/app/(task)/tasks/[slug]/helpers/taskQueryVariables'
 import {
   availablePrimaryAction,
@@ -361,7 +364,7 @@ export function TaskDetailProvider({
     fetchPolicy: 'cache-and-network',
     notifyOnNetworkStatusChange: true,
   })
-  const clientTask = clientTaskData?.task ?? null
+  const clientTask = (clientTaskData?.task ?? null) as TaskClientRecord | null
   const clientTaskLoading = Boolean(clientTaskLoadingRaw && !clientTask)
   const clientTaskLoaded = Boolean(clientTask)
   // The request still carries the owner's token; a guest preview keeps only
@@ -406,6 +409,8 @@ export function TaskDetailProvider({
       // owner's alone, so the preview never gets it.
       bookingStatus: clientTask?.bookingStatus ?? TaskBookingStatus.None,
       canReopen: viewerTask?.canReopen ?? false,
+      quoteInvitations: viewerTask?.quoteInvitations ?? null,
+      viewerQuoteInvitation: viewerTask?.viewerQuoteInvitation ?? null,
       location:
         viewerTask?.location ??
         (publicTask.location
@@ -1023,6 +1028,16 @@ export function TaskDetailProvider({
     [statusReady, task, myOrder, me, permissions.hasWorkerProfile, nowMs],
   )
 
+  // Asked to quote and not yet "Not for me", on the worker's open, not-quoted
+  // view (FE-507): the note by Send quote.
+  const viewerInvitation = task?.viewerQuoteInvitation ?? null
+  const invitedBy =
+    view === 'worker.open.notQuoted' &&
+    viewerInvitation &&
+    !viewerInvitation.dismissed
+      ? viewerInvitation.customerName
+      : null
+
   const mainCta = useMemo(
     () =>
       task
@@ -1043,6 +1058,7 @@ export function TaskDetailProvider({
             myQuote,
             isOwner: permissions.isOwner,
             viewerHasSubmittedReview,
+            invitedBy,
             messageHref: taskThreadHref,
             copy: t,
             dateLocale,
@@ -1058,6 +1074,7 @@ export function TaskDetailProvider({
       permissions.isFrozen,
       permissions.canReopen,
       viewerHasSubmittedReview,
+      invitedBy,
       taskThreadHref,
       t,
       dateLocale,

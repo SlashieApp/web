@@ -1,4 +1,5 @@
 import { workerSetupHref } from '@/app/(stepflow)/worker/setup/helpers/workerSetupHref'
+import { formatMessage } from '@/i18n/loadPageI11n'
 import { type OrderItem, formatOrderAgreedPrice } from '@/utils/orderHelpers'
 import { formatPrice } from '@/utils/price'
 import { repostTaskHref } from '@/utils/taskHandoff'
@@ -20,6 +21,8 @@ export type TaskDetailMainCtaContent = {
   eyebrow: string
   value: string
   meta?: string
+  /** One muted line by the button: "{customer} asked you to quote" (FE-507). */
+  note?: string
 }
 
 /**
@@ -70,6 +73,11 @@ export function buildTaskDetailMainCta(input: {
   myQuote: TaskDetailRecord['quotes'][number] | null
   isOwner: boolean
   viewerHasSubmittedReview: boolean
+  /**
+   * The customer who asked this worker to quote and hasn't been told Not for
+   * me (FE-507); null for anyone else. Only Send quote carries the note.
+   */
+  invitedBy?: string | null
   /** The task's Messages thread, or the inbox when it is not known yet. */
   messageHref: string
   copy: TaskDetailCopy
@@ -119,7 +127,12 @@ export function buildTaskDetailMainCta(input: {
     case 'sendQuote':
       return quoted(
         copy.cta.sendQuote,
-        budgetContent(task, copy),
+        {
+          ...budgetContent(task, copy),
+          note: input.invitedBy
+            ? formatMessage(copy.cta.invitedBy, { customer: input.invitedBy })
+            : undefined,
+        },
         `${taskPath}/quote`,
       )
     case 'becomeWorker': {

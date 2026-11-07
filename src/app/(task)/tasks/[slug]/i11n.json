@@ -35,6 +35,7 @@
     },
     "cta": {
       "sendQuote": "Send quote",
+      "invitedBy": "{customer} asked you to quote",
       "becomeWorker": "Become a worker",
       "youCanEarn": "You can earn",
       "editQuote": "Edit quote",
@@ -304,6 +305,11 @@
         "avatarAlt": "{name} avatar",
         "accountSuspended": "Account suspended"
       },
+      "asked": {
+        "heading": "Asked to quote",
+        "noQuote": "No quote yet",
+        "viewProfileFor": "View profile for {name}"
+      },
       "respondedJustNow": "Responded just now",
       "respondedMinutes": "Responded {count} min ago",
       "respondedHour": "Responded {count} hour ago",
@@ -529,6 +535,7 @@
     },
     "cta": {
       "sendQuote": "傳送報價",
+      "invitedBy": "{customer} 邀請你報價",
       "becomeWorker": "成為工作者",
       "youCanEarn": "你可賺取",
       "editQuote": "編輯報價",
@@ -797,6 +804,11 @@
         "verified": "已核對身分",
         "avatarAlt": "{name} 的頭像",
         "accountSuspended": "帳戶已暫停"
+      },
+      "asked": {
+        "heading": "已邀請報價",
+        "noQuote": "未有報價",
+        "viewProfileFor": "查看 {name} 的檔案"
       },
       "respondedJustNow": "剛剛回覆",
       "respondedMinutes": "{count} 分鐘前回覆",

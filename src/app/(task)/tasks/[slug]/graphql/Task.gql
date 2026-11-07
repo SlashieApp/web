@@ -61,6 +61,20 @@ query Task($id: ID!) {
     orders {
       ...TaskDetailOrderFields
     }
+    # Ask a worker to quote (FE-507). The owner's list of workers asked who
+    # have no quote yet, newest first (null for everyone else); and the
+    # invited worker's own view of it (null for everyone else).
+    quoteInvitations {
+      workerUserId
+      name
+      avatarUrl
+      createdAt
+    }
+    viewerQuoteInvitation {
+      customerName
+      createdAt
+      dismissed
+    }
     # KEEP IN SYNC with the quotes selection in TaskForEdit.gql.
     quotes {
       id

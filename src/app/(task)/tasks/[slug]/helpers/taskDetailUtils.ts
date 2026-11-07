@@ -9,7 +9,28 @@ import type bag from '../i11n.json'
 type TaskDetailCopy = (typeof bag)['en']
 
 export type TaskCoreRecord = NonNullable<TaskCoreQuery['task']>
-export type TaskClientRecord = NonNullable<TaskQuery['task']>
+
+/**
+ * Ask a worker to quote (FE-507), by hand until the next `bun run codegen`
+ * brings them into the generated `TaskQuery`: they mirror the schema's
+ * `TaskQuoteInvitation` and `ViewerQuoteInvitation`.
+ */
+export type TaskQuoteInvitationRow = {
+  workerUserId: string
+  name: string
+  avatarUrl?: string | null
+  createdAt: string
+}
+export type ViewerQuoteInvitationRecord = {
+  customerName: string
+  createdAt: string
+  dismissed: boolean
+}
+
+export type TaskClientRecord = NonNullable<TaskQuery['task']> & {
+  quoteInvitations?: TaskQuoteInvitationRow[] | null
+  viewerQuoteInvitation?: ViewerQuoteInvitationRecord | null
+}
 
 /**
  * The merged task the detail context exposes:
@@ -34,6 +55,10 @@ export type TaskDetailRecord = Omit<TaskCoreRecord, 'location' | 'poster'> & {
   bookingStatus: TaskClientRecord['bookingStatus']
   /** The owner only: `reopenTask` would succeed (BE-113). False for everyone else. */
   canReopen: TaskClientRecord['canReopen']
+  /** The owner only: workers asked to quote with no quote yet (FE-507). */
+  quoteInvitations?: TaskClientRecord['quoteInvitations']
+  /** The invited worker only: who asked them, and whether they said Not for me (FE-507). */
+  viewerQuoteInvitation?: TaskClientRecord['viewerQuoteInvitation']
 }
 
 /**
