@@ -54,17 +54,17 @@ function DoneMeaning({ align }: { align: 'start' | 'center' }) {
 const CARD_CSS = { containerType: 'inline-size' } as const
 
 /**
- * Narrower than the status text (124, "Job time has started" on one line), a
- * gap (12) and the slide (200), so 336 inside the card: the slide wraps under
- * the text at full width. The same numbers as Expo (`OrderCloseCard`).
+ * One wrapping row, so the switch follows the content and never the other way
+ * round: the status text keeps its natural width (the date stays on one line),
+ * the slide takes the rest with 200 at least, and when the text, a gap (12) and
+ * 200 do not fit, the slide wraps under the text at full width. At a 390
+ * phone's bottom bar (342 inside) that is stacked; from about 360 inside it is
+ * one row.
  */
 const ROW_CSS = {
-  display: 'grid',
-  gridTemplateColumns: 'minmax(0, 1fr)',
+  display: 'flex',
+  flexWrap: 'wrap',
   alignItems: 'center',
-  '@container (min-width: 336px)': {
-    gridTemplateColumns: 'minmax(124px, auto) minmax(200px, 1fr)',
-  },
 } as const
 
 /**
@@ -95,14 +95,16 @@ export function OrderCloseCard() {
     >
       <Box gap={3} css={ROW_CSS}>
         {content ? (
-          <Stack gap={0} minW={0}>
+          <Stack gap={0} flex="0 1 auto" maxW="full">
             <Text fontSize="xs" fontWeight={500} color="text.muted">
               {content.eyebrow}
             </Text>
             <Text {...sdlFigure}>{content.value}</Text>
           </Stack>
         ) : null}
-        <SlideDone compact />
+        <Box flex="1 1 200px" minW="200px">
+          <SlideDone compact />
+        </Box>
       </Box>
       <Box mt={2}>
         <DoneMeaning align="start" />

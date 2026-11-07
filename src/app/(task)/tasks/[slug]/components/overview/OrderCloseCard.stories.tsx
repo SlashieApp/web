@@ -88,8 +88,12 @@ export const Ready: Story = {
   },
 }
 
-/** A 390 phone's bottom bar (342 inside the card): still one row, and the status stays on one line. */
-export const PhoneRow: Story = {
+/**
+ * A 390 phone's bottom bar (342 inside the card) has no room for the date, 12
+ * and a 200 slide, so the slide wraps under the text at full width and the
+ * date stays on one line (it never breaks to fit).
+ */
+export const PhoneBar: Story = {
   decorators: [
     ready,
     (Story) => (
@@ -102,31 +106,55 @@ export const PhoneRow: Story = {
     await within(canvasElement).findByText('Slide to mark Done', {
       exact: false,
     })
+    const { card, eyebrow, date, track, r } = parts(canvasElement)
+    const text = eyebrow.parentElement as HTMLElement
+    await expect(r(eyebrow).height).toBeLessThan(24)
+    await expect(r(date).height).toBeLessThan(28)
+    await expect(r(track).top - r(text).bottom).toBe(12)
+    await expect(r(track).width).toBe(342)
+    await expect(r(track).left - r(card).left).toBe(16)
+    await expect(r(track).height).toBe(48)
+  },
+}
+
+/** A 414 phone (366 inside the card): one row, the date on one line. */
+export const PhoneRow: Story = {
+  decorators: [
+    ready,
+    (Story) => (
+      <Box w="398px">
+        <Story />
+      </Box>
+    ),
+  ],
+  play: async ({ canvasElement }) => {
+    await within(canvasElement).findByText('Slide to mark Done', {
+      exact: false,
+    })
     const { eyebrow, date, track, r } = parts(canvasElement)
     const text = eyebrow.parentElement as HTMLElement
     await expect(r(track).width).toBeGreaterThanOrEqual(200)
-    await expect(r(track).left).toBeGreaterThanOrEqual(r(text).right)
+    await expect(r(track).left - r(text).right).toBeGreaterThanOrEqual(12)
     await expect(r(text).top).toBeLessThan(r(track).bottom)
-    // "Job time has started" stays on one line (the same as Expo); a long date
-    // may wrap in the 130 left of the slide, as on Expo.
     await expect(r(eyebrow).height).toBeLessThan(24)
-    await expect(date.textContent?.length).toBeGreaterThan(0)
+    await expect(r(date).height).toBeLessThan(28)
   },
 }
 
 /**
- * The switch is at 336 inside the card (124 text, 12, 200 slide), as on Expo:
- * a 368 box (336 inside) is one row, a 366 box (334 inside) wraps.
+ * The switch follows the content: the date (about 147), 12 and the 200 slide
+ * need about 359 inside the card. A 398 box (366 inside) is one row, a 374 box
+ * (342 inside) wraps, the date on one line in both.
  */
 export const SwitchWidth: Story = {
   decorators: [
     ready,
     (Story) => (
       <Box>
-        <Box w="368px" data-case="row">
+        <Box w="398px" data-case="row">
           <Story />
         </Box>
-        <Box w="366px" data-case="wrapped">
+        <Box w="374px" data-case="wrapped">
           <Story />
         </Box>
       </Box>
@@ -143,19 +171,22 @@ export const SwitchWidth: Story = {
       const track = within(host).getByRole('button', {
         name: 'Slide to mark Done',
       }).parentElement as HTMLElement
-      const text = within(host).getByText('Job time has started')
-        .parentElement as HTMLElement
-      return { track, text }
+      const eyebrow = within(host).getByText('Job time has started')
+      const text = eyebrow.parentElement as HTMLElement
+      const date = eyebrow.nextElementSibling as HTMLElement
+      return { track, text, date }
     }
     const row = pick('row')
     const wrapped = pick('wrapped')
     const r = (el: Element) => el.getBoundingClientRect()
     await expect(r(row.track).left).toBeGreaterThan(r(row.text).right)
     await expect(r(row.track).width).toBeGreaterThanOrEqual(200)
+    await expect(r(row.date).height).toBeLessThan(28)
     await expect(r(wrapped.track).top).toBeGreaterThanOrEqual(
       r(wrapped.text).bottom,
     )
-    await expect(r(wrapped.track).width).toBe(334)
+    await expect(r(wrapped.track).width).toBe(342)
+    await expect(r(wrapped.date).height).toBeLessThan(28)
   },
 }
 
