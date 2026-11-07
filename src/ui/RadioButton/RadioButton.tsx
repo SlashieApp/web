@@ -224,7 +224,16 @@ export function RadioButton({
           />
         ) : null}
       </Box>
-      <Text as="span" fontSize={sizing.fontSize} fontWeight={500}>
+      {/* The label takes the rest of the row, so a rich label can put a
+          note at the row's end (the quote chooser's "Asked"). A plain text
+          label still reads from the left. */}
+      <Text
+        as="span"
+        flex="1"
+        minW={0}
+        fontSize={sizing.fontSize}
+        fontWeight={500}
+      >
         {label}
       </Text>
     </RadioButtonShell>

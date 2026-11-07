@@ -88,7 +88,6 @@ export function AskToQuoteDialog({
             <RadioButton
               key={task.id}
               role="radio"
-              size="lg"
               checked={task.id === pickedId && task.canAsk}
               disabled={!task.canAsk}
               onChange={() => setPickedId(task.id)}
@@ -101,7 +100,7 @@ export function AskToQuoteDialog({
                   w="full"
                 >
                   <Stack as="span" gap={0.5} flex="1" minW={0}>
-                    <Text as="span" lineClamp={2} color="text.default">
+                    <Text as="span" lineClamp={2}>
                       {task.title}
                     </Text>
                     <Text

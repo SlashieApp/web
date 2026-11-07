@@ -130,6 +130,16 @@ export const RowsThatCannotBePicked: Story = {
     // The count stays on a row that can't be picked, beside the reason.
     await expect(asked).toHaveTextContent('No quotes yet')
     await expect(unavailable).toHaveTextContent('4 quotes')
+    // The reason sits at the row's end, as on Expo, not after the title.
+    for (const [row, reason] of [
+      [asked, 'Asked'],
+      [unavailable, 'Not available'],
+    ] as const) {
+      const rowBox = row.getBoundingClientRect()
+      const reasonBox = within(row).getByText(reason).getBoundingClientRect()
+      // The row: 12px padding and a 1px border on the right.
+      await expect(rowBox.right - reasonBox.right).toBeLessThanOrEqual(14)
+    }
     await userEvent.click(asked)
     await expect(d.queryAllByRole('radio', { checked: true })).toHaveLength(0)
     await expect(barButton(dialog, 'Ask Alex to quote')).toBeDisabled()
