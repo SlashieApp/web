@@ -19,6 +19,14 @@ export function taskPathAsking(taskId: string, workerUserId: string): string {
   return `/tasks/${taskId}?${ASK_WORKER_PARAM}=${encodeURIComponent(workerUserId)}`
 }
 
+/** Where Post a task goes once the task exists: its page, carrying the worker when one was carried. */
+export function taskPathAfterPost(
+  taskId: string,
+  askWorkerId: string | null,
+): string {
+  return askWorkerId ? taskPathAsking(taskId, askWorkerId) : `/tasks/${taskId}`
+}
+
 /** The query string without the param (other params are kept); `''` when none is left. */
 export function withoutAskWorkerParam(search: string): string {
   const params = new URLSearchParams(search)

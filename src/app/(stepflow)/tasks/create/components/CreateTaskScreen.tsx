@@ -26,7 +26,7 @@ import { taskToEditFormValues } from '@/app/(task)/helpers/taskEditHelpers'
 import TaskForEdit from '@/app/(task)/tasks/[slug]/graphql/TaskForEdit.gql'
 import {
   parseAskWorkerParam,
-  taskPathAsking,
+  taskPathAfterPost,
 } from '@/content/quoteInvitations/askWorkerParam'
 import { useLocalizedHref } from '@/i18n/LocaleProvider'
 import { formatMessage } from '@/i18n/loadPageI11n'
@@ -511,13 +511,7 @@ export function CreateTaskScreen({
       })
       // With a worker carried from their profile, the new task's page asks
       // whether to ask them to quote. Nothing is sent before that tap.
-      router.replace(
-        localize(
-          askWorkerId
-            ? taskPathAsking(taskId, askWorkerId)
-            : `/tasks/${taskId}`,
-        ),
-      )
+      router.replace(localize(taskPathAfterPost(taskId, askWorkerId)))
       return true
     } catch (err: unknown) {
       trackFlowFailed(EVENTS.task_create_fail, err, {

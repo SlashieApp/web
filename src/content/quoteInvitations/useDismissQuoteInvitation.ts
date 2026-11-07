@@ -9,6 +9,7 @@ import { showAppToast } from '@/utils/appToast'
 
 import DismissQuoteInvitation from './graphql/DismissQuoteInvitation.gql'
 import bag from './i11n.json'
+import { inviteDismissedProps } from './quoteInviteEvents'
 import type {
   DismissQuoteInvitationMutation,
   DismissQuoteInvitationMutationVariables,
@@ -45,11 +46,9 @@ export function useDismissQuoteInvitation() {
         if (!result.data?.dismissQuoteInvitation?.taskId) {
           throw new Error('dismissQuoteInvitation returned nothing')
         }
-        capture(
-          EVENTS.quote_invite_dismissed,
-          { task_id: taskId },
-          { sendInstantly: true },
-        )
+        capture(EVENTS.quote_invite_dismissed, inviteDismissedProps(taskId), {
+          sendInstantly: true,
+        })
         return true
       } catch {
         showAppToast({ title: generic, type: 'error' })

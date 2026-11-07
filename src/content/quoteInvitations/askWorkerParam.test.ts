@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest'
 import {
   createTaskAskingHref,
   parseAskWorkerParam,
+  taskPathAfterPost,
   taskPathAsking,
   withoutAskWorkerParam,
 } from './askWorkerParam'
@@ -29,6 +30,11 @@ describe('askWorker param', () => {
   it('builds the Post a task link and the task link that carry the worker', () => {
     expect(createTaskAskingHref(ID)).toBe(`/tasks/create?askWorker=${ID}`)
     expect(taskPathAsking('t1', ID)).toBe(`/tasks/t1?askWorker=${ID}`)
+  })
+
+  it('after Post a task: the task page, with the worker only when one was carried', () => {
+    expect(taskPathAfterPost('t1', null)).toBe('/tasks/t1')
+    expect(taskPathAfterPost('t1', ID)).toBe(`/tasks/t1?askWorker=${ID}`)
   })
 
   it('removes only the param', () => {

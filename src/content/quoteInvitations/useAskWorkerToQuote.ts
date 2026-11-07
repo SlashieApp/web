@@ -15,6 +15,7 @@ import {
 import AskWorkerToQuote from './graphql/AskWorkerToQuote.gql'
 import bag from './i11n.json'
 import { quoteInviteErrorKey } from './quoteInviteErrors'
+import { inviteFailedProps, inviteSentProps } from './quoteInviteEvents'
 import type {
   AskWorkerToQuoteMutation,
   AskWorkerToQuoteMutationVariables,
@@ -56,15 +57,9 @@ export function useAskWorkerToQuote() {
         if (!result.data?.askWorkerToQuote?.taskId) {
           throw new Error('askWorkerToQuote returned nothing')
         }
-        capture(
-          EVENTS.quote_invite_sent,
-          {
-            task_id: input.taskId,
-            worker_id: input.workerUserId,
-            surface: input.surface,
-          },
-          { sendInstantly: true },
-        )
+        capture(EVENTS.quote_invite_sent, inviteSentProps(input), {
+          sendInstantly: true,
+        })
         showAppToast({
           title: formatMessage(t.toast, {
             name: input.workerName,
@@ -75,11 +70,9 @@ export function useAskWorkerToQuote() {
         return true
       } catch (caught: unknown) {
         const code = getGraphQLErrorCode(caught)
-        capture(
-          EVENTS.quote_invite_failed,
-          { code: code ?? 'UNKNOWN' },
-          { sendInstantly: true },
-        )
+        capture(EVENTS.quote_invite_failed, inviteFailedProps(code), {
+          sendInstantly: true,
+        })
         const key = quoteInviteErrorKey(code)
         setError(
           key

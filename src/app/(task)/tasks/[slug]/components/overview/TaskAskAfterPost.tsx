@@ -14,6 +14,7 @@ import {
   withoutAskWorkerParam,
 } from '@/content/quoteInvitations/askWorkerParam'
 import QuoteInviteWorker from '@/content/quoteInvitations/graphql/QuoteInviteWorker.gql'
+import { invitePromptSkippedProps } from '@/content/quoteInvitations/quoteInviteEvents'
 import type {
   QuoteInviteWorkerQuery,
   QuoteInviteWorkerQueryVariables,
@@ -91,7 +92,10 @@ export function TaskAskAfterPost() {
       asking={invite.loading}
       error={invite.error}
       onSkip={() => {
-        capture(EVENTS.quote_invite_prompt_skipped, { task_id: task.id })
+        capture(
+          EVENTS.quote_invite_prompt_skipped,
+          invitePromptSkippedProps(task.id),
+        )
         setClosed(true)
       }}
       onAsk={async () => {
