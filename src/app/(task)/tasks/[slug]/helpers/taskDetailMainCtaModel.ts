@@ -129,9 +129,13 @@ export function buildTaskDetailMainCta(input: {
         copy.cta.sendQuote,
         {
           ...budgetContent(task, copy),
-          note: input.invitedBy
-            ? formatMessage(copy.cta.invitedBy, { customer: input.invitedBy })
-            : undefined,
+          // A blank name reads as the customer fallback, as the Messages pin does.
+          note:
+            input.invitedBy == null
+              ? undefined
+              : formatMessage(copy.cta.invitedBy, {
+                  customer: input.invitedBy.trim() || copy.fallbackCustomer,
+                }),
         },
         `${taskPath}/quote`,
       )

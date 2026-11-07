@@ -258,12 +258,12 @@ export const Phone: Story = {
 
 // ------------------------------------------------ asked to quote (FE-507)
 
-const invited = (dismissed = false) =>
+const invited = (dismissed = false, customerName = 'Alex Chen') =>
   storyTaskDetail({
     // Jordan has not quoted: the worker's open, not-quoted view.
     quotes: [],
     viewerQuoteInvitation: {
-      customerName: 'Alex Chen',
+      customerName,
       createdAt: '2026-06-01T10:00:00.000Z',
       dismissed,
     },
@@ -284,6 +284,19 @@ export const QuoteInvitation: Story = {
     await expect(
       canvas.getByRole('button', { name: 'Not for me' }),
     ).toBeEnabled()
+  },
+}
+
+/** A customer with no name: the pin says "Customer asked you to quote". */
+export const QuoteInvitationBlankName: Story = {
+  ...ask(
+    'worker',
+    invited(false, ' '),
+    needs(ThreadAttentionKind.QuoteInvitation),
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = await shows(canvasElement, 'bottomPin.quoteInvitation')
+    await expect(canvas.getByText('Customer asked you to quote')).toBeVisible()
   },
 }
 
@@ -347,7 +360,7 @@ export const QuoteInvitationNotForMeFails: Story = {
     const canvas = await shows(canvasElement, 'bottomPin.quoteInvitation')
     await userEvent.click(canvas.getByRole('button', { name: 'Not for me' }))
     await within(canvasElement.ownerDocument.body).findByText(
-      'Something went wrong. Try again.',
+      "That didn't work. Refresh and try again.",
     )
     await expect(canvasElement.querySelector('[data-bottom-pin]')).toBeVisible()
   },

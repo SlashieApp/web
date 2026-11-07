@@ -50,7 +50,7 @@ export function ThreadBottomPin({
   const headline =
     config.controls === 'invitation' && invitation
       ? formatMessage(taskCopy.cta.invitedBy, {
-          customer: invitation.customerName,
+          customer: invitation.customerName.trim() || taskCopy.fallbackCustomer,
         })
       : lines.headline
 

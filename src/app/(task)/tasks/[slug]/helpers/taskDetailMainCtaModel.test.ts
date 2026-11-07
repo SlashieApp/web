@@ -86,6 +86,9 @@ describe('buildTaskDetailMainCta', () => {
     expect(cta('sendQuote', { invitedBy: 'Ava' })?.content?.note).toBe(
       'Ava asked you to quote',
     )
+    expect(cta('sendQuote', { invitedBy: '  ' })?.content?.note).toBe(
+      'Customer asked you to quote',
+    )
     expect(cta('sendQuote')?.content?.note).toBeUndefined()
     expect(cta('sendQuote', { invitedBy: null })?.content?.note).toBeUndefined()
     // The note belongs to Send quote alone.
