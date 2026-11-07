@@ -270,12 +270,10 @@ export const ZhHkWorkerQuoteInvitations: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
     await expect(
-      await canvas.findByRole('checkbox', { name: '讓客戶邀請我報價' }),
+      await canvas.findByRole('checkbox', { name: '讓顧客邀請我報價' }),
     ).toBeChecked()
     await expect(
-      canvas.getByText(
-        '客戶可以喺你嘅個人檔案，邀請你為佢哋開放中嘅任務報價。',
-      ),
+      canvas.getByText('顧客可從你的個人檔案，邀請你就其開放中的任務報價。'),
     ).toBeVisible()
   },
 }
