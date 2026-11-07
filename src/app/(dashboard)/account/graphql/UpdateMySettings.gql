@@ -5,6 +5,7 @@ mutation UpdateMySettings($input: UpdateMySettingsInput!) {
       isProfilePrivate
       language
       marketingEmails
+      acceptsQuoteInvitations
     }
   }
 }

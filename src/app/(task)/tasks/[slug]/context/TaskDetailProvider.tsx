@@ -1,5 +1,6 @@
 'use client'
 
+import { invitedProperty } from '@/content/quoteInvitations/invitedProperty'
 import { useLocale } from '@/i18n/LocaleProvider'
 import { useI11n } from '@/i18n/useI11n'
 import type { DocumentNode } from '@apollo/client'
@@ -627,6 +628,7 @@ export function TaskDetailProvider({
       trackFlowSucceeded(EVENTS.quote_send_success, {
         task_id: task.id,
         quote_id: result.data.addQuote.id,
+        ...invitedProperty(task),
       })
       setQuoteSuccess(p.quoteSentSuccess)
       showAppToast({

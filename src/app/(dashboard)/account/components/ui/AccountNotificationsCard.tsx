@@ -12,6 +12,7 @@ import {
 } from '@/app/(dashboard)/components/ui/SettingRow'
 import { SettingToggle } from '@/app/(dashboard)/components/ui/SettingToggle'
 import { useMySettingToggle } from '@/app/(dashboard)/helpers/useMySettingToggle'
+import { acceptsQuoteInvitations } from '@/content/quoteInvitations/acceptsQuoteInvitations'
 import { LanguageSwitcher } from '@/i18n/LanguageSwitcher'
 import { useLocale } from '@/i18n/LocaleProvider'
 import { LOCALE_LABELS } from '@/i18n/locales'
@@ -33,7 +34,14 @@ export function AccountNotificationsCard({
   const marketingEmails = useUserStore((s) =>
     Boolean(s.me?.settings?.marketingEmails),
   )
-  const { update, pending, error } = useMySettingToggle(t.settingsError)
+  // Only workers can be asked to quote (FE-507).
+  const isWorker = useUserStore((s) => Boolean(s.me?.worker))
+  const quoteInvitations = useUserStore((s) =>
+    acceptsQuoteInvitations(s.me?.settings),
+  )
+  const { update, pending, error, errorKey } = useMySettingToggle(
+    t.settingsError,
+  )
   const [languageOpen, setLanguageOpen] = useState(false)
 
   return (
@@ -47,11 +55,26 @@ export function AccountNotificationsCard({
         <WebPushControl disabled={!editable} />
         <SettingToggle
           label={t.marketingEmails}
-          description={error ?? t.marketingEmailsDescription}
+          description={
+            (errorKey === 'marketingEmails' ? error : null) ??
+            t.marketingEmailsDescription
+          }
           checked={marketingEmails}
           disabled={!editable || pending === 'marketingEmails'}
           onChange={(next) => void update('marketingEmails', next)}
         />
+        {isWorker ? (
+          <SettingToggle
+            label={t.quoteInvitations}
+            description={
+              (errorKey === 'acceptsQuoteInvitations' ? error : null) ??
+              t.quoteInvitationsDescription
+            }
+            checked={quoteInvitations}
+            disabled={!editable || pending === 'acceptsQuoteInvitations'}
+            onChange={(next) => void update('acceptsQuoteInvitations', next)}
+          />
+        ) : null}
         <SettingRow
           label={t.languageLabel}
           description={LOCALE_LABELS[locale].native}

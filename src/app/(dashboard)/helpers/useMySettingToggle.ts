@@ -8,7 +8,10 @@ import { useUserStore } from '@/app/(auth)/store/user'
 import UpdateMySettings from '@/app/(dashboard)/account/graphql/UpdateMySettings.gql'
 import { captureApiError, getCurrentRoute } from '@/utils/analytics'
 
-export type MySettingKey = 'isProfilePrivate' | 'marketingEmails'
+export type MySettingKey =
+  | 'isProfilePrivate'
+  | 'marketingEmails'
+  | 'acceptsQuoteInvitations'
 
 /**
  * Flips one of `me.settings` optimistically and rolls back if the API says
@@ -19,6 +22,7 @@ export function useMySettingToggle(errorText: string) {
   const patchMe = useUserStore((s) => s.patchMe)
   const [pending, setPending] = useState<MySettingKey | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [errorKey, setErrorKey] = useState<MySettingKey | null>(null)
   const [updateSettings] =
     useMutation<UpdateMySettingsMutation>(UpdateMySettings)
 
@@ -26,6 +30,7 @@ export function useMySettingToggle(errorText: string) {
     const settings = me?.settings
     if (!settings) return
     setError(null)
+    setErrorKey(null)
     setPending(key)
     patchMe({ settings: { ...settings, [key]: next } })
     try {
@@ -45,10 +50,12 @@ export function useMySettingToggle(errorText: string) {
       })
       patchMe({ settings })
       setError(errorText)
+      setErrorKey(key)
     } finally {
       setPending(null)
     }
   }
 
-  return { update, pending, error }
+  /** `error`, with the setting it belongs to. */
+  return { update, pending, error, errorKey }
 }

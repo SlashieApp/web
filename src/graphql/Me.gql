@@ -36,6 +36,8 @@ query Me {
       isProfilePrivate
       language
       marketingEmails
+      # Let customers ask me to quote (FE-507); on unless the worker turned it off.
+      acceptsQuoteInvitations
     }
     workerEligibility
     worker {

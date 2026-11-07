@@ -1,6 +1,6 @@
 import { LoginMethod } from '@codegen/schema'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
-import { expect, within } from 'storybook/test'
+import { expect, userEvent, waitFor, within } from 'storybook/test'
 
 import { withSession } from '@/app/(auth)/helpers/authStoryDecorator'
 import { storyMe, storyWorkerMe } from '@/app/(auth)/helpers/authStoryFixtures'
@@ -98,6 +98,89 @@ export const Worker: Story = {
   },
 }
 
+const QUOTE_SWITCH = 'Let customers ask me to quote'
+
+/** Let customers ask me to quote (FE-507): a worker's switch, on by default, with its helper line. */
+export const WorkerQuoteInvitations: Story = {
+  decorators: [session(storyWorkerMe())],
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const toggle = await canvas.findByRole('checkbox', { name: QUOTE_SWITCH })
+    await expect(toggle).toBeChecked()
+    await expect(
+      canvas.getByText(
+        'Customers can ask you to quote on their open tasks from your profile.',
+      ),
+    ).toBeVisible()
+  },
+}
+
+/** Turning it off saves `acceptsQuoteInvitations: false` through updateMySettings. */
+export const WorkerTurnsQuoteInvitationsOff: Story = {
+  decorators: [
+    withSession({
+      me: storyWorkerMe(),
+      seed: seedVapidKey(STORY_VAPID_KEY),
+      responses: {
+        UpdateMySettings: {
+          kind: 'data',
+          data: {
+            updateMySettings: {
+              __typename: 'User',
+              id: storyWorkerMe().id,
+              settings: {
+                __typename: 'UserSettings',
+                isProfilePrivate: false,
+                language: 'EN',
+                marketingEmails: false,
+                acceptsQuoteInvitations: false,
+              },
+            },
+          },
+        },
+      },
+    }),
+  ],
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const toggle = await canvas.findByRole('checkbox', { name: QUOTE_SWITCH })
+    await userEvent.click(toggle)
+    await waitFor(() => expect(toggle).not.toBeChecked())
+  },
+}
+
+/** The save fails: the switch goes back on and its line says so. */
+export const WorkerQuoteInvitationsSaveFails: Story = {
+  decorators: [
+    withSession({
+      me: storyWorkerMe(),
+      seed: seedVapidKey(STORY_VAPID_KEY),
+      responses: {
+        UpdateMySettings: { kind: 'graphqlError', code: 'FORBIDDEN' },
+      },
+    }),
+  ],
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const toggle = await canvas.findByRole('checkbox', { name: QUOTE_SWITCH })
+    await userEvent.click(toggle)
+    await canvas.findByText("Couldn't save that. Try again.")
+    await waitFor(() => expect(toggle).toBeChecked())
+  },
+}
+
+/** Only workers can be asked to quote: no switch for anyone else. */
+export const NoQuoteInvitationsSwitchForCustomers: Story = {
+  decorators: [session(storyMe())],
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await canvas.findByRole('checkbox', { name: 'Product news by email' })
+    await expect(
+      canvas.queryByRole('checkbox', { name: QUOTE_SWITCH }),
+    ).toBeNull()
+  },
+}
+
 /** `social`: Google only, so Set a password, and the email changes once there is one. */
 export const Social: Story = {
   decorators: [
@@ -170,6 +253,30 @@ export const ZhHk: Story = {
       canvas.getByRole('heading', { level: 2, name: '登入與安全' }),
     ).toBeVisible()
     await expect(canvas.getByText('繁體中文')).toBeVisible()
+  },
+}
+
+/** zh-HK: the worker's switch and its line. */
+export const ZhHkWorkerQuoteInvitations: Story = {
+  parameters: { nextjs: { navigation: { pathname: '/zh-hk/account' } } },
+  decorators: [
+    (Story) => (
+      <LocaleProvider>
+        <Story />
+      </LocaleProvider>
+    ),
+    session(storyWorkerMe()),
+  ],
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(
+      await canvas.findByRole('checkbox', { name: '讓客戶邀請我報價' }),
+    ).toBeChecked()
+    await expect(
+      canvas.getByText(
+        '客戶可以喺你嘅個人檔案，邀請你為佢哋開放中嘅任務報價。',
+      ),
+    ).toBeVisible()
   },
 }
 
