@@ -54,9 +54,9 @@ function DoneMeaning({ align }: { align: 'start' | 'center' }) {
  * One wrapping row, so the switch follows the content and never the other way
  * round: the status text keeps its natural width (the date stays on one line),
  * the slide takes the rest with 200 at least, and when the text, a gap (12) and
- * 200 do not fit, the slide wraps under the text at full width. At a 390
- * phone's bottom bar (342 inside) that is stacked; from about 360 inside it is
- * one row.
+ * 200 do not fit, the slide wraps under the text at full width. With the short
+ * date ("10 Jun, 14:00") a 390 phone's bottom bar (342 inside) and Messages pin
+ * (326 inside) are one row; smaller phones wrap.
  */
 const ROW_CSS = {
   display: 'flex',
@@ -75,8 +75,11 @@ const ROW_CSS = {
  * the status and the date without the slide or the Done line, as before the
  * one-row card and as on Expo; with neither, nothing shows. A frozen booking
  * (BE-108) has no Done card at all: its main button is not Mark Done.
+ *
+ * `inPin`: in the Messages pin, whose headline already says the status, the
+ * card leaves out its status line (Ryan, 2026-11-07).
  */
-export function OrderCloseCard() {
+export function OrderCloseCard({ inPin = false }: { inPin?: boolean }) {
   const { orderClose, permissions, mainCta } = useTaskDetail()
   const canClose = Boolean(orderClose?.canClose && permissions.showOrderActions)
   const content = mainCta?.presentation === 'close' ? mainCta.content : null
@@ -95,9 +98,11 @@ export function OrderCloseCard() {
       <Box gap={3} css={ROW_CSS}>
         {content ? (
           <Stack gap={0} flex="0 1 auto" maxW="full">
-            <Text fontSize="xs" fontWeight={500} color="text.muted">
-              {content.eyebrow}
-            </Text>
+            {inPin ? null : (
+              <Text fontSize="xs" fontWeight={500} color="text.muted">
+                {content.eyebrow}
+              </Text>
+            )}
             <Text {...sdlFigure}>{content.value}</Text>
           </Stack>
         ) : null}

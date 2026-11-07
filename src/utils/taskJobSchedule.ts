@@ -44,26 +44,23 @@ export function scheduleChipForTask(
   return null
 }
 
-export function formatTaskScheduleLabel(
-  datetime: TaskDatetimeLike | null | undefined,
+/**
+ * The Done card's date (Ryan, 2026-11-07): the booked start without the
+ * weekday, in the viewer's language ("10 Jun, 14:00"), so the date and the
+ * compact slide share one row on a 390 phone. Expo formats it the same way.
+ */
+export function formatDoneCardDate(
+  bookedStart: unknown,
+  locale: string,
 ): string | null {
-  if (!datetime) return null
-  if (datetime.type === TaskDateTimeType.Flexible) {
-    return 'Flexible timing: agree with the other party'
-  }
-  if (datetime.type === TaskDateTimeType.Before) {
-    const date = datetime.date?.trim()
-    return date ? `Before ${date}` : 'Before agreed date'
-  }
-  const when = parseTaskScheduleDate(datetime)
-  if (!when) return null
-  return new Intl.DateTimeFormat('en-GB', {
-    weekday: 'short',
+  const start = new Date(String(bookedStart))
+  if (Number.isNaN(start.getTime())) return null
+  return new Intl.DateTimeFormat(locale, {
     day: 'numeric',
     month: 'short',
     hour: '2-digit',
     minute: '2-digit',
-  }).format(when)
+  }).format(start)
 }
 
 /**

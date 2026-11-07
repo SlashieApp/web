@@ -1,12 +1,8 @@
 import { workerSetupHref } from '@/app/(stepflow)/worker/setup/helpers/workerSetupHref'
-import {
-  type OrderItem,
-  formatOrderAgreedPrice,
-  orderBookedDatetime,
-} from '@/utils/orderHelpers'
+import { type OrderItem, formatOrderAgreedPrice } from '@/utils/orderHelpers'
 import { formatPrice } from '@/utils/price'
 import { repostTaskHref } from '@/utils/taskHandoff'
-import { formatTaskScheduleLabel } from '@/utils/taskJobSchedule'
+import { formatDoneCardDate } from '@/utils/taskJobSchedule'
 
 import type bag from '../i11n.json'
 import type { TaskDetailPrimaryAction } from '../views'
@@ -77,6 +73,8 @@ export function buildTaskDetailMainCta(input: {
   /** The task's Messages thread, or the inbox when it is not known yet. */
   messageHref: string
   copy: TaskDetailCopy
+  /** `Intl` locale for the Done card's date (`en-GB`, `zh-HK`). */
+  dateLocale: string
 }): TaskDetailMainCtaModel | null {
   const { action, task, order, myQuote, isOwner, copy } = input
   if (!action) return null
@@ -148,8 +146,7 @@ export function buildTaskDetailMainCta(input: {
             },
         `${taskPath}/quote`,
       )
-    case 'markDone': {
-      const booked = order ? orderBookedDatetime(order) : null
+    case 'markDone':
       return {
         action,
         presentation: 'close',
@@ -157,11 +154,11 @@ export function buildTaskDetailMainCta(input: {
         content: {
           eyebrow: copy.close.eyebrowReady,
           value:
-            (booked && formatTaskScheduleLabel(booked)) ||
+            (order &&
+              formatDoneCardDate(order.bookedStart, input.dateLocale)) ||
             copy.cta.flexibleWhen,
         },
       }
-    }
     // FE-271: the other party's contact details; the button opens Messages.
     case 'message':
       return quoted(

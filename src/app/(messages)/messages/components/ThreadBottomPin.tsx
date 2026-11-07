@@ -67,7 +67,7 @@ export function ThreadBottomPin({
       orderClose?.canClose &&
       permissions.showOrderActions ? (
         <Box py={2}>
-          <OrderCloseCard />
+          <OrderCloseCard inPin />
         </Box>
       ) : null}
       {config.controls === 'openTask' ? (

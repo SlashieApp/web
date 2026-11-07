@@ -47,6 +47,7 @@ function cta(
     viewerHasSubmittedReview: false,
     messageHref: '/messages',
     copy: bag.en,
+    dateLocale: 'en-GB',
     ...over,
   })
 }
@@ -143,8 +144,14 @@ describe('buildTaskDetailMainCta', () => {
     expect(cta('markDone', { order })).toMatchObject({
       presentation: 'close',
       buttonLabel: 'Slide to mark Done',
-      content: { eyebrow: 'Job time has started' },
+      content: { eyebrow: 'Job time has started', value: '18 Oct, 09:00' },
     })
+  })
+
+  it('the Done card date is in the viewer language', () => {
+    expect(
+      cta('markDone', { order, dateLocale: 'zh-HK' })?.content?.value,
+    ).toMatch(/^10月18日 /)
   })
 
   it('completed party reviews first, then gets the receipt without waiting', () => {

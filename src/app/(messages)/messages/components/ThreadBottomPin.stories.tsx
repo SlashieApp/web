@@ -118,8 +118,8 @@ export const MarkDone: Story = {
   ...ask('worker', bookedTask(), needs(ThreadAttentionKind.MarkDone)),
   play: async ({ canvasElement }) => {
     const canvas = await shows(canvasElement, 'bottomPin.markDone')
-    // The pin's headline and the card's status line say the same.
-    await expect(canvas.getAllByText('Job time has started')).toHaveLength(2)
+    // The pin's headline says it once: the card leaves out its status line.
+    await expect(canvas.getAllByText('Job time has started')).toHaveLength(1)
     await expect(canvas.getByText('Slide to mark Done')).toBeVisible()
     await expect(
       canvas.queryByRole('button', { name: 'Something went wrong' }),

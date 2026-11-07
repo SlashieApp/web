@@ -1,5 +1,6 @@
 'use client'
 
+import { useLocale } from '@/i18n/LocaleProvider'
 import { useI11n } from '@/i18n/useI11n'
 import type { DocumentNode } from '@apollo/client'
 import { useApolloClient, useMutation, useQuery } from '@apollo/client/react'
@@ -254,6 +255,8 @@ export function TaskDetailProvider({
   const router = useRouter()
   const pathname = usePathname()
   const t = useI11n(bag)
+  /** `Intl` locale for dates (as `useDateLocale` in TaskFacts). */
+  const dateLocale = useLocale() === 'zh-hk' ? 'zh-HK' : 'en-GB'
   // A failed request in the reader's language where this bag has the code.
   const serverError = useCallback(
     (error: unknown, fallback: string) =>
@@ -1042,6 +1045,7 @@ export function TaskDetailProvider({
             viewerHasSubmittedReview,
             messageHref: taskThreadHref,
             copy: t,
+            dateLocale,
           })
         : null,
     [
@@ -1056,6 +1060,7 @@ export function TaskDetailProvider({
       viewerHasSubmittedReview,
       taskThreadHref,
       t,
+      dateLocale,
     ],
   )
 

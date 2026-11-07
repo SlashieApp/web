@@ -89,9 +89,10 @@ export const Ready: Story = {
 }
 
 /**
- * A 390 phone's bottom bar (342 inside the card) has no room for the date, 12
- * and a 200 slide, so the slide wraps under the text at full width and the
- * date stays on one line (it never breaks to fit).
+ * A 390 phone's bottom bar (342 inside the card): one row (Ryan, 2026-11-07).
+ * The short date ("10 Jun, 14:00", about 108) and the status line (about 118),
+ * 12 and the 200 slide need about 330. Text and slide share a centre line and
+ * the date stays on one line.
  */
 export const PhoneBar: Story = {
   decorators: [
@@ -108,12 +109,45 @@ export const PhoneBar: Story = {
     })
     const { card, eyebrow, date, track, r } = parts(canvasElement)
     const text = eyebrow.parentElement as HTMLElement
+    await expect(date).toHaveTextContent('10 Jun, 14:00')
     await expect(r(eyebrow).height).toBeLessThan(24)
     await expect(r(date).height).toBeLessThan(28)
-    await expect(r(track).top - r(text).bottom).toBe(12)
-    await expect(r(track).width).toBe(342)
-    await expect(r(track).left - r(card).left).toBe(16)
+    await expect(r(track).left - r(text).right).toBe(12)
+    await expect(r(track).width).toBeGreaterThanOrEqual(200)
+    await expect(r(card).right - r(track).right).toBe(16)
+    const mid = (b: DOMRect) => b.top + b.height / 2
+    await expect(Math.abs(mid(r(text)) - mid(r(track)))).toBeLessThan(1)
     await expect(r(track).height).toBe(48)
+  },
+}
+
+/**
+ * In the Messages pin, whose headline says the status, the card leaves out its
+ * status line (Ryan, 2026-11-07). A 390 phone's pin (326 inside the card) is
+ * one row: the date (about 108), 12 and the 200 slide need about 320.
+ */
+export const InPin: Story = {
+  args: { inPin: true },
+  decorators: [
+    ready,
+    (Story) => (
+      <Box w="358px">
+        <Story />
+      </Box>
+    ),
+  ],
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const thumb = await canvas.findByRole('button', {
+      name: 'Slide to mark Done',
+    })
+    await expect(canvas.queryByText('Job time has started')).toBeNull()
+    const date = canvas.getByText('10 Jun, 14:00')
+    const track = thumb.parentElement as HTMLElement
+    const r = (el: Element) => el.getBoundingClientRect()
+    await expect(r(track).left - r(date).right).toBe(12)
+    await expect(r(track).width).toBeGreaterThanOrEqual(200)
+    await expect(r(date).height).toBeLessThan(28)
   },
 }
 
@@ -142,19 +176,20 @@ export const PhoneRow: Story = {
 }
 
 /**
- * The switch follows the content: the date (about 147), 12 and the 200 slide
- * need about 359 inside the card. A 398 box (366 inside) is one row, a 374 box
- * (342 inside) wraps, the date on one line in both.
+ * The switch follows the content: the status line (about 118), 12 and the 200
+ * slide need about 330 inside the card. A 374 box (a 390 phone's bar, 342
+ * inside) is one row; a 350 box (318 inside, about a 375 phone's bar) wraps,
+ * the date on one line in both.
  */
 export const SwitchWidth: Story = {
   decorators: [
     ready,
     (Story) => (
       <Box>
-        <Box w="398px" data-case="row">
+        <Box w="374px" data-case="row">
           <Story />
         </Box>
-        <Box w="374px" data-case="wrapped">
+        <Box w="350px" data-case="wrapped">
           <Story />
         </Box>
       </Box>
@@ -185,7 +220,7 @@ export const SwitchWidth: Story = {
     await expect(r(wrapped.track).top).toBeGreaterThanOrEqual(
       r(wrapped.text).bottom,
     )
-    await expect(r(wrapped.track).width).toBe(342)
+    await expect(r(wrapped.track).width).toBe(318)
     await expect(r(wrapped.date).height).toBeLessThan(28)
   },
 }
