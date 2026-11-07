@@ -16,6 +16,13 @@ const pin = (kind: ThreadAttentionKind | null, view: TaskDetailViewName) => {
 }
 
 describe('getBottomPinView', () => {
+  it('shows nothing for an ask this build does not know yet, instead of crashing', () => {
+    // A kind the API added after this build (QUOTE_INVITATION, BE-123).
+    const unknown = 'QUOTE_INVITATION' as ThreadAttentionKind
+    expect(pin(unknown, 'worker.open.notQuoted')).toBeNull()
+    expect(pin(unknown, 'owner.booked.ready')).toBeNull()
+  })
+
   it('asks you to answer their reschedule request', () => {
     expect(
       pin(

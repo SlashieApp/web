@@ -7,10 +7,16 @@ import type { BottomPinViewInput, BottomPinViewName } from './types'
 /**
  * Each ask, the task detail views that show it, and the bottom pin for it.
  * Compare quotes has none: the quote cards in the timeline handle it.
+ *
+ * Partial on purpose: the API adds asks over time (QUOTE_INVITATION, BE-123),
+ * and a kind this build has no pin for must show nothing, not crash the
+ * thread, and must not break the type check when the schema is regenerated.
  */
-const BOTTOM_PIN_BY_ASK: Record<
-  Exclude<ThreadAttentionKind, ThreadAttentionKind.CompareQuotes>,
-  { views: readonly TaskDetailViewName[]; pin: BottomPinViewName }
+const BOTTOM_PIN_BY_ASK: Partial<
+  Record<
+    ThreadAttentionKind,
+    { views: readonly TaskDetailViewName[]; pin: BottomPinViewName }
+  >
 > = {
   [ThreadAttentionKind.AnswerReschedule]: {
     views: ['owner.booked.rescheduleByThem', 'worker.booked.rescheduleByThem'],
@@ -53,9 +59,7 @@ export function getBottomPinView({
   attention,
   view,
 }: BottomPinViewInput): BottomPinViewName | null {
-  if (!attention || attention.kind === ThreadAttentionKind.CompareQuotes) {
-    return null
-  }
+  if (!attention) return null
   const ask = BOTTOM_PIN_BY_ASK[attention.kind]
-  return ask.views.includes(view) ? ask.pin : null
+  return ask?.views.includes(view) ? ask.pin : null
 }
