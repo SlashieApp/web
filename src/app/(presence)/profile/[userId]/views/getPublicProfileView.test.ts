@@ -67,6 +67,7 @@ describe('getPublicProfileView', () => {
         profile: worker({
           action: WorkerContactAction.SignIn,
           relatedTaskId: null,
+          canAskToQuote: false,
         }),
       }),
     ).toBe('worker.guest')
@@ -78,9 +79,59 @@ describe('getPublicProfileView', () => {
         profile: worker({
           action: WorkerContactAction.AcceptQuoteFirst,
           relatedTaskId: null,
+          canAskToQuote: false,
         }),
       }),
     ).toBe('worker.visitor')
+  })
+
+  it('offers Ask to quote when the API says this viewer can ask', () => {
+    expect(
+      view({
+        profile: worker({
+          action: WorkerContactAction.AcceptQuoteFirst,
+          relatedTaskId: null,
+          canAskToQuote: true,
+        }),
+      }),
+    ).toBe('worker.askable')
+  })
+
+  it('keeps the quote and job views when the viewer could also ask', () => {
+    expect(
+      view({
+        profile: worker({
+          action: WorkerContactAction.OpenQuote,
+          relatedTaskId: 'task-1',
+          canAskToQuote: true,
+        }),
+      }),
+    ).toBe('worker.quoted')
+    expect(
+      view({
+        profile: worker({
+          action: WorkerContactAction.OpenTask,
+          relatedTaskId: 'task-2',
+          canAskToQuote: true,
+        }),
+      }),
+    ).toBe('worker.booked')
+  })
+
+  it('never offers Ask to quote on your own profile or to a signed-out visitor', () => {
+    expect(view({ profile: worker(null) })).toBe('worker.guest')
+    expect(
+      view({
+        profile: worker(
+          {
+            action: WorkerContactAction.None,
+            relatedTaskId: null,
+            canAskToQuote: true,
+          },
+          true,
+        ),
+      }),
+    ).toBe('worker.owner')
   })
 
   it('sends you to their quote when the worker quoted on your open task', () => {
@@ -89,6 +140,7 @@ describe('getPublicProfileView', () => {
         profile: worker({
           action: WorkerContactAction.OpenQuote,
           relatedTaskId: 'task-1',
+          canAskToQuote: false,
         }),
       }),
     ).toBe('worker.quoted')
@@ -100,6 +152,7 @@ describe('getPublicProfileView', () => {
         profile: worker({
           action: WorkerContactAction.OpenQuote,
           relatedTaskId: null,
+          canAskToQuote: false,
         }),
       }),
     ).toBe('worker.visitor')
@@ -111,6 +164,7 @@ describe('getPublicProfileView', () => {
         profile: worker({
           action: WorkerContactAction.OpenTask,
           relatedTaskId: 'task-2',
+          canAskToQuote: false,
         }),
       }),
     ).toBe('worker.booked')
@@ -126,6 +180,7 @@ describe('getPublicProfileView', () => {
         profile: worker({
           action: WorkerContactAction.None,
           relatedTaskId: null,
+          canAskToQuote: false,
         }),
       }),
     ).toBe('worker.owner')

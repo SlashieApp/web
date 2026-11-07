@@ -81,6 +81,20 @@ query PublicProfile($userId: ID!, $excludeTaskId: ID) {
         contactAction
         relatedTaskId
         relatedQuoteId
+        # Ask {name} to quote (FE-507): whether this viewer could ask at all,
+        # and the viewer's own open tasks to ask about (newest first).
+        canAskToQuote
+        askableTasks {
+          alreadyAsked
+          canAsk
+          task {
+            id
+            title
+            quotes {
+              status
+            }
+          }
+        }
       }
     }
     reportTarget {

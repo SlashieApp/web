@@ -1,0 +1,62 @@
+{
+  "en": {
+    "dialog": {
+      "title": "Ask {name} to quote",
+      "description": "Choose one of your open tasks. {name} gets a notification and decides whether to send a quote.",
+      "listLabel": "Your open tasks",
+      "quotesNone": "No quotes yet",
+      "quotesOne": "1 quote",
+      "quotesMany": "{count} quotes",
+      "asked": "Asked",
+      "notAvailable": "Not available",
+      "postNew": "Post a new task",
+      "cancel": "Cancel",
+      "submit": "Ask {name} to quote"
+    },
+    "prompt": {
+      "title": "Ask {name} to quote on this task?",
+      "description": "{name} gets a notification and decides whether to send a quote.",
+      "notNow": "Not now",
+      "submit": "Ask {name}"
+    },
+    "toast": "{name} has been asked to quote on {task}.",
+    "errors": {
+      "alreadySent": "You've already asked {name} about this task.",
+      "taskLimit": "You've asked 5 workers about this task, the most for one task.",
+      "dailyLimit": "You've asked 10 workers in the last 24 hours. Try again later.",
+      "notAvailable": "{name} can't be asked to quote right now.",
+      "taskClosed": "This task isn't open for quotes any more.",
+      "generic": "Something went wrong. Try again."
+    }
+  },
+  "zh_hk": {
+    "dialog": {
+      "title": "請 {name} 報價",
+      "description": "揀一個你而家開放緊嘅任務。{name} 會收到通知，並自行決定是否報價。",
+      "listLabel": "你開放中嘅任務",
+      "quotesNone": "未有報價",
+      "quotesOne": "1 個報價",
+      "quotesMany": "{count} 個報價",
+      "asked": "已邀請",
+      "notAvailable": "未能邀請",
+      "postNew": "發布新任務",
+      "cancel": "取消",
+      "submit": "請 {name} 報價"
+    },
+    "prompt": {
+      "title": "請 {name} 為呢個任務報價？",
+      "description": "{name} 會收到通知，並自行決定是否報價。",
+      "notNow": "暫時唔使",
+      "submit": "請 {name}"
+    },
+    "toast": "已請 {name} 為「{task}」報價。",
+    "errors": {
+      "alreadySent": "你已經就呢個任務邀請過 {name}。",
+      "taskLimit": "你已經就呢個任務邀請咗 5 位工作者，係單一任務嘅上限。",
+      "dailyLimit": "你喺過去 24 小時已經邀請咗 10 位工作者，請稍後再試。",
+      "notAvailable": "{name} 暫時未能被邀請報價。",
+      "taskClosed": "呢個任務已經唔再接受報價。",
+      "generic": "出現問題，請再試。"
+    }
+  }
+}

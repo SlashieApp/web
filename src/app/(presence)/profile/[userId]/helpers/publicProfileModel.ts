@@ -17,6 +17,11 @@ import {
   type AchievementPanel,
   buildAchievementPanels,
 } from '@/app/(task)/tasks/helpers/taskAchievements'
+import { toAskableTaskChoices } from '@/content/quoteInvitations/askableTasks'
+import type {
+  AskableTaskChoice,
+  AskableTaskRow,
+} from '@/content/quoteInvitations/types'
 import { publicRatingAverage } from '@/content/reviews/reviewModel'
 import { loadPageI11n } from '@/i18n/loadPageI11n'
 import type { AppLocale } from '@/i18n/locales'
@@ -28,9 +33,26 @@ import type {
 } from '../views'
 import { toPublicUserTaskCard } from './publicProfileTaskCard'
 
-export type PublicProfileRecord = NonNullable<
-  PublicProfileQuery['publicProfile']
->
+type GeneratedProfileRecord = NonNullable<PublicProfileQuery['publicProfile']>
+
+/**
+ * The query's result. `worker.viewer` gains the Ask to quote fields (FE-507)
+ * by hand until the next `bun run codegen` brings them into the generated type.
+ */
+export type PublicProfileRecord = Omit<GeneratedProfileRecord, 'worker'> & {
+  worker?:
+    | (Omit<NonNullable<GeneratedProfileRecord['worker']>, 'viewer'> & {
+        viewer?:
+          | (NonNullable<
+              NonNullable<GeneratedProfileRecord['worker']>['viewer']
+            > & {
+              canAskToQuote?: boolean
+              askableTasks?: AskableTaskRow[]
+            })
+          | null
+      })
+    | null
+}
 
 export type PublicWorkHistoryItem = {
   orderId: string
@@ -75,6 +97,10 @@ export type PublicProfileViewer = {
   reviewTaskId: string | null
   contactAction: WorkerContactAction
   relatedTaskId: string | null
+  /** The API says this viewer could ask this worker to quote (FE-507). */
+  canAskToQuote: boolean
+  /** The viewer's own open tasks, newest first; empty when none or `canAskToQuote` is false. */
+  askableTasks: AskableTaskChoice[]
 }
 
 /** Display data for /profile/[userId]. The named view decides what shows. */
@@ -380,6 +406,8 @@ export function toPublicProfileModel(
           reviewTaskId: worker.viewer.reviewTaskId ?? null,
           contactAction: worker.viewer.contactAction,
           relatedTaskId: worker.viewer.relatedTaskId ?? null,
+          canAskToQuote: worker.viewer.canAskToQuote ?? false,
+          askableTasks: toAskableTaskChoices(worker.viewer.askableTasks ?? []),
         }
       : null,
     achievements,

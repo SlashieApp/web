@@ -20,6 +20,11 @@ export type ProfileContactProps = {
   href: string
   /** First name for the button and helper copy. */
   firstName: string
+  /**
+   * Ask to quote with open tasks to pick from: the button opens the chooser
+   * instead of following `href` (FE-507).
+   */
+  onAsk?: () => void
 }
 
 function useContactCopy({ contact, firstName }: ProfileContactProps) {
@@ -31,7 +36,22 @@ function useContactCopy({ contact, firstName }: ProfileContactProps) {
   }
 }
 
-function ContactButton({ href, label }: { href: string; label: string }) {
+function ContactButton({
+  href,
+  label,
+  onAsk,
+}: {
+  href: string
+  label: string
+  onAsk?: () => void
+}) {
+  if (onAsk) {
+    return (
+      <Button type="button" w="full" size="lg" onClick={onAsk}>
+        {label}
+      </Button>
+    )
+  }
   return (
     <Button asChild w="full" size="lg">
       <Link href={href} _hover={{ textDecoration: 'none' }}>
@@ -53,7 +73,7 @@ export function ProfileContactCard(props: ProfileContactProps) {
       <Text fontSize="sm" color="text.muted">
         {copy.helper}
       </Text>
-      <ContactButton href={props.href} label={copy.label} />
+      <ContactButton href={props.href} label={copy.label} onAsk={props.onAsk} />
       <SafetyNotice variant="inline" />
     </Card>
   )
@@ -76,7 +96,11 @@ export function ProfileContactBar(props: ProfileContactProps) {
         <Text fontSize="xs" color="text.muted" textAlign="center">
           {copy.helper}
         </Text>
-        <ContactButton href={props.href} label={copy.label} />
+        <ContactButton
+          href={props.href}
+          label={copy.label}
+          onAsk={props.onAsk}
+        />
       </Stack>
     </Box>
   )

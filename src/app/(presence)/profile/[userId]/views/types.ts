@@ -7,6 +7,7 @@ export type PublicProfileViewName =
   | 'unavailable'
   | 'worker.guest'
   | 'worker.visitor'
+  | 'worker.askable'
   | 'worker.quoted'
   | 'worker.booked'
   | 'worker.owner'
@@ -31,6 +32,8 @@ export type PublicProfileViewInput = {
     contact: {
       action: WorkerContactAction
       relatedTaskId: string | null
+      /** `worker.viewer.canAskToQuote`: the API says this viewer could ask. */
+      canAskToQuote: boolean
     } | null
   } | null
 }
@@ -57,11 +60,12 @@ export type PublicProfileStat =
 export type PublicProfileContactAction =
   | 'signIn'
   | 'postTask'
+  | 'askToQuote'
   | 'viewQuote'
   | 'openJob'
 
 /** The line above the main button. Copy under `contact.helpers`. */
-export type PublicProfileContactHelper = 'locked' | 'quoted' | 'booked'
+export type PublicProfileContactHelper = 'locked' | 'ask' | 'quoted' | 'booked'
 
 /** Loading: a skeleton in the page's shape. */
 export type PublicProfileSkeletonConfig = { layout: 'skeleton' }

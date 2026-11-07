@@ -3,6 +3,7 @@ import { PublicProfileWorkRole, WorkerContactAction } from '@codegen/schema'
 import type { TaskCardTask } from '@/app/(task)/components/ui/TaskCard'
 import { buildAchievementPanels } from '@/app/(task)/tasks/helpers/taskAchievements'
 import { storyPhoto } from '@/app/(worker)/workers/components/workersStoryFixtures'
+import type { AskableTaskChoice } from '@/content/quoteInvitations/types'
 
 import type {
   PublicProfileModel,
@@ -268,6 +269,8 @@ export function sampleWorker(
       reviewTaskId: 'task-1',
       contactAction: WorkerContactAction.AcceptQuoteFirst,
       relatedTaskId: null,
+      canAskToQuote: false,
+      askableTasks: [],
     },
     achievements: [],
     workHistory: [],
@@ -287,6 +290,21 @@ export function sampleViewer(
     reviewTaskId: null,
     contactAction,
     relatedTaskId,
+    canAskToQuote: false,
+    askableTasks: [],
+  }
+}
+
+/** A visitor the API says can ask this worker to quote, with these open tasks. */
+export function sampleAskableViewer(
+  askableTasks: AskableTaskChoice[] = [],
+): PublicProfileModel['viewer'] {
+  return {
+    ...(sampleViewer(WorkerContactAction.AcceptQuoteFirst) as NonNullable<
+      PublicProfileModel['viewer']
+    >),
+    canAskToQuote: true,
+    askableTasks,
   }
 }
 

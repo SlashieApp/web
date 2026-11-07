@@ -5,6 +5,8 @@ import type { SaveWorkerMutation, UnsaveWorkerMutation } from '@codegen/schema'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 
+import type { AskableTaskChoice } from '@/content/quoteInvitations/types'
+import { useAskWorkerToQuote } from '@/content/quoteInvitations/useAskWorkerToQuote'
 import { useLocalizedHref } from '@/i18n/LocaleProvider'
 import { useI11n } from '@/i18n/useI11n'
 import { showAppToast } from '@/utils/appToast'
@@ -20,6 +22,8 @@ import type { PublicProfileModel } from './publicProfileModel'
 export function usePublicProfileActions(
   model: PublicProfileModel | null,
   excludeTaskId: string | null,
+  /** After an invitation went through: read the profile again, so the row says "Asked". */
+  onAsked?: () => void,
 ) {
   const t = useI11n(bag).hero
   const router = useRouter()
@@ -28,6 +32,7 @@ export function usePublicProfileActions(
   const [saveOverride, setSaveOverride] = useState<boolean | null>(null)
   const [saveWorker] = useMutation<SaveWorkerMutation>(SaveWorker)
   const [unsaveWorker] = useMutation<UnsaveWorkerMutation>(UnsaveWorker)
+  const invite = useAskWorkerToQuote()
   const saved = saveOverride ?? Boolean(model?.viewer?.isSaved)
   const reviewHref = resolveReviewHref(model?.viewer ?? null)
 
@@ -51,5 +56,28 @@ export function usePublicProfileActions(
     })
   }
 
-  return { saved, reviewHref, onSave, onBack }
+  /** Ask from the chooser (FE-507): one tap, one invitation. */
+  const askTask = async (
+    task: AskableTaskChoice,
+    workerName: string,
+  ): Promise<boolean> => {
+    if (!model?.id) return false
+    const ok = await invite.ask({
+      taskId: task.id,
+      taskTitle: task.title,
+      workerUserId: model.id,
+      workerName,
+      surface: 'profile',
+    })
+    if (ok) onAsked?.()
+    return ok
+  }
+  const ask = {
+    onSubmit: askTask,
+    submitting: invite.loading,
+    error: invite.error,
+    onClose: invite.clearError,
+  }
+
+  return { saved, reviewHref, onSave, onBack, ask }
 }

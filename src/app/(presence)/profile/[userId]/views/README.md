@@ -19,7 +19,8 @@ one config file here; `index.ts` maps names to configs and
 | `loadError` | Query failed, nothing cached | Could not load this profile | Try again |
 | `unavailable` | No profile: private, suspended, banned, deleting, deleted or an unknown id (noindex) | Profile unavailable | Back to search |
 | `worker.guest` | Signed out, worker profile | Hero, stats, worker sections, Trust; Save asks to sign in | Sign in to contact {name} |
-| `worker.visitor` | Signed in, no quote or job with them (`ACCEPT_QUOTE_FIRST`) | Same, plus Leave a review when eligible | Post a task |
+| `worker.visitor` | Signed in, no quote or job with them (`ACCEPT_QUOTE_FIRST`), and the API says this viewer can't ask them to quote (`canAskToQuote` false: opted out, a block) | Same, plus Leave a review when eligible | Post a task |
+| `worker.askable` | The same, and `worker.viewer.canAskToQuote` is true (FE-507) | Same as `worker.visitor` | Ask {name} to quote: the chooser when `askableTasks` has rows, else Post a task carrying the worker (`/tasks/create?askWorker=<id>`) |
 | `worker.quoted` | They quoted on your open task (`OPEN_QUOTE`) | Same | View {name}'s quote (`#task-quotes`) |
 | `worker.booked` | You have a booked job with them (`OPEN_TASK`) | Same | Open your job |
 | `worker.owner` | Your own worker profile | Owner bar, the visitor body without Save, review, contact or Report, then Your activity | Edit profile (owner bar) |
@@ -27,6 +28,13 @@ one config file here; `index.ts` maps names to configs and
 | `customer.visitor` | Anyone else, customer profile | Hero, stats, Open tasks (with budget), Reviews; one column | none (task cards) |
 | `customer.owner` | Your own customer profile (or a worker before setup is done) | Owner bar, the visitor body, then Your activity | Edit profile (owner bar) |
 | `customer.ownerHidden` | Your own customer profile while it is private | `customer.owner` under the hidden notice | Profile settings |
+
+Ask to quote (FE-507, wiki `Quote-Invitations.md`): the chooser is
+`@/content/quoteInvitations/AskToQuoteDialog` (title, description, the
+viewer's open tasks newest first with live quote counts, a row that can't be
+picked says Asked or Not available, Post a new task, Cancel and the main
+button). A refusal shows in the dialog. After a send the profile refetches, so
+the row reads Asked. The prompt after Post a task is on the task page.
 
 Precedence: query state, then no profile, then your own profile (hidden or
 not), then customer, then the worker's contact state. A quote or job with no task id
@@ -57,6 +65,7 @@ falls back to `worker.visitor`.
 
 ## Stories
 
+`components/PublicProfileAsk.stories.tsx`: Ask to quote (open tasks, none, none askable, refused, widths, zh-HK).
 `components/PublicProfileScreen.stories.tsx`: one story per view, plus review
 counts, long lists, a day-one worker, a worker who also hosts, zh-HK and phone.
 `components/ui/PublicProfileAchievements.stories.tsx`: the owner's activity.

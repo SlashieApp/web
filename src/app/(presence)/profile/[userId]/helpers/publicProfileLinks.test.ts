@@ -52,6 +52,16 @@ describe('contactHref', () => {
     )
   })
 
+  it('carries the worker to Post a task when there is no open task to ask about', () => {
+    expect(
+      contactHref('askToQuote', {
+        ...target,
+        profileUserId: '64b7f0c2a1d3e4f5a6b7c8d9',
+        relatedTaskId: null,
+      }),
+    ).toBe('/tasks/create?askWorker=64b7f0c2a1d3e4f5a6b7c8d9')
+  })
+
   it("opens the quotes on the customer's task", () => {
     expect(
       contactHref('viewQuote', { ...target, relatedTaskId: 'task-1' }),

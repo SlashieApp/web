@@ -1,8 +1,12 @@
 'use client'
 
 import { Box, Grid, HStack, Stack, Text } from '@chakra-ui/react'
+import { useState } from 'react'
 import { LuEyeOff, LuHeart } from 'react-icons/lu'
 
+import { AskToQuoteDialog } from '@/content/quoteInvitations/AskToQuoteDialog'
+import { askTapTarget } from '@/content/quoteInvitations/askableTasks'
+import type { AskableTaskChoice } from '@/content/quoteInvitations/types'
 import { ReportControl } from '@/content/trust/ReportControl'
 import { useI11n } from '@/i18n/useI11n'
 import { HEADER_MIN_HEIGHT } from '@/ui/Header/shell/headerShell'
@@ -42,6 +46,17 @@ import {
 
 const GAP = { base: 4, md: 6 } as const
 
+/** Sending the invitation from the chooser (`worker.askable`, FE-507). */
+export type PublicProfileAskProps = {
+  /** Sends it for the picked task, naming the worker as the page does; true once it went through. */
+  onSubmit: (task: AskableTaskChoice, workerName: string) => Promise<boolean>
+  submitting?: boolean
+  /** The refusal, shown in the dialog. */
+  error?: string | null
+  /** The dialog closed: forget the refusal. */
+  onClose?: () => void
+}
+
 export type PublicProfileScreenProps = {
   view: PublicProfileViewName
   /** Null until the profile loads, and for the status views. */
@@ -53,6 +68,7 @@ export type PublicProfileScreenProps = {
   onSave?: () => void
   onRetry?: () => void
   onBack?: () => void
+  ask?: PublicProfileAskProps
   /** Fixed clock for the owner's activity stories. */
   now?: Date
 }
@@ -67,6 +83,7 @@ export function PublicProfileScreen({
   onSave,
   onRetry,
   onBack,
+  ask,
   now,
 }: PublicProfileScreenProps) {
   const t = useI11n(bag)
@@ -113,6 +130,7 @@ export function PublicProfileScreen({
       excludeTaskId={excludeTaskId}
       onSave={onSave}
       onBack={onBack}
+      ask={ask}
       now={now}
     />
   )
@@ -146,6 +164,7 @@ function ProfilePage({
   excludeTaskId,
   onSave,
   onBack,
+  ask,
   now,
 }: {
   config: PublicProfilePageConfig
@@ -155,16 +174,26 @@ function ProfilePage({
   excludeTaskId: string | null
   onSave?: () => void
   onBack?: () => void
+  ask?: PublicProfileAskProps
   now?: Date
 }) {
   const t = useI11n(bag)
+  const [askOpen, setAskOpen] = useState(false)
   const name = model.name || t.fallbackName
   const firstName = name.split(/\s+/)[0] || name
   const contact = config.contact
+  // Ask to quote opens the chooser when there are open tasks to pick from;
+  // with none the button is the link to Post a task carrying the worker.
+  const askChoices = model.viewer?.askableTasks ?? []
+  const chooser =
+    contact?.action === 'askToQuote' &&
+    askTapTarget(askChoices) === 'chooser' &&
+    ask
   const contactProps = contact
     ? {
         contact,
         firstName,
+        onAsk: chooser ? () => setAskOpen(true) : undefined,
         href: contactHref(contact.action, {
           profileUserId: model.id,
           excludeTaskId,
@@ -328,6 +357,21 @@ function ProfilePage({
 
           {contactProps ? <ProfileContactBar {...contactProps} /> : null}
         </Stack>
+        {chooser ? (
+          <AskToQuoteDialog
+            open={askOpen}
+            onOpenChange={(next) => {
+              setAskOpen(next)
+              if (!next) ask.onClose?.()
+            }}
+            workerName={firstName}
+            workerUserId={model.id}
+            tasks={askChoices}
+            onSubmit={(task) => ask.onSubmit(task, firstName)}
+            submitting={ask.submitting}
+            error={ask.error}
+          />
+        ) : null}
       </StickyHeader>
     </Page>
   )

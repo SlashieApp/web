@@ -1,0 +1,9 @@
+# The owner asks one worker to quote on one of their OPEN tasks. Never creates
+# a quote; the worker decides. Nothing calls this without a tap.
+mutation AskWorkerToQuote($taskId: ID!, $workerUserId: ID!) {
+  askWorkerToQuote(taskId: $taskId, workerUserId: $workerUserId) {
+    taskId
+    workerUserId
+    createdAt
+  }
+}

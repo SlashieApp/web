@@ -1,5 +1,7 @@
 import { publicProfilePath } from '@/app/helpers/publicProfilePath'
 
+import { createTaskAskingHref } from '@/content/quoteInvitations/askWorkerParam'
+
 import type { PublicProfileContactAction } from '../views'
 
 export function reviewFormPath(
@@ -57,5 +59,8 @@ export function contactHref(
       return taskId ? `/tasks/${taskId}` : '/tasks/create'
     case 'postTask':
       return '/tasks/create'
+    // With no open task the button is this link; with some it opens the chooser.
+    case 'askToQuote':
+      return createTaskAskingHref(target.profileUserId)
   }
 }

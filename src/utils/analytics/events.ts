@@ -70,6 +70,11 @@ export const EVENTS = {
   // Worker
   quote_send_success: 'quote_send_success',
   quote_send_fail: 'quote_send_fail',
+  // Ask a worker to quote (FE-507)
+  quote_invite_sent: 'quote_invite_sent',
+  quote_invite_failed: 'quote_invite_failed',
+  quote_invite_dismissed: 'quote_invite_dismissed',
+  quote_invite_prompt_skipped: 'quote_invite_prompt_skipped',
   worker_setup_success: 'worker_setup_success',
   worker_setup_fail: 'worker_setup_fail',
   task_save_success: 'task_save_success',

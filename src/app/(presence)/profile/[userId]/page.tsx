@@ -40,12 +40,15 @@ export default function PublicProfilePage() {
             ? {
                 action: viewer.contactAction,
                 relatedTaskId: viewer.relatedTaskId,
+                canAskToQuote: viewer.canAskToQuote,
               }
             : null,
         }
       : null,
   })
-  const actions = usePublicProfileActions(model, excludeTaskId)
+  const actions = usePublicProfileActions(model, excludeTaskId, () => {
+    void refetch()
+  })
 
   return (
     <Box bg="bg.canvas" color="text.default" minH="100%">

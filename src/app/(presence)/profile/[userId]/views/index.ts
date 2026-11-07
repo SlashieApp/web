@@ -5,6 +5,7 @@ import { loading } from './loading'
 import { customerOwnerHidden, workerOwnerHidden } from './ownerHidden'
 import type { PublicProfileViewConfig, PublicProfileViewName } from './types'
 import { unavailable } from './unavailable'
+import { workerAskable } from './worker.askable'
 import { workerBooked } from './worker.booked'
 import { workerGuest } from './worker.guest'
 import { workerOwner } from './worker.owner'
@@ -33,6 +34,7 @@ export const PUBLIC_PROFILE_VIEWS: Record<
   unavailable,
   'worker.guest': workerGuest,
   'worker.visitor': workerVisitor,
+  'worker.askable': workerAskable,
   'worker.quoted': workerQuoted,
   'worker.booked': workerBooked,
   'worker.owner': workerOwner,

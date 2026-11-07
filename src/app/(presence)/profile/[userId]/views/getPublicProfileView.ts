@@ -38,5 +38,7 @@ export function getPublicProfileView({
   if (!contact) return 'worker.guest'
   const name = WORKER_VIEW_BY_CONTACT[contact.action]
   const needsTask = name === 'worker.quoted' || name === 'worker.booked'
-  return needsTask && !contact.relatedTaskId ? 'worker.visitor' : name
+  const visitor = contact.canAskToQuote ? 'worker.askable' : 'worker.visitor'
+  if (name === 'worker.visitor') return visitor
+  return needsTask && !contact.relatedTaskId ? visitor : name
 }

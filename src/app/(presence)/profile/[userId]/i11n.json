@@ -70,11 +70,13 @@
       "actions": {
         "signIn": "Sign in to contact {name}",
         "postTask": "Post a task",
+        "askToQuote": "Ask {name} to quote",
         "viewQuote": "View {name}'s quote",
         "openJob": "Open your job"
       },
       "helpers": {
         "locked": "Contact details unlock after you accept {name}'s quote.",
+        "ask": "{name} gets a notification and decides whether to send a quote.",
         "quoted": "{name} has quoted on your task.",
         "booked": "You have a job with {name}. Message them from the job page."
       }
@@ -199,11 +201,13 @@
       "actions": {
         "signIn": "登入後聯絡 {name}",
         "postTask": "發布任務",
+        "askToQuote": "請 {name} 報價",
         "viewQuote": "查看 {name} 的報價",
         "openJob": "打開你的工作"
       },
       "helpers": {
         "locked": "接受 {name} 的報價後，先會解鎖聯絡資料。",
+        "ask": "{name} 會收到通知，並自行決定是否報價。",
         "quoted": "{name} 已為你的任務報價。",
         "booked": "你同 {name} 有一份工作。請喺工作頁面傳訊息。"
       }

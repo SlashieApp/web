@@ -1,0 +1,7 @@
+# The invited worker's "Not for me". Silent: the customer is not told.
+mutation DismissQuoteInvitation($taskId: ID!) {
+  dismissQuoteInvitation(taskId: $taskId) {
+    taskId
+    dismissedAt
+  }
+}
