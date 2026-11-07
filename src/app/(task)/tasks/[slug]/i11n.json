@@ -807,7 +807,7 @@
       },
       "asked": {
         "heading": "已邀請報價",
-        "noQuote": "未有報價",
+        "noQuote": "暫未報價",
         "viewProfileFor": "查看 {name} 的檔案"
       },
       "respondedJustNow": "剛剛回覆",

@@ -26,37 +26,37 @@
       "dailyLimit": "You've asked 10 workers in the last 24 hours. Try again later.",
       "notAvailable": "{name} can't be asked to quote right now.",
       "taskClosed": "This task isn't open for quotes any more.",
-      "generic": "Something went wrong. Try again."
+      "generic": "That didn't work. Refresh and try again."
     }
   },
   "zh_hk": {
     "dialog": {
       "title": "請 {name} 報價",
-      "description": "揀一個你而家開放緊嘅任務。{name} 會收到通知，並自行決定是否報價。",
-      "listLabel": "你開放中嘅任務",
-      "quotesNone": "未有報價",
+      "description": "請選擇你其中一項開放中的任務。{name} 會收到通知，並自行決定是否報價。",
+      "listLabel": "你開放中的任務",
+      "quotesNone": "暫時未有報價",
       "quotesOne": "1 個報價",
       "quotesMany": "{count} 個報價",
       "asked": "已邀請",
-      "notAvailable": "未能邀請",
+      "notAvailable": "暫時未能邀請",
       "postNew": "發布新任務",
       "cancel": "取消",
       "submit": "請 {name} 報價"
     },
     "prompt": {
-      "title": "請 {name} 為呢個任務報價？",
+      "title": "要請 {name} 就此任務報價嗎？",
       "description": "{name} 會收到通知，並自行決定是否報價。",
-      "notNow": "暫時唔使",
+      "notNow": "暫時不用",
       "submit": "請 {name}"
     },
-    "toast": "已請 {name} 為「{task}」報價。",
+    "toast": "已請 {name} 就「{task}」報價。",
     "errors": {
-      "alreadySent": "你已經就呢個任務邀請過 {name}。",
-      "taskLimit": "你已經就呢個任務邀請咗 5 位工作者，係單一任務嘅上限。",
-      "dailyLimit": "你喺過去 24 小時已經邀請咗 10 位工作者，請稍後再試。",
-      "notAvailable": "{name} 暫時未能被邀請報價。",
-      "taskClosed": "呢個任務已經唔再接受報價。",
-      "generic": "出現問題，請再試。"
+      "alreadySent": "你已就此任務邀請過 {name}。",
+      "taskLimit": "你已就此任務邀請了 5 位工作者，已達單一任務的上限。",
+      "dailyLimit": "你在過去 24 小時內已邀請了 10 位工作者。請稍後再試。",
+      "notAvailable": "目前未能請 {name} 報價。",
+      "taskClosed": "此任務已不再接受報價。",
+      "generic": "操作未成功。請重新整理後再試。"
     }
   }
 }

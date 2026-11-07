@@ -24,3 +24,12 @@ describe('quoteInviteErrorKey', () => {
     expect(quoteInviteErrorKey(undefined)).toBeNull()
   })
 })
+
+describe('generic error copy', () => {
+  it('is the task page action-failed line in both languages', async () => {
+    const task = (await import('@/app/(task)/tasks/[slug]/i11n.json')).default
+    const mine = (await import('./i11n.json')).default
+    expect(mine.en.errors.generic).toBe(task.en.close.actionFailed)
+    expect(mine.zh_hk.errors.generic).toBe(task.zh_hk.close.actionFailed)
+  })
+})
