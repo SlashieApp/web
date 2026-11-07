@@ -50,9 +50,6 @@ function DoneMeaning({ align }: { align: 'start' | 'center' }) {
   )
 }
 
-/** The Done card is a container: the row below picks its layout from its width. */
-const CARD_CSS = { containerType: 'inline-size' } as const
-
 /**
  * One wrapping row, so the switch follows the content and never the other way
  * round: the status text keeps its natural width (the date stays on one line),
@@ -73,15 +70,18 @@ const ROW_CSS = {
  * on the right (48 tall, at least 200 wide; wrapping under the text on very
  * small phones), and "what Done means" under it, 8 below. "Something went
  * wrong" is the first entry of Help & actions. Switching after acting is there
- * too (`OrderDoneDialog`, `OrderFailedDialog`). Nothing while the booking is
- * frozen by a suspension (BE-108).
+ * too (`OrderDoneDialog`, `OrderFailedDialog`). When this viewer cannot close
+ * the booking (`orderClose.canClose` and `showOrderActions`), the card keeps
+ * the status and the date without the slide or the Done line, as before the
+ * one-row card and as on Expo; with neither, nothing shows. A frozen booking
+ * (BE-108) has no Done card at all: its main button is not Mark Done.
  */
 export function OrderCloseCard() {
   const { orderClose, permissions, mainCta } = useTaskDetail()
-
-  if (!orderClose?.canClose || !permissions.showOrderActions) return null
-
+  const canClose = Boolean(orderClose?.canClose && permissions.showOrderActions)
   const content = mainCta?.presentation === 'close' ? mainCta.content : null
+
+  if (!canClose && !content) return null
 
   return (
     <Box
@@ -91,7 +91,6 @@ export function OrderCloseCard() {
       borderRadius="xl"
       boxShadow="e3"
       p={4}
-      css={CARD_CSS}
     >
       <Box gap={3} css={ROW_CSS}>
         {content ? (
@@ -102,13 +101,17 @@ export function OrderCloseCard() {
             <Text {...sdlFigure}>{content.value}</Text>
           </Stack>
         ) : null}
-        <Box flex="1 1 200px" minW="200px">
-          <SlideDone compact />
+        {canClose ? (
+          <Box flex="1 1 200px" minW="200px">
+            <SlideDone compact />
+          </Box>
+        ) : null}
+      </Box>
+      {canClose ? (
+        <Box mt={2}>
+          <DoneMeaning align="start" />
         </Box>
-      </Box>
-      <Box mt={2}>
-        <DoneMeaning align="start" />
-      </Box>
+      ) : null}
     </Box>
   )
 }

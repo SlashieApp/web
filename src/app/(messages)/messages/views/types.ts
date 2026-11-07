@@ -134,8 +134,9 @@ export type BottomPinViewConfig = {
   subline: boolean
   /**
    * `request`: task detail's answer buttons for a reschedule or cancellation.
-   * `close`: its slide to mark Done and Something went wrong. `openTask`: a
-   * link to sort a conflict out on task detail.
+   * `close`: its Done card (slide to mark Done; Something went wrong is the
+   * thread menu's first entry). `openTask`: a link to sort a conflict out on
+   * task detail.
    */
   controls: 'request' | 'close' | 'openTask'
 }

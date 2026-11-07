@@ -125,6 +125,13 @@ export const Compact: Story = {
     const t = thumb.getBoundingClientRect()
     const k = track.getBoundingClientRect()
     await expect(t.top - k.top).toBe(k.bottom - t.bottom)
+    // The label is 12 with 8 on its right (the default slide has 14 and 16),
+    // so "Tap again to mark Done" fits one line in the Done card's 200.
+    const label = getComputedStyle(
+      within(canvasElement).getByText('Slide to mark Done', { selector: 'p' }),
+    )
+    await expect(label.fontSize).toBe('12px')
+    await expect(label.paddingRight).toBe('8px')
   },
 }
 

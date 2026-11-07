@@ -1,5 +1,5 @@
 import { Box } from '@chakra-ui/react'
-import { OrderStatus } from '@codegen/schema'
+import { OrderCloseKind, OrderStatus } from '@codegen/schema'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test'
 
@@ -231,6 +231,41 @@ export const NotClosable: Story = {
         within(canvasElement).queryByText('Slide to mark Done'),
       ).toBeNull(),
     )
+  },
+}
+
+/**
+ * The other person marked it Done but this viewer cannot close it yet (the
+ * booked start is still ahead): the card keeps the status and the date,
+ * without the slide or the Done line, as before the one-row card and as on
+ * Expo.
+ */
+export const TheyMarkedNotClosable: Story = {
+  decorators: [
+    withTaskDetailStory({
+      viewer: 'worker',
+      order: storyTaskOrder({
+        bookedStart: '2030-06-10T14:00:00.000Z',
+        bookedEnd: null,
+        counterpartyCloseAction: {
+          kind: OrderCloseKind.Done,
+          at: '2030-06-10T15:00:00.000Z',
+        },
+      }),
+    }),
+  ],
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await waitFor(() =>
+      expect(
+        canvasElement.querySelector('[data-order-close-card]'),
+      ).not.toBeNull(),
+    )
+    await expect(canvas.getByText('Job time has started')).toBeVisible()
+    await expect(
+      canvas.queryByRole('button', { name: 'Slide to mark Done' }),
+    ).toBeNull()
+    await expect(canvas.queryByText(/^Done means/)).toBeNull()
   },
 }
 

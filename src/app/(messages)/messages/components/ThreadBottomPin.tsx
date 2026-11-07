@@ -28,7 +28,7 @@ export function ThreadBottomPin({
 }: {
   attention: ThreadFieldsFragment['attention']
 }) {
-  const { view, task } = useTaskDetail()
+  const { view, task, orderClose, permissions } = useTaskDetail()
   const t = useI11n(bag).pin
   const lines = useSummaryLines(TASK_DETAIL_VIEWS[view])
   const name = getBottomPinView({ attention, view })
@@ -61,7 +61,11 @@ export function ThreadBottomPin({
         </Text>
       ) : null}
       {config.controls === 'request' ? <RequestFact /> : null}
-      {config.controls === 'close' ? (
+      {/* The Done card only while this viewer can close the booking, as on
+          Expo: without its slide it would only repeat the headline. */}
+      {config.controls === 'close' &&
+      orderClose?.canClose &&
+      permissions.showOrderActions ? (
         <Box py={2}>
           <OrderCloseCard />
         </Box>

@@ -316,13 +316,14 @@ export function TaskOverflowActions({
   const onShare = useShareTask(task?.title?.trim() || t.fallbackTask)
 
   if (!task) return null
+  const flush = !packed || insideDrawer
 
   return (
     <Stack
       gap={1}
       minW={packed ? '220px' : undefined}
       w="full"
-      css={packed && !insideDrawer ? undefined : FLUSH_ROWS}
+      css={flush ? FLUSH_ROWS : undefined}
     >
       <BookingActions onDone={close} onOpenDialog={onOpenDialog} />
       <MenuAction
@@ -371,7 +372,14 @@ export function TaskOverflowActions({
             }}
           />
           {cancelError ? (
-            <Text fontSize="sm" color="status.danger.fg" px={1} role="alert">
+            // On the rows' left line where they are flush (the card and the
+            // phone drawer); a little in from the panel edge in the popover.
+            <Text
+              px={flush ? 0 : 1}
+              fontSize="sm"
+              color="status.danger.fg"
+              role="alert"
+            >
               {cancelError}
             </Text>
           ) : null}

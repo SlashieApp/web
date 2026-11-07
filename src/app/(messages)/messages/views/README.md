@@ -182,10 +182,14 @@ headline first.
 |---|---|---|---|---|
 | `bottomPin.reschedule` | ANSWER_RESCHEDULE | `*.booked.rescheduleByThem` | no | Their times with Use this time, Keep current time (`RequestFact`) |
 | `bottomPin.cancel` | ANSWER_CANCEL | `*.booked.cancelByThem` | no | Accept cancellation, Keep booking (`RequestFact`) |
-| `bottomPin.markDone` | MARK_DONE | `*.booked.ready` | no | Slide to mark Done, Something went wrong (`OrderCloseCard`) |
-| `bottomPin.confirmDone` | CONFIRM_DONE | `*.booked.theyMarkedDone` | yes (auto-complete date) | Slide to mark Done, Something went wrong |
-| `bottomPin.answerFailed` | ANSWER_FAILED | `*.booked.theyMarkedFailed` | yes | Slide to mark Done, Something went wrong |
+| `bottomPin.markDone` | MARK_DONE | `*.booked.ready` | no | The Done card: status, date and a compact slide to mark Done (`OrderCloseCard`) |
+| `bottomPin.confirmDone` | CONFIRM_DONE | `*.booked.theyMarkedDone` | yes (auto-complete date) | The Done card |
+| `bottomPin.answerFailed` | ANSWER_FAILED | `*.booked.theyMarkedFailed` | yes | The Done card |
 | `bottomPin.conflict` | CONFLICT | `*.conflict.*` | yes | Open task |
+
+Something went wrong is not in the pin: it is the first entry of the
+thread menu (`ThreadHeader`) while the booking can be closed, as it is the
+first entry of Help & actions on task detail.
 
 While frozen by a suspension the API sends no `attention`, so there is no
 bottom pin, the header menu keeps only Report and Block
