@@ -127,6 +127,9 @@ export const RowsThatCannotBePicked: Story = {
     await expect(asked).toBeDisabled()
     await expect(unavailable).toHaveTextContent('Not available')
     await expect(unavailable).toBeDisabled()
+    // The count stays on a row that can't be picked, beside the reason.
+    await expect(asked).toHaveTextContent('No quotes yet')
+    await expect(unavailable).toHaveTextContent('4 quotes')
     await userEvent.click(asked)
     await expect(d.queryAllByRole('radio', { checked: true })).toHaveLength(0)
     await expect(barButton(dialog, 'Ask Alex to quote')).toBeDisabled()
@@ -188,6 +191,16 @@ export const RefusedAlreadySent: Story = {
     )
     await expect(dialog).toBeVisible()
     await expect(d.getAllByRole('radio', { checked: true })).toHaveLength(1)
+    // Body order, the same in both apps: the list, "Post a new task", then the error.
+    const list = d.getByRole('radiogroup')
+    const link = d.getByRole('link', { name: 'Post a new task' })
+    const alert = d.getByRole('alert')
+    await expect(
+      list.compareDocumentPosition(link) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy()
+    await expect(
+      link.compareDocumentPosition(alert) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy()
   },
 }
 
