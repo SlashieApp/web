@@ -162,21 +162,51 @@ export function TaskCard(props: TaskCardProps) {
   return <TaskCardBrowse {...props} />
 }
 
-/** Task-card-shaped placeholder used while browse/search results load. */
+/** The photo's corners: the card's radius, less its 1px border. */
+const PHOTO_RADIUS = 'calc({radii.lg} - 1px)'
+
+/**
+ * Task-card-shaped placeholder used while browse/search results load: the
+ * photo block edge to edge on the left, then the badge row, the title and the
+ * scan line in the card's own line boxes, so it is as tall as a card.
+ */
 function TaskCardLoading() {
   return (
-    <Card p={3} maxW="full" aria-hidden>
-      <HStack gap={{ base: 3, md: 3.5 }} align="stretch">
+    <Card p={0} maxW="full" aria-hidden>
+      <HStack gap={0} align="stretch">
         <Skeleton
-          minW={taskCardLayout.thumb}
-          h={taskCardLayout.thumb}
-          borderRadius="lg"
+          w={taskCardLayout.photoWidth}
           flexShrink={0}
+          borderRadius={0}
+          borderLeftRadius={PHOTO_RADIUS}
         />
-        <Stack flex={1} minW={0} gap={2} justify="center">
-          <Skeleton h="12px" w="30%" borderRadius="full" />
-          <Skeleton h="16px" w="78%" borderRadius="md" />
-          <Skeleton h="12px" w="52%" borderRadius="md" />
+        <Stack
+          flex={1}
+          minW={0}
+          gap={1.5}
+          p={3}
+          ps={{ base: 3, md: 3.5 }}
+          pe={12}
+        >
+          <Stack gap={1}>
+            <HStack minH={taskCardLayout.badgeRowMinHeight}>
+              <Skeleton h="12px" w="30%" borderRadius="full" />
+            </HStack>
+            <HStack
+              minH={taskCardTitleMinHeight}
+              fontSize="md"
+              lineHeight={taskCardLayout.titleLineHeight}
+            >
+              <Skeleton h="16px" w="78%" borderRadius="md" />
+            </HStack>
+          </Stack>
+          <HStack
+            minH={taskCardMetaMinHeight}
+            fontSize="sm"
+            lineHeight={taskCardLayout.metaLineHeight}
+          >
+            <Skeleton h="12px" w="52%" borderRadius="md" />
+          </HStack>
         </Stack>
       </HStack>
     </Card>
@@ -283,135 +313,146 @@ function TaskCardBrowse(props: TaskCardBrowseProps) {
       }
     >
       <HStack gap={0} align="stretch">
+        {/* The photo: the card's left side, top to bottom (FE-502). */}
+        <Box
+          data-task-card-photo
+          position="relative"
+          flexShrink={0}
+          w={taskCardLayout.photoWidth}
+          overflow="hidden"
+          borderLeftRadius={PHOTO_RADIUS}
+        >
+          <Thumbnail
+            alt={`${title} thumbnail`}
+            src={thumbnailSrc}
+            size="md"
+            position="absolute"
+            inset={0}
+            minW={0}
+            aspectRatio="auto"
+            borderRadius={0}
+          />
+        </Box>
         <Box
           flex={1}
           minW={0}
           position="relative"
-          p={{ base: 3, md: 3 }}
+          p={3}
+          ps={{ base: 3, md: 3.5 }}
           pe={12}
         >
-          <HStack gap={{ base: 3, md: 3.5 }} align="stretch">
-            <Thumbnail
-              alt={`${title} thumbnail`}
-              src={thumbnailSrc}
-              size="sm"
-              minW={taskCardLayout.thumb}
-              h={taskCardLayout.thumb}
-              alignSelf="flex-start"
-            />
-            <Stack flex={1} minW={0} gap={1.5}>
-              <Stack gap={1} minW={0} align="flex-start">
-                <HStack
-                  gap={1}
-                  w="full"
-                  minW={0}
-                  minH={taskCardLayout.badgeRowMinHeight}
-                  overflow="hidden"
-                  flexWrap="nowrap"
-                  align="center"
-                  css={
-                    viewerRole || tags.length > 0 || categories.length > 0
-                      ? BADGE_ROW_FADE
-                      : undefined
-                  }
-                >
-                  {viewerRole ? (
-                    <TaskRolePill role={viewerRole} flexShrink={0} />
-                  ) : null}
-                  {tags.map((tag) => (
-                    <Badge
-                      key={`tag-${tag}`}
-                      shape="pill"
-                      variant="neutral"
-                      flexShrink={0}
-                    >
-                      {tag}
-                    </Badge>
-                  ))}
-                  {categories.map((category) => (
-                    <Badge
-                      key={category}
-                      shape="pill"
-                      variant="neutral"
-                      flexShrink={0}
-                    >
-                      {category}
-                    </Badge>
-                  ))}
-                </HStack>
-                <Text
-                  fontSize="md"
-                  fontWeight={500}
-                  letterSpacing="-0.01em"
-                  color="text.default"
-                  lineHeight={taskCardLayout.titleLineHeight}
-                  lineClamp={taskCardLayout.titleLines}
-                  minH={taskCardTitleMinHeight}
-                  maxW="full"
-                >
-                  {title}
-                </Text>
-              </Stack>
-
+          <Stack flex={1} minW={0} gap={1.5}>
+            <Stack gap={1} minW={0} align="flex-start">
               <HStack
                 gap={1}
+                w="full"
                 minW={0}
-                minH={taskCardMetaMinHeight}
-                flexWrap="wrap"
+                minH={taskCardLayout.badgeRowMinHeight}
+                overflow="hidden"
+                flexWrap="nowrap"
                 align="center"
-                fontSize="sm"
-                lineHeight={taskCardLayout.metaLineHeight}
+                css={
+                  viewerRole || tags.length > 0 || categories.length > 0
+                    ? BADGE_ROW_FADE
+                    : undefined
+                }
               >
-                {metaParts.map((part, index) => {
-                  const isFirst = index === 0
-                  const label = (
-                    <Text
-                      fontSize="sm"
-                      lineClamp={1}
-                      {...META_PART_STYLE[metaPartStyle(part, timingTone)]}
-                    >
-                      {part.label}
-                    </Text>
-                  )
-                  return (
-                    <Fragment key={part.kind}>
-                      {isFirst ? null : (
-                        <Text
-                          as="span"
-                          color="text.muted"
-                          fontSize="xs"
-                          aria-hidden
-                        >
-                          ·
-                        </Text>
-                      )}
-                      {label}
-                    </Fragment>
-                  )
-                })}
+                {viewerRole ? (
+                  <TaskRolePill role={viewerRole} flexShrink={0} />
+                ) : null}
+                {tags.map((tag) => (
+                  <Badge
+                    key={`tag-${tag}`}
+                    shape="pill"
+                    variant="neutral"
+                    flexShrink={0}
+                  >
+                    {tag}
+                  </Badge>
+                ))}
+                {categories.map((category) => (
+                  <Badge
+                    key={category}
+                    shape="pill"
+                    variant="neutral"
+                    flexShrink={0}
+                  >
+                    {category}
+                  </Badge>
+                ))}
               </HStack>
-
-              {askLabel ? (
-                <Text
-                  fontSize="sm"
-                  fontWeight={500}
-                  color="text.default"
-                  lineClamp={2}
-                >
-                  {askLabel}
-                </Text>
-              ) : quotesLabel ? (
-                <Text
-                  fontSize="xs"
-                  {...sdlFigure}
-                  color="text.muted"
-                  lineClamp={1}
-                >
-                  {quotesLabel}
-                </Text>
-              ) : null}
+              <Text
+                fontSize="md"
+                fontWeight={500}
+                letterSpacing="-0.01em"
+                color="text.default"
+                lineHeight={taskCardLayout.titleLineHeight}
+                lineClamp={taskCardLayout.titleLines}
+                minH={taskCardTitleMinHeight}
+                maxW="full"
+              >
+                {title}
+              </Text>
             </Stack>
-          </HStack>
+
+            <HStack
+              gap={1}
+              minW={0}
+              minH={taskCardMetaMinHeight}
+              flexWrap="wrap"
+              align="center"
+              fontSize="sm"
+              lineHeight={taskCardLayout.metaLineHeight}
+            >
+              {metaParts.map((part, index) => {
+                const isFirst = index === 0
+                const label = (
+                  <Text
+                    fontSize="sm"
+                    lineClamp={1}
+                    {...META_PART_STYLE[metaPartStyle(part, timingTone)]}
+                  >
+                    {part.label}
+                  </Text>
+                )
+                return (
+                  <Fragment key={part.kind}>
+                    {isFirst ? null : (
+                      <Text
+                        as="span"
+                        color="text.muted"
+                        fontSize="xs"
+                        aria-hidden
+                      >
+                        ·
+                      </Text>
+                    )}
+                    {label}
+                  </Fragment>
+                )
+              })}
+            </HStack>
+
+            {askLabel ? (
+              <Text
+                fontSize="sm"
+                fontWeight={500}
+                color="text.default"
+                lineClamp={2}
+              >
+                {askLabel}
+              </Text>
+            ) : quotesLabel ? (
+              <Text
+                fontSize="xs"
+                {...sdlFigure}
+                color="text.muted"
+                lineClamp={1}
+              >
+                {quotesLabel}
+              </Text>
+            ) : null}
+          </Stack>
 
           {props.action ? (
             <Box

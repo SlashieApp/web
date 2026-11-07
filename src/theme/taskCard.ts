@@ -10,7 +10,11 @@ export const taskCardLayout = {
   // The small Badge's height (FE-442): 26px, so a card with a badge is no
   // taller than one without.
   badgeRowMinHeight: '1.625rem',
-  thumb: '48px',
+  /**
+   * The photo (FE-502, Ryan 2026-11-07): the card's left side, edge to edge
+   * from its top to its bottom, 96 wide, cropped to fit.
+   */
+  photoWidth: '96px',
 } as const
 
 export const taskCardTitleMinHeight = `${taskCardLayout.titleLines * taskCardLayout.titleLineHeight}em`

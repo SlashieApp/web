@@ -1,4 +1,4 @@
-import { Box } from '@chakra-ui/react'
+import { Box, Stack } from '@chakra-ui/react'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { expect, fn, userEvent, within } from 'storybook/test'
 
@@ -54,22 +54,78 @@ export default meta
 
 type Story = StoryObj<typeof meta>
 
+const rect = (el: Element) => el.getBoundingClientRect()
+
+/**
+ * The photo (FE-502): the card's left side from its top edge to its bottom
+ * edge inside the 1px border, 96 wide, its left corners the card's 12 less the
+ * border, and the text 12 after it (14 from md).
+ */
+async function expectEdgeToEdgePhoto(canvasElement: HTMLElement) {
+  const photo = canvasElement.querySelector(
+    '[data-task-card-photo]',
+  ) as HTMLElement
+  const card = (photo.parentElement as HTMLElement).parentElement as HTMLElement
+  await expect(rect(photo).width).toBe(96)
+  await expect(rect(photo).top - rect(card).top).toBe(1)
+  await expect(rect(card).bottom - rect(photo).bottom).toBe(1)
+  await expect(rect(photo).left - rect(card).left).toBe(1)
+  const style = getComputedStyle(photo)
+  await expect(style.borderTopLeftRadius).toBe('11px')
+  await expect(style.borderBottomLeftRadius).toBe('11px')
+  await expect(style.borderTopRightRadius).toBe('0px')
+  const title = within(card).getByText(defaultTask.title)
+  const gap = window.matchMedia('(min-width: 48rem)').matches ? 14 : 12
+  await expect(rect(title).left - rect(photo).right).toBe(gap)
+}
+
 /** Badge, budget, distance and timing. No "jobs done" line (removed in FE-369). */
 export const Default: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
     await expect(canvas.getByText(defaultTask.title)).toBeVisible()
     await expect(canvas.queryByText(/jobs done/i)).toBeNull()
+    await expectEdgeToEdgePhoto(canvasElement)
   },
 }
 
-/** Results loading: the card-shaped skeleton. */
+/** Results loading: the card-shaped skeleton, its photo block edge to edge. */
 export const Loading: Story = {
   render: () => (
     <Box maxW="520px" w="full">
       <TaskCard loading />
     </Box>
   ),
+}
+
+/** The loading card is as tall as a card, and its photo block as tall as the card's photo. */
+export const LoadingMatchesCard: Story = {
+  render: () => (
+    <Stack maxW="520px" w="full" gap={4}>
+      <Box data-case="loading">
+        <TaskCard loading />
+      </Box>
+      <Box data-case="card">
+        <TaskCard task={defaultTask} detailsHref="/tasks/task-1" />
+      </Box>
+    </Stack>
+  ),
+  play: async ({ canvasElement }) => {
+    const host = (name: string) =>
+      canvasElement.querySelector(`[data-case="${name}"]`) as HTMLElement
+    const loading = host('loading').firstElementChild as HTMLElement
+    const card = host('card').firstElementChild as HTMLElement
+    await expect(
+      Math.abs(rect(loading).height - rect(card).height),
+    ).toBeLessThan(0.5)
+    const block = (loading.firstElementChild as HTMLElement)
+      .firstElementChild as HTMLElement
+    const photo = card.querySelector('[data-task-card-photo]') as HTMLElement
+    await expect(rect(block).width).toBe(96)
+    await expect(
+      Math.abs(rect(block).height - rect(photo).height),
+    ).toBeLessThan(0.5)
+  },
 }
 
 /** Long title: clamps to two lines. */
@@ -88,9 +144,17 @@ export const MissingBudget: Story = {
   args: { task: { ...defaultTask, priceLabel: '' } },
 }
 
-/** No photo: the thumbnail falls back to its placeholder. */
+/** No photo: the same edge-to-edge box, grey with the image icon. */
 export const NoThumbnail: Story = {
   args: { task: { ...defaultTask, thumbnailSrc: undefined } },
+  play: async ({ canvasElement }) => {
+    await expectEdgeToEdgePhoto(canvasElement)
+    const photo = canvasElement.querySelector(
+      '[data-task-card-photo]',
+    ) as HTMLElement
+    await expect(photo.querySelector('img')).toBeNull()
+    await expect(photo.querySelector('svg')).not.toBeNull()
+  },
 }
 
 /** No category: the pill row is left out and the title leads. */
