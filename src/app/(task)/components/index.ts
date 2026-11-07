@@ -19,6 +19,7 @@ export { TaskCard } from './ui/TaskCard'
 export { TaskCardWorkerQuote } from './ui/TaskCardWorkerQuote'
 export { TaskEmptyState } from './ui/TaskEmptyState'
 export { TaskList } from './(web)/layout/TaskList'
+export { TaskRolePill } from './ui/TaskRolePill'
 export { TaskSearch, TaskSearchBase } from './ui/TaskSearch'
 export { TaskTag } from './ui/TaskTag'
 export type { SearchThisAreaButtonProps } from './ui/SearchThisAreaButton'
@@ -34,4 +35,5 @@ export type {
   TaskCardTask,
   TaskCardWorkerQuoteProps,
 } from './ui/TaskCard'
+export type { TaskRolePillProps } from './ui/TaskRolePill'
 export type { TaskSearchBaseProps } from './ui/TaskSearch'
