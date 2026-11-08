@@ -4,12 +4,14 @@ import { useState } from 'react'
 import { expect, spyOn, userEvent, waitFor, within } from 'storybook/test'
 
 import { phone390 } from '@/app/(dashboard)/components/ui/dialogSpacing.testing'
-import { formSpace } from '@/theme/styles'
 
 import { Button } from '../Button/Button'
 import { openDrawer } from '../Drawer/drawerSpacing.testing'
-import { expectFirstRowUnderTitle } from '../Dropdown/menuSpacing.testing'
-import { gapBelow, heightOf } from '../FormField/formGap.testing'
+import {
+  expectFirstRowUnderTitle,
+  expectRowsAreRows,
+} from '../Dropdown/menuSpacing.testing'
+import { heightOf } from '../FormField/formGap.testing'
 import {
   PhotoSourcePicker,
   type PhotoSourcePickerProps,
@@ -141,7 +143,7 @@ export const TouchScreen: Story = {
   },
 }
 
-/** The sheet's spacing: first button 24 under the title, 8 between, both 48 tall. */
+/** The menu's spacing: the first row 24 under the title, rows 44 tall and 2 apart. */
 async function expectSourceSheetSpacing(canvasElement: HTMLElement) {
   await userEvent.click(
     within(canvasElement).getByRole('button', { name: 'Add photos' }),
@@ -152,15 +154,14 @@ async function expectSourceSheetSpacing(canvasElement: HTMLElement) {
     name: 'Choose from library',
   })
   await expectFirstRowUnderTitle(title, take)
-  await expect(gapBelow(take, library)).toBe(formSpace.alternativesGap)
-  await expect(heightOf(take)).toBe(formSpace.controlHeight)
-  await expect(heightOf(library)).toBe(formSpace.controlHeight)
+  await expectRowsAreRows([take, library], 2)
+  await expect(heightOf(take)).toBe(44)
+  await expect(heightOf(library)).toBe(44)
 }
 
 /**
- * The two choices on the spacing steps (FE-481 menus): the first is 24 under the
- * title, and the two are 8 apart (were 12), as stacked alternatives are, and
- * both are 48 tall (`controlHeight`, was 52).
+ * The choice is a menu (FE-510): the first row is 24 under the title, and the
+ * rows are 44 tall and 2 apart, as web's other menus and the app's menu sheet.
  */
 export const TouchScreenSpacing: Story = {
   ...phone390,
@@ -169,7 +170,7 @@ export const TouchScreenSpacing: Story = {
   play: async ({ canvasElement }) => expectSourceSheetSpacing(canvasElement),
 }
 
-/** The same steps on a wide touch screen (a tablet): the buttons are 48 there too. */
+/** The same steps on a wide touch screen (a tablet). */
 export const TouchScreenSpacingWide: Story = {
   tags: ['!autodocs'],
   parameters: { touchScreen: true },

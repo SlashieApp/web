@@ -102,8 +102,13 @@ describe('menus: one frame from the form spacing', () => {
   })
 
   it('the choice lists stack their rows with the alternatives gap', () => {
-    expect(PHOTO_SOURCE).toContain('<Stack gap="form.alternativesGap">')
-    expect(PHOTO_SOURCE).not.toMatch(/<Stack gap=\{3\}/)
     expect(THREAD_LIST).toContain('gap="form.alternativesGap"')
+  })
+
+  it('the photo source is a menu: ghost rows 2 apart, as the other menus (FE-510)', () => {
+    expect(PHOTO_SOURCE).toContain('<Stack gap={0.5}>')
+    expect(PHOTO_SOURCE.match(/variant="ghost"/g)).toHaveLength(2)
+    expect(PHOTO_SOURCE).not.toContain('variant="secondary"')
+    expect(PHOTO_SOURCE).not.toContain('size="form"')
   })
 })

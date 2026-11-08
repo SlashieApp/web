@@ -40,9 +40,9 @@ export type PhotoSourcePickerProps = {
 
 /**
  * SDL PhotoSourcePicker: one photo button. On a touch screen (phones and
- * tablets, checked at tap time) it opens a bottom drawer with Take photo
- * and Choose from library; with a mouse it opens the file picker straight
- * away, as desktop browsers have no camera to offer.
+ * tablets, checked at tap time) it opens a bottom drawer with a menu of Take
+ * photo and Choose from library; with a mouse it opens the file picker
+ * straight away, as desktop browsers have no camera to offer.
  *
  * Take photo always opens our own camera (`CameraCapture`) over the drawer,
  * which closes once the camera has: some browsers (Arc, Samsung Internet,
@@ -119,24 +119,22 @@ export function PhotoSourcePicker({
         placement="bottom"
         finalFocusEl={() => triggerRef.current}
       >
-        {/* Two alternatives, stacked: `formSpace.alternativesGap` (8) apart
-            (was 12), each `size="form"` (48): the sheet is opened from forms
-            (profile photo, worker setup, post a task, send a quote), and
-            stacked alternative buttons in a form are 48. */}
-        <Stack gap="form.alternativesGap">
+        {/* A menu (FE-510, Ryan 8 Nov), as the app's menu sheet and web's
+            other menus: rows 44 tall and 2 apart, icon then label. */}
+        <Stack gap={0.5}>
           <Button
-            variant="secondary"
-            size="form"
+            variant="ghost"
             justifyContent="flex-start"
+            w="full"
             onClick={takePhoto}
           >
             <LuCamera size={20} aria-hidden />
             {t.takePhoto}
           </Button>
           <Button
-            variant="secondary"
-            size="form"
+            variant="ghost"
             justifyContent="flex-start"
+            w="full"
             onClick={() => choose(libraryRef.current)}
           >
             <LuImages size={20} aria-hidden />
