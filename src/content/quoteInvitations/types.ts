@@ -1,18 +1,16 @@
-import type { AskableTask, Task } from '@codegen/schema'
+import type { PublicProfileQuery } from '@codegen/schema'
+
+type ProfileViewer = NonNullable<
+  NonNullable<
+    NonNullable<PublicProfileQuery['publicProfile']>['worker']
+  >['viewer']
+>
 
 /**
- * Hand-written until the next `bun run codegen` (FE-507): the operation types
- * for the quote invitation fields. They mirror the schema types, so the
- * generated ones can replace them without changing a caller.
+ * One row of the profile chooser: `worker.viewer.askableTasks`. The task's
+ * quotes are its live (PENDING) ones; the API omits withdrawn and expired.
  */
-
-/** One row of the profile chooser: `worker.viewer.askableTasks`. */
-export type AskableTaskRow = Pick<AskableTask, 'alreadyAsked' | 'canAsk'> & {
-  task: Pick<Task, 'id' | 'title'> & {
-    /** Live (PENDING) quotes are counted; the API omits withdrawn and expired ones. */
-    quotes: { status: string }[]
-  }
-}
+export type AskableTaskRow = ProfileViewer['askableTasks'][number]
 
 /** A task the customer can be asked about, ready to render. */
 export type AskableTaskChoice = {
@@ -24,28 +22,3 @@ export type AskableTaskChoice = {
 }
 
 export type QuoteInviteSurface = 'profile' | 'after_post'
-
-export type AskWorkerToQuoteMutationVariables = {
-  taskId: string
-  workerUserId: string
-}
-
-export type AskWorkerToQuoteMutation = {
-  askWorkerToQuote: { taskId: string; workerUserId: string; createdAt: string }
-}
-
-export type DismissQuoteInvitationMutationVariables = { taskId: string }
-
-export type DismissQuoteInvitationMutation = {
-  dismissQuoteInvitation: { taskId: string; dismissedAt: string }
-}
-
-export type QuoteInviteWorkerQueryVariables = { userId: string }
-
-export type QuoteInviteWorkerQuery = {
-  publicProfile?: {
-    id: string
-    profile: { name?: string | null }
-    worker?: { id: string; viewer?: { canAskToQuote: boolean } | null } | null
-  } | null
-}

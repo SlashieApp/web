@@ -1,10 +1,11 @@
+import { QuoteStatus } from '@codegen/schema'
 import { describe, expect, it } from 'vitest'
 
 import { askTapTarget, toAskableTaskChoices } from './askableTasks'
 
 const row = (
   id: string,
-  quotes: string[],
+  quotes: QuoteStatus[],
   flags: { alreadyAsked?: boolean; canAsk?: boolean } = {},
 ) => ({
   alreadyAsked: flags.alreadyAsked ?? false,
@@ -19,7 +20,11 @@ const row = (
 describe('toAskableTaskChoices', () => {
   it('keeps the API order and counts live quotes only', () => {
     const choices = toAskableTaskChoices([
-      row('b', ['PENDING', 'PENDING', 'WITHDRAWN']),
+      row('b', [
+        QuoteStatus.Pending,
+        QuoteStatus.Pending,
+        QuoteStatus.Withdrawn,
+      ]),
       row('a', []),
     ])
     expect(choices.map((c) => [c.id, c.quoteCount])).toEqual([

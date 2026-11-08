@@ -1,6 +1,10 @@
 'use client'
 
 import { useMutation } from '@apollo/client/react'
+import type {
+  AskWorkerToQuoteMutation,
+  AskWorkerToQuoteMutationVariables,
+} from '@codegen/schema'
 import { useCallback, useState } from 'react'
 
 import { formatMessage } from '@/i18n/loadPageI11n'
@@ -16,11 +20,7 @@ import AskWorkerToQuote from './graphql/AskWorkerToQuote.gql'
 import bag from './i11n.json'
 import { quoteInviteErrorKey } from './quoteInviteErrors'
 import { inviteFailedProps, inviteSentProps } from './quoteInviteEvents'
-import type {
-  AskWorkerToQuoteMutation,
-  AskWorkerToQuoteMutationVariables,
-  QuoteInviteSurface,
-} from './types'
+import type { QuoteInviteSurface } from './types'
 
 export type AskWorkerInput = {
   taskId: string

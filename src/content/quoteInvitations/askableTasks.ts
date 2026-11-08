@@ -1,3 +1,5 @@
+import { QuoteStatus } from '@codegen/schema'
+
 import type { AskableTaskChoice, AskableTaskRow } from './types'
 
 /** The chooser's rows in the API's order (newest first), with live quotes counted. */
@@ -7,8 +9,9 @@ export function toAskableTaskChoices(
   return rows.map((row) => ({
     id: row.task.id,
     title: row.task.title,
-    quoteCount: row.task.quotes.filter((quote) => quote.status === 'PENDING')
-      .length,
+    quoteCount: row.task.quotes.filter(
+      (quote) => quote.status === QuoteStatus.Pending,
+    ).length,
     alreadyAsked: row.alreadyAsked,
     canAsk: row.canAsk,
   }))

@@ -1,6 +1,10 @@
 'use client'
 
 import { useMutation } from '@apollo/client/react'
+import type {
+  DismissQuoteInvitationMutation,
+  DismissQuoteInvitationMutationVariables,
+} from '@codegen/schema'
 import { useCallback } from 'react'
 
 import { useI11n } from '@/i18n/useI11n'
@@ -10,10 +14,6 @@ import { showAppToast } from '@/utils/appToast'
 import DismissQuoteInvitation from './graphql/DismissQuoteInvitation.gql'
 import bag from './i11n.json'
 import { inviteDismissedProps } from './quoteInviteEvents'
-import type {
-  DismissQuoteInvitationMutation,
-  DismissQuoteInvitationMutationVariables,
-} from './types'
 
 /**
  * "Not for me" (FE-507): the invited worker sets the invitation aside. Silent:

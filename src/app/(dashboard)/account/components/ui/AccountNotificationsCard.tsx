@@ -12,7 +12,6 @@ import {
 } from '@/app/(dashboard)/components/ui/SettingRow'
 import { SettingToggle } from '@/app/(dashboard)/components/ui/SettingToggle'
 import { useMySettingToggle } from '@/app/(dashboard)/helpers/useMySettingToggle'
-import { acceptsQuoteInvitations } from '@/content/quoteInvitations/acceptsQuoteInvitations'
 import { LanguageSwitcher } from '@/i18n/LanguageSwitcher'
 import { useLocale } from '@/i18n/LocaleProvider'
 import { LOCALE_LABELS } from '@/i18n/locales'
@@ -34,10 +33,11 @@ export function AccountNotificationsCard({
   const marketingEmails = useUserStore((s) =>
     Boolean(s.me?.settings?.marketingEmails),
   )
-  // Only workers can be asked to quote (FE-507).
+  // Only workers can be asked to quote (FE-507). On by default, also while
+  // the settings load.
   const isWorker = useUserStore((s) => Boolean(s.me?.worker))
-  const quoteInvitations = useUserStore((s) =>
-    acceptsQuoteInvitations(s.me?.settings),
+  const quoteInvitations = useUserStore(
+    (s) => s.me?.settings?.acceptsQuoteInvitations ?? true,
   )
   const { update, pending, error, errorKey } = useMySettingToggle(
     t.settingsError,

@@ -18,10 +18,7 @@ import {
   buildAchievementPanels,
 } from '@/app/(task)/tasks/helpers/taskAchievements'
 import { toAskableTaskChoices } from '@/content/quoteInvitations/askableTasks'
-import type {
-  AskableTaskChoice,
-  AskableTaskRow,
-} from '@/content/quoteInvitations/types'
+import type { AskableTaskChoice } from '@/content/quoteInvitations/types'
 import { publicRatingAverage } from '@/content/reviews/reviewModel'
 import { loadPageI11n } from '@/i18n/loadPageI11n'
 import type { AppLocale } from '@/i18n/locales'
@@ -33,26 +30,10 @@ import type {
 } from '../views'
 import { toPublicUserTaskCard } from './publicProfileTaskCard'
 
-type GeneratedProfileRecord = NonNullable<PublicProfileQuery['publicProfile']>
-
-/**
- * The query's result. `worker.viewer` gains the Ask to quote fields (FE-507)
- * by hand until the next `bun run codegen` brings them into the generated type.
- */
-export type PublicProfileRecord = Omit<GeneratedProfileRecord, 'worker'> & {
-  worker?:
-    | (Omit<NonNullable<GeneratedProfileRecord['worker']>, 'viewer'> & {
-        viewer?:
-          | (NonNullable<
-              NonNullable<GeneratedProfileRecord['worker']>['viewer']
-            > & {
-              canAskToQuote?: boolean
-              askableTasks?: AskableTaskRow[]
-            })
-          | null
-      })
-    | null
-}
+/** The profile query's result. */
+export type PublicProfileRecord = NonNullable<
+  PublicProfileQuery['publicProfile']
+>
 
 export type PublicWorkHistoryItem = {
   orderId: string

@@ -10,27 +10,17 @@ type TaskDetailCopy = (typeof bag)['en']
 
 export type TaskCoreRecord = NonNullable<TaskCoreQuery['task']>
 
-/**
- * Ask a worker to quote (FE-507), by hand until the next `bun run codegen`
- * brings them into the generated `TaskQuery`: they mirror the schema's
- * `TaskQuoteInvitation` and `ViewerQuoteInvitation`.
- */
-export type TaskQuoteInvitationRow = {
-  workerUserId: string
-  name: string
-  avatarUrl?: string | null
-  createdAt: string
-}
-export type ViewerQuoteInvitationRecord = {
-  customerName: string
-  createdAt: string
-  dismissed: boolean
-}
+export type TaskClientRecord = NonNullable<TaskQuery['task']>
 
-export type TaskClientRecord = NonNullable<TaskQuery['task']> & {
-  quoteInvitations?: TaskQuoteInvitationRow[] | null
-  viewerQuoteInvitation?: ViewerQuoteInvitationRecord | null
-}
+/** Who the owner asked to quote (FE-507): `Task.quoteInvitations`. */
+export type TaskQuoteInvitationRow = NonNullable<
+  TaskClientRecord['quoteInvitations']
+>[number]
+
+/** The invited worker's own invitation (FE-507): `Task.viewerQuoteInvitation`. */
+export type ViewerQuoteInvitationRecord = NonNullable<
+  TaskClientRecord['viewerQuoteInvitation']
+>
 
 /**
  * The merged task the detail context exposes:

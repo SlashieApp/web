@@ -1,6 +1,10 @@
 'use client'
 
 import { useQuery } from '@apollo/client/react'
+import type {
+  QuoteInviteWorkerQuery,
+  QuoteInviteWorkerQueryVariables,
+} from '@codegen/schema'
 import { useSearchParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
 
@@ -15,10 +19,6 @@ import {
 } from '@/content/quoteInvitations/askWorkerParam'
 import QuoteInviteWorker from '@/content/quoteInvitations/graphql/QuoteInviteWorker.gql'
 import { invitePromptSkippedProps } from '@/content/quoteInvitations/quoteInviteEvents'
-import type {
-  QuoteInviteWorkerQuery,
-  QuoteInviteWorkerQueryVariables,
-} from '@/content/quoteInvitations/types'
 import { useAskWorkerToQuote } from '@/content/quoteInvitations/useAskWorkerToQuote'
 import { useI11n } from '@/i18n/useI11n'
 import { EVENTS, capture } from '@/utils/analytics'
