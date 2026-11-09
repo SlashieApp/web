@@ -425,6 +425,7 @@
       "TASK_NOT_REOPENABLE": "This task can't be reopened.",
       "WORKER_NOT_SUSPENDED": "This booking can't be reopened because the worker's account is active.",
       "TASK_CHANGED": "This task just changed. Refresh and try again.",
+      "QUOTE_NOT_AVAILABLE": "You can't send a quote on this task right now.",
       "ACCOUNT_DISABLED": "Your account is suspended. Contact support if you think this is a mistake."
     },
     "summary": {
@@ -925,6 +926,7 @@
       "TASK_NOT_REOPENABLE": "此任務無法重新開放。",
       "WORKER_NOT_SUSPENDED": "工作者帳戶仍然有效，無法重新開放此預約。",
       "TASK_CHANGED": "此任務剛剛有變更，請重新整理再試。",
+      "QUOTE_NOT_AVAILABLE": "你目前未能為此任務報價。",
       "ACCOUNT_DISABLED": "你的帳戶已被暫停。如你認為有誤，請聯絡客服。"
     },
     "summary": {
