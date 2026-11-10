@@ -11,12 +11,15 @@ import {
 } from '@chakra-ui/react'
 import type { ReactNode } from 'react'
 import {
+  LuArrowLeft,
   LuCalendar,
+  LuCheck,
   LuMessageSquare,
   LuPlus,
   LuSearch,
   LuStar,
   LuUser,
+  LuX,
 } from 'react-icons/lu'
 
 import { sdlElevation, sdlFocusRing } from '@/theme/styles'
@@ -322,5 +325,109 @@ export function DemoPrimary({ children, ...props }: BoxProps) {
     >
       {children}
     </Box>
+  )
+}
+
+/**
+ * The app bar of a `compact` screen (the cropped phone, drawn at 1:1): 44px,
+ * a close or a back icon, a title and an optional line under it.
+ */
+export function CompactBar({
+  icon,
+  title,
+  sub,
+}: {
+  icon: 'close' | 'back'
+  title: string
+  sub?: ReactNode
+}) {
+  const Icon = icon === 'close' ? LuX : LuArrowLeft
+  return (
+    <HStack
+      h="44px"
+      flexShrink={0}
+      px="12px"
+      gap="8px"
+      borderBottomWidth="1px"
+      borderColor="border.default"
+      bg="bg.surface"
+    >
+      <Box display="inline-flex" aria-hidden>
+        <Icon size={18} />
+      </Box>
+      <Box flex={1} minW={0}>
+        <Text
+          fontSize="14px"
+          lineHeight="18px"
+          fontWeight={500}
+          letterSpacing="-0.01em"
+          lineClamp={1}
+        >
+          {title}
+        </Text>
+        {sub ? (
+          <Text
+            fontSize="11px"
+            lineHeight="14px"
+            color="text.muted"
+            lineClamp={1}
+          >
+            {sub}
+          </Text>
+        ) : null}
+      </Box>
+    </HStack>
+  )
+}
+
+/**
+ * A `compact` screen's "done" toast: it fades and rises in over the app bar,
+ * so it covers no field. The same green tick, title and line as the full
+ * screens' toasts, at the cropped phone's sizes.
+ */
+export function CompactToast({
+  title,
+  body,
+  ...props
+}: BoxProps & { title: string; body: string }) {
+  return (
+    <DemoCard
+      position="absolute"
+      left="6px"
+      right="6px"
+      top="4px"
+      zIndex={3}
+      display="flex"
+      gap="8px"
+      alignItems="center"
+      py="6px"
+      px="10px"
+      bg="status.success.soft"
+      borderColor="status.success.border"
+      css={{ animation: 'fade-rise 380ms cubic-bezier(0.2, 0, 0, 1) both' }}
+      {...props}
+    >
+      <Box
+        w="24px"
+        h="24px"
+        borderRadius="full"
+        bg="action.primary"
+        color="text.onGreen"
+        display="flex"
+        alignItems="center"
+        justifyContent="center"
+        flexShrink={0}
+      >
+        <LuCheck size={14} aria-hidden />
+      </Box>
+      <Box minW={0}>
+        <Text fontSize="13px" lineHeight="16px" fontWeight={500}>
+          {title}
+        </Text>
+        <Text fontSize="11px" lineHeight="14px" color="text.muted">
+          {body}
+        </Text>
+      </Box>
+    </DemoCard>
   )
 }

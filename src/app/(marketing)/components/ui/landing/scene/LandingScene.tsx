@@ -19,18 +19,20 @@ import { SceneLights } from './SceneLights'
 import {
   CAMERA_FOV,
   CAMERA_Z,
-  COMPACT_OBJECTS,
   type CloseFit,
+  HERO_TOOLBOX_SLOT,
   PARKED_STAGE,
   PROP_REACH,
-  SCENE_OBJECTS,
   type SceneObjectId,
+  type ScreenBox,
   closeFitPx,
   fitFor,
+  fitToSlot,
   peekLayoutFor,
   placeProp,
   placementFor,
   poseFor,
+  sceneObjects,
   sceneStage,
 } from './formations'
 import { Boxes } from './objects/Boxes'
@@ -55,6 +57,8 @@ const RETURN_GAP_MS = 250
 type PageProbe = {
   /** How the close's props are lifted, scaled or parked to stay clear of the footer. */
   close: CloseFit
+  /** The box a phone's hero keeps for the toolbox, where it is with the page at its top; `null` where it has none. */
+  toolboxSlot: ScreenBox | null
 }
 
 const CLOSE_AT_REST: CloseFit = { lift: 0, scale: 1, parked: false }
@@ -153,12 +157,21 @@ function SceneObject({
       placement: placementFor(shown, compact),
       layout: peekLayoutFor(shown),
     })
-    const x = placement.x / near / factor
-    const finalScale = scale * placement.fit
     // The close's props stay clear of the opaque footer, which would slice them
     // (`PageProbe` works out how far to lift them, together).
     const lift = closing && !close.parked ? close.lift : 0
-    const y = (target.y + lift / (state.size.height * near)) * height + drift
+    // A phone's hero keeps a box for its one prop: the prop is fitted into it,
+    // whole, and does not drift (the box's gutters are all the air it has).
+    const slot = shown === 'hero' ? probe.current.toolboxSlot : null
+    const fitted = slot ? fitToSlot(id, slot) : null
+    const x =
+      (fitted ? fitted.xPx - viewportPx / 2 : placement.x) / near / factor
+    const y = fitted
+      ? (state.size.height / 2 - fitted.yPx) / near / factor
+      : (target.y + lift / (state.size.height * near)) * height + drift
+    const finalScale = fitted
+      ? fitted.unitPx / near / factor
+      : scale * placement.fit
     // Off the screen's edge there is nothing to see move.
     const offScreen =
       placementFor(shown, compact) === 'parked' ||
@@ -246,11 +259,15 @@ function PointerRig({ children }: { children: React.ReactNode }) {
 }
 
 /**
- * Reads the footer's top edge once a frame, while the close is the stage (the
- * only formation that has to keep clear of it), and works out how to lift,
- * scale or park the close's props together (`closeFitPx`), so no prop reads the
- * page itself. It is mounted before the props, so its fit is current when they
- * read it. The footer is looked up the first time it is needed.
+ * Reads the page once a frame for the two formations that have to fit it, so
+ * no prop reads the page itself. While the hero is the stage: the box a
+ * phone's hero keeps for the toolbox, in page coordinates (where it is with
+ * the page at its top: the scene is a fixed layer and the page scrolls over
+ * it, so the prop does not follow the scroll). While the close is the stage:
+ * the footer's top edge, to work out how to lift, scale or park the close's
+ * props together (`closeFitPx`). It is mounted before the props, so what it
+ * read is current when they read it. Both elements are looked up the first
+ * time they are needed.
  */
 function PageProbe({
   probe,
@@ -262,7 +279,24 @@ function PageProbe({
   compact: boolean
 }) {
   const footer = useRef<Element | null>(null)
+  const slot = useRef<Element | null>(null)
   useFrame((state) => {
+    if (storyState.stage === 'hero') {
+      if (!slot.current?.isConnected) {
+        slot.current = document.querySelector(HERO_TOOLBOX_SLOT)
+      }
+      // Hidden from `sm` up (no box): the formation places the props there.
+      const box = slot.current?.getBoundingClientRect()
+      probe.current.toolboxSlot = box?.width
+        ? {
+            left: box.left,
+            top: box.top + window.scrollY,
+            width: box.width,
+            height: box.height,
+          }
+        : null
+      return
+    }
     if (storyState.stage !== 'cta') return
     if (!footer.current?.isConnected) {
       footer.current = document.querySelector('footer')
@@ -332,8 +366,9 @@ function SceneContents({
   onReady?: () => void
 }) {
   const shadow = useBlobShadowTexture()
-  const probe = useRef<PageProbe>({ close: CLOSE_AT_REST })
-  const ids = compact ? COMPACT_OBJECTS : SCENE_OBJECTS
+  const probe = useRef<PageProbe>({ close: CLOSE_AT_REST, toolboxSlot: null })
+  const widthPx = useThree((state) => state.size.width)
+  const ids = sceneObjects(compact, widthPx)
   return (
     <>
       <SceneLights />
@@ -357,7 +392,7 @@ function SceneContents({
 }
 
 export type LandingSceneProps = {
-  /** Two small objects instead of three (phones, portrait, low-end). */
+  /** Two small objects instead of three (portrait, low-end), and one on a phone. */
   compact: boolean
   dprMax: number
   /** Fires once the scene has drawn (to fade out the hero poster). */

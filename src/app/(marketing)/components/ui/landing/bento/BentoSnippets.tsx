@@ -52,7 +52,9 @@ const Figure = chakra('figure')
 /**
  * The panel every snippet sits on: `bg.canvas`, a hairline, 16px corners. It is
  * a figure (a piece of the product shown as an example), named by its cell's
- * heading, like the phone demo.
+ * heading, like the phone demo. The three panels share a row from `lg`, so a
+ * short snippet's panel is taller than it: the snippet sits at the panel's
+ * top, where the other two start, and the spare room is under it.
  */
 function SnippetPanel({
   snippet,
@@ -72,9 +74,6 @@ function SnippetPanel({
       ref={panelRef}
       aria-labelledby={labelledBy}
       data-bento-snippet={snippet}
-      display="flex"
-      flexDirection="column"
-      justifyContent="center"
       minW={0}
       p={{ base: 4, lg: 5 }}
       bg="bg.canvas"

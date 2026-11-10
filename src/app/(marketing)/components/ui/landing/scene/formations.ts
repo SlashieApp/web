@@ -5,14 +5,29 @@ import { STORY_STAGES, type StoryStage } from '../story/storyState'
 
 /**
  * The three props of the scene (tone refresh, train 2): a toolbox, boxes and a
- * map pin. Phones and portrait screens keep two of them.
+ * map pin. Portrait screens keep two of them and a phone one.
  */
 export const SCENE_OBJECTS = ['toolbox', 'boxes', 'pin'] as const
 
 export type SceneObjectId = (typeof SCENE_OBJECTS)[number]
 
-/** Phones and portrait screens (below `lg`) show two objects, not three. */
+/** Portrait screens (below `lg`) show two objects, not three. */
 export const COMPACT_OBJECTS: readonly SceneObjectId[] = ['pin', 'toolbox']
+
+/**
+ * A phone (below `sm`) shows one: its hero has room for a single small prop
+ * beside the "See how it works" row, and the acts and the close for none.
+ */
+export const PHONE_OBJECTS: readonly SceneObjectId[] = ['toolbox']
+
+/** The props the scene draws on a screen `widthPx` wide. */
+export function sceneObjects(
+  compact: boolean,
+  widthPx: number,
+): readonly SceneObjectId[] {
+  if (!compact) return SCENE_OBJECTS
+  return widthPx < BREAKPOINT_PX.sm ? PHONE_OBJECTS : COMPACT_OBJECTS
+}
 
 /** The scene camera's distance from the z = 0 plane (`LandingScene`). */
 export const CAMERA_Z = 12
@@ -60,9 +75,12 @@ function pose(
  *   470px down, so the hero formation is in fractions of a 900px tall screen
  *   but keeps its distance from the top on any height (`poseFor`). On wide
  *   screens the toolbox and the boxes flank the search, level with it, and the
- *   pin sits top right. On phones and tablets the text fills the width, so the
- *   two props sit either side of the "See how it works" row, under the trust
- *   row and above the panel.
+ *   pin sits top right. On tablets the text fills the width, so the two props
+ *   sit either side of the "See how it works" row, under the trust row and
+ *   above the panel. A phone (below `sm`) has the toolbox alone, fitted into
+ *   the box its hero keeps for it (`fitToSlot`): the hero is as tall as its
+ *   copy, which differs by language and by width, so only the page knows
+ *   where the row is.
  * - the acts: steps on the left, the phone pinned in the right column, so the
  *   props hug the right edge, whole, in the strip between the phone and the
  *   right rail (`phoneStripPx`): a prop is scaled down to fit it, and where the
@@ -212,6 +230,43 @@ export const PROP_REACH: Record<
   toolbox: { halfWidth: 1.25, above: 1.35, below: 1.2 },
   boxes: { halfWidth: 1.15, above: 0.85, below: 1.2 },
   pin: { halfWidth: 0.6, above: 0.9, below: 1.2 },
+}
+
+/**
+ * The box a phone's hero keeps for its one prop (`HeroToolboxSlot`): a gutter
+ * in from the screen's edge and from the panel under the hero, and clear of
+ * the "See how it works" link. The scene reads it off the page (`PageProbe`).
+ */
+export const HERO_TOOLBOX_SLOT = '[data-hero-toolbox-slot]'
+
+/** A box on the screen, in px from the screen's top-left corner. */
+export type ScreenBox = {
+  left: number
+  top: number
+  width: number
+  height: number
+}
+
+/**
+ * Fits a prop into a box on the screen, whole, its shadow included: the
+ * largest size at which all it reaches (`PROP_REACH`) is inside the box,
+ * centred in it. Gives where its origin goes (px from the screen's top-left)
+ * and its size (px per world unit of the model). Pure, so it is unit-tested.
+ */
+export function fitToSlot(
+  id: SceneObjectId,
+  slot: ScreenBox,
+): { xPx: number; yPx: number; unitPx: number } {
+  const { halfWidth, above, below } = PROP_REACH[id]
+  const unitPx = Math.min(
+    slot.width / (2 * halfWidth),
+    slot.height / (above + below),
+  )
+  return {
+    xPx: slot.left + slot.width / 2,
+    yPx: slot.top + (slot.height + (above - below) * unitPx) / 2,
+    unitPx,
+  }
 }
 
 /**

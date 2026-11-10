@@ -85,8 +85,8 @@ export const Desktop: Story = {
     await expect(links.map((link) => link.textContent)).toEqual([
       en.post,
       en.quotes,
-      en.chat,
       en.hire,
+      en.chat,
       en.review,
       en.workerFind,
       en.workerQuote,
@@ -96,6 +96,8 @@ export const Desktop: Story = {
     const tops = links.map((link) => link.getBoundingClientRect().top)
     await expect(tops).toEqual([...tops].sort((a, b) => a - b))
     await expect(new Set(tops).size).toBe(links.length)
+    // The list fits its column: nothing to fade.
+    await expect(getComputedStyle(list).maskImage).toBe('none')
     // At the hero no step is active: every label is `text.subtle`.
     await expect(activeLink(canvasElement)).toBeNull()
     for (const link of links) {
@@ -158,8 +160,9 @@ export const DesktopWorkerStep: Story = {
 
 /**
  * Below lg (phone width): a row that sticks right under the header, full
- * width on a hairline, with a thin divider between the two acts. The active
- * label has a green 600 underline.
+ * width on a hairline, with a thin divider between the two acts. The labels
+ * run off its right edge, which fades out. The active label has a green 600
+ * underline.
  */
 export const Phone: Story = {
   globals: { viewport: { value: 'mobile1', isRotated: false } },
@@ -175,6 +178,10 @@ export const Phone: Story = {
     await expect(style.borderBottomWidth).toBe('1px')
     const list = nav.querySelector('ol') as HTMLElement
     await expect(getComputedStyle(list).flexDirection).toBe('row')
+    // The row scrolls sideways, and its right edge fades out instead of
+    // cutting a label.
+    await expect(list.scrollWidth).toBeGreaterThan(list.clientWidth)
+    await expect(getComputedStyle(list).maskImage).toContain('linear-gradient')
     const links = within(nav).getAllByRole('link')
     const tops = new Set(links.map((link) => link.getBoundingClientRect().top))
     await expect(tops.size).toBe(1)
@@ -194,7 +201,7 @@ export const Phone: Story = {
   },
 }
 
-/** Below lg, a worker step active: the row has scrolled to bring it into view. */
+/** Below lg, the last step active: the row has scrolled to its end, where the label is whole and clear of the fading edge. */
 export const PhoneWorkerStep: Story = {
   globals: { viewport: { value: 'mobile1', isRotated: false } },
   play: async ({ canvasElement }) => {
@@ -212,7 +219,8 @@ export const PhoneWorkerStep: Story = {
         const row = list.getBoundingClientRect()
         const box = link.getBoundingClientRect()
         expect(box.left).toBeGreaterThanOrEqual(row.left - 1)
-        expect(box.right).toBeLessThanOrEqual(row.right + 1)
+        // The fade is the row's last 40px.
+        expect(box.right).toBeLessThanOrEqual(row.right - 40 + 1)
       },
       { timeout: 3000 },
     )
@@ -234,8 +242,8 @@ export const TraditionalChinese: Story = {
     ).toEqual([
       zh.post,
       zh.quotes,
-      zh.chat,
       zh.hire,
+      zh.chat,
       zh.review,
       zh.workerFind,
       zh.workerQuote,

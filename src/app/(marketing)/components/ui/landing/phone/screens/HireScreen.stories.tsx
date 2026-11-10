@@ -1,11 +1,10 @@
-import { Box } from '@chakra-ui/react'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { expect, userEvent, within } from 'storybook/test'
 
 import messages from '@/app/(marketing)/i11n.json'
 
-import { PhoneFrame } from '../PhoneFrame'
 import { HireScreen } from './HireScreen'
+import { expectFitsTheCrop, withDemoPhone } from './screenStoryDecorator'
 
 const copy = messages.en.landing.phone
 
@@ -35,16 +34,8 @@ const meta = {
   parameters: { layout: 'padded' },
   argTypes: { copy: { control: false } },
   args: { copy, active: true, intro: true },
-  // The landing's phone: the screen inside its frame on the white page.
-  decorators: [
-    (Story) => (
-      <Box p={{ base: 4, md: 8 }} bg="bg.surface" display="inline-block">
-        <PhoneFrame label={copy.demoLabel} nominalWidth={300} w="300px">
-          <Story />
-        </PhoneFrame>
-      </Box>
-    ),
-  ],
+  // The landing's phone: the pinned one, or the cropped one with `compact`.
+  decorators: [withDemoPhone],
 } satisfies Meta<typeof HireScreen>
 
 export default meta
@@ -58,7 +49,40 @@ export const Resting: Story = {
 /** Playing: the quote sheet rises over the map and "Accept quote" pulses. */
 export const Playing: Story = {}
 
-/** Accepted: the sheet shows the booking confirmation and a done button. */
+/** Accepted: the sheet shows the booking confirmation and a done button, which is then named "Quote accepted", what it reads. */
 export const Accepted: Story = {
-  play: ({ canvasElement }) => acceptQuote(canvasElement),
+  play: async ({ canvasElement }) => {
+    await acceptQuote(canvasElement)
+    const canvas = within(canvasElement)
+    await expect(
+      canvas.getByRole('button', { name: copy.hire.acceptedTitle }),
+    ).toBeInTheDocument()
+    await expect(
+      canvas.queryByRole('button', { name: copy.hire.accept }),
+    ).toBeNull()
+  },
+}
+
+/**
+ * Cropped phone (the inline steps below `lg`), playing: the quote sheet (who,
+ * the price, when, how to pay) with "Accept quote" pulsing above the crop.
+ */
+export const Compact: Story = {
+  args: { compact: true },
+  globals: { viewport: { value: 'mobile1', isRotated: false } },
+  play: ({ canvasElement }) =>
+    expectFitsTheCrop(canvasElement, [copy.hire.price, copy.hire.when]),
+}
+
+/** Cropped phone, accepted: the button reads "Quote accepted" and the booking line under it is whole. */
+export const CompactAccepted: Story = {
+  args: { compact: true },
+  globals: { viewport: { value: 'mobile1', isRotated: false } },
+  play: async ({ canvasElement }) => {
+    await acceptQuote(canvasElement)
+    await expectFitsTheCrop(canvasElement, [
+      copy.hire.acceptedTitle,
+      copy.hire.acceptedBody,
+    ])
+  },
 }

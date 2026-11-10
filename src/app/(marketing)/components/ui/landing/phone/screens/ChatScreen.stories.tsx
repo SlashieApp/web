@@ -1,11 +1,10 @@
-import { Box } from '@chakra-ui/react'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { expect, userEvent, within } from 'storybook/test'
 
 import messages from '@/app/(marketing)/i11n.json'
 
-import { PhoneFrame } from '../PhoneFrame'
 import { ChatScreen } from './ChatScreen'
+import { expectFitsTheCrop, withDemoPhone } from './screenStoryDecorator'
 
 const copy = messages.en.landing.phone
 
@@ -38,30 +37,70 @@ const meta = {
   parameters: { layout: 'padded' },
   argTypes: { copy: { control: false } },
   args: { copy, active: true, intro: true },
-  // The landing's phone: the screen inside its frame on the white page.
-  decorators: [
-    (Story) => (
-      <Box p={{ base: 4, md: 8 }} bg="bg.surface" display="inline-block">
-        <PhoneFrame label={copy.demoLabel} nominalWidth={300} w="300px">
-          <Story />
-        </PhoneFrame>
-      </Box>
-    ),
-  ],
+  // The landing's phone: the pinned one, or the cropped one with `compact`.
+  decorators: [withDemoPhone],
 } satisfies Meta<typeof ChatScreen>
 
 export default meta
 type Story = StoryObj<typeof meta>
 
-/** Resting (not active): the quote flash and the chat bubbles are hidden until the screen plays. */
+/** Resting (not active): the "Quote accepted" line and the chat bubbles are hidden until the screen plays. */
 export const Resting: Story = {
   args: { active: false },
 }
 
-/** Playing: a quote flash and two bubbles enter, the send button pulses until it is tapped. */
-export const Playing: Story = {}
+/**
+ * Playing: the thread starts on "Quote accepted" (people message once a quote
+ * is accepted), then two bubbles enter and the send button pulses until it is
+ * tapped.
+ */
+export const Playing: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const accepted = canvasElement.querySelector('[data-chat-accepted]')
+    if (!accepted) throw new Error('The "Quote accepted" line is missing')
+    await expect(accepted).toHaveTextContent(copy.hire.acceptedTitle)
+    await expect(accepted).toHaveTextContent(copy.chat.acceptedBody)
+    // It comes before the first message.
+    const first = canvas.getByText(copy.chat.theirs)
+    await expect(
+      accepted.compareDocumentPosition(first) &
+        Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy()
+  },
+}
 
 /** Sent: the message is in the thread and the worker has replied. */
 export const Sent: Story = {
   play: ({ canvasElement }) => sendMessage(canvasElement),
+}
+
+/**
+ * Cropped phone (the inline steps below `lg`), playing: the bar, the "Quote
+ * accepted" line and the composer with its draft, the send button pulsing.
+ */
+export const Compact: Story = {
+  args: { compact: true },
+  globals: { viewport: { value: 'mobile1', isRotated: false } },
+  play: ({ canvasElement }) =>
+    expectFitsTheCrop(canvasElement, [
+      copy.hire.acceptedTitle,
+      copy.chat.acceptedBody,
+      copy.chat.sent,
+    ]),
+}
+
+/** Cropped phone, sent: the message and the worker's reply are whole between the accepted line and the composer. */
+export const CompactSent: Story = {
+  args: { compact: true },
+  globals: { viewport: { value: 'mobile1', isRotated: false } },
+  play: async ({ canvasElement }) => {
+    await sendMessage(canvasElement)
+    await expectFitsTheCrop(canvasElement, [
+      copy.hire.acceptedTitle,
+      copy.chat.sent,
+      copy.chat.reply,
+      copy.chat.composer,
+    ])
+  },
 }

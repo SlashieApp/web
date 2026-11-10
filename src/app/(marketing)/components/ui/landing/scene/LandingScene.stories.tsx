@@ -1,5 +1,5 @@
 import { Box } from '@chakra-ui/react'
-import type { Meta, StoryObj } from '@storybook/nextjs-vite'
+import type { Decorator, Meta, StoryObj } from '@storybook/nextjs-vite'
 import { useEffect } from 'react'
 import { expect, waitFor } from 'storybook/test'
 
@@ -40,6 +40,24 @@ function SceneFrame({
     </Box>
   )
 }
+
+/**
+ * Story-only: the box a phone's hero keeps for the toolbox (`HeroToolboxSlot`),
+ * 72px square and a gutter in from the left, where the English hero has it on
+ * a 390 x 844 phone. The scene reads it off the page.
+ */
+const withToolboxSlot: Decorator = (Story) => (
+  <>
+    <Story />
+    <Box
+      data-hero-toolbox-slot=""
+      position="fixed"
+      left="16px"
+      top="440px"
+      boxSize="72px"
+    />
+  </>
+)
 
 const meta = {
   title: 'Marketing/Landing/LandingScene',
@@ -86,10 +104,21 @@ export const Scatter: Story = { args: { stage: 'trust' } }
 /** Gather formation (the final call to action): objects either side of the call, outside its column. */
 export const Gather: Story = { args: { stage: 'cta' } }
 
-/** Phones: two objects hugging the edges of the hero. */
+/** A tablet (below `lg`, from `sm`): two objects hugging the edges of the hero. */
 export const Compact: Story = {
   args: { compact: true },
-  parameters: { viewport: { defaultViewport: 'mobile1' } },
+  globals: { viewport: { value: 'tablet', isRotated: false } },
+}
+
+/**
+ * A phone (below `sm`): one prop, the toolbox, fitted whole (shadow included)
+ * into the box the hero keeps for it, a gutter in from the screen's edge. No
+ * pin and no boxes.
+ */
+export const Phone: Story = {
+  args: { compact: true },
+  globals: { viewport: { value: 'mobile1', isRotated: false } },
+  decorators: [withToolboxSlot],
 }
 
 /**
@@ -147,8 +176,22 @@ export const PosterMiddle: Story = {
   parameters: { viewport: { defaultViewport: 'tablet' } },
 }
 
-/** Source for the hero's still poster, phone size: the two compact objects, transparent. */
+/**
+ * Source for the hero's compact still (tall windows from `sm`): the two
+ * compact objects, transparent. Below `sm` the scene draws the toolbox alone,
+ * so render it 480px wide or more.
+ */
 export const PosterCompact: Story = {
   args: { transparent: true, compact: true },
-  parameters: { viewport: { defaultViewport: 'mobile1' } },
+}
+
+/**
+ * Source for a phone's toolbox still (`hero-toolbox.webp`): the toolbox in its
+ * slot, transparent. Screenshot the slot's box (16, 440, 72 x 72) on a 390 x
+ * 844 screen, at 3x.
+ */
+export const PosterToolbox: Story = {
+  args: { transparent: true, compact: true },
+  globals: { viewport: { value: 'mobile1', isRotated: false } },
+  decorators: [withToolboxSlot],
 }

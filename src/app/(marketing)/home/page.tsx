@@ -1,14 +1,9 @@
 import { Box } from '@chakra-ui/react'
 
-import { pricingPriceLine } from '@/app/(marketing)/pricing/helpers/formatPricing'
 import { getPricingForPage } from '@/app/(marketing)/pricing/helpers/getPricingForPage'
 import pricingBag from '@/app/(marketing)/pricing/i11n.json'
 import { getRequestLocale } from '@/i18n/getRequestLocale'
-import {
-  formatMessage,
-  loadPageI11n,
-  metadataFromI11n,
-} from '@/i18n/loadPageI11n'
+import { loadPageI11n, metadataFromI11n } from '@/i18n/loadPageI11n'
 import { withLocale } from '@/i18n/navigation'
 import { Footer } from '@/ui'
 import { MARKETING_HOME } from '@/utils/appRoutes'
@@ -23,11 +18,9 @@ import { HeroSection } from '../components/ui/landing/hero/HeroSection'
 import { LandingBackdrop } from '../components/ui/landing/scene/LandingBackdrop'
 import { FinalCtaBand } from '../components/ui/landing/sections/FinalCtaBand'
 import { FloatingPostPill } from '../components/ui/landing/sections/FloatingPostPill'
-import {
-  type LandingPricing,
-  PricingTeaser,
-} from '../components/ui/landing/sections/PricingTeaser'
+import { PricingTeaser } from '../components/ui/landing/sections/PricingTeaser'
 import { TrustSection } from '../components/ui/landing/sections/TrustSection'
+import { landingPricing } from '../components/ui/landing/sections/landingPricing'
 import { MapShowcase } from '../components/ui/landing/showcase/MapShowcase'
 import { LandingStory } from '../components/ui/landing/story/LandingStory'
 import {
@@ -65,32 +58,6 @@ export default async function MarketingHomePage() {
   const landing = copy.landing
   const ctas = copy.common.ctas
 
-  // Only claims backed by live pricing render: no fabricated trial or price
-  // when the API reports none (or the fetch fails) — the card degrades to a
-  // truthful generic line and /pricing carries the detail.
-  const priceLine = pricing
-    ? pricingPriceLine(pricing, loadPageI11n(pricingBag, locale).intervals)
-    : null
-  const trialLabel = pricing?.trialLabel?.trim() || null
-  const freeQuotes = pricing?.freeQuotesPerMonth ?? 3
-
-  const landingPricing: LandingPricing = {
-    productName: pricing?.productName ?? 'Slashie Unlimited',
-    headline:
-      trialLabel ??
-      priceLine ??
-      landing.pricingTeaser.unlimitedHeadlineFallback,
-    subline: trialLabel
-      ? priceLine
-        ? formatMessage(landing.pricingTeaser.unlimitedSublineWithPrice, {
-            priceLine,
-          })
-        : landing.pricingTeaser.unlimitedSublineFallback
-      : landing.pricingTeaser.unlimitedSublineFallback,
-    freeHeadline: formatMessage(landing.pricingTeaser.freeHeadline, {
-      count: freeQuotes,
-    }),
-  }
   // Register first, then on to the page the CTA is for.
   const registerThen = (next: string) =>
     withLocale(locale, `/register?next=${encodeURIComponent(next)}`)
@@ -137,7 +104,13 @@ export default async function MarketingHomePage() {
             <PricingTeaser
               copy={landing.pricingTeaser}
               eyebrow={copy.header.nav.pricing}
-              pricing={landingPricing}
+              // Only what live pricing backs: no trial, price or quota is
+              // made up when the API reports none (or the fetch fails).
+              pricing={landingPricing(
+                pricing,
+                landing.pricingTeaser,
+                loadPageI11n(pricingBag, locale),
+              )}
               ctaLabel={ctas.viewPricing}
               pricingHref={hrefs.pricing}
             />

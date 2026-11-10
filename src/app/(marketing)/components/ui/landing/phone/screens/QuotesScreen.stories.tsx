@@ -1,12 +1,11 @@
-import { Box } from '@chakra-ui/react'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { expect, userEvent, within } from 'storybook/test'
 
 import messages from '@/app/(marketing)/i11n.json'
 import { formatMessage } from '@/i18n/loadPageI11n'
 
-import { PhoneFrame } from '../PhoneFrame'
 import { QuotesScreen } from './QuotesScreen'
+import { expectFitsTheCrop, withDemoPhone } from './screenStoryDecorator'
 
 const copy = messages.en.landing.phone
 
@@ -36,16 +35,8 @@ const meta = {
   parameters: { layout: 'padded' },
   argTypes: { copy: { control: false } },
   args: { copy, active: true, intro: true },
-  // The landing's phone: the screen inside its frame on the white page.
-  decorators: [
-    (Story) => (
-      <Box p={{ base: 4, md: 8 }} bg="bg.surface" display="inline-block">
-        <PhoneFrame label={copy.demoLabel} nominalWidth={300} w="300px">
-          <Story />
-        </PhoneFrame>
-      </Box>
-    ),
-  ],
+  // The landing's phone: the pinned one, or the cropped one with `compact`.
+  decorators: [withDemoPhone],
 } satisfies Meta<typeof QuotesScreen>
 
 export default meta
@@ -62,4 +53,31 @@ export const Playing: Story = {}
 /** Quote open: the first quote is expanded with its jobs done and reply time. */
 export const QuoteOpen: Story = {
   play: ({ canvasElement }) => openFirstQuote(canvasElement),
+}
+
+/**
+ * Cropped phone (the inline steps below `lg`), playing: the first quote is
+ * whole and pulses; the list runs under the crop and fades out there.
+ */
+export const Compact: Story = {
+  args: { compact: true },
+  globals: { viewport: { value: 'mobile1', isRotated: false } },
+  play: ({ canvasElement }) =>
+    expectFitsTheCrop(canvasElement, [
+      copy.quotes.items[0].name,
+      copy.quotes.items[0].price,
+    ]),
+}
+
+/** Cropped phone, quote open: the first quote's whole note, jobs done and reply time are above the crop. */
+export const CompactQuoteOpen: Story = {
+  args: { compact: true },
+  globals: { viewport: { value: 'mobile1', isRotated: false } },
+  play: async ({ canvasElement }) => {
+    await openFirstQuote(canvasElement)
+    await expectFitsTheCrop(canvasElement, [
+      copy.quotes.items[0].note,
+      copy.quotes.replies,
+    ])
+  },
 }

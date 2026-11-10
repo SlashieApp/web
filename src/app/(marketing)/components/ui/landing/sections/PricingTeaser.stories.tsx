@@ -6,9 +6,12 @@ import {
   SectionRule,
 } from '@/app/(marketing)/components/layout/MarketingFrame'
 import messages from '@/app/(marketing)/i11n.json'
+import { storyPricing } from '@/app/(marketing)/pricing/components/pricingStoryFixtures'
+import pricingBag from '@/app/(marketing)/pricing/i11n.json'
 import { formatMessage } from '@/i18n/loadPageI11n'
 
 import { PricingTeaser } from './PricingTeaser'
+import { landingPricing } from './landingPricing'
 
 const copy = messages.en.landing.pricingTeaser
 const zhCopy = messages.zh_hk.landing.pricingTeaser
@@ -84,14 +87,8 @@ const meta = {
   args: {
     copy,
     eyebrow,
-    pricing: {
-      productName: 'Slashie Unlimited',
-      headline: '30-day free trial',
-      subline: formatMessage(copy.unlimitedSublineWithPrice, {
-        priceLine: '£9.99/month',
-      }),
-      freeHeadline: formatMessage(copy.freeHeadline, { count: 3 }),
-    },
+    // The lines the page builds from live pricing (a 180-day trial).
+    pricing: landingPricing(storyPricing, copy, pricingBag.en),
     ctaLabel: messages.en.common.ctas.viewPricing,
     pricingHref: '/pricing',
   },
@@ -254,18 +251,17 @@ export const Default: Story = {
 /** Live pricing without a trial: the premium card leads with the price. */
 export const PriceOnly: Story = {
   args: {
-    pricing: {
-      productName: 'Slashie Unlimited',
-      headline: '£9.99/month',
-      subline: copy.unlimitedSublineFallback,
-      freeHeadline: formatMessage(copy.freeHeadline, { count: 3 }),
-    },
+    pricing: landingPricing(
+      { ...storyPricing, trialDays: null, trialLabel: null },
+      copy,
+      pricingBag.en,
+    ),
   },
   globals: { viewport: { value: 'desktop', isRotated: false } },
   play: async ({ canvasElement }) => {
     const { premium } = parts(canvasElement)
     await expect(within(premium).getByRole('heading')).toHaveTextContent(
-      '£9.99/month',
+      '£19.99 / month',
     )
     await expect(
       within(premium).getByText(copy.unlimitedSublineFallback),
@@ -273,24 +269,28 @@ export const PriceOnly: Story = {
   },
 }
 
-/** Pricing unavailable: both premium lines fall back to generic copy with no price or trial claim. */
+/**
+ * Pricing unavailable (the API reports none, or the fetch failed): no card
+ * carries a number. The free plan reads "Free quotes every month" and the paid
+ * one says "Unlimited quotes" once, with no price or trial claim.
+ */
 export const PricingUnavailable: Story = {
-  args: {
-    pricing: {
-      productName: 'Slashie Unlimited',
-      headline: copy.unlimitedHeadlineFallback,
-      subline: copy.unlimitedSublineFallback,
-      freeHeadline: formatMessage(copy.freeHeadline, { count: 3 }),
-    },
-  },
+  args: { pricing: landingPricing(null, copy, pricingBag.en) },
   globals: { viewport: { value: 'desktop', isRotated: false } },
   play: async ({ canvasElement }) => {
-    const { section, premium } = parts(canvasElement)
+    const { section, free, premium } = parts(canvasElement)
+    await expect(within(free).getByRole('heading')).toHaveTextContent(
+      copy.freeHeadlineFallback,
+    )
     await expect(within(premium).getByRole('heading')).toHaveTextContent(
       copy.unlimitedHeadlineFallback,
     )
-    // No price, no trial: no digit in the premium card.
+    // No quota, price or trial: no digit in either card.
+    await expect(free.textContent).not.toMatch(/\d/)
     await expect(premium.textContent).not.toMatch(/\d/)
+    await expect(
+      premium.textContent?.split(copy.unlimitedHeadlineFallback),
+    ).toHaveLength(2)
     await expect(section.textContent).not.toContain(EM_DASH)
   },
 }
@@ -371,24 +371,25 @@ export const Tablet: Story = {
   },
 }
 
-/** Traditional Chinese copy. */
+/**
+ * Traditional Chinese copy: the paid plan's trial line is Chinese, built from
+ * the trial days, not the API's English label ("6 months free").
+ */
 export const TraditionalChinese: Story = {
   args: {
     copy: zhCopy,
     eyebrow: messages.zh_hk.header.nav.pricing,
-    pricing: {
-      productName: 'Slashie Unlimited',
-      headline: '30 日免費試用',
-      subline: formatMessage(zhCopy.unlimitedSublineWithPrice, {
-        priceLine: '£9.99/月',
-      }),
-      freeHeadline: formatMessage(zhCopy.freeHeadline, { count: 3 }),
-    },
+    pricing: landingPricing(storyPricing, zhCopy, pricingBag.zh_hk),
     ctaLabel: messages.zh_hk.common.ctas.viewPricing,
   },
   globals: { viewport: { value: 'desktop', isRotated: false } },
   play: async ({ canvasElement, args }) => {
     const canvas = within(canvasElement)
+    const { premium } = parts(canvasElement)
+    await expect(within(premium).getByRole('heading')).toHaveTextContent(
+      formatMessage(pricingBag.zh_hk.plans.trial.months, { count: 6 }),
+    )
+    await expect(premium.textContent).not.toContain(storyPricing.trialLabel)
     await expect(
       canvas.getByRole('region', { name: zhCopy.heading }),
     ).toBeVisible()

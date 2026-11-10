@@ -1,8 +1,12 @@
-import type { Meta, StoryObj } from '@storybook/nextjs-vite'
-import { expect, within } from 'storybook/test'
+import { Box } from '@chakra-ui/react'
+import type { Decorator, Meta, StoryObj } from '@storybook/nextjs-vite'
+import { expect, waitFor, within } from 'storybook/test'
 
 import messages from '@/app/(marketing)/i11n.json'
 
+import { TOOLBOX_STILL_SRC } from '../scene/HeroObjectsPoster'
+import { HERO_TOOLBOX_SLOT } from '../scene/formations'
+import { setSceneReady } from '../story/storyState'
 import { HeroSection } from './HeroSection'
 
 const hero = messages.en.landing.hero
@@ -12,6 +16,17 @@ const GREEN_600 = 'rgb(2, 165, 103)'
 const TEXT_MUTED = 'rgb(82, 82, 91)'
 const TEXT_LINK = 'rgb(5, 104, 63)'
 
+/**
+ * Story-only: the page's own stacking context (`home/page.tsx`), so the
+ * layers under the copy (the glow, a phone's toolbox) paint above the ground
+ * and not behind it.
+ */
+const asOnThePage: Decorator = (Story) => (
+  <Box position="relative" isolation="isolate">
+    <Story />
+  </Box>
+)
+
 const meta = {
   title: 'Marketing/Landing/HeroSection',
   component: HeroSection,
@@ -19,6 +34,7 @@ const meta = {
   parameters: {
     layout: 'padded',
   },
+  decorators: [asOnThePage],
   args: {
     copy: messages.en.landing.hero,
     ctas: { seeHowItWorks: messages.en.common.ctas.seeHowItWorks },
@@ -80,6 +96,10 @@ export const Default: Story = {
     await expect(canvasElement.querySelector('[data-landing-hero]')).toBe(
       canvas.getByRole('region', { name: hero.heading }),
     )
+
+    // The toolbox's slot is a phone's: from `sm` the scene places the props.
+    const slot = canvasElement.querySelector(HERO_TOOLBOX_SLOT)
+    await expect(slot && getComputedStyle(slot).display).toBe('none')
   },
 }
 
@@ -95,9 +115,16 @@ export const Desktop: Story = {
   },
 }
 
-/** Phone width: the 44/46 heading wraps balanced, the search pill stays 52px and the checks wrap under it. */
+/**
+ * Phone width, edge to edge as on the page: the 44/46 heading wraps balanced,
+ * the search pill stays 52px and the checks wrap under it. The one prop a
+ * phone has, the toolbox, is whole in its slot at the hero's foot: a page
+ * gutter (16px) in from the screen's edge and from the panel below, under the
+ * trust row and clear of the link's 44px target.
+ */
 export const Mobile: Story = {
   globals: { viewport: { value: 'mobile1', isRotated: false } },
+  parameters: { layout: 'fullscreen' },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
     const h1Style = getComputedStyle(
@@ -113,6 +140,45 @@ export const Mobile: Story = {
     const stack = canvas.getByRole('heading', { level: 1 }).parentElement
     await expect(stack && getComputedStyle(stack).paddingTop).toBe('56px')
     await expect(stack && getComputedStyle(stack).paddingBottom).toBe('56px')
+
+    const slot = canvasElement.querySelector(HERO_TOOLBOX_SLOT)
+    if (!slot) throw new Error('The hero has no toolbox slot')
+    const box = slot.getBoundingClientRect()
+    const frame = canvas
+      .getByRole('region', { name: hero.heading })
+      .getBoundingClientRect()
+    await expect(box.left - frame.left).toBe(16)
+    await expect(frame.bottom - box.bottom).toBe(16)
+    await expect(box.width).toBeGreaterThanOrEqual(56)
+    await expect(box.height).toBe(box.width)
+    await expect(getComputedStyle(slot).backgroundImage).toContain(
+      TOOLBOX_STILL_SRC,
+    )
+    const target = canvas
+      .getByRole('link', { name: messages.en.common.ctas.seeHowItWorks })
+      .getBoundingClientRect()
+    await expect(target.height).toBe(44)
+    await expect(box.right).toBeLessThanOrEqual(target.left)
+    await expect(box.top).toBeGreaterThanOrEqual(
+      canvas.getByRole('list').getBoundingClientRect().bottom,
+    )
+  },
+}
+
+/** A phone, the live scene drawn: the still in the slot fades out, and the scene's own toolbox is in its place. */
+export const MobileSceneReady: Story = {
+  globals: { viewport: { value: 'mobile1', isRotated: false } },
+  parameters: { layout: 'fullscreen' },
+  beforeEach: () => {
+    setSceneReady(true)
+    return () => setSceneReady(false)
+  },
+  play: async ({ canvasElement }) => {
+    const slot = canvasElement.querySelector(HERO_TOOLBOX_SLOT)
+    if (!slot) throw new Error('The hero has no toolbox slot')
+    await waitFor(() => expect(getComputedStyle(slot).opacity).toBe('0'), {
+      timeout: 3000,
+    })
   },
 }
 
@@ -131,11 +197,9 @@ export const LongCopy: Story = {
       ...messages.en.landing.hero,
       heading:
         'Help around the corner, whatever the job and whenever you need it.',
-      body: 'Trusted local workers send clear quotes for the job you post, and you choose who to hire. No platform cut of the job.',
+      body: 'Trusted local workers send clear quotes for the job you post, and you choose who to hire. Slashie takes no cut of the job.',
       trustChips: [
-        'No job fee',
-        'Local workers',
-        'Pay directly',
+        ...messages.en.landing.hero.trustChips,
         'Free to post',
         'Reviews you can read',
         'Clear quotes',

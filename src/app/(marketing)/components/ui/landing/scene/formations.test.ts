@@ -24,6 +24,7 @@ import {
   WORLD_HEIGHT,
   closeFitPx,
   fitFor,
+  fitToSlot,
   peekLayoutFor,
   peekReachPx,
   phoneStripPx,
@@ -33,6 +34,7 @@ import {
   placementFor,
   poseFor,
   railMarginStripPx,
+  sceneObjects,
   sceneStage,
 } from './formations'
 
@@ -47,6 +49,57 @@ describe('the scene objects', () => {
   it('keep two of them below lg, and only ones the scene has', () => {
     expect(COMPACT_OBJECTS).toHaveLength(2)
     for (const id of COMPACT_OBJECTS) expect(SCENE_OBJECTS).toContain(id)
+  })
+
+  it('keep the toolbox alone below sm: no pin and no boxes on a phone', () => {
+    expect(sceneObjects(true, 320)).toEqual(['toolbox'])
+    expect(sceneObjects(true, 479)).toEqual(['toolbox'])
+    expect(sceneObjects(true, 480)).toBe(COMPACT_OBJECTS)
+    expect(sceneObjects(false, 1440)).toBe(SCENE_OBJECTS)
+  })
+})
+
+describe('fitToSlot', () => {
+  /** What the prop reaches on the screen once fitted, in px. */
+  function reachOf(slot: Parameters<typeof fitToSlot>[1]) {
+    const { xPx, yPx, unitPx } = fitToSlot('toolbox', slot)
+    const { halfWidth, above, below } = PROP_REACH.toolbox
+    return {
+      left: xPx - halfWidth * unitPx,
+      right: xPx + halfWidth * unitPx,
+      top: yPx - above * unitPx,
+      bottom: yPx + below * unitPx,
+    }
+  }
+
+  it('keeps all the prop reaches inside the box, centred, as large as fits', () => {
+    // The hero's slot on a 390 and a 320 wide phone, then a wide and a tall box.
+    const slots = [
+      { left: 16, top: 440, width: 72, height: 72 },
+      { left: 16, top: 480, width: 60, height: 60 },
+      { left: 0, top: 0, width: 200, height: 60 },
+      { left: 40, top: 10, width: 60, height: 200 },
+    ]
+    for (const slot of slots) {
+      const reach = reachOf(slot)
+      expect(reach.left).toBeGreaterThanOrEqual(slot.left - 1e-9)
+      expect(reach.right).toBeLessThanOrEqual(slot.left + slot.width + 1e-9)
+      expect(reach.top).toBeGreaterThanOrEqual(slot.top - 1e-9)
+      expect(reach.bottom).toBeLessThanOrEqual(slot.top + slot.height + 1e-9)
+      expect((reach.left + reach.right) / 2).toBeCloseTo(
+        slot.left + slot.width / 2,
+      )
+      expect((reach.top + reach.bottom) / 2).toBeCloseTo(
+        slot.top + slot.height / 2,
+      )
+      // It fills the box one way: any larger and it would not fit.
+      expect(
+        Math.max(
+          (reach.right - reach.left) / slot.width,
+          (reach.bottom - reach.top) / slot.height,
+        ),
+      ).toBeCloseTo(1)
+    }
   })
 })
 

@@ -23,7 +23,11 @@ const meta = {
 export default meta
 type Story = StoryObj<typeof meta>
 
-/** Resting: a plain `text.link` (green 800) text action to `#how-it-works`, no underline. */
+/**
+ * Resting: a plain `text.link` (green 800) text action to `#how-it-works`, no
+ * underline. A 44px target around its 20px line, which the layout does not
+ * see: the margins give the extra 24px back.
+ */
 export const Default: Story = {
   play: async ({ canvasElement }) => {
     const link = within(canvasElement).getByRole('link', {
@@ -34,6 +38,13 @@ export const Default: Story = {
     await expect(style.color).toBe(TEXT_LINK)
     await expect(style.textDecorationLine).toBe('none')
     await expect(Number(style.fontWeight)).toBe(500)
+
+    await expect(link.getBoundingClientRect().height).toBe(44)
+    await expect(
+      44 +
+        Number.parseFloat(style.marginTop) +
+        Number.parseFloat(style.marginBottom),
+    ).toBe(20)
   },
 }
 

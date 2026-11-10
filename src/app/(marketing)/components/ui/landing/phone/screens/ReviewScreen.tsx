@@ -7,20 +7,125 @@ import type { PhoneCopy } from '../phoneCopy'
 import { DemoPrimary, Hotspot, InitialAvatar } from '../phoneParts'
 import { enterStyle, useDemoBeat, useTypewriter } from '../useDemoBeat'
 
-/** The review prompt flash: tap the stars, the words follow. */
+/**
+ * The review prompt flash: tap the stars, the words follow. `compact` is the
+ * cropped phone's layout: the prompt card alone (who it is for is in its own
+ * line), then the thanks under it.
+ */
 export function ReviewScreen({
   copy,
   active,
   intro,
+  compact = false,
 }: {
   copy: PhoneCopy
   active: boolean
   intro?: boolean
+  compact?: boolean
 }) {
   const { entered, done, trigger, reduced } = useDemoBeat(active, intro)
   const text = useTypewriter(copy.review.text, done, reduced, 700)
   const t = copy.review
   const quote = copy.quotes.items[0]
+
+  const stars = (size: number, gap: string) => (
+    <HStack gap={gap}>
+      {[0, 1, 2, 3, 4].map((n) => (
+        <Box
+          key={n}
+          display="inline-flex"
+          color={done ? 'status.warning.solid' : 'border.strong'}
+          style={{
+            transform: done ? 'scale(1)' : 'scale(0.9)',
+            transition: `transform 260ms cubic-bezier(0.34, 1.56, 0.64, 1) ${n * 80}ms, color 200ms ease ${n * 80}ms`,
+          }}
+        >
+          <LuStar
+            size={size}
+            fill={done ? 'currentColor' : 'none'}
+            strokeWidth={1.8}
+            aria-hidden
+          />
+        </Box>
+      ))}
+    </HStack>
+  )
+
+  const thanks = (fontSize: string) =>
+    done && text === t.text ? (
+      <HStack
+        alignSelf="center"
+        gap="6px"
+        color="status.success.fg"
+        fontSize={fontSize}
+        fontWeight={500}
+        css={{
+          animation: 'fade-rise 320ms cubic-bezier(0.2, 0, 0, 1) both',
+        }}
+      >
+        <LuCheck size={16} aria-hidden />
+        <Text>{t.thanks}</Text>
+      </HStack>
+    ) : null
+
+  if (compact) {
+    return (
+      <Stack position="absolute" inset={0} gap="8px" p="10px" bg="bg.canvas">
+        <Stack
+          align="center"
+          gap="8px"
+          p="12px"
+          borderRadius="12px"
+          bg="bg.surface"
+          borderWidth="1px"
+          borderColor="border.default"
+          style={enterStyle(entered, 0)}
+        >
+          <Box textAlign="center">
+            <Text fontSize="15px" lineHeight="20px" fontWeight={500}>
+              {t.title}
+            </Text>
+            <Text fontSize="12px" lineHeight="16px" color="text.muted">
+              {t.body}
+            </Text>
+          </Box>
+          <Hotspot
+            label={t.rate}
+            onPress={trigger}
+            pulse={!done}
+            px="6px"
+            py="6px"
+          >
+            {stars(28, '5px')}
+          </Hotspot>
+          <Box
+            w="full"
+            minH="52px"
+            px="10px"
+            py="8px"
+            borderRadius="8px"
+            borderWidth="1px"
+            borderColor="border.strong"
+            bg="bg.surface"
+            fontSize="13px"
+            lineHeight="18px"
+            color={done ? 'text.default' : 'text.subtle'}
+          >
+            {done ? text : t.placeholder}
+          </Box>
+          <DemoPrimary
+            w="full"
+            h="40px"
+            fontSize="13px"
+            opacity={done ? 1 : 0.5}
+          >
+            {t.submit}
+          </DemoPrimary>
+        </Stack>
+        {thanks('12px')}
+      </Stack>
+    )
+  }
 
   return (
     <Stack position="absolute" inset={0} gap={0} bg="bg.canvas">
@@ -78,26 +183,7 @@ export function ReviewScreen({
             px="6px"
             py="4px"
           >
-            <HStack gap="6px">
-              {[0, 1, 2, 3, 4].map((n) => (
-                <Box
-                  key={n}
-                  display="inline-flex"
-                  color={done ? 'status.warning.solid' : 'border.strong'}
-                  style={{
-                    transform: done ? 'scale(1)' : 'scale(0.9)',
-                    transition: `transform 260ms cubic-bezier(0.34, 1.56, 0.64, 1) ${n * 80}ms, color 200ms ease ${n * 80}ms`,
-                  }}
-                >
-                  <LuStar
-                    size={34}
-                    fill={done ? 'currentColor' : 'none'}
-                    strokeWidth={1.8}
-                    aria-hidden
-                  />
-                </Box>
-              ))}
-            </HStack>
+            {stars(34, '6px')}
           </Hotspot>
 
           <Box
@@ -120,21 +206,7 @@ export function ReviewScreen({
           </DemoPrimary>
         </Stack>
 
-        {done && text === t.text ? (
-          <HStack
-            alignSelf="center"
-            gap="6px"
-            color="status.success.fg"
-            fontSize="14px"
-            fontWeight={500}
-            css={{
-              animation: 'fade-rise 320ms cubic-bezier(0.2, 0, 0, 1) both',
-            }}
-          >
-            <LuCheck size={16} aria-hidden />
-            <Text>{t.thanks}</Text>
-          </HStack>
-        ) : null}
+        {thanks('14px')}
       </Stack>
     </Stack>
   )

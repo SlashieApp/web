@@ -6,6 +6,7 @@ import { sdlMotion } from '@/theme/styles'
 import { HEADER_MIN_HEIGHT } from '@/ui/Header/shell/headerShell'
 import { PageContainer } from '@/ui/PageContainer'
 
+import { HeroToolboxSlot } from '../scene/HeroObjectsPoster'
 import { HeroHowItWorksLink } from './HeroHowItWorksLink'
 import { HeroSearchCta } from './HeroSearchCta'
 
@@ -30,8 +31,8 @@ function riseIn(delayMs: number) {
  * Padding under the hero's last line: 56px on a phone, 64 on a tablet, 80 on a
  * laptop and 96 on a wide screen. The top is the frame's `SECTION_PY` (the h1
  * sits that far under the header); the foot is a step tighter, so the hero's
- * block reads as one group above the rule and the props that sit under the
- * "See how it works" row on a phone keep clear of the rule.
+ * block reads as one group above the rule. A phone's 56px is also the room the
+ * toolbox's slot has under the link's row.
  */
 export const HERO_PB = { base: 14, md: 16, lg: 20, xl: 24 } as const
 
@@ -64,9 +65,10 @@ type HeroSectionProps = {
  * green Search pill inside, a trust row with green 600 checks, and the
  * "See how it works" text link. A faint radial grey sits behind it at the top
  * of the page. The demo phone sits just below it (pinned layer on desktop,
- * inline on phones) and the 3D objects float around both. `data-landing-hero`
- * is the hook the floating "Post a task" pill watches: it shows once this
- * section has scrolled out of view.
+ * inline on phones) and the 3D objects float around both; on a phone there is
+ * one, the toolbox, in the slot at the hero's foot (`HeroToolboxSlot`).
+ * `data-landing-hero` is the hook the floating "Post a task" pill watches: it
+ * shows once this section has scrolled out of view.
  */
 export function HeroSection({ copy, ctas }: HeroSectionProps) {
   return (
@@ -93,6 +95,7 @@ export function HeroSection({ copy, ctas }: HeroSectionProps) {
         pointerEvents="none"
         bgImage={HERO_GLOW}
       />
+      <HeroToolboxSlot />
       <PageContainer>
         <Stack
           align="center"

@@ -1,11 +1,10 @@
-import { Box } from '@chakra-ui/react'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
-import { expect, userEvent, within } from 'storybook/test'
+import { expect, userEvent, waitFor, within } from 'storybook/test'
 
 import messages from '@/app/(marketing)/i11n.json'
 
-import { PhoneFrame } from '../PhoneFrame'
 import { ReviewScreen } from './ReviewScreen'
+import { expectFitsTheCrop, withDemoPhone } from './screenStoryDecorator'
 
 const copy = messages.en.landing.phone
 
@@ -36,16 +35,8 @@ const meta = {
   parameters: { layout: 'padded' },
   argTypes: { copy: { control: false } },
   args: { copy, active: true, intro: true },
-  // The landing's phone: the screen inside its frame on the white page.
-  decorators: [
-    (Story) => (
-      <Box p={{ base: 4, md: 8 }} bg="bg.surface" display="inline-block">
-        <PhoneFrame label={copy.demoLabel} nominalWidth={300} w="300px">
-          <Story />
-        </PhoneFrame>
-      </Box>
-    ),
-  ],
+  // The landing's phone: the pinned one, or the cropped one with `compact`.
+  decorators: [withDemoPhone],
 } satisfies Meta<typeof ReviewScreen>
 
 export default meta
@@ -62,4 +53,35 @@ export const Playing: Story = {}
 /** Reviewed: five stars filled, the review typed out and the thanks line shown. */
 export const Reviewed: Story = {
   play: ({ canvasElement }) => rateWorker(canvasElement),
+}
+
+/**
+ * Cropped phone (the inline steps below `lg`), playing: the review card (the
+ * question, the stars, the field, "Post review") with the stars pulsing.
+ */
+export const Compact: Story = {
+  args: { compact: true },
+  globals: { viewport: { value: 'mobile1', isRotated: false } },
+  play: ({ canvasElement }) =>
+    expectFitsTheCrop(canvasElement, [copy.review.title, copy.review.submit]),
+}
+
+/** Cropped phone, reviewed: the typed review and the thanks line under the card are whole. */
+export const CompactReviewed: Story = {
+  args: { compact: true },
+  globals: { viewport: { value: 'mobile1', isRotated: false } },
+  play: async ({ canvasElement }) => {
+    await rateWorker(canvasElement)
+    await waitFor(
+      () =>
+        expect(
+          within(canvasElement).getByText(copy.review.text),
+        ).toBeInTheDocument(),
+      { timeout: 4000 },
+    )
+    await expectFitsTheCrop(canvasElement, [
+      copy.review.text,
+      copy.review.thanks,
+    ])
+  },
 }

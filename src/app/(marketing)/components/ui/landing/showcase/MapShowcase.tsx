@@ -29,12 +29,13 @@ import {
   MAP_VIEWBOX,
 } from './mapShowcaseArt'
 import {
-  CARD_INSET_PX,
   CARD_WIDTH_PX,
   DEFAULT_SHOWCASE_TASK,
+  MAP_PHONE_HEIGHT_PX,
   PIN_SPOTS,
   type ShowcaseTask,
   buildShowcaseTasks,
+  cardInsets,
   pickShowcaseTask,
 } from './mapShowcaseModel'
 
@@ -151,8 +152,8 @@ function MapPin({
       aria-current={selected ? 'true' : undefined}
       onClick={(event) => onSelect(task.id, event.detail === 0)}
       position="absolute"
-      left={{ base: `${narrow.x * 100}%`, md: `${wide.x * 100}%` }}
-      top={{ base: `${narrow.y * 100}%`, md: `${wide.y * 100}%` }}
+      left={{ base: `${narrow.x * 100}%`, lg: `${wide.x * 100}%` }}
+      top={{ base: `${narrow.y * 100}%`, lg: `${wide.y * 100}%` }}
       transform="translate(-50%, -100%)"
       zIndex={selected ? 2 : 1}
       display="flex"
@@ -267,7 +268,8 @@ function ShowcaseCard({
   return (
     <Card
       p={3}
-      maxW="full"
+      // Under the map on a tablet it keeps a card's width, not the page's.
+      maxW={{ base: 'full', md: '380px' }}
       data-showcase-card={task.id}
       // Swapping the card fades it in with an 8px rise, once the visitor has
       // picked a pin (not on first paint); reduced motion turns it off.
@@ -343,12 +345,15 @@ function ShowcaseCard({
  * green 400 with an ink price, and shows its demo task card. Not a real map:
  * no tiles, no network, no new copy (the demo data is `landing.phone`).
  *
- * The card floats over the map's bottom-left corner from `md` and sits under
- * the map below it, on the page's gutters. The panel works from a 390px phone
- * to a 1920px screen (the map is as wide as the page column, 80rem, and keeps
- * its aspect ratio), and nothing moves under reduced motion but the card swap,
- * which then cuts. A pin chosen from the keyboard brings the card into view,
- * because on a laptop-height screen the card can be below the fold.
+ * From `lg` the card opens beside the selected pin, like a popover: on the
+ * side with room, level with the pin (`cardInsets`), so the choice and its
+ * answer are in one place. Below `lg` it sits under the map, on the page's
+ * gutters, and the phone's map is 300px tall so the card shows with it. The
+ * visitor drives it: no autoplay and no counter. The panel works from a 320px
+ * phone to a 1920px screen (the map is as wide as the page column, 80rem),
+ * and nothing moves under reduced motion but the card swap, which then cuts.
+ * A pin chosen from the keyboard brings the card into view, because under the
+ * map it can be below the fold.
  */
 export function MapShowcase({ copy }: { copy: PhoneCopy }) {
   const headingId = useId()
@@ -359,6 +364,7 @@ export function MapShowcase({ copy }: { copy: PhoneCopy }) {
   )
   const [picked, setPicked] = useState(false)
   const selected = pickShowcaseTask(tasks, selectedId)
+  const cardAt = cardInsets(selected.id)
 
   const select = (id: DemoTaskId, byKeyboard: boolean) => {
     setSelectedId(id)
@@ -387,18 +393,14 @@ export function MapShowcase({ copy }: { copy: PhoneCopy }) {
           <Box
             position="relative"
             overflow="hidden"
-            // Under the map on a phone the card sits on the band: a hairline
-            // closes the map. From md the card floats over it and the rule
+            // Below lg the card sits under the map, on the band: a hairline
+            // closes the map. From lg the card is on the map and the rule
             // below the section closes it.
-            borderBottomWidth={{ base: '1px', md: 0 }}
+            borderBottomWidth={{ base: '1px', lg: 0 }}
             borderColor="border.default"
             bg="bg.subtle"
-            aspectRatio={{
-              base: '9 / 10',
-              sm: '3 / 2',
-              md: '9 / 5',
-              lg: '11 / 5',
-            }}
+            h={{ base: `${MAP_PHONE_HEIGHT_PX}px`, sm: 'auto' }}
+            aspectRatio={{ sm: '3 / 2', md: '9 / 5', lg: '11 / 5' }}
           >
             <MapArt />
             <Box
@@ -434,13 +436,14 @@ export function MapShowcase({ copy }: { copy: PhoneCopy }) {
           <Box
             ref={cardRef}
             aria-live="polite"
-            position={{ base: 'static', md: 'absolute' }}
-            left={{ md: `${CARD_INSET_PX}px` }}
-            bottom={{ md: `${CARD_INSET_PX}px` }}
-            w={{ base: 'full', md: `${CARD_WIDTH_PX}px` }}
-            maxW="full"
-            px={{ base: PAGE_GUTTER_X.base, md: 0 }}
-            py={{ base: 4, md: 0 }}
+            position={{ base: 'static', lg: 'absolute' }}
+            left={{ lg: cardAt.left }}
+            right={{ lg: cardAt.right }}
+            top={{ lg: cardAt.top }}
+            bottom={{ lg: cardAt.bottom }}
+            w={{ base: 'full', lg: `${CARD_WIDTH_PX}px` }}
+            px={{ base: PAGE_GUTTER_X.base, md: PAGE_GUTTER_X.md, lg: 0 }}
+            py={{ base: 4, lg: 0 }}
             zIndex={3}
             // `scrollIntoView` keeps it clear of the sticky header (56 or
             // 64px) above and a little air below, and `globals.css` adds the

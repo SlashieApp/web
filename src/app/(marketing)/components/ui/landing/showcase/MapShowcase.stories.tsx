@@ -56,6 +56,15 @@ function getMapBox(canvasElement: HTMLElement): HTMLElement {
   return box
 }
 
+const TASK_IDS = Object.keys(phone.tasks) as (keyof typeof phone.tasks)[]
+
+/** Whether two boxes share any area. */
+function overlap(a: DOMRect, b: DOMRect): boolean {
+  return (
+    a.left < b.right && b.left < a.right && a.top < b.bottom && b.top < a.bottom
+  )
+}
+
 const meta = {
   title: 'Marketing/Landing/MapShowcase',
   component: MapShowcase,
@@ -70,9 +79,9 @@ type Story = StoryObj<typeof meta>
 /**
  * Desktop: a section landmark named by its heading, a monochrome map with five
  * price pins (white, green 800 price) and the first one selected (green 400
- * fill, ink price), and that task's card floating over the map's bottom-left
- * corner: 12px card with a hairline, neutral tag, title at 500, ink price at
- * 600 with tabular figures, muted meta.
+ * fill, ink price), and that task's card open beside its pin, like a popover:
+ * 12px card with a hairline, neutral tag, title at 500, ink price at 600 with
+ * tabular figures, muted meta.
  */
 export const Default: Story = {
   globals: { viewport: { value: 'desktop', isRotated: false } },
@@ -149,12 +158,67 @@ export const Default: Story = {
     await expect(mapBox.getBoundingClientRect().top).toBe(sectionBox?.top)
     await expect(mapBox.getBoundingClientRect().bottom).toBe(sectionBox?.bottom)
 
-    // From md the card floats over the map's bottom-left corner.
+    // From lg the card opens beside the selected pin: to its right here, level
+    // with the pill's top, 320px wide and on the map.
     const map = getMapBox(canvasElement).getBoundingClientRect()
     const cardBox = card.getBoundingClientRect()
-    await expect(cardBox.left).toBeCloseTo(map.left + 20, 0)
-    await expect(cardBox.bottom).toBeCloseTo(map.bottom - 20, 0)
-    await expect(cardBox.width).toBeCloseTo(380, 0)
+    const pill = pillOf(selected).getBoundingClientRect()
+    await expect(cardBox.width).toBeCloseTo(320, 0)
+    await expect(cardBox.left).toBeGreaterThan(pill.right)
+    await expect(cardBox.left - pill.right).toBeLessThanOrEqual(24)
+    await expect(Math.abs(cardBox.top - pill.top)).toBeLessThanOrEqual(4)
+    await expect(cardBox.right).toBeLessThanOrEqual(map.right)
+    await expect(cardBox.bottom).toBeLessThanOrEqual(map.bottom)
+  },
+}
+
+/**
+ * Desktop: whichever pin is chosen, its card opens next to it (within 24px of
+ * the price pill, level with the pin), inside the map, and covers no other
+ * pin. There is one card, and nothing chooses a pin but the visitor.
+ */
+export const CardOpensBesideEachPin: Story = {
+  globals: { viewport: { value: 'desktop', isRotated: false } },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const map = getMapBox(canvasElement).getBoundingClientRect()
+    for (const task of TASK_IDS) {
+      const pin = pinFor(canvas, task)
+      await userEvent.click(pin)
+      // The card rises 8px into place and the pill grows: read them at rest.
+      await waitFor(() => {
+        const card = getCard(canvasElement)
+        expect(card).toHaveAttribute('data-showcase-card', task)
+        const cardBox = card.getBoundingClientRect()
+        const pill = pillOf(pin).getBoundingClientRect()
+        const gap = Math.max(
+          cardBox.left - pill.right,
+          pill.left - cardBox.right,
+        )
+        expect(gap, `${task}: beside its pin`).toBeGreaterThan(0)
+        expect(gap, `${task}: beside its pin`).toBeLessThanOrEqual(24)
+        expect(
+          overlap(
+            new DOMRect(0, cardBox.top, 1, cardBox.height),
+            new DOMRect(0, pill.top, 1, pill.height),
+          ),
+          `${task}: level with its pin`,
+        ).toBe(true)
+        expect(cardBox.left).toBeGreaterThanOrEqual(map.left)
+        expect(cardBox.right).toBeLessThanOrEqual(map.right)
+        expect(cardBox.top).toBeGreaterThanOrEqual(map.top)
+        expect(cardBox.bottom).toBeLessThanOrEqual(map.bottom)
+        for (const other of TASK_IDS) {
+          expect(
+            overlap(cardBox, pinFor(canvas, other).getBoundingClientRect()),
+            `${task}: its card covers the ${other} pin`,
+          ).toBe(false)
+        }
+      })
+      await expect(
+        canvasElement.querySelectorAll('[data-showcase-card]'),
+      ).toHaveLength(1)
+    }
   },
 }
 
@@ -280,9 +344,11 @@ export const KeyboardSelects: Story = {
 }
 
 /**
- * A phone: the map keeps its shape, every pin is a 44px target and inside the
- * map, nothing overflows sideways, and the card sits under the map (not over
- * it), so the pins and the card never cover one another.
+ * A phone: the map is 300px tall, so it and the card under it fit one screen
+ * (the card shows on the first scroll past the hero). Every pin is a 44px
+ * target and inside the map, nothing overflows sideways, and the card sits
+ * under the map (not over it), so the pins and the card never cover one
+ * another.
  */
 export const Mobile: Story = {
   globals: { viewport: { value: 'mobile1', isRotated: false } },
@@ -298,10 +364,13 @@ export const Mobile: Story = {
     await expect(map.width).toBe(canvasElement.ownerDocument.body.clientWidth)
     await expect(card.left).toBe(16)
     await expect(card.width).toBe(map.width - 32)
+    // Map and card together are shorter than the screen under the 56px header.
+    await expect(map.height).toBe(300)
+    await expect(card.bottom - map.top).toBeLessThanOrEqual(
+      window.innerHeight - 56,
+    )
 
-    for (const task of Object.keys(
-      phone.tasks,
-    ) as (keyof typeof phone.tasks)[]) {
+    for (const task of TASK_IDS) {
       const box = pinFor(canvas, task).getBoundingClientRect()
       await expect(box.height).toBeGreaterThanOrEqual(44)
       await expect(box.width).toBeGreaterThanOrEqual(44)
@@ -335,25 +404,25 @@ export const MobileLongTitle: Story = {
   },
 }
 
-/** A tablet (md): the card already floats over the map's corner and keeps clear of every pin. */
+/**
+ * A tablet (below lg): the card still sits under the map, on the page's 24px
+ * gutter and no wider than a card (380px), and every pin is on the map.
+ */
 export const Tablet: Story = {
   globals: { viewport: { value: 'tablet', isRotated: false } },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
     const card = getCard(canvasElement).getBoundingClientRect()
     const map = getMapBox(canvasElement).getBoundingClientRect()
-    await expect(card.bottom).toBeLessThan(map.bottom)
-    await expect(card.left).toBeGreaterThan(map.left)
-    for (const task of Object.keys(
-      phone.tasks,
-    ) as (keyof typeof phone.tasks)[]) {
+    await expect(card.top).toBeGreaterThanOrEqual(map.bottom)
+    await expect(card.left).toBe(map.left + 24)
+    await expect(card.width).toBe(380)
+    for (const task of TASK_IDS) {
       const box = pinFor(canvas, task).getBoundingClientRect()
-      const apart =
-        box.right <= card.left ||
-        box.left >= card.right ||
-        box.bottom <= card.top ||
-        box.top >= card.bottom
-      await expect(apart, `${task} pin is clear of the card`).toBe(true)
+      await expect(box.left).toBeGreaterThanOrEqual(map.left)
+      await expect(box.right).toBeLessThanOrEqual(map.right)
+      await expect(box.top).toBeGreaterThanOrEqual(map.top)
+      await expect(box.bottom).toBeLessThanOrEqual(map.bottom)
     }
   },
 }
@@ -393,9 +462,7 @@ export const AreaLabelsAreReadable: Story = {
   globals: { viewport: { value: 'desktop', isRotated: false } },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
-    for (const task of Object.keys(
-      phone.tasks,
-    ) as (keyof typeof phone.tasks)[]) {
+    for (const task of TASK_IDS) {
       const label = within(pinFor(canvas, task)).getByText(
         phone.tasks[task].area,
       )
@@ -407,7 +474,7 @@ export const AreaLabelsAreReadable: Story = {
 }
 
 /**
- * On a phone the card is under the map and can be below the fold: choosing a
+ * Below lg the card is under the map and can be below the fold: choosing a
  * pin from the keyboard brings the card on screen, just far enough.
  */
 export const KeyboardChoiceBringsTheCardIntoView: Story = {

@@ -147,7 +147,7 @@ export const TwoPoints: Story = {
 export const LongText: Story = {
   args: {
     points: [
-      'No platform cut from the job, ever, whatever size the task is or who does it',
+      'Slashie takes no cut of the job, ever, whatever size the task is or who does it',
       'Payment stays between customer and worker, in whatever way they both prefer',
       'Profiles, reviews, and proof of past work so you can choose with confidence',
       'Local tasks, local workers, and clear quotes before anyone commits to anything',

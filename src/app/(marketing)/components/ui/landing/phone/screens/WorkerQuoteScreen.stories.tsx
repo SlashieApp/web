@@ -1,11 +1,10 @@
-import { Box } from '@chakra-ui/react'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { expect, userEvent, waitFor, within } from 'storybook/test'
 
 import messages from '@/app/(marketing)/i11n.json'
 
-import { PhoneFrame } from '../PhoneFrame'
 import { WorkerQuoteScreen } from './WorkerQuoteScreen'
+import { expectFitsTheCrop, withDemoPhone } from './screenStoryDecorator'
 
 const copy = messages.en.landing.phone
 
@@ -40,16 +39,8 @@ const meta = {
   parameters: { layout: 'padded' },
   argTypes: { copy: { control: false } },
   args: { copy, active: true, intro: true },
-  // The landing's phone: the screen inside its frame on the white page.
-  decorators: [
-    (Story) => (
-      <Box p={{ base: 4, md: 8 }} bg="bg.surface" display="inline-block">
-        <PhoneFrame label={copy.demoLabel} nominalWidth={300} w="300px">
-          <Story />
-        </PhoneFrame>
-      </Box>
-    ),
-  ],
+  // The landing's phone: the pinned one, or the cropped one with `compact`.
+  decorators: [withDemoPhone],
 } satisfies Meta<typeof WorkerQuoteScreen>
 
 export default meta
@@ -63,7 +54,50 @@ export const Resting: Story = {
 /** Playing: the message types itself, then autoplay taps "Send quote". */
 export const Playing: Story = {}
 
-/** Quote sent: message typed, toast and button confirm the quote. */
+/**
+ * Quote sent: message typed, toast and button confirm the quote (the button is
+ * then named "Quote sent", what it reads). The message is public, so it names
+ * no one.
+ */
 export const QuoteSent: Story = {
-  play: ({ canvasElement }) => sendQuote(canvasElement),
+  play: async ({ canvasElement }) => {
+    await sendQuote(canvasElement)
+    const canvas = within(canvasElement)
+    await expect(
+      canvas.getByRole('button', { name: copy.worker.sentTitle }),
+    ).toBeInTheDocument()
+    await expect(
+      canvas.queryByRole('button', { name: copy.worker.submit }),
+    ).toBeNull()
+    await expect(copy.worker.message).not.toMatch(/Priya/)
+  },
+}
+
+/**
+ * Cropped phone (the inline steps below `lg`), playing: the task, the price
+ * and the message typing itself, with "Send quote" pulsing above the crop.
+ */
+export const Compact: Story = {
+  args: { compact: true },
+  globals: { viewport: { value: 'mobile1', isRotated: false } },
+  play: ({ canvasElement }) =>
+    expectFitsTheCrop(canvasElement, [
+      copy.worker.priceLabel,
+      copy.worker.price,
+    ]),
+}
+
+/** Cropped phone, quote sent: the toast lies over the bar, and the price, the message and the button are whole. */
+export const CompactQuoteSent: Story = {
+  args: { compact: true },
+  globals: { viewport: { value: 'mobile1', isRotated: false } },
+  play: async ({ canvasElement }) => {
+    await sendQuote(canvasElement)
+    await expectFitsTheCrop(canvasElement, [
+      copy.worker.sentTitle,
+      copy.worker.sentBody,
+      copy.worker.price,
+      copy.worker.message,
+    ])
+  },
 }

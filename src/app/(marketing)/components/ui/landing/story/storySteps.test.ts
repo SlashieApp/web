@@ -27,6 +27,16 @@ describe('the how-it-works steps', () => {
     expect(new Set(stages).size).toBe(stages.length)
   })
 
+  it('puts the chat step right after Hire: people message once a quote is accepted', () => {
+    expect([...CUSTOMER_STAGES]).toEqual([
+      'post',
+      'quotes',
+      'hire',
+      'chat',
+      'review',
+    ])
+  })
+
   it('gives every step its own row id, which the index links to', () => {
     const ids = [...CUSTOMER_STAGES, ...WORKER_STAGES].map(stepDomId)
     expect(new Set(ids).size).toBe(ids.length)

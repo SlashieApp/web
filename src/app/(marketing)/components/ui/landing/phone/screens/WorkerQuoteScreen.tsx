@@ -6,23 +6,120 @@ import { LuCheck, LuMapPin, LuX } from 'react-icons/lu'
 import { formatMessage } from '@/i18n/loadPageI11n'
 
 import type { PhoneCopy } from '../phoneCopy'
-import { DemoCard, DemoPrimary, Hotspot } from '../phoneParts'
+import {
+  CompactBar,
+  CompactToast,
+  DemoCard,
+  DemoPrimary,
+  Hotspot,
+} from '../phoneParts'
 import { enterStyle, useDemoBeat, useTypewriter } from '../useDemoBeat'
 
-/** The worker's quote form: price, a short message, "Send quote". */
+/**
+ * The worker's quote form: price, a short message, "Send quote". `compact` is
+ * the cropped phone's layout: the task in two lines, the price in a row (with
+ * the customer's budget under its label), the message and the button.
+ */
 export function WorkerQuoteScreen({
   copy,
   active,
   intro,
+  compact = false,
 }: {
   copy: PhoneCopy
   active: boolean
   intro?: boolean
+  compact?: boolean
 }) {
   const { entered, done, trigger, reduced } = useDemoBeat(active, intro)
   const message = useTypewriter(copy.worker.message, entered, reduced, 500)
   const t = copy.worker
   const task = copy.tasks.wardrobe
+  // The button says what it shows: "Send quote", then "Quote sent".
+  const submit = done ? t.sentTitle : t.submit
+
+  if (compact) {
+    return (
+      <Stack position="absolute" inset={0} gap={0} bg="bg.canvas">
+        <CompactBar icon="close" title={t.header} />
+        {/* 18px under the bar: the toast may be two lines on a narrow phone. */}
+        <Stack gap="8px" px="12px" pt="18px">
+          <Box style={enterStyle(entered, 0)}>
+            <Text
+              fontSize="13px"
+              lineHeight="18px"
+              fontWeight={500}
+              lineClamp={1}
+            >
+              {task.title}
+            </Text>
+            <Text
+              fontSize="11px"
+              lineHeight="15px"
+              color="text.muted"
+              lineClamp={1}
+            >
+              {task.area} · {t.postedBy}
+            </Text>
+          </Box>
+          <HStack justify="space-between" style={enterStyle(entered, 1)}>
+            <Box color="text.muted">
+              <Text fontSize="12px" lineHeight="16px" fontWeight={500}>
+                {t.priceLabel}
+              </Text>
+              <Text fontSize="11px" lineHeight="15px">
+                {formatMessage(t.budget, { price: task.price })}
+              </Text>
+            </Box>
+            <Box
+              px="10px"
+              py="3px"
+              borderRadius="8px"
+              borderWidth="1px"
+              borderColor="border.focus"
+              boxShadow="0 0 0 1px var(--chakra-colors-border-focus)"
+              bg="bg.surface"
+              fontSize="18px"
+              lineHeight="26px"
+              fontWeight={600}
+              fontVariantNumeric="tabular-nums"
+            >
+              {t.price}
+            </Box>
+          </HStack>
+          <Box
+            minH="54px"
+            px="10px"
+            py="8px"
+            borderRadius="8px"
+            borderWidth="1px"
+            borderColor="border.strong"
+            bg="bg.surface"
+            fontSize="13px"
+            lineHeight="18px"
+            style={enterStyle(entered, 2)}
+          >
+            {message}
+          </Box>
+          <Box pt="2px" style={enterStyle(entered, 3)}>
+            <Hotspot
+              label={submit}
+              onPress={trigger}
+              pulse={!done}
+              w="full"
+              borderRadius="full"
+            >
+              <DemoPrimary h="44px" fontSize="14px">
+                {done ? <LuCheck size={16} aria-hidden /> : null}
+                {submit}
+              </DemoPrimary>
+            </Hotspot>
+          </Box>
+        </Stack>
+        {done ? <CompactToast title={t.sentTitle} body={t.sentBody} /> : null}
+      </Stack>
+    )
+  }
 
   return (
     <Stack position="absolute" inset={0} gap={0} bg="bg.canvas">
@@ -142,7 +239,7 @@ export function WorkerQuoteScreen({
 
       <Box px="16px" pb="44px" style={enterStyle(entered, 3)}>
         <Hotspot
-          label={t.submit}
+          label={submit}
           onPress={trigger}
           pulse={!done}
           w="full"
@@ -150,7 +247,7 @@ export function WorkerQuoteScreen({
         >
           <DemoPrimary>
             {done ? <LuCheck size={18} aria-hidden /> : null}
-            {done ? t.sentTitle : t.submit}
+            {submit}
           </DemoPrimary>
         </Hotspot>
       </Box>

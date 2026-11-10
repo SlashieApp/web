@@ -1,9 +1,10 @@
 import { Box, Stack, Text } from '@chakra-ui/react'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
+import { expect, within } from 'storybook/test'
 
 import messages from '@/app/(marketing)/i11n.json'
 
-import { PhoneFrame } from './PhoneFrame'
+import { PHONE_CROP_H, PhoneCrop, PhoneFrame } from './PhoneFrame'
 import { SearchScreen } from './screens/SearchScreen'
 
 const copy = messages.en.landing.phone
@@ -54,10 +55,37 @@ type Story = StoryObj<typeof meta>
 /** Desktop size (300px, the pinned phone): bezel, status bar, island and home bar. */
 export const Default: Story = {}
 
-/** Inline phone below `lg`: 270px, capped at 72vw so it fits a small screen. */
-export const Compact: Story = {
-  args: { nominalWidth: 270, w: 'min(270px, 72vw)' },
+/**
+ * Inline phone below `lg` (`PhoneCrop`): the top of a phone in a 340px well,
+ * drawn at 1:1, a 16px gutter from the well's top and sides and running off
+ * its bottom.
+ */
+export const Cropped: Story = {
   globals: { viewport: { value: 'mobile1', isRotated: false } },
+  render: ({ label }) => (
+    <Box w="full" minW="256px" maxW="358px">
+      <PhoneCrop label={label}>
+        <SearchScreen copy={copy} variant="customer" active compact />
+      </PhoneCrop>
+    </Box>
+  ),
+  play: async ({ canvasElement }) => {
+    const well = within(canvasElement).getByRole('figure', {
+      name: copy.demoLabel,
+    })
+    const phone = well.querySelector('[data-phone-crop]')
+    if (!phone) throw new Error('The cropped phone is missing')
+    const box = well.getBoundingClientRect()
+    const device = phone.getBoundingClientRect()
+    await expect(Math.round(box.height)).toBe(PHONE_CROP_H)
+    // One gutter on the top and both sides (16px inside the 1px hairline).
+    await expect(Math.round(device.top - box.top)).toBe(17)
+    await expect(Math.round(device.left - box.left)).toBe(17)
+    await expect(Math.round(box.right - device.right)).toBe(17)
+    // The phone's foot is cut by the well: it bleeds off the bottom.
+    await expect(device.bottom).toBeGreaterThan(box.bottom)
+    await expect(getComputedStyle(phone).transform).toBe('none')
+  },
 }
 
 /** Small (180px): the whole 375 x 812 screen scales down, layout unchanged. */

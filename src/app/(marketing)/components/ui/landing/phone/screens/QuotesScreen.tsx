@@ -6,9 +6,11 @@ import { LuArrowLeft, LuCalendar, LuMapPin, LuTag } from 'react-icons/lu'
 import { formatMessage } from '@/i18n/loadPageI11n'
 import { sdlElevation, sdlFigure } from '@/theme/styles'
 
+import { phoneCropFade } from '../PhoneFrame'
 import { PhoneMap, PricePin } from '../PhoneMap'
 import type { PhoneCopy } from '../phoneCopy'
 import {
+  CompactBar,
   DemoCard,
   Hotspot,
   InitialAvatar,
@@ -23,71 +25,148 @@ function QuoteRow({
   quote,
   copy,
   expanded,
+  compact = false,
 }: {
   quote: QuoteItem
   copy: PhoneCopy['quotes']
   expanded: boolean
+  compact?: boolean
 }) {
   return (
-    <DemoCard p="12px">
-      <HStack gap="10px" align="flex-start">
-        <InitialAvatar initials={quote.initials} size={42} />
-        <Stack gap="2px" flex={1} minW={0}>
-          <Text fontSize="15px" fontWeight={500}>
+    <DemoCard p={compact ? '10px' : '12px'}>
+      <HStack gap={compact ? '8px' : '10px'} align="flex-start">
+        <InitialAvatar initials={quote.initials} size={compact ? 32 : 42} />
+        <Stack gap={compact ? 0 : '2px'} flex={1} minW={0}>
+          <Text
+            fontSize={compact ? '13px' : '15px'}
+            lineHeight={compact ? '17px' : undefined}
+            fontWeight={500}
+          >
             {quote.name}
           </Text>
-          <HStack gap="4px">
-            <Stars filled={5} size={12} />
-            <Text fontSize="12px" color="text.muted" fontWeight={500}>
+          <HStack gap="4px" rowGap={0} flexWrap="wrap">
+            <Stars filled={5} size={compact ? 11 : 12} />
+            <Text
+              fontSize={compact ? '11px' : '12px'}
+              lineHeight={compact ? '15px' : undefined}
+              color="text.muted"
+              fontWeight={500}
+              whiteSpace="nowrap"
+            >
               {quote.rating}{' '}
               {formatMessage(copy.reviews, { count: quote.reviews })}
             </Text>
           </HStack>
         </Stack>
-        <Text fontSize="20px" color="text.default" {...sdlFigure}>
+        <Text
+          fontSize={compact ? '15px' : '20px'}
+          color="text.default"
+          {...sdlFigure}
+        >
           {quote.price}
         </Text>
       </HStack>
       <Text
-        mt="8px"
-        fontSize="13px"
+        mt={compact ? '6px' : '8px'}
+        fontSize={compact ? '12px' : '13px'}
+        lineHeight={compact ? '17px' : undefined}
         color="text.muted"
         lineClamp={expanded ? undefined : 1}
       >
         {quote.note}
       </Text>
       {expanded ? (
-        <HStack
-          mt="8px"
-          gap="8px"
-          fontSize="12px"
-          fontWeight={500}
-          color="text.muted"
+        // The two facts share a line when they fit, with the dot between
+        // them; when they do not, the second goes under the first and its
+        // dot goes with it, out of sight (it sits in the clipped margin).
+        <Box
+          mt={compact ? '4px' : '8px'}
+          overflow="hidden"
           css={{ animation: 'fade-rise 320ms cubic-bezier(0.2, 0, 0, 1) both' }}
         >
-          <Text>{formatMessage(copy.jobs, { count: quote.jobs })}</Text>
-          <Text aria-hidden>·</Text>
-          <Text>{copy.replies}</Text>
-        </HStack>
+          <HStack
+            ml="-14px"
+            gap={0}
+            flexWrap="wrap"
+            fontSize={compact ? '11px' : '12px'}
+            lineHeight={compact ? '15px' : undefined}
+            fontWeight={500}
+            color="text.muted"
+          >
+            {[
+              formatMessage(copy.jobs, { count: quote.jobs }),
+              copy.replies,
+            ].map((fact) => (
+              <Text
+                key={fact}
+                position="relative"
+                pl="14px"
+                _before={{
+                  content: '"·"',
+                  position: 'absolute',
+                  left: '5px',
+                }}
+              >
+                {fact}
+              </Text>
+            ))}
+          </HStack>
+        </Box>
       ) : null}
     </DemoCard>
   )
 }
 
-/** Task detail on its Quotes tab: three quotes arrive; tap one to read it. */
+/**
+ * Task detail on its Quotes tab: three quotes arrive; tap one to read it.
+ * `compact` is the cropped phone's layout: the task in the bar and the list
+ * of quotes, which fades out toward the crop.
+ */
 export function QuotesScreen({
   copy,
   active,
   intro,
+  compact = false,
 }: {
   copy: PhoneCopy
   active: boolean
   intro?: boolean
+  compact?: boolean
 }) {
   const { entered, done, trigger } = useDemoBeat(active, intro)
   const task = copy.tasks.hedge
   const t = copy.quotes
   const [first, ...rest] = t.items
+
+  if (compact) {
+    return (
+      <Box position="absolute" inset={0} bg="bg.canvas">
+        <CompactBar
+          icon="back"
+          title={task.title}
+          sub={`${task.area} · ${formatMessage(copy.search.quotes, { count: t.items.length })}`}
+        />
+        {/* The list starts under the 44px bar and fades out toward the crop. */}
+        <Stack gap="6px" px="10px" pt="8px" css={phoneCropFade(44)}>
+          <Box style={enterStyle(entered, 0)}>
+            <Hotspot
+              label={formatMessage(t.expand, { name: first.name })}
+              onPress={trigger}
+              pulse={!done}
+              w="full"
+            >
+              <QuoteRow quote={first} copy={t} expanded={done} compact />
+            </Hotspot>
+          </Box>
+          {rest.map((quote, index) => (
+            <Box key={quote.name} style={enterStyle(entered, index + 1)}>
+              <QuoteRow quote={quote} copy={t} expanded={false} compact />
+            </Box>
+          ))}
+        </Stack>
+      </Box>
+    )
+  }
 
   return (
     <Box position="absolute" inset={0} bg="bg.canvas">

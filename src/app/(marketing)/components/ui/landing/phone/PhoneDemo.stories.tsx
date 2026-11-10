@@ -11,10 +11,11 @@ import {
   type StoryStage,
   setStoryStage,
 } from '../story/storyState'
-import { PhoneScreen, StepPhone, StickyPhone } from './PhoneDemo'
-import { PhoneFrame } from './PhoneFrame'
+import { PhoneScreen, StepPhone, StickyPhone, phoneLabel } from './PhoneDemo'
+import { PHONE_CROP_H, PhoneFrame } from './PhoneFrame'
 
 const copy = messages.en.landing.phone
+const { index } = messages.en.landing.story
 
 function DemoPhone({ stage, width }: { stage: StoryStage; width: number }) {
   return (
@@ -35,14 +36,14 @@ function PinnedPhone({ stage }: { stage: StoryStage }) {
   useEffect(() => () => setStoryStage('hero'), [])
   return (
     <Box p={8} bg="bg.surface" display="inline-block">
-      <StickyPhone copy={copy} />
+      <StickyPhone copy={copy} index={index} />
     </Box>
   )
 }
 
-/** Story-only: accessible name of the hero screen's tappable pin. */
-const heroPinLabel = formatMessage(copy.search.selectPin, {
-  price: copy.tasks.hedge.price,
+/** Story-only: accessible name of the worker map's tappable pin. */
+const workerPinLabel = formatMessage(copy.search.selectPin, {
+  price: copy.tasks.wardrobe.price,
 })
 
 const meta = {
@@ -66,11 +67,11 @@ export const PostTask: Story = { args: { stage: 'post' } }
 /** Task detail, Quotes tab: three quotes arrive and the first opens on a tap. */
 export const Quotes: Story = { args: { stage: 'quotes' } }
 
-/** Task thread: a quote flash and a short chat; sending adds a message and a reply. */
-export const Chat: Story = { args: { stage: 'chat' } }
-
 /** Hire sheet over the task: accepting the quote confirms the booking. */
 export const Hire: Story = { args: { stage: 'hire' } }
+
+/** Task thread: it opens on "Quote accepted", then a short chat; sending adds a message and a reply. */
+export const Chat: Story = { args: { stage: 'chat' } }
 
 /** Review prompt: rating the stars types the review and thanks the customer. */
 export const Review: Story = { args: { stage: 'review' } }
@@ -84,17 +85,31 @@ export const WorkerQuote: Story = { args: { stage: 'workerQuote' } }
 /** Worker profile: rating, jobs, skills and reviews; "See all reviews" lists them. */
 export const Profile: Story = { args: { stage: 'workerProfile' } }
 
-/** Desktop pinned phone on the hero stage: it shows the customer map search. */
+/** Desktop pinned phone on the hero stage: it shows the customer map search, under the demo's plain name (the hero is no step). */
 export const StickyPhoneHero: Story = {
   argTypes: { width: { table: { disable: true } } },
   render: ({ stage }) => <PinnedPhone stage={stage} />,
+  play: async ({ canvasElement }) => {
+    await expect(
+      await within(canvasElement).findByRole('figure', {
+        name: copy.demoLabel,
+      }),
+    ).toBeInTheDocument()
+  },
 }
 
-/** Desktop pinned phone in the worker act: it has crossfaded to the quote form. */
+/** Desktop pinned phone in the worker act: it has crossfaded to the quote form, and is named by that step. */
 export const StickyPhoneWorkerAct: Story = {
   args: { stage: 'workerQuote' },
   argTypes: { width: { table: { disable: true } } },
   render: ({ stage }) => <PinnedPhone stage={stage} />,
+  play: async ({ canvasElement }) => {
+    await expect(
+      await within(canvasElement).findByRole('figure', {
+        name: `${copy.demoLabel}: ${index.workerQuote}`,
+      }),
+    ).toBeInTheDocument()
+  },
 }
 
 /** Desktop pinned phone as the story moves on: the old screen slides out, the next in. */
@@ -116,15 +131,31 @@ export const StickyPhoneStageChange: Story = {
   },
 }
 
-/** Inline phone below `lg`, on screen: it starts playing right away. */
+/**
+ * Inline phone below `lg`, on screen: the top of a phone in a 340px well,
+ * named by its step, playing right away.
+ */
 export const StepPhoneInView: Story = {
+  args: { stage: 'post' },
   argTypes: { width: { table: { disable: true } } },
   globals: { viewport: { value: 'mobile1', isRotated: false } },
   render: ({ stage }) => (
-    <Box py={4} bg="bg.surface">
-      <StepPhone stage={stage} copy={copy} />
+    <Box p={4} bg="bg.surface">
+      <StepPhone
+        stage={stage}
+        copy={copy}
+        label={phoneLabel(copy, index, stage)}
+      />
     </Box>
   ),
+  play: async ({ canvasElement }) => {
+    const well = await within(canvasElement).findByRole('figure', {
+      name: `${copy.demoLabel}: ${index.post}`,
+    })
+    await expect(Math.round(well.getBoundingClientRect().height)).toBe(
+      PHONE_CROP_H,
+    )
+  },
 }
 
 /** Inline phone below `lg`, off screen: it rests until it is a third in view. */
@@ -138,8 +169,12 @@ export const StepPhoneBelowTheFold: Story = {
           Scroll down: the phone plays once a third of it is on screen.
         </Text>
       </Box>
-      <Box pb={4}>
-        <StepPhone stage="hero" copy={copy} />
+      <Box p={4}>
+        <StepPhone
+          stage="workerFind"
+          copy={copy}
+          label={phoneLabel(copy, index, 'workerFind')}
+        />
       </Box>
     </Box>
   ),
@@ -148,7 +183,7 @@ export const StepPhoneBelowTheFold: Story = {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
     const canvas = within(canvasElement)
     // The pin's wrapper carries the entrance opacity: hidden while resting.
-    const pin = await canvas.findByRole('button', { name: heroPinLabel })
+    const pin = await canvas.findByRole('button', { name: workerPinLabel })
     const entrance = pin.parentElement as HTMLElement
     await expect(entrance.style.opacity).toBe('0')
     pin.scrollIntoView({ block: 'center' })

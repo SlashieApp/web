@@ -1,11 +1,17 @@
 'use client'
 
 import { Box, HStack, Stack, Text } from '@chakra-ui/react'
-import { LuCheck, LuMapPin, LuX } from 'react-icons/lu'
+import { LuCalendar, LuCheck, LuMapPin, LuX } from 'react-icons/lu'
 
 import { PhoneMap } from '../PhoneMap'
 import type { PhoneCopy } from '../phoneCopy'
-import { DemoCard, DemoPrimary, Hotspot } from '../phoneParts'
+import {
+  CompactBar,
+  CompactToast,
+  DemoCard,
+  DemoPrimary,
+  Hotspot,
+} from '../phoneParts'
 import { enterStyle, useDemoBeat, useTypewriter } from '../useDemoBeat'
 
 function FieldLabel({ children }: { children: string }) {
@@ -16,15 +22,27 @@ function FieldLabel({ children }: { children: string }) {
   )
 }
 
-/** Create task: the title types itself, a pin drops, then "Post task". */
+/**
+ * The part of the map the location card shows: Clapham, where the task is,
+ * with its name just under the middle of the card, where the pin lands.
+ */
+const CLAPHAM_VIEW = '165 636 210 80'
+
+/**
+ * Create task: the title types itself, a pin drops, then "Post task".
+ * `compact` is the cropped phone's layout: the title, where and when in a
+ * line, and the button.
+ */
 export function PostScreen({
   copy,
   active,
   intro,
+  compact = false,
 }: {
   copy: PhoneCopy
   active: boolean
   intro?: boolean
+  compact?: boolean
 }) {
   // Reduced motion rests the form un-played (the toast replaces the app bar's
   // title while it shows), with the hotspot still tappable.
@@ -32,6 +50,94 @@ export function PostScreen({
   const title = useTypewriter(copy.post.whatValue, entered, reduced)
   const typing = title.length < copy.post.whatValue.length
   const t = copy.post
+  // The button says what it shows: "Post task", then "Task posted".
+  const submit = done ? t.postedTitle : t.submit
+
+  if (compact) {
+    return (
+      <Stack position="absolute" inset={0} gap={0} bg="bg.canvas">
+        <CompactBar icon="close" title={t.header} />
+        {/* 18px under the bar: the toast may be two lines on a narrow phone. */}
+        <Stack gap="10px" px="12px" pt="18px">
+          <Box style={enterStyle(entered, 0)}>
+            <Text fontSize="12px" fontWeight={500} color="text.muted" mb="4px">
+              {t.whatLabel}
+            </Text>
+            <Box
+              minH="40px"
+              px="10px"
+              py="9px"
+              borderRadius="8px"
+              borderWidth="1px"
+              borderColor={typing ? 'border.focus' : 'border.strong'}
+              boxShadow={
+                typing ? '0 0 0 1px var(--chakra-colors-border-focus)' : 'none'
+              }
+              bg="bg.surface"
+              fontSize="14px"
+              lineHeight="20px"
+              fontWeight={500}
+            >
+              {title}
+              {typing ? (
+                <Box
+                  as="span"
+                  display="inline-block"
+                  w="2px"
+                  h="15px"
+                  ml="1px"
+                  bg="text.default"
+                  verticalAlign="text-bottom"
+                />
+              ) : null}
+            </Box>
+          </Box>
+          {/* Where and when: one line, or one each on the narrowest phones. */}
+          <HStack
+            columnGap="12px"
+            rowGap="2px"
+            flexWrap="wrap"
+            fontSize="12px"
+            lineHeight="16px"
+            fontWeight={500}
+            color="text.muted"
+            whiteSpace="nowrap"
+            style={enterStyle(entered, 1)}
+          >
+            <HStack gap="4px">
+              <LuMapPin size={13} aria-hidden />
+              <Text>{t.whereValue}</Text>
+            </HStack>
+            <HStack gap="4px">
+              <LuCalendar size={13} aria-hidden />
+              <Text>{t.whenValue}</Text>
+            </HStack>
+          </HStack>
+          <Box style={enterStyle(entered, 2)}>
+            <Hotspot
+              label={submit}
+              onPress={trigger}
+              pulse={!done}
+              w="full"
+              borderRadius="full"
+            >
+              <DemoPrimary h="44px" fontSize="14px">
+                {done ? <LuCheck size={16} aria-hidden /> : null}
+                {submit}
+              </DemoPrimary>
+            </Hotspot>
+          </Box>
+        </Stack>
+        {done ? (
+          <CompactToast
+            data-post-toast=""
+            title={t.postedTitle}
+            body={t.postedBody}
+          />
+        ) : null}
+      </Stack>
+    )
+  }
 
   return (
     <Stack position="absolute" inset={0} gap={0} bg="bg.canvas">
@@ -94,15 +200,9 @@ export function PostScreen({
             borderWidth="1px"
             borderColor="border.default"
           >
-            <PhoneMap
-              css={{
-                '& svg': {
-                  transform: 'scale(1.3)',
-                  transformOrigin: '70% 85%',
-                },
-              }}
-            />
+            <PhoneMap viewBox={CLAPHAM_VIEW} />
             <Box
+              data-post-pin=""
               position="absolute"
               left="50%"
               top="50%"
@@ -177,7 +277,7 @@ export function PostScreen({
 
       <Box px="16px" pb="44px" style={enterStyle(entered, 4)}>
         <Hotspot
-          label={t.submit}
+          label={submit}
           onPress={trigger}
           pulse={!done}
           w="full"
@@ -185,7 +285,7 @@ export function PostScreen({
         >
           <DemoPrimary>
             {done ? <LuCheck size={18} aria-hidden /> : null}
-            {done ? t.postedTitle : t.submit}
+            {submit}
           </DemoPrimary>
         </Hotspot>
       </Box>

@@ -28,14 +28,23 @@ export const STORY_INDEX_TOP = {
  * `scroll-margin-top` of a step's row, so a link to it (the index, the hero's
  * "See how it works") lands it clear of the header, and of the index row below
  * `lg`. The row is then across the middle of the viewport, where the story
- * tracker calls a step active: from `lg` its top sits 150px above the middle
- * (a row is at least 300px tall), below `lg` the row is taller than the screen.
+ * tracker calls a step active: from `lg` the margin stops 120px above the
+ * middle (half a row, which is at least 240px tall) and the page's 80px
+ * `scroll-padding-top` (`globals.css`) adds to it, so the row's top rests 40px
+ * above the middle; below `lg` the row starts under the index and, with its
+ * text and its 340px phone, runs past the middle.
  */
 export const STORY_STEP_SCROLL_MARGIN = {
   base: `calc(${STORY_HEADER_H.base} + ${STORY_INDEX_BAR_H} + 8px)`,
   md: `calc(${STORY_HEADER_H.md} + ${STORY_INDEX_BAR_H} + 8px)`,
-  lg: `max(calc(${STORY_HEADER_H.md} + 24px), calc(50vh - 150px))`,
+  lg: `max(calc(${STORY_HEADER_H.md} + 24px), calc(50vh - 120px))`,
 } as const
 
-/** The least height of a step row from `lg`: long enough for the phone to dwell on it. */
-export const STORY_STEP_MIN_H = 'max(300px, 42vh)'
+/**
+ * The least height of a step row from `lg`: three lines of text and the space
+ * under them, and enough scroll for the phone to dwell on the step.
+ */
+export const STORY_STEP_MIN_H = '240px'
+
+/** The space under a step row, at every width. */
+export const STORY_STEP_PB = '72px'

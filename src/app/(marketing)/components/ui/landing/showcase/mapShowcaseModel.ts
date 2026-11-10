@@ -67,9 +67,9 @@ export function pickShowcaseTask(
 }
 
 /**
- * The map's two layouts. Below `md` the card sits under the map, so the pins
- * use all of it; from `md` the card floats over the map's bottom-left corner
- * and the pins keep clear of it. Fractions of the map box.
+ * The map's two layouts. Below `lg` the card sits under the map, so the pins
+ * use all of it; from `lg` the card opens beside the selected pin, like a
+ * popover, and the pins leave room for it. Fractions of the map box.
  */
 export type MapLayout = 'narrow' | 'wide'
 
@@ -85,21 +85,26 @@ export const PIN_SPOTS: Record<MapLayout, Record<DemoTaskId, PinSpot>> = {
     clean: { x: 0.66, y: 0.86 },
   },
   wide: {
-    move: { x: 0.4, y: 0.28 },
-    wardrobe: { x: 0.64, y: 0.38 },
-    paint: { x: 0.16, y: 0.5 },
-    hedge: { x: 0.64, y: 0.68 },
-    clean: { x: 0.88, y: 0.84 },
+    move: { x: 0.34, y: 0.22 },
+    wardrobe: { x: 0.8, y: 0.3 },
+    paint: { x: 0.14, y: 0.54 },
+    hedge: { x: 0.4, y: 0.72 },
+    clean: { x: 0.86, y: 0.86 },
   },
 }
 
 /**
- * The map box's aspect ratio (width / height) at each breakpoint, mirrored in
- * the component's CSS: 9:10 on a phone, 3:2 from `sm`, 9:5 from `md`, 11:5
- * from `lg`.
+ * The map box's height on a phone (below `sm`), in px: short enough for the
+ * card under it to show on the first scroll past the hero.
+ */
+export const MAP_PHONE_HEIGHT_PX = 300
+
+/**
+ * The map box's aspect ratio (width / height) from each breakpoint up,
+ * mirrored in the component's CSS: 3:2 from `sm`, 9:5 from `md`, 11:5 from
+ * `lg`. (Below `sm` it is `MAP_PHONE_HEIGHT_PX` tall at any width.)
  */
 export const MAP_ASPECT = {
-  base: 9 / 10,
   sm: 3 / 2,
   md: 9 / 5,
   lg: 11 / 5,
@@ -107,35 +112,55 @@ export const MAP_ASPECT = {
 
 /** The layout the map uses on a viewport this wide. */
 export function layoutAt(viewportWidth: number): MapLayout {
-  return viewportWidth >= BREAKPOINT_PX.md ? 'wide' : 'narrow'
+  return viewportWidth >= BREAKPOINT_PX.lg ? 'wide' : 'narrow'
 }
 
 /**
  * The map box on a viewport this wide, in px: the page column, edge to edge
  * (no gutters, no inset: the map runs between the frame's rails), at the
- * breakpoint's aspect ratio.
+ * phone's height or the breakpoint's aspect ratio.
  */
 export function mapSizeAt(viewportWidth: number): {
   width: number
   height: number
 } {
   const width = Math.min(viewportWidth, PAGE_CONTAINER_PX)
+  if (viewportWidth < BREAKPOINT_PX.sm) {
+    return { width, height: MAP_PHONE_HEIGHT_PX }
+  }
   const aspect =
     viewportWidth >= BREAKPOINT_PX.lg
       ? MAP_ASPECT.lg
       : viewportWidth >= BREAKPOINT_PX.md
         ? MAP_ASPECT.md
-        : viewportWidth >= BREAKPOINT_PX.sm
-          ? MAP_ASPECT.sm
-          : MAP_ASPECT.base
+        : MAP_ASPECT.sm
   return { width, height: width / aspect }
 }
 
-/** Where the floating card sits from `md`: inset from the map's bottom-left. */
-export const CARD_INSET_PX = 20
-export const CARD_WIDTH_PX = 380
-/** The card's tallest case: a two-line title under a tag, plus the meta line. */
-export const CARD_MAX_HEIGHT_PX = 140
+/** The card beside its pin, from `lg`: its width and its tallest case (a two-line title under a tag, plus the meta line). */
+export const CARD_WIDTH_PX = 320
+export const CARD_MAX_HEIGHT_PX = 124
+/**
+ * The gap between the card and its pin's footprint. Small, because the
+ * footprint already holds air round the pill: the card lands about 16px from
+ * what is drawn, close enough to read as the pin's own.
+ */
+export const CARD_GAP_PX = 4
+
+/**
+ * Which side of its pin a task's card opens on (the one with room), and which
+ * of its edges lines up with the pin: its top with the pill's top, or its foot
+ * with the area label's foot.
+ */
+export type CardPlacement = { side: 'left' | 'right'; align: 'top' | 'bottom' }
+
+export const CARD_PLACEMENT: Record<DemoTaskId, CardPlacement> = {
+  move: { side: 'right', align: 'top' },
+  wardrobe: { side: 'left', align: 'top' },
+  paint: { side: 'right', align: 'bottom' },
+  hedge: { side: 'right', align: 'top' },
+  clean: { side: 'left', align: 'bottom' },
+}
 
 /**
  * The map's title chip, top-left: inset 16px, 36px tall and up to 180px wide,
@@ -175,13 +200,44 @@ export function rectsOverlap(a: Rect, b: Rect): boolean {
   )
 }
 
-/** The floating card's largest footprint on a map `width` by `height` pixels. */
-export function cardRect(width: number, height: number): Rect {
+/**
+ * The card's CSS insets in the map box, from `lg`: beside its pin's footprint
+ * with the gap between them, level with the footprint's top or its foot.
+ */
+export function cardInsets(
+  id: DemoTaskId,
+): Partial<Record<'left' | 'right' | 'top' | 'bottom', string>> {
+  const spot = PIN_SPOTS.wide[id]
+  const { side, align } = CARD_PLACEMENT[id]
+  const across = PIN_BOX_PX.halfW + CARD_GAP_PX
+  const percent = (fraction: number) => `${fraction * 100}%`
   return {
-    left: CARD_INSET_PX,
-    right: CARD_INSET_PX + Math.min(CARD_WIDTH_PX, width - 2 * CARD_INSET_PX),
-    top: height - CARD_INSET_PX - CARD_MAX_HEIGHT_PX,
-    bottom: height - CARD_INSET_PX,
+    ...(side === 'right'
+      ? { left: `calc(${percent(spot.x)} + ${across}px)` }
+      : { right: `calc(${percent(1 - spot.x)} + ${across}px)` }),
+    ...(align === 'top'
+      ? { top: `calc(${percent(spot.y)} - ${PIN_BOX_PX.above}px)` }
+      : { bottom: `calc(${percent(1 - spot.y)} - ${PIN_BOX_PX.below}px)` }),
+  }
+}
+
+/**
+ * The card's largest footprint beside its pin on a map `width` by `height`
+ * pixels: `cardInsets` in px, at the card's tallest.
+ */
+export function cardRect(id: DemoTaskId, width: number, height: number): Rect {
+  const pin = pinRect(PIN_SPOTS.wide[id], width, height)
+  const { side, align } = CARD_PLACEMENT[id]
+  const left =
+    side === 'right'
+      ? pin.right + CARD_GAP_PX
+      : pin.left - CARD_GAP_PX - CARD_WIDTH_PX
+  const top = align === 'top' ? pin.top : pin.bottom - CARD_MAX_HEIGHT_PX
+  return {
+    left,
+    right: left + CARD_WIDTH_PX,
+    top,
+    bottom: top + CARD_MAX_HEIGHT_PX,
   }
 }
 
@@ -208,15 +264,15 @@ export function overlappingPins(
   return pairs
 }
 
-/** The tasks whose pins sit under the floating card on this map. */
+/** The tasks whose pins sit under the card of task `id` on this map. */
 export function pinsUnderCard(
-  layout: MapLayout,
+  id: DemoTaskId,
   width: number,
   height: number,
 ): DemoTaskId[] {
-  const card = cardRect(width, height)
-  return SHOWCASE_ORDER.filter((id) =>
-    rectsOverlap(pinRect(PIN_SPOTS[layout][id], width, height), card),
+  const card = cardRect(id, width, height)
+  return SHOWCASE_ORDER.filter((other) =>
+    rectsOverlap(pinRect(PIN_SPOTS.wide[other], width, height), card),
   )
 }
 

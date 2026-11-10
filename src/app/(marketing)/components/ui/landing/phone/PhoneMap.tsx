@@ -45,14 +45,23 @@ const LABELS: { x: number; y: number; text: string }[] = [
  * monochrome sketch as the landing's map panel, in neutral tokens only (land
  * `bg.subtle`, parks `border.default`, the river `border.strong`, streets
  * `bg.surface`, wide roads with a hairline casing). No green, no mint.
+ *
+ * `viewBox` shows a part of the 375 x 765 map instead of all of it (the post
+ * screen centres its pin on Clapham with it). `labels` false leaves the place
+ * names out: the cropped phone draws the map at 1:1, where they would be
+ * under the 11px floor.
  */
-export function PhoneMap(props: BoxProps) {
+export function PhoneMap({
+  viewBox = '0 0 375 765',
+  labels = true,
+  ...props
+}: BoxProps & { viewBox?: string; labels?: boolean }) {
   return (
     <Box position="absolute" inset={0} overflow="hidden" {...props}>
       <svg
         width="100%"
         height="100%"
-        viewBox="0 0 375 765"
+        viewBox={viewBox}
         preserveAspectRatio="xMidYMid slice"
         aria-hidden
       >
@@ -106,20 +115,22 @@ export function PhoneMap(props: BoxProps) {
             strokeLinecap="round"
           />
         ))}
-        {LABELS.map((label) => (
-          <text
-            key={label.text}
-            x={label.x}
-            y={label.y}
-            textAnchor="middle"
-            fontSize="10"
-            fontWeight="500"
-            letterSpacing="1.4"
-            fill={color('text-subtle')}
-          >
-            {label.text}
-          </text>
-        ))}
+        {labels
+          ? LABELS.map((label) => (
+              <text
+                key={label.text}
+                x={label.x}
+                y={label.y}
+                textAnchor="middle"
+                fontSize="10"
+                fontWeight="500"
+                letterSpacing="1.4"
+                fill={color('text-subtle')}
+              >
+                {label.text}
+              </text>
+            ))
+          : null}
       </svg>
     </Box>
   )

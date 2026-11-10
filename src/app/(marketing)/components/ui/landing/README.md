@@ -20,7 +20,7 @@ bun run build
 | Stage | Copy (`landing.story`) | Phone screen | 3D formation |
 | --- | --- | --- | --- |
 | `hero` | hero heading + search CTA, then (until the first step) the map panel and the bento | Search (customer) | `hero`: toolbox and boxes flank the text, the pin top right |
-| `post` · `quotes` · `chat` · `hire` · `review` | customer act | Post · Quotes · Chat · Hire · Review | `customer`: down the right edge |
+| `post` · `quotes` · `hire` · `chat` · `review` | customer act | Post · Quotes · Hire · Chat · Review | `customer`: down the right edge |
 | `workerFind` · `workerQuote` · `workerProfile` | worker act | Search (worker) · Quote form · Profile | `worker`: the same edge, the props change places |
 | `trust` · `pricing` | the trust row, live pricing | (phone has left) | `scatter`: waits at the right edge, under the opaque panels |
 | `cta` | Post a task / Become a worker | | `gather`: either side of the call |
@@ -46,23 +46,23 @@ components/ui/landing/
     storySteps.ts            pure: the steps of each act, the rows' ids, the index's groups (unit-tested)
     storyLayout.ts           header, index row and scroll-margin measures
   phone/
-    PhoneFrame.tsx           device chrome; 375x812 screens scaled to the frame width
-    PhoneDemo.tsx            stage -> screen; StickyPhone (desktop) / StepPhone (inline)
-    screens/*                one scripted beat per screen (useDemoBeat: tap or autoplay)
+    PhoneFrame.tsx           device chrome; 375x812 screens scaled to the frame width · PhoneCrop, the inline phone's 340px well
+    PhoneDemo.tsx            stage -> screen; StickyPhone (desktop) / StepPhone (inline, cropped); a phone is named by its step
+    screens/*                one scripted beat per screen (useDemoBeat: tap or autoplay), each with a `compact` layout for the cropped phone
     PhoneMap.tsx             the drawn monochrome map + the app's price pins (white pills)
     phoneParts.tsx           tab bar, hotspot, avatar, card, primary button
   scene/
     LandingBackdrop.tsx      fixed white page + lazy three.js scene (next/dynamic, ssr: false)
     LandingScene.tsx         Canvas, damped formation moves, blob shadows
     SceneLights.tsx          the neutral light rig (the object stories use it too)
-    formations.ts            poses per formation (viewport fractions), the wide x limit, unit-tested
+    formations.ts            poses per formation (viewport fractions), the wide x limit, the fit into a phone's slot, unit-tested
     materials.tsx            Matte (flat shaded) and BevelBox, the low-poly building block
     scenePalette.ts          the one place for raw hex (white, zinc, ink, one green; unit-tested)
     objects/*                the three low-poly models: Toolbox, Boxes, MapPin
-    HeroObjectsPoster.tsx    still render of the hero objects (public/images/landing/)
+    HeroObjectsPoster.tsx    still render of the hero objects (public/images/landing/) · HeroToolboxSlot, the box a phone's hero keeps for its one prop
   showcase/
     MapShowcase.tsx          the map panel: drawn map, price pins, the selected task's card
-    mapShowcaseModel.ts      pure: demo tasks from landing.phone, pin spots per layout, collision maths
+    mapShowcaseModel.ts      pure: demo tasks from landing.phone, pin spots per layout, the card's place beside its pin, collision maths
     mapShowcaseArt.ts        pure: the drawn map's shapes (river, roads, parks, streets)
   bento/
     BentoSection.tsx         the bento: three hairline-divided cells, each a step and its snippet
@@ -70,6 +70,7 @@ components/ui/landing/
     useSnippetEntrance.ts    the snippets' once-only entrance (static | waiting | playing)
   sections/                  TrustSection (the trust row) · PricingTeaser (two plan cards and a pill) · FinalCtaBand (the closing call: heading, body, two pills)
                              FloatingPostPill (the ink "Post a task" pill fixed bottom-centre) · floatingPillWatch.ts (when it shows: pure, unit-tested)
+                             landingPricing.ts (the plan cards' lines from live pricing, in the page's language: pure, unit-tested)
 ```
 
 ## Frame and rhythm
@@ -137,12 +138,23 @@ The one centred section (`hero/HeroSection.tsx`), built from tokens only:
   started is the green one).
 - The trust row is a list: a green 600 check (`accent.active`) and the text in
   `text.muted`. "See how it works" is a `text.link` text action that underlines
-  on hover and focus (never green 400).
+  on hover and focus (never green 400). Its line is 20px tall, too small to
+  tap, so the link is a 44px target: 12px of padding round the text, with the
+  extra 24px given back as a negative margin, so the hero's rhythm is what it
+  was (FE-288).
+- **One no-fee sentence** (FE-288). The body ends "Slashie takes no cut of the
+  job", the trust row's first point is the same sentence and the hero's first
+  check is its short form, "No cut of the job"; the phone's accepted card and
+  the page description use the sentence too, in both languages. It was said
+  four ways ("No platform cut of the job", "No job fee", "No platform cut from
+  the job", "no platform fee"), which read as four promises.
 - **Rhythm.** The h1 sits `SECTION_PY` under the header (56px on a phone up to
   128px); the foot (`HERO_PB`) is a step tighter, 56 / 64 / 80 / 96px, so the
   hero's text reads as one group above its rule (the sketch has 88 above and 72
   below) instead of the old 32 to 40px. The extra foot is also what keeps the
-  props that sit under the link row on a phone, and their shadows, off the rule.
+  props that sit beside the link row below `lg`, and their shadows, off the
+  rule; on a phone it holds the toolbox's slot (`HeroToolboxSlot`), 16px in
+  from the screen's edge and from the rule (see 3D props).
 - A faint radial grey (`bg.subtle` fading to nothing, `data-hero-glow`) sits
   behind the top of the page. It starts under the sticky header so there is no
   seam, and it is painted under the still poster.
@@ -168,10 +180,12 @@ formation while it passes, and the panel is opaque (`bg.canvas`).
   frame's rails and the section rules, with no inset, radius or band of padding
   round it (as in the approved sketch: the panel is flush; the first build had
   an inset rounded card in a grey band, about 130px of empty grey above and
-  below). It keeps an aspect ratio per breakpoint (9:10 on a phone, 3:2 from
-  `sm`, 9:5 from `md`, 11:5 from `lg`; `MAP_ASPECT`), so it works from 390 to
-  1920 wide. On a phone a hairline closes the map and the card sits under it on
-  the page's 16px gutters.
+  below). On a phone it is 300px tall (`MAP_PHONE_HEIGHT_PX`; it was 9:10,
+  433px at 390 wide), so the map and the card under it fit one screen and the
+  card shows on the first scroll past the hero. From `sm` it keeps an aspect
+  ratio per breakpoint (3:2, 9:5 from `md`, 11:5 from `lg`; `MAP_ASPECT`), so
+  it works from 320 to 1920 wide. Below `lg` a hairline closes the map and the
+  card sits under it on the page's gutters.
 - **Pins** are real buttons named by `landing.phone.search.selectPin` with the
   area after it ("Show the £45 task, Camden"): the name holds both words the pin
   shows, so a voice command that says the area finds it (WCAG 2.5.3 Label in
@@ -194,8 +208,8 @@ formation while it passes, and the panel is opaque (`bg.canvas`).
   `Highlight` border.
 - **Keyboard.** Choosing a pin with Enter or Space brings the card on screen
   (`scrollIntoView`, `nearest`, clear of the sticky header, instant under reduced
-  motion): from `md` the card floats at the map's foot and on a laptop-height
-  screen it can be below the fold. With the cookie banner open (a first visit)
+  motion): below `lg` the card is under the map and can be below the fold, and
+  from `lg` the map can be half off screen. With the cookie banner open (a first visit)
   the card still ends above the banner, because `globals.css` gives `<html>` a
   bottom scroll padding of the banner's height (`COOKIE_BANNER_SCROLL_PADDING`).
   A click or tap does not scroll.
@@ -204,22 +218,31 @@ formation while it passes, and the panel is opaque (`bg.canvas`).
   the task's icon (`phone/demoTaskIcons.ts`, shared with the phone's search
   card, so a task wears the same icon on both), a
   neutral `Badge` with the area, the title at 500 / -0.01em, the price in ink at
-  600 with tabular figures and the muted meta. From `md` it floats over the map's
-  bottom-left corner (20px inset, 380px); below `md` it sits under the map. It is
-  an `aria-live="polite"` region, so a change of pin is announced.
+  600 with tabular figures and the muted meta. From `lg` it opens beside the
+  selected pin, like a popover (FE-288; it used to float in the map's
+  bottom-left corner, up to 700px from the pin it answered): 320px wide, 4px
+  from the pin's footprint (about 16px from the pill), on the side that has
+  room and level with the pin's top or its foot (`CARD_PLACEMENT`, turned into
+  CSS insets by `cardInsets`, so the placement is percentages and holds at
+  every width with no measuring and no script). Below `lg` it sits under the
+  map, at most 380px wide from `md`. There is no arrow, no autoplay and no
+  counter: the visitor picks. It is an `aria-live="polite"` region, so a change
+  of pin is announced.
 - **Pin spots** (`PIN_SPOTS`, fractions of the map box) differ per layout: the
-  narrow one uses the whole map, the wide one keeps clear of the card. The title
-  chip ("Tasks near you", the section's h2, `landing.phone.search.workerPlaceholder`)
-  takes the top-left. `mapShowcaseModel.test.ts` checks, at every width from 320
-  to 1920, that no two pins touch and none sits under the card or the chip.
+  narrow one (below `lg`) uses the whole map, the wide one leaves room beside
+  every pin for its card. The title chip ("Tasks near you", the section's h2,
+  `landing.phone.search.workerPlaceholder`) takes the top-left.
+  `mapShowcaseModel.test.ts` checks, at every width from 320 to 1920, that no
+  two pins touch and none sits under the chip, and from `lg`, for every task,
+  that its card is inside the map, clear of the chip and covers no pin.
 - **Copy:** none added. The tag on the card is the task's area, because the
   phone bag has a category for one task only; the quote count is the bag's
   `{count} quotes`. The string has no plural form (a new string is not allowed
   here), so the Fulham demo task has 2 quotes in the bag, not 1, so that no card
   or search row reads "1 quotes". If a plural-aware string is ever allowed, the
   count can go back to 1.
-- **Motion:** pins ease their fill and lift over 200ms; a new card fades in with
-  an 8px rise over 300ms, only after the visitor picks a pin. Reduced motion
+- **Motion:** pins ease their fill and lift over 200ms; a new card fades in
+  beside its pin with an 8px rise over 300ms, only after the visitor picks a pin. Reduced motion
   turns both off (the selection then cuts); the section's own reveal is `Reveal`.
 
 ## Bento
@@ -238,7 +261,10 @@ so a prop never crosses a title or a row.
   rule; the first cell has none, because the frame's rail is on that edge. The
   cells share their rows (a CSS subgrid: `gridTemplateRows: subgrid`), so the
   three panels start on one line whatever the length of the copy above them;
-  where subgrid is missing they simply start at the top of each cell. Below
+  where subgrid is missing they simply start at the top of each cell. The
+  panels of a row are one height, and a snippet sits at the top of its panel
+  (FE-288): the short Hire snippet used to be centred in its panel, so its
+  first row was out of line with the other two. Below
   `lg` the cells stack with a hairline between them; from `md` each sets its
   text beside its snippet. A cell's vertical padding is the section rhythm
   (`BENTO_CELL_PY`: 56px on a phone and a tablet, 96 from `lg`, 128 from
@@ -295,17 +321,40 @@ hero's "See how it works" lands it under the sticky header).
   `border.default` on top, the last also below). The number is Geist Mono 12 in
   `text.subtle` (never green), the title is an h3 at 18/500 (`heading-sm`) and
   the body is 14 in `text.muted`. The first step keeps the tap hint (a green 600
-  pointer icon, the text muted). From `lg` a row is at least `max(300px, 42vh)`
-  tall, with its text at the top: the phone changes as the row's top crosses
-  the middle of the screen, so the new text arrives just under that line, and
-  the row is tall enough that a fast scroll cannot skip it (the tracker watches
-  one line). Below `lg` a row is its text and its own phone.
+  pointer icon, the text muted). From `lg` a row is at least 240px tall
+  (`STORY_STEP_MIN_H`; it was `max(300px, 42vh)`, 378px on a 900px screen, so
+  the eight steps ran to more than three screens that were mostly white), with
+  its text at the top: the phone changes as the row's top crosses the middle of
+  the screen, so the new text arrives just under that line, and the row is
+  still tall enough that a fast scroll cannot skip it (the tracker watches one
+  line). Below `lg` a row is its text and its own phone. Every row has 72px
+  under it (`STORY_STEP_PB`, at every width), so a step's last line, or its
+  phone, is clear of the next step's rule.
+- **The story runs on under its last step from `lg`** (`STORY_END_ROOM`, half
+  of what the phone is taller than a row: 194px with the 628px phone). The
+  pinned phone is centred on the screen and cannot leave its column, and a
+  240px row ends well above the phone's foot, so without the room the phone was
+  pushed up under the header as soon as the last step turned active (on a
+  768px screen the taller rows did that too, by 46px). With it the phone stays
+  pinned until the last row is centred, which covers where the index's link
+  lands that row (story `DesktopLastStep`).
+- **The order is the product's** (FE-288): Post, Quotes, Hire, Chat, Review. A
+  customer and a worker can message once a quote is accepted, so the chat step
+  follows Hire and is titled "Message once you accept" (it was third, "Chat
+  before you choose", which the product does not allow). Its demo thread opens
+  on the accepted quote ("Quote accepted", the price and the slot, then "You
+  and Alex can message here now"), not on a new quote. The order lives in
+  `CUSTOMER_STAGES` (`storySteps.ts`) and `STORY_STAGES` (`storyState.ts`); the
+  index, the phone and the scene follow them.
 - **The section index** (`StoryIndex`) lists one short label per step, the two
   acts apart: a list in the left column from `lg` (a 1px `border.default`
   hairline with the active label's 2px green 600 bar over it), a row below it
   that sticks right under the header, full width, scrolls sideways when the
   labels do not fit and keeps the active label in view (the bar is then an
-  underline). Below `lg` the first act's head has 32px of room under the row.
+  underline). The row's right edge fades out over 2.5rem (a mask), so a label
+  that runs off it reads as more to scroll, not as cut; a spacer as wide as the
+  fade follows the last label, so at the row's end no label is under it. Below
+  `lg` the first act's head has 32px of room under the row.
   The active label is `text.default` and the rest `text.subtle`, all
   at 500. In Windows high contrast (forced colours) the bar's background would be
   painted Canvas and the active label would look like the rest, so the bar takes
@@ -320,6 +369,27 @@ hero's "See how it works" lands it under the sticky header).
   for the nav and the eight short labels), in English and Traditional Chinese.
   The group names are not new strings: the index has none (a gap, or a hairline
   in the row, separates the acts).
+- **The inline phone (below `lg`) is cropped** (`PhoneCrop`, FE-288): the top of
+  a phone in a well 340px tall and as wide as the step's text (38rem at most),
+  drawn like the bento's figures (canvas ground, a hairline, 16px corners). A
+  whole phone was about 566px tall at 390 wide, so a step was longer than the
+  screen, and its screen was scaled to two thirds, so 12px text was 8px. The
+  cropped phone is drawn at 1:1 (326px wide at most, never scaled), so its
+  text is the size it is written at, 11px or more; it sits 16px from the
+  well's top and sides and runs off the bottom. Only filler is cut: every
+  screen has a `compact` layout, a second design that keeps its action and
+  every word in the 274px the well shows under the status bar
+  (`PHONE_CROP_SCREEN_H`), and a list that runs past the crop fades out over
+  its last 56px (`phoneCropFade`) instead of being sliced. Each screen's
+  stories show both layouts, and the compact ones check that nothing to read
+  or tap is under the crop and no text is under 11px
+  (`screens/screenStoryDecorator.tsx`).
+- **A phone is named by its step** (FE-288): "Slashie app demo: Post" and so on
+  (`landing.phone.demoStepLabel` with the index's label), so the eight inline
+  phones are not eight figures with one name, and the pinned phone's name
+  follows the step it shows; the hero's search screen keeps the plain name. A
+  demo's button says what it shows: its name changes with its label when the
+  beat ends ("Post task", then "Task posted").
 - **The phone** is plain CSS: a `position: sticky` box in the right half, so the
   server HTML already has it in place and reduced motion changes nothing. The
   old sideways slide (the phone travelled from the hero's centre into the right
@@ -392,12 +462,26 @@ it has no card: no tint, radius or shadow.
 
 The pricing teaser (`sections/PricingTeaser.tsx`) is the worker side of the price
 in two plain cards and one pill to `/pricing`, between the two section rules that
-`home/page.tsx` puts round it. It is the stage `pricing`. The live pricing (the
-trial label, the price line, the free quotes) is still built in `home/page.tsx`
-and arrives as `pricing` (`LandingPricing`); the section only sets it, so a
-missing price degrades to the generic lines as before. No string is added: the
-heading, the body, the two plan labels, the free body, the pill label and the
-eyebrow are today's.
+`home/page.tsx` puts round it. It is the stage `pricing`. The cards' lines come
+from live pricing, in the page's language (`sections/landingPricing.ts`, pure
+and unit-tested), and arrive as `pricing` (`LandingPricing`); the section only
+sets them. Only what the API backs is claimed (FE-288):
+
+- **A trial** leads the paid plan. It is built from the API's `trialDays` with
+  the pricing page's own strings (`plans.trial`, as `/pricing` builds it: "6
+  months free", "免費 6 個月"), never from the API's `trialLabel`, which is
+  English whatever the page's language (the Chinese card read "6 months
+  free"). No API change.
+- **No trial:** the price leads.
+- **No pricing** (the API reports none, or the fetch failed): no card carries a
+  number. The free plan reads "Free quotes every month"
+  (`pricingTeaser.freeHeadlineFallback`, the one new string) instead of a
+  made-up "3 quotes a month", and the paid plan says "Unlimited quotes" once,
+  over the pricing page's "For active workers" (the line under it used to say
+  it again).
+
+The heading, the body, the two plan labels, the free body, the pill label and
+the eyebrow are as they were.
 
 - **Head.** `SectionHead` with an eyebrow: the nav's "Pricing"
   (`header.nav.pricing`, "收費" in zh-HK, passed from `home/page.tsx`: an existing
@@ -708,8 +792,9 @@ each `page.tsx` only loads the copy and adds the footer under the frame.
 
 The real-time scene (`scene/LandingScene.tsx`, three.js through react-three-fiber)
 keeps its device tiers, its no-WebGL path and its stage API (`storyState`); what
-it draws changed. Three props on laptops and up (a toolbox, boxes and a map pin)
-and two below `lg` (the pin and the toolbox, `COMPACT_OBJECTS`), at about 70% of
+it draws changed. Three props on laptops and up (a toolbox, boxes and a map pin),
+two below `lg` (the pin and the toolbox, `COMPACT_OBJECTS`) and one on a phone
+(below `sm`: the toolbox, `PHONE_OBJECTS`; see A phone's toolbox), at about 70% of
 the size the six-object scene had (the hero toolbox went from scale 1 to 0.7,
 the boxes from 0.95 to 0.67, the pin from 0.8 to 0.56; `formations.test.ts`
 holds every pose to that).
@@ -733,7 +818,8 @@ holds every pose to that).
   `hero` puts the toolbox and the boxes either side of the search, level with
   it, and the pin top right; below `lg` the text fills the width, so the two
   props sit either side of the "See how it works" row, under the trust row and
-  above the map panel. The hero's text and the panel under it are a fixed
+  above the map panel (a phone has the toolbox alone, in its slot: see A
+  phone's toolbox). The hero's text and the panel under it are a fixed
   number of pixels from the top of the page, so `poseFor` takes the screen's
   height and keeps the hero formation its distance from the top (a tall screen
   would otherwise carry the props down behind the panel); every other
@@ -757,8 +843,8 @@ holds every pose to that).
   at `lg`.
 - **Placement** (`placementFor`, `placeProp`: pure and unit-tested) holds a prop
   by the formation it is in and says how much of its size it keeps (`fit`).
-  `free`: where the pose puts it (the hero on a phone, where the text leaves
-  room beside its last row). `column`: the hero and the close on wide screens:
+  `free`: where the pose puts it (the hero below `lg`, where the text leaves
+  room beside its last row; below `sm` the hero's slot places it). `column`: the hero and the close on wide screens:
   the whole prop, not its centre, stays inside the frame's rails (the page
   column is 80rem, rails 640px out, or the screen where that is narrower) with
   16px of air, using each prop's reach (`PROP_REACH`: half width, height above
@@ -786,6 +872,23 @@ holds every pose to that).
   fault, not an object, so on a phone the acts and the close have no props (they
   wait off the edges); a tablet's right strip does hold the pin. `parked`: left
   where the pose is, off the edges.
+- **A phone's toolbox** (below `sm`, FE-288). A phone's hero is as tall as its
+  copy, which differs between English and Chinese and between 320 and 390
+  wide, so a pose in fractions of the screen put the toolbox against the
+  screen's left edge in English and the map panel across both props in
+  Chinese, and the pin sat beside the "See how it works" link. A phone now has
+  one prop, the toolbox, and the hero keeps a box for it (`HeroToolboxSlot`, in
+  `HeroObjectsPoster.tsx`): 16px in from the screen's left edge and from the
+  hero's foot, under the trust row, 72px square (60px at 320 wide: `min(72px,
+  50vw - 100px)`, which leaves 16px to the link's 44px target). `PageProbe`
+  reads the box off the page while the hero is the stage and `fitToSlot` (pure,
+  unit-tested) fits the toolbox into it whole, its shadow included
+  (`PROP_REACH`), so no part of it reaches the gutter, the link or the rule;
+  it does not drift there. The box is taken where it is with the page at its
+  top: the scene is a fixed layer, so, as at every width, the map panel passes
+  in front of the prop as the page scrolls. The same box shows the toolbox's
+  still (`hero-toolbox.webp`) until the scene has drawn, and for reduced
+  motion, no WebGL and no JS.
 - **The close stays clear of the footer.** The footer is opaque and covers the
   bottom of the screen at the end of the page (466px on a laptop), so the
   close's props, level with its call, were sliced by its top edge. `PageProbe`
@@ -848,13 +951,14 @@ holds every pose to that).
   no WebGL gives no canvas and the still poster), `LandingBackdrop` and
   `HeroObjectsPoster` are as they were; only the poster images are new.
 - **Stories:** `SceneObjects` (the three models alone), `LandingScene` (every
-  formation, wide and compact, the hero out of view, a 1366 x 768 laptop in the
-  acts, plus the `Poster*` sources),
-  `LandingBackdrop` (desktop, phone, low-end, reduced motion) and
-  `HeroObjectsPoster` (which still each width gets, no still on a phone or a
-  tablet on its side or a short wide window, and that its `picture` holds only
-  sources and an `img`). They sit on the page's white, not the old mint
-  wash.
+  formation, wide and compact, a phone's toolbox in its slot, the hero out of
+  view, a 1366 x 768 laptop in the acts, plus the `Poster*` sources),
+  `LandingBackdrop` (desktop, phone, low-end, reduced motion),
+  `HeroObjectsPoster` (which still each width gets, no still on a phone, upright
+  or on its side, a tablet on its side or a short wide window, and that its
+  `picture` holds only sources and an `img`) and `HeroSection` (`Mobile`: the
+  slot's gutters, clear of the link and the trust row; `MobileSceneReady`: its
+  still fades out). They sit on the page's white, not the old mint wash.
 
 ## Behaviour by device
 
@@ -862,17 +966,22 @@ holds every pose to that).
   The phone is sticky in the right half: it starts at the top of the steps,
   pins at mid-screen and lets go when the last step ends.
 - **Below `lg`:** no pinned phone. The index is a row under the header; each
-  step is its text followed by its own phone, which plays once a third of it is
-  on screen and resets only after it has left. The scene shows two props
-  (`COMPACT_OBJECTS`: the pin and the toolbox), in the hero; the acts and the
-  close have none on a phone (no room beside edge-to-edge text), and a tablet's
-  right strip beside the steps holds the pin.
+  step is its text followed by its own phone, cropped to its top in a 340px
+  well (see How it works), which plays once a third of it is on screen and
+  resets only after it has left. The scene shows two props (`COMPACT_OBJECTS`:
+  the pin and the toolbox), in the hero; the acts and the close have none on a
+  phone (no room beside edge-to-edge text), and a tablet's right strip beside
+  the steps holds the pin.
+- **A phone (below `sm`):** one prop, the toolbox, whole in its slot at the
+  hero's foot (see 3D props); the map is 300px tall with its card under it
+  (see Map panel).
 - **From `lg`, the acts need width for props:** between 1024 and 1279px the
   strip beside the phone is about 60px, so the acts have no props there (the
   hero and the close do); from 1280px each prop sits whole beside the phone,
   scaled to fit.
 - **Reduced motion / no WebGL / no JS:** no canvas. The hero shows the still
-  poster, when there is one for the window's shape (see Updating the poster),
+  poster, when there is one for the window's shape (see Updating the poster;
+  on a phone, the toolbox's still in its slot),
   and phone screens show their finished state (the post screen rests as its
   form, with a still ring on its hotspot). Every transition inside the phone is
   zeroed by `PhoneFrame`; the index does not animate.
@@ -880,32 +989,39 @@ holds every pose to that).
 ## Updating the poster
 
 `HeroObjectsPoster` is a `picture` of four stills, widest first (the first
-`media` that matches wins; the `img` is the phone's), each rendered from the
-live scene at its own size so the objects sit where the live scene puts them
-there and `cover` crops only a little between sizes:
+`media` that matches wins; the `img` is the compact one), each rendered from
+the live scene at its own size so the objects sit where the live scene puts
+them there and `cover` crops only a little between sizes. A phone (below `sm`)
+has none of the four: its one prop has a still of its own, shown in the slot
+the hero keeps for it (`HeroToolboxSlot`).
 
 | Still | Screens | Shape (width / height) | Story | Rendered at |
 |-------|---------|------------------------|-------|-------------|
 | `hero-objects-large.webp` | 1700px and up | 8:5 to 2:1 | `PosterLarge` | 1920 x 1080, 1.25x |
 | `hero-objects-wide.webp` | 1024 to 1699 | 5:4 to 2:1 | `PosterWide` | 1440 x 900, 1.5x |
 | `hero-objects-middle.webp` | 768 and up | 5:8 to 5:4 | `PosterMiddle` | 768 x 1024, 1.5x |
-| `hero-objects-compact.webp` | below 768 | under 5:8 | `PosterCompact` | 390 x 844, 1.5x |
+| `hero-objects-compact.webp` | 480 to 767 | under 5:8 | `PosterCompact` | 390 x 844, 1.5x (before FE-288; below `sm` the scene now draws the toolbox alone, so re-render it at 480 x 1040, the same shape) |
+| `hero-toolbox.webp` | below 480 | any | `PosterToolbox` | 390 x 844, 3x, clipped to the slot's box (16, 440, 72 x 72) |
 
 A still is chosen by shape as well as width (`POSTER_ASPECT`), because `cover`
 crops it to the window and the props are only where the text leaves room at the
 shape it was drawn for: on a phone on its side (667 x 375, 932 x 430) the toolbox
 sat over the h1 and the pin over the end of the body line, and on a short wide
 window (1366 x 600, 1920 x 700) the pin sat behind the header's Get started.
-Where no still fits (`POSTER_NONE_MEDIA`: a window under 500px tall, 2:1 or
-wider, a phone or a tablet on its side) the poster layer is hidden by a media
-query (so it holds with no JavaScript too); the props are decoration, and the live
-scene, where there is one, places them right at any size.
+Where no still fits (`POSTER_NONE_MEDIA`: a phone, a window under 500px tall,
+2:1 or wider, a phone or a tablet on its side) the poster layer is hidden by a
+media query (so it holds with no JavaScript too); the props are decoration, and
+the live scene, where there is one, places them right at any size. A hidden
+`img` is still fetched, so the `picture` has a last `source` for a phone
+(`(max-width: 479px)`) that points it at the toolbox's still: a phone downloads
+the one file it shows, not the compact still as well.
 
 Re-render them after changing the hero formation, the placement rules or the
 models: screenshot the stories headlessly (Playwright with `omitBackground:
 true`, at the size in the table, with the page, `body` and `#storybook-root`
 backgrounds cleared) and save WebP files (quality 80, alpha 90) to
-`public/images/landing/`. Look at them before committing: the objects should sit
+`public/images/landing/`. For the toolbox, clip the screenshot to the slot's
+box. Look at them before committing: the objects should sit
 where the live scene puts them at that size. The `img` is a plain element with
 inline styles on purpose: a styled one puts a `<style>` tag between the
 `source`s and the `img`, and the browser then fetches the wide still as well as
@@ -948,7 +1064,7 @@ hex here (`scenePalette.test.ts` fails on any other).
   `SectionHead`.
 - **Where the props are not drawn (recorded for FE-471; the spec's "two objects
   below lg" and "three on desktop" are met where there is room).** On a phone the
-  props are in the hero only: the acts and the close run text edge to edge, so
+  one prop (the toolbox, FE-288) is in the hero only: the acts and the close run text edge to edge, so
   the free strip is the 16px gutter, and a 12px sliver of a prop read as a
   rendering fault in the round 2 review. A tablet's right strip beside the steps
   holds the pin. Between 1024 and 1279px wide the strip beside the pinned phone is
@@ -958,6 +1074,13 @@ hex here (`scenePalette.test.ts` fails on any other).
   there is no room. If Ryan wants props in those places, the room has to be made
   (a smaller phone, props above and below it, a margin that is not the rail):
   `placeProp` and `PROP_MIN_FIT` are where that is decided.
+- **A phone still loads the live scene for one small prop (FE-288, for Ryan).**
+  Below `sm` the scene draws a toolbox about 54px wide that bobs by a pixel,
+  and the still in the same slot is the same picture. Not mounting the scene
+  below `sm` (the still alone, which would also scroll away with the hero
+  instead of waiting for the map panel to pass in front of it) would save a
+  phone the three.js download. That changes what a phone gets, so it is not
+  done here: it is Ryan's call.
 - **The stage still flips when a head crosses the middle.** The review asked for
   the stage to flip when the how-it-works block starts, so the scene would not
   hold the hero formation under the bento. The stage drives the phone's screen and

@@ -10,6 +10,7 @@ import {
   POSTER_LARGE_MIN_PX,
   POSTER_PHONE_SRC,
   POSTER_SOURCES,
+  TOOLBOX_STILL_SRC,
 } from './HeroObjectsPoster'
 
 /** The still the browser chose, by file name. */
@@ -21,6 +22,13 @@ function chosenStill(canvasElement: HTMLElement): string {
 
 /** The file name of a still's path. */
 const fileOf = (path: string) => path.split('/').pop() ?? ''
+
+/** The poster layer: its box, hidden or not. */
+function posterLayer(canvasElement: HTMLElement): HTMLElement {
+  const layer = canvasElement.querySelector('picture')?.parentElement
+  if (!layer) throw new Error('Poster layer not found')
+  return layer
+}
 
 /**
  * Story-only: the poster as the hero places it. It sits in a positioned hero
@@ -47,8 +55,13 @@ const withHeroBlock: Decorator = (Story) => (
   </Box>
 )
 
-/** Window shapes the stills are not drawn for: on their sides, or short and wide. */
+/** A tall window from `sm`, and the window shapes the stills are not drawn for: on their sides, or short and wide. */
 const POSTER_VIEWPORTS = {
+  tallNarrow: {
+    name: 'Tall window from sm',
+    styles: { width: '600px', height: '1024px' },
+    type: 'tablet',
+  },
   phoneOnItsSide: {
     name: 'Phone on its side',
     styles: { width: '667px', height: '375px' },
@@ -99,12 +112,15 @@ export const Wide: Story = {
   },
 }
 
-/** Phone width: the browser picks the compact still (two objects). */
+/** A tall window from `sm` (600 x 1024): the browser picks the compact still (two objects). */
 export const Compact: Story = {
-  globals: { viewport: { value: 'mobile1', isRotated: false } },
+  globals: { viewport: { value: 'tallNarrow', isRotated: false } },
   play: async ({ canvasElement }) => {
     await waitFor(() =>
       expect(chosenStill(canvasElement)).toBe(fileOf(POSTER_PHONE_SRC)),
+    )
+    await expect(getComputedStyle(posterLayer(canvasElement)).display).not.toBe(
+      'none',
     )
   },
 }
@@ -130,7 +146,7 @@ export const OnlySourcesAndAnImage: Story = {
     const picture = canvasElement.querySelector('picture')
     if (!picture) throw new Error('No picture')
     const tags = [...picture.children].map((node) => node.tagName)
-    await expect(tags).toEqual(['SOURCE', 'SOURCE', 'SOURCE', 'IMG'])
+    await expect(tags).toEqual(['SOURCE', 'SOURCE', 'SOURCE', 'SOURCE', 'IMG'])
     await expect(picture.querySelector('style')).toBeNull()
     await expect(
       [...picture.querySelectorAll('source')].map((node) =>
@@ -140,15 +156,27 @@ export const OnlySourcesAndAnImage: Story = {
       `(min-width: ${POSTER_LARGE_MIN_PX}px) and (min-aspect-ratio: 8/5)`,
       '(min-width: 1024px) and (min-aspect-ratio: 5/4)',
       '(min-width: 768px) and (min-aspect-ratio: 5/8)',
+      '(max-width: 479px)',
     ])
   },
 }
 
-/** The poster layer: its box, hidden or not. */
-function posterLayer(canvasElement: HTMLElement): HTMLElement {
-  const layer = canvasElement.querySelector('picture')?.parentElement
-  if (!layer) throw new Error('Poster layer not found')
-  return layer
+/**
+ * A phone (below `sm`) has no still of the whole screen: its hero is as tall
+ * as its copy, so the toolbox has its own slot in the hero (`HeroToolboxSlot`).
+ * The hidden `img` is still fetched, so there it points at the slot's file and
+ * a phone downloads one still, not two.
+ */
+export const NoStillOnAPhone: Story = {
+  globals: { viewport: { value: 'mobile1', isRotated: false } },
+  play: async ({ canvasElement }) => {
+    await expect(getComputedStyle(posterLayer(canvasElement)).display).toBe(
+      'none',
+    )
+    await waitFor(() =>
+      expect(chosenStill(canvasElement)).toBe(fileOf(TOOLBOX_STILL_SRC)),
+    )
+  },
 }
 
 /**
@@ -201,16 +229,6 @@ export const NoStillOnATabletOnItsSide: Story = {
   globals: { viewport: { value: 'tabletOnItsSide', isRotated: false } },
   play: async ({ canvasElement }) => {
     await expect(getComputedStyle(posterLayer(canvasElement)).display).toBe(
-      'none',
-    )
-  },
-}
-
-/** The shapes the stills are drawn for keep theirs: a phone, a tablet and a laptop. */
-export const StillsKeepTheirOwnShapes: Story = {
-  globals: { viewport: { value: 'mobile2', isRotated: false } },
-  play: async ({ canvasElement }) => {
-    await expect(getComputedStyle(posterLayer(canvasElement)).display).not.toBe(
       'none',
     )
   },

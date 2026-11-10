@@ -92,9 +92,9 @@ export const Desktop: Story = {
   play: ({ canvasElement }) => expectLiveScene(canvasElement),
 }
 
-/** Phone width: the scene switches to its two small compact objects. */
+/** Phone width (below `sm`): the scene draws one small object, the toolbox (in the hero's slot, where the page has one). */
 export const Phone: Story = {
-  decorators: [caption('Phone width: two compact objects')],
+  decorators: [caption('Phone width: one compact object, the toolbox')],
   globals: { viewport: { value: 'mobile1', isRotated: false } },
   beforeEach: () => {
     setStoryStage('hero')

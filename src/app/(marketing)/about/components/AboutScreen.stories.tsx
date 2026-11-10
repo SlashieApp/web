@@ -516,10 +516,9 @@ export const TraditionalChinese: Story = {
         name: messages.zh_hk.how.workers.title,
       }),
     ).toBeInTheDocument()
-    await expect(closingLink(canvasElement, '發布任務')).toHaveAttribute(
-      'href',
-      '/zh-hk/register?next=%2Ftasks%2Fcreate',
-    )
+    await expect(
+      closingLink(canvasElement, marketingMessages.zh_hk.common.ctas.postTask),
+    ).toHaveAttribute('href', '/zh-hk/register?next=%2Ftasks%2Fcreate')
   },
 }
 

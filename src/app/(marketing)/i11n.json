@@ -26,19 +26,19 @@
     "landing": {
       "metadata": {
         "title": "Slashie | Help around the corner",
-        "description": "Trusted local workers. Clear quotes. No platform cut of the job. Post a task and pay the worker directly."
+        "description": "Trusted local workers. Clear quotes. Slashie takes no cut of the job. Post a task and pay the worker directly."
       },
       "hero": {
         "heading": "Help around the corner.",
-        "body": "Trusted local workers. Clear quotes. No platform cut of the job.",
+        "body": "Trusted local workers. Clear quotes. Slashie takes no cut of the job.",
         "searchPlaceholder": "What do you need help with?",
         "searchSubmit": "Search",
         "searchAriaLabel": "What do you need help with?",
-        "trustChips": ["No job fee", "Local workers", "Pay directly"]
+        "trustChips": ["No cut of the job", "Local workers", "Pay directly"]
       },
       "trust": {
         "points": [
-          "No platform cut from the job",
+          "Slashie takes no cut of the job",
           "Payment stays between customer and worker",
           "Profiles, reviews, and proof of past work",
           "Local tasks, local workers, clear quotes"
@@ -49,6 +49,7 @@
         "body": "Customers use Slashie for free. Workers get free quotes each month, then can subscribe for unlimited quoting.",
         "freePlanLabel": "Workers: Free",
         "freeHeadline": "{count} quotes a month",
+        "freeHeadlineFallback": "Free quotes every month",
         "freeBody": "Browse tasks and send quotes on the free tier.",
         "unlimitedHeadlineFallback": "Unlimited quotes",
         "unlimitedSublineFallback": "Unlimited quotes for one subscription",
@@ -64,8 +65,8 @@
           "label": "How it works",
           "post": "Post",
           "quotes": "Quotes",
-          "chat": "Chat",
           "hire": "Hire",
+          "chat": "Chat",
           "review": "Review",
           "workerFind": "Find work",
           "workerQuote": "Send quote",
@@ -83,13 +84,13 @@
               "title": "Compare quotes",
               "body": "Local workers send you prices. Check their profiles, reviews and past work before you choose."
             },
-            "chat": {
-              "title": "Chat before you choose",
-              "body": "Ask questions in the task thread. Quotes, bookings and replies all land in Messages."
-            },
             "hire": {
               "title": "Hire and pay directly",
               "body": "Accept the quote you like and pay the worker directly. Slashie takes no cut of the job."
+            },
+            "chat": {
+              "title": "Message once you accept",
+              "body": "Once you accept a quote, you and your worker can message in the task thread. Quotes, bookings and replies all land in Messages."
             },
             "review": {
               "title": "Leave a review",
@@ -118,6 +119,7 @@
       },
       "phone": {
         "demoLabel": "Slashie app demo",
+        "demoStepLabel": "Slashie app demo: {step}",
         "nav": {
           "search": "Search",
           "myTasks": "My tasks",
@@ -223,8 +225,7 @@
           "worker": "Alex M.",
           "viewTask": "View task",
           "today": "Today",
-          "flashTitle": "New quote: £80",
-          "flashBody": "Alex M. can come on Saturday morning.",
+          "acceptedBody": "You and Alex can message here now.",
           "theirs": "Hi! Is there side access to the garden?",
           "mine": "Yes, through the side gate.",
           "composer": "Message Alex",
@@ -239,7 +240,7 @@
           "note": "Pay Alex directly when the job is done.",
           "accept": "Accept quote",
           "acceptedTitle": "Quote accepted",
-          "acceptedBody": "Booked for Saturday at 9:00. Pay Alex directly, with no platform fee."
+          "acceptedBody": "Booked for Saturday at 9:00. Slashie takes no cut of the job."
         },
         "review": {
           "title": "How did it go?",
@@ -257,7 +258,7 @@
           "priceLabel": "Your price",
           "price": "£60",
           "messageLabel": "Message",
-          "message": "Hi Priya, I can build it on Thursday evening.",
+          "message": "Hi, I can build it on Thursday evening.",
           "submit": "Send quote",
           "sentTitle": "Quote sent",
           "sentBody": "You'll hear in Messages when Priya replies."
@@ -300,7 +301,7 @@
         "becomeWorker": "成為工作者",
         "getStarted": "開始使用",
         "logIn": "登入",
-        "postTask": "發布任務",
+        "postTask": "發佈任務",
         "seeHowItWorks": "了解流程",
         "viewPricing": "查看收費"
       }
@@ -320,15 +321,15 @@
     "landing": {
       "metadata": {
         "title": "Slashie | 幫手就在街角",
-        "description": "可信本地工作者。清楚報價。不抽取任務費用。發布任務，直接向工作者付款。"
+        "description": "可信本地工作者。清楚報價。Slashie 不從任務抽成。發佈任務，直接向工作者付款。"
       },
       "hero": {
         "heading": "幫手就在街角。",
-        "body": "可信本地工作者。清楚報價。不抽取任務費用。",
+        "body": "可信本地工作者。清楚報價。Slashie 不從任務抽成。",
         "searchPlaceholder": "你需要什麼幫忙？",
         "searchSubmit": "搜尋",
         "searchAriaLabel": "你需要什麼幫忙？",
-        "trustChips": ["不抽任務費", "本地工作者", "直接付款"]
+        "trustChips": ["不從任務抽成", "本地工作者", "直接付款"]
       },
       "trust": {
         "points": [
@@ -343,6 +344,7 @@
         "body": "客戶免費使用 Slashie。工作者每月有免費報價額度，需要更多時可訂閱無限報價。",
         "freePlanLabel": "工作者：免費",
         "freeHeadline": "每月 {count} 個報價",
+        "freeHeadlineFallback": "每月都有免費報價",
         "freeBody": "用免費方案瀏覽任務並發送報價。",
         "unlimitedHeadlineFallback": "無限報價",
         "unlimitedSublineFallback": "一個訂閱，無限報價",
@@ -350,16 +352,16 @@
       },
       "finalCta": {
         "heading": "準備找本地幫手？",
-        "body": "發布任務，或以工作者身份開始報價。只需一分鐘。"
+        "body": "發佈任務，或以工作者身份開始報價。只需一分鐘。"
       },
       "story": {
         "tapHint": "試試看：點按手機上發亮的位置。",
         "index": {
           "label": "運作方式",
-          "post": "發布",
+          "post": "發佈",
           "quotes": "報價",
-          "chat": "對話",
           "hire": "聘用",
+          "chat": "對話",
           "review": "評價",
           "workerFind": "搵工作",
           "workerQuote": "發送報價",
@@ -370,20 +372,20 @@
           "heading": "按你的方式把事情辦妥",
           "steps": {
             "post": {
-              "title": "一分鐘發布任務",
-              "body": "說明你需要什麼、地點和時間。發布完全免費。"
+              "title": "一分鐘發佈任務",
+              "body": "說明你需要什麼、地點和時間。發佈完全免費。"
             },
             "quotes": {
               "title": "比較報價",
               "body": "本地工作者會向你報價。選擇前可先查看他們的個人檔案、評價和過往作品。"
             },
-            "chat": {
-              "title": "先傾清楚再決定",
-              "body": "在任務對話中直接提問。報價、預約和回覆都會出現在訊息中。"
-            },
             "hire": {
               "title": "聘用並直接付款",
               "body": "接受合適的報價，直接付款給工作者。Slashie 不從任務抽成。"
+            },
+            "chat": {
+              "title": "接受報價後即可傳訊息",
+              "body": "接受報價後，你和工作者就可以在任務對話中傳送訊息。報價、預約和回覆都會出現在訊息中。"
             },
             "review": {
               "title": "留下評價",
@@ -412,6 +414,7 @@
       },
       "phone": {
         "demoLabel": "Slashie 應用程式示範",
+        "demoStepLabel": "Slashie 應用程式示範：{step}",
         "nav": {
           "search": "搜尋",
           "myTasks": "我的任務",
@@ -517,8 +520,7 @@
           "worker": "Alex M.",
           "viewTask": "查看任務",
           "today": "今天",
-          "flashTitle": "新報價：£80",
-          "flashBody": "Alex M. 星期六早上可以過來。",
+          "acceptedBody": "你和 Alex 現在可以在這裡傳送訊息。",
           "theirs": "你好！花園有側門可以進出嗎？",
           "mine": "有，可以經側閘進來。",
           "composer": "傳訊息給 Alex",
@@ -533,7 +535,7 @@
           "note": "完工後直接付款給 Alex。",
           "accept": "接受報價",
           "acceptedTitle": "已接受報價",
-          "acceptedBody": "已預約星期六 9:00。直接付款給 Alex，不收平台費。"
+          "acceptedBody": "已預約星期六 9:00。Slashie 不從任務抽成。"
         },
         "review": {
           "title": "這次服務如何？",
@@ -551,7 +553,7 @@
           "priceLabel": "你的價格",
           "price": "£60",
           "messageLabel": "訊息",
-          "message": "你好 Priya，我星期四晚上可以幫你組裝。",
+          "message": "你好，我星期四晚上可以幫你組裝。",
           "submit": "發送報價",
           "sentTitle": "報價已發送",
           "sentBody": "Priya 回覆時，你會在訊息中收到通知。"

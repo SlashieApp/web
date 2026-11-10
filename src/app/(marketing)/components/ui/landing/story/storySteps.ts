@@ -9,8 +9,8 @@ import type { StoryStage } from './storyState'
 export const CUSTOMER_STAGES = [
   'post',
   'quotes',
-  'chat',
   'hire',
+  'chat',
   'review',
 ] as const satisfies readonly StoryStage[]
 

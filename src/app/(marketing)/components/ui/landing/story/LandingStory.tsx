@@ -12,7 +12,12 @@ import {
 import { PageContainer } from '@/ui/PageContainer'
 
 import { Reveal } from '../Reveal'
-import { STICKY_PHONE_W, StepPhone, StickyPhone } from '../phone/PhoneDemo'
+import {
+  STICKY_PHONE_W,
+  StepPhone,
+  StickyPhone,
+  phoneLabel,
+} from '../phone/PhoneDemo'
 import { PHONE_ASPECT } from '../phone/PhoneFrame'
 import type { PhoneCopy, StoryCopy } from '../phone/phoneCopy'
 import { HeroObjectsPoster } from '../scene/HeroObjectsPoster'
@@ -21,6 +26,7 @@ import { StoryStageMarker } from './StoryTracker'
 import {
   STORY_HEADER_H,
   STORY_STEP_MIN_H,
+  STORY_STEP_PB,
   STORY_STEP_SCROLL_MARGIN,
 } from './storyLayout'
 import type { StoryStage } from './storyState'
@@ -35,6 +41,14 @@ import {
 
 const PHONE_H = `calc(${STICKY_PHONE_W} * ${PHONE_ASPECT})`
 
+/**
+ * From `lg`, the room under the last step. The pinned phone is centred in the
+ * viewport and cannot leave its column, so the column runs on until the last
+ * row is centred too: the phone is whole where a link lands that row, not
+ * pushed up under the header.
+ */
+const STORY_END_ROOM = `calc((${PHONE_H} - ${STORY_STEP_MIN_H}) / 2)`
+
 type StepCopy = { title: string; body: string }
 
 /**
@@ -47,19 +61,23 @@ type StepCopy = { title: string; body: string }
  * just under that line as the phone changes. From `lg` the row is tall enough
  * for the phone to stay on the step's screen while the text is read (and for a
  * fast scroll not to skip it, since the tracker watches a single line); below
- * `lg` it carries its own inline phone.
+ * `lg` it carries its own inline phone, cropped to its top in a well as wide
+ * as the text. 72px under every row keeps its last line clear of the next.
  */
 function StepRow({
   stage,
   number,
   step,
   phone,
+  phoneName,
   hint,
 }: {
   stage: StoryStage
   number: number
   step: StepCopy
   phone: PhoneCopy
+  /** The inline phone's accessible name: the demo and this step. */
+  phoneName: string
   hint?: string
 }) {
   return (
@@ -71,7 +89,7 @@ function StepRow({
       scrollMarginTop={STORY_STEP_SCROLL_MARGIN}
       minH={{ lg: STORY_STEP_MIN_H }}
       pt={{ base: 8, lg: 10 }}
-      pb={{ base: 8, lg: 12 }}
+      pb={STORY_STEP_PB}
       borderTopWidth="1px"
       borderColor="border.default"
       // The list's last row closes it with a hairline.
@@ -116,8 +134,10 @@ function StepRow({
       <StepPhone
         stage={stage}
         copy={phone}
+        label={phoneName}
         display={{ base: 'flex', lg: 'none' }}
-        mt={8}
+        mt={6}
+        maxW="38rem"
       />
     </StoryStageMarker>
   )
@@ -134,6 +154,7 @@ function Act({
   heading,
   steps,
   phone,
+  index,
   hint,
   spaced = false,
 }: {
@@ -142,6 +163,8 @@ function Act({
   heading: string
   steps: { stage: StoryStage; copy: StepCopy }[]
   phone: PhoneCopy
+  /** The section index's labels, which name each step's phone. */
+  index: StoryCopy['index']
   hint?: string
   /** Leave a section's worth of space above (the second act). */
   spaced?: boolean
@@ -175,14 +198,15 @@ function Act({
         mt={{ base: 8, lg: 12 }}
         listStyleType="none"
       >
-        {steps.map(({ stage, copy }, index) => (
+        {steps.map(({ stage, copy }, position) => (
           <StepRow
             key={stage}
             stage={stage}
-            number={index + 1}
+            number={position + 1}
             step={copy}
             phone={phone}
-            hint={index === 0 ? hint : undefined}
+            phoneName={phoneLabel(phone, index, stage)}
+            hint={position === 0 ? hint : undefined}
           />
         ))}
       </List.Root>
@@ -206,8 +230,9 @@ const workerSteps = (steps: StoryCopy['worker']['steps']) =>
  *
  * How it works is three columns from `lg`: the section index (sticky, left),
  * the steps (middle) and the demo phone, pinned in the right column from the
- * first step to the last. Below `lg` it is one column: the index is a row that
- * sticks under the header and each step carries its own inline phone.
+ * first step to the last (`STORY_END_ROOM` keeps it there for the last one).
+ * Below `lg` it is one column: the index is a row that sticks under the header
+ * and each step carries its own inline phone.
  *
  * The phone is plain CSS `position: sticky` in the right column, so the
  * server HTML already has it in place and reduced motion changes nothing.
@@ -262,13 +287,14 @@ export function LandingStory({
               />
               {/* Below lg the index is a row right above the first head: give
                   the head the room every other head has. */}
-              <Box minW={0} pt={{ base: 8, lg: 0 }}>
+              <Box minW={0} pt={{ base: 8, lg: 0 }} pb={{ lg: STORY_END_ROOM }}>
                 <Act
                   icon={LuUser}
                   eyebrow={customer.eyebrow}
                   heading={customer.heading}
                   hint={story.tapHint}
                   phone={phone}
+                  index={story.index}
                   steps={customerSteps(customer.steps)}
                 />
                 <Act
@@ -276,6 +302,7 @@ export function LandingStory({
                   eyebrow={worker.eyebrow}
                   heading={worker.heading}
                   phone={phone}
+                  index={story.index}
                   steps={workerSteps(worker.steps)}
                   spaced
                 />
@@ -289,7 +316,7 @@ export function LandingStory({
                 justifyContent="center"
                 h={PHONE_H}
               >
-                <StickyPhone copy={phone} />
+                <StickyPhone copy={phone} index={story.index} />
               </Box>
             </Box>
           </Grid>

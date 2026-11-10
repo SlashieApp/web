@@ -11,18 +11,22 @@ import type { StoryIndexItem } from './storySteps'
 
 const Anchor = chakra('a')
 
+/** The row's right edge fades out over this width (below `lg`). */
+const ROW_FADE = '2.5rem'
+
 /**
  * The how-it-works section index: one short label per step, grouped by act (a
  * gap, or a hairline in the row, between the customer's and the worker's).
  *
  * From `lg` it is a list in the left column, stuck under the header, on a 1px
  * hairline; below `lg` it is a row that sticks right under the header and
- * scrolls sideways when the labels do not fit. Either way the link of the
- * step on screen reads `text.default` with a 2px green 600 bar (a vertical bar
- * from `lg`, an underline in the row) and the others read `text.subtle`; the
- * active step is the story tracker's (`useStoryStage`), so the index and the
- * phone always agree. Each label links to its step's row. In the row the
- * active label is scrolled into view.
+ * scrolls sideways when the labels do not fit: its right edge fades out, so a
+ * label that runs off it reads as "more this way", not as cut. Either way the
+ * link of the step on screen reads `text.default` with a 2px green 600 bar (a
+ * vertical bar from `lg`, an underline in the row) and the others read
+ * `text.subtle`; the active step is the story tracker's (`useStoryStage`), so
+ * the index and the phone always agree. Each label links to its step's row. In
+ * the row the active label is scrolled into view.
  *
  * It must be a direct child of the box that spans both acts, so that it can
  * stick along the whole of them.
@@ -86,6 +90,18 @@ export function StoryIndex({
         overflowX={{ base: 'auto', lg: 'visible' }}
         borderInlineStartWidth={{ base: 0, lg: '1px' }}
         borderColor="border.default"
+        // The row fades out at its right edge; the spacer after the last
+        // label is as wide as the fade, so scrolled to its end no label is
+        // under it.
+        maskImage={{
+          base: `linear-gradient(to right, #000 calc(100% - ${ROW_FADE}), transparent)`,
+          lg: 'none',
+        }}
+        _after={{
+          content: '""',
+          display: { base: 'block', lg: 'none' },
+          flex: `0 0 ${ROW_FADE}`,
+        }}
         css={{
           scrollbarWidth: 'none',
           '&::-webkit-scrollbar': { display: 'none' },
