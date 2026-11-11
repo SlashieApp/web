@@ -1,5 +1,6 @@
 import type { WorkerSetupScreenId } from '../views'
 import type { WorkerSetupFormState } from './workerSetupFormState'
+import { isUploadedPortfolioPhoto } from './workerSetupPortfolio'
 import { SKILLS_MIN } from './workerSetupSkills'
 import {
   BIO_MIN_CHARS,
@@ -62,7 +63,8 @@ export function computeProfileStrength(input: {
     { key: 'phoneVerified', done: input.phoneVerified, screen: 'phone' },
     {
       key: 'portfolio',
-      done: form.portfolioUrls.length > 0,
+      // Only uploaded photos are shown on the profile (BE-120).
+      done: form.portfolioUrls.some(isUploadedPortfolioPhoto),
       screen: 'profile',
     },
   ]

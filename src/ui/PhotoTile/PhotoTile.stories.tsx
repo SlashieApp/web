@@ -30,7 +30,7 @@ const meta = {
   argTypes: {
     state: {
       control: 'inline-radio',
-      options: ['ready', 'converting', 'unavailable'],
+      options: ['ready', 'converting', 'uploading', 'unavailable'],
     },
   },
 } satisfies Meta<typeof PhotoTile>
@@ -44,6 +44,18 @@ export const Ready: Story = {
     await expect(
       within(canvasElement).getByRole('img', { name: 'Photo 1' }),
     ).toBeVisible()
+  },
+}
+
+/** Uploading: on its way to storage; spinner, text and `aria-busy`. */
+export const Uploading: Story = {
+  args: { state: 'uploading', src: null },
+  play: async ({ canvasElement }) => {
+    const text = within(canvasElement).getByText('Uploading photo…')
+    await expect(text).toBeVisible()
+    await expect(text.closest('[aria-busy="true"]')).toHaveTextContent(
+      'Photo 1',
+    )
   },
 }
 

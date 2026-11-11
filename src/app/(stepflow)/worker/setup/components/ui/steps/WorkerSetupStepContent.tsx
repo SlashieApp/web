@@ -371,11 +371,16 @@ function BioSection() {
 }
 
 function PortfolioSection() {
-  const { form, patchForm } = useSetupField()
+  const { form, patchForm, setPhotoStage } = useSetupField()
   return (
     <WorkerSetupPortfolioInput
       value={form.portfolioUrls}
       onChange={(portfolioUrls) => patchForm({ portfolioUrls })}
+      // Continue waits for the photos, and says so, as it does for the
+      // profile photo.
+      onUploadingChange={(uploading) =>
+        setPhotoStage(uploading ? 'uploading' : null)
+      }
     />
   )
 }

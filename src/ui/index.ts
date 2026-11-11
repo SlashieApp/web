@@ -3,6 +3,7 @@
  * Run `bun run exports-gen` to regenerate this barrel.
  */
 
+export { AddPhotoTile, PhotoTile } from './PhotoTile'
 export { AppShell } from './AppShell'
 export {
   Avatar,
@@ -125,7 +126,6 @@ export { PageBleed, PageContainer } from './PageContainer'
 export { PageLayout } from './PageLayout'
 export { PhoneInput } from './PhoneInput'
 export { PhotoSourcePicker } from './PhotoSourcePicker'
-export { PhotoTile } from './PhotoTile'
 export { ProgressBar } from './ProgressBar'
 export { RadioButton, RadioButtonGroup } from './RadioButton'
 export { Rating, RatingStars } from './Rating'
@@ -164,6 +164,11 @@ export { Thumbnail } from './Thumbnail'
 export { Toast } from './Toast'
 export { ViewTransition } from './ViewTransition'
 export * from './Footer'
+export type {
+  AddPhotoTileProps,
+  PhotoTileProps,
+  PhotoTileState,
+} from './PhotoTile'
 export type { AppShellProps } from './AppShell'
 export type {
   AvatarGroupItem,
@@ -245,7 +250,6 @@ export type {
   PhotoSourcePickerProps,
   PhotoSourceTrigger,
 } from './PhotoSourcePicker'
-export type { PhotoTileProps, PhotoTileState } from './PhotoTile'
 export type {
   ProgressBarProps,
   ProgressBarSize,

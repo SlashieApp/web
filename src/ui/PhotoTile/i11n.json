@@ -1,10 +1,12 @@
 {
   "en": {
     "converting": "Converting photo…",
+    "uploading": "Uploading photo…",
     "unavailable": "Preview not available"
   },
   "zh_hk": {
     "converting": "正在轉換相片…",
+    "uploading": "正在上載相片…",
     "unavailable": "無法預覽"
   }
 }

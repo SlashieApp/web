@@ -68,8 +68,11 @@ const FRIENDLY_ERROR_BY_MESSAGE: Record<string, string> = {
   TOO_MANY_SKILLS: 'Use up to 12 skills.',
   INVALID_SKILL: 'Each skill needs 2 to 30 characters.',
   YEARS_EXPERIENCE_INVALID: 'Enter between 0 and 60 years.',
-  TOO_MANY_PORTFOLIO_URLS: 'Add up to 12 portfolio links.',
-  INVALID_PORTFOLIO_URL: 'Portfolio links must start with https://.',
+  TOO_MANY_PORTFOLIO_URLS: 'You can add up to 12 photos.',
+  INVALID_PORTFOLIO_URL:
+    "One of your portfolio entries can't be saved. Remove it and try again.",
+  TOO_MANY_PORTFOLIO_UPLOADS:
+    "You've uploaded a lot of photos in a short time. Try again in an hour.",
   WORKER_PROFILE_INCOMPLETE:
     'Complete your profile requirements before finishing setup.',
   INVALID_SETUP_SUB_STEP:

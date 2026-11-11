@@ -145,8 +145,8 @@
         "yearsRange": "Enter a whole number between 0 and {count}.",
         "area": "Please add a service area.",
         "radius": "Travel radius must be a positive number of miles.",
-        "portfolioMany": "Keep it to {count} portfolio links.",
-        "portfolioUrl": "Each portfolio link must start with https:// and be up to {count} characters."
+        "portfolioMany": "Keep it to {count} photos.",
+        "portfolioUrl": "One of your portfolio entries can't be saved. Remove it and try again."
       }
     }
   },
@@ -296,8 +296,8 @@
         "yearsRange": "請輸入 0 至 {count} 之間的整數。",
         "area": "請加入服務範圍。",
         "radius": "服務距離必須為正數（英里）。",
-        "portfolioMany": "最多只可加入 {count} 個作品連結。",
-        "portfolioUrl": "每個作品連結必須以 https:// 開頭，並且不超過 {count} 個字元。"
+        "portfolioMany": "最多只可加入 {count} 張相片。",
+        "portfolioUrl": "你的作品集中有一項未能儲存。請移除後再試。"
       }
     }
   }

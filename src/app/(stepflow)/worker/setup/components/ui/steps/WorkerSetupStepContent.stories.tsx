@@ -14,6 +14,7 @@ import {
   labelIn,
   phone390,
 } from '@/app/(stepflow)/stepFlowSpacing.testing'
+import { storyImage } from '@/app/(stepflow)/stepflowStoryHelpers'
 import { formSpace } from '@/theme/styles'
 import { gapBelow, gapBeside, heightOf } from '@/ui/FormField/formGap.testing'
 import { expectField } from '@/ui/Modal/taskDialogSpacing.testing'
@@ -544,15 +545,20 @@ export const SpacingSkillRefused: Story = {
 /**
  * Your profile: the headline's suggestion is an inline action 4 under the
  * field (44 to tap, no added space); the bio is a composite field (starters,
- * textarea, quality meter, example, 8 apart); the work photos list, add row and
- * links are 8 apart.
+ * textarea, quality meter, example, 8 apart); the work photos' tiles, count
+ * and old links notice are 8 apart.
  */
 export const SpacingProfile: Story = {
   ...onScreen('profile', {
     form: {
       ...completedWorkerSetupForm,
       tagline: 'Handy',
-      portfolioUrls: ['https://example.com/a.jpg', 'https://example.com/b.jpg'],
+      // Two uploaded photos and a link from before uploads (BE-120).
+      portfolioUrls: [
+        storyImage('#9ec5e8', 120),
+        storyImage('#f0c987', 120),
+        'https://example.com/old-link.jpg',
+      ],
     },
   }),
   ...desktop1280,
@@ -560,7 +566,7 @@ export const SpacingProfile: Story = {
     const canvas = within(canvasElement)
     const headline = fieldByLabel(canvasElement, 'Headline')
     const bio = fieldByLabel(canvasElement, 'Short bio')
-    const portfolio = fieldByLabel(canvasElement, /^Work photos and links/)
+    const portfolio = fieldByLabel(canvasElement, /^Photos of your work/)
     const suggestion = await canvas.findByRole('button', { name: /^Use / })
     const column = headline.parentElement?.parentElement as HTMLElement
     await expectGaps([...column.children], formSpace.fieldGap)
@@ -578,10 +584,13 @@ export const SpacingProfile: Story = {
       heightOf(pieces[3].firstElementChild as Element),
     ).toBeGreaterThanOrEqual(44)
 
-    // The links: the list and the add row.
+    // The work photos: the tiles, the count and the old links notice.
     const { pieces: parts } = await expectPieces(portfolio)
-    await expectGaps([...parts[0].children], formSpace.alternativesGap)
-    await expectAddRow(parts[1])
+    await expect(parts).toHaveLength(3)
+    // The notice: its two lines 4 apart, then the links 8 under them.
+    const [lines, links] = [...parts[2].children]
+    await expectGaps([...lines.children], formSpace.helperGap)
+    await expect(gapBelow(lines, links)).toBe(formSpace.labelToControl)
   },
 }
 

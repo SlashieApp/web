@@ -1,0 +1,3 @@
+mutation FinalizePortfolioImage($uploadKey: String!) {
+  finalizePortfolioImage(uploadKey: $uploadKey)
+}

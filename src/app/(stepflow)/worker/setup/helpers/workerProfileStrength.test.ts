@@ -16,7 +16,9 @@ const complete = form({
   primaryCategory: 'handyman',
   skills: ['TV Mounting', 'Shelving', 'Flat-pack'],
   locationName: 'Camden',
-  portfolioUrls: ['https://example.com/job.jpg'],
+  portfolioUrls: [
+    'https://cdn.slashie.app/users/64b7f0c2a1d3e4f5a6b7c8d9/portfolio/3f2b8c1e-7a4d-4e2b-9c1f-0a1b2c3d4e5f.jpg',
+  ],
 })
 
 describe('computeProfileStrength', () => {
@@ -50,6 +52,17 @@ describe('computeProfileStrength', () => {
     expect(
       strength.items.filter((item) => !item.done).map((item) => item.screen),
     ).toEqual(['profile', 'phone', 'profile'])
+  })
+
+  it('a portfolio of old links alone does not count: they are not shown (BE-120)', () => {
+    const strength = computeProfileStrength({
+      form: { ...complete, portfolioUrls: ['https://example.com/job.jpg'] },
+      avatarUrl: 'https://example.com/avatar.jpg',
+      phoneVerified: true,
+    })
+    expect(strength.items.find((item) => item.key === 'portfolio')?.done).toBe(
+      false,
+    )
   })
 
   it('counts a Chinese bio by weight, like validation does', () => {

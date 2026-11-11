@@ -18,8 +18,8 @@ const portfolioError = (portfolioUrls: string[]) => {
     : result.error.flatten().fieldErrors.portfolioUrls?.[0]
 }
 
-describe('worker editor portfolio links', () => {
-  it('takes up to 12 https links', () => {
+describe('worker editor portfolio', () => {
+  it('takes up to 12 entries', () => {
     expect(
       portfolioError(
         Array.from({ length: 12 }, (_, i) => `https://example.com/${i}.jpg`),
@@ -27,18 +27,22 @@ describe('worker editor portfolio links', () => {
     ).toBeNull()
   })
 
-  it('refuses a 13th link', () => {
+  it('refuses a 13th', () => {
     expect(
       portfolioError(
         Array.from({ length: 13 }, (_, i) => `https://example.com/${i}.jpg`),
       ),
-    ).toBe('Keep it to 12 portfolio links.')
+    ).toBe('Keep it to 12 photos.')
   })
 
-  it('refuses http and links over 2,048 characters', () => {
-    expect(portfolioError(['http://example.com/a.jpg'])).toMatch(/https:\/\//)
-    expect(portfolioError([`https://example.com/${'a'.repeat(2048)}`])).toMatch(
-      /2048/,
+  // The API's own rule for a saved entry. The form no longer takes links
+  // (FE-548), so this only catches an old entry that can't be saved.
+  it('refuses an entry that is not https or is over 2,048 characters', () => {
+    const cannotSave =
+      "One of your portfolio entries can't be saved. Remove it and try again."
+    expect(portfolioError(['http://example.com/a.jpg'])).toBe(cannotSave)
+    expect(portfolioError([`https://example.com/${'a'.repeat(2048)}`])).toBe(
+      cannotSave,
     )
   })
 })

@@ -104,7 +104,8 @@ export function createWorkerFormSchema(errors: WorkerFormErrors) {
         (v) => v === '' || (Number.isFinite(Number(v)) && Number(v) > 0),
         errors.radius,
       ),
-    // Same rules as worker setup and the API: https, 2,048 characters, 12 links.
+    // The API's rules for saved entries: https, 2,048 characters, 12 in all.
+    // Photos are uploaded (FE-548); these catch an old entry that can't be saved.
     portfolioUrls: z
       .array(z.string())
       .max(PORTFOLIO_URLS_MAX, count(errors.portfolioMany, PORTFOLIO_URLS_MAX))

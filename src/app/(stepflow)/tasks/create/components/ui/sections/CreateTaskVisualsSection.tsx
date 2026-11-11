@@ -1,15 +1,15 @@
 'use client'
 
 import { Box, HStack, Image, Stack, Text, Wrap, chakra } from '@chakra-ui/react'
-import { type ComponentProps, type ReactNode, useState } from 'react'
+import { useState } from 'react'
 import { LuImagePlus, LuX } from 'react-icons/lu'
 
 import { formatMessage } from '@/i18n/loadPageI11n'
 import { useI11n } from '@/i18n/useI11n'
 import { formHelperTextStyle, sdlFocusRing } from '@/theme/styles'
 import {
+  AddPhotoTile,
   Badge,
-  Button,
   IconButton,
   ImagePreview,
   PhotoSourcePicker,
@@ -73,32 +73,6 @@ function PhotoThumb({
         borderColor="border.default"
       />
     </PhotoButton>
-  )
-}
-
-/** A dashed tile after the photos that adds more (camera or library on touch screens). */
-function AddPhotoTile({
-  icon,
-  label,
-  ...props
-}: ComponentProps<typeof Button> & { icon: ReactNode; label: string }) {
-  return (
-    <Button
-      type="button"
-      variant="secondary"
-      h={THUMB}
-      minW={THUMB}
-      borderStyle="dashed"
-      borderWidth="2px"
-      {...props}
-    >
-      <Stack gap={1} align="center">
-        {icon}
-        <Text as="span" fontSize="sm">
-          {label}
-        </Text>
-      </Stack>
-    </Button>
   )
 }
 
@@ -244,6 +218,7 @@ export function CreateTaskVisualsSection({
                 {(trigger) => (
                   <AddPhotoTile
                     {...trigger}
+                    tileSize={THUMB}
                     icon={<LuImagePlus size={20} aria-hidden />}
                     label={f.addPhotos}
                   />

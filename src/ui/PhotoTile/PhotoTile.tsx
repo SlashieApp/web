@@ -9,10 +9,15 @@ import bag from './i11n.json'
 
 /**
  * `ready`: the photo. `converting`: a HEIC or HEIF photo is becoming a JPEG
- * this browser can show. `unavailable`: it can't be shown here (it still
- * uploads, and the API converts it).
+ * this browser can show. `uploading`: it is on its way to storage, where a
+ * place uploads as soon as a photo is picked. `unavailable`: it can't be
+ * shown here (it still uploads, and the API converts it).
  */
-export type PhotoTileState = 'ready' | 'converting' | 'unavailable'
+export type PhotoTileState =
+  | 'ready'
+  | 'converting'
+  | 'uploading'
+  | 'unavailable'
 
 export type PhotoTileProps = {
   state: PhotoTileState
@@ -28,8 +33,9 @@ export type PhotoTileProps = {
 
 /**
  * SDL PhotoTile. A picked photo's preview, or, while there is none, a quiet
- * tile that says why: a spinner with "Converting photo…" (`aria-busy`), or
- * "Preview not available". Status is text and icon, never color alone.
+ * tile that says why: a spinner with "Converting photo…" or "Uploading
+ * photo…" (`aria-busy`), or "Preview not available". Status is text and icon,
+ * never color alone.
  */
 export function PhotoTile({
   state,
@@ -51,10 +57,10 @@ export function PhotoTile({
     return <Image src={src} alt={alt} objectFit="cover" {...shape} />
   }
 
-  const converting = state === 'converting'
+  const busy = state === 'converting' || state === 'uploading'
   return (
     <Stack
-      aria-busy={converting || undefined}
+      aria-busy={busy || undefined}
       gap={1}
       align="center"
       justify="center"
@@ -66,13 +72,17 @@ export function PhotoTile({
       {...shape}
     >
       <VisuallyHidden>{alt}</VisuallyHidden>
-      {converting ? (
+      {busy ? (
         <Spinner size="sm" borderWidth="2px" aria-hidden />
       ) : (
         <LuImageOff size={18} aria-hidden />
       )}
       <Text fontSize="xs" lineHeight="short" fontWeight={500}>
-        {converting ? t.converting : t.unavailable}
+        {state === 'converting'
+          ? t.converting
+          : state === 'uploading'
+            ? t.uploading
+            : t.unavailable}
       </Text>
     </Stack>
   )

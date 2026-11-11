@@ -54,6 +54,8 @@ export function ProfileWorkerForm({
   const getUser = useUserStore((s) => s.getUser)
   const client = useApolloClient()
   const [saving, setSaving] = useState(false)
+  // Save waits for portfolio photos that are still uploading (FE-548).
+  const [photosUploading, setPhotosUploading] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
   const schema = useMemo(() => createWorkerFormSchema(t.errors), [t.errors])
 
@@ -77,6 +79,8 @@ export function ProfileWorkerForm({
   if (!me?.worker?.id || !formValues) return null
 
   const onSubmit = async (values: WorkerFormValues) => {
+    // Enter in a field while photos upload: wait, as the Save button does.
+    if (photosUploading) return
     setSubmitError(null)
     setSaving(true)
     try {
@@ -247,6 +251,7 @@ export function ProfileWorkerForm({
 
         <WorkerSetupPortfolioInput
           errorText={errors.portfolioUrls?.message}
+          onUploadingChange={setPhotosUploading}
           value={watch('portfolioUrls')}
           onChange={(portfolioUrls) =>
             setValue('portfolioUrls', portfolioUrls, {
@@ -273,8 +278,8 @@ export function ProfileWorkerForm({
             type="submit"
             variant="primary"
             size="form"
-            loading={saving || isSubmitting}
-            disabled={!isDirty}
+            loading={saving || isSubmitting || photosUploading}
+            disabled={!isDirty && !photosUploading}
           >
             {editor.save}
           </Button>

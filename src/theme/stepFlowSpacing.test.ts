@@ -147,7 +147,6 @@ describe('sections and fields', () => {
     for (const name of [
       'CreateTaskCategoriesInput',
       'WorkerSetupChipsField',
-      'WorkerSetupPortfolioInput',
     ] as const) {
       const source = SURFACES[name]
       expect(source, name).toContain('gap="form.labelToControl"')
@@ -157,6 +156,12 @@ describe('sections and fields', () => {
     expect(SURFACES.WorkerSetupBioComposer).toContain(
       'gap="form.labelToControl"',
     )
+    // The portfolio is a photo picker now (FE-548): tiles, problems and old
+    // links 8 apart, message lines `helperGap` apart, no add row.
+    const portfolio = SURFACES.WorkerSetupPortfolioInput
+    expect(portfolio).toContain('gap="form.labelToControl"')
+    expect(portfolio).toContain('gap="form.helperGap"')
+    expect(portfolio).not.toContain('<Input')
   })
 
   it('worker setup: fields 20 apart, the review is a long form of sections', () => {
