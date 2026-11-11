@@ -12,24 +12,32 @@ import {
 import { useLocalizedHref } from '@/i18n/LocaleProvider'
 import { Button, Input } from '@ui'
 
+import { type LandingSession, landingCtaPath } from '../sections/landingCtaPath'
+
 const HeroTaskForm = chakra('form')
 
 type HeroTaskCtaProps = {
   placeholder: string
   submitLabel: string
   ariaLabel: string
+  /** A visitor with a session skips sign-up. Default: a guest. */
+  session?: LandingSession
 }
 
 /** Height of the hero's pill (tone refresh, train 2, hero). */
 const HERO_TASK_HEIGHT = '52px'
 
 /**
- * Sign-up, then Post a task with what was typed as its title. A new visitor
- * has no account yet, so every "Post a task" on the landing goes by
- * `/register?next=`; the title rides in `next` (`createTaskPathWithTitle`).
+ * Post a task with what was typed as its title (`createTaskPathWithTitle`).
+ * A guest has no account yet, so like every "Post a task" on the landing it
+ * goes by `/register?next=` and the title rides in `next`; a visitor with a
+ * session goes straight to the form (`landingCtaPath`).
  */
-export function heroTaskHref(typed: string): string {
-  return `/register?next=${encodeURIComponent(createTaskPathWithTitle(typed))}`
+export function heroTaskHref(
+  typed: string,
+  session: LandingSession = 'guest',
+): string {
+  return landingCtaPath(createTaskPathWithTitle(typed), session)
 }
 
 /**
@@ -38,15 +46,16 @@ export function heroTaskHref(typed: string): string {
  * hairline that steps to `border.hover` and, on focus, to the green 600
  * `border.focus` ring) with the green Post a task pill inside it, on the
  * right. The placeholder is `text.subtle`. Submitting goes to sign-up and on
- * to Post a task, which starts with the typed text as the task's title; empty
- * goes to the same place with no title. The green pill is the one green fill
- * in the hero, and carries the `data-page-green-action` hook the header
- * watches.
+ * to Post a task (straight to it with a session), which starts with the typed
+ * text as the task's title; empty goes to the same place with no title. The
+ * green pill is the one green fill in the hero, and carries the
+ * `data-page-green-action` hook the header watches.
  */
 export function HeroTaskCta({
   placeholder,
   submitLabel,
   ariaLabel,
+  session = 'guest',
 }: HeroTaskCtaProps) {
   const router = useRouter()
   const localize = useLocalizedHref()
@@ -54,7 +63,7 @@ export function HeroTaskCta({
 
   const onSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
-    router.push(localize(heroTaskHref(typed)))
+    router.push(localize(heroTaskHref(typed, session)))
   }
 
   return (

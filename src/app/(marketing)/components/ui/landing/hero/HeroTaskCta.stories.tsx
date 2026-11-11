@@ -134,6 +134,21 @@ export const SubmitsToPostTask: Story = {
   },
 }
 
+/** With a session there is no sign-up: straight to Post a task, title and all. */
+export const SubmitsSignedIn: Story = {
+  args: { session: 'signedIn' },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await userEvent.type(
+      canvas.getByRole('textbox', { name: hero.taskAriaLabel }),
+      'Fix a leaking tap{Enter}',
+    )
+    await expect(getRouter().push).toHaveBeenCalledWith(
+      '/tasks/create?title=Fix+a+leaking+tap',
+    )
+  },
+}
+
 /** Submitting empty goes to sign-up, then Post a task with no title. */
 export const SubmitsEmpty: Story = {
   play: async ({ canvasElement }) => {

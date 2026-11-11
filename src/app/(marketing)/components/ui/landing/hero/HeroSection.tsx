@@ -9,6 +9,7 @@ import { PageContainer } from '@/ui/PageContainer'
 import { APP_HOME } from '@/utils/appRoutes'
 import { Link } from '@ui'
 
+import type { LandingSession } from '../sections/landingCtaPath'
 import { HeroTaskCta } from './HeroTaskCta'
 
 /**
@@ -83,6 +84,8 @@ type HeroSectionProps = {
   }
   /** The scene under the copy: the product doing its job (`HeroStage`). */
   stage?: ReactNode
+  /** A visitor with a session skips sign-up on Post a task. Default: a guest. */
+  session?: LandingSession
 }
 
 /**
@@ -99,7 +102,12 @@ type HeroSectionProps = {
  * `data-landing-hero` is the hook the floating "Post a task" pill watches: it
  * shows once this section, scene included, has scrolled out of view.
  */
-export function HeroSection({ copy, ctas, stage }: HeroSectionProps) {
+export function HeroSection({
+  copy,
+  ctas,
+  stage,
+  session = 'guest',
+}: HeroSectionProps) {
   return (
     <Box
       as="section"
@@ -165,6 +173,7 @@ export function HeroSection({ copy, ctas, stage }: HeroSectionProps) {
               placeholder={copy.taskPlaceholder}
               submitLabel={ctas.postTask}
               ariaLabel={copy.taskAriaLabel}
+              session={session}
             />
           </Box>
 

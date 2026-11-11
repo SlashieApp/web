@@ -2,6 +2,7 @@ import { Box } from '@chakra-ui/react'
 
 import { getPricingForPage } from '@/app/(marketing)/pricing/helpers/getPricingForPage'
 import pricingBag from '@/app/(marketing)/pricing/i11n.json'
+import { getHasAuthSession } from '@/app/helpers/getHasAuthSession'
 import { getRequestLocale } from '@/i18n/getRequestLocale'
 import { loadPageI11n, metadataFromI11n } from '@/i18n/loadPageI11n'
 import { withLocale } from '@/i18n/navigation'
@@ -19,6 +20,7 @@ import { FinalCtaBand } from '../components/ui/landing/sections/FinalCtaBand'
 import { FloatingPostPill } from '../components/ui/landing/sections/FloatingPostPill'
 import { PricingTeaser } from '../components/ui/landing/sections/PricingTeaser'
 import { TrustSection } from '../components/ui/landing/sections/TrustSection'
+import { landingCtaPath } from '../components/ui/landing/sections/landingCtaPath'
 import { landingPricing } from '../components/ui/landing/sections/landingPricing'
 import { HeroStage } from '../components/ui/landing/stage/HeroStage'
 import { LandingStory } from '../components/ui/landing/story/LandingStory'
@@ -54,17 +56,22 @@ export async function generateMetadata() {
 export default async function MarketingHomePage() {
   const locale = await getRequestLocale()
   const copy = loadPageI11n(messages, locale)
-  const { pricing } = await getPricingForPage()
+  const [{ pricing }, hasSession] = await Promise.all([
+    getPricingForPage(),
+    getHasAuthSession(),
+  ])
   const landing = copy.landing
   const ctas = copy.common.ctas
+  const session = hasSession ? 'signedIn' : 'guest'
 
-  // Register first, then on to the page the CTA is for.
-  const registerThen = (next: string) =>
-    withLocale(locale, `/register?next=${encodeURIComponent(next)}`)
+  // A guest registers first, then goes on to the page the CTA is for; a
+  // visitor with a session goes straight there (`landingCtaPath`).
+  const ctaHref = (next: string) =>
+    withLocale(locale, landingCtaPath(next, session))
   const hrefs = {
     pricing: withLocale(locale, '/pricing'),
-    postTask: registerThen('/tasks/create'),
-    becomeWorker: registerThen('/worker/setup'),
+    postTask: ctaHref('/tasks/create'),
+    becomeWorker: ctaHref('/worker/setup'),
   }
 
   return (
@@ -82,6 +89,7 @@ export default async function MarketingHomePage() {
                   browseTasks: ctas.browseTasks,
                 }}
                 stage={<HeroStage copy={landing.heroStage} />}
+                session={session}
               />
             }
             showcase={

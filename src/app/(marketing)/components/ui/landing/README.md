@@ -150,7 +150,11 @@ The one centred section (`hero/HeroSection.tsx`), built from tokens only:
   first (a new visitor has no account), then Post a task, which starts with
   the text as the task's title (`createTaskStartTitle.ts`, in the create flow:
   one line, at most 120 characters, a draft's own title wins). Empty goes to
-  the same place with no title. The pill is the hero's only green fill; the
+  the same place with no title. A visitor who already has a session skips
+  sign-up and goes straight to the form; so do the closing call's and the
+  floating pill's links (`sections/landingCtaPath.ts`, from the session
+  cookie the page reads, as `/about` and `/pricing` do). The pill is the
+  hero's only green fill; the
   header's Get started stays secondary while it is on screen (the pill carries
   `data-page-green-action`, the header watches the button, not the hero, so
   once it has scrolled away the header's Get started is the green one).
