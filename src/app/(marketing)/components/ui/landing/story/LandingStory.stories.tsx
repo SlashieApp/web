@@ -11,12 +11,18 @@ import { formatMessage } from '@/i18n/loadPageI11n'
 
 import { BentoSection } from '../bento/BentoSection'
 import { HeroSection } from '../hero/HeroSection'
-import { PHONE_CROP_H } from '../phone/PhoneFrame'
+import { PHONE_CROP_H, PHONE_DOCK_EXTRA } from '../phone/PhoneFrame'
 import { MapShowcase } from '../showcase/MapShowcase'
 import { LandingStory } from './LandingStory'
 import { StoryTracker } from './StoryTracker'
 import { setStoryStage } from './storyState'
-import { CUSTOMER_STAGES, WORKER_STAGES } from './storySteps'
+import {
+  CUSTOMER_STAGES,
+  type CustomerStage,
+  WORKER_STAGES,
+  type WorkerStage,
+  stepDomId,
+} from './storySteps'
 
 const { hero, story, phone } = messages.en.landing
 const { ctas } = messages.en.common
@@ -304,16 +310,132 @@ export const DesktopLastStep: Story = {
   },
 }
 
+/** Story-only: sets what `(prefers-reduced-motion: reduce)` reports until cleanup. */
+function emulateReducedMotion(matches: boolean) {
+  const original = window.matchMedia
+  window.matchMedia = (query: string) => {
+    const list = original.call(window, query)
+    if (!/prefers-reduced-motion:\s*reduce/.test(query)) return list
+    return new Proxy(list, {
+      get(target, prop) {
+        if (prop === 'matches') return matches
+        const value = Reflect.get(target, prop)
+        return typeof value === 'function' ? value.bind(target) : value
+      },
+    })
+  }
+  return () => {
+    window.matchMedia = original
+  }
+}
+
+/** Story-only: the sideways acts on a phone (`StoryRail`), in page order. */
+function getRails(canvasElement: HTMLElement): HTMLElement[] {
+  return [...canvasElement.querySelectorAll<HTMLElement>('[data-story-rail]')]
+}
+
 /**
- * Below lg (phone width): no pinned phone, each step carries its own inline
- * phone (the top of a phone in a 340px well, named by its step), and the
- * section index is a row that sticks under the header.
+ * Story-only: follows the index link to `step` the way the browser does (its
+ * target scrolled to the top, under the page's scroll padding), without
+ * changing the test frame's own address.
+ */
+async function followIndexLink(
+  canvasElement: HTMLElement,
+  step: CustomerStage | WorkerStage,
+) {
+  const link = within(getIndex(canvasElement)).getByRole('link', {
+    name: story.index[step],
+  })
+  const id = link.getAttribute('href')?.replace(/^#/, '') ?? ''
+  await expect(id).toBe(stepDomId(step))
+  const target = canvasElement.ownerDocument.getElementById(id)
+  if (!target) throw new Error(`No link target for ${step}`)
+  target.scrollIntoView({ block: 'start', behavior: 'instant' })
+}
+
+/** Story-only: the title of the card in place in a sideways act. */
+function cardInPlace(rail: HTMLElement): string | null | undefined {
+  return rail.querySelector('[aria-current="step"] h3')?.textContent
+}
+
+/**
+ * Phone width (below md): each act plays sideways. Its steps are cards in one
+ * row and one demo phone is docked at the screen's foot, named by the step in
+ * place; the section index is a row that sticks under the header, and every
+ * step keeps a link target. A link lands its step's card in place, and the
+ * phone follows.
  */
 export const Phone: Story = {
-  globals: { viewport: { value: 'mobile1', isRotated: false } },
+  globals: { viewport: { value: 'mobile2', isRotated: false } },
+  beforeEach: () => emulateReducedMotion(false),
   play: async ({ canvasElement }) => {
     const index = getIndex(canvasElement)
     await expect(getComputedStyle(index).position).toBe('sticky')
+    const rails = await waitFor(() => {
+      const found = getRails(canvasElement)
+      expect(found).toHaveLength(2)
+      return found
+    })
+    const [customers, workers] = rails as [HTMLElement, HTMLElement]
+    // One docked phone per act, at the docked height, named by its first step.
+    const phones = within(canvasElement).getAllByRole('figure', {
+      name: anyDemoPhone,
+    })
+    await expect(phones).toHaveLength(2)
+    await expect(customers).toContainElement(phones[0] as HTMLElement)
+    await expect(workers).toContainElement(phones[1] as HTMLElement)
+    for (const figure of phones) {
+      await expect(Math.round(figure.getBoundingClientRect().height)).toBe(
+        PHONE_CROP_H + PHONE_DOCK_EXTRA,
+      )
+    }
+    await expect(phones[0]).toHaveAccessibleName(demoPhoneName('post'))
+    // The steps are cards in one row, in the story's order.
+    const cards = within(customers).getAllByRole('listitem')
+    await expect(cards).toHaveLength(CUSTOMER_STAGES.length)
+    const [first, second] = cards as [HTMLElement, HTMLElement]
+    await expect(second.getBoundingClientRect().top).toBe(
+      first.getBoundingClientRect().top,
+    )
+    await expect(second.getBoundingClientRect().left).toBeGreaterThan(
+      first.getBoundingClientRect().right,
+    )
+    // Every step keeps a link target, in the act it belongs to.
+    for (const stage of CUSTOMER_STAGES) {
+      await expect(
+        customers.querySelector(`#${stepDomId(stage)}`),
+      ).not.toBeNull()
+    }
+    for (const stage of WORKER_STAGES) {
+      await expect(workers.querySelector(`#${stepDomId(stage)}`)).not.toBeNull()
+    }
+    // A link lands its step's card in place, and the phone shows that step.
+    await followIndexLink(canvasElement, 'quotes')
+    await waitFor(
+      () =>
+        expect(cardInPlace(customers)).toBe(story.customer.steps.quotes.title),
+      { timeout: 4000 },
+    )
+    await waitFor(() =>
+      expect(
+        within(customers).getByRole('figure', { name: anyDemoPhone }),
+      ).toHaveAccessibleName(demoPhoneName('quotes')),
+    )
+  },
+}
+
+/**
+ * Phone width with reduced motion (and every tablet): no sideways acts. Each step carries its own
+ * inline phone (the top of a phone in a 340px well, named by its step) in one
+ * column, and the section index is a row that sticks under the header.
+ */
+export const PhoneReducedMotion: Story = {
+  globals: { viewport: { value: 'mobile1', isRotated: false } },
+  beforeEach: () => emulateReducedMotion(true),
+  play: async ({ canvasElement }) => {
+    const index = getIndex(canvasElement)
+    await expect(getComputedStyle(index).position).toBe('sticky')
+    await expect(getRails(canvasElement)).toHaveLength(0)
     // One inline phone per step, each inside its step's row.
     const phones = within(canvasElement).getAllByRole('figure', {
       name: anyDemoPhone,
@@ -365,25 +487,36 @@ export const TabletRoomUnderTheIndex: Story = {
   play: ({ canvasElement }) => expectRoomUnderTheIndex(canvasElement),
 }
 
-/** Below lg, scrolled to the quotes step: its inline phone is in view and plays. */
+/**
+ * Phone width, at the quotes step: the docked phone shows the quotes screen and
+ * plays it (its first quote's entrance runs).
+ */
 export const PhoneQuotesStep: Story = {
   globals: { viewport: { value: 'mobile1', isRotated: false } },
+  beforeEach: () => emulateReducedMotion(false),
   play: async ({ canvasElement }) => {
-    // Reduced motion skips the entrance, so there is nothing to wait for.
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
-    const inlinePhone = within(getStep(canvasElement, 'quotes')).getByRole(
-      'figure',
-      { name: demoPhoneName('quotes') },
-    )
-    // The first quote's wrapper carries the entrance opacity: hidden at rest.
-    const firstQuote = within(inlinePhone).getByRole('button', {
-      name: formatMessage(phone.quotes.expand, {
-        name: phone.quotes.items[0].name,
-      }),
+    const customers = await waitFor(() => {
+      const [rail] = getRails(canvasElement)
+      expect(rail).toBeDefined()
+      return rail as HTMLElement
     })
+    await followIndexLink(canvasElement, 'quotes')
+    const docked = await waitFor(
+      () =>
+        within(customers).getByRole('figure', {
+          name: demoPhoneName('quotes'),
+        }),
+      { timeout: 4000 },
+    )
+    // The first quote's wrapper carries the entrance opacity: it plays in.
+    const firstQuote = await waitFor(() =>
+      within(docked).getByRole('button', {
+        name: formatMessage(phone.quotes.expand, {
+          name: phone.quotes.items[0].name,
+        }),
+      }),
+    )
     const entrance = firstQuote.parentElement as HTMLElement
-    await expect(entrance.style.opacity).toBe('0')
-    inlinePhone.scrollIntoView({ block: 'center' })
     await waitFor(() => expect(entrance.style.opacity).toBe('1'), {
       timeout: 3000,
     })
@@ -446,25 +579,27 @@ export const DesktopWithShowcase: Story = {
 }
 
 /**
- * Below lg with the showcase: the hero, the panel, the bento, then how it
- * works: the index row, then the steps, each with its own inline phone.
+ * Phone width with the showcase: the hero, the panel, the bento, then how it
+ * works: the index row, then the sideways acts, the first act's phone in it.
  */
 export const PhoneWithShowcase: Story = {
   args: { showcase },
   globals: { viewport: { value: 'mobile1', isRotated: false } },
+  beforeEach: () => emulateReducedMotion(false),
   play: async ({ canvasElement }) => {
     const { panel, bento } = getShowcase(canvasElement)
+    const customers = await waitFor(() => {
+      const [rail] = getRails(canvasElement)
+      expect(rail).toBeDefined()
+      return rail as HTMLElement
+    })
     const [firstPhone] = within(canvasElement).getAllByRole('figure', {
       name: anyDemoPhone,
     })
     await expect(isBefore(panel, bento)).toBe(true)
     await expect(isBefore(bento, getIndex(canvasElement))).toBe(true)
-    await expect(
-      isBefore(getIndex(canvasElement), getStep(canvasElement, 'post')),
-    ).toBe(true)
-    // The first inline phone is the first step's: nothing sits between the bento and the steps.
-    await expect(getStep(canvasElement, 'post')).toContainElement(
-      firstPhone as HTMLElement,
-    )
+    await expect(isBefore(getIndex(canvasElement), customers)).toBe(true)
+    // The first phone is the first act's: nothing sits between the bento and the steps.
+    await expect(customers).toContainElement(firstPhone as HTMLElement)
   },
 }

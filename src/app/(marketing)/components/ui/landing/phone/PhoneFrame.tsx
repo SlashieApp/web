@@ -22,6 +22,11 @@ export const PHONE_ASPECT = (INNER * SCREEN_H) / SCREEN_W + BEZEL * 2
 
 /** The well an inline phone is cropped in: its height, and its gutter round the phone. */
 export const PHONE_CROP_H = 340
+/**
+ * How much more of the screen a docked phone shows (`StoryRail`): room under
+ * the compact layout's action for the phone to fade out at its foot.
+ */
+export const PHONE_DOCK_EXTRA = 32
 const CROP_GUTTER = 16
 /** The cropped phone is drawn at 1:1: its width at most, its bezel and its status bar. */
 const CROP_PHONE_W = 326
@@ -266,8 +271,16 @@ export function PhoneCrop({
   label,
   children,
   ref,
+  docked = false,
   ...boxProps
-}: Omit<PhoneFrameProps, 'nominalWidth'> & { ref?: Ref<HTMLElement> }) {
+}: Omit<PhoneFrameProps, 'nominalWidth'> & {
+  ref?: Ref<HTMLElement>
+  /**
+   * The sideways story's phone (`StoryRail`): no well, the phone stands on the
+   * page and runs off the screen's foot. Shorter screens crop more of it.
+   */
+  docked?: boolean
+}) {
   return (
     <Figure
       ref={ref}
@@ -279,10 +292,10 @@ export function PhoneCrop({
       pt={`${CROP_GUTTER}px`}
       px={`${CROP_GUTTER}px`}
       overflow="hidden"
-      bg="bg.canvas"
-      borderWidth="1px"
+      bg={docked ? 'transparent' : 'bg.canvas'}
+      borderWidth={docked ? 0 : '1px'}
       borderColor="border.default"
-      borderRadius="xl"
+      borderRadius={docked ? 0 : 'xl'}
       css={STILL_UNDER_REDUCED_MOTION}
       {...boxProps}
     >
@@ -291,8 +304,9 @@ export function PhoneCrop({
         flexShrink={0}
         w="full"
         maxW={`${CROP_PHONE_W}px`}
-        // Taller than the well, so the phone's foot is never in it.
-        h={`${PHONE_CROP_H}px`}
+        // Taller than the well, so the phone's foot is never in it (a docked
+        // phone's well can be taller than an inline one's).
+        h={`${docked ? PHONE_CROP_H + PHONE_DOCK_EXTRA : PHONE_CROP_H}px`}
         pt={`${CROP_BEZEL}px`}
         px={`${CROP_BEZEL}px`}
         borderTopRadius="46px"

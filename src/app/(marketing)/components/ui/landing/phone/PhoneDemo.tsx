@@ -169,3 +169,53 @@ export function StepPhone({
     </PhoneCrop>
   )
 }
+
+/** A docked screen's slide: in from the side the cards come from. */
+const DOCKED_SLIDE = {
+  enter: (direction: number) => ({ opacity: 0, x: 28 * direction }),
+  center: { opacity: 1, x: 0 },
+  exit: (direction: number) => ({ opacity: 0, x: -28 * direction }),
+}
+
+/**
+ * Below `lg`, in the sideways story (`StoryRail`): one phone per act, docked
+ * at the screen's foot, showing the step whose card is in place. Its screen
+ * slides across with the cards (in from the right going forward, from the
+ * left going back) and plays its intro as it arrives. It plays only while
+ * `active` (the act is on screen). Named by the step it shows.
+ */
+export function DockedPhone({
+  stage,
+  direction,
+  copy,
+  label,
+  active,
+  ...boxProps
+}: BoxProps & {
+  stage: StoryStage
+  /** 1 when the last change went forward, -1 when it went back. */
+  direction: 1 | -1
+  copy: PhoneCopy
+  label: string
+  active: boolean
+}) {
+  const reduced = useReducedMotion()
+  return (
+    <PhoneCrop docked label={label} {...boxProps}>
+      <AnimatePresence initial={false} custom={direction}>
+        <motion.div
+          key={stage}
+          custom={direction}
+          variants={DOCKED_SLIDE}
+          initial="enter"
+          animate="center"
+          exit="exit"
+          style={{ position: 'absolute', inset: 0 }}
+          transition={{ duration: reduced ? 0 : 0.36, ease: [0.2, 0, 0, 1] }}
+        >
+          <PhoneScreen stage={stage} copy={copy} active={active} compact />
+        </motion.div>
+      </AnimatePresence>
+    </PhoneCrop>
+  )
+}

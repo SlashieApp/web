@@ -9,6 +9,7 @@ import { COOKIE_BANNER_OPEN_ATTR } from '@/app/cookieBannerLayout'
 import { sdlMotion } from '@/theme/styles'
 import { Button } from '@ui'
 
+import { useRailOnScreen } from '../story/storyState'
 import {
   FLOATING_PILL_HERO,
   FLOATING_PILL_HIDE_WHILE,
@@ -123,6 +124,9 @@ export function FloatingPostPill({
 }: FloatingPostPillProps) {
   const [shown, setShown] = useState(false)
   const reducedMotion = usePrefersReducedMotion()
+  // The sideways story's phone is docked where the pill sits (`StoryRail`).
+  const railOnScreen = useRailOnScreen()
+  const visible = shown && !railOnScreen
 
   // Watches the page's own blocks, which live elsewhere in the document; the
   // ref callback's setup runs once on mount and its cleanup on unmount.
@@ -138,7 +142,7 @@ export function FloatingPostPill({
     <Box
       ref={watch}
       data-floating-post-pill=""
-      data-visible={shown ? 'true' : 'false'}
+      data-visible={visible ? 'true' : 'false'}
       position="fixed"
       insetInline={0}
       bottom={BOTTOM}

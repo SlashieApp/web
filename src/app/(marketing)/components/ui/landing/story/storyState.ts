@@ -52,7 +52,15 @@ const state = {
    * edges (`sceneStage`). True until the tracker has looked.
    */
   heroInView: true,
+  /**
+   * An act of the sideways story (`StoryRail`) is on screen: its phone is
+   * docked where the floating Post a task pill sits, so the pill steps aside.
+   */
+  railOnScreen: false,
 }
+
+/** The sideways acts on screen now (two acts, each says for itself). */
+const railsOnScreen = new Set<string>()
 
 const listeners = new Set<() => void>()
 
@@ -79,6 +87,16 @@ export function setSceneVisible(visible: boolean): void {
 export function setHeroInView(inView: boolean): void {
   if (state.heroInView === inView) return
   state.heroInView = inView
+  for (const listener of listeners) listener()
+}
+
+/** A sideways act (`id`) says whether it is on screen. */
+export function setRailOnScreen(id: string, onScreen: boolean): void {
+  if (onScreen) railsOnScreen.add(id)
+  else railsOnScreen.delete(id)
+  const any = railsOnScreen.size > 0
+  if (state.railOnScreen === any) return
+  state.railOnScreen = any
   for (const listener of listeners) listener()
 }
 
@@ -111,6 +129,15 @@ export function useSceneReady(): boolean {
   return useSyncExternalStore(
     subscribeStory,
     () => state.sceneReady,
+    () => false,
+  )
+}
+
+/** Whether an act of the sideways story is on screen (the pill steps aside). */
+export function useRailOnScreen(): boolean {
+  return useSyncExternalStore(
+    subscribeStory,
+    () => state.railOnScreen,
     () => false,
   )
 }

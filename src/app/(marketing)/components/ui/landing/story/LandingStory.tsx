@@ -21,6 +21,7 @@ import {
 import { PHONE_ASPECT } from '../phone/PhoneFrame'
 import type { PhoneCopy, StoryCopy } from '../phone/phoneCopy'
 import { StoryIndex } from './StoryIndex'
+import { StoryRail, useStoryRail } from './StoryRail'
 import { StoryStageMarker } from './StoryTracker'
 import {
   STORY_HEADER_H,
@@ -146,6 +147,10 @@ function StepRow({
  * An act: its head (the eyebrow with a small green icon, then the heading)
  * over its steps as hairline rows. The head belongs to the act's first step, so
  * the phone and the index move to the act as soon as its head is mid-screen.
+ *
+ * On a phone (below `md`, unless the visitor asks for reduced motion) the act
+ * plays sideways instead: `StoryRail`, its steps as cards that ride across while the
+ * act is pinned, over a phone docked at the screen's foot.
  */
 function Act({
   icon,
@@ -168,8 +173,23 @@ function Act({
   /** Leave a section's worth of space above (the second act). */
   spaced?: boolean
 }) {
+  const rail = useStoryRail()
   const [first] = steps
   const headingId = `${first?.stage}-heading`
+  if (rail) {
+    return (
+      <StoryRail
+        icon={icon}
+        eyebrow={eyebrow}
+        heading={heading}
+        steps={steps}
+        phone={phone}
+        index={index}
+        hint={hint}
+        spaced={spaced}
+      />
+    )
+  }
   return (
     <Box
       as="section"
@@ -231,7 +251,9 @@ const workerSteps = (steps: StoryCopy['worker']['steps']) =>
  * the steps (middle) and the demo phone, pinned in the right column from the
  * first step to the last (`STORY_END_ROOM` keeps it there for the last one).
  * Below `lg` it is one column: the index is a row that sticks under the header
- * and each step carries its own inline phone.
+ * and each step carries its own inline phone. On a phone (below `md`) each act
+ * plays sideways over one docked phone instead (`StoryRail`), except with
+ * reduced motion and before hydration.
  *
  * The phone is plain CSS `position: sticky` in the right column, so the
  * server HTML already has it in place and reduced motion changes nothing.

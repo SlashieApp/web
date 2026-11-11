@@ -3,7 +3,9 @@
 `/home`: a scroll story that introduces Slashie. A white page with a
 server-rendered narrative: the hero and its scene (the product doing its job,
 see Hero scene), then an HTML phone that demos the real app as you scroll
-(pinned beside the steps on desktop, inline in each step below `lg`). Lives
+(pinned beside the steps on desktop, inline in each step on a tablet, and on
+a phone docked at the screen's foot while each act's steps ride across, see
+The sideways story). Lives
 inside the production app (Chakra v3 + SDL tokens): **no Tailwind, no
 styling-system fork** (FE-205).
 
@@ -56,11 +58,13 @@ components/ui/landing/
     StoryTracker.tsx         stage markers + IntersectionObserver on the viewport middle
     LandingStory.tsx         the hero, then how it works: the acts as hairline rows, the pinned phone
     StoryIndex.tsx           the section index (vertical from lg, a sticky row below), driven by the tracker
+    StoryRail.tsx            on a phone (below md): an act pinned under the index, its steps as cards that ride across, a docked phone
+    storyRail.ts             pure: the rail's scroll maths (each step holds, then moves; where a link lands) (unit-tested)
     storySteps.ts            pure: the steps of each act, the rows' ids, the index's groups (unit-tested)
     storyLayout.ts           header, index row and scroll-margin measures
   phone/
     PhoneFrame.tsx           device chrome; 375x812 screens scaled to the frame width · PhoneCrop, the inline phone's 340px well
-    PhoneDemo.tsx            stage -> screen; StickyPhone (desktop) / StepPhone (inline, cropped); a phone is named by its step
+    PhoneDemo.tsx            stage -> screen; StickyPhone (desktop) / DockedPhone (the rail's, on a phone) / StepPhone (inline: tablet, reduced motion); a phone is named by its step
     screens/*                one scripted beat per screen (useDemoBeat: tap or autoplay), each with a `compact` layout for the cropped phone
     PhoneMap.tsx             the drawn monochrome map + the app's price pins (white pills)
     phoneParts.tsx           tab bar, hotspot, avatar, card, primary button
@@ -411,7 +415,9 @@ hero's "See how it works" lands it under the sticky header).
   its text at the top: the phone changes as the row's top crosses the middle of
   the screen, so the new text arrives just under that line, and the row is
   still tall enough that a fast scroll cannot skip it (the tracker watches one
-  line). Below `lg` a row is its text and its own phone. Every row has 72px
+  line). Below `lg` a row is its text and its own phone (on a phone, unless
+  the visitor asks for reduced motion, the act plays sideways instead: The
+  sideways story). Every row has 72px
   under it (`STORY_STEP_PB`, at every width), so a step's last line, or its
   phone, is clear of the next step's rule.
 - **The story runs on under its last step from `lg`** (`STORY_END_ROOM`, half
@@ -453,7 +459,27 @@ hero's "See how it works" lands it under the sticky header).
   for the nav and the eight short labels), in English and Traditional Chinese.
   The group names are not new strings: the index has none (a gap, or a hairline
   in the row, separates the acts).
-- **The inline phone (below `lg`) is cropped** (`PhoneCrop`, FE-288): the top of
+- **The sideways story (on a phone, below `md`, FE-542).** Ryan's review of
+  push 1: on a phone, the steps scroll sideways as the visitor scrolls down, with the phone
+  stuck at the bottom showing the step in view. `StoryRail` does it per act:
+  the act pins under the index row (its head, its steps as cards in one row,
+  the next card peeking 36px), and the scroll carries the cards across. Each
+  step first holds still for 45% of its scroll (70% of the screen's height a
+  step), then moves on, eased (`storyRail.ts`); the last holds too before the
+  act lets go. One phone per act is docked at the screen's foot
+  (`DockedPhone`, the cropped phone without its well, its foot faded out over
+  the 32px it has under the compact layout's action) and slides to the step
+  in place, in the direction the cards went. The index row, the story's stage
+  and the phone's name follow that step. Every step keeps its link target: an
+  empty block where the step's card holds in place, so the index row lands on
+  the step. The floating Post a task pill steps aside while an act is on
+  screen (the phone is where it sits). Reduced motion keeps the one-column
+  story below; so does the server's first paint, and the switch happens after
+  hydration, far below the fold. A tablet keeps the one-column story too: its
+  screen is too wide for one card and too tall for one phone (the rail left a
+  band of white between them). A short screen (under about 700px) crops the
+  docked phone more, never the cards; it always keeps 160px of it.
+- **The inline phone (a tablet, or a phone with reduced motion) is cropped** (`PhoneCrop`, FE-288): the top of
   a phone in a well 340px tall and as wide as the step's text (38rem at most),
   drawn like the bento's figures (canvas ground, a hairline, 16px corners). A
   whole phone was about 566px tall at 390 wide, so a step was longer than the
