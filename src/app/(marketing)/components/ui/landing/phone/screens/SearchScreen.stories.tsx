@@ -61,8 +61,8 @@ export const CustomerPinTapped: Story = {
 }
 
 /**
- * The card's tile wears the task's own icon, the one the map panel's card gives
- * the same task (not one plant for every task): the second task's tile differs
+ * The card's tile wears the task's own icon (`DEMO_TASK_ICONS`, not one plant
+ * for every task): the second task's tile differs
  * from the first's.
  */
 export const CardIconFollowsTheTask: Story = {

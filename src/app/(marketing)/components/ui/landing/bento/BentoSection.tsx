@@ -53,8 +53,7 @@ function snippetFor(key: BentoKey, phone: PhoneCopy): ReactNode {
  * the copy's length. Below `lg` they stack with a hairline between them; from
  * `md` each cell sets its text beside its snippet.
  *
- * The section is opaque (`bg.surface`), like the map panel: the 3D scene stays
- * behind it, so a prop never crosses a title or a row.
+ * The section is opaque (`bg.surface`).
  *
  * The section has no heading of its own: the strings are today's, and the only
  * new ones allowed are the how-it-works index's labels. So each cell's title is

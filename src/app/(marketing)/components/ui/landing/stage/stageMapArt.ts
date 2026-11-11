@@ -1,5 +1,5 @@
 /**
- * The drawn map behind the pins (`MapShowcase`): a quiet, monochrome sketch of
+ * The drawn map behind the hero scene's pins (`StageMap`): a quiet, monochrome sketch of
  * a city, with no tiles and no network. The shapes are data so the component
  * stays small; colours are chosen in the component, from semantic tokens.
  *

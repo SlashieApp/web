@@ -52,8 +52,7 @@ export function trustCellPadding(index: number, count: number) {
  * columns with a hairline between the columns and the rows; on a phone they
  * stack with a hairline between them.
  *
- * The section is opaque (`bg.surface`), like the map panel and the bento: the
- * 3D scene stays behind it, so a prop never crosses a point.
+ * The section is opaque (`bg.surface`), like the bento.
  *
  * It has no head of its own: the strings are today's, and the only new ones
  * allowed are the how-it-works index's labels. The points are a plain list, and

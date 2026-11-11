@@ -56,8 +56,8 @@ type StepCopy = { title: string; body: string }
  * never green), the title at 18/500 and the body at 14 in `text.muted`.
  *
  * The row is the step's story stage: the tracker marks it active when it
- * crosses the middle of the viewport, and the phone, the 3D scene and the
- * section index follow. The text sits at the top of the row, so it arrives
+ * crosses the middle of the viewport, and the phone and the section index
+ * follow. The text sits at the top of the row, so it arrives
  * just under that line as the phone changes. From `lg` the row is tall enough
  * for the phone to stay on the step's screen while the text is read (and for a
  * fast scroll not to skip it, since the tracker watches a single line); below
@@ -244,8 +244,8 @@ const workerSteps = (steps: StoryCopy['worker']['steps']) =>
 
 /**
  * The scroll story (tone refresh, train 2, item 4): the hero, then how it
- * works, the customer act and the worker act. A `showcase` (the map panel and
- * the bento, with their own section rules) sits between the two.
+ * works, the customer act and the worker act. A `showcase` (the bento, with
+ * its own section rules) sits between the two.
  *
  * How it works is three columns from `lg`: the section index (sticky, left),
  * the steps (middle) and the demo phone, pinned in the right column from the
@@ -281,8 +281,8 @@ export function LandingStory({
         scrollMarginTop={STORY_HEADER_H}
       >
         <PageContainer py={SECTION_PY}>
-          {/* From lg two halves, as the 3D scene's formations expect: the
-              steps (with the index) on the left, the phone on the right. */}
+          {/* From lg two halves: the steps (with the index) on the left,
+              the phone on the right. */}
           <Grid
             templateColumns={{
               lg: 'minmax(0, 1fr) 22rem',

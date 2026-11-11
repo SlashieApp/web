@@ -113,8 +113,8 @@ type Story = StoryObj<typeof meta>
  * -0.035em), one muted sentence and two pills: Post a task in green (green 400
  * with an ink label, the section's only green) and Become a worker as the
  * outline pill (white, a 1px `border.strong` hairline). The section is a
- * landmark named by its heading and is transparent, so the 3D scene's gather
- * formation shows round it.
+ * landmark named by its heading and is transparent: the page's white shows
+ * through.
  */
 export const Default: Story = {
   globals: { viewport: { value: 'desktop', isRotated: false } },

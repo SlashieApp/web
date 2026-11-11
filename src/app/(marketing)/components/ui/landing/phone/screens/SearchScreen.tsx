@@ -59,7 +59,7 @@ export function SearchScreen({
     variant === 'worker' ? ['paint', 'wardrobe'] : ['move', 'hedge']
   const selected = done ? second : first
   const task = copy.tasks[selected]
-  // The same icon the map panel's card gives this task.
+  // The task's own icon, from the one table.
   const TaskIcon = DEMO_TASK_ICONS[selected]
   const placeholder =
     variant === 'worker'

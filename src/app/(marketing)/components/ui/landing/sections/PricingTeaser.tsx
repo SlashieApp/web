@@ -104,7 +104,7 @@ function PlanCard({
  * From `lg` the head and the pill sit in a left column and the two cards in
  * the right one; below it the head, the cards (two columns from `md`) and the
  * pill stack, always in that reading order. The section is opaque
- * (`bg.surface`) like the other panels, so a 3D prop never crosses a card.
+ * (`bg.surface`) like the other panels.
  *
  * The head has an eyebrow, like the other left-aligned heads: the nav's
  * "Pricing" (`header.nav.pricing`, today's string) with a small green 600 tag

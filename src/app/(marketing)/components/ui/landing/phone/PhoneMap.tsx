@@ -41,8 +41,8 @@ const LABELS: { x: number; y: number; text: string }[] = [
 ]
 
 /**
- * A hand-drawn London-ish street map behind the demo map screens: the same
- * monochrome sketch as the landing's map panel, in neutral tokens only (land
+ * A hand-drawn London-ish street map behind the demo map screens: a
+ * monochrome sketch in neutral tokens only (land
  * `bg.subtle`, parks `border.default`, the river `border.strong`, streets
  * `bg.surface`, wide roads with a hairline casing). No green, no mint.
  *

@@ -4,7 +4,7 @@ import {
   MAP_PARKS,
   MAP_RIVER,
   MAP_VIEWBOX,
-} from '../showcase/mapShowcaseArt'
+} from './stageMapArt'
 
 /** The whole sketch: a box of any shape takes the middle of it. */
 const WHOLE = `0 0 ${MAP_VIEWBOX.width} ${MAP_VIEWBOX.height}`
@@ -18,7 +18,7 @@ const PHONE_HEADER = '350 160 600 424'
 
 /**
  * The drawn map behind a task in a stage scene: the landing's quiet,
- * monochrome city sketch (`mapShowcaseArt`), cropped to its box. The colours
+ * monochrome city sketch (`stageMapArt`), cropped to its box. The colours
  * are set in the scene's stylesheet, from the look tokens.
  */
 export function StageMap({ phone = false }: { phone?: boolean }) {

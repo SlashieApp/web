@@ -131,7 +131,7 @@ export const Default: Story = {
     await expect(canvas.getByText(args.pricing.productName)).toBeVisible()
     await expect(canvas.getByText(args.pricing.subline)).toBeVisible()
 
-    // The page's white: opaque, so a 3D prop never crosses a card.
+    // The page's white: an opaque panel.
     await expect(getComputedStyle(section).backgroundColor).toBe(WHITE)
 
     // Both cards: white, a 1px hairline, 12px corners, e1 (a soft ink shadow).

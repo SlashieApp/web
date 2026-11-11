@@ -36,7 +36,7 @@ const suspendedMe: MeSnapshot = {
   worker: null,
 }
 
-/** White page behind the transparent landing header, like `LandingBackdrop`. */
+/** White page behind the transparent landing header, as on Home. */
 const withLandingBackdrop: Decorator = (Story) => (
   <Box bg="bg.surface" minH="240px">
     <Story />

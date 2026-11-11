@@ -29,8 +29,8 @@ import { PageContainer } from '@/ui/PageContainer'
  *                       are centred.
  *   - `SECTION_PY`      the vertical rhythm of a section.
  *
- * The page itself is white (`bg.surface`): the landing's backdrop paints it
- * behind the 3D scene, so the frame is transparent and draws lines only.
+ * The page itself is white (`bg.surface`), so the frame is transparent and
+ * draws lines only.
  */
 
 /**

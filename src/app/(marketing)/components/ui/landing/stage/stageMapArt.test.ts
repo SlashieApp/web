@@ -8,7 +8,7 @@ import {
   MAP_VIEWBOX,
   streetPositions,
   streetSpacing,
-} from './mapShowcaseArt'
+} from './stageMapArt'
 
 describe('streetSpacing', () => {
   it('stays between the minimum and maximum gap', () => {

@@ -28,10 +28,8 @@ export const FINAL_CTA_HEADING_ID = 'landing-final-cta-heading'
  * `heading-xl` (34/41) on a phone, the same step down as `SectionHead`. The
  * section is a landmark named by that heading.
  *
- * Unlike the panels above it, it is transparent: the 3D scene's `gather`
- * formation is this section's beat (the objects gather round the call), so the
- * scene has to show through. The text block is at most 40rem wide and centred;
- * the objects stay clear of it (see the scene's formations).
+ * Unlike the panels above it, it is transparent (the page's white shows
+ * through). The text block is at most 40rem wide and centred.
  *
  * Hrefs come localized.
  */

@@ -18,12 +18,9 @@ describe('DEMO_TASK_ICONS', () => {
     expect(new Set(Object.values(DEMO_TASK_ICONS)).size).toBe(ids.length)
   })
 
-  it('is the one table the map card and the phone search card both read', () => {
+  it('is the table the phone search card reads', () => {
     // The same demo task wears the same icon wherever it is drawn.
-    for (const file of [
-      'showcase/MapShowcase.tsx',
-      'phone/screens/SearchScreen.tsx',
-    ]) {
+    for (const file of ['phone/screens/SearchScreen.tsx']) {
       const source = read(file)
       expect(source).toContain('DEMO_TASK_ICONS')
       expect(source).not.toMatch(
