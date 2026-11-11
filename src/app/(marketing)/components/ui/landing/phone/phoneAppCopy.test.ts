@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 
 import messages from '@/app/(marketing)/i11n.json'
 import threadCopy from '@/app/(messages)/messages/i11n.json'
+import profileCopy from '@/app/(presence)/profile/[userId]/i11n.json'
 import quoteFlowCopy from '@/app/(stepflow)/tasks/[slug]/quote/i11n.json'
 import reviewFlowCopy from '@/app/(stepflow)/tasks/[slug]/review/i11n.json'
 import createFlowCopy from '@/app/(stepflow)/tasks/create/i11n.json'
@@ -121,6 +122,21 @@ describe('the phone demos use the app’s own labels', () => {
       expect(f.sentSubline).toBe(task.summary.quoteSentSubline)
       expect(f.yourQuote).toBe(task.cta.yourQuote)
       expect(f.editQuote).toBe(task.cta.editQuote)
+    })
+
+    it(`profile (${locale}): the public profile`, () => {
+      const profile = profileCopy[locale]
+      const t = phone.profile
+      expect(t.worker).toBe(profile.userType.worker)
+      expect(t.save).toBe(profile.hero.save)
+      expect(t.reviewsCount).toBe(profile.stats.reviewsCount)
+      expect(t.jobsLabel).toBe(profile.stats.jobs)
+      expect(t.yearsLabel).toBe(profile.stats.years)
+      expect(t.joinedLabel).toBe(profile.stats.joined)
+      expect(t.skillsTitle).toBe(profile.sections.skills)
+      expect(t.reviewsTitle).toBe(profile.sections.reviews)
+      expect(t.fromCustomer).toBe(profile.sections.fromCustomer)
+      expect(t.showAll).toBe(profile.sections.showAllReviews)
     })
 
     it(`review (${locale}): the review flow and the page it lands on`, () => {

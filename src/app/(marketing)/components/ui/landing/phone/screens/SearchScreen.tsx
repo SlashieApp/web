@@ -1,7 +1,7 @@
 'use client'
 
 import { Box, HStack, Stack, Text } from '@chakra-ui/react'
-import { LuCrosshair, LuMapPin, LuSearch } from 'react-icons/lu'
+import { LuCrosshair, LuEllipsisVertical, LuSearch } from 'react-icons/lu'
 
 import { formatMessage } from '@/i18n/loadPageI11n'
 import { sdlElevation, sdlFigure } from '@/theme/styles'
@@ -15,7 +15,7 @@ import { enterStyle, useDemoBeat } from '../useDemoBeat'
 
 /** Pin positions as fractions of the map (kept clear of the bottom card). */
 const PINS: Record<DemoTaskId, { x: number; y: number }> = {
-  move: { x: 0.47, y: 0.2 },
+  move: { x: 0.47, y: 0.25 },
   wardrobe: { x: 0.76, y: 0.27 },
   paint: { x: 0.2, y: 0.5 },
   hedge: { x: 0.6, y: 0.63 },
@@ -36,10 +36,107 @@ const COMPACT_PINS = [
 ]
 
 /**
- * Map search. Customers start on one task and tap a pin to see another;
- * workers see the same map with "Send quote" on the card. `compact` is the
- * cropped phone's layout: the search bar, three pins and the card, all above
- * the crop.
+ * The selected task's card, as the app's search draws it: the task's picture
+ * (here its icon, the demo has no photos) down the left, its kind as a chip,
+ * the title on one line, then the price, how far it is and when, with the
+ * card's menu. It is the selected card, so its edge is green.
+ */
+function TaskCard({
+  id,
+  copy,
+  compact = false,
+}: {
+  id: DemoTaskId
+  copy: PhoneCopy
+  compact?: boolean
+}) {
+  const task = copy.tasks[id]
+  // The task's own icon, from the one table.
+  const TaskIcon = DEMO_TASK_ICONS[id]
+  return (
+    <DemoCard
+      data-search-card=""
+      display="flex"
+      alignItems="stretch"
+      p={0}
+      overflow="hidden"
+      borderColor="accent.active"
+      boxShadow={sdlElevation.e3}
+      css={{
+        animation: 'fade-rise 360ms cubic-bezier(0.2, 0, 0, 1) both',
+      }}
+    >
+      <Box
+        w={compact ? '64px' : '88px'}
+        flexShrink={0}
+        bg="bg.subtle"
+        color="text.muted"
+        display="flex"
+        alignItems="center"
+        justifyContent="center"
+        aria-hidden
+      >
+        <TaskIcon size={compact ? 22 : 28} />
+      </Box>
+      <Stack
+        gap={compact ? '2px' : '4px'}
+        flex={1}
+        minW={0}
+        p={compact ? '8px 10px' : '12px'}
+      >
+        <Box
+          alignSelf="flex-start"
+          px="8px"
+          borderRadius="full"
+          borderWidth="1px"
+          borderColor="border.default"
+          bg="bg.subtle"
+          fontSize={compact ? '11px' : '12px'}
+          lineHeight={compact ? '18px' : '20px'}
+          fontWeight={500}
+          color="text.muted"
+        >
+          {task.kind}
+        </Box>
+        <Text
+          fontSize={compact ? '13px' : '15px'}
+          lineHeight={compact ? '18px' : '20px'}
+          fontWeight={500}
+          letterSpacing="-0.01em"
+          lineClamp={1}
+        >
+          {task.title}
+        </Text>
+        <Text
+          fontSize={compact ? '11px' : '13px'}
+          lineHeight={compact ? '15px' : '18px'}
+          color="text.muted"
+          lineClamp={1}
+        >
+          <Text as="span" color="text.default" {...sdlFigure}>
+            {task.price}
+          </Text>
+          {` · ${task.distance} · ${task.when}`}
+        </Text>
+      </Stack>
+      <Box
+        pt={compact ? '8px' : '12px'}
+        pr={compact ? '6px' : '8px'}
+        color="text.muted"
+        aria-hidden
+      >
+        <LuEllipsisVertical size={compact ? 16 : 18} />
+      </Box>
+    </DemoCard>
+  )
+}
+
+/**
+ * The app's search tab: the logo over the search field, the map with its
+ * price pins (the selected one a card with how far the task is), the selected
+ * task's card and the Dock. Customers and workers start on one task and tap a
+ * pin to see another. `compact` is the cropped phone's layout: the search
+ * bar, three pins and the card, all above the crop.
  */
 export function SearchScreen({
   copy,
@@ -58,9 +155,6 @@ export function SearchScreen({
   const [first, second]: DemoTaskId[] =
     variant === 'worker' ? ['paint', 'wardrobe'] : ['move', 'hedge']
   const selected = done ? second : first
-  const task = copy.tasks[selected]
-  // The task's own icon, from the one table.
-  const TaskIcon = DEMO_TASK_ICONS[selected]
   const placeholder =
     variant === 'worker'
       ? copy.search.workerPlaceholder
@@ -103,7 +197,11 @@ export function SearchScreen({
         {[first, second, third].map((id, index) => {
           const isSelected = id === selected
           const pin = (
-            <PricePin price={copy.tasks[id].price} selected={isSelected} />
+            <PricePin
+              price={copy.tasks[id].price}
+              selected={isSelected}
+              caption={copy.tasks[id].distance}
+            />
           )
           return (
             <Box
@@ -140,76 +238,7 @@ export function SearchScreen({
           zIndex={3}
         >
           <Box w="full" style={enterStyle(entered, 3, 18)}>
-            <DemoCard
-              key={selected}
-              data-search-card=""
-              p="10px"
-              borderWidth={0}
-              boxShadow={sdlElevation.e3}
-              css={{
-                animation: 'fade-rise 360ms cubic-bezier(0.2, 0, 0, 1) both',
-              }}
-            >
-              <HStack gap="10px" align="flex-start">
-                <Text
-                  flex={1}
-                  minW={0}
-                  fontSize="13px"
-                  lineHeight="18px"
-                  fontWeight={500}
-                  letterSpacing="-0.01em"
-                >
-                  {task.title}
-                </Text>
-                <Text
-                  fontSize="15px"
-                  lineHeight="18px"
-                  color="text.default"
-                  {...sdlFigure}
-                >
-                  {task.price}
-                </Text>
-              </HStack>
-              {/* On the narrowest phones "Send quote" goes under the line, whole. */}
-              <HStack
-                mt="4px"
-                gap="10px"
-                rowGap="6px"
-                flexWrap="wrap"
-                justify="space-between"
-              >
-                <HStack
-                  gap="4px"
-                  color="text.muted"
-                  fontSize="11px"
-                  lineHeight="15px"
-                  whiteSpace="nowrap"
-                >
-                  <LuMapPin size={11} aria-hidden />
-                  <Text>{task.area}</Text>
-                  <Text aria-hidden>·</Text>
-                  <Text>
-                    {formatMessage(copy.search.quotes, { count: task.quotes })}
-                  </Text>
-                </HStack>
-                {variant === 'worker' ? (
-                  <Box
-                    ml="auto"
-                    px="10px"
-                    py="4px"
-                    borderRadius="full"
-                    bg="action.primary"
-                    color="text.onGreen"
-                    fontSize="11px"
-                    lineHeight="15px"
-                    fontWeight={500}
-                    whiteSpace="nowrap"
-                  >
-                    {copy.search.sendQuote}
-                  </Box>
-                ) : null}
-              </HStack>
-            </DemoCard>
+            <TaskCard key={selected} id={selected} copy={copy} compact />
           </Box>
         </Box>
       </Box>
@@ -220,9 +249,29 @@ export function SearchScreen({
     <Box position="absolute" inset={0}>
       <PhoneMap />
 
+      {/* The app's search tab: its logo over the search field. */}
+      <Box
+        position="absolute"
+        top="8px"
+        left={0}
+        right={0}
+        display="flex"
+        justifyContent="center"
+        zIndex={2}
+        aria-hidden
+      >
+        {/* The wordmark for light surfaces, 1024 by 233. */}
+        <img
+          src="/images/slashie-logo-light.svg"
+          alt=""
+          width={114}
+          height={26}
+        />
+      </Box>
+
       <HStack
         position="absolute"
-        top="6px"
+        top="44px"
         left="16px"
         right="16px"
         h="50px"
@@ -249,7 +298,11 @@ export function SearchScreen({
         const { x, y } = PINS[id]
         const isSelected = id === selected
         const pin = (
-          <PricePin price={copy.tasks[id].price} selected={isSelected} />
+          <PricePin
+            price={copy.tasks[id].price}
+            selected={isSelected}
+            caption={copy.tasks[id].distance}
+          />
         )
         return (
           <Box
@@ -281,70 +334,7 @@ export function SearchScreen({
         zIndex={3}
         style={enterStyle(entered, ORDER.length, 18)}
       >
-        <DemoCard
-          key={selected}
-          data-search-card=""
-          display="flex"
-          gap="12px"
-          alignItems="center"
-          p="12px"
-          borderWidth={0}
-          boxShadow={sdlElevation.e3}
-          css={{
-            animation: 'fade-rise 360ms cubic-bezier(0.2, 0, 0, 1) both',
-          }}
-        >
-          <Box
-            w="56px"
-            h="56px"
-            flexShrink={0}
-            borderRadius="8px"
-            bg="bg.subtle"
-            color="text.muted"
-            display="flex"
-            alignItems="center"
-            justifyContent="center"
-            aria-hidden
-          >
-            <TaskIcon size={24} />
-          </Box>
-          <Stack gap="2px" flex={1} minW={0}>
-            <Text
-              fontSize="15px"
-              fontWeight={500}
-              letterSpacing="-0.01em"
-              lineClamp={1}
-            >
-              {task.title}
-            </Text>
-            <HStack gap="4px" color="text.muted" fontSize="13px">
-              <LuMapPin size={13} aria-hidden />
-              <Text>{task.area}</Text>
-              <Text aria-hidden>·</Text>
-              <Text>
-                {formatMessage(copy.search.quotes, { count: task.quotes })}
-              </Text>
-            </HStack>
-          </Stack>
-          <Stack gap="6px" align="flex-end" flexShrink={0}>
-            <Text fontSize="18px" color="text.default" {...sdlFigure}>
-              {task.price}
-            </Text>
-            {variant === 'worker' ? (
-              <Box
-                px="12px"
-                py="5px"
-                borderRadius="full"
-                bg="action.primary"
-                color="text.onGreen"
-                fontSize="12px"
-                fontWeight={500}
-              >
-                {copy.search.sendQuote}
-              </Box>
-            ) : null}
-          </Stack>
-        </DemoCard>
+        <TaskCard key={selected} id={selected} copy={copy} />
       </Box>
 
       <PhoneTabBar

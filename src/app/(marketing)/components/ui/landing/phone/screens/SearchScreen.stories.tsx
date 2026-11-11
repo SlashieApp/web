@@ -78,12 +78,12 @@ export const CardIconFollowsTheTask: Story = {
   },
 }
 
-/** Worker, playing: the card carries "Send quote"; the second pin pulses. */
+/** Worker, playing: the same map with "Tasks near you" in the search field; the second pin pulses. */
 export const Worker: Story = {
   args: { variant: 'worker' },
 }
 
-/** Worker after the tap: the second pin is selected, its card offers "Send quote". */
+/** Worker after the tap: the second pin is selected and its task's card shows (its kind, price, distance and date). */
 export const WorkerPinTapped: Story = {
   args: { variant: 'worker' },
   play: ({ canvasElement }) => tapSecondPin(canvasElement, 'wardrobe'),
@@ -113,7 +113,7 @@ export const CompactPinTapped: Story = {
   },
 }
 
-/** Cropped phone, worker after the tap: the card's "Send quote" is whole above the crop. */
+/** Cropped phone, worker after the tap: the second task's card is whole above the crop. */
 export const CompactWorkerPinTapped: Story = {
   args: { compact: true, variant: 'worker' },
   globals: { viewport: { value: 'mobile1', isRotated: false } },
@@ -121,7 +121,7 @@ export const CompactWorkerPinTapped: Story = {
     await tapSecondPin(canvasElement, 'wardrobe')
     await expectFitsTheCrop(canvasElement, [
       copy.tasks.wardrobe.title,
-      copy.search.sendQuote,
+      copy.tasks.wardrobe.kind,
     ])
   },
 }

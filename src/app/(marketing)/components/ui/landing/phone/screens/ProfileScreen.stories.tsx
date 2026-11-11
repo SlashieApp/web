@@ -2,20 +2,24 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { expect, userEvent, within } from 'storybook/test'
 
 import messages from '@/app/(marketing)/i11n.json'
+import { formatMessage } from '@/i18n/loadPageI11n'
 
 import { ProfileScreen } from './ProfileScreen'
 import { expectFitsTheCrop, withDemoPhone } from './screenStoryDecorator'
 
 const copy = messages.en.landing.phone
+const showAll = formatMessage(copy.profile.showAll, {
+  count: copy.profile.reviewCount,
+})
 
 /**
- * Story-only: taps "See all reviews", unless the screen's autoplay beat (about
+ * Story-only: taps "Show all reviews", unless the screen's autoplay beat (about
  * 2.6 s after it starts) already did, then waits for the last review.
  */
 async function seeAllReviews(canvasElement: HTMLElement) {
   const canvas = within(canvasElement)
   const lastReview = copy.profile.items[copy.profile.items.length - 1]
-  const seeAll = canvas.queryByRole('button', { name: copy.profile.seeAll })
+  const seeAll = canvas.queryByRole('button', { name: showAll })
   if (seeAll) await userEvent.click(seeAll)
   await expect(await canvas.findByText(lastReview.text)).toBeInTheDocument()
 }
@@ -39,8 +43,25 @@ export const Resting: Story = {
   args: { active: false },
 }
 
-/** Playing: the profile fills in with one review and "See all reviews" pulses. */
-export const Playing: Story = {}
+/**
+ * Playing: the app's public profile. The card with the photo, Save, the name
+ * and "Worker", the stats grid (the rating over its reviews, jobs done,
+ * years' experience, joined), Skills, and Reviews with one review and "Show
+ * all reviews" pulsing.
+ */
+export const Playing: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(canvas.getByText(copy.profile.worker)).toBeInTheDocument()
+    await expect(canvas.getByText(copy.profile.save)).toBeInTheDocument()
+    await expect(canvas.getByText(copy.profile.jobsLabel)).toBeInTheDocument()
+    await expect(canvas.getByText(copy.profile.yearsLabel)).toBeInTheDocument()
+    await expect(canvas.getByText(copy.profile.joinedLabel)).toBeInTheDocument()
+    await expect(canvas.getByText(copy.profile.skillsTitle)).toBeInTheDocument()
+    const first = canvasElement.querySelector('[data-profile-review]')
+    await expect(first).toHaveTextContent(copy.profile.fromCustomer)
+  },
+}
 
 /** All reviews: the full review list is shown and the button is gone. */
 export const AllReviews: Story = {
@@ -48,8 +69,9 @@ export const AllReviews: Story = {
 }
 
 /**
- * Cropped phone (the inline steps below `lg`), playing: the worker, the three
- * numbers, one review and "See all reviews" pulsing above the crop.
+ * Cropped phone (the inline steps below `lg`), playing: the worker in the
+ * bar, the rating and the jobs done, one review and "Show all reviews"
+ * pulsing above the crop.
  */
 export const Compact: Story = {
   args: { compact: true },

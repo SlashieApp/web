@@ -60,8 +60,8 @@ components/ui/landing/
   phone/
     PhoneFrame.tsx           device chrome; 375x812 screens scaled to the frame width · PhoneCrop, the inline phone's 340px well
     PhoneDemo.tsx            stage -> screen; StickyPhone (desktop) / DockedPhone (the rail's, on a phone) / StepPhone (inline: tablet, reduced motion); a phone is named by its step
-    screens/*                one scripted beat per screen (useDemoBeat: tap or autoplay), each with a `compact` layout for the cropped phone
-    PhoneMap.tsx             the drawn monochrome map + the app's price pins (white pills)
+    screens/*                one scripted beat per screen (useDemoBeat: tap or autoplay), each with a `compact` layout for the cropped phone · taskPageParts (the task page), stepFlowParts (the step flows)
+    PhoneMap.tsx             the drawn monochrome map + the app's price pins (white pills; the selected one a card)
     phoneParts.tsx           tab bar, hotspot, avatar, card, primary button
   bento/
     BentoSection.tsx         the bento: three hairline-divided cells, each a step and its snippet
@@ -392,9 +392,21 @@ it under the sticky header).
 - **A phone is named by its step** (FE-288): "Slashie app demo: Post" and so on
   (`landing.phone.demoStepLabel` with the index's label), so the eight inline
   phones are not eight figures with one name, and the pinned phone's name
-  follows the step it shows; the hero's search screen keeps the plain name. A
-  demo's button says what it shows: its name changes with its label when the
-  beat ends ("Post task", then "Task posted").
+  follows the step it shows; the hero's search screen keeps the plain name.
+- **The screens are the app's own (FE-542, 11 Nov 2026).** Each is a replica
+  of the real screen, laid out and worded as the app is: Search (the logo,
+  the price pins with the selected one a card, the task card, the Dock); Post
+  a task, Send a quote and Review as the app's step flows (the close bar, the
+  progress track with "Step N of M", one question, Continue), each shown as
+  its key step, a quick tap through the rest and the page it lands on
+  (`screens/stepFlowParts.tsx`); Quotes and Hire as the customer's task page
+  (the quote rows, the accept sheet, the booked page:
+  `screens/taskPageParts.tsx`); Chat as the thread (the booking card pinned
+  under the header, Send); Profile as the public profile (the card, the stats
+  grid, Skills, Reviews). Their labels are the app's own strings, held in
+  `landing.phone` and tied to the app's bags by `phone/phoneAppCopy.test.ts`,
+  which fails when a screen's copy changes and the demo did not. The demo's
+  people, tasks and prices stay fictional.
 - **The phone** is plain CSS: a `position: sticky` box in the right half, so the
   server HTML already has it in place and reduced motion changes nothing. The
   old sideways slide (the phone travelled from the hero's centre into the right
@@ -407,13 +419,9 @@ it under the sticky header).
   sheets and nav). `PhoneFrame` zeroes every transition and animation inside it
   under `prefers-reduced-motion` (`animation-duration: 0ms !important`, one
   iteration), so no screen needs its own guard: nothing in the phone moves under
-  reduced motion. The post screen's finished state swaps its app bar for the
-  "Task posted" toast: the toast takes the bar's place (46px in the 52px bar,
-  over the close button and the title) and ends above the first field, so no
-  field is ever covered, with or without motion (a story measures it). Under
-  reduced motion the post screen still rests in its starting state, with the form
-  showing and the hotspot a still green 600 ring (not a pulse), rather than on
-  the finished state; a tap plays the result (`useDemoBeat(active, intro,
+  reduced motion. Under reduced motion the post screen rests on its Details
+  step, with the hotspot a still green 600 ring (not a pulse), rather than on
+  the page it lands on; a tap plays the result (`useDemoBeat(active, intro,
   false)`). Every other screen jumps to its finished state.
 - **The phone's screens** follow the product after Train 1: neutral tiles and
   avatars (no mint), the drawn map in neutral tokens, price pins as pills

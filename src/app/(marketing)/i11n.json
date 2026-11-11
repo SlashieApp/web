@@ -186,7 +186,6 @@
           "placeholder": "Search a task",
           "workerPlaceholder": "Tasks near you",
           "quotes": "{count} quotes",
-          "sendQuote": "Send quote",
           "selectPin": "Show the {price} task"
         },
         "tasks": {
@@ -194,31 +193,46 @@
             "title": "Help moving two boxes",
             "area": "Camden",
             "price": "£45",
-            "quotes": 3
+            "quotes": 3,
+            "kind": "Moving",
+            "distance": "1.2 miles",
+            "when": "Wed, 11 Jun"
           },
           "wardrobe": {
             "title": "Assemble a wardrobe",
             "area": "Islington",
             "price": "£60",
-            "quotes": 2
+            "quotes": 2,
+            "kind": "Assembly",
+            "distance": "0.9 miles",
+            "when": "Thu, 12 Jun"
           },
           "paint": {
             "title": "Paint a bedroom wall",
             "area": "Fulham",
             "price": "£95",
-            "quotes": 2
+            "quotes": 2,
+            "kind": "Painting",
+            "distance": "2.1 miles",
+            "when": "Flexible"
           },
           "hedge": {
             "title": "Hedge trimming and garden tidy-up",
             "area": "Clapham",
             "price": "£80",
-            "quotes": 3
+            "quotes": 3,
+            "kind": "Gardening",
+            "distance": "0.8 miles",
+            "when": "Sat, 14 Jun"
           },
           "clean": {
             "title": "End of tenancy clean",
             "area": "Brixton",
             "price": "£120",
-            "quotes": 4
+            "quotes": 4,
+            "kind": "Cleaning",
+            "distance": "1.6 miles",
+            "when": "Fri, 13 Jun"
           }
         },
         "post": {
@@ -436,32 +450,42 @@
           }
         },
         "profile": {
+          "worker": "Worker",
+          "save": "Save",
+          "reviewsCount": "{count} reviews",
+          "jobsLabel": "jobs done",
+          "yearsLabel": "years' experience",
+          "joinedLabel": "joined",
+          "skillsTitle": "Skills",
+          "reviewsTitle": "Reviews",
+          "fromCustomer": "From a customer",
+          "showAll": "Show all {count} reviews",
           "name": "Alex M.",
           "initials": "AM",
           "trade": "Gardener · Clapham",
           "rating": "4.9",
-          "reviews": "32 reviews",
+          "reviewCount": 32,
           "jobs": "48",
-          "jobsLabel": "Jobs done",
-          "response": "~1 h",
-          "responseLabel": "Replies in",
+          "years": "5",
+          "joined": "Mar 2023",
           "skills": ["Gardening", "Hedge trimming", "Fencing"],
-          "reviewsTitle": "Reviews",
           "items": [
             {
               "author": "Priya S.",
-              "text": "Arrived on time and left the garden spotless."
+              "text": "Arrived on time and left the garden spotless.",
+              "date": "12 Jun"
             },
             {
               "author": "Tom W.",
-              "text": "Fair price and careful work."
+              "text": "Fair price and careful work.",
+              "date": "3 Jun"
             },
             {
               "author": "Leah B.",
-              "text": "Would book again in a heartbeat."
+              "text": "Would book again in a heartbeat.",
+              "date": "27 May"
             }
-          ],
-          "seeAll": "See all reviews"
+          ]
         }
       }
     }
@@ -653,7 +677,6 @@
           "placeholder": "搜尋任務",
           "workerPlaceholder": "你附近的任務",
           "quotes": "{count} 個報價",
-          "sendQuote": "發送報價",
           "selectPin": "顯示 {price} 的任務"
         },
         "tasks": {
@@ -661,31 +684,46 @@
             "title": "幫忙搬兩個箱",
             "area": "Camden",
             "price": "£45",
-            "quotes": 3
+            "quotes": 3,
+            "kind": "搬運",
+            "distance": "1.2 英里",
+            "when": "6月11日（週三）"
           },
           "wardrobe": {
             "title": "組裝衣櫃",
             "area": "Islington",
             "price": "£60",
-            "quotes": 2
+            "quotes": 2,
+            "kind": "組裝",
+            "distance": "0.9 英里",
+            "when": "6月12日（週四）"
           },
           "paint": {
             "title": "油一幅睡房牆",
             "area": "Fulham",
             "price": "£95",
-            "quotes": 2
+            "quotes": 2,
+            "kind": "油漆",
+            "distance": "2.1 英里",
+            "when": "時間彈性"
           },
           "hedge": {
             "title": "修剪樹籬及整理花園",
             "area": "Clapham",
             "price": "£80",
-            "quotes": 3
+            "quotes": 3,
+            "kind": "園藝",
+            "distance": "0.8 英里",
+            "when": "6月14日（週六）"
           },
           "clean": {
             "title": "退租清潔",
             "area": "Brixton",
             "price": "£120",
-            "quotes": 4
+            "quotes": 4,
+            "kind": "清潔",
+            "distance": "1.6 英里",
+            "when": "6月13日（週五）"
           }
         },
         "post": {
@@ -903,32 +941,42 @@
           }
         },
         "profile": {
+          "worker": "工作者",
+          "save": "收藏",
+          "reviewsCount": "{count} 則評價",
+          "jobsLabel": "份完成工作",
+          "yearsLabel": "年經驗",
+          "joinedLabel": "加入",
+          "skillsTitle": "技能",
+          "reviewsTitle": "評價",
+          "fromCustomer": "來自客戶",
+          "showAll": "顯示全部 {count} 則評價",
           "name": "Alex M.",
           "initials": "AM",
           "trade": "園藝師 · Clapham",
           "rating": "4.9",
-          "reviews": "32 個評價",
+          "reviewCount": 32,
           "jobs": "48",
-          "jobsLabel": "已完成工作",
-          "response": "約 1 小時",
-          "responseLabel": "回覆時間",
+          "years": "5",
+          "joined": "2023年3月",
           "skills": ["園藝", "修剪樹籬", "圍欄"],
-          "reviewsTitle": "評價",
           "items": [
             {
               "author": "Priya S.",
-              "text": "準時到達，花園清理得一塵不染。"
+              "text": "準時到達，花園清理得一塵不染。",
+              "date": "6月12日"
             },
             {
               "author": "Tom W.",
-              "text": "價錢公道，做事細心。"
+              "text": "價錢公道，做事細心。",
+              "date": "6月3日"
             },
             {
               "author": "Leah B.",
-              "text": "一定會再預約。"
+              "text": "一定會再預約。",
+              "date": "5月27日"
             }
-          ],
-          "seeAll": "查看所有評價"
+          ]
         }
       }
     }

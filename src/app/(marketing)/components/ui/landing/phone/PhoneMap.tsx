@@ -137,18 +137,23 @@ export function PhoneMap({
 }
 
 /**
- * The app's price pin (tone refresh): a pill with a 1px hairline, `e1` and the
- * price in green 800 at 600 with tabular figures, over a dot. Selected, it is
- * green 400 with an ink price. Decoration here, so it is not a button (the
- * screen's tappable beat wraps it in a `Hotspot`).
+ * The app's price pin: a white pill with a 1px hairline, `e1` and the price in
+ * green 800 at 600 with tabular figures, over a green dot. Selected, it is a
+ * white card with a 2px green edge: the price, and how far the task is under
+ * it. Decoration here, so it is not a button (the screen's tappable beat
+ * wraps it in a `Hotspot`).
  */
 export function PricePin({
   price,
   selected,
+  caption,
 }: {
   price: string
   selected: boolean
+  /** Under the price of the selected pin: how far the task is, as the app's pin says it. */
+  caption?: string
 }) {
+  const card = selected && caption
   return (
     <Box
       display="flex"
@@ -159,31 +164,43 @@ export function PricePin({
     >
       <Box
         display="flex"
-        alignItems="center"
-        h="30px"
+        flexDirection="column"
+        alignItems="flex-start"
+        justifyContent="center"
+        minH="30px"
         px="12px"
-        borderRadius="full"
-        borderWidth="1px"
-        borderColor={selected ? 'action.primary' : 'border.default'}
-        bg={selected ? 'action.primary' : 'bg.surface'}
-        color={selected ? 'text.onGreen' : 'status.success.fg'}
-        fontSize="16px"
-        lineHeight="1"
-        {...sdlFigure}
+        py={card ? '6px' : 0}
+        borderRadius={card ? '12px' : 'full'}
+        borderWidth={selected ? '2px' : '1px'}
+        borderColor={selected ? 'accent.active' : 'border.default'}
+        bg="bg.surface"
+        color="status.success.fg"
         boxShadow={selected ? sdlElevation.e3 : sdlElevation.e1}
-        transform={selected ? 'scale(1.06)' : 'none'}
         transformOrigin="50% 100%"
-        transitionProperty="transform, box-shadow, background-color, border-color"
+        transitionProperty="box-shadow, border-color"
         transitionDuration={sdlMotion.duration.moderate}
         transitionTimingFunction={sdlMotion.easing.standard}
       >
-        {price}
+        <Box fontSize={card ? '18px' : '16px'} lineHeight="1.1" {...sdlFigure}>
+          {price}
+        </Box>
+        {card ? (
+          <Box
+            fontSize="11px"
+            lineHeight="14px"
+            fontWeight={500}
+            color="text.muted"
+            whiteSpace="nowrap"
+          >
+            {caption}
+          </Box>
+        ) : null}
       </Box>
       <Box
         w={selected ? '12px' : '10px'}
         h={selected ? '12px' : '10px'}
         borderRadius="full"
-        bg={selected ? 'action.primary' : 'border.hover'}
+        bg="action.primary"
         boxShadow={`0 0 0 2px ${color('bg-surface')}`}
       />
     </Box>
