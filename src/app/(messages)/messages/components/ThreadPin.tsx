@@ -1,6 +1,6 @@
 'use client'
 
-import { HStack, Skeleton, Stack, Text } from '@chakra-ui/react'
+import { Box, HStack, Skeleton, Stack, Text } from '@chakra-ui/react'
 import { QuoteStatus } from '@codegen/schema'
 import type { ThreadFieldsFragment } from '@codegen/schema'
 
@@ -19,6 +19,7 @@ import { formatTimeSlotLabel } from '@/utils/timeSlots'
 import bag from '../i11n.json'
 import { PIN_VIEWS, getBottomPinView, getThreadPinView } from '../views'
 import { QuoteStatusBadge } from './ThreadQuote'
+import { ThreadBookingCard, ThreadNeedsButton } from './ThreadSheet'
 
 const PIN_PX = { base: 4, lg: 5 } as const
 
@@ -93,30 +94,6 @@ function MyQuote() {
   )
 }
 
-/** The booked time, the agreed price and how they pay. */
-function Booking() {
-  const { myOrder } = useTaskDetail()
-  const t = useI11n(bag)
-  const locale = useDateLocale()
-  if (!myOrder) return null
-  const payment = myOrder.snapshot.paymentMethod?.trim()
-  const line = [
-    formatTimeSlotLabel(
-      { start: myOrder.bookedStart, end: myOrder.bookedEnd },
-      locale,
-    ),
-    formatMessage(t.pin.agreed, { price: formatOrderAgreedPrice(myOrder) }),
-    payment ? formatTaskBudgetPaymentMethodLabel(payment) : null,
-  ]
-    .filter(Boolean)
-    .join(' · ')
-  return (
-    <Text fontSize="sm" color="text.muted">
-      {line}
-    </Text>
-  )
-}
-
 function PinSkeleton() {
   return (
     <HStack
@@ -134,11 +111,12 @@ function PinSkeleton() {
 }
 
 /**
- * The top pin under a task thread's header (Thread screen v2): always the
- * live quote(s) or the booking, information only. The poster sees the live
- * quotes before booking, a worker their own quote, then both see the
- * booking, and finally its last status. No buttons: answers live in the
- * timeline's quote card and the bottom pin. Renders inside the thread's
+ * The top pin under a task thread's header (Thread screen v2): the live
+ * quote(s) before a booking (the poster's, or a worker's own), the booking
+ * card once someone is booked (FE-543: it opens the booking's sheet, with a
+ * "Needs you" line when something needs the viewer), then the last status.
+ * Before a booking, what needs the viewer (an invitation to quote) is a line
+ * under the status that opens the sheet. Renders inside the thread's
  * `TaskDetailProvider` and reads task detail's own view.
  */
 export function ThreadPin({
@@ -180,6 +158,23 @@ export function ThreadPin({
       <TaskStatusPill status={taskView.pill} size="sm" />
     ) : null
 
+  // Booked: the booking card, which opens the booking's sheet (FE-543).
+  if (config.facts === 'booking') {
+    return (
+      <Box
+        data-thread-pin={pinView}
+        px={PIN_PX}
+        py={3}
+        bg="bg.canvas"
+        borderBottomWidth="1px"
+        borderColor="border.default"
+        aria-live="polite"
+      >
+        <ThreadBookingCard attention={attention} />
+      </Box>
+    )
+  }
+
   return (
     <Stack
       data-thread-pin={pinView}
@@ -203,7 +198,7 @@ export function ThreadPin({
       ) : null}
       {config.facts === 'quotes' ? <LiveQuotes live={live} /> : null}
       {config.facts === 'myQuote' ? <MyQuote /> : null}
-      {config.facts === 'booking' ? <Booking /> : null}
+      {asking ? <ThreadNeedsButton attention={attention} /> : null}
     </Stack>
   )
 }

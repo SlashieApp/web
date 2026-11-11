@@ -18,6 +18,7 @@ import {
 } from '@chakra-ui/react'
 import {
   type ReactNode,
+  type RefObject,
   createContext,
   useCallback,
   useContext,
@@ -140,6 +141,13 @@ export type DrawerProps = {
    * the opening button when a tap may not focus it (Safari on iPhone).
    */
   finalFocusEl?: () => HTMLElement | null
+  /**
+   * Render inside this element instead of over the page: the scrim and the
+   * panel fill it (the Messages thread's sheet rises from the foot of the
+   * conversation, over its composer, on phones and desktops alike). The
+   * element must be positioned and clip its overflow.
+   */
+  container?: RefObject<HTMLElement | null>
 }
 
 const sheetMotionCss = {
@@ -188,6 +196,7 @@ export function Drawer({
   endsInBar = false,
   contentProps,
   finalFocusEl,
+  container,
 }: DrawerProps) {
   const t = useI11n(bag)
   const radius = drawerPanelRadius(placement)
@@ -207,14 +216,18 @@ export function Drawer({
         ref={setBackdrop}
         bg="bg.overlay"
         backdropFilter="blur(4px)"
-        position="fixed"
+        position={container ? 'absolute' : 'fixed'}
         inset="0"
+        {...(container ? { w: 'full', h: 'full' } : {})}
         zIndex={APP_OVERLAY_Z_INDEX}
         css={sheetMotionCss}
       />
       <DrawerPositioner
-        position="fixed"
+        position={container ? 'absolute' : 'fixed'}
         inset="0"
+        // The recipe sizes it to the screen (100vw by 100dvh): in a
+        // container it is the container's size instead.
+        {...(container ? { w: 'full', h: 'full' } : {})}
         zIndex={APP_OVERLAY_Z_INDEX}
         {...(placement === 'bottom'
           ? { justifyContent: 'center', alignItems: 'flex-end' }
@@ -227,7 +240,7 @@ export function Drawer({
           boxShadow="e4"
           display="flex"
           flexDirection="column"
-          maxH="100dvh"
+          maxH={container ? '100%' : '100dvh'}
           w="full"
           maxW={DRAWER_PANEL_MAX_W}
           {...(placement === 'bottom' || placement === 'top'
@@ -391,7 +404,9 @@ export function Drawer({
           lazyMount
           unmountOnExit
         >
-          {isBrowser ? createPortal(overlay, document.body) : overlay}
+          {isBrowser
+            ? createPortal(overlay, container?.current ?? document.body)
+            : overlay}
         </DrawerRoot>
       </DrawerCloseContext.Provider>
     </DrawerNestingContext.Provider>

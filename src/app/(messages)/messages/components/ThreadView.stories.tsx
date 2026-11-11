@@ -8,7 +8,7 @@ import {
   ThreadAttentionKind,
 } from '@codegen/schema'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
-import { expect, fn, waitFor, within } from 'storybook/test'
+import { expect, fn, userEvent, waitFor, within } from 'storybook/test'
 
 import {
   STORY_WORKER_ID,
@@ -180,12 +180,20 @@ export const OwnerPendingQuote: Story = {
       await canvas.findByRole('heading', { name: '2 workers quoted' }),
     ).toBeVisible()
     await expect(
-      await canvas.findByRole('button', { name: 'Accept' }),
-    ).toBeVisible()
-    await expect(
       await canvas.findByText('Live quotes · cheapest £85'),
     ).toBeVisible()
-    await expect(canvasElement.querySelector('[data-bottom-pin]')).toBeNull()
+    // A quote card opens the quote in the sheet, where Accept is (FE-543).
+    const [card] = await canvas.findAllByRole('button', {
+      name: /^Quote from Jordan Lee, £85/,
+    })
+    await expect(canvas.queryByRole('button', { name: 'Accept' })).toBeNull()
+    await userEvent.click(card as HTMLElement)
+    const sheet = await canvas.findByRole('dialog', {
+      name: 'Quote from Jordan Lee',
+    })
+    await expect(
+      within(sheet).getByRole('button', { name: 'Accept' }),
+    ).toBeVisible()
     await expect(
       canvas.getByText('You can message here once a quote is accepted.'),
     ).toBeVisible()
@@ -268,38 +276,50 @@ export const BookedStartRefetchesThreads: Story = {
   },
 }
 
-/** The bottom pin sits between the timeline and the composer; the newest item stays in view. */
-async function checkBottomPinLayout(canvasElement: HTMLElement) {
+/**
+ * What needs the viewer (FE-543): a "Needs you" line on the booking card
+ * under the header; the card opens the sheet, which rises from the foot of
+ * the conversation over the composer, with the answers (Use this time, or
+ * Propose other times) and the booking's actions.
+ */
+async function checkNeedsYouSheet(canvasElement: HTMLElement) {
   const canvas = within(canvasElement)
-  const pin = await canvas.findByRole('region', { name: 'Needs you' })
-  await expect(
-    within(pin).getByText('Jordan Lee wants to move the booking'),
-  ).toBeVisible()
-  await expect(
-    within(pin).getByRole('button', { name: 'Propose other times' }),
-  ).toBeVisible()
+  const card = await canvas.findByRole('button', {
+    name: /^Your booking with Jordan Lee\. Needs you: Jordan Lee wants to move the booking/,
+  })
+  await expect(canvas.queryByRole('region', { name: 'Needs you' })).toBeNull()
   const composer = canvas.getByRole('textbox', { name: 'Message Jordan Lee' })
   await expect(composer).toBeVisible()
-  await expect(pin.getBoundingClientRect().bottom).toBeLessThanOrEqual(
-    composer.getBoundingClientRect().top,
-  )
-  const log = canvas.getByRole('log')
-  const timeline = log.parentElement?.parentElement as HTMLElement
-  const newest = log.lastElementChild as HTMLElement
-  await waitFor(() =>
-    expect(newest.getBoundingClientRect().bottom).toBeLessThanOrEqual(
-      timeline.getBoundingClientRect().bottom + 1,
-    ),
-  )
-  await expect(timeline.getBoundingClientRect().bottom).toBeLessThanOrEqual(
-    pin.getBoundingClientRect().top + 1,
-  )
+  await userEvent.click(card)
+  const sheet = await canvas.findByRole('dialog', { name: 'Your booking' })
+  const need = within(sheet).getByRole('region', { name: 'Needs you' })
+  await expect(
+    within(need).getByText('Jordan Lee wants to move the booking'),
+  ).toBeVisible()
+  await expect(
+    within(need).getByRole('button', { name: 'Propose other times' }),
+  ).toBeVisible()
+  await expect(
+    within(sheet).getByRole('button', { name: 'Message Jordan Lee' }),
+  ).toBeVisible()
+  // The sheet is the conversation's: it rises from its foot, over the composer.
+  const column = canvasElement.querySelector('[data-thread-column]')
+  await expect(column).toContainElement(sheet)
+  // Measured once it has risen.
+  await waitFor(() => {
+    expect(sheet.getBoundingClientRect().bottom).toBeGreaterThanOrEqual(
+      composer.getBoundingClientRect().bottom - 1,
+    )
+    expect(sheet.getBoundingClientRect().top).toBeLessThan(
+      composer.getBoundingClientRect().top,
+    )
+  })
 }
 
 /**
  * thread.open with something waiting: Jordan asked to move the booking. The
- * timeline shows it as a line, the bottom pin holds the answer buttons above
- * the composer, and the top pin keeps the booking facts.
+ * timeline shows it as a line, the booking card says what needs the viewer,
+ * and its sheet holds the answers over the composer.
  */
 export const NeedsYou: Story = {
   decorators: messagesStory({
@@ -309,7 +329,7 @@ export const NeedsYou: Story = {
     ...FRAME,
     task: askedTask,
   }),
-  play: async ({ canvasElement }) => checkBottomPinLayout(canvasElement),
+  play: async ({ canvasElement }) => checkNeedsYouSheet(canvasElement),
 }
 
 /** Phones: the same ask; the pin stays above the composer and the newest message stays in view. */
@@ -322,7 +342,7 @@ export const PhoneNeedsYou: Story = {
     task: askedTask,
     height: '560px',
   }),
-  play: async ({ canvasElement }) => checkBottomPinLayout(canvasElement),
+  play: async ({ canvasElement }) => checkNeedsYouSheet(canvasElement),
 }
 
 /**

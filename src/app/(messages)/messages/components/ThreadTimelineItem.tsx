@@ -3,19 +3,18 @@
 import { Box, HStack, Stack, Text } from '@chakra-ui/react'
 import { FlashKind, ThreadItemType } from '@codegen/schema'
 import type { ThreadItemFieldsFragment } from '@codegen/schema'
-import { type ReactNode, useContext } from 'react'
+import type { ReactNode } from 'react'
 
-import { TaskDetailContext } from '@/app/(task)/tasks/[slug]/context/TaskDetailContext'
 import { useTaskDetail } from '@/app/(task)/tasks/[slug]/context/TaskDetailProvider'
 import { useI11n } from '@/i18n/useI11n'
 import { formatPrice } from '@/utils/price'
 import { formatTimeSlotLabel } from '@/utils/timeSlots'
-import { Link } from '@ui'
+import { Button, Link } from '@ui'
 
 import { clockTime, flashAction, flashSlot } from '../helpers/messagesFormat'
 import bag from '../i11n.json'
-import { threadOtherBooking } from '../views'
 import { ThreadQuote } from './ThreadQuote'
+import { useThreadSheet } from './ThreadSheetContext'
 
 type Item = ThreadItemFieldsFragment
 
@@ -85,11 +84,14 @@ function FlashLine({
   item,
   time,
   slot,
+  onOpen,
 }: {
   item: Item
   time: string
   /** The booked slot, already formatted. */
   slot?: string | null
+  /** The request still waits on the viewer: open it in the sheet (FE-543). */
+  onOpen?: () => void
 }) {
   const t = useI11n(bag)
   const action = flashAction(item)
@@ -127,9 +129,26 @@ function FlashLine({
           {t.leaveReview}
         </Link>
       ) : null}
+      {onOpen ? (
+        <Button
+          type="button"
+          size="xs"
+          variant="secondary"
+          mt={1}
+          onClick={onOpen}
+        >
+          {t.sheet.openRequest}
+        </Button>
+      ) : null}
     </Stack>
   )
 }
+
+/** The flashes that ask the viewer something about the booking. */
+const REQUEST_FLASHES: ReadonlySet<FlashKind> = new Set([
+  FlashKind.RescheduleRequested,
+  FlashKind.CancellationRequested,
+])
 
 /**
  * Quote accepted also says when the job is booked: the quote's own slot, or
@@ -168,36 +187,38 @@ export function ThreadTimelineItem({
   item,
   locale,
   showTime = true,
+  latestRequest = false,
 }: {
   item: Item
   locale: string
   showTime?: boolean
+  /** The newest reschedule or cancel request in the thread. */
+  latestRequest?: boolean
 }) {
   const time = clockTime(item.createdAt, locale)
-  // A task thread runs inside its task's provider: a suspended task's quote
-  // can't be answered (BE-108), and once someone is booked the other quotes
-  // stay PENDING but only an open task can accept one (BE-113). Until the
-  // task has loaded nothing is accepted. The worker's own pending quote says
-  // what the task is doing instead of "Awaiting reply" (BE-116).
-  const detail = useContext(TaskDetailContext)
-  const taskSuspended = Boolean(detail?.permissions.isSuspended)
-  const taskOpen = detail
-    ? Boolean(detail.task) && detail.permissions.isOpen
-    : true
-  const otherBooking = detail ? threadOtherBooking(detail.view) : null
+  const sheet = useThreadSheet()
 
   if (item.type === ThreadItemType.Flash) {
     if (item.flashKind === FlashKind.QuoteReceived && item.quote) {
       return (
         <FlashCard item={item} time={time}>
-          <ThreadQuote
-            quote={item.quote}
-            locale={locale}
-            taskSuspended={taskSuspended}
-            taskOpen={taskOpen}
-            otherBooking={otherBooking}
-          />
+          <ThreadQuote quote={item.quote} />
         </FlashCard>
+      )
+    }
+    if (
+      item.flashKind &&
+      REQUEST_FLASHES.has(item.flashKind) &&
+      latestRequest &&
+      !item.isMine &&
+      sheet?.requestPending
+    ) {
+      return (
+        <FlashLine
+          item={item}
+          time={time}
+          onOpen={() => sheet.open({ kind: 'booking' })}
+        />
       )
     }
     if (item.flashKind === FlashKind.SystemAnnouncement) {

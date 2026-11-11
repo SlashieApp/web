@@ -8,7 +8,7 @@ import {
 } from '@codegen/schema'
 import type { ThreadFieldsFragment } from '@codegen/schema'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
-import { expect, waitFor, within } from 'storybook/test'
+import { expect, fn, waitFor, within } from 'storybook/test'
 
 import { TaskDetailProvider } from '@/app/(task)/tasks/[slug]/context/TaskDetailProvider'
 import {
@@ -21,6 +21,7 @@ import type { TaskDetailRecord } from '@/app/(task)/tasks/[slug]/helpers/taskDet
 import { LocaleProvider } from '@/i18n/LocaleProvider'
 
 import { ThreadPin } from './ThreadPin'
+import { ThreadSheetContext } from './ThreadSheetContext'
 import { messagesStory } from './messagesStoryDecorator'
 import {
   FUTURE_END,
@@ -46,7 +47,12 @@ const meta = {
   args: { attention: null },
   render: (args) => (
     <TaskDetailProvider taskId={STORY_TASK_ID} captureView={false}>
-      <ThreadPin {...args} />
+      {/* The thread's sheet, which the booking card opens (FE-543). */}
+      <ThreadSheetContext.Provider
+        value={{ open: fn(), close: fn(), requestPending: false }}
+      >
+        <ThreadPin {...args} />
+      </ThreadSheetContext.Provider>
     </TaskDetailProvider>
   ),
 } satisfies Meta<typeof ThreadPin>
@@ -217,7 +223,11 @@ export const WorkerQuoteClosed: Story = {
   },
 }
 
-/** pin.booking: booked: where it stands, the slot, agreed price and payment. */
+/**
+ * pin.booking: booked: the booking card (FE-543), in the Home "Hire and pay
+ * directly" language: who, the agreed price, the slot and how to pay. The
+ * whole card opens the booking's sheet.
+ */
 export const Booking: Story = {
   ...pin(
     'owner',
@@ -226,14 +236,18 @@ export const Booking: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
     await shows(canvasElement, 'pin.booking')
-    await expect(canvas.getByText('Awarded')).toBeVisible()
-    await expect(canvas.getByText('Worker booked')).toBeVisible()
-    await expect(canvas.getByText(/£85 agreed · Cash/)).toBeVisible()
-    await noButtons(canvasElement)
+    // The booking card (FE-543): who, the agreed price, when, how to pay.
+    const card = canvas.getByRole('button', {
+      name: 'Your booking with Jordan Lee. Open it for its actions.',
+    })
+    await expect(within(card).getByText('Jordan Lee')).toBeVisible()
+    await expect(within(card).getByText('£85')).toBeVisible()
+    await expect(within(card).getByText(/\d{1,2}:\d{2}/)).toBeVisible()
+    await expect(within(card).queryByText('Needs you')).toBeNull()
   },
 }
 
-/** pin.booking: Jordan asked to move it and waits: the status says so. */
+/** Their own reschedule request waits on the other person: nothing needs them. */
 export const BookingWaiting: Story = {
   ...pin(
     'worker',
@@ -242,14 +256,17 @@ export const BookingWaiting: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
     await shows(canvasElement, 'pin.booking')
-    await expect(canvas.getByText('Reschedule requested')).toBeVisible()
-    await expect(canvas.getByText(/£85 agreed/)).toBeVisible()
+    const card = canvas.getByRole('button', {
+      name: 'Your booking with Alex Chen. Open it for its actions.',
+    })
+    await expect(within(card).getByText('£85')).toBeVisible()
+    await expect(within(card).queryByText('Needs you')).toBeNull()
   },
 }
 
 /**
- * pin.booking while the bottom pin asks Alex to answer Jordan's request: the
- * booking facts only, without the answer buttons or the ask.
+ * Something needs the viewer (their reschedule to answer): a "Needs you"
+ * line on the card with what it is.
  */
 export const BookingWhileAsked: Story = {
   ...pin(
@@ -260,11 +277,15 @@ export const BookingWhileAsked: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
     await shows(canvasElement, 'pin.booking')
-    await expect(canvas.getByText(/£85 agreed/)).toBeVisible()
+    // What needs the viewer is a line on the card, which opens the sheet.
+    const card = canvas.getByRole('button', {
+      name: 'Your booking with Jordan Lee. Needs you: Jordan Lee wants to move the booking',
+    })
+    await expect(within(card).getByText('£85')).toBeVisible()
+    await expect(within(card).getByText('Needs you')).toBeVisible()
     await expect(
-      canvas.queryByText('Jordan Lee wants to move the booking'),
-    ).toBeNull()
-    await noButtons(canvasElement)
+      within(card).getByText(/Jordan Lee wants to move the booking/),
+    ).toBeVisible()
   },
 }
 

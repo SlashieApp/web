@@ -131,12 +131,11 @@ export const QuoteSentPoster: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
     await expect(
-      await canvas.findByRole('button', { name: 'Accept' }),
-    ).toBeVisible()
-    await expect(canvas.queryByRole('button', { name: 'Decline' })).toBeNull()
-    await expect(
       canvasElement.querySelector('[data-flash-card="QUOTE_RECEIVED"]'),
     ).toBeVisible()
+    // The answer is in the thread's sheet (FE-543), not on the card.
+    await expect(canvas.queryByRole('button', { name: 'Accept' })).toBeNull()
+    await expect(canvas.queryByRole('button', { name: 'Decline' })).toBeNull()
   },
 }
 

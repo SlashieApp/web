@@ -9,7 +9,11 @@ import {
   Text,
   VisuallyHidden,
 } from '@chakra-ui/react'
-import type { MessageThreadQuery, SendMessageMutation } from '@codegen/schema'
+import {
+  FlashKind,
+  type MessageThreadQuery,
+  type SendMessageMutation,
+} from '@codegen/schema'
 import {
   type KeyboardEvent,
   type ReactNode,
@@ -47,8 +51,8 @@ import {
   threadOtherBooking,
 } from '../views'
 import { ThreadAttentionRefresh } from './ThreadAttentionRefresh'
-import { ThreadBottomPin } from './ThreadBottomPin'
 import { ThreadHeader } from './ThreadHeader'
+import { THREAD_COMPOSER_ATTR, ThreadSheetProvider } from './ThreadSheet'
 import { ThreadTimelineItem } from './ThreadTimelineItem'
 
 type Copy = (typeof bag)['en']
@@ -125,6 +129,7 @@ function Composer({
         minH="44px"
         maxH="160px"
         autoresize
+        {...{ [THREAD_COMPOSER_ATTR]: '' }}
         placeholder={t.composerPlaceholder}
         aria-label={formatMessage(t.composerLabel, { name })}
       />
@@ -234,17 +239,19 @@ function Centered({ children }: { children: ReactNode }) {
 }
 
 /**
- * One conversation: header with the top pin, timeline (oldest at the top),
- * the bottom pin when something needs the viewer, then the composer. Task
- * threads run inside the task's `TaskDetailProvider`, so the menu and both
- * pins share task detail's state and controls. What shows is the thread's
- * named view (`getThreadView`, views/README.md).
+ * One conversation: header with the top pin (the booking card once booked),
+ * timeline (oldest at the top), then the composer. Task threads run inside
+ * the task's `TaskDetailProvider`, so the menu, the pin and the thread's sheet
+ * share task detail's state and controls; the sheet (FE-543) rises over the
+ * composer with a quote's or the booking's detail and actions. What shows is
+ * the thread's named view (`getThreadView`, views/README.md).
  */
 export function ThreadView({ threadId }: { threadId: string | null }) {
   const t = useI11n(bag)
   const locale = useLocale() === 'zh-hk' ? 'zh-HK' : 'en-GB'
   const { refetchThreads } = useMessages()
   const scrollRef = useRef<HTMLDivElement>(null)
+  const columnRef = useRef<HTMLDivElement>(null)
   const atEndRef = useRef(true)
   const [exhausted, setExhausted] = useState(false)
   const [loadingEarlier, setLoadingEarlier] = useState(false)
@@ -386,6 +393,12 @@ export function ThreadView({ threadId }: { threadId: string | null }) {
   const name = thread.otherParty?.name ?? thread.title
   const rows = timelineRows([...items].reverse(), locale, t)
   const pins = config.pins && thread.task != null
+  // The newest reschedule or cancel request offers to open it (FE-543).
+  const latestRequestId = [...items].find(
+    (item) =>
+      item.flashKind === FlashKind.RescheduleRequested ||
+      item.flashKind === FlashKind.CancellationRequested,
+  )?.id
 
   const conversation = (
     <>
@@ -437,6 +450,7 @@ export function ThreadView({ threadId }: { threadId: string | null }) {
                   item={row.item}
                   locale={locale}
                   showTime={row.showTime}
+                  latestRequest={row.item.id === latestRequestId}
                 />
               ),
             )}
@@ -444,16 +458,31 @@ export function ThreadView({ threadId }: { threadId: string | null }) {
         </Stack>
       </Box>
 
-      {pins ? <ThreadBottomPin attention={thread.attention} /> : null}
-
       <ThreadComposerArea view={view} threadId={thread.id} name={name} t={t} />
     </>
   )
 
   if (!pins || !thread.task) return conversation
+  // The sheet rises from the foot of this column, over the composer (FE-543).
   return (
     <TaskDetailProvider taskId={thread.task.id} captureView={false}>
-      {conversation}
+      <Stack
+        ref={columnRef}
+        data-thread-column=""
+        flex={1}
+        minH={0}
+        gap={0}
+        position="relative"
+        overflow="hidden"
+      >
+        <ThreadSheetProvider
+          container={columnRef}
+          attention={thread.attention}
+          locale={locale}
+        >
+          {conversation}
+        </ThreadSheetProvider>
+      </Stack>
     </TaskDetailProvider>
   )
 }

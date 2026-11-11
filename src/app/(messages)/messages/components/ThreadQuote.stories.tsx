@@ -1,6 +1,6 @@
 import { QuoteStatus } from '@codegen/schema'
-import type { Meta, StoryObj } from '@storybook/nextjs-vite'
-import { expect, userEvent, within } from 'storybook/test'
+import type { Decorator, Meta, StoryObj } from '@storybook/nextjs-vite'
+import { expect, fn, userEvent, within } from 'storybook/test'
 
 import { withSession } from '@/app/(auth)/helpers/authStoryDecorator'
 import {
@@ -9,23 +9,67 @@ import {
   storyWorkerMe,
 } from '@/app/(auth)/helpers/authStoryFixtures'
 import {
+  TaskDetailContext,
+  type TaskDetailContextValue,
+} from '@/app/(task)/tasks/[slug]/context/TaskDetailContext'
+import {
   STORY_OWNER_ID,
   STORY_WORKER_ID,
 } from '@/app/(task)/tasks/[slug]/helpers/taskDetailStoryFixtures'
 
-import { ThreadQuote } from './ThreadQuote'
+import { QuoteSheetBody, ThreadQuote } from './ThreadQuote'
+import { ThreadSheetContext } from './ThreadSheetContext'
 import { jordanQuote } from './messagesStoryFixtures'
 
 /** The task owner, who can accept. */
 const asOwner = withSession({ me: storyMe({ id: STORY_OWNER_ID }) })
-/** The quoting worker, who can only watch the status. */
+/** The quoting worker, who can withdraw their own pending quote. */
 const asWorker = withSession({ me: storyWorkerMe({ id: STORY_WORKER_ID }) })
+
+type TaskState = {
+  isSuspended?: boolean
+  isOpen?: boolean
+  /** Task detail's view: someone else's booking reads from it (BE-113, BE-116). */
+  view?: string
+  /** The worker's own quote, which they can withdraw. */
+  myQuoteId?: string
+}
+
+/**
+ * Story-only: the thread's task, as the quote reads it from task detail (a
+ * suspended task, a task no longer open, someone else's booking, the
+ * worker's own quote).
+ */
+function withTask({
+  isSuspended = false,
+  isOpen = true,
+  view = 'owner.open.quotes',
+  myQuoteId,
+}: TaskState = {}): Decorator {
+  const value = {
+    task: { id: 'task-1' },
+    view,
+    myQuote: myQuoteId ? { id: myQuoteId } : null,
+    permissions: {
+      isSuspended,
+      isOpen,
+      canWithdrawQuote: Boolean(myQuoteId),
+    },
+    onWithdrawQuote: async () => true,
+    withdrawingQuote: false,
+  } as unknown as TaskDetailContextValue
+  return (Story) => (
+    <TaskDetailContext.Provider value={value}>
+      <Story />
+    </TaskDetailContext.Provider>
+  )
+}
 
 const meta = {
   title: 'Messages/ThreadQuote',
   component: ThreadQuote,
   parameters: { layout: 'padded' },
-  args: { quote: jordanQuote(), locale: 'en-GB' },
+  args: { quote: jordanQuote() },
 } satisfies Meta<typeof ThreadQuote>
 
 export default meta
@@ -35,82 +79,48 @@ const page = (canvasElement: HTMLElement) =>
   within(canvasElement.ownerDocument.body)
 
 /**
- * Owner on a pending quote from a suspended worker (BE-108): "Account
- * suspended", Accept off, as on task detail.
+ * The card (FE-543), in the Home "Compare quotes" language: the worker,
+ * where the quote stands, the price, and the message on one line. No
+ * buttons: the poster accepts in the sheet.
  */
-export const OwnerWorkerSuspended: Story = {
-  args: { quote: jordanQuote({ workerSuspended: true }) },
-  decorators: [asOwner],
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement)
-    await canvas.findByText('Account suspended')
-    await expect(canvas.getByRole('button', { name: 'Accept' })).toBeDisabled()
-  },
-}
-
-/** Owner of a suspended task (BE-108): the quote's status, no Accept. */
-export const OwnerTaskSuspended: Story = {
-  args: { taskSuspended: true },
-  decorators: [asOwner],
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement)
-    await canvas.findByText('Awaiting reply')
-    await expect(canvas.queryByRole('button', { name: 'Accept' })).toBeNull()
-  },
-}
-
-/**
- * Owner of a task someone else was booked on (BE-113): this quote stays
- * PENDING, but only an open task can accept one, so no Accept.
- */
-export const OwnerTaskBooked: Story = {
-  args: { taskOpen: false },
-  decorators: [asOwner],
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement)
-    await canvas.findByText('Awaiting reply')
-    await expect(canvas.queryByRole('button', { name: 'Accept' })).toBeNull()
-  },
-}
-
-/** Owner on a pending quote: Accept sits under the details, and it is the only answer. */
 export const OwnerPending: Story = {
-  decorators: [asOwner],
+  decorators: [withTask(), asOwner],
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
-    await expect(
-      await canvas.findByRole('button', { name: 'Accept' }),
-    ).toBeEnabled()
-    await expect(canvas.queryByRole('button', { name: 'Decline' })).toBeNull()
-    await expect(canvas.queryByText('Awaiting reply')).toBeNull()
-  },
-}
-
-/** Accept pressed: the owner picks one of the proposed times before confirming. */
-export const OwnerPicksATime: Story = {
-  decorators: [asOwner],
-  play: async ({ canvasElement }) => {
-    await userEvent.click(
-      await within(canvasElement).findByRole('button', { name: 'Accept' }),
-    )
-    const dialog = await page(canvasElement).findByRole('dialog')
-    const times = within(dialog).getByRole('radiogroup', {
-      name: 'Pick a time',
-    })
-    await expect(within(times).getAllByRole('button')).toHaveLength(2)
-    await expect(
-      within(dialog).getByRole('button', { name: 'Accept quote' }),
-    ).toBeDisabled()
-  },
-}
-
-/** The worker's own pending quote: a status badge instead of actions. */
-export const WorkerPending: Story = {
-  decorators: [asWorker],
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement)
-    await expect(await canvas.findByText('Awaiting reply')).toBeVisible()
+    await canvas.findByText('Jordan Lee')
+    await expect(canvas.getByText('£85')).toBeVisible()
+    await expect(canvas.getByText('Awaiting reply')).toBeVisible()
     await expect(canvas.queryByRole('button', { name: 'Accept' })).toBeNull()
+  },
+}
+
+/** In a task thread the whole card opens the quote in the sheet. */
+export const OpensTheSheet: Story = {
+  decorators: [
+    withTask(),
+    asOwner,
+    (Story, { parameters }) => (
+      <ThreadSheetContext.Provider
+        value={{
+          open: parameters.open,
+          close: fn(),
+          requestPending: false,
+        }}
+      >
+        <Story />
+      </ThreadSheetContext.Provider>
+    ),
+  ],
+  parameters: { open: fn() },
+  play: async ({ canvasElement, parameters }) => {
+    await userEvent.click(
+      await within(canvasElement).findByRole('button', {
+        name: 'Quote from Jordan Lee, £85. Open it.',
+      }),
+    )
+    await expect(parameters.open).toHaveBeenCalledWith(
+      expect.objectContaining({ kind: 'quote' }),
+    )
   },
 }
 
@@ -119,22 +129,19 @@ export const WorkerPending: Story = {
  * task's status, not "Awaiting reply".
  */
 export const WorkerBookedByOther: Story = {
-  args: { otherBooking: 'booked' },
-  decorators: [asWorker],
+  decorators: [withTask({ view: 'worker.bookedByOther' }), asWorker],
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
     await expect(
       await canvas.findByText('Booked by someone else'),
     ).toBeVisible()
     await expect(canvas.queryByText('Awaiting reply')).toBeNull()
-    await expect(canvas.queryByRole('button', { name: 'Accept' })).toBeNull()
   },
 }
 
 /** Someone else's job is complete: "Task completed". */
 export const WorkerTaskCompleted: Story = {
-  args: { otherBooking: 'completed' },
-  decorators: [asWorker],
+  decorators: [withTask({ view: 'worker.completedByOther' }), asWorker],
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
     await expect(await canvas.findByText('Task completed')).toBeVisible()
@@ -144,8 +151,7 @@ export const WorkerTaskCompleted: Story = {
 
 /** The booking ended and the task isn't reopened (BE-116): "Booking cancelled". */
 export const WorkerOtherBookingEnded: Story = {
-  args: { otherBooking: 'ended' },
-  decorators: [asWorker],
+  decorators: [withTask({ view: 'worker.otherBookingEnded' }), asWorker],
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
     await expect(await canvas.findByText('Booking cancelled')).toBeVisible()
@@ -155,11 +161,8 @@ export const WorkerOtherBookingEnded: Story = {
 
 /** A quote that is no longer pending keeps its own status, whatever the task says. */
 export const WorkerWithdrawnKeepsItsStatus: Story = {
-  args: {
-    quote: jordanQuote({ status: QuoteStatus.Withdrawn }),
-    otherBooking: 'ended',
-  },
-  decorators: [asWorker],
+  args: { quote: jordanQuote({ status: QuoteStatus.Withdrawn }) },
+  decorators: [withTask({ view: 'worker.otherBookingEnded' }), asWorker],
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
     await expect(await canvas.findByText('Withdrawn')).toBeVisible()
@@ -240,19 +243,13 @@ export const UnnamedWorker: Story = {
   },
 }
 
-/** No message and no price: only the worker and the times. */
+/** No message and no price: only the worker and where the quote stands. */
 export const BareQuote: Story = {
   args: { quote: jordanQuote({ message: null, price: null }) },
   decorators: [asOwner],
 }
 
-/** No proposed times: the times line is left out. */
-export const NoTimes: Story = {
-  args: { quote: jordanQuote({ proposedSlots: [] }) },
-  decorators: [asOwner],
-}
-
-/** A long message clamps to three lines. */
+/** A long message is one line on the card; the sheet has all of it. */
 export const LongMessage: Story = {
   args: {
     quote: jordanQuote({
@@ -261,4 +258,102 @@ export const LongMessage: Story = {
     }),
   },
   decorators: [asOwner],
+}
+
+type SheetStory = StoryObj<typeof QuoteSheetBody>
+
+const sheet = (quote = jordanQuote()) =>
+  ({
+    render: () => <QuoteSheetBody quote={quote} locale="en-GB" onDone={fn()} />,
+  }) satisfies Partial<SheetStory>
+
+/**
+ * The quote in the sheet, for the poster: the whole quote (the times
+ * offered, the message) and Accept, the only answer there is.
+ */
+export const SheetOwnerPending: Story = {
+  ...sheet(),
+  decorators: [withTask(), asOwner],
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(
+      await canvas.findByRole('button', { name: 'Accept' }),
+    ).toBeEnabled()
+    await expect(canvas.getByText('Times offered')).toBeVisible()
+    await expect(canvas.queryByRole('button', { name: 'Decline' })).toBeNull()
+  },
+}
+
+/** Accept pressed: the owner picks one of the proposed times before confirming. */
+export const SheetOwnerPicksATime: Story = {
+  ...sheet(),
+  decorators: [withTask(), asOwner],
+  play: async ({ canvasElement }) => {
+    await userEvent.click(
+      await within(canvasElement).findByRole('button', { name: 'Accept' }),
+    )
+    const dialog = await page(canvasElement).findByRole('dialog')
+    const times = within(dialog).getByRole('radiogroup', {
+      name: 'Pick a time',
+    })
+    await expect(within(times).getAllByRole('button')).toHaveLength(2)
+    await expect(
+      within(dialog).getByRole('button', { name: 'Accept quote' }),
+    ).toBeDisabled()
+  },
+}
+
+/**
+ * A suspended worker's quote (BE-108): "Account suspended", Accept off, as
+ * on task detail.
+ */
+export const SheetOwnerWorkerSuspended: Story = {
+  ...sheet(jordanQuote({ workerSuspended: true })),
+  decorators: [withTask(), asOwner],
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await canvas.findByText('Account suspended')
+    await expect(canvas.getByRole('button', { name: 'Accept' })).toBeDisabled()
+  },
+}
+
+/** A suspended task (BE-108): the quote's status, no Accept. */
+export const SheetOwnerTaskSuspended: Story = {
+  ...sheet(),
+  decorators: [withTask({ isSuspended: true }), asOwner],
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await canvas.findByText('Awaiting reply')
+    await expect(canvas.queryByRole('button', { name: 'Accept' })).toBeNull()
+  },
+}
+
+/**
+ * Someone else was booked (BE-113): this quote stays PENDING, but only an
+ * open task can accept one, so no Accept.
+ */
+export const SheetOwnerTaskBooked: Story = {
+  ...sheet(),
+  decorators: [withTask({ isOpen: false }), asOwner],
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await canvas.findByText('Awaiting reply')
+    await expect(canvas.queryByRole('button', { name: 'Accept' })).toBeNull()
+  },
+}
+
+/** The worker's own pending quote: Withdraw quote, and no Accept (Ryan, 11 Nov). */
+export const SheetWorkerOwnPending: Story = {
+  ...sheet(),
+  decorators: [
+    withTask({ view: 'worker.open.quoted', myQuoteId: jordanQuote().id }),
+    asWorker,
+  ],
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(
+      await canvas.findByRole('button', { name: 'Withdraw quote' }),
+    ).toBeEnabled()
+    await expect(canvas.queryByRole('button', { name: 'Accept' })).toBeNull()
+  },
 }

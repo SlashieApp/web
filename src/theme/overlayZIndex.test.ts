@@ -20,7 +20,11 @@ describe('APP_OVERLAY_Z_INDEX', () => {
     )
     expect(modal).toContain('createPortal(overlay, document.body)')
     expect(modal).toContain('APP_OVERLAY_Z_INDEX')
-    expect(drawer).toContain('createPortal(overlay, document.body)')
+    // The Drawer portals to the page by default; a `container` (the Messages
+    // thread's sheet, FE-543) puts it inside that element instead.
+    expect(drawer).toContain(
+      'createPortal(overlay, container?.current ?? document.body)',
+    )
     expect(drawer).toContain('APP_OVERLAY_Z_INDEX')
   })
 })

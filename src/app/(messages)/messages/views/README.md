@@ -1,10 +1,12 @@
 # Messages views
 
-`/messages` and `/messages/[threadId]`: the inbox, the open conversation, and
-a task thread's two pins: the top pin under the header (the live quotes or
-the booking, information only) and the bottom pin above the composer (what
-needs the viewer now, with its buttons). Thread screen v2 (FE-333, decided
-2026-10-21). Product rules: wiki `01-Product/Messages.md`.
+`/messages` and `/messages/[threadId]`: the inbox, the open conversation, a
+task thread's top pin under the header (the live quotes, or the booking card
+once booked) and its sheet (FE-543, decided 2026-11-11): a bottom sheet that
+rises from the foot of the conversation, over the composer, with the detail
+and the actions of what was tapped (a quote, the booking, or what needs the
+viewer). Thread screen v2 (FE-333, decided 2026-10-21). Product rules: wiki
+`01-Product/Messages.md`.
 
 Each view has one config file here; `index.ts` maps names to configs
 (`INBOX_VIEWS`, `THREAD_VIEWS`, `PIN_VIEWS`, `BOTTOM_PIN_VIEWS`) and the
@@ -100,7 +102,7 @@ answers FORBIDDEN (`extensions.code`, or nothing) for a conversation you're not 
 | `thread.loadError` | Network or server error | Couldn't load your messages · Try again · Back to messages | none |
 | `thread.notFound` | Not your conversation, removed, or a bad id | This conversation isn't available · Back to messages | none |
 | `thread.system` | Slashie announcements | Header, timeline, no pins (`pins: false`) | You can't reply here |
-| `thread.open` | `canSend` | Header, top pin, timeline, bottom pin when something needs you (`pins: true`) | One-line composer (44px, grows to 160px) |
+| `thread.open` | `canSend` | Header, top pin (the booking card once booked), timeline, and the sheet when something is tapped (`pins: true`) | One-line composer (44px, grows to 160px) |
 | `thread.blocked` | You blocked them | Same | Unblock them to send |
 | `thread.suspended` | The task or booking is frozen by a suspension (task detail's `permissions.isFrozen`, BE-108) | Same | Messaging is paused while this account or task is suspended. |
 | `thread.bookedByOther` | The viewer's quote is still PENDING while someone else is booked (task detail's `worker.bookedByOther`, BE-113) | Same | Booked by someone else. You can't message here. |
@@ -133,7 +135,8 @@ newest item it stays in view when the pins load or change size.
 | Item | Shows |
 |---|---|
 | Message | A bubble, mine on the right |
-| `QUOTE_RECEIVED` (the worker's "quote sent") | The full quote card: worker, price, proposed times, message, live status; the poster accepts here (time picker + safety notice), the only answer there is, and only while the task is OPEN and not suspended: once someone is booked the other quotes stay PENDING but can't be accepted (BE-113); a suspended worker's quote shows "Account suspended" with Accept off (BE-108) |
+| `QUOTE_RECEIVED` (the worker's "quote sent") | A quote card in the Home "Compare quotes" language (FE-543): worker, live status, price, the message on one line. The whole card opens the quote in the sheet: proposed times, the whole message, and the poster's Accept (time picker + safety notice), the only answer there is, and only while the task is OPEN and not suspended: once someone is booked the other quotes stay PENDING but can't be accepted (BE-113); a suspended worker's quote shows "Account suspended" with Accept off (BE-108). The worker's own pending quote offers Withdraw quote there (also in the header menu) |
+| `RESCHEDULE_REQUESTED`, `CANCELLATION_REQUESTED` | A line like the others; the newest one, while the other person's request still waits on the viewer, has "Open the request", which opens the booking in the sheet |
 | `SYSTEM_ANNOUNCEMENT` (Slashie thread) | A card: picture, title, body |
 | `QUOTE_INVITED` (FE-507) | A line like the others: the API words title and body for the viewer ("{customer} asked you to quote on this task." for the worker, "You asked {worker} to quote." for the customer). Its link (`flashAction`) is the task; no push change (it opens the thread) |
 | Every other flash | One centred line: the flash's title (plus the quote's price on quote outcomes), time, then its body. No card, no buttons; `REVIEW_PROMPT` keeps its Leave a review link. The worker's `TASK_CANCELLED` and `TASK_REOPENED` (BE-108, title and body from the API) are lines too, without the price |
@@ -152,9 +155,11 @@ once someone else is booked (BE-113), but not while the task is suspended.
 
 ## Top pin: `getThreadPinView(taskDetailView)`
 
-Always the live quote(s) or the booking, information only: price, times or
-booked slot, status. No buttons (answers are on the quote card and in the
-bottom pin); the header's task name opens the task. It reads task detail's
+The live quote(s) before a booking (information only: price, times,
+status), the booking card once booked (it opens the sheet), then the last
+status. Before a booking, what needs the viewer (an invitation to quote) is a
+line under the status that opens the sheet. The header's task name opens the
+task. It reads task detail's
 own named view and data (`sortedQuotes`, `myQuote`, `myOrder`). The person
 is in the header, not here.
 
@@ -162,22 +167,31 @@ is in the header, not here.
 |---|---|---|
 | `pin.quotes` | `owner.open.quotes` | Open · "Live quotes · cheapest {price}", then up to three live (PENDING) quotes, cheapest first: worker, price, status; "+N more" after three |
 | `pin.myQuote` | `worker.open.quoted` | "Your quote", price, its status (Awaiting reply), the times offered |
-| `pin.booking` | `*.booked.*`, `*.conflict.*` | Awarded · task detail's headline (left out while the bottom pin shows), then booked time · "{price} agreed" · payment method |
+| `pin.booking` | `*.booked.*`, `*.conflict.*` | The booking card (FE-543, the Home "Hire and pay directly" language): the other person, the agreed price and the booked time, with a chevron; a "Needs you" line with what it is when something needs the viewer. The whole card opens the booking in the sheet |
 | `pin.status` | `owner.open.noQuotes`, `worker.open.notQuoted`, `worker.open.closed` | The pill and headline |
 | `pin.closed` | `*.completed`, `*.bookingCancelled`, `*.bookingFailed`, `owner.cancelled`, `worker.bookedByOther`, `worker.completedByOther`, `worker.otherBookingEnded`, `visitor.*` | The status: pill and headline ("Booked by someone else", "Task completed", "Booking cancelled" for a worker whose quote is still pending) |
 
 A placeholder row while the task loads; no pin for `customer.open` and
 `guest.open` (they can't be in a task thread) or on Slashie threads.
 
-## Bottom pin: `getBottomPinView({ attention, view })`
+## What needs the viewer: `getBottomPinView({ attention, view })`
 
-The one thing that needs the viewer now, above the composer, with task
-detail's own controls. Shown only when the API's `thread.attention` and task
+Since FE-543 (11 Nov 2026) there is no bar above the composer. What needs the
+viewer is a "Needs you" line on the booking card (before a booking, a line
+under the top pin's status), and a "Needs you" section at the top of the
+sheet with task detail's own controls (`useThreadNeed`, `ThreadNeedsYou`).
+The view names keep their `bottomPin.` prefix. The booking's sheet then has
+Message {name} (closes the sheet and hands the composer focus), Reschedule
+and Cancel booking (one-sided until 24 hours before the start, BE-125, behind
+its warning), and the Done card when the booking can be closed. The sheet
+closes once an action goes through.
+
+The one thing that needs the viewer now, with task detail's own controls. Shown only when the API's `thread.attention` and task
 detail's view agree, so it hides as soon as the viewer answers (task detail
 updates first) and never offers controls task detail wouldn't. COMPARE_QUOTES
-has no bottom pin (the quote cards handle it); nothing waiting means no pin;
-Slashie threads have none. Tinted, labelled "Needs you", task detail's
-headline first.
+needs nothing here (the quote cards handle it); nothing waiting means no
+"Needs you"; Slashie threads have none. Tinted, labelled "Needs you", task
+detail's headline first.
 
 | Bottom pin view | `attention.kind` | Task detail views | Sub-line | Controls |
 |---|---|---|---|---|
@@ -193,14 +207,14 @@ Something went wrong is not in the pin: it is the first entry of the
 thread menu (`ThreadHeader`) while the booking can be closed, as it is the
 first entry of Help & actions on task detail.
 
-While frozen by a suspension the API sends no `attention`, so there is no
-bottom pin, the header menu keeps only Report and Block
+While frozen by a suspension the API sends no `attention`, so nothing reads
+"Needs you", the header menu keeps only Report and Block
 (`threadMenuActions({ frozen })`), and the pins' sub-lines leave out the
 auto-Done date as task detail does.
 
-It sits in the column's flow between the timeline and the composer, so it
-never covers either, and is capped at 45% of the screen height and scrolls,
-so on phones the conversation keeps room.
+The sheet is the `@ui` Drawer placed in the conversation's column
+(`container`): it rises from the column's foot, over the composer, on phones
+and desktops alike, and scrolls when its content is taller than the column.
 
 The API works out `attention` when it sends the thread, but task detail
 polls and moves on (for example to `*.booked.ready` at the booked start)

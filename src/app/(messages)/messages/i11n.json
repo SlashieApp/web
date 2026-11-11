@@ -96,7 +96,23 @@
       "sendQuote": "Send a quote",
       "notForMe": "Not for me"
     },
-    "openTask": "Open task: {title}"
+    "openTask": "Open task: {title}",
+    "sheet": {
+      "bookingTitle": "Your booking",
+      "bookingWith": "Booking with {name}",
+      "openBooking": "Your booking with {name}. Open it for its actions.",
+      "openBookingNeeds": "Your booking with {name}. Needs you: {need}",
+      "quoteTitle": "Quote from {name}",
+      "myQuoteTitle": "Your quote",
+      "openQuote": "Quote from {name}, {price}. Open it.",
+      "openMyQuote": "Your quote, {price}. Open it.",
+      "proposedTimes": "Times offered",
+      "message": "Message",
+      "actions": "Booking actions",
+      "needsTitle": "Needs you",
+      "openNeeds": "Needs you: {need}. Open it.",
+      "openRequest": "Open the request"
+    }
   },
   "zh_hk": {
     "metadata": {
@@ -195,6 +211,22 @@
       "sendQuote": "傳送報價",
       "notForMe": "不適合我"
     },
-    "openTask": "開啟任務：{title}"
+    "openTask": "開啟任務：{title}",
+    "sheet": {
+      "bookingTitle": "你的預約",
+      "bookingWith": "與 {name} 的預約",
+      "openBooking": "你與 {name} 的預約。打開查看操作。",
+      "openBookingNeeds": "你與 {name} 的預約。需要你處理：{need}",
+      "quoteTitle": "{name} 的報價",
+      "myQuoteTitle": "你的報價",
+      "openQuote": "{name} 的報價，{price}。打開。",
+      "openMyQuote": "你的報價，{price}。打開。",
+      "proposedTimes": "提出的時間",
+      "message": "訊息",
+      "actions": "預約操作",
+      "needsTitle": "需要你處理",
+      "openNeeds": "需要你處理：{need}。打開。",
+      "openRequest": "打開請求"
+    }
   }
 }

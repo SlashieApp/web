@@ -20,7 +20,7 @@ import type { TaskDetailRecord } from '@/app/(task)/tasks/[slug]/helpers/taskDet
 import { LocaleProvider } from '@/i18n/LocaleProvider'
 import { AppToastHost } from '@/utils/appToast'
 
-import { ThreadBottomPin } from './ThreadBottomPin'
+import { ThreadNeedsYou, useThreadNeed } from './ThreadBottomPin'
 import { ThreadPin } from './ThreadPin'
 import { messagesStory } from './messagesStoryDecorator'
 import {
@@ -35,21 +35,34 @@ import {
 } from './messagesStoryFixtures'
 
 /**
- * The bottom pin above the composer, one story per ask (see
- * `views/README.md`), inside the task's detail context as the thread mounts
- * it. Alex owns the task; Jordan is the booked worker.
+ * Story-only: what needs the viewer, as the thread's sheet shows it
+ * (FE-543; it was the bottom pin above the composer).
+ */
+function NeedsYou({
+  attention,
+}: {
+  attention: ThreadFieldsFragment['attention']
+}) {
+  const need = useThreadNeed(attention)
+  return need ? <ThreadNeedsYou need={need} /> : null
+}
+
+/**
+ * What needs the viewer, one story per ask (see `views/README.md`), inside
+ * the task's detail context as the thread mounts it: the "Needs you" section
+ * of the thread's sheet. Alex owns the task; Jordan is the booked worker.
  */
 const meta = {
-  title: 'Messages/ThreadBottomPin',
-  component: ThreadBottomPin,
+  title: 'Messages/ThreadNeedsYou',
+  component: NeedsYou,
   parameters: { layout: 'fullscreen' },
   args: { attention: null },
   render: (args) => (
     <TaskDetailProvider taskId={STORY_TASK_ID} captureView={false}>
-      <ThreadBottomPin {...args} />
+      <NeedsYou {...args} />
     </TaskDetailProvider>
   ),
-} satisfies Meta<typeof ThreadBottomPin>
+} satisfies Meta<typeof NeedsYou>
 
 export default meta
 type Story = StoryObj<typeof meta>
@@ -67,7 +80,7 @@ function ask(
 const shows = async (canvasElement: HTMLElement, view: string) => {
   await waitFor(() =>
     expect(
-      canvasElement.querySelector(`[data-bottom-pin="${view}"]`),
+      canvasElement.querySelector(`[data-thread-need="${view}"]`),
     ).toBeVisible(),
   )
   return within(canvasElement)
@@ -187,7 +200,7 @@ export const Conflict: Story = {
 const withTopPin: Story['render'] = (args) => (
   <TaskDetailProvider taskId={STORY_TASK_ID} captureView={false}>
     <ThreadPin attention={args.attention} />
-    <ThreadBottomPin {...args} />
+    <NeedsYou {...args} />
   </TaskDetailProvider>
 )
 
@@ -196,7 +209,7 @@ const hidden = async (canvasElement: HTMLElement) => {
   await waitFor(() =>
     expect(canvasElement.querySelector('[data-thread-pin]')).toBeVisible(),
   )
-  await expect(canvasElement.querySelector('[data-bottom-pin]')).toBeNull()
+  await expect(canvasElement.querySelector('[data-thread-need]')).toBeNull()
 }
 
 /** Booked and before the start: nothing needs Alex, so there is no bottom pin. */
@@ -327,7 +340,7 @@ export const QuoteInvitationNotForMe: Story = {
     const canvas = await shows(canvasElement, 'bottomPin.quoteInvitation')
     await userEvent.click(canvas.getByRole('button', { name: 'Not for me' }))
     await waitFor(() =>
-      expect(canvasElement.querySelector('[data-bottom-pin]')).toBeNull(),
+      expect(canvasElement.querySelector('[data-thread-need]')).toBeNull(),
     )
     await expect(refetchThreads).toHaveBeenCalled()
     await expect(
@@ -363,7 +376,9 @@ export const QuoteInvitationNotForMeFails: Story = {
     await within(canvasElement.ownerDocument.body).findByText(
       "That didn't work. Refresh and try again.",
     )
-    await expect(canvasElement.querySelector('[data-bottom-pin]')).toBeVisible()
+    await expect(
+      canvasElement.querySelector('[data-thread-need]'),
+    ).toBeVisible()
   },
 }
 
@@ -372,7 +387,7 @@ export const QuoteInvitationDismissed: Story = {
   ...ask('worker', invited(true), needs(ThreadAttentionKind.QuoteInvitation)),
   play: async ({ canvasElement }) => {
     await new Promise((resolve) => setTimeout(resolve, 600))
-    await expect(canvasElement.querySelector('[data-bottom-pin]')).toBeNull()
+    await expect(canvasElement.querySelector('[data-thread-need]')).toBeNull()
   },
 }
 
@@ -398,7 +413,7 @@ export const QuoteInvitationAfterQuoting: Story = {
   ),
   play: async ({ canvasElement }) => {
     await new Promise((resolve) => setTimeout(resolve, 600))
-    await expect(canvasElement.querySelector('[data-bottom-pin]')).toBeNull()
+    await expect(canvasElement.querySelector('[data-thread-need]')).toBeNull()
   },
 }
 
