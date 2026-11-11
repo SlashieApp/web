@@ -22,45 +22,14 @@
 }
 
 .sh .ss-stage {
-  /* Slashie's look, from the SDL tokens: one green, zinc neutrals, dark ink
-     on green */
-  --ss-accent: var(--chakra-colors-action-primary);
-  --ss-accent-2: var(--chakra-colors-action-primary);
-  --ss-accent-soft: var(--chakra-colors-green-50);
-  --ss-accent-text: var(--chakra-colors-green-700);
-  --ss-success: var(--chakra-colors-green-600);
-  --ss-success-soft: var(--chakra-colors-green-50);
-  --ss-success-text: var(--chakra-colors-green-700);
-  --ss-text-strong: var(--chakra-colors-text-default);
-  --ss-text: var(--chakra-colors-text-muted);
-  --ss-text-faint: var(--chakra-colors-text-subtle);
-  --ss-canvas: var(--chakra-colors-bg-subtle);
-  --ss-surface: var(--chakra-colors-bg-surface);
-  --ss-line: var(--chakra-colors-border-default);
-  --ss-font: var(--chakra-fonts-body);
-  --sh-ink: var(--chakra-colors-text-on-green);
-  --sh-green-line: var(--chakra-colors-green-500);
-  --sh-star: var(--chakra-colors-status-warning-fg);
-  /* Arrivals are already moving on their first frame; travel eases out of rest */
-  --sh-arrive: cubic-bezier(0.25, 0.8, 0.25, 1);
-  --sh-travel: cubic-bezier(0.45, 0, 0.1, 1);
+  /* The look is `stageLook.css` (`sl-look`). The stage is the crop */
   overflow: hidden;
-  font: 13px / 1.4 var(--ss-font);
-  color: var(--ss-text-strong);
 }
 .sh .sh-strong {
   font-weight: 600;
 }
 .sh .sh-muted {
   color: var(--ss-text);
-}
-
-/* Slashie's buttons are pills; the label on green is dark ink, never white */
-.sh .ss-button {
-  --ss-radius-sm: 999px;
-}
-.sh .ss-button[data-variant="primary"] {
-  color: var(--sh-ink);
 }
 .sh .sh-scenes {
   display: grid;

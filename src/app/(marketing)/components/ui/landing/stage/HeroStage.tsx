@@ -1,7 +1,6 @@
 'use client'
 
-import { useLayoutEffect, useRef } from 'react'
-import { LuCheck, LuStar } from 'react-icons/lu'
+import { LuStar } from 'react-icons/lu'
 
 import {
   type Act,
@@ -22,7 +21,9 @@ import {
   Window,
 } from '@/app/(marketing)/components/stage'
 
+import { Done } from './Done'
 import { StageMap } from './StageMap'
+import './stageLook.css'
 import './heroStage.css'
 
 /** Slashie's mark, the app icon on a notification. */
@@ -96,42 +97,6 @@ const AREAS: [[number, number], [number, number]][] = [
 
 const set2 = <T,>(pair: [T, T], i: number, v: T): [T, T] =>
   i === 0 ? [v, pair[1]] : [pair[0], v]
-
-const Tick = () => <LuCheck size={14} strokeWidth={2.5} aria-hidden="true" />
-
-/**
- * A tick and its label, centred in a button. The label's width is whatever
- * the font makes it, so the pair would sit on a half pixel and the tick would
- * hop as the label settles: the box is widened to the next even pixel, which
- * centres it on a whole one. Measured again once the web font is in.
- */
-function Done({ label }: { label: string }) {
-  const ref = useRef<HTMLSpanElement>(null)
-  // biome-ignore lint/correctness/useExhaustiveDependencies: a new label is a new width
-  useLayoutEffect(() => {
-    const box = ref.current
-    if (!box) return
-    let live = true
-    const fit = () => {
-      if (!live) return
-      box.style.minWidth = ''
-      // The used width, in the stage's own pixels (a rect would be scaled).
-      const width = Math.ceil(Number.parseFloat(getComputedStyle(box).width))
-      if (width > 0) box.style.minWidth = `${width + (width % 2)}px`
-    }
-    fit()
-    document.fonts?.ready.then(fit)
-    return () => {
-      live = false
-    }
-  }, [label])
-  return (
-    <span ref={ref} className="sh-done">
-      <Tick />
-      {label}
-    </span>
-  )
-}
 
 const Star = () => <LuStar className="sh-star" size={12} aria-hidden="true" />
 
@@ -470,7 +435,7 @@ export function HeroWide({ copy }: { copy: HeroStageCopy }) {
       script={wideScript}
       fidelity="realistic"
       cursor={{ at: W_REST }}
-      className="sh sh-wide"
+      className="sl-look sh sh-wide"
     >
       {(s) => (
         <>
@@ -586,7 +551,7 @@ export function HeroCompact({ copy }: { copy: HeroStageCopy }) {
       script={compactScript}
       fidelity="realistic"
       cursor={{ at: C_REST, style: 'touch' }}
-      className="sh sh-compact"
+      className="sl-look sh sh-compact"
     >
       {(s) => {
         const q = s.note ? copy.tasks[s.note.scene].pulses[s.note.i] : null

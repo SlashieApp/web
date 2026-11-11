@@ -109,6 +109,44 @@
           }
         ]
       },
+      "tiles": {
+        "post": {
+          "what": "What do you need?",
+          "value": "Put up three shelves",
+          "where": "Where?",
+          "whereValue": "Hackney, London",
+          "when": "When?",
+          "whenValue": "Saturday",
+          "budget": "Budget",
+          "budgetValue": "£60",
+          "submit": "Post task",
+          "posted": "Posted"
+        },
+        "quotes": {
+          "prices": [
+            "£55",
+            "£62",
+            "£70",
+            "£48",
+            "£85",
+            "£64",
+            "£90",
+            "£58",
+            "£75"
+          ]
+        },
+        "hire": {
+          "figure": "0%",
+          "label": "Slashie's cut"
+        },
+        "chat": {
+          "theirs": "I can be there at 10. Is parking OK?",
+          "mine": "Yes, right outside."
+        },
+        "review": {
+          "prompt": "How did the job go?"
+        }
+      },
       "trust": {
         "points": [
           "Slashie takes no cut of the job",
@@ -476,6 +514,44 @@
             ]
           }
         ]
+      },
+      "tiles": {
+        "post": {
+          "what": "你需要什麼幫忙？",
+          "value": "安裝三塊層板",
+          "where": "地點",
+          "whereValue": "Hackney，倫敦",
+          "when": "時間",
+          "whenValue": "星期六",
+          "budget": "預算",
+          "budgetValue": "£60",
+          "submit": "發佈任務",
+          "posted": "已發佈"
+        },
+        "quotes": {
+          "prices": [
+            "£55",
+            "£62",
+            "£70",
+            "£48",
+            "£85",
+            "£64",
+            "£90",
+            "£58",
+            "£75"
+          ]
+        },
+        "hire": {
+          "figure": "0%",
+          "label": "Slashie 抽成"
+        },
+        "chat": {
+          "theirs": "我十點可以到。附近方便泊車嗎？",
+          "mine": "方便，門口就可以。"
+        },
+        "review": {
+          "prompt": "這份工作如何？"
+        }
       },
       "trust": {
         "points": [

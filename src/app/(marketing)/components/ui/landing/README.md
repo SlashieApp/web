@@ -9,10 +9,14 @@ styling-system fork** (FE-205).
 
 > **FE-542, in three pushes.** The page is being redesigned around Stageshow
 > scenes. Push 1 (done): the hero's scene and its Post a task action; the 3D
-> props and the map panel are no longer on the page. Their files (`scene/`,
-> `showcase/MapShowcase*`) and the sections below that describe them (Map
-> panel, 3D props, Updating the poster) stay until push 3 removes them with
-> the phone story, the floating pill and the `three` and `lenis` packages.
+> props and the map panel are no longer on the page. Push 2 (done): the
+> customer's five steps as a grid of tiles (see Customer tiles) in place of
+> the three boxed cells. The files no longer used (`scene/`,
+> `showcase/MapShowcase*`, `bento/`) and the sections below that describe
+> them (Map panel, Bento, 3D props, Updating the poster) stay until push 3
+> removes them with the phone story, the floating pill and the `three` and
+> `lenis` packages. Until then the customer's steps appear twice: in the
+> tiles, and in the phone story's first act.
 
 ## Run / build
 
@@ -26,7 +30,7 @@ bun run build
 
 | Stage | Copy (`landing.story`) | Phone screen | 3D formation |
 | --- | --- | --- | --- |
-| `hero` | hero heading + Post a task field + the hero scene, then (until the first step) the bento | Search (customer) | none since FE-542 (the column below describes the old scene) |
+| `hero` | hero heading + Post a task field + the hero scene, then (until the first step) the customer tiles | Search (customer) | none since FE-542 (the column below describes the old scene) |
 | `post` · `quotes` · `hire` · `chat` · `review` | customer act | Post · Quotes · Hire · Chat · Review | `customer`: down the right edge |
 | `workerFind` · `workerQuote` · `workerProfile` | worker act | Search (worker) · Quote form · Profile | `worker`: the same edge, the props change places |
 | `trust` · `pricing` | the trust row, live pricing | (phone has left) | `scatter`: waits at the right edge, under the opaque panels |
@@ -49,6 +53,12 @@ components/ui/landing/
     HeroStage.tsx            the hero scene on the Stageshow kit: a wide design (browser window + a worker's quote card) and a compact one (the app on a phone)
     heroStage.css            its styles, flat (no nesting), colours from the look tokens
     StageMap.tsx             the drawn map behind a task (the art is `showcase/mapShowcaseArt.ts`)
+    stageLook.css            Slashie's look on any stage (`sl-look`): the kit's tokens set from the SDL's
+    Done.tsx                 a tick and a label on a settled button, on a whole pixel
+    REHEARSAL.md             what was filmed and checked, and what was not
+  tiles/
+    CustomerTiles.tsx        the customer's five steps as a ruled grid of tiles, each with one small picture (a stage per tile)
+    customerTiles.css        the pictures' styles, flat, colours from the look tokens
     REHEARSAL.md             what was filmed and checked, and what was not
   ../../stage/               the vendored Stageshow kit (`kit/`), its entry module and the cascade-layer order (see Hero scene)
   story/
@@ -241,6 +251,53 @@ product.
   tokens are set from the SDL's (`--chakra-colors-*`), the label on green is
   ink, never white. Biome skips the vendored `kit/` folder only.
 
+## Customer tiles
+
+`tiles/CustomerTiles.tsx` (FE-542, push 2): the customer's five steps (post,
+quotes, hire, chat, review; the strings are `landing.story.customer.steps`) as
+one picture made of tiles, planned with the Stageshow skill's rules for a
+grid. It replaced the bento's three boxed cells, which showed three steps and
+three window-like snippets.
+
+| Tile | Span from `lg` | Kind | The one thing | Its beat |
+| --- | --- | --- | --- | --- |
+| post | 2 of 3 columns | Hero UI | the post form, one component | Post task settles to Posted |
+| quotes | 1 | Collection | price chips, one picked | the chips arrive in turn |
+| hire | 1 | Stat | 0%, Slashie's cut | type: it holds still |
+| chat | 1 | Component | two messages | the reply arrives |
+| review | 1 | Component | five stars | the stars fill |
+
+- **One frame, varied contents.** A ruled grid, between the frame's rails and
+  rules: the tiles are divided by hairlines (the grid's 1px gaps show its
+  `border.default` ground). No window chrome anywhere (the hero scene above
+  has the page's one window), and every neighbour is a different kind, across
+  and down. From `lg` it is a hero and a strip; from `md` two columns, the
+  form across both; on a phone the tiles stack in the steps' order.
+- **Copy is page type, outside the picture:** each tile's title is an h2
+  (`heading-md`) over its body (`text-md`, `text.muted`). The section has no
+  heading of its own; the landmark is named by the five titles.
+- **One stage per tile, at 1:1.** Each picture is its own stage, measured to
+  its tile's width (`usePictureWidth`), so nothing is scaled and the form
+  re-lays itself out when the tile is narrow (its three small fields stack
+  below 480px). The pictures are `aria-hidden` (the copy says it) and take no
+  focus.
+- **Real text is never cut.** The quote chips are real prices, so a tile
+  shows only the chips that fit whole (`chipsThatFit`, unit-tested): a
+  narrower tile shows fewer chips, not sliced ones.
+- **A stat is a real figure.** "0%" is Slashie's cut of the job, which is
+  true (`customerTiles.test.ts` holds the copy to it). It is page type, not a
+  picture, so a screen reader reads it.
+- **The product's own parts.** The chat tile draws the product's message
+  bubbles (16px corners, 6px on the tail side, green with ink for the
+  customer's own); the stars are the product's five green stars; the small
+  rating star elsewhere is `status.warning.solid`, as in `Rating`.
+- **Motion has one place to lead.** Each picture plays one beat, once, when
+  it scrolls into view, 110ms after the tile before it (the kit's
+  `play="once"`). Reduced motion and no JS show the finished state.
+- **Nothing is said twice across the page:** the tiles' task, people and
+  messages are their own, not the hero scene's (the test checks the task and
+  the message).
+
 ## Map panel
 
 > Not on the page since FE-542 push 1 (the hero scene took its place). The
@@ -327,6 +384,9 @@ formation while it passes, and the panel is opaque (`bg.canvas`).
   turns both off (the selection then cuts); the section's own reveal is `Reveal`.
 
 ## Bento
+
+> Not on the page since FE-542 push 2 (the customer tiles took its place).
+> The files stay until push 3.
 
 The bento (`bento/BentoSection.tsx`) is the customer's first three steps as
 three cells divided by hairlines: "Post a task in a minute", "Compare quotes"

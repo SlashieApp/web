@@ -5,13 +5,19 @@ import { describe, expect, it } from 'vitest'
 import messages from '@/app/(marketing)/i11n.json'
 import { WEB_MIN_PX } from '@/theme/breakpoints'
 
-const css = readFileSync(
-  join(
-    process.cwd(),
-    'src/app/(marketing)/components/ui/landing/stage/heroStage.css',
-  ),
-  'utf8',
-).replace(/\/\*[\s\S]*?\*\//g, '')
+const read = (name: string) =>
+  readFileSync(
+    join(
+      process.cwd(),
+      'src/app/(marketing)/components/ui/landing/stage',
+      name,
+    ),
+    'utf8',
+  ).replace(/\/\*[\s\S]*?\*\//g, '')
+
+const css = read('heroStage.css')
+/** The look every scene shares: the kit's tokens, set from the SDL's. */
+const look = read('stageLook.css')
 
 describe("the hero scene's stylesheet", () => {
   it("switches designs at the site's desktop split", () => {
@@ -47,9 +53,10 @@ describe("the hero scene's stylesheet", () => {
 
   it('takes its colours from the look tokens', () => {
     expect(css).not.toMatch(/#[0-9a-f]{3,8}\b/i)
-    expect(css).toContain('var(--chakra-colors-action-primary)')
+    expect(look).not.toMatch(/#[0-9a-f]{3,8}\b/i)
+    expect(look).toContain('--ss-accent: var(--chakra-colors-action-primary)')
     // Ink on green is dark, never white.
-    expect(css).toContain('--sh-ink: var(--chakra-colors-text-on-green)')
+    expect(look).toContain('--sh-ink: var(--chakra-colors-text-on-green)')
   })
 })
 

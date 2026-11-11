@@ -14,7 +14,6 @@ import {
   SectionRule,
 } from '../components/layout/MarketingFrame'
 import { LenisRoot } from '../components/ui/landing/LenisRoot'
-import { BentoSection } from '../components/ui/landing/bento/BentoSection'
 import { HeroSection } from '../components/ui/landing/hero/HeroSection'
 import { FinalCtaBand } from '../components/ui/landing/sections/FinalCtaBand'
 import { FloatingPostPill } from '../components/ui/landing/sections/FloatingPostPill'
@@ -28,6 +27,7 @@ import {
   StoryStageMarker,
   StoryTracker,
 } from '../components/ui/landing/story/StoryTracker'
+import { CustomerTiles } from '../components/ui/landing/tiles/CustomerTiles'
 import messages from '../i11n.json'
 
 export async function generateMetadata() {
@@ -42,7 +42,7 @@ export async function generateMetadata() {
 
 /**
  * Marketing landing at `/home`: a scroll story (the hero with its scene, the
- * bento, customer act, worker act, trust, pricing, close) on a white page,
+ * customer tiles, customer act, worker act, trust, pricing, close) on a white page,
  * and a demo phone that follows the story. The hero's scene (`HeroStage`,
  * FE-542) is the product doing its job: quotes arrive on a task and the
  * customer accepts one. The sections sit in the marketing frame (rails down
@@ -95,9 +95,9 @@ export default async function MarketingHomePage() {
             showcase={
               <>
                 <SectionRule />
-                <BentoSection
+                <CustomerTiles
                   steps={landing.story.customer.steps}
-                  phone={landing.phone}
+                  copy={landing.tiles}
                 />
                 <SectionRule />
               </>

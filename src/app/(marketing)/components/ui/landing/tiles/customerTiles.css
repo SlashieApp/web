@@ -1,0 +1,184 @@
+/* The customer tiles' pictures (CustomerTiles.tsx): the post form, the quote
+   chips, the messages and the stars. Flat rules, no nesting; the colours are
+   the look tokens (`stage/stageLook.css`). */
+
+/* Each stage is as wide as its tile's picture slot and is the crop: what a
+   picture runs off is the stage's edge, which is the tile's */
+.ct .ss-stage {
+  overflow: hidden;
+}
+
+/* ---- Post: the form, one component ---- */
+.ct .ct-form {
+  display: grid;
+  gap: 12px;
+  padding: 16px;
+  border: 1px solid var(--ss-line);
+  border-radius: 14px;
+  background: var(--ss-surface);
+}
+.ct .ct-fields {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr 0.8fr;
+  gap: 12px;
+}
+.ct .ct-form[data-narrow] .ct-fields {
+  grid-template-columns: 1fr 1fr;
+}
+.ct .ct-form[data-narrow] .ct-field--where {
+  grid-column: 1 / -1;
+}
+.ct .ct-field {
+  display: grid;
+  /* A label and its field are one item: 4px apart */
+  gap: 4px;
+  min-width: 0;
+}
+.ct .ct-label {
+  color: var(--ss-text);
+  font-size: 12px;
+  line-height: 16px;
+}
+.ct .ct-value {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 40px;
+  padding: 0 12px;
+  overflow: hidden;
+  border: 1px solid var(--ss-line);
+  border-radius: 8px;
+  font-size: 14px;
+  white-space: nowrap;
+}
+.ct .ct-field--what .ct-value {
+  font-weight: 500;
+}
+.ct .ct-glyph {
+  flex-shrink: 0;
+  color: var(--ss-text-faint);
+}
+.ct .ct-submit {
+  display: grid;
+  justify-self: end;
+  place-items: center;
+  height: 40px;
+  padding: 0 20px;
+  border-radius: 999px;
+  background: var(--ss-accent);
+  color: var(--sh-ink);
+  font-size: 14px;
+  font-weight: 600;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+.ct .ct-submit[data-state="done"] {
+  background: var(--ss-accent-soft);
+  color: var(--ss-accent-text);
+}
+.ct .ct-done {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 18px;
+  line-height: 18px;
+}
+
+/* ---- Quotes: a collection of prices, whole chips only ---- */
+.ct .ct-chips {
+  position: relative;
+  height: 100%;
+}
+.ct .ct-chip {
+  position: absolute;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 44px;
+  padding: 0 16px 0 8px;
+  border: 1px solid var(--ss-line);
+  border-radius: 999px;
+  background: var(--ss-surface);
+  opacity: 0;
+  transform: translateY(6px);
+  /* Each chip rises on a layer it keeps, so its price never hops as it lands */
+  will-change: transform;
+  transition: opacity 0.4s ease, transform 0.5s var(--sh-arrive);
+}
+.ct .ct-chips[data-on] .ct-chip {
+  opacity: 1;
+  transform: none;
+}
+/* The one the customer picks: the lowest price */
+.ct .ct-chip[data-pick] {
+  border-color: var(--sh-green-line);
+  background: var(--ss-accent-soft);
+}
+.ct .ct-price {
+  font-size: 15px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.ct .ct-chip[data-pick] .ct-price {
+  color: var(--ss-accent-text);
+}
+
+/* ---- Chat: two messages, in the product's own bubbles ---- */
+.ct .ct-chat {
+  display: grid;
+  align-content: start;
+  gap: 8px;
+}
+.ct .ct-bubble {
+  max-width: 82%;
+  padding: 8px 14px;
+  border-radius: 16px;
+  font-size: 14px;
+  line-height: 21px;
+}
+.ct .ct-bubble--theirs {
+  justify-self: start;
+  border-bottom-left-radius: 6px;
+  background: var(--ss-canvas);
+}
+.ct .ct-bubble--mine {
+  justify-self: end;
+  border-bottom-right-radius: 6px;
+  background: var(--ss-accent);
+  color: var(--sh-ink);
+  opacity: 0;
+  transform: translateY(8px);
+  will-change: transform;
+  transition: opacity 0.35s ease, transform 0.5s var(--sh-arrive);
+}
+.ct .ct-chat[data-on] .ct-bubble--mine {
+  opacity: 1;
+  transform: none;
+}
+
+/* ---- Review: the rating, five stars at twice their size ---- */
+.ct .ct-review {
+  display: grid;
+  align-content: start;
+  gap: 14px;
+}
+.ct .ct-prompt {
+  color: var(--ss-text);
+  font-size: 14px;
+  line-height: 21px;
+}
+.ct .ct-stars {
+  display: flex;
+  gap: 8px;
+}
+/* Empty, then green: the product's own five stars. An empty star is filled
+   with the surface, so the icon is opaque at both ends of its change */
+.ct .ct-star {
+  color: var(--chakra-colors-border-strong);
+  fill: var(--ss-surface);
+  transition: color 0.25s ease, fill 0.25s ease;
+}
+.ct .ct-review[data-on] .ct-star {
+  color: var(--ss-accent);
+  fill: var(--ss-accent);
+}
