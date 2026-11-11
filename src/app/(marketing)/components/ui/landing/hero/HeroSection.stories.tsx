@@ -5,11 +5,12 @@ import { expect, waitFor, within } from 'storybook/test'
 import messages from '@/app/(marketing)/i11n.json'
 
 import { HeroStage } from '../stage/HeroStage'
+import { buildHeroStageCopy } from '../stage/heroStageCopy'
 import { HeroSection } from './HeroSection'
 
 const hero = messages.en.landing.hero
 const ctas = messages.en.common.ctas
-const stageCopy = messages.en.landing.heroStage
+const stageCopy = buildHeroStageCopy(messages.en.landing.heroStage, 'en')
 
 /** `accent.active` (green 600), `text.muted` and `text.link`, resolved. */
 const GREEN_600 = 'rgb(2, 165, 103)'
@@ -191,7 +192,11 @@ export const TraditionalChinese: Story = {
       postTask: messages.zh_hk.common.ctas.postTask,
       browseTasks: messages.zh_hk.common.ctas.browseTasks,
     },
-    stage: <HeroStage copy={messages.zh_hk.landing.heroStage} />,
+    stage: (
+      <HeroStage
+        copy={buildHeroStageCopy(messages.zh_hk.landing.heroStage, 'zh-hk')}
+      />
+    ),
   },
 }
 

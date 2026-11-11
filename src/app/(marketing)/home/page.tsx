@@ -23,6 +23,7 @@ import { TrustSection } from '../components/ui/landing/sections/TrustSection'
 import { landingCtaPath } from '../components/ui/landing/sections/landingCtaPath'
 import { landingPricing } from '../components/ui/landing/sections/landingPricing'
 import { HeroStage } from '../components/ui/landing/stage/HeroStage'
+import { buildHeroStageCopy } from '../components/ui/landing/stage/heroStageCopy'
 import { LandingStory } from '../components/ui/landing/story/LandingStory'
 import {
   StoryStageMarker,
@@ -88,7 +89,11 @@ export default async function MarketingHomePage() {
                   postTask: ctas.postTask,
                   browseTasks: ctas.browseTasks,
                 }}
-                stage={<HeroStage copy={landing.heroStage} />}
+                stage={
+                  <HeroStage
+                    copy={buildHeroStageCopy(landing.heroStage, locale)}
+                  />
+                }
                 session={session}
               />
             }

@@ -1,5 +1,7 @@
-/* The landing's hero scene (HeroStage.tsx): the wide design (a window and the worker's card) and
-   the compact one (the app on a phone). All rules belong to it. */
+/* The landing's hero scene (HeroStage.tsx): the customer's task page, drawn
+   from the real one, in a browser window (wide) or the app on a phone
+   (compact). The look is `stageLook.css`. Flat rules, no nesting; colours
+   are the theme's tokens. */
 
 /* The host shows one design: the wide one from the site's desktop split
    (`lg`, 1024px: `WEB_MIN_PX`), the phone below it. Narrower than that the
@@ -22,79 +24,105 @@
 }
 
 .sh .ss-stage {
-  /* Slashie's look, from the SDL tokens: one green, zinc neutrals, dark ink
-     on green */
-  --ss-accent: var(--chakra-colors-action-primary);
-  --ss-accent-2: var(--chakra-colors-action-primary);
-  --ss-accent-soft: var(--chakra-colors-green-50);
-  --ss-accent-text: var(--chakra-colors-green-700);
-  --ss-success: var(--chakra-colors-green-600);
-  --ss-success-soft: var(--chakra-colors-green-50);
-  --ss-success-text: var(--chakra-colors-green-700);
-  --ss-text-strong: var(--chakra-colors-text-default);
-  --ss-text: var(--chakra-colors-text-muted);
-  --ss-text-faint: var(--chakra-colors-text-subtle);
-  --ss-canvas: var(--chakra-colors-bg-subtle);
-  --ss-surface: var(--chakra-colors-bg-surface);
-  --ss-line: var(--chakra-colors-border-default);
-  --ss-font: var(--chakra-fonts-body);
-  --sh-ink: var(--chakra-colors-text-on-green);
-  --sh-green-line: var(--chakra-colors-green-500);
-  --sh-star: var(--chakra-colors-status-warning-fg);
-  /* Arrivals are already moving on their first frame; travel eases out of rest */
-  --sh-arrive: cubic-bezier(0.25, 0.8, 0.25, 1);
-  --sh-travel: cubic-bezier(0.45, 0, 0.1, 1);
+  /* The stage is the crop */
   overflow: hidden;
-  font: 13px / 1.4 var(--ss-font);
-  color: var(--ss-text-strong);
-}
-.sh .sh-strong {
-  font-weight: 600;
-}
-.sh .sh-muted {
-  color: var(--ss-text);
+  --sh-canvas: var(--chakra-colors-bg-canvas);
+  --sh-scroll: cubic-bezier(0.65, 0, 0.35, 1);
 }
 
-/* Slashie's buttons are pills; the label on green is dark ink, never white */
-.sh .ss-button {
-  --ss-radius-sm: 999px;
-}
-.sh .ss-button[data-variant="primary"] {
-  color: var(--sh-ink);
-}
+/* ---- Two tasks, stacked: the change is a page swap, a fade ---- */
 .sh .sh-scenes {
   display: grid;
   height: 100%;
 }
-
-/* Two tasks on the same product, stacked. The change is a page swap, and the
-   swap is a fade: the old task goes quickly and the new one comes in a beat
-   later, so the two lists are never read on top of each other. Nothing
-   slides: the two pages share their frame (the status, the Quotes label, the
-   buttons), and a part that is the same in both must not move */
+/* The new scene fades in over the old one, which stays whole beneath it until
+   the new one is opaque: never two half-faded pages, never an empty frame */
 .sh .sh-scene {
-  display: flex;
+  position: relative;
+  z-index: 0;
   grid-area: 1 / 1;
   min-height: 0;
   opacity: 0;
-  transition: opacity 0.18s ease;
+  transition: opacity 0s linear 0.34s;
 }
 .sh .sh-scene[data-on] {
+  z-index: 1;
   opacity: 1;
-  transition: opacity 0.26s ease 0.12s;
-}
-.sh .sh-main {
-  position: relative;
-  flex: 1;
-  min-width: 0;
+  transition: opacity 0.32s ease;
 }
 
-/* ---- The map: the task's approximate area, as the product draws it ---- */
-.sh .sh-map {
-  position: relative;
-  flex-shrink: 0;
+/* ---- The page: a viewport, and the sheet that scrolls in it ---- */
+.sh .sh-viewport {
+  position: absolute;
+  inset: 0;
   overflow: hidden;
-  background: var(--chakra-colors-bg-subtle);
+  background: var(--sh-canvas);
+}
+.sh .sh-sheet {
+  position: relative;
+  /* It scrolls by a transform, on a layer it keeps, so its text never hops */
+  will-change: transform;
+  transition: transform 0.9s var(--sh-scroll);
+}
+
+/* The page header's bar: over the map at the top, solid once scrolled */
+.sh .sh-appbar {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: 56px;
+  padding: 0 16px;
+  /* Back at the top, the bar stays solid until the page has landed (most of
+     the scroll's 0.9s), so nothing slides under the bar's clear state */
+  transition: background-color 0.25s ease 0.65s, box-shadow 0.25s ease 0.65s;
+}
+.sh .sh-appbar[data-solid] {
+  background: var(--ss-surface);
+  box-shadow: 0 1px 0 var(--ss-line);
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+.sh .sh-appbar__title {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  font-size: 15px;
+  font-weight: 500;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity 0.25s ease 0.65s;
+}
+.sh .sh-appbar[data-solid] .sh-appbar__title {
+  opacity: 1;
+  transition: opacity 0.3s ease;
+}
+.sh .sh-iconbtn {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--ss-surface);
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.14);
+  color: var(--ss-text-strong);
+  transition: box-shadow 0.25s ease 0.65s;
+}
+.sh .sh-appbar[data-solid] .sh-iconbtn {
+  box-shadow: none;
+  transition: box-shadow 0.3s ease;
+}
+
+/* ---- The map header: the task's own pin, the title, its chips ---- */
+.sh .sh-maphead {
+  position: relative;
+  height: 200px;
+  overflow: hidden;
 }
 .sh .sh-map__art {
   position: absolute;
@@ -131,423 +159,705 @@
   stroke-width: 9;
   stroke-linecap: round;
 }
-.sh .sh-area {
-  position: absolute;
-  display: grid;
-  place-items: center;
-  width: 132px;
-  height: 132px;
-  margin: -66px 0 0 -66px;
-  border: 1.5px solid var(--sh-green-line);
-  border-radius: 50%;
-  background: color-mix(in srgb, var(--ss-accent) 14%, transparent);
-}
+/* The owner's pin: the price in a white pill with a green rim, over its dot */
 .sh .sh-pin {
-  padding: 4px 10px;
-  border-radius: 999px;
-  background: var(--ss-accent);
-  color: var(--sh-ink);
-  font-size: 13px;
+  position: absolute;
+  padding: 4px 12px;
+  border: 2px solid var(--sh-green-line);
+  border-radius: 10px;
+  background: var(--ss-surface);
+  box-shadow: 0 4px 10px -2px rgb(0 0 0 / 0.18);
+  font-size: 15px;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
-  box-shadow: 0 0 0 2px var(--ss-surface), 0 4px 10px -2px rgb(0 0 0 / 0.25);
+  transform: translate(-50%, -50%);
 }
-.sh .sh-place {
+.sh .sh-pin::after {
   position: absolute;
-  margin-top: 78px;
+  top: calc(100% + 8px);
+  left: 50%;
+  width: 10px;
+  height: 10px;
+  border: 2px solid var(--ss-surface);
+  border-radius: 50%;
+  background: var(--ss-accent);
+  content: "";
   transform: translateX(-50%);
+}
+/* The map fades into the page under the title */
+.sh .sh-maphead__fade {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 120px;
+  background: linear-gradient(to bottom, transparent, var(--sh-canvas) 80%);
+}
+.sh .sh-titleblock {
+  position: absolute;
+  right: 28px;
+  bottom: 14px;
+  left: 28px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+}
+.sh .sh-titletext {
+  min-width: 0;
+}
+.sh .sh-title {
+  font-size: 22px;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  line-height: 1.25;
+}
+.sh .sh-chips {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+  overflow: hidden;
+}
+.sh .sh-chip {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 6px;
+  height: 30px;
+  padding: 0 12px;
+  border: 1px solid var(--chakra-colors-border-strong);
+  border-radius: 999px;
+  background: var(--ss-surface);
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+/* The main action: Preview while open, then your worker and Message */
+.sh .sh-cta {
+  flex: none;
+}
+/* The kit's button, at the page's size: a pill that floats over the map */
+.sh .sh-preview {
+  --ss-button-height: 44px;
+  --ss-button-pad: 20px;
+  --ss-button-pad-icon: 17px;
+  box-shadow: 0 6px 16px -6px rgb(0 0 0 / 0.25);
+  font-size: 15px;
+}
+.sh .sh-chip--person {
+  padding-left: 6px;
+}
+/* Your worker beside Message, in one card: Message is the card's button */
+.sh .sh-worker {
+  display: inline-flex;
+  align-items: center;
+  gap: 16px;
+  padding: 10px 10px 10px 18px;
+  border-radius: 16px;
+  background: var(--ss-surface);
+  box-shadow: 0 0 0 1px var(--ss-line), 0 6px 16px -8px rgb(0 0 0 / 0.2);
+}
+.sh .sh-worker__who {
+  display: grid;
+  gap: 2px;
+  min-width: 280px;
+}
+.sh .sh-worker__label {
+  color: var(--ss-text);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  line-height: 1.3;
+  text-transform: uppercase;
+}
+.sh .sh-worker__name {
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.3;
+}
+.sh .sh-worker__message {
+  --ss-button-height: 40px;
+  --ss-button-pad: 20px;
+  font-size: 15px;
+}
+
+/* ---- The cards: the summary and quotes, beside Help & actions ---- */
+.sh .sh-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 296px;
+  align-items: start;
+  gap: 20px;
+  padding: 16px 28px 28px;
+}
+.sh .sh-col,
+.sh .sh-rail {
+  display: grid;
+  gap: 16px;
+  min-width: 0;
+}
+.sh .sh-card {
+  padding: 20px;
+  border: 1px solid var(--ss-line);
+  border-radius: 14px;
+  background: var(--ss-surface);
+}
+.sh .sh-eyebrow {
   color: var(--ss-text);
   font-size: 11px;
   font-weight: 500;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.08em;
+  line-height: 1.2;
   text-transform: uppercase;
-  white-space: nowrap;
 }
 
-/* ---- The task and its quotes ---- */
-.sh .sh-head {
-  display: grid;
-  justify-items: start;
-  gap: 12px;
-  margin-bottom: 22px;
-}
-.sh .sh-title {
-  margin: 0;
-  font-size: 20px;
-  font-weight: 600;
-  letter-spacing: -0.02em;
-  line-height: 1.2;
-}
-.sh .sh-facts {
-  display: flex;
+/* The status pill: Open in green, Awarded in amber */
+.sh .sh-status {
+  display: inline-flex;
   align-items: center;
   gap: 6px;
+  height: 24px;
+  padding: 0 10px;
+  border-radius: 999px;
+  background: var(--chakra-colors-green-50);
+  color: var(--chakra-colors-green-700);
+  font-size: 12px;
+  font-weight: 500;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
-.sh .sh-fact {
-  padding: 3px 10px;
+.sh .sh-status__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--chakra-colors-green-500);
+  transition: background-color 0.3s ease;
+}
+.sh .sh-status[data-tone="awarded"] {
+  background: var(--chakra-colors-status-warning-soft);
+  color: var(--chakra-colors-status-warning-fg);
+}
+.sh .sh-status[data-tone="awarded"] .sh-status__dot {
+  background: var(--chakra-colors-status-warning-solid);
+}
+.sh .sh-headline {
+  margin-top: 10px;
+  font-size: 17px;
+  font-weight: 500;
+  line-height: 1.35;
+}
+.sh .sh-subline {
+  display: grid;
+  margin-top: 4px;
+  color: var(--ss-text);
+  font-size: 13px;
+  line-height: 1.5;
+}
+.sh .sh-summary__body {
+  display: grid;
+  width: 100%;
+  margin-top: 16px;
+}
+.sh .sh-body {
+  display: grid;
+  width: 100%;
+}
+/* Each state of the card's body runs the card's width, as the page's rows do,
+   and the subline wraps at it */
+.sh .sh-summary__body > .ss-states__item,
+.sh .sh-subline > .ss-states__item {
+  justify-self: stretch;
+}
+.sh .sh-budget {
+  display: grid;
+  gap: 4px;
+  padding-bottom: 14px;
+}
+.sh .sh-budget__amount {
+  font-size: 36px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.03em;
+  line-height: 1;
+}
+.sh .sh-row {
+  display: grid;
+  grid-template-columns: 132px minmax(0, 1fr);
+  align-items: center;
+  gap: 12px;
+  min-height: 44px;
+  border-top: 1px solid var(--ss-line);
+  font-size: 13px;
+}
+.sh .sh-row__label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.sh .sh-row__label svg {
+  color: var(--ss-text);
+}
+.sh .sh-pill {
+  display: inline-flex;
+  align-items: center;
+  height: 24px;
+  padding: 0 10px;
+  border: 1px solid var(--ss-line);
+  border-radius: 999px;
+  background: var(--chakra-colors-bg-subtle);
+  font-size: 12px;
+  white-space: nowrap;
+}
+.sh .sh-person {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 500;
+}
+
+/* ---- Quotes: newest on top, as the task page's QuoteRow ---- */
+.sh .sh-quotes {
+  padding-bottom: 4px;
+}
+.sh .sh-quotes__head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+.sh .sh-count {
+  display: inline-grid;
+  place-items: center;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 6px;
   border: 1px solid var(--ss-line);
   border-radius: 999px;
   color: var(--ss-text);
   font-size: 12px;
-  white-space: nowrap;
-  /* Pushed along as the status beside it widens (Open to Booked): a layer
-     keeps each chip's text with its box instead of snapping to whole pixels */
-  will-change: transform;
-}
-.sh .sh-quotes {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding-bottom: 8px;
-  border-bottom: 1px solid var(--ss-line);
-}
-.sh .sh-label {
-  font-size: 13px;
-  font-weight: 600;
-}
-.sh .sh-count {
-  display: inline-flex;
-  padding: 1px 8px;
-  border-radius: 999px;
-  background: var(--chakra-colors-bg-subtle);
-  color: var(--ss-text);
-  font-size: 12px;
   font-weight: 500;
 }
-
-/* ---- Quotes: newest on top ---- */
-.sh .sh-row {
+.sh .sh-quote {
   display: grid;
-  flex-shrink: 0;
-  grid-template-columns: 32px minmax(0, 1fr) auto auto;
-  align-items: center;
+  grid-template-columns: 36px minmax(0, 1fr);
   gap: 12px;
-  height: 60px;
-  border-bottom: 1px solid var(--ss-line);
+  padding: 16px 0;
+  border-top: 1px solid var(--ss-line);
   /* Pushed down as each new row opens: a layer keeps the text with its box */
   will-change: transform;
-  transition: opacity 0.4s ease;
 }
-.sh .sh-row[data-dim] {
-  opacity: 0.55;
-}
-.sh .sh-who {
-  display: grid;
-  gap: 3px;
-  min-width: 0;
-}
-.sh .sh-line {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.sh .sh-name {
-  font-weight: 500;
-  white-space: nowrap;
-}
-.sh .sh-rating {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  height: 16px;
-  color: var(--ss-text);
-  font-size: 12px;
-  line-height: 16px;
-  font-variant-numeric: tabular-nums;
-  white-space: nowrap;
-}
-.sh .sh-star {
-  color: var(--sh-star);
-  fill: currentColor;
-}
-.sh .sh-note {
-  overflow: hidden;
-  color: var(--ss-text);
-  font-size: 12.5px;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.sh .sh-price {
-  justify-self: end;
-  padding: 4px 10px;
-  border-radius: 999px;
-  background: var(--ss-accent-soft);
-  color: var(--ss-accent-text);
-  font-size: 13px;
-  font-weight: 600;
-  font-variant-numeric: tabular-nums;
-  white-space: nowrap;
-}
-.sh .sh-act {
-  display: inline-flex;
-}
-.sh .sh-done {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  height: 18px;
-  line-height: 18px;
-}
-
 /* A row's words arrive once its space is open */
-.sh .sh-row > * {
+.sh .sh-quote > * {
   opacity: 0;
   transition: opacity 0.2s ease;
 }
-.sh .sh-row[data-landed] > * {
+.sh .sh-quote[data-landed] > * {
   opacity: 1;
   transition: opacity 0.45s ease 0.05s;
 }
-
-/* Filler under the quotes, so the page reads on past them */
-.sh .sh-more {
-  display: grid;
-  gap: 14px;
-  margin-top: 24px;
+.sh .sh-quote__body {
+  min-width: 0;
 }
-.sh .sh-more__row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-/* A heading and its lines of text */
-.sh .sh-more--text {
-  gap: 10px;
-}
-.sh .sh-more--text > :first-child {
-  margin-bottom: 4px;
-}
-
-/* ================================================================ wide ==== */
-.sh-wide .ss-stage {
-  --gutter: 44px;
-}
-
-/* The customer's task page: pinned top, centered, off the bottom. It is
-   taller than the stage shows (476px of it): tall enough to hold the page
-   with three quotes and its padding, so the stage's foot is the only crop
-   and the page never ends against the window's own (unseen) bottom edge */
-.sh-wide .sh-window {
-  position: absolute;
-  top: var(--gutter);
-  left: 164px;
-  width: 888px;
-  height: 680px;
-  background: var(--ss-surface);
-  border-radius: 12px;
-  box-shadow: var(--ss-shadow-hero);
-}
-.sh-wide .sh-map {
-  width: 296px;
-  border-right: 1px solid var(--ss-line);
-}
-.sh-wide .sh-main {
-  padding: 24px 28px;
-}
-
-/* The price is the flying chip itself: it shows the instant the chip is
-   gone, with no fade between them */
-.sh-wide .sh-row > .sh-price {
-  opacity: 1;
-  transition: none;
-  visibility: hidden;
-}
-.sh-wide .sh-row[data-landed] > .sh-price {
-  visibility: visible;
-}
-
-/* In flight it lifts off the page: a white chip with the same words. Over
-   the last of its flight it lowers into the soft pill, so it lands already
-   looking like the row's price and the handover is invisible */
-.sh-wide .sh-price--chip {
-  display: inline-block;
-  background: var(--ss-surface);
-  box-shadow: 0 0 0 1px
-    color-mix(in srgb, var(--ss-accent-text) 20%, transparent), 0 6px 16px -4px
-    rgb(0 0 0 / 0.28);
-}
-.sh-wide .ss-fly[data-go] .sh-price--chip {
-  background: var(--ss-accent-soft);
-  box-shadow: 0 0 0 1px transparent, 0 0 0 -4px transparent;
-  transition: background-color 0.35s ease 0.5s, box-shadow 0.35s ease 0.5s;
-}
-
-/* ---- The worker's side: straddles the map's edge ---- */
-.sh-wide .sh-card {
-  position: absolute;
-  /* One gutter above the stage's bottom edge, like the left */
-  bottom: var(--gutter);
-  left: var(--gutter);
-  display: grid;
-  gap: 14px;
-  width: 240px;
-  padding: 18px;
-  border-radius: 14px;
-  background: var(--ss-surface);
-  box-shadow: var(--ss-shadow-satellite);
-  opacity: 0;
-  transform: translateX(-14px);
-  will-change: transform;
-  transition: opacity 0.22s ease, transform 0.4s var(--sh-travel);
-}
-.sh-wide .sh-card[data-in] {
-  opacity: 1;
-  transform: none;
-  transition: opacity 0.6s ease 0.28s, transform 0.9s var(--sh-arrive) 0.28s;
-}
-.sh-wide .sh-card__head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-}
-/* A whole, even width, so the star sits on a whole pixel while the card moves */
-.sh-wide .sh-card__head .sh-rating {
-  min-width: 36px;
-}
-.sh-wide .sh-amount {
-  display: flex;
-  align-items: baseline;
-  gap: 6px;
-  font-size: 26px;
-  font-weight: 600;
-  letter-spacing: -0.02em;
-  font-variant-numeric: tabular-nums;
-}
-.sh-wide .sh-amount .sh-muted {
-  font-size: 12px;
-  font-weight: 400;
-  letter-spacing: 0;
-}
-.sh-wide .sh-fields {
-  display: grid;
-  border: 1px solid var(--ss-line);
-  border-radius: 10px;
-}
-.sh-wide .sh-field {
+.sh .sh-quote__line {
   display: flex;
   align-items: center;
   gap: 8px;
-  height: 34px;
-  padding: 0 12px;
 }
-.sh-wide .sh-field + .sh-field {
+.sh .sh-quote__name {
+  font-size: 14px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+.sh .sh-best {
+  display: inline-flex;
+  align-items: center;
+  height: 20px;
+  padding: 0 8px;
+  border-radius: 999px;
+  background: var(--chakra-colors-green-50);
+  color: var(--chakra-colors-green-700);
+  font-size: 11px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+.sh .sh-quote__price {
+  margin-left: auto;
+  font-size: 16px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.sh .sh-quote__meta {
+  margin-top: 2px;
+  overflow: hidden;
+  color: var(--ss-text);
+  font-size: 12px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.sh .sh-quote__note {
+  margin-top: 8px;
+  font-size: 13px;
+}
+.sh .sh-quote__actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 14px;
+  margin-top: 10px;
+}
+.sh .sh-chat {
+  display: inline-flex;
+  color: var(--ss-text);
+}
+.sh .sh-accept {
+  --ss-button-height: 34px;
+  --ss-button-pad: 18px;
+}
+
+/* ---- Help & actions, analytics ---- */
+.sh .sh-help,
+.sh .sh-analytics {
+  padding: 18px 20px 8px;
+}
+.sh .sh-help__list {
+  display: grid;
+  width: 100%;
+  margin-top: 8px;
+}
+.sh .sh-actions {
+  display: grid;
+  width: 100%;
+}
+.sh .sh-action {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 40px;
+  font-size: 14px;
+  white-space: nowrap;
+}
+.sh .sh-action[data-tone="link"] {
+  color: var(--chakra-colors-text-link);
+}
+.sh .sh-action[data-tone="danger"] {
+  color: var(--chakra-colors-status-danger-fg);
+}
+.sh .sh-analytics {
+  display: grid;
+}
+.sh .sh-stat {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 40px;
   border-top: 1px solid var(--ss-line);
+  font-size: 13px;
 }
-.sh-wide .sh-send {
+.sh .sh-stat:first-of-type {
+  margin-top: 8px;
+}
+.sh .sh-stat__value {
+  font-variant-numeric: tabular-nums;
+  font-weight: 500;
+}
+
+/* ---- The accept dialog: a dialog on a desktop, a bottom sheet on a phone ---- */
+.sh .sh-modal {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
   display: grid;
   place-items: center;
-  height: 36px;
+  pointer-events: none;
+}
+.sh .sh-modal__scrim {
+  position: absolute;
+  inset: 0;
+  background: color-mix(in srgb, var(--ss-text-strong) 40%, transparent);
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+.sh .sh-modal[data-open] .sh-modal__scrim {
+  opacity: 1;
+}
+.sh .sh-dialog {
+  position: relative;
+  display: grid;
+  width: 400px;
+  padding: 22px 22px 20px;
+  border-radius: 16px;
+  background: var(--ss-surface);
+  box-shadow: var(--ss-shadow-float);
+  opacity: 0;
+  transform: translateY(10px) scale(0.98);
+  will-change: transform;
+  transition: opacity 0.2s ease, transform 0.3s var(--sh-arrive);
+}
+.sh .sh-modal[data-open] .sh-dialog {
+  opacity: 1;
+  transform: none;
+}
+.sh .sh-dialog__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.sh .sh-dialog__title {
+  font-size: 18px;
+  font-weight: 500;
+  line-height: 1.3;
+}
+.sh .sh-dialog__close {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  color: var(--ss-text);
+}
+.sh .sh-dialog__hint {
+  margin: 8px 0 18px;
+  color: var(--ss-text);
+  font-size: 13px;
+  line-height: 1.5;
+}
+.sh .sh-dialog__label {
+  margin-bottom: 8px;
+  font-size: 13px;
+  font-weight: 500;
+}
+.sh .sh-radio {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 44px;
+  padding: 0 14px;
+  border: 1.5px solid var(--sh-green-line);
+  border-radius: 10px;
+  background: var(--ss-accent-soft);
+  font-size: 13px;
+  font-weight: 500;
+}
+.sh .sh-radio__dot {
+  width: 16px;
+  height: 16px;
+  border: 5px solid var(--ss-accent);
+  border-radius: 50%;
+  background: var(--ss-surface);
+}
+.sh .sh-confirm {
+  display: grid;
+  place-items: center;
+  height: 44px;
+  margin-top: 18px;
   border-radius: 999px;
   background: var(--ss-accent);
   color: var(--sh-ink);
-  font-weight: 600;
-  transition: background-color 0.3s ease, color 0.3s ease;
+  font-size: 15px;
+  font-weight: 500;
 }
-.sh-wide .sh-send[data-state="done"] {
-  background: var(--chakra-colors-bg-subtle);
-  color: var(--ss-text);
+
+/* ================================================================ wide ==== */
+/* The window: pinned a gutter from the top, centred, off the bottom */
+.sh-wide .sh-window {
+  position: absolute;
+  top: 44px;
+  left: 108px;
+  width: 1000px;
+  height: 600px;
+  border-radius: 12px;
+  background: var(--ss-surface);
+  box-shadow: var(--ss-shadow-hero);
 }
-.sh-wide .sh-send[data-state="booked"] {
-  background: var(--ss-accent-soft);
-  color: var(--ss-accent-text);
+.sh-wide .sh-window .ss-window__body {
+  position: relative;
+}
+.sh-wide .sh-scenes {
+  position: absolute;
+  inset: 0;
 }
 
 /* ============================================================= compact ==== */
-/* The app on a phone: pinned a gutter from the top and sides, off the bottom.
-   Sizes inside the phone are iOS points. */
-
-/* The phone sits 32px in from the stage's sides (on a phone: the page's
-   gutter and one more, so the shadow has room) and 16px under its top */
+/* The app on a phone, pinned a gutter from the top and centred; it runs off
+   the bottom just under its pinned button. Sizes inside are iOS points. */
 .sh-compact .sh-phone {
   position: absolute;
-  top: 16px;
+  top: 32px;
   left: 32px;
 }
 .sh-compact .sh-scenes {
   position: absolute;
   inset: 0;
 }
-.sh-compact .sh-scene {
-  flex-direction: column;
+/* Under the status bar; the round buttons sit as far in from the side as
+   from the bar's foot */
+.sh-compact .sh-appbar {
+  height: 106px;
+  padding: 50px 8px 0;
 }
-.sh-compact .sh-map {
-  height: 216px;
+.sh-compact .sh-appbar__title {
+  font-size: 17px;
 }
-.sh-compact .sh-area {
-  width: 112px;
-  height: 112px;
-  margin: -56px 0 0 -56px;
+.sh-compact .sh-iconbtn {
+  width: 40px;
+  height: 40px;
 }
-.sh-compact .sh-pin {
-  padding: 5px 12px;
-  font-size: 15px;
+.sh-compact .sh-maphead {
+  height: 300px;
 }
-.sh-compact .sh-place {
-  display: none;
-}
-.sh-compact .sh-main {
-  padding: 18px 16px;
-  background: var(--ss-surface);
-  font-size: 15px;
-}
-.sh-compact .sh-head {
-  gap: 10px;
-  margin-bottom: 20px;
+.sh-compact .sh-titleblock {
+  right: 0;
+  left: 16px;
+  bottom: 12px;
 }
 .sh-compact .sh-title {
-  font-size: 21px;
-  letter-spacing: -0.02em;
+  padding-right: 16px;
+  font-size: 23px;
 }
-.sh-compact .sh-fact {
-  padding: 4px 11px;
-  font-size: 13px;
+.sh-compact .sh-chip {
+  height: 34px;
+  font-size: 15px;
 }
-.sh-compact .sh-fact:last-child {
-  display: none;
+.sh-compact .sh-chip--person {
+  padding-left: 8px;
 }
-.sh-compact .ss-badge {
-  font-size: 13px;
+.sh-compact .sh-pin {
+  font-size: 17px;
 }
-.sh-compact .sh-label {
-  font-size: 16px;
+/* One column: the cards sit on the page, divided by space */
+.sh-compact .sh-grid {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 8px;
+  padding: 4px 0 130px;
 }
-.sh-compact .sh-count {
-  font-size: 13px;
+.sh-compact .sh-card {
+  padding: 16px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+.sh-compact .sh-status {
+  gap: 8px;
+  height: 28px;
+  font-size: 14px;
+}
+.sh-compact .sh-headline {
+  font-size: 19px;
+}
+.sh-compact .sh-subline,
+.sh-compact .sh-row,
+.sh-compact .sh-quote__note {
+  font-size: 15px;
+}
+.sh-compact .sh-eyebrow {
+  font-size: 14px;
+}
+.sh-compact .sh-budget__amount {
+  font-size: 40px;
 }
 .sh-compact .sh-row {
-  grid-template-columns: 36px minmax(0, 1fr) auto auto;
-  gap: 10px;
-  height: 68px;
+  grid-template-columns: 112px minmax(0, 1fr);
+  min-height: 50px;
 }
-.sh-compact .sh-who {
-  gap: 2px;
+.sh-compact .sh-pill {
+  height: 28px;
+  font-size: 14px;
 }
-.sh-compact .sh-line {
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 2px;
+.sh-compact .sh-quote {
+  grid-template-columns: 40px minmax(0, 1fr);
 }
-.sh-compact .sh-name {
+.sh-compact .sh-quote__name {
   font-size: 16px;
 }
-.sh-compact .sh-rating {
-  font-size: 13px;
+.sh-compact .sh-quote__price {
+  font-size: 18px;
 }
-.sh-compact .sh-note {
-  display: none;
+.sh-compact .sh-quote__meta {
+  font-size: 14px;
 }
-.sh-compact .sh-price {
-  padding: 5px 11px;
+.sh-compact .sh-best {
+  height: 22px;
+  font-size: 14px;
+}
+.sh-compact .sh-accept {
+  --ss-button-height: 40px;
+  --ss-button-pad: 22px;
+  font-size: 16px;
+}
+/* The pinned button over the page's foot, above the home indicator */
+.sh-compact .sh-pinbar {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 4;
+  display: grid;
+  padding: 16px 16px 40px;
+  transition: opacity 0.2s ease;
+}
+.sh-compact .sh-pinbar[data-covered] {
+  opacity: 0;
+}
+/* The pinned button runs the screen's width, as in the app */
+.sh-compact .sh-pinbar .ss-states {
+  display: grid;
+  justify-items: stretch;
+}
+.sh-compact .sh-pinbar .ss-states__item {
+  justify-self: stretch;
+}
+.sh-compact .sh-pinbar .ss-states__item > * {
+  flex: 1;
+}
+.sh-compact .sh-preview {
+  --ss-button-height: 52px;
+  font-size: 17px;
+}
+.sh-compact .sh-worker {
+  padding: 12px 12px 12px 20px;
+}
+.sh-compact .sh-worker__who {
+  flex: 1;
+  min-width: 0;
+}
+.sh-compact .sh-worker__label {
+  font-size: 14px;
+}
+.sh-compact .sh-worker__name {
+  font-size: 17px;
+}
+.sh-compact .sh-worker__message {
+  --ss-button-height: 44px;
+  --ss-button-pad: 22px;
+  font-size: 17px;
+}
+/* The accept dialog is a bottom sheet */
+.sh-compact .sh-modal {
+  place-items: end stretch;
+}
+.sh-compact .sh-dialog {
+  width: auto;
+  padding: 22px 20px 40px;
+  border-radius: 20px 20px 0 0;
+  transform: translateY(100%);
+  transition: transform 0.38s var(--sh-arrive);
+}
+.sh-compact .sh-modal[data-open] .sh-dialog {
+  transform: none;
+}
+.sh-compact .sh-dialog__title {
+  font-size: 21px;
+}
+.sh-compact .sh-dialog__hint,
+.sh-compact .sh-dialog__label,
+.sh-compact .sh-radio {
   font-size: 15px;
 }
-.sh-compact .ss-button {
-  --ss-button-height: 34px;
-  --ss-button-pad: 14px;
-  font-size: 15px;
+.sh-compact .sh-radio {
+  height: 52px;
 }
-.sh-compact .sh-more {
-  margin-top: 26px;
+.sh-compact .sh-confirm {
+  height: 52px;
+  font-size: 17px;
 }
 
 /* The notification drops a short way into place, whole, and leaves the way

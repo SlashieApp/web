@@ -195,25 +195,28 @@ with the Stageshow kit and filmed with its tools (`stage/REHEARSAL.md`). It
 replaced the grey map panel and the 3D props, which showed nothing of the
 product.
 
-- **One story, two designs.** Quotes arrive on a customer's task and the
-  customer accepts one. From `lg` (1024px, the site's desktop split) it is
-  the wide design: the customer's task page in a browser window (the map with
-  the task's approximate area, the title, the status, the quotes), with a
-  worker's Send quote card on the window's left edge. Each quote's price
-  rides from the card into the list as a new row; the customer accepts the
-  best one; the status rolls from Open to Booked and the worker's card says
-  "Accepted, Sat 9:00". Below `lg` it is the compact design: the same task in
-  the app, on a phone that runs off the foot; each quote is announced by a
-  notification, opens as a row, and a tap accepts it. In both, a second task
-  then plays one arrival, which is how the loop starts again without anything
-  rewinding in view. About 21 seconds a loop.
-- **Framing.** The stage is the page column (1216 by 520) on the page's own
-  white: no plate behind it. The phone design is a phone screen wide (390 by
-  520): its host takes back the page's 16px gutters, so on a phone the stage
-  runs edge to edge and the phone's soft shadow is not cut a gutter short
-  (which reads as a grey plate). The window and the phone are pinned a gutter
-  from the top and run off the bottom, where the section's rule is. Only
-  filler runs off: the quotes and their buttons are whole.
+- **It is the real task page (11 Nov rebuild).** The owner's review of push
+  1: the demo must look like the app. The scene is the customer's own task
+  page, with the page's layout and the page's strings (`heroStageCopy.ts`
+  reads the task page's bag and the accept dialog's, so the scene follows the
+  page's copy). From `lg` (1024px, the site's desktop split) it is the web
+  page in a browser window: the map header, the title and chips, Preview, the
+  summary card and Quotes beside Help & actions and Analytics. Below `lg` it
+  is the same page as the app draws it, on a phone: the taller map, borderless
+  cards, the pinned Preview button, the accept dialog as a bottom sheet, and
+  a notification for each quote.
+- **One story.** The customer scrolls down to the quotes; two quotes arrive
+  at the top of the list; they accept the Best match and confirm its time;
+  the page goes back to the top, where the status is Awarded, the summary
+  says Worker booked, and Preview has become Your worker with Message. A
+  second task then gets its first quote, which is how the loop starts again
+  without anything rewinding in view. About 22 seconds a loop.
+- **Framing.** The wide stage is the page column (1216 by 600) on the page's
+  own white, no plate: the window is pinned near the top and runs off the
+  bottom. The phone stage is a phone screen wide (390 by 690, the host takes
+  back the page's 16px gutters): the phone sits a 32px gutter in from the
+  sides and top and runs off the foot. Only the page's lower parts run off;
+  the quotes being acted on, their buttons and the sheet are whole.
 - **It is one picture.** `role="img"` with one label (`heroStage.label`);
   nothing in it takes focus (the kit's buttons are spans) and its markup has
   no headings or landmarks. Its words are real copy (`landing.heroStage`, en
@@ -222,7 +225,7 @@ product.
   view and stops it when it is not (and when the tab is hidden). Reduced
   motion shows the still poster instead (the booked state, the frame that
   tells the story on its own); no JS shows the first frame (the task with one
-  quote, the worker's card ready to send).
+  quote).
 - **The kit is vendored** under `(marketing)/components/stage/kit` (38 files,
   MIT, React only; `kit/README.md` says where it came from and how to refresh
   it). Scenes import it through `(marketing)/components/stage` (the entry

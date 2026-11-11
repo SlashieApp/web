@@ -4,8 +4,10 @@ import { expect, within } from 'storybook/test'
 import messages from '@/app/(marketing)/i11n.json'
 
 import { HeroStage } from './HeroStage'
+import { buildHeroStageCopy } from './heroStageCopy'
 
-const copy = messages.en.landing.heroStage
+const copy = buildHeroStageCopy(messages.en.landing.heroStage, 'en')
+const zhCopy = buildHeroStageCopy(messages.zh_hk.landing.heroStage, 'zh-hk')
 
 /** The design the page's width shows: the other one takes no room. */
 function shownHost(canvasElement: HTMLElement, design: 'wide' | 'compact') {
@@ -27,10 +29,11 @@ export default meta
 type Story = StoryObj<typeof meta>
 
 /**
- * A desktop column: the customer's task page in a browser window, and a
- * worker's quote card on its left edge. Quotes arrive as new rows (each price
- * rides in from the card), the customer accepts one, and a second task plays
- * one arrival before the loop starts again. One picture to a screen reader.
+ * A desktop column: the customer's task page in a browser window, laid out as
+ * the web page is. The page scrolls to its quotes, two arrive at the top of
+ * the list, the customer accepts the Best match and confirms its time, and
+ * the page returns to the top, booked. A second task then gets its first
+ * quote before the loop starts again. One picture to a screen reader.
  */
 export const Desktop: Story = {
   globals: { viewport: { value: 'desktop', isRotated: false } },
@@ -59,9 +62,9 @@ export const Desktop: Story = {
 }
 
 /**
- * A phone column: the same task in the app, on a phone that runs off the
- * foot. Each quote is announced by a notification, opens as a row, and a tap
- * accepts it.
+ * A phone column: the same task page as the app draws it, on a phone that
+ * runs off the foot. Each quote is announced by a notification, opens as a
+ * row, and a tap accepts it in a bottom sheet.
  */
 export const Phone: Story = {
   globals: { viewport: { value: 'mobile1', isRotated: false } },
@@ -81,12 +84,12 @@ export const Phone: Story = {
 
 /** Traditional Chinese copy (zh_hk bag): the same story, CJK labels. */
 export const TraditionalChinese: Story = {
-  args: { copy: messages.zh_hk.landing.heroStage },
+  args: { copy: zhCopy },
   globals: { viewport: { value: 'desktop', isRotated: false } },
 }
 
 /** Traditional Chinese on a phone column. */
 export const TraditionalChinesePhone: Story = {
-  args: { copy: messages.zh_hk.landing.heroStage },
+  args: { copy: zhCopy },
   globals: { viewport: { value: 'mobile1', isRotated: false } },
 }

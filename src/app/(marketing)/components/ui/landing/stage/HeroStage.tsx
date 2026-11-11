@@ -1,20 +1,34 @@
 'use client'
 
-import { useLayoutEffect, useRef } from 'react'
-import { LuCheck, LuStar } from 'react-icons/lu'
+import type { ReactNode } from 'react'
+import {
+  LuArrowLeft,
+  LuCalendar,
+  LuCalendarClock,
+  LuCalendarX,
+  LuChevronRight,
+  LuEllipsisVertical,
+  LuEye,
+  LuMapPin,
+  LuMessageCircle,
+  LuPencil,
+  LuReceipt,
+  LuShare2,
+  LuShieldCheck,
+  LuTag,
+  LuTrash2,
+  LuUser,
+  LuX,
+} from 'react-icons/lu'
 
 import {
   type Act,
   Avatar,
-  Badge,
-  Bar,
   Button,
   Collapse,
   Count,
-  Fly,
   Notification,
   Phone,
-  type Rect,
   Roll,
   Spinner,
   Stage,
@@ -23,596 +37,782 @@ import {
 } from '@/app/(marketing)/components/stage'
 
 import { StageMap } from './StageMap'
+import type {
+  HeroStageCopy,
+  HeroStageQuote,
+  HeroStageTask,
+} from './heroStageCopy'
+import './stageLook.css'
 import './heroStage.css'
+
+export type { HeroStageCopy } from './heroStageCopy'
 
 /** Slashie's mark, the app icon on a notification. */
 const MARK_SRC = '/images/slashie-mark.svg'
 
-// The landing's hero scene, built on the Stageshow kit, in two designs that tell one story: quotes arrive on a task
-// and the customer accepts one.
+// The landing's hero scene (FE-542): the customer's own task page, drawn from
+// the real one (`tasks/[slug]`, owner view) with the product's own words.
+// Quotes arrive on the task and the customer accepts one.
 //
-// Wide (a desktop column): a system story with one gesture. Workers nearby send
-// quotes from their side (the card), each price rides into the customer's task
-// page as a new row, and the customer accepts one. The card and the window are
-// the two sides of the marketplace; the price chip is the only thing that
-// travels between them.
+// Wide (a desktop column): the web page in a browser window. The map header
+// with the task's pin, the title, its chips and Preview; the summary card and
+// Help & actions. The page scrolls to the Quotes card, two quotes arrive,
+// Accept opens the real "Accept this quote?" dialog, and the page goes back up
+// to "Awarded / Worker booked", with Your worker and Message at the top.
 //
-// Compact (a phone column): the same task in the app. Each quote is announced
-// by a notification, opens as a row, and a tap accepts it.
+// Compact (a phone column): the same page in the app, on a phone. Each quote
+// is announced by a notification, Preview is the pinned button, and the
+// accept dialog is a bottom sheet.
 //
-// In both, a second task plays one arrival, which is also how the loop resets
-// without rewinding.
+// In both, a second task then gets its first quote, which is also how the
+// loop resets without anything rewinding in view.
 
-export type HeroStageQuote = {
-  name: string
-  rating: string
-  jobs: string
-  note: string
-  price: number
-}
-export type HeroStageTask = {
-  title: string
-  area: string
-  when: string
-  kind: string
-  budget: number
-  /** Quotes that were already there. */
-  base: HeroStageQuote[]
-  /** Quotes that arrive, oldest first. */
-  pulses: HeroStageQuote[]
-}
+type Layout = 'wide' | 'compact'
+type Dialog = 'closed' | 'open' | 'busy'
 
-export type HeroStageCopy = {
-  /** What the picture shows, for a screen reader. */
-  label: string
-  url: string
-  open: string
-  booked: string
-  quotes: string
-  accept: string
-  accepted: string
-  send: string
-  sent: string
-  /** The worker's side once the customer accepts. */
-  acceptedFor: string
-  forTask: string
-  /** A notification's title; `{name}` is the worker. */
-  sentQuote: string
-  /** Two tasks: the one that gets booked, then the one that resets the loop. */
-  tasks: readonly HeroStageTask[]
+type S = {
+  scene: 0 | 1
+  /** Per task: arriving quotes opened, and landed (their words shown). */
+  open: [number, number]
+  landed: [number, number]
+  /** Per task: how far its page is scrolled, in stage pixels. */
+  scrolled: [number, number]
+  /** The first task's accept dialog. */
+  dialog: Dialog
+  /** The first task is booked: the customer accepted the last quote. */
+  booked: boolean
+  /** The phone's notification for an arriving quote. */
+  note: null | { scene: 0 | 1; i: number; out: boolean }
 }
 
-/** Where each task's area sits on its map, as fractions: [wide, compact]. */
-const AREAS: [[number, number], [number, number]][] = [
-  [
-    [0.69, 0.27],
-    [0.7, 0.72],
-  ],
-  [
-    [0.7, 0.37],
-    [0.62, 0.72],
-  ],
-]
+const START: S = {
+  scene: 0,
+  open: [0, 0],
+  landed: [0, 0],
+  scrolled: [0, 0],
+  dialog: 'closed',
+  booked: false,
+  note: null,
+}
+
+/** The frame that tells the story on its own: booked, at the top of the page. */
+const POSTER: S = { ...START, open: [2, 0], landed: [2, 0], booked: true }
 
 const set2 = <T,>(pair: [T, T], i: number, v: T): [T, T] =>
   i === 0 ? [v, pair[1]] : [pair[0], v]
 
-const Tick = () => <LuCheck size={14} strokeWidth={2.5} aria-hidden="true" />
+/** Where each task's pin sits on its map header, as fractions: [wide, compact]. */
+const PINS: [[number, number], [number, number]][] = [
+  [
+    [0.74, 0.34],
+    [0.72, 0.42],
+  ],
+  [
+    [0.66, 0.3],
+    [0.6, 0.42],
+  ],
+]
 
-/**
- * A tick and its label, centred in a button. The label's width is whatever
- * the font makes it, so the pair would sit on a half pixel and the tick would
- * hop as the label settles: the box is widened to the next even pixel, which
- * centres it on a whole one. Measured again once the web font is in.
- */
-function Done({ label }: { label: string }) {
-  const ref = useRef<HTMLSpanElement>(null)
-  // biome-ignore lint/correctness/useExhaustiveDependencies: a new label is a new width
-  useLayoutEffect(() => {
-    const box = ref.current
-    if (!box) return
-    let live = true
-    const fit = () => {
-      if (!live) return
-      box.style.minWidth = ''
-      // The used width, in the stage's own pixels (a rect would be scaled).
-      const width = Math.ceil(Number.parseFloat(getComputedStyle(box).width))
-      if (width > 0) box.style.minWidth = `${width + (width % 2)}px`
-    }
-    fit()
-    document.fonts?.ready.then(fit)
-    return () => {
-      live = false
-    }
-  }, [label])
+const fill = (template: string, values: Record<string, string | number>) =>
+  template.replace(/\{(\w+)\}/g, (match, key: string) =>
+    key in values ? String(values[key]) : match,
+  )
+
+/** The summary's headline and subline for the owner, as the task page words them. */
+function summaryText(copy: HeroStageCopy, count: number, booked: boolean) {
+  const { ui } = copy
+  if (booked) return { stage: 'booked' as const, headline: ui.bookedHeadline }
+  if (count === 0) return { stage: 'live' as const, headline: ui.liveHeadline }
+  return {
+    stage: 'quotes' as const,
+    headline: fill(count === 1 ? ui.quotesHeadlineOne : ui.quotesHeadlineMany, {
+      count,
+    }),
+  }
+}
+
+/** The quote the customer accepts on the first task: the last to arrive. */
+const acceptedOf = (task: HeroStageTask) => task.pulses[task.pulses.length - 1]
+
+// ------------------------------------------------------------- the page
+
+function Chip({
+  icon,
+  person,
+  children,
+}: {
+  icon?: ReactNode
+  /** The poster's chip: an avatar inset as far from the edge as from the top. */
+  person?: boolean
+  children: ReactNode
+}) {
   return (
-    <span ref={ref} className="sh-done">
-      <Tick />
-      {label}
+    <span className={person ? 'sh-chip sh-chip--person' : 'sh-chip'}>
+      {icon}
+      {children}
     </span>
   )
 }
 
-const Star = () => <LuStar className="sh-star" size={12} aria-hidden="true" />
+/** A label and its value, as the task page's detail rows. */
+function DetailRow({
+  icon,
+  label,
+  children,
+}: {
+  icon: ReactNode
+  label: string
+  children: ReactNode
+}) {
+  return (
+    <div className="sh-row">
+      <span className="sh-row__label">
+        {icon}
+        {label}
+      </span>
+      <span className="sh-row__value">{children}</span>
+    </div>
+  )
+}
 
-// ---------------------------------------------------------------- shared parts
-
+/** One quote, as the task page's `QuoteRow` lays it out for the owner. */
 function QuoteRow({
   q,
   id,
   landed,
-  booked,
-  dim,
+  best,
   copy,
 }: {
   q: HeroStageQuote
   id?: string
   landed: boolean
-  booked?: boolean
-  dim?: boolean
+  best?: boolean
   copy: HeroStageCopy
 }) {
   return (
     <div
-      className="sh-row"
+      className="sh-quote"
       data-target={id && `row-${id}`}
       data-landed={landed || undefined}
-      data-dim={dim || undefined}
     >
-      <Avatar name={q.name} size={32} className="sh-av" />
-      <span className="sh-who">
-        <span className="sh-line">
-          <span className="sh-name">{q.name}</span>
-          <span className="sh-rating">
-            <Star />
-            {q.rating} ({q.jobs})
+      <Avatar name={q.name} size={36} className="sh-quote__avatar" />
+      <div className="sh-quote__body">
+        <div className="sh-quote__line">
+          <span className="sh-quote__name">{q.name}</span>
+          {best ? <span className="sh-best">{copy.ui.bestMatch}</span> : null}
+          <span className="sh-quote__price">£{q.price}</span>
+        </div>
+        <div className="sh-quote__meta">
+          {q.slot} · {copy.ui.respondedJustNow}
+        </div>
+        <div className="sh-quote__note">{q.note}</div>
+        <div className="sh-quote__actions">
+          <span className="sh-chat" aria-hidden="true">
+            <LuMessageCircle size={18} />
           </span>
-        </span>
-        <span className="sh-note">{q.note}</span>
-      </span>
-      <span className="sh-price" data-target={id && `price-${id}`}>
-        £{q.price}
-      </span>
-      {/* One slot for both labels: the button keeps the longer one's width, so the price beside it never moves */}
-      <span className="sh-act">
-        <Button
-          className="sh-accept"
-          size="medium"
-          variant={booked ? 'primary' : 'secondary'}
-          data-target={id && `accept-${id}`}
-          data-cursor="hand"
-        >
-          <States
-            value={booked ? 'done' : 'idle'}
-            states={{
-              idle: copy.accept,
-              done: <Done label={copy.accepted} />,
-            }}
-          />
-        </Button>
-      </span>
+          <Button
+            variant="primary"
+            size="medium"
+            className="sh-accept"
+            data-target={id && `accept-${id}`}
+            data-cursor="hand"
+          >
+            {copy.ui.accept}
+          </Button>
+        </div>
+      </div>
     </div>
   )
 }
 
-type Lists = {
-  scene: number
-  open: [number, number]
-  landed: [number, number]
+/** The main action beside the title: Preview while open, then your worker and Message. */
+function MainCta({
+  booked,
+  worker,
+  copy,
+  layout,
+}: {
   booked: boolean
+  worker: string
+  copy: HeroStageCopy
+  layout: Layout
+}) {
+  return (
+    <States
+      className="sh-cta"
+      align={layout === 'wide' ? 'end' : 'center'}
+      value={booked ? 'booked' : 'open'}
+      states={{
+        open: (
+          <Button
+            variant="primary"
+            className="sh-preview"
+            icon={<LuEye size={16} aria-hidden="true" />}
+          >
+            {copy.ui.preview}
+          </Button>
+        ),
+        booked: (
+          <span className="sh-worker">
+            <span className="sh-worker__who">
+              <span className="sh-worker__label">{copy.ui.yourWorker}</span>
+              <span className="sh-worker__name">{worker}</span>
+            </span>
+            <Button variant="primary" className="sh-worker__message">
+              {copy.ui.message}
+            </Button>
+          </span>
+        ),
+      }}
+    />
+  )
 }
 
 function TaskPage({
   sc,
   s,
   copy,
-  compact,
-}: { sc: number; s: Lists; copy: HeroStageCopy; compact?: boolean }) {
+  layout,
+}: {
+  sc: 0 | 1
+  s: S
+  copy: HeroStageCopy
+  layout: Layout
+}) {
+  const { ui } = copy
   const t = copy.tasks[sc]
+  if (!t) return null
   const booked = sc === 0 && s.booked
-  const top = t.pulses.length - 1
-  const at = AREAS[sc][compact ? 1 : 0]
-  const spot = { left: `${at[0] * 100}%`, top: `${at[1] * 100}%` }
+  const count = t.base.length + s.landed[sc]
+  const { stage, headline } = summaryText(copy, count, booked)
+  const accepted = acceptedOf(t)
+  const pin = PINS[sc]?.[layout === 'wide' ? 0 : 1] ?? [0.7, 0.4]
+  const scrolled = s.scrolled[sc]
+  const compact = layout === 'compact'
+
   return (
     <div
       className="sh-scene"
       data-on={s.scene === sc || undefined}
       aria-hidden={s.scene !== sc || undefined}
     >
-      <div className="sh-map">
-        <StageMap phone={compact} />
-        <span className="sh-area" style={spot}>
-          <span className="sh-pin">£{t.budget}</span>
-        </span>
-        <span className="sh-place" style={spot}>
-          {t.area}
-        </span>
-      </div>
-      <div className="sh-main">
-        <div className="sh-head">
-          <div className="sh-title">{t.title}</div>
-          <div className="sh-facts">
-            <Badge tone="success" dot className="sh-status">
-              <Roll>{booked ? copy.booked : copy.open}</Roll>
-            </Badge>
-            <span className="sh-fact">{t.area}</span>
-            <span className="sh-fact">{t.when}</span>
-            <span className="sh-fact">{t.kind}</span>
+      <div className="sh-viewport" data-target={`page-${sc}`}>
+        <div
+          className="sh-sheet"
+          data-target={`sheet-${sc}`}
+          style={{ transform: `translate3d(0, ${-scrolled}px, 0)` }}
+        >
+          <div className="sh-maphead">
+            <StageMap phone={compact} />
+            <span
+              className="sh-pin"
+              style={{ left: `${pin[0] * 100}%`, top: `${pin[1] * 100}%` }}
+            >
+              £{t.budget}
+            </span>
+            <span className="sh-maphead__fade" />
+            <div className="sh-titleblock">
+              <div className="sh-titletext">
+                <div className="sh-title">{t.title}</div>
+                <div className="sh-chips">
+                  <Chip icon={<LuMapPin size={13} aria-hidden="true" />}>
+                    {t.area}
+                  </Chip>
+                  <Chip icon={<LuCalendar size={13} aria-hidden="true" />}>
+                    {t.date}
+                  </Chip>
+                  <Chip icon={<LuTag size={13} aria-hidden="true" />}>
+                    {t.kind}
+                  </Chip>
+                  <Chip person icon={<Avatar name={copy.poster} size={18} />}>
+                    {copy.poster}
+                    <LuChevronRight size={12} aria-hidden="true" />
+                  </Chip>
+                </div>
+              </div>
+              {compact ? null : (
+                <MainCta
+                  booked={booked}
+                  worker={accepted?.name ?? ''}
+                  copy={copy}
+                  layout={layout}
+                />
+              )}
+            </div>
+          </div>
+
+          <div className="sh-grid">
+            <div className="sh-col">
+              <section className="sh-card sh-summary">
+                <span
+                  className="sh-status"
+                  data-tone={booked ? 'awarded' : 'open'}
+                >
+                  <span className="sh-status__dot" />
+                  <Roll>{booked ? ui.awarded : ui.open}</Roll>
+                </span>
+                <div className="sh-headline">
+                  <Roll>{headline}</Roll>
+                </div>
+                {/* A paragraph that wraps, as on the page: it changes in place */}
+                <States
+                  className="sh-subline"
+                  align="start"
+                  value={stage}
+                  states={{
+                    live: ui.liveSubline,
+                    quotes: ui.quotesSubline,
+                    booked: ui.bookedSubline,
+                  }}
+                />
+                <States
+                  className="sh-summary__body"
+                  align="start"
+                  value={booked ? 'booked' : 'open'}
+                  states={{
+                    open: (
+                      <div className="sh-body">
+                        <div className="sh-budget">
+                          <span className="sh-eyebrow">{ui.budget}</span>
+                          <span className="sh-budget__amount">£{t.budget}</span>
+                        </div>
+                        <DetailRow
+                          icon={<LuCalendar size={15} aria-hidden="true" />}
+                          label={ui.when}
+                        >
+                          <span className="sh-pill">{t.date}</span>
+                        </DetailRow>
+                        <DetailRow
+                          icon={<LuMapPin size={15} aria-hidden="true" />}
+                          label={ui.location}
+                        >
+                          {t.area}
+                        </DetailRow>
+                      </div>
+                    ),
+                    booked: (
+                      <div className="sh-body">
+                        <DetailRow
+                          icon={<LuCalendar size={15} aria-hidden="true" />}
+                          label={ui.schedule}
+                        >
+                          <span className="sh-pill">{accepted?.slot}</span>
+                        </DetailRow>
+                        <DetailRow
+                          icon={<LuUser size={15} aria-hidden="true" />}
+                          label={ui.yourWorker}
+                        >
+                          <span className="sh-person">
+                            <Avatar name={accepted?.name ?? ''} size={20} />
+                            {accepted?.name}
+                          </span>
+                        </DetailRow>
+                        <DetailRow
+                          icon={<LuReceipt size={15} aria-hidden="true" />}
+                          label={ui.agreedTotal}
+                        >
+                          £{accepted?.price}
+                        </DetailRow>
+                      </div>
+                    ),
+                  }}
+                />
+              </section>
+
+              <Collapse open={!booked} reveal="clip">
+                <section
+                  className="sh-card sh-quotes"
+                  data-target={`quotes-${sc}`}
+                >
+                  <div className="sh-quotes__head">
+                    <span className="sh-eyebrow">{ui.quotes}</span>
+                    <span className="sh-count">
+                      <Count value={count} duration={500} />
+                    </span>
+                  </div>
+                  <div className="sh-list" data-target={`list-${sc}`}>
+                    {/* Newest first: each new quote opens at the top and pushes the rest down */}
+                    {t.pulses
+                      .map((q, i) => ({ q, i }))
+                      .reverse()
+                      .map(({ q, i }) => (
+                        <Collapse
+                          key={q.name}
+                          open={s.open[sc] > i}
+                          reveal="clip"
+                        >
+                          <QuoteRow
+                            q={q}
+                            id={`${sc}-${i}`}
+                            landed={s.landed[sc] > i}
+                            best={sc === 0 && i === t.pulses.length - 1}
+                            copy={copy}
+                          />
+                        </Collapse>
+                      ))}
+                    {t.base.map((q) => (
+                      <QuoteRow key={q.name} q={q} landed copy={copy} />
+                    ))}
+                  </div>
+                </section>
+              </Collapse>
+            </div>
+
+            {compact ? null : (
+              <div className="sh-rail">
+                <section className="sh-card sh-help">
+                  <span className="sh-eyebrow">{ui.helpHeading}</span>
+                  <States
+                    className="sh-help__list"
+                    align="start"
+                    value={booked ? 'booked' : 'open'}
+                    states={{
+                      open: (
+                        <div className="sh-actions">
+                          <span className="sh-action">
+                            <LuShare2 size={18} aria-hidden="true" />
+                            {ui.shareTask}
+                          </span>
+                          <span className="sh-action" data-tone="link">
+                            <LuPencil size={18} aria-hidden="true" />
+                            {ui.editTask}
+                          </span>
+                          <span className="sh-action" data-tone="link">
+                            <LuShieldCheck size={18} aria-hidden="true" />
+                            {ui.payingSafely}
+                          </span>
+                          <span className="sh-action" data-tone="danger">
+                            <LuTrash2 size={18} aria-hidden="true" />
+                            {ui.cancelTask}
+                          </span>
+                        </div>
+                      ),
+                      booked: (
+                        <div className="sh-actions">
+                          <span className="sh-action">
+                            <LuCalendarClock size={18} aria-hidden="true" />
+                            {ui.reschedule}
+                          </span>
+                          <span className="sh-action" data-tone="danger">
+                            <LuCalendarX size={18} aria-hidden="true" />
+                            {ui.cancelBooking}
+                          </span>
+                          <span className="sh-action">
+                            <LuShare2 size={18} aria-hidden="true" />
+                            {ui.shareTask}
+                          </span>
+                          <span className="sh-action" data-tone="link">
+                            <LuShieldCheck size={18} aria-hidden="true" />
+                            {ui.payingSafely}
+                          </span>
+                        </div>
+                      ),
+                    }}
+                  />
+                </section>
+                <Collapse open={!booked} reveal="clip">
+                  <section className="sh-card sh-analytics">
+                    <span className="sh-eyebrow">{ui.analytics}</span>
+                    <div className="sh-stat">
+                      <span>{ui.views}</span>
+                      <span className="sh-stat__value">{t.views}</span>
+                    </div>
+                    <div className="sh-stat">
+                      <span>{ui.quotes}</span>
+                      <span className="sh-stat__value">
+                        <Count value={count} duration={500} />
+                      </span>
+                    </div>
+                  </section>
+                </Collapse>
+              </div>
+            )}
           </div>
         </div>
-        <div className="sh-quotes">
-          <span className="sh-label">{copy.quotes}</span>
-          <span className="sh-count">
-            <Count value={t.base.length + s.landed[sc]} duration={500} />
+
+        {/* The page header's bar (FE-458): over the map at the top, solid with the title once scrolled */}
+        <div className="sh-appbar" data-solid={scrolled > 0 || undefined}>
+          <span className="sh-iconbtn">
+            <LuArrowLeft size={18} aria-hidden="true" />
+          </span>
+          <span className="sh-appbar__title">{t.title}</span>
+          <span className="sh-iconbtn">
+            <LuEllipsisVertical size={18} aria-hidden="true" />
           </span>
         </div>
-        <div className="sh-list" data-target={`list-${sc}`}>
-          {/* Newest first: each new quote opens at the top and pushes the rest down */}
-          {t.pulses
-            .map((q, i) => ({ q, i }))
-            .reverse()
-            .map(({ q, i }) => (
-              <Collapse key={q.name} open={s.open[sc] > i} reveal="clip">
-                <QuoteRow
-                  q={q}
-                  id={`${sc}-${i}`}
-                  landed={s.landed[sc] > i}
-                  booked={booked && i === top}
-                  dim={booked && i !== top}
-                  copy={copy}
-                />
-              </Collapse>
-            ))}
-          {t.base.map((q) => (
-            <QuoteRow key={q.name} q={q} landed dim={booked} copy={copy} />
-          ))}
-        </div>
-        {/* The rest of the page, as filler: it reads on past the quotes and
-            runs off the foot whatever the number of quotes, so no state
-            leaves a blank band under the list */}
-        <div className="sh-more">
-          <Bar w={64} h={6} tone={3} />
-          {[210, 164, 188].map((w) => (
-            <div key={w} className="sh-more__row">
-              <Bar w={18} h={18} r={9} tone={2} />
-              <Bar w={w} h={5} tone={2} />
-            </div>
-          ))}
-        </div>
-        <div className="sh-more sh-more--text">
-          <Bar w={84} h={6} tone={3} />
-          {(compact ? [300, 270, 200] : [420, 380, 300]).map((w) => (
-            <Bar key={w} w={w} h={5} tone={2} />
-          ))}
-        </div>
-        <div className="sh-more sh-more--text">
-          <Bar w={56} h={6} tone={3} />
-          {(compact ? [250, 170] : [360, 250]).map((w) => (
-            <Bar key={w} w={w} h={5} tone={2} />
-          ))}
-        </div>
+
+        {compact ? (
+          // The accept sheet covers the pinned button while it is open
+          <div
+            className="sh-pinbar"
+            data-covered={(sc === 0 && s.dialog !== 'closed') || undefined}
+          >
+            <MainCta
+              booked={booked}
+              worker={accepted?.name ?? ''}
+              copy={copy}
+              layout={layout}
+            />
+          </div>
+        ) : null}
+
+        {sc === 0 ? (
+          <AcceptDialog
+            state={s.dialog}
+            quote={accepted}
+            copy={copy}
+            layout={layout}
+          />
+        ) : null}
       </div>
     </div>
   )
 }
 
-// ---------------------------------------------------------------- wide
-
-type Pay = 'idle' | 'busy' | 'paid' | 'done' | 'booked'
-type W = Lists & {
-  // per task: which worker the card shows, and its button
-  k: [number, number]
-  pay: [Pay, Pay]
-  fly: null | { scene: number; i: number; from: Rect; to: Rect; go: boolean }
-}
-
-const W_START: W = {
-  scene: 0,
-  open: [0, 0],
-  landed: [0, 0],
-  k: [0, 0],
-  pay: ['idle', 'idle'],
-  booked: false,
-  fly: null,
-}
-const W_POSTER: W = {
-  ...W_START,
-  open: [2, 0],
-  landed: [2, 0],
-  k: [1, 0],
-  pay: ['booked', 'idle'],
-  booked: true,
-}
-
-/** Where the cursor waits: empty page under the quotes, near the button it will press. */
-const W_REST = { x: 1004, y: 430 }
-
-async function send(a: Act<W>, sc: number, i: number) {
-  await a.set((s) => ({ pay: set2(s.pay, sc, 'busy') }))
-  await a.wait(650)
-  // Sent: the price lifts off the worker's button and the new row's space opens
-  // at the top of the customer's list while it travels.
-  const list = a.rect(`list-${sc}`, { layout: true })
-  const row = a.rect(`row-${sc}-${i}`, { layout: true })
-  const pill = a.rect(`price-${sc}-${i}`, { layout: true })
-  const b = a.rect(`send-${sc}`, { layout: true })
-  const size = { width: pill.width, height: pill.height }
-  const to = { ...pill, y: list.y + pill.y - row.y }
-  const from = {
-    x: b.x + b.width / 2 - pill.width / 2,
-    y: b.y + b.height / 2 - pill.height / 2,
-    ...size,
-  }
-  await a.set((s) => ({
-    pay: set2(s.pay, sc, 'paid'),
-    fly: { scene: sc, i, from, to, go: false },
-  }))
-  await a.wait(200)
-  await a.set((s) => ({
-    open: set2(s.open, sc, i + 1),
-    fly: s.fly && { ...s.fly, go: true },
-  }))
-  await a.wait(900)
-  // Landed: the row's own price takes over in the frame the chip goes
-  await a.set((s) => ({
-    fly: null,
-    landed: set2(s.landed, sc, i + 1),
-    pay: set2(s.pay, sc, 'done'),
-  }))
-}
-
-async function wideScript(a: Act<W>) {
-  await a.wait(700)
-  a.mark('first')
-  await send(a, 0, 0)
-  await a.wait(550)
-  // The next worker nearby: only the name and the price change
-  await a.set((s) => ({ pay: set2(s.pay, 0, 'idle'), k: set2(s.k, 0, 1) }))
-  await a.wait(750)
-  a.mark('second')
-  await send(a, 0, 1)
-  await a.wait(600)
-
-  // The customer chooses
-  a.mark('accept')
-  await a.click({ at: 'accept-0-1', x: 0.84, y: 0.66 })
-  await a.set((s) => ({ booked: true, pay: set2(s.pay, 0, 'booked') }))
-  a.mark('payoff')
-  await a.wait(500)
-  await a.move('rest')
-  await a.wait(2000)
-
-  a.mark('scene')
-  await a.set({ scene: 1 })
-  await a.wait(700)
-  // The first task resets while it is out of sight
-  await a.snap((s) => ({
-    open: set2(s.open, 0, 0),
-    landed: set2(s.landed, 0, 0),
-    k: set2(s.k, 0, 0),
-    pay: set2(s.pay, 0, 'idle'),
-    booked: false,
-  }))
-  await a.wait(400)
-  a.mark('third')
-  await send(a, 1, 0)
-  await a.wait(1600)
-
-  await a.set({ scene: 0 })
-  await a.wait(700)
-  await a.snap((s) => ({
-    open: set2(s.open, 1, 0),
-    landed: set2(s.landed, 1, 0),
-    pay: set2(s.pay, 1, 'idle'),
-  }))
-  await a.wait(300)
-}
-
-/** The worker's side: a quote being sent. Moves on to the next worker between arrivals. */
-function WorkerCard({
-  sc,
-  s,
+/** The task page's accept confirmation (`SafetyConfirmDialog` with a time to pick). */
+function AcceptDialog({
+  state,
+  quote,
   copy,
-}: { sc: number; s: W; copy: HeroStageCopy }) {
-  const q = copy.tasks[sc].pulses[s.k[sc]]
+  layout,
+}: {
+  state: Dialog
+  quote: HeroStageQuote | undefined
+  copy: HeroStageCopy
+  layout: Layout
+}) {
+  const { ui } = copy
   return (
-    <div className="sh-card" data-in={s.scene === sc || undefined}>
-      <div className="sh-card__head">
-        <span className="sh-strong">
-          <Roll variant="fade">{q.name}</Roll>
-        </span>
-        <span className="sh-rating">
-          <Star />
-          <Roll>{q.rating}</Roll>
-        </span>
-      </div>
-      <div className="sh-amount">
-        <Roll>{`£${q.price}`}</Roll>
-        <span className="sh-muted">{copy.forTask}</span>
-      </div>
-      <div className="sh-fields">
-        <div className="sh-field">
-          <Bar w={sc === 0 ? 132 : 118} h={5} tone={3} />
+    <div className="sh-modal" data-open={state !== 'closed' || undefined}>
+      <span className="sh-modal__scrim" />
+      <div className="sh-dialog" data-layout={layout}>
+        <div className="sh-dialog__head">
+          <span className="sh-dialog__title">{ui.acceptTitle}</span>
+          {layout === 'wide' ? (
+            <span className="sh-dialog__close" aria-hidden="true">
+              <LuX size={16} />
+            </span>
+          ) : null}
         </div>
-        <div className="sh-field">
-          <Bar w={14} h={14} r={4} tone={2} />
-          <Bar w={84} h={5} tone={3} />
-        </div>
-      </div>
-      <div
-        className="sh-send"
-        data-target={`send-${sc}`}
-        data-state={s.pay[sc]}
-      >
-        <States
-          value={s.pay[sc]}
-          states={{
-            idle: copy.send,
-            busy: <Spinner size={14} />,
-            // The price is the feedback while it leaves the button
-            paid: null,
-            done: <Done label={copy.sent} />,
-            booked: <Done label={copy.acceptedFor} />,
-          }}
-        />
+        <p className="sh-dialog__hint">{ui.acceptHint}</p>
+        <span className="sh-dialog__label">{ui.pickSlot}</span>
+        <span className="sh-radio">
+          <span className="sh-radio__dot" />
+          {quote?.slot}
+        </span>
+        <span
+          className="sh-confirm"
+          data-target="confirm-0"
+          data-cursor="hand"
+          data-state={state === 'busy' ? 'busy' : 'idle'}
+        >
+          <States
+            value={state === 'busy' ? 'busy' : 'idle'}
+            states={{ idle: ui.acceptQuote, busy: <Spinner size={14} /> }}
+          />
+        </span>
       </div>
     </div>
+  )
+}
+
+// ---------------------------------------------------------------- script
+
+/** A quote arrives: its row opens at the top of the list, then its words land. */
+async function arrive(a: Act<S>, sc: 0 | 1, i: number, notify: boolean) {
+  if (notify) {
+    await a.set({ note: { scene: sc, i, out: false } })
+    await a.wait(650)
+  }
+  await a.set((s) => ({ open: set2(s.open, sc, i + 1) }))
+  await a.wait(380)
+  await a.set((s) => ({ landed: set2(s.landed, sc, i + 1) }))
+  if (notify) {
+    await a.wait(1000)
+    await a.set((s) => ({ note: s.note && { ...s.note, out: true } }))
+    await a.wait(320)
+    await a.set({ note: null })
+  }
+}
+
+/** The page header's bar, by design: the quotes stop just under it. */
+const APPBAR = { wide: 56, compact: 106 }
+
+/**
+ * How far a task's page scrolls to bring its quotes up under the header: the
+ * quotes card's top, less the bar and a gap. The rows that arrive open at the
+ * top of the list, so the newest quote and its Accept stay in view while the
+ * older ones move down past the fold.
+ */
+function scrollToQuotes(a: Act<S>, sc: 0 | 1, layout: Layout) {
+  const page = a.rect(`page-${sc}`, { layout: true })
+  const quotes = a.rect(`quotes-${sc}`, { layout: true })
+  return Math.max(0, Math.round(quotes.y - page.y - APPBAR[layout] - 12))
+}
+
+function script(layout: Layout) {
+  const notify = layout === 'compact'
+  return async (a: Act<S>) => {
+    await a.wait(900)
+
+    // The customer reads down to the quotes
+    a.mark('scroll')
+    await a.move('scroll-at')
+    await a.wait(150)
+    await a.set((s) => ({
+      scrolled: set2(s.scrolled, 0, scrollToQuotes(a, 0, layout)),
+    }))
+    await a.wait(1000)
+
+    // Two quotes arrive, newest on top
+    a.mark('first')
+    await arrive(a, 0, 0, notify)
+    await a.wait(notify ? 300 : 900)
+    a.mark('second')
+    await arrive(a, 0, 1, notify)
+    await a.wait(notify ? 300 : 700)
+
+    // The customer accepts the best match and confirms its time
+    a.mark('accept')
+    await a.click({ at: 'accept-0-1', x: 0.84, y: 0.62 })
+    await a.set({ dialog: 'open' })
+    await a.wait(1100)
+    await a.click({ at: 'confirm-0', x: 0.78, y: 0.6 })
+    await a.set({ dialog: 'busy' })
+    await a.wait(650)
+
+    // Booked: the page goes back to the top, then the booking lands there, in
+    // view. Never both at once: the scrolled page would empty as quotes close
+    await a.set((s) => ({
+      dialog: 'closed',
+      scrolled: set2(s.scrolled, 0, 0),
+    }))
+    // The hand leaves as the page moves, not over another quote's Accept
+    await a.move('rest')
+    await a.wait(250)
+    await a.set({ booked: true })
+    a.mark('payoff')
+    await a.wait(2900)
+
+    // A second task gets its first quote: the reset, with nothing rewinding
+    a.mark('scene')
+    await a.set({ scene: 1 })
+    await a.wait(700)
+    await a.snap((s) => ({
+      open: set2(s.open, 0, 0),
+      landed: set2(s.landed, 0, 0),
+      scrolled: set2(s.scrolled, 0, 0),
+      booked: false,
+      dialog: 'closed' as const,
+    }))
+    await a.wait(500)
+    a.mark('third')
+    await arrive(a, 1, 0, notify)
+    await a.wait(1800)
+
+    await a.set({ scene: 0 })
+    await a.wait(700)
+    await a.snap((s) => ({
+      open: set2(s.open, 1, 0),
+      landed: set2(s.landed, 1, 0),
+    }))
+    await a.wait(300)
+  }
+}
+
+const wideScript = script('wide')
+const compactScript = script('compact')
+
+// ---------------------------------------------------------------- designs
+
+/** Where the cursor waits, and where it rests to scroll: by design. */
+const REST = { wide: { x: 1010, y: 520 }, compact: { x: 312, y: 520 } }
+const SCROLL_AT = { wide: { x: 560, y: 470 }, compact: { x: 220, y: 470 } }
+
+function Spots({ layout }: { layout: Layout }) {
+  return (
+    <>
+      <span
+        data-target="rest"
+        style={{
+          position: 'absolute',
+          left: REST[layout].x,
+          top: REST[layout].y,
+        }}
+      />
+      <span
+        data-target="scroll-at"
+        style={{
+          position: 'absolute',
+          left: SCROLL_AT[layout].x,
+          top: SCROLL_AT[layout].y,
+        }}
+      />
+    </>
   )
 }
 
 export function HeroWide({ copy }: { copy: HeroStageCopy }) {
   return (
-    <Stage<W>
+    <Stage<S>
       width={1216}
-      height={520}
-      initial={W_START}
-      poster={W_POSTER}
+      height={600}
+      initial={START}
+      poster={POSTER}
       script={wideScript}
       fidelity="realistic"
-      cursor={{ at: W_REST }}
-      className="sh sh-wide"
+      cursor={{ at: REST.wide }}
+      className="sl-look sh sh-wide"
     >
       {(s) => (
         <>
           <Window url={copy.url} className="sh-window">
             <div className="sh-scenes">
-              <TaskPage sc={0} s={s} copy={copy} />
-              <TaskPage sc={1} s={s} copy={copy} />
+              <TaskPage sc={0} s={s} copy={copy} layout="wide" />
+              <TaskPage sc={1} s={s} copy={copy} layout="wide" />
             </div>
           </Window>
-          <span
-            data-target="rest"
-            style={{ position: 'absolute', left: W_REST.x, top: W_REST.y }}
-          />
-          <WorkerCard sc={0} s={s} copy={copy} />
-          <WorkerCard sc={1} s={s} copy={copy} />
-          {s.fly && (
-            <Fly
-              from={s.fly.from}
-              to={s.fly.to}
-              go={s.fly.go}
-              held
-              duration={900}
-            >
-              <span className="sh-price sh-price--chip">
-                £{copy.tasks[s.fly.scene].pulses[s.fly.i].price}
-              </span>
-            </Fly>
-          )}
+          <Spots layout="wide" />
         </>
       )}
     </Stage>
   )
 }
 
-// ---------------------------------------------------------------- compact
-
-type C = Lists & {
-  /** The notification announcing a quote. */
-  note: null | { scene: number; i: number; out: boolean }
-}
-
-const C_START: C = {
-  scene: 0,
-  open: [0, 0],
-  landed: [0, 0],
-  booked: false,
-  note: null,
-}
-const C_POSTER: C = { ...C_START, open: [2, 0], landed: [2, 0], booked: true }
-/** Where the finger waits: under the quotes, near the button it will tap. */
-const C_REST = { x: 316, y: 470 }
-
-async function arrive(a: Act<C>, sc: number, i: number) {
-  // The quote is announced, then opens as the newest row under it
-  await a.set({ note: { scene: sc, i, out: false } })
-  await a.wait(750)
-  await a.set((s) => ({ open: set2(s.open, sc, i + 1) }))
-  await a.wait(380)
-  await a.set((s) => ({ landed: set2(s.landed, sc, i + 1) }))
-  await a.wait(1000)
-  await a.set((s) => ({ note: s.note && { ...s.note, out: true } }))
-  await a.wait(340)
-  await a.set({ note: null })
-}
-
-async function compactScript(a: Act<C>) {
-  await a.wait(700)
-  a.mark('first')
-  await arrive(a, 0, 0)
-  await a.wait(350)
-  a.mark('second')
-  await arrive(a, 0, 1)
-  await a.wait(450)
-
-  a.mark('accept')
-  await a.click({ at: 'accept-0-1', x: 0.5, y: 0.6 })
-  await a.set({ booked: true })
-  a.mark('payoff')
-  await a.move('rest')
-  await a.wait(2300)
-
-  a.mark('scene')
-  await a.set({ scene: 1 })
-  await a.wait(600)
-  await a.snap((s) => ({
-    open: set2(s.open, 0, 0),
-    landed: set2(s.landed, 0, 0),
-    booked: false,
-  }))
-  await a.wait(300)
-  a.mark('third')
-  await arrive(a, 1, 0)
-  await a.wait(1300)
-
-  await a.set({ scene: 0 })
-  await a.wait(600)
-  await a.snap((s) => ({
-    open: set2(s.open, 1, 0),
-    landed: set2(s.landed, 1, 0),
-  }))
-  await a.wait(300)
-}
-
 export function HeroCompact({ copy }: { copy: HeroStageCopy }) {
   return (
-    <Stage<C>
-      // A phone screen's width: the host takes back the page gutter, so on a
-      // phone the stage runs from one edge of the screen to the other.
+    <Stage<S>
       width={390}
-      height={520}
-      initial={C_START}
-      poster={C_POSTER}
+      height={690}
+      initial={START}
+      poster={POSTER}
       script={compactScript}
       fidelity="realistic"
-      cursor={{ at: C_REST, style: 'touch' }}
-      className="sh sh-compact"
+      cursor={{ at: REST.compact, style: 'touch' }}
+      className="sl-look sh sh-compact"
     >
       {(s) => {
-        const q = s.note ? copy.tasks[s.note.scene].pulses[s.note.i] : null
+        const q = s.note ? copy.tasks[s.note.scene]?.pulses[s.note.i] : null
         return (
           <>
             <Phone width={326} className="sh-phone">
               <div className="sh-scenes">
-                <TaskPage sc={0} s={s} copy={copy} compact />
-                <TaskPage sc={1} s={s} copy={copy} compact />
+                <TaskPage sc={0} s={s} copy={copy} layout="compact" />
+                <TaskPage sc={1} s={s} copy={copy} layout="compact" />
               </div>
-              {q && (
+              {q ? (
                 <Notification
                   banner
                   className="sh-banner"
                   data-out={s.note?.out || undefined}
                   icon={<img className="sh-appicon" src={MARK_SRC} alt="" />}
-                  title={copy.sentQuote.replace('{name}', q.name)}
+                  title={fill(copy.sentQuote, { name: q.name })}
                   body={`£${q.price} · ${q.note}`}
                   time=""
                 />
-              )}
+              ) : null}
             </Phone>
-            <span
-              data-target="rest"
-              style={{ position: 'absolute', left: C_REST.x, top: C_REST.y }}
-            />
+            <Spots layout="compact" />
           </>
         )
       }}
