@@ -33,7 +33,7 @@ live (PENDING) quotes only. `{name}` is the other person on the booking.
 | `owner.booked.iMarkedFailed` | Owner marked it Failed; waiting for the worker. | Awarded | You marked it Failed | Waiting for {name}. | otherParty, agreedPrice, bookedTime, description, photos | Changed your mind? Mark it Done | Message |
 | `owner.booked.theyMarkedFailed` | The worker marked it Failed; waiting for the owner. | Awarded | {name} marked it Failed | If the job went ahead, mark it Done and the booking will need resolving. | otherParty, agreedPrice, bookedTime, description, photos | Something went wrong (while the Done card shows) | Slide to mark Done |
 | `owner.booked.rescheduleByMe` | Owner asked to move the booking (RESCHEDULING). | Awarded | Reschedule requested | You asked to move the booking. Waiting for {name}. | request, bookedTime, otherParty, agreedPrice, description, photos | Withdraw request | Message |
-| `owner.booked.rescheduleByThem` | The worker asked to move the booking (RESCHEDULING). | Awarded | {name} wants to move the booking | Pick a new time or keep the current one. | request, bookedTime, otherParty, agreedPrice, description, photos | - | Message |
+| `owner.booked.rescheduleByThem` | The worker asked to move the booking (RESCHEDULING). | Awarded | {name} wants to move the booking | Pick one of their times, or propose others. | request, bookedTime, otherParty, agreedPrice, description, photos | - | Message |
 | `owner.booked.cancelByMe` | Owner asked to cancel the booking (CANCEL_REQUESTED, or during CONFLICT). | Awarded | Cancellation requested | You asked to cancel. Waiting for {name}. | request, bookedTime, otherParty, agreedPrice, description, photos | Withdraw request | Message |
 | `owner.booked.cancelByThem` | The worker asked to cancel the booking (CANCEL_REQUESTED, or during CONFLICT). | Awarded | {name} asked to cancel | Accept to cancel the booking, or keep it. | request, bookedTime, otherParty, agreedPrice, description, photos | - | Message |
 | `owner.conflict.iMarkedDone` | CONFLICT: the owner marked it Done, the worker marked it Failed. | Awarded | This booking needs resolving | You marked it Done and {name} marked it Failed. Message them to sort it out, or ask to cancel if it shouldn't stand. | otherParty, agreedPrice, bookedTime, description, photos | Ask to cancel, Report profile | Message |
@@ -49,7 +49,7 @@ live (PENDING) quotes only. `{name}` is the other person on the booking.
 | `worker.booked.iMarkedFailed` | Booked worker marked it Failed; waiting for the owner. | Awarded | You marked it Failed | Waiting for {name}. | otherParty, agreedPrice, bookedTime, description, photos | Changed your mind? Mark it Done | Message |
 | `worker.booked.theyMarkedFailed` | The owner marked it Failed; waiting for the booked worker. | Awarded | {name} marked it Failed | If the job went ahead, mark it Done and the booking will need resolving. | otherParty, agreedPrice, bookedTime, description, photos | Something went wrong (while the Done card shows) | Slide to mark Done |
 | `worker.booked.rescheduleByMe` | Booked worker asked to move the booking (RESCHEDULING). | Awarded | Reschedule requested | You asked to move the booking. Waiting for {name}. | request, bookedTime, otherParty, agreedPrice, location, description, photos | Withdraw request | Message |
-| `worker.booked.rescheduleByThem` | The owner asked to move the booking (RESCHEDULING). | Awarded | {name} wants to move the booking | Pick a new time or keep the current one. | request, bookedTime, otherParty, agreedPrice, location, description, photos | - | Message |
+| `worker.booked.rescheduleByThem` | The owner asked to move the booking (RESCHEDULING). | Awarded | {name} wants to move the booking | Pick one of their times, or propose others. | request, bookedTime, otherParty, agreedPrice, location, description, photos | - | Message |
 | `worker.booked.cancelByMe` | Booked worker asked to cancel the booking (CANCEL_REQUESTED, or during CONFLICT). | Awarded | Cancellation requested | You asked to cancel. Waiting for {name}. | request, bookedTime, otherParty, agreedPrice, location, description, photos | Withdraw request | Message |
 | `worker.booked.cancelByThem` | The owner asked to cancel the booking (CANCEL_REQUESTED, or during CONFLICT). | Awarded | {name} asked to cancel | Accept to cancel the booking, or keep it. | request, bookedTime, otherParty, agreedPrice, location, description, photos | - | Message |
 | `worker.conflict.iMarkedDone` | CONFLICT: the booked worker marked it Done, the owner marked it Failed. | Awarded | This booking needs resolving | You marked it Done and {name} marked it Failed. Message them to sort it out, or ask to cancel if it shouldn't stand. | otherParty, agreedPrice, bookedTime, description, photos | Ask to cancel, Report profile | Message |
@@ -68,6 +68,18 @@ live (PENDING) quotes only. `{name}` is the other person on the booking.
 | `visitor.awarded` | Anyone not on the booking (guest, customer, a worker without a live quote) on a booked task: AWARDED with `bookingStatus` BOOKED, or one this build doesn't expect. | Awarded | Worker booked | This task has been awarded to a worker. | location, categories, postedBy, description, photos | - | none |
 | `visitor.completed` | The same, `bookingStatus` COMPLETED. | Completed | Task completed | This task is no longer taking quotes. | location, categories, postedBy, description, photos | - | none |
 | `visitor.cancelled` | Anyone except the owner on a CANCELLED task. | Cancelled | Task cancelled | This task is no longer active. | location, categories, postedBy, description, photos | - | none |
+
+**Booking rules since BE-125 (11 Nov 2026, FE-545).** Cancel booking ends the
+booking on the viewer's own until 24 hours before the booked start
+(`Order.oneSidedCancelUntil`, `cancelOrder`), behind a warning that it ends it
+for both and cannot be undone; that holds with a request pending too. Inside
+the last 24 hours, and in CONFLICT, it asks the other party, who accepts or
+keeps the booking (`cancelByMe` / `cancelByThem`). A reschedule has no
+reject: in `rescheduleByThem` the viewer uses one of the times, or proposes
+other times, which replace theirs (`OrderRescheduleDialog` with `counter`);
+"Keep current time" is gone (`declineReschedule` stays in the API for
+installed apps). `useOrderRequestOptions` holds the rules for the task page
+and the Messages thread.
 
 ## Asked to quote (FE-507)
 

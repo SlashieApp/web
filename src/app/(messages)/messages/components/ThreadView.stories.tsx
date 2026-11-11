@@ -276,7 +276,7 @@ async function checkBottomPinLayout(canvasElement: HTMLElement) {
     within(pin).getByText('Jordan Lee wants to move the booking'),
   ).toBeVisible()
   await expect(
-    within(pin).getByRole('button', { name: 'Keep current time' }),
+    within(pin).getByRole('button', { name: 'Propose other times' }),
   ).toBeVisible()
   const composer = canvas.getByRole('textbox', { name: 'Message Jordan Lee' })
   await expect(composer).toBeVisible()

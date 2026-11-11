@@ -33,6 +33,7 @@ fragment OrderFields on Order {
   }
   bookedStart
   bookedEnd
+  oneSidedCancelUntil
   pendingRequest {
     kind
     requestedByUserId

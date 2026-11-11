@@ -383,6 +383,7 @@ export function storyTaskOrder(overrides: Partial<OrderItem> = {}): OrderItem {
     pendingRequest: null,
     myCloseAction: null,
     counterpartyCloseAction: null,
+    oneSidedCancelUntil: null,
     autoDoneAt: null,
     createdAt: '2026-06-01T09:00:00.000Z',
     closedAt: null,

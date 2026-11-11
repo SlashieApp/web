@@ -1,0 +1,9 @@
+#import "./taskDetailOrderFields.gql"
+
+# Either party ends the booking on their own, until 24 hours before the booked
+# start (`Order.oneSidedCancelUntil`, BE-125). It cannot be undone.
+mutation CancelOrder($orderId: ID!) {
+  cancelOrder(orderId: $orderId) {
+    ...TaskDetailOrderFields
+  }
+}

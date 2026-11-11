@@ -91,8 +91,9 @@ export const Reschedule: Story = {
     await expect(
       canvas.getAllByRole('button', { name: 'Use this time' }),
     ).toHaveLength(2)
+    // No rejecting a reschedule (BE-125): propose other times instead.
     await expect(
-      canvas.getByRole('button', { name: 'Keep current time' }),
+      canvas.getByRole('button', { name: 'Propose other times' }),
     ).toBeVisible()
   },
 }

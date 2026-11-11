@@ -181,7 +181,7 @@ headline first.
 
 | Bottom pin view | `attention.kind` | Task detail views | Sub-line | Controls |
 |---|---|---|---|---|
-| `bottomPin.reschedule` | ANSWER_RESCHEDULE | `*.booked.rescheduleByThem` | no | Their times with Use this time, Keep current time (`RequestFact`) |
+| `bottomPin.reschedule` | ANSWER_RESCHEDULE | `*.booked.rescheduleByThem` | no | Their times with Use this time, and Propose other times (`RequestFact`; no rejecting a reschedule since BE-125) |
 | `bottomPin.cancel` | ANSWER_CANCEL | `*.booked.cancelByThem` | no | Accept cancellation, Keep booking (`RequestFact`) |
 | `bottomPin.markDone` | MARK_DONE | `*.booked.ready` | no | The Done card: status, date and a compact slide to mark Done (`OrderCloseCard`) |
 | `bottomPin.confirmDone` | CONFIRM_DONE | `*.booked.theyMarkedDone` | yes (auto-complete date) | The Done card |

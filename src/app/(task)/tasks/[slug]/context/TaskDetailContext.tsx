@@ -80,6 +80,8 @@ export type OrderAction =
   | { type: 'declineReschedule' }
   | { type: 'cancelRescheduleRequest' }
   | { type: 'requestCancellation' }
+  /** End the booking on your own (BE-125): until 24 hours before the start. */
+  | { type: 'cancelOrder' }
   | { type: 'acceptCancellation' }
   | { type: 'declineCancellation' }
   | { type: 'withdrawCancellation' }

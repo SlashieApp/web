@@ -229,7 +229,7 @@ export const OwnerBookedIMarkedFailed = owner(ownerOrders.iMarkedFailed)
 export const OwnerBookedTheyMarkedFailed = owner(ownerOrders.theyMarkedFailed)
 /** Owner asked to move the booking and waits for the worker. */
 export const OwnerBookedRescheduleByMe = owner(ownerOrders.rescheduleByMe)
-/** Worker wants to move the booking: pick a time or keep the current one. */
+/** Worker wants to move the booking: pick one of their times, or propose others. */
 export const OwnerBookedRescheduleByThem = owner(ownerOrders.rescheduleByThem)
 /** Owner asked to cancel and waits for the worker. */
 export const OwnerBookedCancelByMe = owner(ownerOrders.cancelByMe)

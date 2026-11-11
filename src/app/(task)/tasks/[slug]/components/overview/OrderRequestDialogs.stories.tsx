@@ -1,3 +1,4 @@
+import { QuoteStatus, TaskStatus } from '@codegen/schema'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { expect, fn, userEvent, within } from 'storybook/test'
 
@@ -16,7 +17,11 @@ import { gapBelow, gapBeside } from '@/ui/FormField/formGap.testing'
 import { expectField, scrollToEnd } from '@/ui/Modal/taskDialogSpacing.testing'
 
 import { withTaskDetailStory } from '../../helpers/taskDetailStoryDecorator'
-import { storyTaskOrder } from '../../helpers/taskDetailStoryFixtures'
+import {
+  storyTaskDetail,
+  storyTaskOrder,
+  storyTaskQuote,
+} from '../../helpers/taskDetailStoryFixtures'
 import { OrderCancelDialog, OrderRescheduleDialog } from './OrderRequestDialogs'
 
 const order = storyTaskOrder({ bookedStart: '2030-06-10T09:00:00.000Z' })
@@ -74,6 +79,90 @@ export const Cancel: Story = {
   },
 }
 
+/**
+ * A booked task its worker can act on. Its own ids: the meta's decorator
+ * seeds the same story cache with the default task and order after this
+ * story's does, and would overwrite them.
+ */
+const CANCEL_OWN_TASK_ID = 'task-cancel-own'
+const bookedTask = storyTaskDetail({
+  id: CANCEL_OWN_TASK_ID,
+  status: TaskStatus.Awarded,
+  quotes: [storyTaskQuote({ status: QuoteStatus.Accepted })],
+})
+
+/** Until 24 hours before the start (BE-125): the booking can be ended on your own. */
+const cancelOnOwnOrder = storyTaskOrder({
+  id: 'order-cancel-own',
+  taskId: CANCEL_OWN_TASK_ID,
+  bookedStart: '2030-06-10T09:00:00.000Z',
+  bookedEnd: '2030-06-10T11:00:00.000Z',
+  oneSidedCancelUntil: '2030-06-09T09:00:00.000Z',
+})
+
+/**
+ * Cancel on your own (until 24 hours before the start, BE-125): a warning
+ * that it ends the booking for both and cannot be undone, then Cancel
+ * booking. Nobody has to accept.
+ */
+export const CancelOnOwn: Story = {
+  decorators: [
+    withTaskDetailStory({
+      viewer: 'worker',
+      task: bookedTask,
+      order: cancelOnOwnOrder,
+    }),
+  ],
+  render: (args) => <OrderCancelDialog {...args} />,
+  play: async ({ canvasElement }) => {
+    await expectSentenceConfirm(
+      await openDialog(canvasElement, 'Cancel this booking?'),
+      "This ends the booking for you and Jordan, and it can't be undone. Jordan is told straight away.",
+      'Cancel booking',
+    )
+  },
+}
+
+/** Phone: the same warning and gaps. */
+export const CancelOnOwnPhone: Story = {
+  ...phone390,
+  decorators: [
+    withTaskDetailStory({
+      viewer: 'worker',
+      task: bookedTask,
+      order: cancelOnOwnOrder,
+    }),
+  ],
+  render: (args) => <OrderCancelDialog {...args} />,
+  play: async ({ canvasElement }) => {
+    expectPhoneWidth(canvasElement)
+    await expectSentenceConfirm(
+      await openDialog(canvasElement, 'Cancel this booking?'),
+      "This ends the booking for you and Jordan, and it can't be undone. Jordan is told straight away.",
+      'Cancel booking',
+    )
+  },
+}
+
+/**
+ * They asked to move the booking: propose other times instead. They replace
+ * theirs (BE-125); there is no rejecting a reschedule.
+ */
+export const CounterPropose: Story = {
+  args: { counter: true },
+  play: async ({ canvasElement }) => {
+    const dialog = within(
+      await page(canvasElement).findByRole('dialog', {
+        name: 'Propose other times',
+      }),
+    )
+    await dialog.findByText(
+      "Offer one or two times. They replace Jordan's request, and Jordan picks one.",
+    )
+    await dialog.findByRole('button', { name: 'Send request' })
+  },
+}
+
 /** Closed: nothing is on screen. */
 export const Closed: Story = {
   args: { open: false },
@@ -112,7 +201,7 @@ async function expectRescheduleSpacing(
   ) as HTMLElement[]
 
   await expect(dialog).toHaveAccessibleDescription(
-    'Offer one or two times. Jordan picks one, or keeps the current time.',
+    'Offer one or two times. Jordan picks one, or proposes others. Until then the booking stays as it is.',
   )
   await expect(gapBelow(title, description as HTMLElement)).toBe(
     formSpace.titleToSubtitle,

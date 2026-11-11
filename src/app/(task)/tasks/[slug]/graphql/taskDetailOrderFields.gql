@@ -34,6 +34,9 @@ fragment TaskDetailOrderFields on Order {
   }
   bookedStart
   bookedEnd
+  # Until when either party may cancel on their own (BE-125); null once that
+  # is over or the booking is closed or in CONFLICT.
+  oneSidedCancelUntil
   pendingRequest {
     kind
     requestedByUserId

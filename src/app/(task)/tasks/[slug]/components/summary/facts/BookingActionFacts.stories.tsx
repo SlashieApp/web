@@ -96,13 +96,21 @@ function request(
   }
 }
 
-/** The worker proposed two new times: Use this time on each, or Keep current time. */
+/**
+ * The worker proposed two new times: Use this time on each, or Propose other
+ * times (BE-125). There is no keeping the current time: they message, or
+ * send times that replace these.
+ */
 export const RescheduleFromThem: Story = {
   ...request(OrderRequestKind.Reschedule, STORY_WORKER_ID),
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
     await canvas.findAllByRole('button', { name: 'Use this time' })
-    await canvas.findByRole('button', { name: 'Keep current time' })
+    await canvas.findByRole('button', { name: 'Propose other times' })
+    await canvas.findByText(/None of these work\?/)
+    expect(
+      canvas.queryByRole('button', { name: 'Keep current time' }),
+    ).toBeNull()
   },
 }
 

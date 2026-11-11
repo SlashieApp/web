@@ -40,6 +40,7 @@ import { workerSetupHref } from '@/app/(stepflow)/worker/setup/helpers/workerSet
 import AcceptOrderCancellation from '@/app/(task)/tasks/[slug]/graphql/AcceptOrderCancellation.gql'
 import AcceptQuote from '@/app/(task)/tasks/[slug]/graphql/AcceptQuote.gql'
 import AddQuote from '@/app/(task)/tasks/[slug]/graphql/AddQuote.gql'
+import CancelOrder from '@/app/(task)/tasks/[slug]/graphql/CancelOrder.gql'
 import CancelRescheduleRequest from '@/app/(task)/tasks/[slug]/graphql/CancelRescheduleRequest.gql'
 import CancelTask from '@/app/(task)/tasks/[slug]/graphql/CancelTask.gql'
 import ConfirmReschedule from '@/app/(task)/tasks/[slug]/graphql/ConfirmReschedule.gql'
@@ -199,6 +200,13 @@ function orderActionSpec(
         document: RequestOrderCancellation,
         variables: { orderId },
         field: 'requestOrderCancellation',
+        flow: 'order_cancel',
+      }
+    case 'cancelOrder':
+      return {
+        document: CancelOrder,
+        variables: { orderId },
+        field: 'cancelOrder',
         flow: 'order_cancel',
       }
     case 'acceptCancellation':

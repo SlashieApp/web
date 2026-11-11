@@ -168,6 +168,7 @@
           "named": "{name} withdrew their request to cancel"
         },
         "CANCELLATION_LAPSED": "The request to cancel lapsed at the booked time",
+        "RESCHEDULE_LAPSED": "The request to move the booking lapsed at the booked time",
         "ORDER_CANCELLED": "The booking was cancelled",
         "ORDER_MARKED_DONE": {
           "you": "You marked the job done",
@@ -380,7 +381,7 @@
       "reschedule": "Reschedule",
       "cancelBooking": "Cancel booking",
       "rescheduleTitle": "Propose new times",
-      "rescheduleBody": "Offer one or two times. {name} picks one, or keeps the current time.",
+      "rescheduleBody": "Offer one or two times. {name} picks one, or proposes others. Until then the booking stays as it is.",
       "rescheduleSubmit": "Send request",
       "cancelTitle": "Ask to cancel this booking?",
       "cancelBody": "{name} needs to accept before the booking is cancelled.",
@@ -393,7 +394,14 @@
       "acceptCancel": "Accept cancellation",
       "declineCancel": "Keep booking",
       "requestSentToast": "Request sent",
-      "updatedToast": "Booking updated"
+      "updatedToast": "Booking updated",
+      "cancelNowTitle": "Cancel this booking?",
+      "cancelNowBody": "This ends the booking for you and {name}, and it can't be undone. {name} is told straight away.",
+      "cancelNowSubmit": "Cancel booking",
+      "counterPropose": "Propose other times",
+      "counterTitle": "Propose other times",
+      "counterBody": "Offer one or two times. They replace {name}'s request, and {name} picks one.",
+      "answerHint": "None of these work? Message {name}, or propose other times."
     },
     "conflict": {
       "help": "Safety and help",
@@ -453,7 +461,7 @@
       "rescheduleByMeHeadline": "Reschedule requested",
       "rescheduleByMeSubline": "You asked to move the booking. Waiting for {name}.",
       "rescheduleByThemHeadline": "{name} wants to move the booking",
-      "rescheduleByThemSubline": "Pick a new time or keep the current one.",
+      "rescheduleByThemSubline": "Pick one of their times, or propose others.",
       "cancelByMeHeadline": "Cancellation requested",
       "cancelByMeSubline": "You asked to cancel. Waiting for {name}.",
       "cancelByThemHeadline": "{name} asked to cancel",
@@ -669,6 +677,7 @@
           "named": "{name} 撤回了取消要求"
         },
         "CANCELLATION_LAPSED": "取消要求在預約時間到時失效",
+        "RESCHEDULE_LAPSED": "更改時間的要求在預約時間到時失效",
         "ORDER_CANCELLED": "預約已取消",
         "ORDER_MARKED_DONE": {
           "you": "你標記工作為完成",
@@ -881,7 +890,7 @@
       "reschedule": "更改時間",
       "cancelBooking": "取消預約",
       "rescheduleTitle": "建議新時間",
-      "rescheduleBody": "提出一至兩個時間。{name} 可選擇其中一個，或保留現有時間。",
+      "rescheduleBody": "提出一至兩個時間。{name} 可選擇其中一個，或提出其他時間。在此之前預約維持不變。",
       "rescheduleSubmit": "發送請求",
       "cancelTitle": "要求取消這個預約？",
       "cancelBody": "{name} 接受後，預約才會取消。",
@@ -894,7 +903,14 @@
       "acceptCancel": "接受取消",
       "declineCancel": "保留預約",
       "requestSentToast": "已發送請求",
-      "updatedToast": "預約已更新"
+      "updatedToast": "預約已更新",
+      "cancelNowTitle": "取消這個預約？",
+      "cancelNowBody": "這會為你和 {name} 結束預約，而且無法復原。{name} 會即時收到通知。",
+      "cancelNowSubmit": "取消預約",
+      "counterPropose": "提出其他時間",
+      "counterTitle": "提出其他時間",
+      "counterBody": "提出一至兩個時間，取代 {name} 的請求，再由 {name} 選擇。",
+      "answerHint": "都不合適？傳訊息給 {name}，或提出其他時間。"
     },
     "conflict": {
       "help": "安全與協助",
@@ -954,7 +970,7 @@
       "rescheduleByMeHeadline": "已要求更改時間",
       "rescheduleByMeSubline": "你已要求更改預約時間，正在等待 {name}。",
       "rescheduleByThemHeadline": "{name} 想更改預約時間",
-      "rescheduleByThemSubline": "請選擇新時間或保留現有時間。",
+      "rescheduleByThemSubline": "請選擇其中一個時間，或提出其他時間。",
       "cancelByMeHeadline": "已要求取消",
       "cancelByMeSubline": "你已要求取消，正在等待 {name}。",
       "cancelByThemHeadline": "{name} 要求取消",

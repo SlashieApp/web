@@ -531,6 +531,7 @@ describe('taskActivityLines: the log', () => {
       RESCHEDULE_REQUESTED: 'booking',
       RESCHEDULE_CONFIRMED: 'booking',
       RESCHEDULE_DECLINED: 'booking',
+      RESCHEDULE_LAPSED: 'booking',
       RESCHEDULE_WITHDRAWN: 'booking',
       CANCELLATION_REQUESTED: 'booking',
       CANCELLATION_DECLINED: 'booking',

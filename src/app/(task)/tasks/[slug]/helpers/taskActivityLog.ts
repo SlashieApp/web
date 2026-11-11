@@ -231,6 +231,11 @@ const EVENT_LINES: Partial<Record<Type, EventLine>> = {
     kind: 'booking',
     text: (_, __, c) => c.events.CANCELLATION_LAPSED,
   },
+  // An unanswered reschedule lapses at the booked start too (BE-125).
+  [Type.RescheduleLapsed]: {
+    kind: 'booking',
+    text: (_, __, c) => c.events.RESCHEDULE_LAPSED,
+  },
   [Type.OrderCancelled]: {
     kind: 'booking',
     text: (_, __, c) => c.events.ORDER_CANCELLED,
