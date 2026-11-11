@@ -62,7 +62,7 @@ export const Playing: Story = {
     const booking = canvasElement.querySelector('[data-chat-booking]')
     if (!booking) throw new Error('The booking card is missing')
     await expect(booking).toHaveTextContent(copy.chat.worker)
-    await expect(booking).toHaveTextContent(copy.hire.when)
+    await expect(booking).toHaveTextContent(copy.hire.slot)
     await expect(booking).toHaveTextContent(copy.hire.price)
     // The composer is the app's: the draft, and Send.
     await expect(

@@ -128,7 +128,7 @@ export const StarsPartial: Story = {
 
 /** Plain meta chip: a grey pill with one line of text. */
 export const MetaChipText: Story = {
-  render: () => <MetaChip>{copy.quotes.category}</MetaChip>,
+  render: () => <MetaChip>{copy.tasks.hedge.area}</MetaChip>,
 }
 
 /** Meta chip with a leading icon, as in the task detail header. */

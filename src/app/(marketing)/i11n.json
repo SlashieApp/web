@@ -237,10 +237,12 @@
           "postedBody": "Workers nearby can now send you quotes."
         },
         "quotes": {
-          "status": "Open",
-          "overview": "Overview",
-          "tab": "Quotes",
-          "category": "Gardening",
+          "heading": "Quotes",
+          "accept": "Accept",
+          "bestMatch": "Best match",
+          "responded": "Responded just now",
+          "preview": "Preview",
+          "sentQuote": "{name} sent a quote",
           "reviews": "({count})",
           "jobs": "{count} jobs done",
           "replies": "Replies in about an hour",
@@ -253,7 +255,8 @@
               "reviews": 32,
               "jobs": 48,
               "price": "£80",
-              "note": "I can come on Saturday morning and take all the cuttings away."
+              "note": "I can come on Saturday morning and take all the cuttings away.",
+              "slot": "Sat, 14 Jun, 09:00–11:00"
             },
             {
               "name": "Jordan K.",
@@ -262,7 +265,8 @@
               "reviews": 19,
               "jobs": 27,
               "price": "£95",
-              "note": "Free on Sunday afternoon."
+              "note": "Free on Sunday afternoon.",
+              "slot": "Sun, 15 Jun, 14:00–16:00"
             },
             {
               "name": "Sam R.",
@@ -271,7 +275,8 @@
               "reviews": 7,
               "jobs": 9,
               "price": "£110",
-              "note": "Price includes green-waste bags."
+              "note": "Price includes green-waste bags.",
+              "slot": "Sun, 15 Jun, 10:00–12:00"
             }
           ]
         },
@@ -290,10 +295,22 @@
         },
         "hire": {
           "price": "£80",
+          "slot": "Sat, 14 Jun, 09:00–11:00",
+          "otherSlot": "Sat, 14 Jun, 14:00–16:00",
+          "acceptedTitle": "Quote accepted",
+          "acceptTitle": "Accept this quote?",
+          "acceptHint": "You will book this worker on Slashie. Payment stays between you. Read the safety notes before inviting someone to your home.",
+          "pickSlot": "Pick a time",
+          "acceptCta": "Accept quote",
+          "awarded": "Awarded",
+          "bookedHeadline": "Worker booked",
+          "bookedSubline": "Coordinate the job and pay them directly. When it is done, you both mark it Done here.",
+          "yourWorker": "Your worker",
+          "message": "Message",
+          "schedule": "Schedule",
+          "agreedTotal": "Agreed total",
           "when": "Saturday, 9:00",
           "note": "Pay Alex directly when the job is done.",
-          "accept": "Accept quote",
-          "acceptedTitle": "Quote accepted",
           "acceptedBody": "Booked for Saturday at 9:00. Slashie takes no cut of the job."
         },
         "review": {
@@ -586,10 +603,12 @@
           "postedBody": "附近的工作者現在可以向你報價。"
         },
         "quotes": {
-          "status": "開放中",
-          "overview": "概覽",
-          "tab": "報價",
-          "category": "園藝",
+          "heading": "報價",
+          "accept": "接受",
+          "bestMatch": "最佳配對",
+          "responded": "剛剛回覆",
+          "preview": "預覽",
+          "sentQuote": "{name} 發送了報價",
           "reviews": "（{count}）",
           "jobs": "已完成 {count} 份工作",
           "replies": "通常一小時內回覆",
@@ -602,7 +621,8 @@
               "reviews": 32,
               "jobs": 48,
               "price": "£80",
-              "note": "我星期六早上可以過來，並把剪下的枝葉全部帶走。"
+              "note": "我星期六早上可以過來，並把剪下的枝葉全部帶走。",
+              "slot": "6月14日（週六）09:00–11:00"
             },
             {
               "name": "Jordan K.",
@@ -611,7 +631,8 @@
               "reviews": 19,
               "jobs": 27,
               "price": "£95",
-              "note": "星期日下午有空。"
+              "note": "星期日下午有空。",
+              "slot": "6月15日（週日）14:00–16:00"
             },
             {
               "name": "Sam R.",
@@ -620,7 +641,8 @@
               "reviews": 7,
               "jobs": 9,
               "price": "£110",
-              "note": "價錢已包括園藝垃圾袋。"
+              "note": "價錢已包括園藝垃圾袋。",
+              "slot": "6月15日（週日）10:00–12:00"
             }
           ]
         },
@@ -639,10 +661,22 @@
         },
         "hire": {
           "price": "£80",
+          "slot": "6月14日（週六）09:00–11:00",
+          "otherSlot": "6月14日（週六）14:00–16:00",
+          "acceptedTitle": "已接受報價",
+          "acceptTitle": "接受此報價？",
+          "acceptHint": "你會在 Slashie 預訂此工作者。付款仍由你們自行安排。邀請對方到府前，請先閱讀安全提示。",
+          "pickSlot": "選擇時間",
+          "acceptCta": "接受報價",
+          "awarded": "已選定",
+          "bookedHeadline": "已預約工作者",
+          "bookedSubline": "協調工作安排並直接付款給對方。完成後，你們雙方都在這裡標記為完成。",
+          "yourWorker": "你的工作者",
+          "message": "傳送訊息",
+          "schedule": "時間",
+          "agreedTotal": "議定總額",
           "when": "星期六 9:00",
           "note": "完工後直接付款給 Alex。",
-          "accept": "接受報價",
-          "acceptedTitle": "已接受報價",
           "acceptedBody": "已預約星期六 9:00。Slashie 不從任務抽成。"
         },
         "review": {

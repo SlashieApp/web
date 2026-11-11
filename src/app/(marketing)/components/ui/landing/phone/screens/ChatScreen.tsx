@@ -130,7 +130,7 @@ function BookingCard({
               color="text.muted"
               lineClamp={1}
             >
-              {copy.hire.when}
+              {copy.hire.slot}
             </Text>
           </HStack>
         ) : (
@@ -149,7 +149,7 @@ function BookingCard({
                 <LuCalendar size={14} />
               </Box>
               <Text fontSize="14px" lineHeight="21px" lineClamp={1}>
-                {copy.hire.when}
+                {copy.hire.slot}
               </Text>
             </HStack>
           </Stack>
@@ -240,7 +240,8 @@ function Composer({
  * Where the thread starts: the quote was accepted, so the two can message.
  * One short centred line, as the app's own thread draws it (the title in ink,
  * then the price and the booked slot), over a line that says what it opens.
- * The cropped phone keeps the first line only.
+ * The cropped phone keeps the title and the price (its booking card, right
+ * above, says when).
  */
 function AcceptedLine({
   copy,
@@ -263,7 +264,9 @@ function AcceptedLine({
         <Text as="span" fontWeight={500} color="text.default">
           {copy.hire.acceptedTitle}
         </Text>
-        {` · ${copy.hire.price} · ${copy.hire.when}`}
+        {compact
+          ? ` · ${copy.hire.price}`
+          : ` · ${copy.hire.price} · ${copy.hire.slot}`}
       </Text>
       {compact ? null : (
         <Text fontSize="12px" lineHeight="17px">

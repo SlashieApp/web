@@ -1,31 +1,46 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
-import { expect, userEvent, within } from 'storybook/test'
+import { expect, waitFor, within } from 'storybook/test'
 
 import messages from '@/app/(marketing)/i11n.json'
-import { formatMessage } from '@/i18n/loadPageI11n'
 
 import { QuotesScreen } from './QuotesScreen'
 import { expectFitsTheCrop, withDemoPhone } from './screenStoryDecorator'
 
 const copy = messages.en.landing.phone
+const [best, arriving, last] = copy.quotes.items
+
+/** Story-only: the row of one quote. */
+function row(canvasElement: HTMLElement, name: string): HTMLElement {
+  const el = canvasElement.querySelector<HTMLElement>(
+    `[data-quote-row="${name}"]`,
+  )
+  if (!el) throw new Error(`The quote from ${name} is missing`)
+  return el
+}
+
+/** Story-only: how many quotes the head counts. */
+function count(canvasElement: HTMLElement): string {
+  return (
+    canvasElement.querySelector('[data-quotes-count]')?.textContent?.trim() ??
+    ''
+  )
+}
 
 /**
- * Story-only: taps the first quote, unless the screen's autoplay beat (about
- * 2.6 s after it starts) already did, then waits for its expanded details.
+ * Story-only: waits for the screen's beat (it plays by itself about 2.6 s
+ * after the screen starts): the third quote is in and the head counts three.
  */
-async function openFirstQuote(canvasElement: HTMLElement) {
-  const canvas = within(canvasElement)
-  if (!canvas.queryByText(copy.quotes.replies)) {
-    const quote = await canvas.findByRole('button', {
-      name: formatMessage(copy.quotes.expand, {
-        name: copy.quotes.items[0].name,
-      }),
-    })
-    await userEvent.click(quote)
-    // A mouse tap leaves no focus ring; the synthetic click would.
-    quote.blur()
-  }
-  await expect(await canvas.findByText(copy.quotes.replies)).toBeInTheDocument()
+async function quoteArrives(canvasElement: HTMLElement) {
+  await waitFor(() => expect(count(canvasElement)).toBe('3'), {
+    timeout: 5000,
+  })
+  await waitFor(
+    () =>
+      expect(
+        row(canvasElement, arriving.name).closest('[aria-hidden="true"]'),
+      ).toBeNull(),
+    { timeout: 3000 },
+  )
 }
 
 const meta = {
@@ -42,42 +57,71 @@ const meta = {
 export default meta
 type Story = StoryObj<typeof meta>
 
-/** Resting (not active): the three quotes are hidden until the screen plays. */
+/** Resting (not active): the quotes are hidden until the screen plays. */
 export const Resting: Story = {
   args: { active: false },
 }
 
-/** Playing: three quotes arrive one by one and the first pulses until it is opened. */
-export const Playing: Story = {}
+/**
+ * Playing: the customer's task page on its quotes, as the app draws it. Two
+ * quotes are in (the cheapest wears Best match), each with when the worker
+ * can come, the price, their message and Accept; Preview is pinned at the
+ * foot.
+ */
+export const Playing: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const first = row(canvasElement, best.name)
+    await expect(first).toHaveTextContent(copy.quotes.bestMatch)
+    await expect(first).toHaveTextContent(best.slot)
+    await expect(first).toHaveTextContent(best.price)
+    await expect(first).toHaveTextContent(copy.quotes.accept)
+    await expect(row(canvasElement, last.name)).not.toHaveTextContent(
+      copy.quotes.bestMatch,
+    )
+    await expect(canvas.getByText(copy.quotes.preview)).toBeInTheDocument()
+  },
+}
 
-/** Quote open: the first quote is expanded with its jobs done and reply time. */
-export const QuoteOpen: Story = {
-  play: ({ canvasElement }) => openFirstQuote(canvasElement),
+/**
+ * A quote arrives: the app's banner says who sent it, their row opens between
+ * the other two (cheapest first) and the head counts three.
+ */
+export const QuoteArrives: Story = {
+  play: async ({ canvasElement }) => {
+    await quoteArrives(canvasElement)
+    await expect(row(canvasElement, arriving.name)).toHaveTextContent(
+      arriving.price,
+    )
+    // Cheapest first: it sits between the other two.
+    const names = [
+      ...canvasElement.querySelectorAll<HTMLElement>('[data-quote-row]'),
+    ].map((el) => el.dataset.quoteRow)
+    await expect(names).toEqual([best.name, arriving.name, last.name])
+  },
 }
 
 /**
  * Cropped phone (the inline steps below `lg`), playing: the first quote is
- * whole and pulses; the list runs under the crop and fades out there.
+ * whole; the list runs under the crop and fades out there.
  */
 export const Compact: Story = {
   args: { compact: true },
   globals: { viewport: { value: 'mobile1', isRotated: false } },
   play: ({ canvasElement }) =>
     expectFitsTheCrop(canvasElement, [
-      copy.quotes.items[0].name,
-      copy.quotes.items[0].price,
+      best.name,
+      best.price,
+      copy.quotes.bestMatch,
     ]),
 }
 
-/** Cropped phone, quote open: the first quote's whole note, jobs done and reply time are above the crop. */
-export const CompactQuoteOpen: Story = {
+/** Cropped phone, a quote has arrived: the first quote is still whole, and the bar counts three. */
+export const CompactQuoteArrives: Story = {
   args: { compact: true },
   globals: { viewport: { value: 'mobile1', isRotated: false } },
   play: async ({ canvasElement }) => {
-    await openFirstQuote(canvasElement)
-    await expectFitsTheCrop(canvasElement, [
-      copy.quotes.items[0].note,
-      copy.quotes.replies,
-    ])
+    await quoteArrives(canvasElement)
+    await expectFitsTheCrop(canvasElement, [best.name, best.price])
   },
 }

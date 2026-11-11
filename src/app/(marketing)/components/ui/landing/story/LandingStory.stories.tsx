@@ -508,13 +508,13 @@ export const PhoneQuotesStep: Story = {
       { timeout: 4000 },
     )
     // The first quote's wrapper carries the entrance opacity: it plays in.
-    const firstQuote = await waitFor(() =>
-      within(docked).getByRole('button', {
-        name: formatMessage(phone.quotes.expand, {
-          name: phone.quotes.items[0].name,
-        }),
-      }),
-    )
+    const firstQuote = await waitFor(() => {
+      const row = docked.querySelector<HTMLElement>(
+        `[data-quote-row="${phone.quotes.items[0].name}"]`,
+      )
+      expect(row).not.toBeNull()
+      return row as HTMLElement
+    })
     const entrance = firstQuote.parentElement as HTMLElement
     await waitFor(() => expect(entrance.style.opacity).toBe('1'), {
       timeout: 3000,
