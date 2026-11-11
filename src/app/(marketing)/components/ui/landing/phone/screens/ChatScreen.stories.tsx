@@ -44,19 +44,30 @@ const meta = {
 export default meta
 type Story = StoryObj<typeof meta>
 
-/** Resting (not active): the "Quote accepted" line and the chat bubbles are hidden until the screen plays. */
+/** Resting (not active): the header and the booking card show; the "Quote accepted" line and the chat bubbles are hidden until the screen plays. */
 export const Resting: Story = {
   args: { active: false },
 }
 
 /**
- * Playing: the thread starts on "Quote accepted" (people message once a quote
- * is accepted), then two bubbles enter and the send button pulses until it is
- * tapped.
+ * Playing: the app's thread. The other person's name over the task's title,
+ * the booking card pinned under the header, then "Quote accepted" (people
+ * message once a quote is accepted), two bubbles, and Send pulsing until it
+ * is tapped.
  */
 export const Playing: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
+    // The booking card says who, when and the agreed price.
+    const booking = canvasElement.querySelector('[data-chat-booking]')
+    if (!booking) throw new Error('The booking card is missing')
+    await expect(booking).toHaveTextContent(copy.chat.worker)
+    await expect(booking).toHaveTextContent(copy.hire.when)
+    await expect(booking).toHaveTextContent(copy.hire.price)
+    // The composer is the app's: the draft, and Send.
+    await expect(
+      canvas.getByRole('button', { name: copy.chat.sendLabel }),
+    ).toHaveTextContent(copy.chat.send)
     const accepted = canvasElement.querySelector('[data-chat-accepted]')
     if (!accepted) throw new Error('The "Quote accepted" line is missing')
     await expect(accepted).toHaveTextContent(copy.hire.acceptedTitle)
@@ -76,8 +87,9 @@ export const Sent: Story = {
 }
 
 /**
- * Cropped phone (the inline steps below `lg`), playing: the bar, the "Quote
- * accepted" line and the composer with its draft, the send button pulsing.
+ * Cropped phone (the inline steps below `lg`), playing: the bar, the booking
+ * card as one row, the "Quote accepted" line and the composer with its draft,
+ * Send pulsing.
  */
 export const Compact: Story = {
   args: { compact: true },
@@ -85,8 +97,8 @@ export const Compact: Story = {
   play: ({ canvasElement }) =>
     expectFitsTheCrop(canvasElement, [
       copy.hire.acceptedTitle,
-      copy.chat.acceptedBody,
       copy.chat.sent,
+      copy.chat.send,
     ]),
 }
 
