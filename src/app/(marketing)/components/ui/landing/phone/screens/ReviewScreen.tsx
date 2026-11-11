@@ -1,16 +1,71 @@
 'use client'
 
 import { Box, HStack, Stack, Text } from '@chakra-ui/react'
-import { LuArrowLeft, LuCheck, LuStar } from 'react-icons/lu'
+import { useEffect, useState } from 'react'
+import { LuStar } from 'react-icons/lu'
 
 import type { PhoneCopy } from '../phoneCopy'
-import { DemoPrimary, Hotspot, InitialAvatar } from '../phoneParts'
-import { enterStyle, useDemoBeat, useTypewriter } from '../useDemoBeat'
+import { CompactBar, Hotspot } from '../phoneParts'
+import { useDemoBeat, useTypewriter } from '../useDemoBeat'
+import {
+  FlowAction,
+  FlowField,
+  FlowShell,
+  ResultHead,
+  stepCaption,
+} from './stepFlowParts'
+import { TaskAppBar } from './taskPageParts'
 
 /**
- * The review prompt flash: tap the stars, the words follow. `compact` is the
- * cropped phone's layout: the prompt card alone (who it is for is in its own
- * line), then the thanks under it.
+ * Where the flow is: Stars (the visitor acts here), the five stars given,
+ * Comment, Send your review, Submit review being pressed, then the finished
+ * job's page with the review on it.
+ */
+type Phase = 'stars' | 'rated' | 'comment' | 'submit' | 'submitting' | 'done'
+
+/** The app's Review flow has three steps. */
+const TOTAL = 3
+const STEP = { stars: 1, comment: 2, submit: 3 } as const
+
+const COMMENT_MS = 950
+const SUBMIT_MS = 2500
+const SUBMITTING_MS = 3600
+const DONE_MS = 4050
+
+/** Five stars, `filled` of them green (the app's rating), each filling in turn. */
+function StarRow({ filled, size }: { filled: number; size: number }) {
+  return (
+    <HStack gap={size >= 28 ? '10px' : '4px'} data-stars={filled}>
+      {[0, 1, 2, 3, 4].map((n) => {
+        const on = n < filled
+        return (
+          <Box
+            key={n}
+            display="inline-flex"
+            color={on ? 'action.primary' : 'border.strong'}
+            transition={`color 200ms ease-out ${n * 90}ms`}
+            css={{
+              '& svg': {
+                fill: on ? 'currentColor' : 'transparent',
+                transition: `fill 200ms ease-out ${n * 90}ms`,
+              },
+            }}
+            aria-hidden
+          >
+            <LuStar size={size} />
+          </Box>
+        )
+      })}
+    </HStack>
+  )
+}
+
+/**
+ * Leaving a review, as the app's flow does it: on Stars the visitor gives
+ * five; the demo goes on through Comment (a few words, typed) to Send your
+ * review, Submit review is pressed, and the screen lands on the finished
+ * job's page with "Your review" on it. `compact` is the cropped phone's
+ * layout of the same steps.
  */
 export function ReviewScreen({
   copy,
@@ -23,191 +78,224 @@ export function ReviewScreen({
   intro?: boolean
   compact?: boolean
 }) {
-  const { entered, done, trigger, reduced } = useDemoBeat(active, intro)
-  const text = useTypewriter(copy.review.text, done, reduced, 700)
-  const t = copy.review
-  const quote = copy.quotes.items[0]
+  const { done, trigger, reduced } = useDemoBeat(active, intro)
+  const [phase, setPhase] = useState<Phase>('stars')
+  const f = copy.review.flow
+  const task = copy.tasks.hedge
+  const text = useTypewriter(f.text, phase === 'comment', reduced, 200)
 
-  const stars = (size: number, gap: string) => (
-    <HStack gap={gap}>
-      {[0, 1, 2, 3, 4].map((n) => (
-        <Box
-          key={n}
-          display="inline-flex"
-          color={done ? 'status.warning.solid' : 'border.strong'}
-          style={{
-            transform: done ? 'scale(1)' : 'scale(0.9)',
-            transition: `transform 260ms cubic-bezier(0.34, 1.56, 0.64, 1) ${n * 80}ms, color 200ms ease ${n * 80}ms`,
-          }}
-        >
-          <LuStar
-            size={size}
-            fill={done ? 'currentColor' : 'none'}
-            strokeWidth={1.8}
-            aria-hidden
-          />
-        </Box>
-      ))}
-    </HStack>
-  )
+  useEffect(() => {
+    if (!done) {
+      setPhase('stars')
+      return
+    }
+    if (reduced) {
+      setPhase('done')
+      return
+    }
+    setPhase('rated')
+    const timers = [
+      window.setTimeout(() => setPhase('comment'), COMMENT_MS),
+      window.setTimeout(() => setPhase('submit'), SUBMIT_MS),
+      window.setTimeout(() => setPhase('submitting'), SUBMITTING_MS),
+      window.setTimeout(() => setPhase('done'), DONE_MS),
+    ]
+    return () => {
+      for (const timer of timers) window.clearTimeout(timer)
+    }
+  }, [done, reduced])
 
-  const thanks = (fontSize: string) =>
-    done && text === t.text ? (
-      <HStack
-        alignSelf="center"
-        gap="6px"
-        color="status.success.fg"
-        fontSize={fontSize}
-        fontWeight={500}
-        css={{
-          animation: 'fade-rise 320ms cubic-bezier(0.2, 0, 0, 1) both',
-        }}
+  if (phase === 'done') {
+    const yours = (
+      <Stack
+        gap={compact ? '4px' : '8px'}
+        p={compact ? '10px' : '16px'}
+        borderWidth="1px"
+        borderColor="border.default"
+        borderRadius="12px"
+        data-your-review=""
       >
-        <LuCheck size={16} aria-hidden />
-        <Text>{t.thanks}</Text>
-      </HStack>
-    ) : null
-
-  if (compact) {
-    return (
-      <Stack position="absolute" inset={0} gap="8px" p="10px" bg="bg.canvas">
-        <Stack
-          align="center"
-          gap="8px"
-          p="12px"
-          borderRadius="12px"
-          bg="bg.surface"
-          borderWidth="1px"
-          borderColor="border.default"
-          style={enterStyle(entered, 0)}
-        >
-          <Box textAlign="center">
-            <Text fontSize="15px" lineHeight="20px" fontWeight={500}>
-              {t.title}
-            </Text>
-            <Text fontSize="12px" lineHeight="16px" color="text.muted">
-              {t.body}
-            </Text>
-          </Box>
-          <Hotspot
-            label={t.rate}
-            onPress={trigger}
-            pulse={!done}
-            px="6px"
-            py="6px"
+        <HStack justify="space-between" gap="8px">
+          <Text
+            fontSize={compact ? '12px' : '14px'}
+            lineHeight={compact ? '16px' : '20px'}
+            fontWeight={500}
           >
-            {stars(28, '5px')}
-          </Hotspot>
+            {f.yours}
+          </Text>
+          <StarRow filled={5} size={compact ? 12 : 16} />
+        </HStack>
+        <Text
+          fontSize={compact ? '12px' : '14px'}
+          lineHeight={compact ? '17px' : '21px'}
+          color="text.muted"
+          lineClamp={compact ? 1 : 3}
+        >
+          {f.text}
+        </Text>
+        {compact ? null : (
           <Box
-            w="full"
-            minH="52px"
-            px="10px"
-            py="8px"
-            borderRadius="8px"
+            alignSelf="flex-start"
+            h="36px"
+            px="14px"
+            mt="4px"
+            borderRadius="full"
             borderWidth="1px"
             borderColor="border.strong"
-            bg="bg.surface"
-            fontSize="13px"
-            lineHeight="18px"
-            color={done ? 'text.default' : 'text.subtle'}
+            display="flex"
+            alignItems="center"
+            fontSize="14px"
+            fontWeight={500}
           >
-            {done ? text : t.placeholder}
+            {f.edit}
           </Box>
-          <DemoPrimary
-            w="full"
-            h="40px"
-            fontSize="13px"
-            opacity={done ? 1 : 0.5}
-          >
-            {t.submit}
-          </DemoPrimary>
-        </Stack>
-        {thanks('12px')}
+        )}
       </Stack>
+    )
+    if (compact) {
+      return (
+        <Box position="absolute" inset={0} bg="bg.surface" data-reviewed="">
+          <CompactBar icon="back" title={task.title} sub={f.completed} />
+          <Stack
+            gap="10px"
+            px="12px"
+            pt="10px"
+            css={{
+              animation: 'fade-rise 380ms cubic-bezier(0.2, 0, 0, 1) both',
+            }}
+          >
+            <ResultHead
+              pill={f.completed}
+              tone="neutral"
+              headline={f.completedHeadline}
+              compact
+            />
+            {yours}
+          </Stack>
+        </Box>
+      )
+    }
+    return (
+      <Box position="absolute" inset={0} bg="bg.surface" data-reviewed="">
+        <TaskAppBar title={task.title} />
+        <Stack
+          gap="20px"
+          px="16px"
+          pt="20px"
+          css={{ animation: 'fade-rise 380ms cubic-bezier(0.2, 0, 0, 1) both' }}
+        >
+          <ResultHead
+            pill={f.completed}
+            tone="neutral"
+            headline={f.completedHeadline}
+            subline={f.completedSubline}
+          />
+          {yours}
+        </Stack>
+      </Box>
+    )
+  }
+
+  const step =
+    phase === 'stars' || phase === 'rated'
+      ? 'stars'
+      : phase === 'comment'
+        ? 'comment'
+        : 'submit'
+  const shell = {
+    title: f.header,
+    caption: stepCaption(f.progress, STEP[step], TOTAL, f.steps[step]),
+    progress: STEP[step] / TOTAL,
+    stepKey: step,
+    back: step !== 'stars',
+    compact,
+  }
+
+  if (step === 'stars') {
+    return (
+      <FlowShell
+        {...shell}
+        heading={f.starsTitle}
+        description={f.starsDescription}
+        action={
+          <FlowAction
+            label={f.continue}
+            pressing={phase === 'rated'}
+            compact={compact}
+          />
+        }
+      >
+        <Stack gap={compact ? '4px' : '8px'}>
+          <Text
+            fontSize={compact ? '12px' : '14px'}
+            lineHeight={compact ? '16px' : '17px'}
+            fontWeight={500}
+          >
+            {f.ratingLabel}
+          </Text>
+          <Hotspot
+            label={f.rate}
+            onPress={trigger}
+            pulse={!done}
+            borderRadius="12px"
+            alignSelf="flex-start"
+            p="6px"
+            m="-6px"
+          >
+            <StarRow
+              filled={phase === 'rated' ? 5 : 0}
+              size={compact ? 26 : 32}
+            />
+          </Hotspot>
+          <Text
+            fontSize="12px"
+            lineHeight="16px"
+            color="text.muted"
+            pt={compact ? 0 : '4px'}
+          >
+            {f.starsHint}
+          </Text>
+        </Stack>
+      </FlowShell>
+    )
+  }
+
+  if (step === 'comment') {
+    return (
+      <FlowShell
+        {...shell}
+        heading={f.commentTitle}
+        description={f.commentDescription}
+        action={<FlowAction label={f.continue} compact={compact} />}
+      >
+        <FlowField label={f.commentLabel} value={text} tall compact={compact} />
+      </FlowShell>
     )
   }
 
   return (
-    <Stack position="absolute" inset={0} gap={0} bg="bg.canvas">
-      <HStack
-        h="58px"
-        px="12px"
-        gap="10px"
-        borderBottomWidth="1px"
-        borderColor="border.default"
-        bg="bg.surface"
-      >
-        <Box display="inline-flex" aria-hidden>
-          <LuArrowLeft size={22} />
-        </Box>
-        <Stack gap={0} flex={1} minW={0}>
-          <Text
-            fontSize="15px"
-            fontWeight={500}
-            letterSpacing="-0.01em"
-            lineClamp={1}
-          >
-            {copy.tasks.hedge.title}
-          </Text>
-          <Text fontSize="12px" color="text.muted">
-            {copy.chat.worker}
-          </Text>
-        </Stack>
-      </HStack>
-
-      <Stack flex={1} justify="center" px="16px" gap="12px">
-        <Stack
-          align="center"
-          gap="14px"
-          p="20px"
-          borderRadius="16px"
-          bg="bg.surface"
-          borderWidth="1px"
-          borderColor="border.default"
-          style={enterStyle(entered, 0)}
+    <FlowShell
+      {...shell}
+      heading={f.submitTitle}
+      description={f.submitDescription}
+      action={
+        <FlowAction
+          label={f.submit}
+          arrow={false}
+          pressing={phase === 'submitting'}
+          compact={compact}
+        />
+      }
+    >
+      <Stack gap={compact ? '6px' : '12px'}>
+        <StarRow filled={5} size={compact ? 14 : 18} />
+        <Text
+          fontSize={compact ? '13px' : '15px'}
+          lineHeight={compact ? '18px' : '22px'}
         >
-          <InitialAvatar initials={quote.initials} size={56} />
-          <Stack gap="2px" align="center">
-            <Text fontSize="18px" fontWeight={500} letterSpacing="-0.01em">
-              {t.title}
-            </Text>
-            <Text fontSize="14px" color="text.muted">
-              {t.body}
-            </Text>
-          </Stack>
-
-          <Hotspot
-            label={t.rate}
-            onPress={trigger}
-            pulse={!done}
-            px="6px"
-            py="4px"
-          >
-            {stars(34, '6px')}
-          </Hotspot>
-
-          <Box
-            w="full"
-            minH="76px"
-            px="12px"
-            py="10px"
-            borderRadius="8px"
-            borderWidth="1px"
-            borderColor="border.strong"
-            bg="bg.surface"
-            fontSize="14px"
-            color={done ? 'text.default' : 'text.subtle'}
-          >
-            {done ? text : t.placeholder}
-          </Box>
-
-          <DemoPrimary w="full" opacity={done ? 1 : 0.5}>
-            {t.submit}
-          </DemoPrimary>
-        </Stack>
-
-        {thanks('14px')}
+          {f.text}
+        </Text>
       </Stack>
-    </Stack>
+    </FlowShell>
   )
 }

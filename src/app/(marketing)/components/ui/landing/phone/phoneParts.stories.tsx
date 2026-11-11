@@ -74,8 +74,8 @@ export const TabBarAccount: Story = {
 export const HotspotPulsing: Story = {
   decorators: [withColumn],
   render: () => (
-    <Hotspot label={copy.post.submit} onPress={fn()} pulse w="full">
-      <DemoPrimary>{copy.post.submit}</DemoPrimary>
+    <Hotspot label={copy.post.flow.submit} onPress={fn()} pulse w="full">
+      <DemoPrimary>{copy.post.flow.submit}</DemoPrimary>
     </Hotspot>
   ),
 }
@@ -84,8 +84,13 @@ export const HotspotPulsing: Story = {
 export const HotspotPlayed: Story = {
   decorators: [withColumn],
   render: () => (
-    <Hotspot label={copy.post.submit} onPress={fn()} pulse={false} w="full">
-      <DemoPrimary>{copy.post.submit}</DemoPrimary>
+    <Hotspot
+      label={copy.post.flow.submit}
+      onPress={fn()}
+      pulse={false}
+      w="full"
+    >
+      <DemoPrimary>{copy.post.flow.submit}</DemoPrimary>
     </Hotspot>
   ),
 }
@@ -94,14 +99,21 @@ export const HotspotPlayed: Story = {
 export const HotspotFocused: Story = {
   decorators: [withColumn],
   render: () => (
-    <Hotspot label={copy.post.submit} onPress={fn()} pulse={false} w="full">
-      <DemoPrimary>{copy.post.submit}</DemoPrimary>
+    <Hotspot
+      label={copy.post.flow.submit}
+      onPress={fn()}
+      pulse={false}
+      w="full"
+    >
+      <DemoPrimary>{copy.post.flow.submit}</DemoPrimary>
     </Hotspot>
   ),
   play: async ({ canvasElement }) => {
     await userEvent.tab()
     await expect(
-      within(canvasElement).getByRole('button', { name: copy.post.submit }),
+      within(canvasElement).getByRole('button', {
+        name: copy.post.flow.submit,
+      }),
     ).toHaveFocus()
   },
 }
@@ -159,7 +171,7 @@ export const SurfaceCard: Story = {
 /** Primary button look at rest: green fill with dark ink. */
 export const PrimaryButton: Story = {
   decorators: [withColumn],
-  render: () => <DemoPrimary>{copy.post.submit}</DemoPrimary>,
+  render: () => <DemoPrimary>{copy.post.flow.submit}</DemoPrimary>,
 }
 
 /** Primary button after the beat: a check icon leads the confirmation label. */

@@ -222,7 +222,6 @@
           }
         },
         "post": {
-          "header": "Post a task",
           "whatLabel": "What do you need?",
           "whatValue": "Hedge trimming and garden tidy-up",
           "whereLabel": "Where?",
@@ -232,9 +231,62 @@
           "whenOther": "Flexible",
           "budgetLabel": "Budget",
           "budgetValue": "£80",
-          "submit": "Post task",
           "postedTitle": "Task posted",
-          "postedBody": "Workers nearby can now send you quotes."
+          "postedBody": "Workers nearby can now send you quotes.",
+          "flow": {
+            "header": "Post a task",
+            "progress": "Step {step} of {total} · {label}",
+            "continue": "Continue",
+            "submit": "Post task",
+            "steps": {
+              "details": {
+                "label": "Details",
+                "title": "What needs doing?",
+                "description": "A clear title and a few lines help workers quote."
+              },
+              "timing": {
+                "label": "Timing",
+                "title": "When do you need it?",
+                "description": "Keep it flexible or pick a date. You agree the final time with your worker."
+              },
+              "budget": {
+                "label": "Budget",
+                "title": "What's your budget?",
+                "description": "A realistic budget gets better quotes. You pay your worker directly."
+              },
+              "review": {
+                "label": "Review",
+                "title": "Check and post",
+                "description": "This is how workers will see your task."
+              }
+            },
+            "titleLabel": "Task title",
+            "categoriesLabel": "Categories",
+            "whenLabel": "When",
+            "whenFlexible": "Flexible",
+            "whenBefore": "Before a date",
+            "whenExact": "On a date and time",
+            "budgetTypeLabel": "Budget type",
+            "budgetOneOff": "One-off",
+            "budgetPerHour": "Per hour",
+            "paymentLabel": "How you'll pay",
+            "paymentCash": "Cash",
+            "summaryTask": "Task",
+            "summaryArea": "Area",
+            "summaryWhen": "When",
+            "summaryBudget": "Budget",
+            "open": "Open",
+            "liveHeadline": "Your task is live - reaching workers",
+            "liveSubline": "Nearby workers can see your task. Share it to get quotes faster.",
+            "detailBudget": "Budget",
+            "detailWhen": "When",
+            "detailLocation": "Location",
+            "preview": "Preview",
+            "category": "Gardening",
+            "area": "Clapham",
+            "whenValue": "Sat, 14 Jun at 09:00",
+            "budgetAmount": "80"
+          }
         },
         "quotes": {
           "heading": "Quotes",
@@ -314,25 +366,74 @@
           "acceptedBody": "Booked for Saturday at 9:00. Slashie takes no cut of the job."
         },
         "review": {
-          "title": "How did it go?",
-          "body": "Leave a review for Alex M.",
-          "rate": "Rate Alex five stars",
-          "text": "Brilliant job, the garden looks great.",
-          "placeholder": "Write a few words",
-          "submit": "Post review",
-          "thanks": "Thanks for your review!"
+          "flow": {
+            "header": "Review",
+            "progress": "Step {step} of {total} · {label}",
+            "continue": "Continue",
+            "submit": "Submit review",
+            "steps": {
+              "stars": "Stars",
+              "comment": "Comment",
+              "submit": "Submit"
+            },
+            "starsTitle": "How did the job go?",
+            "starsDescription": "Choose 1 to 5 stars. You can edit this for 48 hours after you submit.",
+            "ratingLabel": "Rating",
+            "starsHint": "1 to 5 stars",
+            "commentTitle": "Add a comment",
+            "commentDescription": "Optional. Say what the other person should know about this job.",
+            "commentLabel": "Comment (optional)",
+            "submitTitle": "Send your review",
+            "submitDescription": "Reviews are opinions between the customer and the worker. Slashie does not check or endorse anyone through a review.",
+            "completed": "Completed",
+            "completedHeadline": "Job complete",
+            "completedSubline": "The details below are your record of the work.",
+            "yours": "Your review",
+            "edit": "Edit review",
+            "rate": "Rate Alex five stars",
+            "text": "Brilliant job, the garden looks great."
+          }
         },
         "worker": {
-          "header": "Send a quote",
-          "postedBy": "Posted by Priya S.",
-          "budget": "Budget {price}",
-          "priceLabel": "Your price",
-          "price": "£60",
-          "messageLabel": "Message",
-          "message": "Hi, I can build it on Thursday evening.",
-          "submit": "Send quote",
-          "sentTitle": "Quote sent",
-          "sentBody": "You'll hear in Messages when Priya replies."
+          "flow": {
+            "header": "Send a quote",
+            "progress": "Step {step} of {total} · {label}",
+            "continue": "Continue",
+            "submit": "Send quote",
+            "backToTask": "Back to task",
+            "steps": {
+              "price": {
+                "label": "Your price",
+                "title": "Your price",
+                "description": "Enter the total price you would like to charge for this task."
+              },
+              "times": {
+                "label": "Times",
+                "title": "When can you do the work?",
+                "description": "Offer one or two exact times. The customer picks one when they accept your quote."
+              },
+              "review": {
+                "label": "Review",
+                "title": "Review your quote",
+                "description": "Check your details before sending your quote to the customer."
+              }
+            },
+            "priceLabel": "Your quote",
+            "priceHelper": "Customer budget: {budget}. Enter the total price you'd like to charge.",
+            "proposedTimes": "Proposed times",
+            "messageLabel": "Message to customer",
+            "open": "Open",
+            "sentHeadline": "Quote sent",
+            "sentSubline": "The customer has your quote. We will notify you of any response.",
+            "yourQuote": "Your quote",
+            "editQuote": "Edit quote",
+            "postedBy": "Posted by Priya S.",
+            "budget": "£60",
+            "priceAmount": "60",
+            "price": "£60",
+            "slot": "Thu, 12 Jun, 18:00",
+            "message": "Hi, I can build it on Thursday evening."
+          }
         },
         "profile": {
           "name": "Alex M.",
@@ -588,7 +689,6 @@
           }
         },
         "post": {
-          "header": "發佈任務",
           "whatLabel": "你需要什麼幫忙？",
           "whatValue": "修剪樹籬及整理花園",
           "whereLabel": "地點",
@@ -598,9 +698,62 @@
           "whenOther": "時間彈性",
           "budgetLabel": "預算",
           "budgetValue": "£80",
-          "submit": "發佈任務",
           "postedTitle": "任務已發佈",
-          "postedBody": "附近的工作者現在可以向你報價。"
+          "postedBody": "附近的工作者現在可以向你報價。",
+          "flow": {
+            "header": "發佈任務",
+            "progress": "第 {step} 步，共 {total} 步 · {label}",
+            "continue": "繼續",
+            "submit": "發佈任務",
+            "steps": {
+              "details": {
+                "label": "詳情",
+                "title": "需要做甚麼？",
+                "description": "清楚的標題和幾句說明，有助工作者報價。"
+              },
+              "timing": {
+                "label": "時間",
+                "title": "你甚麼時候需要？",
+                "description": "可以保持彈性，或揀一個日期。最終時間會與工作者再商量。"
+              },
+              "budget": {
+                "label": "預算",
+                "title": "你的預算是多少？",
+                "description": "合理的預算會帶來更好的報價。你會直接付款給工作者。"
+              },
+              "review": {
+                "label": "檢查",
+                "title": "檢查並發佈",
+                "description": "這是工作者會看到的任務。"
+              }
+            },
+            "titleLabel": "任務標題",
+            "categoriesLabel": "類別",
+            "whenLabel": "時間",
+            "whenFlexible": "彈性",
+            "whenBefore": "在某日期前",
+            "whenExact": "指定日期和時間",
+            "budgetTypeLabel": "預算類型",
+            "budgetOneOff": "一次性",
+            "budgetPerHour": "按小時",
+            "paymentLabel": "付款方式",
+            "paymentCash": "現金",
+            "summaryTask": "任務",
+            "summaryArea": "地區",
+            "summaryWhen": "時間",
+            "summaryBudget": "預算",
+            "open": "開放中",
+            "liveHeadline": "你的任務已上線，正在觸達工作者",
+            "liveSubline": "附近工作者可以看到你的任務。分享可更快收到報價。",
+            "detailBudget": "預算",
+            "detailWhen": "時間",
+            "detailLocation": "地點",
+            "preview": "預覽",
+            "category": "園藝",
+            "area": "Clapham",
+            "whenValue": "6月14日（週六）09:00",
+            "budgetAmount": "80"
+          }
         },
         "quotes": {
           "heading": "報價",
@@ -680,25 +833,74 @@
           "acceptedBody": "已預約星期六 9:00。Slashie 不從任務抽成。"
         },
         "review": {
-          "title": "這次服務如何？",
-          "body": "為 Alex M. 留下評價",
-          "rate": "給 Alex 五星評價",
-          "text": "做得非常好，花園煥然一新。",
-          "placeholder": "寫幾句",
-          "submit": "發佈評價",
-          "thanks": "多謝你的評價！"
+          "flow": {
+            "header": "評價",
+            "progress": "第 {step} 步，共 {total} 步 · {label}",
+            "continue": "繼續",
+            "submit": "提交評價",
+            "steps": {
+              "stars": "星級",
+              "comment": "留言",
+              "submit": "提交"
+            },
+            "starsTitle": "這份工作如何？",
+            "starsDescription": "選擇 1 至 5 星。提交後 48 小時內可以修改。",
+            "ratingLabel": "評分",
+            "starsHint": "1 至 5 星",
+            "commentTitle": "加上留言",
+            "commentDescription": "可選。告訴對方關於這份工作你想他們知道的事。",
+            "commentLabel": "留言（可選）",
+            "submitTitle": "送出評價",
+            "submitDescription": "評價是顧客與工作者之間的意見。Slashie 不會透過評價審查或認可任何人。",
+            "completed": "已完成",
+            "completedHeadline": "工作已完成",
+            "completedSubline": "以下是這份工作的紀錄。",
+            "yours": "你的評價",
+            "edit": "編輯評價",
+            "rate": "給 Alex 五星評價",
+            "text": "做得非常好，花園煥然一新。"
+          }
         },
         "worker": {
-          "header": "發送報價",
-          "postedBy": "由 Priya S. 發佈",
-          "budget": "預算 {price}",
-          "priceLabel": "你的價格",
-          "price": "£60",
-          "messageLabel": "訊息",
-          "message": "你好，我星期四晚上可以幫你組裝。",
-          "submit": "發送報價",
-          "sentTitle": "報價已發送",
-          "sentBody": "Priya 回覆時，你會在訊息中收到通知。"
+          "flow": {
+            "header": "傳送報價",
+            "progress": "第 {step} 步，共 {total} 步 · {label}",
+            "continue": "繼續",
+            "submit": "傳送報價",
+            "backToTask": "返回任務",
+            "steps": {
+              "price": {
+                "label": "你的價錢",
+                "title": "你的價錢",
+                "description": "輸入你為這個任務收取的總價錢。"
+              },
+              "times": {
+                "label": "時間",
+                "title": "你甚麼時候可以開工？",
+                "description": "提供一至兩個確實時間。顧客接受你的報價時會揀選其中一個。"
+              },
+              "review": {
+                "label": "檢查",
+                "title": "檢查你的報價",
+                "description": "傳送報價給顧客前，請先檢查你的資料。"
+              }
+            },
+            "priceLabel": "你的報價",
+            "priceHelper": "顧客預算：{budget}。輸入你想收取的總價錢。",
+            "proposedTimes": "建議時間",
+            "messageLabel": "給顧客的訊息",
+            "open": "開放中",
+            "sentHeadline": "報價已送出",
+            "sentSubline": "顧客已收到你的報價。有回覆時我們會通知你。",
+            "yourQuote": "你的報價",
+            "editQuote": "編輯報價",
+            "postedBy": "由 Priya S. 發佈",
+            "budget": "£60",
+            "priceAmount": "60",
+            "price": "£60",
+            "slot": "6月12日（週四）18:00",
+            "message": "你好，我星期四晚上可以幫你組裝。"
+          }
         },
         "profile": {
           "name": "Alex M.",

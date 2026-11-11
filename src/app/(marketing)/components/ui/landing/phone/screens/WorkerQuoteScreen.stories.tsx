@@ -7,29 +7,38 @@ import { WorkerQuoteScreen } from './WorkerQuoteScreen'
 import { expectFitsTheCrop, withDemoPhone } from './screenStoryDecorator'
 
 const copy = messages.en.landing.phone
+const f = copy.worker.flow
+
+/** Story-only: the flow's step on screen (`price`, `times`, `review`). */
+function step(canvasElement: HTMLElement): string | undefined {
+  return canvasElement.querySelector<HTMLElement>('[data-flow-step]')?.dataset
+    .flowStep
+}
+
+/** Story-only: the task page with the quote sent, once it shows. */
+function sent(canvasElement: HTMLElement): HTMLElement | null {
+  return canvasElement.querySelector<HTMLElement>('[data-quote-sent]')
+}
 
 /**
- * Story-only: taps "Send quote", unless the screen's autoplay beat (about
- * 2.6 s after it starts) already did, then waits for the finished screen.
+ * Story-only: taps Continue on Your price, unless the screen's autoplay beat
+ * (about 2.6 s after it starts) already did, then waits for the flow to run
+ * through to the task's page.
  */
 async function sendQuote(canvasElement: HTMLElement) {
-  const canvas = within(canvasElement)
-  if (!canvas.queryByText(copy.worker.sentBody)) {
-    const submit = await canvas.findByRole('button', {
-      name: copy.worker.submit,
+  if (!sent(canvasElement) && step(canvasElement) === 'price') {
+    const next = within(canvasElement).queryByRole('button', {
+      name: f.continue,
     })
-    await userEvent.click(submit)
-    // A mouse tap leaves no focus ring; the synthetic click would.
-    submit.blur()
+    if (next) {
+      await userEvent.click(next)
+      // A mouse tap leaves no focus ring; the synthetic click would.
+      next.blur()
+    }
   }
-  await expect(
-    await canvas.findByText(copy.worker.sentBody),
-  ).toBeInTheDocument()
-  // The message keeps typing meanwhile: wait for the whole sentence.
-  await waitFor(
-    () => expect(canvas.getByText(copy.worker.message)).toBeInTheDocument(),
-    { timeout: 4000 },
-  )
+  await waitFor(() => expect(sent(canvasElement)).not.toBeNull(), {
+    timeout: 8000,
+  })
 }
 
 const meta = {
@@ -46,58 +55,74 @@ const meta = {
 export default meta
 type Story = StoryObj<typeof meta>
 
-/** Resting (not active): the task, price and message cards are hidden until the screen plays. */
+/** Resting (not active): the Your price step. */
 export const Resting: Story = {
   args: { active: false },
 }
 
-/** Playing: the message types itself, then autoplay taps "Send quote". */
-export const Playing: Story = {}
-
 /**
- * Quote sent: message typed, toast and button confirm the quote (the button is
- * then named "Quote sent", what it reads). The message is public, so it names
- * no one.
+ * Playing: the app's Send a quote flow on Your price: the task it is for,
+ * "Step 1 of 2 · Your price", the price with the customer's budget under it,
+ * and Continue pulsing.
  */
-export const QuoteSent: Story = {
+export const Playing: Story = {
   play: async ({ canvasElement }) => {
-    await sendQuote(canvasElement)
     const canvas = within(canvasElement)
+    await expect(canvas.getByText(f.header)).toBeInTheDocument()
     await expect(
-      canvas.getByRole('button', { name: copy.worker.sentTitle }),
+      canvas.getByText(`Step 1 of 2 · ${f.steps.price.label}`),
     ).toBeInTheDocument()
     await expect(
-      canvas.queryByRole('button', { name: copy.worker.submit }),
-    ).toBeNull()
-    await expect(copy.worker.message).not.toMatch(/Priya/)
+      canvas.getByText(copy.tasks.wardrobe.title),
+    ).toBeInTheDocument()
+    await expect(canvas.getByText(f.priceLabel)).toBeInTheDocument()
+    await expect(
+      canvas.getByRole('button', { name: f.continue }),
+    ).toBeInTheDocument()
   },
 }
 
 /**
- * Cropped phone (the inline steps below `lg`), playing: the task, the price
- * and the message typing itself, with "Send quote" pulsing above the crop.
+ * Quote sent: Continue goes on through the time offered to Review your quote,
+ * Send quote is pressed, and the screen lands on the task's page: "Quote
+ * sent", the quote and its time, with Edit quote pinned.
+ */
+export const QuoteSent: Story = {
+  play: async ({ canvasElement }) => {
+    await sendQuote(canvasElement)
+    const page = sent(canvasElement) as HTMLElement
+    await expect(page).toHaveTextContent(f.sentHeadline)
+    await expect(page).toHaveTextContent(f.price)
+    await expect(page).toHaveTextContent(f.slot)
+    await expect(page).toHaveTextContent(f.editQuote)
+  },
+}
+
+/**
+ * Cropped phone (the inline steps below `lg`), playing: the flow and its step
+ * in the bar, the question, the price and Continue above the crop.
  */
 export const Compact: Story = {
   args: { compact: true },
   globals: { viewport: { value: 'mobile1', isRotated: false } },
   play: ({ canvasElement }) =>
     expectFitsTheCrop(canvasElement, [
-      copy.worker.priceLabel,
-      copy.worker.price,
+      f.steps.price.title,
+      f.priceLabel,
+      f.continue,
     ]),
 }
 
-/** Cropped phone, quote sent: the toast lies over the bar, and the price, the message and the button are whole. */
+/** Cropped phone, quote sent: "Quote sent", its line, the quote and its time are whole above the crop. */
 export const CompactQuoteSent: Story = {
   args: { compact: true },
   globals: { viewport: { value: 'mobile1', isRotated: false } },
   play: async ({ canvasElement }) => {
     await sendQuote(canvasElement)
     await expectFitsTheCrop(canvasElement, [
-      copy.worker.sentTitle,
-      copy.worker.sentBody,
-      copy.worker.price,
-      copy.worker.message,
+      f.sentHeadline,
+      f.yourQuote,
+      f.proposedTimes,
     ])
   },
 }

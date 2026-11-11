@@ -7,29 +7,38 @@ import { PostScreen } from './PostScreen'
 import { expectFitsTheCrop, withDemoPhone } from './screenStoryDecorator'
 
 const copy = messages.en.landing.phone
+const f = copy.post.flow
+
+/** Story-only: the flow's step on screen (`details`, `timing`, `budget`, `review`). */
+function step(canvasElement: HTMLElement): string | undefined {
+  return canvasElement.querySelector<HTMLElement>('[data-flow-step]')?.dataset
+    .flowStep
+}
+
+/** Story-only: the task page the flow lands on, once it shows. */
+function posted(canvasElement: HTMLElement): HTMLElement | null {
+  return canvasElement.querySelector<HTMLElement>('[data-posted]')
+}
 
 /**
- * Story-only: taps "Post task", unless the screen's autoplay beat (about 2.6 s
- * after it starts) already did, then waits for the finished screen.
+ * Story-only: taps Continue on Details, unless the screen's autoplay beat
+ * (about 2.6 s after it starts) already did, then waits for the flow to run
+ * through to the posted task's page.
  */
 async function postTask(canvasElement: HTMLElement) {
-  const canvas = within(canvasElement)
-  if (!canvas.queryByText(copy.post.postedBody)) {
-    const submit = await canvas.findByRole('button', {
-      name: copy.post.submit,
+  if (!posted(canvasElement) && step(canvasElement) === 'details') {
+    const next = within(canvasElement).queryByRole('button', {
+      name: f.continue,
     })
-    await userEvent.click(submit)
-    // A mouse tap leaves no focus ring; the synthetic click would.
-    submit.blur()
+    if (next) {
+      await userEvent.click(next)
+      // A mouse tap leaves no focus ring; the synthetic click would.
+      next.blur()
+    }
   }
-  await expect(
-    await canvas.findByText(copy.post.postedBody),
-  ).toBeInTheDocument()
-  // The title keeps typing meanwhile: wait for the whole sentence.
-  await waitFor(
-    () => expect(canvas.getByText(copy.post.whatValue)).toBeInTheDocument(),
-    { timeout: 4000 },
-  )
+  await waitFor(() => expect(posted(canvasElement)).not.toBeNull(), {
+    timeout: 8000,
+  })
 }
 
 const meta = {
@@ -46,105 +55,75 @@ const meta = {
 export default meta
 type Story = StoryObj<typeof meta>
 
-/** Resting (not active): the fields and the button are hidden until the screen plays. */
+/** Resting (not active): the Details step, its title not typed yet. */
 export const Resting: Story = {
   args: { active: false },
 }
 
-/** Playing: the title types itself, a pin drops, then autoplay taps "Post task". */
-export const Playing: Story = {}
+/**
+ * Playing: the app's Post a task flow on its Details step: the close bar, the
+ * progress track with "Step 3 of 7 · Details", the question, the title being
+ * typed, a category, and Continue pulsing.
+ */
+export const Playing: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(canvas.getByText(f.header)).toBeInTheDocument()
+    await expect(
+      canvas.getByText(`Step 3 of 7 · ${f.steps.details.label}`),
+    ).toBeInTheDocument()
+    await expect(canvas.getByText(f.steps.details.title)).toBeInTheDocument()
+    await expect(canvas.getByText(f.titleLabel)).toBeInTheDocument()
+    await expect(canvas.getByText(f.category)).toBeInTheDocument()
+    await expect(
+      canvas.getByRole('button', { name: f.continue }),
+    ).toBeInTheDocument()
+  },
+}
 
 /**
- * Posted: title typed, toast and button confirm the task (the button is then
- * named "Task posted", what it reads), and the pin stands on Clapham, where
- * the task is: over the map's "Clapham" label.
+ * Posted: Continue taps through Timing and Budget to Check and post, Post
+ * task is pressed, and the screen lands on the new task's page: Open, "Your
+ * task is live", its budget, time and place, with Preview pinned.
  */
 export const Posted: Story = {
   play: async ({ canvasElement }) => {
     await postTask(canvasElement)
-    const canvas = within(canvasElement)
-    await expect(
-      canvas.getByRole('button', { name: copy.post.postedTitle }),
-    ).toBeInTheDocument()
-    await expect(
-      canvas.queryByRole('button', { name: copy.post.submit }),
-    ).toBeNull()
-    const pin = canvasElement.querySelector('[data-post-pin]')
-    const area = [...canvasElement.querySelectorAll('svg text')].find(
-      (label) => label.textContent === 'CLAPHAM',
-    )
-    if (!pin || !area)
-      throw new Error('The pin or the Clapham label is missing')
-    // The pin drops in: measure it at rest. Its foot is at the label, over
-    // its middle.
-    await waitFor(() => {
-      const foot = pin.getBoundingClientRect()
-      const label = area.getBoundingClientRect()
-      expect(
-        Math.abs((foot.left + foot.right) / 2 - (label.left + label.right) / 2),
-      ).toBeLessThan(8)
-      expect(
-        Math.abs(foot.bottom - (label.top + label.bottom) / 2),
-      ).toBeLessThan(16)
-    })
+    const page = posted(canvasElement) as HTMLElement
+    await expect(page).toHaveTextContent(f.open)
+    await expect(page).toHaveTextContent(f.liveHeadline)
+    await expect(page).toHaveTextContent(copy.post.budgetValue)
+    await expect(page).toHaveTextContent(f.whenValue)
+    await expect(page).toHaveTextContent(f.preview)
   },
 }
 
 /**
- * Posted, the toast takes the app bar's place and covers no field: it ends
- * above the first field's label and above the title field's text, so the
- * typed task stays readable while the toast shows.
- */
-export const PostedToastCoversNoField: Story = {
-  play: async ({ canvasElement }) => {
-    await postTask(canvasElement)
-    const canvas = within(canvasElement)
-    const toast = canvasElement.querySelector<HTMLElement>('[data-post-toast]')
-    if (!toast) throw new Error('The posted toast is missing')
-    // The toast fades and rises in (380ms): measure it at rest.
-    await waitFor(() => expect(getComputedStyle(toast).opacity).toBe('1'))
-    const toastBottom = toast.getBoundingClientRect().bottom
-    await expect(toastBottom).toBeLessThanOrEqual(
-      canvas.getByText(copy.post.whatLabel).getBoundingClientRect().top,
-    )
-    await expect(toastBottom).toBeLessThanOrEqual(
-      canvas.getByText(copy.post.whatValue).getBoundingClientRect().top,
-    )
-  },
-}
-
-/**
- * Cropped phone (the inline steps below `lg`), playing: the title types in
- * the first field, where and when sit on one line, and "Post task" pulses.
+ * Cropped phone (the inline steps below `lg`), playing: the flow and its step
+ * in the bar, the question, the title and Continue above the crop.
  */
 export const Compact: Story = {
   args: { compact: true },
   globals: { viewport: { value: 'mobile1', isRotated: false } },
   play: ({ canvasElement }) =>
-    expectFitsTheCrop(canvasElement, [copy.post.whatLabel]),
+    expectFitsTheCrop(canvasElement, [
+      f.steps.details.title,
+      f.titleLabel,
+      f.continue,
+    ]),
 }
 
-/**
- * Cropped phone, posted: the toast lies over the bar and covers no field, and
- * the typed task and the button are whole above the crop.
- */
+/** Cropped phone, posted: Open, the headline and the task's details are whole above the crop. */
 export const CompactPosted: Story = {
   args: { compact: true },
   globals: { viewport: { value: 'mobile1', isRotated: false } },
   play: async ({ canvasElement }) => {
     await postTask(canvasElement)
     await expectFitsTheCrop(canvasElement, [
-      copy.post.postedTitle,
-      copy.post.postedBody,
-      copy.post.whatValue,
+      f.liveHeadline,
+      f.detailBudget,
+      f.detailWhen,
+      f.detailLocation,
     ])
-    const toast = canvasElement.querySelector<HTMLElement>('[data-post-toast]')
-    if (!toast) throw new Error('The posted toast is missing')
-    await waitFor(() => expect(getComputedStyle(toast).opacity).toBe('1'))
-    await expect(toast.getBoundingClientRect().bottom).toBeLessThanOrEqual(
-      within(canvasElement)
-        .getByText(copy.post.whatLabel)
-        .getBoundingClientRect().top,
-    )
   },
 }

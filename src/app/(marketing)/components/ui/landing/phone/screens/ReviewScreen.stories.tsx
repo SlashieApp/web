@@ -7,25 +7,39 @@ import { ReviewScreen } from './ReviewScreen'
 import { expectFitsTheCrop, withDemoPhone } from './screenStoryDecorator'
 
 const copy = messages.en.landing.phone
+const f = copy.review.flow
+
+/** Story-only: the flow's step on screen (`stars`, `comment`, `submit`). */
+function step(canvasElement: HTMLElement): string | undefined {
+  return canvasElement.querySelector<HTMLElement>('[data-flow-step]')?.dataset
+    .flowStep
+}
+
+/** Story-only: the finished job's page with the review on it, once it shows. */
+function reviewed(canvasElement: HTMLElement): HTMLElement | null {
+  return canvasElement.querySelector<HTMLElement>('[data-reviewed]')
+}
 
 /**
- * Story-only: taps the stars, unless the screen's autoplay beat (about 2.6 s
- * after it starts) already did, then waits for the typed review and thanks.
+ * Story-only: gives five stars, unless the screen's autoplay beat (about
+ * 2.6 s after it starts) already did, then waits for the flow to run through
+ * to the finished job's page.
  */
-async function rateWorker(canvasElement: HTMLElement) {
-  const canvas = within(canvasElement)
-  // Before the beat the empty field shows its placeholder.
-  if (canvas.queryByText(copy.review.placeholder)) {
-    const stars = await canvas.findByRole('button', {
-      name: copy.review.rate,
-    })
-    await userEvent.click(stars)
-    // A mouse tap leaves no focus ring; the synthetic click would.
-    stars.blur()
+async function leaveReview(canvasElement: HTMLElement) {
+  if (!reviewed(canvasElement) && step(canvasElement) === 'stars') {
+    const stars = within(canvasElement).queryByRole('button', { name: f.rate })
+    const given = canvasElement
+      .querySelector('[data-stars]')
+      ?.getAttribute('data-stars')
+    if (stars && given === '0') {
+      await userEvent.click(stars)
+      // A mouse tap leaves no focus ring; the synthetic click would.
+      stars.blur()
+    }
   }
-  await expect(
-    await canvas.findByText(copy.review.thanks, {}, { timeout: 5000 }),
-  ).toBeInTheDocument()
+  await waitFor(() => expect(reviewed(canvasElement)).not.toBeNull(), {
+    timeout: 9000,
+  })
 }
 
 const meta = {
@@ -42,46 +56,62 @@ const meta = {
 export default meta
 type Story = StoryObj<typeof meta>
 
-/** Resting (not active): the review card is hidden until the screen plays. */
+/** Resting (not active): the Stars step, no stars given. */
 export const Resting: Story = {
   args: { active: false },
 }
 
-/** Playing: the review card enters and the stars pulse until they are tapped. */
-export const Playing: Story = {}
-
-/** Reviewed: five stars filled, the review typed out and the thanks line shown. */
-export const Reviewed: Story = {
-  play: ({ canvasElement }) => rateWorker(canvasElement),
+/**
+ * Playing: the app's Review flow on Stars: "Step 1 of 3 · Stars", "How did
+ * the job go?", five empty stars pulsing, and Continue.
+ */
+export const Playing: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(canvas.getByText(f.header)).toBeInTheDocument()
+    await expect(
+      canvas.getByText(`Step 1 of 3 · ${f.steps.stars}`),
+    ).toBeInTheDocument()
+    await expect(canvas.getByText(f.starsTitle)).toBeInTheDocument()
+    await expect(
+      canvas.getByRole('button', { name: f.rate }),
+    ).toBeInTheDocument()
+  },
 }
 
 /**
- * Cropped phone (the inline steps below `lg`), playing: the review card (the
- * question, the stars, the field, "Post review") with the stars pulsing.
+ * Reviewed: five stars, a few words on Comment, Send your review, Submit
+ * review is pressed, and the screen lands on the finished job's page with
+ * "Your review" on it.
+ */
+export const Reviewed: Story = {
+  play: async ({ canvasElement }) => {
+    await leaveReview(canvasElement)
+    const page = reviewed(canvasElement) as HTMLElement
+    await expect(page).toHaveTextContent(f.completed)
+    await expect(page).toHaveTextContent(f.completedHeadline)
+    await expect(page).toHaveTextContent(f.yours)
+    await expect(page).toHaveTextContent(f.text)
+  },
+}
+
+/**
+ * Cropped phone (the inline steps below `lg`), playing: the flow and its step
+ * in the bar, the question, the stars and Continue above the crop.
  */
 export const Compact: Story = {
   args: { compact: true },
   globals: { viewport: { value: 'mobile1', isRotated: false } },
   play: ({ canvasElement }) =>
-    expectFitsTheCrop(canvasElement, [copy.review.title, copy.review.submit]),
+    expectFitsTheCrop(canvasElement, [f.starsTitle, f.ratingLabel, f.continue]),
 }
 
-/** Cropped phone, reviewed: the typed review and the thanks line under the card are whole. */
+/** Cropped phone, reviewed: Completed, "Job complete" and "Your review" are whole above the crop. */
 export const CompactReviewed: Story = {
   args: { compact: true },
   globals: { viewport: { value: 'mobile1', isRotated: false } },
   play: async ({ canvasElement }) => {
-    await rateWorker(canvasElement)
-    await waitFor(
-      () =>
-        expect(
-          within(canvasElement).getByText(copy.review.text),
-        ).toBeInTheDocument(),
-      { timeout: 4000 },
-    )
-    await expectFitsTheCrop(canvasElement, [
-      copy.review.text,
-      copy.review.thanks,
-    ])
+    await leaveReview(canvasElement)
+    await expectFitsTheCrop(canvasElement, [f.completedHeadline, f.yours])
   },
 }

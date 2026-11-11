@@ -275,7 +275,7 @@ export const DesktopWorkerAct: Story = {
     await waitFor(
       () =>
         expect(
-          within(pinnedPhone).getByText(phone.worker.header),
+          within(pinnedPhone).getByText(phone.worker.flow.header),
         ).toBeInTheDocument(),
       { timeout: 5000 },
     )

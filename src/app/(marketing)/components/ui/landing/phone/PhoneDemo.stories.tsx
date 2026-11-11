@@ -127,7 +127,9 @@ export const StickyPhoneStageChange: Story = {
       () => expect(canvas.queryByText(copy.search.placeholder)).toBeNull(),
       { timeout: 5000 },
     )
-    await expect(await canvas.findByText(copy.post.header)).toBeInTheDocument()
+    await expect(
+      await canvas.findByText(copy.post.flow.header),
+    ).toBeInTheDocument()
   },
 }
 

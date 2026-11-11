@@ -1,37 +1,69 @@
 'use client'
 
-import { Box, HStack, Stack, Text } from '@chakra-ui/react'
-import { LuCalendar, LuCheck, LuMapPin, LuX } from 'react-icons/lu'
+import { Box, HStack, Stack } from '@chakra-ui/react'
+import { useEffect, useState } from 'react'
+import { LuEye, LuX } from 'react-icons/lu'
 
-import { PhoneMap } from '../PhoneMap'
 import type { PhoneCopy } from '../phoneCopy'
+import { CompactBar, Hotspot } from '../phoneParts'
+import { useDemoBeat, useTypewriter } from '../useDemoBeat'
 import {
-  CompactBar,
-  CompactToast,
-  DemoCard,
-  DemoPrimary,
-  Hotspot,
-} from '../phoneParts'
-import { enterStyle, useDemoBeat, useTypewriter } from '../useDemoBeat'
+  FlowAction,
+  FlowField,
+  FlowGroup,
+  FlowRadio,
+  FlowShell,
+  FlowSummary,
+  ResultHead,
+  ResultRow,
+  stepCaption,
+} from './stepFlowParts'
+import { PinnedAction, PinnedBar, TaskAppBar } from './taskPageParts'
 
-function FieldLabel({ children }: { children: string }) {
+/**
+ * Where the flow is: the Details step the visitor acts on, the steps the
+ * demo taps through, Check and post, Post task being pressed, then the task
+ * page it lands on.
+ */
+type Phase = 'details' | 'timing' | 'budget' | 'review' | 'posting' | 'posted'
+
+/** The app's Post a task flow has seven steps; these are the ones shown. */
+const TOTAL = 7
+const STEP = { details: 3, timing: 4, budget: 6, review: 7 } as const
+
+/** After Continue: each step shows briefly, the last is read, then posted. */
+const BUDGET_MS = 700
+const REVIEW_MS = 1400
+const POSTING_MS = 2600
+const POSTED_MS = 3050
+
+/** A chosen category: a soft green chip with its remove mark, as the Details step draws it. */
+function CategoryChip({ label, compact }: { label: string; compact: boolean }) {
   return (
-    <Text fontSize="13px" fontWeight={500} color="text.muted" mb="6px">
-      {children}
-    </Text>
+    <HStack
+      alignSelf="flex-start"
+      gap="6px"
+      h={compact ? '28px' : '32px'}
+      px="10px"
+      borderRadius="full"
+      bg="status.success.soft"
+      color="status.success.fg"
+      fontSize={compact ? '12px' : '14px'}
+      fontWeight={500}
+    >
+      {label}
+      <LuX size={14} aria-hidden />
+    </HStack>
   )
 }
 
 /**
- * The part of the map the location card shows: Clapham, where the task is,
- * with its name just under the middle of the card, where the pin lands.
- */
-const CLAPHAM_VIEW = '165 636 210 80'
-
-/**
- * Create task: the title types itself, a pin drops, then "Post task".
- * `compact` is the cropped phone's layout: the title, where and when in a
- * line, and the button.
+ * Posting a task, as the app's flow does it (one question per step, the
+ * progress track, Continue): the visitor is on Details, with the title typed
+ * and a category chosen. Continue taps through Timing and Budget to Check and
+ * post, Post task is pressed, and the screen lands on the new task's page:
+ * Open, "Your task is live". Reduced motion rests on Details. `compact` is
+ * the cropped phone's layout of the same steps.
  */
 export function PostScreen({
   copy,
@@ -44,298 +76,196 @@ export function PostScreen({
   intro?: boolean
   compact?: boolean
 }) {
-  // Reduced motion rests the form un-played (the toast replaces the app bar's
-  // title while it shows), with the hotspot still tappable.
   const { entered, done, trigger, reduced } = useDemoBeat(active, intro, false)
-  const title = useTypewriter(copy.post.whatValue, entered, reduced)
-  const typing = title.length < copy.post.whatValue.length
-  const t = copy.post
-  // The button says what it shows: "Post task", then "Task posted".
-  const submit = done ? t.postedTitle : t.submit
+  const [phase, setPhase] = useState<Phase>('details')
+  const f = copy.post.flow
+  const taskTitle = copy.post.whatValue
+  const title = useTypewriter(taskTitle, entered, reduced)
 
-  if (compact) {
-    return (
-      <Stack position="absolute" inset={0} gap={0} bg="bg.canvas">
-        <CompactBar icon="close" title={t.header} />
-        {/* 18px under the bar: the toast may be two lines on a narrow phone. */}
-        <Stack gap="10px" px="12px" pt="18px">
-          <Box style={enterStyle(entered, 0)}>
-            <Text fontSize="12px" fontWeight={500} color="text.muted" mb="4px">
-              {t.whatLabel}
-            </Text>
-            <Box
-              minH="40px"
-              px="10px"
-              py="9px"
-              borderRadius="8px"
-              borderWidth="1px"
-              borderColor={typing ? 'border.focus' : 'border.strong'}
-              boxShadow={
-                typing ? '0 0 0 1px var(--chakra-colors-border-focus)' : 'none'
-              }
-              bg="bg.surface"
-              fontSize="14px"
-              lineHeight="20px"
-              fontWeight={500}
-            >
-              {title}
-              {typing ? (
-                <Box
-                  as="span"
-                  display="inline-block"
-                  w="2px"
-                  h="15px"
-                  ml="1px"
-                  bg="text.default"
-                  verticalAlign="text-bottom"
-                />
-              ) : null}
-            </Box>
-          </Box>
-          {/* Where and when: one line, or one each on the narrowest phones. */}
-          <HStack
-            columnGap="12px"
-            rowGap="2px"
-            flexWrap="wrap"
-            fontSize="12px"
-            lineHeight="16px"
-            fontWeight={500}
-            color="text.muted"
-            whiteSpace="nowrap"
-            style={enterStyle(entered, 1)}
+  useEffect(() => {
+    if (!done) {
+      setPhase('details')
+      return
+    }
+    if (reduced) {
+      setPhase('posted')
+      return
+    }
+    setPhase('timing')
+    const timers = [
+      window.setTimeout(() => setPhase('budget'), BUDGET_MS),
+      window.setTimeout(() => setPhase('review'), REVIEW_MS),
+      window.setTimeout(() => setPhase('posting'), POSTING_MS),
+      window.setTimeout(() => setPhase('posted'), POSTED_MS),
+    ]
+    return () => {
+      for (const timer of timers) window.clearTimeout(timer)
+    }
+  }, [done, reduced])
+
+  if (phase === 'posted') {
+    const rows = (
+      <>
+        <ResultRow
+          label={f.detailBudget}
+          value={copy.post.budgetValue}
+          strong
+          compact={compact}
+        />
+        <ResultRow label={f.detailWhen} value={f.whenValue} compact={compact} />
+        <ResultRow label={f.detailLocation} value={f.area} compact={compact} />
+      </>
+    )
+    if (compact) {
+      return (
+        <Box position="absolute" inset={0} bg="bg.surface" data-posted="">
+          <CompactBar icon="back" title={taskTitle} sub={f.open} />
+          <Stack
+            gap="8px"
+            px="12px"
+            pt="10px"
+            css={{
+              animation: 'fade-rise 380ms cubic-bezier(0.2, 0, 0, 1) both',
+            }}
           >
-            <HStack gap="4px">
-              <LuMapPin size={13} aria-hidden />
-              <Text>{t.whereValue}</Text>
-            </HStack>
-            <HStack gap="4px">
-              <LuCalendar size={13} aria-hidden />
-              <Text>{t.whenValue}</Text>
-            </HStack>
-          </HStack>
-          <Box style={enterStyle(entered, 2)}>
-            <Hotspot
-              label={submit}
-              onPress={trigger}
-              pulse={!done}
-              w="full"
-              borderRadius="full"
-            >
-              <DemoPrimary h="44px" fontSize="14px">
-                {done ? <LuCheck size={16} aria-hidden /> : null}
-                {submit}
-              </DemoPrimary>
-            </Hotspot>
-          </Box>
-        </Stack>
-        {done ? (
-          <CompactToast
-            data-post-toast=""
-            title={t.postedTitle}
-            body={t.postedBody}
+            <ResultHead pill={f.open} headline={f.liveHeadline} compact />
+            <Box>{rows}</Box>
+          </Stack>
+        </Box>
+      )
+    }
+    return (
+      <Box position="absolute" inset={0} bg="bg.surface" data-posted="">
+        <TaskAppBar title={taskTitle} />
+        <Stack
+          gap="20px"
+          px="16px"
+          pt="20px"
+          css={{ animation: 'fade-rise 380ms cubic-bezier(0.2, 0, 0, 1) both' }}
+        >
+          <ResultHead
+            pill={f.open}
+            headline={f.liveHeadline}
+            subline={f.liveSubline}
           />
-        ) : null}
-      </Stack>
+          <Box>{rows}</Box>
+        </Stack>
+        <PinnedBar>
+          <PinnedAction icon={<LuEye size={16} aria-hidden />}>
+            {f.preview}
+          </PinnedAction>
+        </PinnedBar>
+      </Box>
+    )
+  }
+
+  const step = phase === 'posting' ? 'review' : phase
+  const meta = f.steps[step]
+  const shell = {
+    title: f.header,
+    caption: stepCaption(f.progress, STEP[step], TOTAL, meta.label),
+    progress: STEP[step] / TOTAL,
+    heading: meta.title,
+    description: meta.description,
+    stepKey: step,
+    back: true,
+    compact,
+  }
+
+  if (step === 'details') {
+    return (
+      <FlowShell
+        {...shell}
+        action={
+          <Hotspot
+            label={f.continue}
+            onPress={trigger}
+            pulse={!done}
+            borderRadius="full"
+            w="full"
+          >
+            <FlowAction label={f.continue} compact={compact} />
+          </Hotspot>
+        }
+      >
+        <FlowField label={f.titleLabel} value={title} compact={compact} />
+        <FlowGroup label={f.categoriesLabel} compact={compact}>
+          <CategoryChip label={f.category} compact={compact} />
+        </FlowGroup>
+      </FlowShell>
+    )
+  }
+
+  if (step === 'timing') {
+    return (
+      <FlowShell
+        {...shell}
+        action={<FlowAction label={f.continue} compact={compact} />}
+      >
+        <FlowGroup label={f.whenLabel} compact={compact}>
+          <FlowRadio label={f.whenFlexible} compact={compact} />
+          {compact ? null : <FlowRadio label={f.whenBefore} />}
+          <FlowRadio label={f.whenExact} selected compact={compact} />
+        </FlowGroup>
+      </FlowShell>
+    )
+  }
+
+  if (step === 'budget') {
+    return (
+      <FlowShell
+        {...shell}
+        action={<FlowAction label={f.continue} compact={compact} />}
+      >
+        <FlowGroup label={f.budgetTypeLabel} compact={compact}>
+          <FlowRadio label={f.budgetOneOff} selected compact={compact} />
+          {compact ? null : <FlowRadio label={f.budgetPerHour} />}
+        </FlowGroup>
+        <FlowField
+          label={f.summaryBudget}
+          prefix="£"
+          value={f.budgetAmount}
+          compact={compact}
+        />
+        {compact ? null : (
+          <FlowGroup label={f.paymentLabel}>
+            <FlowRadio label={f.paymentCash} selected />
+          </FlowGroup>
+        )}
+      </FlowShell>
     )
   }
 
   return (
-    <Stack position="absolute" inset={0} gap={0} bg="bg.canvas">
-      <HStack
-        h="52px"
-        px="16px"
-        justify="space-between"
-        borderBottomWidth="1px"
-        borderColor="border.default"
-        bg="bg.surface"
-      >
-        <Box color="text.default" display="inline-flex" aria-hidden>
-          <LuX size={22} aria-hidden />
-        </Box>
-        <Text fontSize="16px" fontWeight={500} letterSpacing="-0.01em">
-          {t.header}
-        </Text>
-        <Box w="22px" />
-      </HStack>
-
-      <Stack gap="12px" p="16px" flex={1}>
-        <DemoCard style={enterStyle(entered, 0)}>
-          <FieldLabel>{t.whatLabel}</FieldLabel>
-          <Box
-            minH="46px"
-            px="12px"
-            py="11px"
-            borderRadius="8px"
-            borderWidth="1px"
-            borderColor={typing ? 'border.focus' : 'border.strong'}
-            boxShadow={
-              typing ? '0 0 0 1px var(--chakra-colors-border-focus)' : 'none'
-            }
-            bg="bg.surface"
-            fontSize="15px"
-            fontWeight={500}
-          >
-            {title}
-            {typing ? (
-              <Box
-                as="span"
-                display="inline-block"
-                w="2px"
-                h="17px"
-                ml="1px"
-                bg="text.default"
-                verticalAlign="text-bottom"
-              />
-            ) : null}
-          </Box>
-        </DemoCard>
-
-        <DemoCard style={enterStyle(entered, 1)}>
-          <FieldLabel>{t.whereLabel}</FieldLabel>
-          <Box
-            position="relative"
-            h="118px"
-            borderRadius="8px"
-            overflow="hidden"
-            borderWidth="1px"
-            borderColor="border.default"
-          >
-            <PhoneMap viewBox={CLAPHAM_VIEW} />
-            <Box
-              data-post-pin=""
-              position="absolute"
-              left="50%"
-              top="50%"
-              color="accent.active"
-              style={{
-                transform: entered
-                  ? 'translate(-50%, -100%)'
-                  : 'translate(-50%, -260%)',
-                opacity: entered ? 1 : 0,
-                transition:
-                  'transform 520ms cubic-bezier(0.34, 1.56, 0.64, 1) 900ms, opacity 200ms ease 900ms',
-              }}
-            >
-              <LuMapPin
-                size={34}
-                fill="currentColor"
-                stroke="var(--chakra-colors-bg-surface)"
-                aria-hidden
-              />
-            </Box>
-          </Box>
-          <HStack mt="8px" gap="6px" fontSize="14px" fontWeight={500}>
-            <LuMapPin size={14} aria-hidden />
-            <Text>{t.whereValue}</Text>
-          </HStack>
-        </DemoCard>
-
-        <DemoCard style={enterStyle(entered, 2)}>
-          <FieldLabel>{t.whenLabel}</FieldLabel>
-          <HStack gap="8px">
-            <Box
-              px="12px"
-              py="7px"
-              borderRadius="full"
-              bg="status.success.soft"
-              borderWidth="1px"
-              borderColor="status.success.border"
-              color="status.success.fg"
-              fontSize="13px"
-              fontWeight={500}
-            >
-              {t.whenValue}
-            </Box>
-            <Box
-              px="12px"
-              py="7px"
-              borderRadius="full"
-              borderWidth="1px"
-              borderColor="border.strong"
-              fontSize="13px"
-              fontWeight={500}
-              color="text.muted"
-            >
-              {t.whenOther}
-            </Box>
-          </HStack>
-        </DemoCard>
-
-        <DemoCard style={enterStyle(entered, 3)}>
-          <HStack justify="space-between">
-            <FieldLabel>{t.budgetLabel}</FieldLabel>
-            <Text
-              fontSize="22px"
-              fontWeight={600}
-              fontVariantNumeric="tabular-nums"
-            >
-              {t.budgetValue}
-            </Text>
-          </HStack>
-        </DemoCard>
+    <FlowShell
+      {...shell}
+      action={
+        <FlowAction
+          label={f.submit}
+          arrow={false}
+          pressing={phase === 'posting'}
+          compact={compact}
+        />
+      }
+    >
+      <Stack gap={compact ? '6px' : '12px'}>
+        <FlowSummary
+          label={f.summaryTask}
+          value={taskTitle}
+          compact={compact}
+        />
+        {compact ? null : (
+          <>
+            <FlowSummary label={f.summaryArea} value={f.area} />
+            <FlowSummary label={f.summaryWhen} value={f.whenValue} />
+          </>
+        )}
+        <FlowSummary
+          label={f.summaryBudget}
+          value={`${copy.post.budgetValue} · ${f.paymentCash}`}
+          compact={compact}
+        />
       </Stack>
-
-      <Box px="16px" pb="44px" style={enterStyle(entered, 4)}>
-        <Hotspot
-          label={submit}
-          onPress={trigger}
-          pulse={!done}
-          w="full"
-          borderRadius="full"
-        >
-          <DemoPrimary>
-            {done ? <LuCheck size={18} aria-hidden /> : null}
-            {submit}
-          </DemoPrimary>
-        </Hotspot>
-      </Box>
-
-      {done ? (
-        // The toast takes the app bar's place, over the title and the close
-        // button, so it never covers a field: the bar is 52px and the toast
-        // 46px, and the first field starts 16px under the bar.
-        <Box
-          position="absolute"
-          left="8px"
-          right="8px"
-          top="3px"
-          zIndex={3}
-          data-post-toast=""
-          css={{ animation: 'fade-rise 380ms cubic-bezier(0.2, 0, 0, 1) both' }}
-        >
-          <DemoCard
-            display="flex"
-            gap="10px"
-            alignItems="center"
-            py="6px"
-            px="12px"
-            bg="status.success.soft"
-            borderColor="status.success.border"
-          >
-            <Box
-              w="32px"
-              h="32px"
-              borderRadius="full"
-              bg="action.primary"
-              color="text.onGreen"
-              display="flex"
-              alignItems="center"
-              justifyContent="center"
-              flexShrink={0}
-            >
-              <LuCheck size={18} aria-hidden />
-            </Box>
-            <Stack gap={0}>
-              <Text fontSize="15px" lineHeight="17px" fontWeight={500}>
-                {t.postedTitle}
-              </Text>
-              <Text fontSize="13px" lineHeight="15px" color="text.muted">
-                {t.postedBody}
-              </Text>
-            </Stack>
-          </DemoCard>
-        </Box>
-      ) : null}
-    </Stack>
+    </FlowShell>
   )
 }
