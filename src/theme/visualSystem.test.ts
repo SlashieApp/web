@@ -476,10 +476,10 @@ describe('elevation aliases in feature chrome', () => {
       join(process.cwd(), 'src/app/(task)/helpers/taskMap/pin/styles.ts'),
       'utf8',
     )
-    const heroSearch = readFileSync(
+    const heroTask = readFileSync(
       join(
         process.cwd(),
-        'src/app/(marketing)/components/ui/landing/hero/HeroSearchCta.tsx',
+        'src/app/(marketing)/components/ui/landing/hero/HeroTaskCta.tsx',
       ),
       'utf8',
     )
@@ -487,9 +487,9 @@ describe('elevation aliases in feature chrome', () => {
     expect(pin).toContain('sdlElevation.e1')
     expect(pin).toContain('sdlElevation.e2')
     expect(pin).not.toContain('0 4px 16px')
-    // The hero's search pill is a hairline with the `e1` resting elevation.
-    expect(heroSearch).toContain("boxShadow: 'e1'")
-    expect(heroSearch).not.toContain('rgba(0, 220, 130')
+    // The hero's task pill is a hairline with the `e1` resting elevation.
+    expect(heroTask).toContain("boxShadow: 'e1'")
+    expect(heroTask).not.toContain('rgba(0, 220, 130')
   })
 })
 
@@ -702,10 +702,18 @@ describe('neutral hover and press tints (FE-469 D3)', () => {
 })
 
 describe('no heavy weights in src', () => {
+  /**
+   * The vendored Stageshow kit (FE-542) draws devices, not Slashie's UI: an
+   * iPhone's lock-screen clock is bold because iOS draws it so. Its files are
+   * not ours to restyle (`kit/README.md`); the scenes built on it are scanned.
+   */
+  const VENDORED_KIT = join('(marketing)', 'components', 'stage', 'kit')
+
   /** Every .ts, .tsx, .mdx and .css file under `dir`, but not this test. */
   function sourceFiles(dir: string): string[] {
     return readdirSync(dir).flatMap((name) => {
       const path = join(dir, name)
+      if (path.endsWith(VENDORED_KIT)) return []
       if (statSync(path).isDirectory()) return sourceFiles(path)
       if (!/\.(tsx?|mdx|css)$/.test(name)) return []
       return path.endsWith('visualSystem.test.ts') ? [] : [path]

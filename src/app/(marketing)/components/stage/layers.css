@@ -1,0 +1,12 @@
+/* The order of the cascade layers, stated before any of the kit's rules.
+
+   The kit's styles live in `@layer stageshow`, so a scene restyles a part
+   with a plain class. Chakra's live in four layers of its own, and its reset
+   layer zeroes every margin, padding and border. A layer named first sits
+   lowest, and the kit's stylesheet loads before Chakra's style tags: without
+   this line `stageshow` would be named first and the reset would beat the kit.
+
+   Naming Chakra's four here, in Chakra's own order, changes nothing for them
+   (Chakra states the same order itself); it only places `stageshow` above.
+   `stageLayers.test.ts` checks the names against Chakra's. */
+@layer reset, base, tokens, recipes, stageshow;

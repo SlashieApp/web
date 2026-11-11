@@ -1,0 +1,580 @@
+/* The landing's hero scene (HeroStage.tsx): the wide design (a window and the worker's card) and
+   the compact one (the app on a phone). All rules belong to it. */
+
+/* The host shows one design: the wide one from the site's desktop split
+   (`lg`, 1024px: `WEB_MIN_PX`), the phone below it. Narrower than that the
+   wide design would be scaled under four fifths, its small text under 10px. */
+.sh-host--compact {
+  display: none;
+}
+@media (max-width: 1023px) {
+  .sh-host--wide {
+    display: none;
+  }
+  /* The phone design is a phone screen wide (390), so its host takes back the
+     page's 16px gutter on each side: on a phone the stage's edges are the
+     screen's, and the phone's soft shadow runs to them instead of being cut
+     a gutter short, where it would read as a grey plate */
+  .sh-host--compact {
+    display: block;
+    margin-inline: -16px;
+  }
+}
+
+.sh .ss-stage {
+  /* Slashie's look, from the SDL tokens: one green, zinc neutrals, dark ink
+     on green */
+  --ss-accent: var(--chakra-colors-action-primary);
+  --ss-accent-2: var(--chakra-colors-action-primary);
+  --ss-accent-soft: var(--chakra-colors-green-50);
+  --ss-accent-text: var(--chakra-colors-green-700);
+  --ss-success: var(--chakra-colors-green-600);
+  --ss-success-soft: var(--chakra-colors-green-50);
+  --ss-success-text: var(--chakra-colors-green-700);
+  --ss-text-strong: var(--chakra-colors-text-default);
+  --ss-text: var(--chakra-colors-text-muted);
+  --ss-text-faint: var(--chakra-colors-text-subtle);
+  --ss-canvas: var(--chakra-colors-bg-subtle);
+  --ss-surface: var(--chakra-colors-bg-surface);
+  --ss-line: var(--chakra-colors-border-default);
+  --ss-font: var(--chakra-fonts-body);
+  --sh-ink: var(--chakra-colors-text-on-green);
+  --sh-green-line: var(--chakra-colors-green-500);
+  --sh-star: var(--chakra-colors-status-warning-fg);
+  /* Arrivals are already moving on their first frame; travel eases out of rest */
+  --sh-arrive: cubic-bezier(0.25, 0.8, 0.25, 1);
+  --sh-travel: cubic-bezier(0.45, 0, 0.1, 1);
+  overflow: hidden;
+  font: 13px / 1.4 var(--ss-font);
+  color: var(--ss-text-strong);
+}
+.sh .sh-strong {
+  font-weight: 600;
+}
+.sh .sh-muted {
+  color: var(--ss-text);
+}
+
+/* Slashie's buttons are pills; the label on green is dark ink, never white */
+.sh .ss-button {
+  --ss-radius-sm: 999px;
+}
+.sh .ss-button[data-variant="primary"] {
+  color: var(--sh-ink);
+}
+.sh .sh-scenes {
+  display: grid;
+  height: 100%;
+}
+
+/* Two tasks on the same product, stacked. The change is a page swap, and the
+   swap is a fade: the old task goes quickly and the new one comes in a beat
+   later, so the two lists are never read on top of each other. Nothing
+   slides: the two pages share their frame (the status, the Quotes label, the
+   buttons), and a part that is the same in both must not move */
+.sh .sh-scene {
+  display: flex;
+  grid-area: 1 / 1;
+  min-height: 0;
+  opacity: 0;
+  transition: opacity 0.18s ease;
+}
+.sh .sh-scene[data-on] {
+  opacity: 1;
+  transition: opacity 0.26s ease 0.12s;
+}
+.sh .sh-main {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+}
+
+/* ---- The map: the task's approximate area, as the product draws it ---- */
+.sh .sh-map {
+  position: relative;
+  flex-shrink: 0;
+  overflow: hidden;
+  background: var(--chakra-colors-bg-subtle);
+}
+.sh .sh-map__art {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.sh .sh-map__land {
+  fill: var(--chakra-colors-bg-subtle);
+}
+.sh .sh-map__street {
+  fill: none;
+  stroke: var(--chakra-colors-bg-surface);
+  stroke-width: 3;
+}
+.sh .sh-map__park {
+  fill: var(--chakra-colors-border-default);
+}
+.sh .sh-map__river {
+  fill: none;
+  stroke: var(--chakra-colors-border-default);
+  stroke-width: 46;
+  stroke-linecap: round;
+}
+.sh .sh-map__casing {
+  fill: none;
+  stroke: var(--chakra-colors-border-default);
+  stroke-width: 11;
+  stroke-linecap: round;
+}
+.sh .sh-map__road {
+  fill: none;
+  stroke: var(--chakra-colors-bg-surface);
+  stroke-width: 9;
+  stroke-linecap: round;
+}
+.sh .sh-area {
+  position: absolute;
+  display: grid;
+  place-items: center;
+  width: 132px;
+  height: 132px;
+  margin: -66px 0 0 -66px;
+  border: 1.5px solid var(--sh-green-line);
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--ss-accent) 14%, transparent);
+}
+.sh .sh-pin {
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--ss-accent);
+  color: var(--sh-ink);
+  font-size: 13px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  box-shadow: 0 0 0 2px var(--ss-surface), 0 4px 10px -2px rgb(0 0 0 / 0.25);
+}
+.sh .sh-place {
+  position: absolute;
+  margin-top: 78px;
+  transform: translateX(-50%);
+  color: var(--ss-text);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+/* ---- The task and its quotes ---- */
+.sh .sh-head {
+  display: grid;
+  justify-items: start;
+  gap: 12px;
+  margin-bottom: 22px;
+}
+.sh .sh-title {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+.sh .sh-facts {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.sh .sh-fact {
+  padding: 3px 10px;
+  border: 1px solid var(--ss-line);
+  border-radius: 999px;
+  color: var(--ss-text);
+  font-size: 12px;
+  white-space: nowrap;
+  /* Pushed along as the status beside it widens (Open to Booked): a layer
+     keeps each chip's text with its box instead of snapping to whole pixels */
+  will-change: transform;
+}
+.sh .sh-quotes {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--ss-line);
+}
+.sh .sh-label {
+  font-size: 13px;
+  font-weight: 600;
+}
+.sh .sh-count {
+  display: inline-flex;
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: var(--chakra-colors-bg-subtle);
+  color: var(--ss-text);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* ---- Quotes: newest on top ---- */
+.sh .sh-row {
+  display: grid;
+  flex-shrink: 0;
+  grid-template-columns: 32px minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 12px;
+  height: 60px;
+  border-bottom: 1px solid var(--ss-line);
+  /* Pushed down as each new row opens: a layer keeps the text with its box */
+  will-change: transform;
+  transition: opacity 0.4s ease;
+}
+.sh .sh-row[data-dim] {
+  opacity: 0.55;
+}
+.sh .sh-who {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+.sh .sh-line {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.sh .sh-name {
+  font-weight: 500;
+  white-space: nowrap;
+}
+.sh .sh-rating {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 16px;
+  color: var(--ss-text);
+  font-size: 12px;
+  line-height: 16px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.sh .sh-star {
+  color: var(--sh-star);
+  fill: currentColor;
+}
+.sh .sh-note {
+  overflow: hidden;
+  color: var(--ss-text);
+  font-size: 12.5px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.sh .sh-price {
+  justify-self: end;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--ss-accent-soft);
+  color: var(--ss-accent-text);
+  font-size: 13px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.sh .sh-act {
+  display: inline-flex;
+}
+.sh .sh-done {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 18px;
+  line-height: 18px;
+}
+
+/* A row's words arrive once its space is open */
+.sh .sh-row > * {
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+.sh .sh-row[data-landed] > * {
+  opacity: 1;
+  transition: opacity 0.45s ease 0.05s;
+}
+
+/* Filler under the quotes, so the page reads on past them */
+.sh .sh-more {
+  display: grid;
+  gap: 14px;
+  margin-top: 24px;
+}
+.sh .sh-more__row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+/* A heading and its lines of text */
+.sh .sh-more--text {
+  gap: 10px;
+}
+.sh .sh-more--text > :first-child {
+  margin-bottom: 4px;
+}
+
+/* ================================================================ wide ==== */
+.sh-wide .ss-stage {
+  --gutter: 44px;
+}
+
+/* The customer's task page: pinned top, centered, off the bottom. It is
+   taller than the stage shows (476px of it): tall enough to hold the page
+   with three quotes and its padding, so the stage's foot is the only crop
+   and the page never ends against the window's own (unseen) bottom edge */
+.sh-wide .sh-window {
+  position: absolute;
+  top: var(--gutter);
+  left: 164px;
+  width: 888px;
+  height: 680px;
+  background: var(--ss-surface);
+  border-radius: 12px;
+  box-shadow: var(--ss-shadow-hero);
+}
+.sh-wide .sh-map {
+  width: 296px;
+  border-right: 1px solid var(--ss-line);
+}
+.sh-wide .sh-main {
+  padding: 24px 28px;
+}
+
+/* The price is the flying chip itself: it shows the instant the chip is
+   gone, with no fade between them */
+.sh-wide .sh-row > .sh-price {
+  opacity: 1;
+  transition: none;
+  visibility: hidden;
+}
+.sh-wide .sh-row[data-landed] > .sh-price {
+  visibility: visible;
+}
+
+/* In flight it lifts off the page: a white chip with the same words. Over
+   the last of its flight it lowers into the soft pill, so it lands already
+   looking like the row's price and the handover is invisible */
+.sh-wide .sh-price--chip {
+  display: inline-block;
+  background: var(--ss-surface);
+  box-shadow: 0 0 0 1px
+    color-mix(in srgb, var(--ss-accent-text) 20%, transparent), 0 6px 16px -4px
+    rgb(0 0 0 / 0.28);
+}
+.sh-wide .ss-fly[data-go] .sh-price--chip {
+  background: var(--ss-accent-soft);
+  box-shadow: 0 0 0 1px transparent, 0 0 0 -4px transparent;
+  transition: background-color 0.35s ease 0.5s, box-shadow 0.35s ease 0.5s;
+}
+
+/* ---- The worker's side: straddles the map's edge ---- */
+.sh-wide .sh-card {
+  position: absolute;
+  /* One gutter above the stage's bottom edge, like the left */
+  bottom: var(--gutter);
+  left: var(--gutter);
+  display: grid;
+  gap: 14px;
+  width: 240px;
+  padding: 18px;
+  border-radius: 14px;
+  background: var(--ss-surface);
+  box-shadow: var(--ss-shadow-satellite);
+  opacity: 0;
+  transform: translateX(-14px);
+  will-change: transform;
+  transition: opacity 0.22s ease, transform 0.4s var(--sh-travel);
+}
+.sh-wide .sh-card[data-in] {
+  opacity: 1;
+  transform: none;
+  transition: opacity 0.6s ease 0.28s, transform 0.9s var(--sh-arrive) 0.28s;
+}
+.sh-wide .sh-card__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+/* A whole, even width, so the star sits on a whole pixel while the card moves */
+.sh-wide .sh-card__head .sh-rating {
+  min-width: 36px;
+}
+.sh-wide .sh-amount {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  font-size: 26px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+.sh-wide .sh-amount .sh-muted {
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 0;
+}
+.sh-wide .sh-fields {
+  display: grid;
+  border: 1px solid var(--ss-line);
+  border-radius: 10px;
+}
+.sh-wide .sh-field {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 34px;
+  padding: 0 12px;
+}
+.sh-wide .sh-field + .sh-field {
+  border-top: 1px solid var(--ss-line);
+}
+.sh-wide .sh-send {
+  display: grid;
+  place-items: center;
+  height: 36px;
+  border-radius: 999px;
+  background: var(--ss-accent);
+  color: var(--sh-ink);
+  font-weight: 600;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+.sh-wide .sh-send[data-state="done"] {
+  background: var(--chakra-colors-bg-subtle);
+  color: var(--ss-text);
+}
+.sh-wide .sh-send[data-state="booked"] {
+  background: var(--ss-accent-soft);
+  color: var(--ss-accent-text);
+}
+
+/* ============================================================= compact ==== */
+/* The app on a phone: pinned a gutter from the top and sides, off the bottom.
+   Sizes inside the phone are iOS points. */
+
+/* The phone sits 32px in from the stage's sides (on a phone: the page's
+   gutter and one more, so the shadow has room) and 16px under its top */
+.sh-compact .sh-phone {
+  position: absolute;
+  top: 16px;
+  left: 32px;
+}
+.sh-compact .sh-scenes {
+  position: absolute;
+  inset: 0;
+}
+.sh-compact .sh-scene {
+  flex-direction: column;
+}
+.sh-compact .sh-map {
+  height: 216px;
+}
+.sh-compact .sh-area {
+  width: 112px;
+  height: 112px;
+  margin: -56px 0 0 -56px;
+}
+.sh-compact .sh-pin {
+  padding: 5px 12px;
+  font-size: 15px;
+}
+.sh-compact .sh-place {
+  display: none;
+}
+.sh-compact .sh-main {
+  padding: 18px 16px;
+  background: var(--ss-surface);
+  font-size: 15px;
+}
+.sh-compact .sh-head {
+  gap: 10px;
+  margin-bottom: 20px;
+}
+.sh-compact .sh-title {
+  font-size: 21px;
+  letter-spacing: -0.02em;
+}
+.sh-compact .sh-fact {
+  padding: 4px 11px;
+  font-size: 13px;
+}
+.sh-compact .sh-fact:last-child {
+  display: none;
+}
+.sh-compact .ss-badge {
+  font-size: 13px;
+}
+.sh-compact .sh-label {
+  font-size: 16px;
+}
+.sh-compact .sh-count {
+  font-size: 13px;
+}
+.sh-compact .sh-row {
+  grid-template-columns: 36px minmax(0, 1fr) auto auto;
+  gap: 10px;
+  height: 68px;
+}
+.sh-compact .sh-who {
+  gap: 2px;
+}
+.sh-compact .sh-line {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+}
+.sh-compact .sh-name {
+  font-size: 16px;
+}
+.sh-compact .sh-rating {
+  font-size: 13px;
+}
+.sh-compact .sh-note {
+  display: none;
+}
+.sh-compact .sh-price {
+  padding: 5px 11px;
+  font-size: 15px;
+}
+.sh-compact .ss-button {
+  --ss-button-height: 34px;
+  --ss-button-pad: 14px;
+  font-size: 15px;
+}
+.sh-compact .sh-more {
+  margin-top: 26px;
+}
+
+/* The notification drops a short way into place, whole, and leaves the way
+   it came: it never rides in from past the phone's top edge */
+.sh-compact .sh-banner {
+  animation: sh-banner-in 420ms cubic-bezier(0.25, 0.8, 0.25, 1) both;
+}
+.sh-compact .sh-banner[data-out] {
+  animation: sh-banner-out 300ms cubic-bezier(0.45, 0, 0.8, 0.4) both;
+}
+.sh-compact .sh-appicon {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+  object-fit: cover;
+}
+
+@keyframes sh-banner-in {
+  from {
+    opacity: 0;
+    transform: translateY(-28px);
+  }
+}
+@keyframes sh-banner-out {
+  to {
+    opacity: 0;
+    transform: translateY(-28px);
+  }
+}

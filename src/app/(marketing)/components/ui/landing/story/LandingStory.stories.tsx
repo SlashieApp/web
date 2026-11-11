@@ -96,7 +96,10 @@ const meta = {
   parameters: { layout: 'fullscreen' },
   args: {
     hero: (
-      <HeroSection copy={hero} ctas={{ seeHowItWorks: ctas.seeHowItWorks }} />
+      <HeroSection
+        copy={hero}
+        ctas={{ postTask: ctas.postTask, browseTasks: ctas.browseTasks }}
+      />
     ),
     story,
     phone,

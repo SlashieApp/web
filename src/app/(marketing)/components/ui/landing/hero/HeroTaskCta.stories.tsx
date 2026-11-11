@@ -4,9 +4,10 @@ import { expect, userEvent, waitFor, within } from 'storybook/test'
 
 import messages from '@/app/(marketing)/i11n.json'
 
-import { HeroSearchCta } from './HeroSearchCta'
+import { HeroTaskCta } from './HeroTaskCta'
 
 const hero = messages.en.landing.hero
+const postTask = messages.en.common.ctas.postTask
 
 /** `text.subtle`, `border.strong`, `border.focus` and green 400, resolved. */
 const TEXT_SUBTLE = 'rgb(107, 107, 116)'
@@ -14,33 +15,34 @@ const BORDER_STRONG = 'rgb(212, 212, 216)'
 const BORDER_FOCUS = 'rgb(2, 165, 103)'
 const GREEN_400 = 'rgb(0, 220, 130)'
 
-/** The pill: the bordered shell around the field and the Search button. */
+/** The pill: the bordered shell around the field and the Post a task button. */
 function getPill(canvasElement: HTMLElement) {
   const pill = within(canvasElement).getByRole('textbox').parentElement
-  if (!pill) throw new Error('The search field has no pill around it')
+  if (!pill) throw new Error('The task field has no pill around it')
   return pill
 }
 
 const meta = {
-  title: 'Marketing/Landing/HeroSearchCta',
-  component: HeroSearchCta,
+  title: 'Marketing/Landing/HeroTaskCta',
+  component: HeroTaskCta,
   tags: ['autodocs'],
   parameters: {
     layout: 'padded',
   },
   args: {
-    placeholder: hero.searchPlaceholder,
-    submitLabel: hero.searchSubmit,
-    ariaLabel: hero.searchAriaLabel,
+    placeholder: hero.taskPlaceholder,
+    submitLabel: postTask,
+    ariaLabel: hero.taskAriaLabel,
   },
-} satisfies Meta<typeof HeroSearchCta>
+} satisfies Meta<typeof HeroTaskCta>
 
 export default meta
 type Story = StoryObj<typeof meta>
 
 /**
  * Empty: one 52px pill with a 1px `border.strong` hairline, the `text.subtle`
- * placeholder and the green Search pill inside it (the hero's one green fill).
+ * placeholder and the green Post a task pill inside it (the hero's one green
+ * fill).
  */
 export const Default: Story = {
   play: async ({ canvasElement }) => {
@@ -57,7 +59,7 @@ export const Default: Story = {
     await expect(getComputedStyle(input, '::placeholder').color).toBe(
       TEXT_SUBTLE,
     )
-    const submit = canvas.getByRole('button', { name: hero.searchSubmit })
+    const submit = canvas.getByRole('button', { name: postTask })
     await expect(pill).toContainElement(submit)
     await expect(getComputedStyle(submit).backgroundColor).toBe(GREEN_400)
     // The header's Get started yields to this pill, not to the hero around it.
@@ -79,7 +81,7 @@ export const Focused: Story = {
   },
 }
 
-/** Typed intent: the text is what gets handed to the create-task flow. */
+/** Typed: the text is what Post a task starts with, as the task's title. */
 export const Typed: Story = {
   play: async ({ canvasElement }) => {
     const input = within(canvasElement).getByRole('textbox')
@@ -88,44 +90,57 @@ export const Typed: Story = {
   },
 }
 
-/** Phone width: still 52px tall, tighter side padding and no arrow on the button. */
+/**
+ * Phone width: still 52px tall, tighter side padding and no arrow on the
+ * button, whose label stays on one line inside the pill.
+ */
 export const Mobile: Story = {
   globals: { viewport: { value: 'mobile1', isRotated: false } },
   play: async ({ canvasElement }) => {
-    await expect(getPill(canvasElement).getBoundingClientRect().height).toBe(52)
+    const pill = getPill(canvasElement)
+    await expect(pill.getBoundingClientRect().height).toBe(52)
+    const submit = within(canvasElement).getByRole('button', { name: postTask })
+    const box = submit.getBoundingClientRect()
+    await expect(box.height).toBeLessThan(52)
+    await expect(box.right).toBeLessThanOrEqual(
+      pill.getBoundingClientRect().right,
+    )
   },
 }
 
 /** Traditional Chinese copy (zh_hk bag) in the same bar. */
 export const TraditionalChinese: Story = {
   args: {
-    placeholder: messages.zh_hk.landing.hero.searchPlaceholder,
-    submitLabel: messages.zh_hk.landing.hero.searchSubmit,
-    ariaLabel: messages.zh_hk.landing.hero.searchAriaLabel,
+    placeholder: messages.zh_hk.landing.hero.taskPlaceholder,
+    submitLabel: messages.zh_hk.common.ctas.postTask,
+    ariaLabel: messages.zh_hk.landing.hero.taskAriaLabel,
   },
 }
 
-/** Submitting opens /search with the typed text as the query. */
-export const SubmitsToSearch: Story = {
+/**
+ * Submitting goes to sign-up, then on to Post a task with the typed text as
+ * the title (the title rides inside `next`, encoded once more).
+ */
+export const SubmitsToPostTask: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
     await userEvent.type(
-      canvas.getByRole('textbox', { name: hero.searchAriaLabel }),
+      canvas.getByRole('textbox', { name: hero.taskAriaLabel }),
       'Fix a leaking tap{Enter}',
     )
     await expect(getRouter().push).toHaveBeenCalledWith(
-      '/search?q=Fix+a+leaking+tap',
+      '/register?next=%2Ftasks%2Fcreate%3Ftitle%3DFix%2Ba%2Bleaking%2Btap',
     )
   },
 }
 
-/** Submitting empty opens /search with no query. */
+/** Submitting empty goes to sign-up, then Post a task with no title. */
 export const SubmitsEmpty: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
-    await userEvent.click(
-      canvas.getByRole('button', { name: hero.searchSubmit }),
+    await userEvent.click(canvas.getByRole('button', { name: postTask }))
+    await expect(getRouter().push).toHaveBeenCalledWith(
+      '/register?next=%2Ftasks%2Fcreate',
     )
-    await expect(getRouter().push).toHaveBeenCalledWith('/search')
   },
 }

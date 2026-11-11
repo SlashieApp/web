@@ -1,14 +1,15 @@
-import { Box, Heading, List, Stack, Text } from '@chakra-ui/react'
+import { Box, HStack, Heading, List, Stack, Text } from '@chakra-ui/react'
+import type { ReactNode } from 'react'
 import { LuCheck } from 'react-icons/lu'
 
 import { SECTION_PY } from '@/app/(marketing)/components/layout/MarketingFrame'
 import { sdlMotion } from '@/theme/styles'
 import { HEADER_MIN_HEIGHT } from '@/ui/Header/shell/headerShell'
 import { PageContainer } from '@/ui/PageContainer'
+import { APP_HOME } from '@/utils/appRoutes'
+import { Link } from '@ui'
 
-import { HeroToolboxSlot } from '../scene/HeroObjectsPoster'
-import { HeroHowItWorksLink } from './HeroHowItWorksLink'
-import { HeroSearchCta } from './HeroSearchCta'
+import { HeroTaskCta } from './HeroTaskCta'
 
 /**
  * CSS entrance (runs without JS; disabled under reduced motion): a fade with an
@@ -28,13 +29,34 @@ function riseIn(delayMs: number) {
 }
 
 /**
- * Padding under the hero's last line: 56px on a phone, 64 on a tablet, 80 on a
- * laptop and 96 on a wide screen. The top is the frame's `SECTION_PY` (the h1
- * sits that far under the header); the foot is a step tighter, so the hero's
- * block reads as one group above the rule. A phone's 56px is also the room the
- * toolbox's slot has under the link's row.
+ * The scene's entrance: a fade, 400ms, once, after the copy (no rise: a
+ * moving box would carry the scene's small text across half pixels). Runs
+ * without JS; disabled under reduced motion.
  */
-export const HERO_PB = { base: 14, md: 16, lg: 20, xl: 24 } as const
+function fadeIn(delayMs: number) {
+  return {
+    animationName: 'fade-in',
+    animationDuration: '400ms',
+    animationTimingFunction: sdlMotion.easing.decelerate,
+    animationFillMode: 'backwards',
+    animationDelay: `${delayMs}ms`,
+    css: {
+      '@media (prefers-reduced-motion: reduce)': { animation: 'none' },
+    },
+  } as const
+}
+
+/**
+ * Padding under the hero's last line, above the scene: 24px on a phone and 32
+ * from a tablet. The scene keeps a gutter of its own above its window (16px on
+ * a phone, 44 on a desktop), so the product sits 40px under the copy on a
+ * phone and 76 on a desktop: one group, the answer to the line above it.
+ * Without a scene the hero closes with the old foot, `HERO_PB_BARE`.
+ */
+export const HERO_PB = { base: 6, md: 8 } as const
+
+/** The hero's foot when there is no scene under the copy: 56, 64, 80, 96px. */
+export const HERO_PB_BARE = { base: 14, md: 16, lg: 20, xl: 24 } as const
 
 /**
  * The faint radial grey at the top of the page: `bg.subtle` at the top edge
@@ -46,31 +68,38 @@ const HERO_GLOW =
 type HeroSectionCopy = {
   heading: string
   body: string
-  searchPlaceholder: string
-  searchSubmit: string
-  searchAriaLabel: string
+  taskPlaceholder: string
+  taskAriaLabel: string
+  /** The line for a worker, ahead of the Browse tasks link. */
+  workerPrompt: string
   trustChips: readonly string[]
 }
 
 type HeroSectionProps = {
   copy: HeroSectionCopy
   ctas: {
-    seeHowItWorks: string
+    postTask: string
+    browseTasks: string
   }
+  /** The scene under the copy: the product doing its job (`HeroStage`). */
+  stage?: ReactNode
 }
 
 /**
- * The hero, the one centred section (tone refresh, train 2): the h1 in
- * `display-2xl`, the body in `text-lg` muted, the 52px search pill with the
- * green Search pill inside, a trust row with green 600 checks, and the
- * "See how it works" text link. A faint radial grey sits behind it at the top
- * of the page. The demo phone sits just below it (pinned layer on desktop,
- * inline on phones) and the 3D objects float around both; on a phone there is
- * one, the toolbox, in the slot at the hero's foot (`HeroToolboxSlot`).
+ * The hero, the one centred section (tone refresh, train 2; the scene and the
+ * action are FE-542): the h1 in `display-2xl`, the body in `text-lg` muted,
+ * the 52px pill that asks what you need done with the green Post a task pill
+ * inside, a trust row with green 600 checks, and a quiet line for a worker
+ * ("Looking for work? Browse tasks", to the public search). A faint radial
+ * grey sits behind it at the top of the page.
+ *
+ * The scene sits under the copy, in the page column, and runs down to the
+ * section's foot: the rule under the hero is the edge its window runs off, so
+ * the product reads as part of the page and not as a picture on a plate.
  * `data-landing-hero` is the hook the floating "Post a task" pill watches: it
- * shows once this section has scrolled out of view.
+ * shows once this section, scene included, has scrolled out of view.
  */
-export function HeroSection({ copy, ctas }: HeroSectionProps) {
+export function HeroSection({ copy, ctas, stage }: HeroSectionProps) {
   return (
     <Box
       as="section"
@@ -90,19 +119,18 @@ export function HeroSection({ copy, ctas }: HeroSectionProps) {
         left={0}
         right={0}
         bottom={0}
-        // Under the still poster (-1) and the copy.
+        // Under the copy and the scene.
         zIndex={-2}
         pointerEvents="none"
         bgImage={HERO_GLOW}
       />
-      <HeroToolboxSlot />
       <PageContainer>
         <Stack
           align="center"
           textAlign="center"
           gap={{ base: 5, md: 6 }}
           pt={SECTION_PY}
-          pb={HERO_PB}
+          pb={stage ? HERO_PB : HERO_PB_BARE}
           mx="auto"
           maxW="54rem"
         >
@@ -133,10 +161,10 @@ export function HeroSection({ copy, ctas }: HeroSectionProps) {
             pt={{ base: 1, md: 2 }}
             {...riseIn(120)}
           >
-            <HeroSearchCta
-              placeholder={copy.searchPlaceholder}
-              submitLabel={copy.searchSubmit}
-              ariaLabel={copy.searchAriaLabel}
+            <HeroTaskCta
+              placeholder={copy.taskPlaceholder}
+              submitLabel={ctas.postTask}
+              ariaLabel={copy.taskAriaLabel}
             />
           </Box>
 
@@ -174,10 +202,29 @@ export function HeroSection({ copy, ctas }: HeroSectionProps) {
             ))}
           </List.Root>
 
-          <Box {...riseIn(240)}>
-            <HeroHowItWorksLink>{ctas.seeHowItWorks}</HeroHowItWorksLink>
-          </Box>
+          <HStack gap={0} justify="center" textStyle="text-sm" {...riseIn(240)}>
+            <Text as="span" color="text.muted">
+              {copy.workerPrompt}
+            </Text>
+            {/* The line of text is 20px tall, too small to tap: the link is a
+                44px target and gives the 24px back as a negative margin, so
+                it takes a 20px line's room in the hero's rhythm. */}
+            <Link
+              href={APP_HOME}
+              display="inline-flex"
+              alignItems="center"
+              minH="44px"
+              px={2}
+              my="-12px"
+              fontWeight={500}
+              textUnderlineOffset="4px"
+              textDecorationThickness="1px"
+            >
+              {ctas.browseTasks}
+            </Link>
+          </HStack>
         </Stack>
+        {stage ? <Box {...fadeIn(300)}>{stage}</Box> : null}
       </PageContainer>
     </Box>
   )

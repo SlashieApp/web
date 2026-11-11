@@ -66,6 +66,10 @@ import {
   resolveCreateTaskStartCentre,
 } from '../helpers/createTaskStartCentre'
 import {
+  createTaskStartingTitle,
+  createTaskTitleFromQuery,
+} from '../helpers/createTaskStartTitle'
+import {
   createTaskFirstErroredStep,
   createTaskIsStepUnlocked,
   createTaskNextStep,
@@ -124,6 +128,11 @@ function readStartCentre(): CreateTaskStartCentre {
   return resolveCreateTaskStartCentre({ search: window.location.search })
 }
 
+/** `?title=`: what the poster typed before the form (the landing's hero, FE-542). */
+function readStartTitle(): string {
+  return createTaskTitleFromQuery(window.location.search) ?? ''
+}
+
 /** Local storage, or null where the browser blocks it. */
 function draftStorage(): Storage | null {
   try {
@@ -136,10 +145,11 @@ function draftStorage(): Storage | null {
 function defaultValues(
   startCentre: CreateTaskStartCentre,
   contact: TaskContactMethod,
+  title: string,
 ): CreateTaskFormFieldValues {
   const pinned = startCentre.source !== 'default'
   return {
-    title: '',
+    title,
     categories: [],
     description: '',
     streetAddress: '',
@@ -200,14 +210,23 @@ export function CreateTaskScreen({
     if (!storage || repostTaskId || startCentre.source === 'search') return null
     return readCreateTaskDraft(storage, draftKey)
   })
+  const [startTitle] = useState(readStartTitle)
   const [defaults] = useState(() =>
-    defaultValues(startCentre, preferredContactDefault),
+    defaultValues(startCentre, preferredContactDefault, startTitle),
   )
 
   const form = useForm<CreateTaskFormFieldValues>({
     resolver: zodResolver(createTaskFormSchema),
     mode: 'onTouched',
-    defaultValues: draft ? { ...defaults, ...draft.values } : defaults,
+    defaultValues: draft
+      ? {
+          ...defaults,
+          ...draft.values,
+          // A draft keeps its own title; a title typed before the form fills
+          // an empty one.
+          title: createTaskStartingTitle(draft.values.title, defaults.title),
+        }
+      : defaults,
   })
   const { register, setValue, watch, getValues, trigger, handleSubmit } = form
   const errors = form.formState.errors

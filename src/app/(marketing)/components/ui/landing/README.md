@@ -1,11 +1,18 @@
 # Slashie marketing landing
 
-`/home`: a scroll story that introduces Slashie. A fixed white page with
-floating real-time 3D props (a toolbox, boxes and a map pin) sits behind a
-server-rendered narrative, and an HTML
-phone demos the real app as you scroll (pinned beside the steps on desktop,
-inline in each step below `lg`). Lives inside the production app
-(Chakra v3 + SDL tokens): **no Tailwind, no styling-system fork** (FE-205).
+`/home`: a scroll story that introduces Slashie. A white page with a
+server-rendered narrative: the hero and its scene (the product doing its job,
+see Hero scene), then an HTML phone that demos the real app as you scroll
+(pinned beside the steps on desktop, inline in each step below `lg`). Lives
+inside the production app (Chakra v3 + SDL tokens): **no Tailwind, no
+styling-system fork** (FE-205).
+
+> **FE-542, in three pushes.** The page is being redesigned around Stageshow
+> scenes. Push 1 (done): the hero's scene and its Post a task action; the 3D
+> props and the map panel are no longer on the page. Their files (`scene/`,
+> `showcase/MapShowcase*`) and the sections below that describe them (Map
+> panel, 3D props, Updating the poster) stay until push 3 removes them with
+> the phone story, the floating pill and the `three` and `lenis` packages.
 
 ## Run / build
 
@@ -19,7 +26,7 @@ bun run build
 
 | Stage | Copy (`landing.story`) | Phone screen | 3D formation |
 | --- | --- | --- | --- |
-| `hero` | hero heading + search CTA, then (until the first step) the map panel and the bento | Search (customer) | `hero`: toolbox and boxes flank the text, the pin top right |
+| `hero` | hero heading + Post a task field + the hero scene, then (until the first step) the bento | Search (customer) | none since FE-542 (the column below describes the old scene) |
 | `post` · `quotes` · `hire` · `chat` · `review` | customer act | Post · Quotes · Hire · Chat · Review | `customer`: down the right edge |
 | `workerFind` · `workerQuote` · `workerProfile` | worker act | Search (worker) · Quote form · Profile | `worker`: the same edge, the props change places |
 | `trust` · `pricing` | the trust row, live pricing | (phone has left) | `scatter`: waits at the right edge, under the opaque panels |
@@ -36,8 +43,14 @@ components/ui/landing/
   LenisRoot.tsx              smooth scroll (skipped under reduced motion)
   Reveal.tsx · Magnetic.tsx  scroll reveal (fade, 8px rise, 400ms, once) · magnetic CTA
   hooks/useDeviceTier.ts     high | mid | low | off (off = reduced motion / no WebGL)
-  hero/HeroSection.tsx       the centred hero: h1, body, search pill, trust checks, how-it-works link
-  hero/HeroSearchCta.tsx     the 52px search pill + green Search pill (hands the text to /search)
+  hero/HeroSection.tsx       the centred hero: h1, body, task pill, trust checks, the worker's Browse tasks line, then the scene
+  hero/HeroTaskCta.tsx       the 52px "What do you need done?" pill + green Post a task pill (sign-up, then Post a task with the text as its title)
+  stage/
+    HeroStage.tsx            the hero scene on the Stageshow kit: a wide design (browser window + a worker's quote card) and a compact one (the app on a phone)
+    heroStage.css            its styles, flat (no nesting), colours from the look tokens
+    StageMap.tsx             the drawn map behind a task (the art is `showcase/mapShowcaseArt.ts`)
+    REHEARSAL.md             what was filmed and checked, and what was not
+  ../../stage/               the vendored Stageshow kit (`kit/`), its entry module and the cascade-layer order (see Hero scene)
   story/
     storyState.ts            module store: active stage, pointer, scene-ready
     StoryTracker.tsx         stage markers + IntersectionObserver on the viewport middle
@@ -99,7 +112,7 @@ section builds on it:
 - **One green fill per screen, the header included.** The marketing header's
   Get started (Open in app on a phone) is the green primary only while no
   green action of the page's own is in view. It is secondary while the hero's
-  Search pill, the closing call's green Post a task (the landing and the foot
+  Post a task pill, the closing call's green Post a task (the landing and the foot
   of `/about`) or the paid plan's action on `/pricing` is on screen;
   `layout/pageGreenWatch.ts` watches the buttons that carry
   `data-page-green-action` (the buttons, not the sections around them) and the
@@ -129,19 +142,27 @@ The one centred section (`hero/HeroSection.tsx`), built from tokens only:
 
 - The h1 is `display-2xl` (72/72 at 500, -0.045em; 44/46 on a phone) with
   `text-wrap: balance`; the body is `text-lg` in `text.muted`, also balanced.
-- The search is one 52px pill (`HeroSearchCta`, the `Input` primitive with
-  `pill`: a 1px `border.strong` hairline, `border.focus` ring on focus, a
-  `text.subtle` placeholder) with the green Search pill inside it. That pill is
-  the hero's only green fill; the header's Get started stays secondary while it
-  is on screen (the pill carries `data-page-green-action`, the header watches
-  the button, not the hero, so once it has scrolled away the header's Get
-  started is the green one).
+- **The action is Post a task** (FE-542; it was a search). One 52px pill
+  (`HeroTaskCta`, the `Input` primitive with `pill`: a 1px `border.strong`
+  hairline, `border.focus` ring on focus, a `text.subtle` placeholder) asks
+  "What do you need done?", with the green Post a task pill inside it.
+  Submitting goes to `/register?next=/tasks/create?title=<text>`: sign-up
+  first (a new visitor has no account), then Post a task, which starts with
+  the text as the task's title (`createTaskStartTitle.ts`, in the create flow:
+  one line, at most 120 characters, a draft's own title wins). Empty goes to
+  the same place with no title. The pill is the hero's only green fill; the
+  header's Get started stays secondary while it is on screen (the pill carries
+  `data-page-green-action`, the header watches the button, not the hero, so
+  once it has scrolled away the header's Get started is the green one).
 - The trust row is a list: a green 600 check (`accent.active`) and the text in
-  `text.muted`. "See how it works" is a `text.link` text action that underlines
-  on hover and focus (never green 400). Its line is 20px tall, too small to
-  tap, so the link is a 44px target: 12px of padding round the text, with the
-  extra 24px given back as a negative margin, so the hero's rhythm is what it
-  was (FE-288).
+  `text.muted`.
+- **A worker's way in** is one quiet line under the checks: "Looking for
+  work?" in `text.muted`, then Browse tasks, a `text.link` text action to the
+  public search (`/search`) that underlines on hover and focus (never green
+  400). Its line is 20px tall, too small to tap, so the link is a 44px target:
+  padding round the text, with the extra 24px given back as a negative margin
+  (FE-288's rule, on the link that replaced "See how it works": the scene
+  right below now shows how it works).
 - **One no-fee sentence** (FE-288). The body ends "Slashie takes no cut of the
   job", the trust row's first point is the same sentence and the hero's first
   check is its short form, "No cut of the job"; the phone's accepted card and
@@ -149,21 +170,77 @@ The one centred section (`hero/HeroSection.tsx`), built from tokens only:
   four ways ("No platform cut of the job", "No job fee", "No platform cut from
   the job", "no platform fee"), which read as four promises.
 - **Rhythm.** The h1 sits `SECTION_PY` under the header (56px on a phone up to
-  128px); the foot (`HERO_PB`) is a step tighter, 56 / 64 / 80 / 96px, so the
-  hero's text reads as one group above its rule (the sketch has 88 above and 72
-  below) instead of the old 32 to 40px. The extra foot is also what keeps the
-  props that sit beside the link row below `lg`, and their shadows, off the
-  rule; on a phone it holds the toolbox's slot (`HeroToolboxSlot`), 16px in
-  from the screen's edge and from the rule (see 3D props).
+  128px). Under the last line the copy keeps 24px on a phone and 32 from a
+  tablet (`HERO_PB`); the scene adds its own gutter above its window (16 on a
+  phone, 44 on a desktop), so the product sits 40 or 76px under the copy: one
+  group. The scene runs down to the section's foot, and the rule under the
+  hero is the edge its window runs off. (With no scene the hero closes with
+  the old foot, `HERO_PB_BARE`: 56 / 64 / 80 / 96px.)
 - A faint radial grey (`bg.subtle` fading to nothing, `data-hero-glow`) sits
   behind the top of the page. It starts under the sticky header so there is no
-  seam, and it is painted under the still poster.
+  seam.
 - The entrance is the `fade-rise` keyframe (a fade with an 8px rise, 400ms on
-  the decelerate curve, once, staggered 60ms); reduced motion turns it off. The
-  phone screens use it too (the old 28px `rise-in` keyframe is gone: the phone
-  was its only user, and the spec's reveal is 8px).
+  the decelerate curve, once, staggered 60ms); the scene fades in after the
+  copy with no rise (a moving box would carry its small text across half
+  pixels). Reduced motion turns both off.
+
+## Hero scene
+
+`stage/HeroStage.tsx` (FE-542): a picture of the product doing its job, built
+with the Stageshow kit and filmed with its tools (`stage/REHEARSAL.md`). It
+replaced the grey map panel and the 3D props, which showed nothing of the
+product.
+
+- **One story, two designs.** Quotes arrive on a customer's task and the
+  customer accepts one. From `lg` (1024px, the site's desktop split) it is
+  the wide design: the customer's task page in a browser window (the map with
+  the task's approximate area, the title, the status, the quotes), with a
+  worker's Send quote card on the window's left edge. Each quote's price
+  rides from the card into the list as a new row; the customer accepts the
+  best one; the status rolls from Open to Booked and the worker's card says
+  "Accepted, Sat 9:00". Below `lg` it is the compact design: the same task in
+  the app, on a phone that runs off the foot; each quote is announced by a
+  notification, opens as a row, and a tap accepts it. In both, a second task
+  then plays one arrival, which is how the loop starts again without anything
+  rewinding in view. About 21 seconds a loop.
+- **Framing.** The stage is the page column (1216 by 520) on the page's own
+  white: no plate behind it. The phone design is a phone screen wide (390 by
+  520): its host takes back the page's 16px gutters, so on a phone the stage
+  runs edge to edge and the phone's soft shadow is not cut a gutter short
+  (which reads as a grey plate). The window and the phone are pinned a gutter
+  from the top and run off the bottom, where the section's rule is. Only
+  filler runs off: the quotes and their buttons are whole.
+- **It is one picture.** `role="img"` with one label (`heroStage.label`);
+  nothing in it takes focus (the kit's buttons are spans) and its markup has
+  no headings or landmarks. Its words are real copy (`landing.heroStage`, en
+  and zh-HK), and `heroStage.test.ts` holds the copy to what the script plays.
+- **It plays only on screen.** The kit's stage starts its script when it is in
+  view and stops it when it is not (and when the tab is hidden). Reduced
+  motion shows the still poster instead (the booked state, the frame that
+  tells the story on its own); no JS shows the first frame (the task with one
+  quote, the worker's card ready to send).
+- **The kit is vendored** under `(marketing)/components/stage/kit` (38 files,
+  MIT, React only; `kit/README.md` says where it came from and how to refresh
+  it). Scenes import it through `(marketing)/components/stage` (the entry
+  module), never from `kit/` directly.
+- **Cascade layers.** The kit's styles live in `@layer stageshow`, so a scene
+  restyles a part with a plain class. Chakra's reset lives in a layer too and
+  zeroes every margin, padding and border; a layer named first sits lowest,
+  and the kit's stylesheet loads before Chakra's style tags. So the entry
+  module first states the order (`stage/layers.css`: Chakra's four layers,
+  then `stageshow`). Without it the window's bar and the badges lose their
+  padding. `stageLayers.test.ts` checks the names against Chakra's, that the
+  entry states the order before any kit module, and that nothing imports the
+  kit past the entry.
+- **Styles are flat and tokenised.** `heroStage.css` has no nested rules
+  (Safari before 17.2 drops them whole) and no raw colours: the kit's look
+  tokens are set from the SDL's (`--chakra-colors-*`), the label on green is
+  ink, never white. Biome skips the vendored `kit/` folder only.
 
 ## Map panel
+
+> Not on the page since FE-542 push 1 (the hero scene took its place). The
+> files stay until push 3; `stage/StageMap.tsx` draws the same map art.
 
 The interactive map panel (`showcase/MapShowcase.tsx`) sits between the hero and
 the first act. `home/page.tsx` passes it to `LandingStory` as `showcase`, between
@@ -540,7 +617,7 @@ are today's, and the hrefs arrive localized from the page.
   eyebrow needs a string first): this and the hero are the only centred sections.
   The section is a landmark named by its heading (`aria-labelledby`).
 - **The two pills.** Post a task is the primary Button: green 400 with an ink
-  label, 52px (`size="lg"`, the height of the hero's search pill). Become a
+  label, 52px (`size="lg"`, the height of the hero's task pill). Become a
   worker is the outline pill (`variant="secondary"`: white, a 1px `border.strong`
   hairline, an ink label, the hairline steps to `border.hover`). The primary
   keeps the `Magnetic` pull (fine pointers only, off under reduced motion). The
@@ -789,6 +866,11 @@ each `page.tsx` only loads the copy and adds the footer under the frame.
   must land on text that is already there. The page header's collapse is its own.
 
 ## 3D props
+
+> Not on the page since FE-542 push 1: `home/page.tsx` no longer renders
+> `LandingBackdrop`, `LandingStory` no longer renders the poster and the hero
+> has no toolbox slot. The files and this section stay until push 3 removes
+> them and the `three` packages.
 
 The real-time scene (`scene/LandingScene.tsx`, three.js through react-three-fiber)
 keeps its device tiers, its no-WebGL path and its stage API (`storyState`); what

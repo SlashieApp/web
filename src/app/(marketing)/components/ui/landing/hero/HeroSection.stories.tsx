@@ -4,12 +4,12 @@ import { expect, waitFor, within } from 'storybook/test'
 
 import messages from '@/app/(marketing)/i11n.json'
 
-import { TOOLBOX_STILL_SRC } from '../scene/HeroObjectsPoster'
-import { HERO_TOOLBOX_SLOT } from '../scene/formations'
-import { setSceneReady } from '../story/storyState'
+import { HeroStage } from '../stage/HeroStage'
 import { HeroSection } from './HeroSection'
 
 const hero = messages.en.landing.hero
+const ctas = messages.en.common.ctas
+const stageCopy = messages.en.landing.heroStage
 
 /** `accent.active` (green 600), `text.muted` and `text.link`, resolved. */
 const GREEN_600 = 'rgb(2, 165, 103)'
@@ -18,8 +18,7 @@ const TEXT_LINK = 'rgb(5, 104, 63)'
 
 /**
  * Story-only: the page's own stacking context (`home/page.tsx`), so the
- * layers under the copy (the glow, a phone's toolbox) paint above the ground
- * and not behind it.
+ * glow under the copy paints above the ground and not behind it.
  */
 const asOnThePage: Decorator = (Story) => (
   <Box position="relative" isolation="isolate">
@@ -36,8 +35,9 @@ const meta = {
   },
   decorators: [asOnThePage],
   args: {
-    copy: messages.en.landing.hero,
-    ctas: { seeHowItWorks: messages.en.common.ctas.seeHowItWorks },
+    copy: hero,
+    ctas: { postTask: ctas.postTask, browseTasks: ctas.browseTasks },
+    stage: <HeroStage copy={stageCopy} />,
   },
 } satisfies Meta<typeof HeroSection>
 
@@ -46,8 +46,10 @@ type Story = StoryObj<typeof meta>
 
 /**
  * Desktop: the centred hero. The h1 in `display-2xl` (72/72, 500, -0.045em), a
- * muted `text-lg` body, the 52px search pill, the trust row with green 600
- * checks, the "See how it works" text link and a faint radial grey behind it.
+ * muted `text-lg` body, the 52px pill that asks what you need done with the
+ * green Post a task pill, the trust row with green 600 checks, the worker's
+ * line with its Browse tasks link, a faint radial grey behind it, and the
+ * scene under the copy, down to the section's foot.
  */
 export const Default: Story = {
   globals: { viewport: { value: 'desktop', isRotated: false } },
@@ -68,10 +70,12 @@ export const Default: Story = {
     await expect(bodyStyle.color).toBe(TEXT_MUTED)
     await expect(bodyStyle.textWrap).toBe('balance')
 
-    const search = canvas.getByRole('textbox', {
-      name: hero.searchAriaLabel,
-    })
-    await expect(search.parentElement?.getBoundingClientRect().height).toBe(52)
+    const field = canvas.getByRole('textbox', { name: hero.taskAriaLabel })
+    await expect(field.parentElement?.getBoundingClientRect().height).toBe(52)
+    // Each part fades in after the one above it: wait for the entrance.
+    await waitFor(() =>
+      expect(canvas.getByRole('button', { name: ctas.postTask })).toBeVisible(),
+    )
 
     const items = canvas.getAllByRole('listitem')
     await expect(items.map((item) => item.textContent)).toEqual(hero.trustChips)
@@ -80,9 +84,12 @@ export const Default: Story = {
       await expect(check && getComputedStyle(check).color).toBe(GREEN_600)
     }
 
-    const link = canvas.getByRole('link', {
-      name: messages.en.common.ctas.seeHowItWorks,
-    })
+    // The worker's way in: the public search, as a text link.
+    await waitFor(() =>
+      expect(canvas.getByText(hero.workerPrompt)).toBeVisible(),
+    )
+    const link = canvas.getByRole('link', { name: ctas.browseTasks })
+    await expect(link).toHaveAttribute('href', '/search')
     await expect(getComputedStyle(link).color).toBe(TEXT_LINK)
 
     const glow = canvasElement.querySelector('[data-hero-glow]')
@@ -93,17 +100,25 @@ export const Default: Story = {
 
     // The hook the floating "Post a task" pill watches: it shows once this
     // section has scrolled out of view.
+    const region = canvas.getByRole('region', { name: hero.heading })
     await expect(canvasElement.querySelector('[data-landing-hero]')).toBe(
-      canvas.getByRole('region', { name: hero.heading }),
+      region,
     )
 
-    // The toolbox's slot is a phone's: from `sm` the scene places the props.
-    const slot = canvasElement.querySelector(HERO_TOOLBOX_SLOT)
-    await expect(slot && getComputedStyle(slot).display).toBe('none')
+    // The scene is one picture with one name, under the copy, and it runs
+    // down to the section's foot (the rule below is the edge it runs off).
+    const scene = canvas.getByRole('img', { name: stageCopy.label })
+    const sceneBox = scene.getBoundingClientRect()
+    await expect(sceneBox.top).toBeGreaterThanOrEqual(
+      link.getBoundingClientRect().bottom,
+    )
+    await expect(
+      Math.abs(region.getBoundingClientRect().bottom - sceneBox.bottom),
+    ).toBeLessThanOrEqual(1)
   },
 }
 
-/** Wide screen: 128px above the h1 (the frame's section padding) and 96px under the last line, not the old 40px. */
+/** Wide screen: 128px above the h1 (the frame's section padding) and 32px between the last line and the scene. */
 export const Desktop: Story = {
   globals: { viewport: { value: 'desktop', isRotated: false } },
   play: async ({ canvasElement }) => {
@@ -111,16 +126,15 @@ export const Desktop: Story = {
     if (!stack) throw new Error('The hero has no content stack')
     const style = getComputedStyle(stack)
     await expect(style.paddingTop).toBe('128px')
-    await expect(style.paddingBottom).toBe('96px')
+    await expect(style.paddingBottom).toBe('32px')
   },
 }
 
 /**
  * Phone width, edge to edge as on the page: the 44/46 heading wraps balanced,
- * the search pill stays 52px and the checks wrap under it. The one prop a
- * phone has, the toolbox, is whole in its slot at the hero's foot: a page
- * gutter (16px) in from the screen's edge and from the panel below, under the
- * trust row and clear of the link's 44px target.
+ * the pill stays 52px with Post a task whole inside it, the checks wrap under
+ * it, the Browse tasks link is a 44px target, and the scene is the app on a
+ * phone, 24px under the copy.
  */
 export const Mobile: Story = {
   globals: { viewport: { value: 'mobile1', isRotated: false } },
@@ -132,53 +146,40 @@ export const Mobile: Story = {
     )
     await expect(h1Style.fontSize).toBe('44px')
     await expect(h1Style.lineHeight).toBe('46px')
-    const search = canvas.getByRole('textbox', {
-      name: hero.searchAriaLabel,
-    })
-    await expect(search.parentElement?.getBoundingClientRect().height).toBe(52)
-    // 56px above and below, the phone rhythm.
+    const field = canvas.getByRole('textbox', { name: hero.taskAriaLabel })
+    const pill = field.parentElement
+    if (!pill) throw new Error('The task field has no pill around it')
+    await expect(pill.getBoundingClientRect().height).toBe(52)
+    const submit = canvas.getByRole('button', { name: ctas.postTask })
+    await expect(submit.getBoundingClientRect().right).toBeLessThanOrEqual(
+      pill.getBoundingClientRect().right,
+    )
+    // 56px above the h1 and 24px between the last line and the scene.
     const stack = canvas.getByRole('heading', { level: 1 }).parentElement
     await expect(stack && getComputedStyle(stack).paddingTop).toBe('56px')
-    await expect(stack && getComputedStyle(stack).paddingBottom).toBe('56px')
+    await expect(stack && getComputedStyle(stack).paddingBottom).toBe('24px')
 
-    const slot = canvasElement.querySelector(HERO_TOOLBOX_SLOT)
-    if (!slot) throw new Error('The hero has no toolbox slot')
-    const box = slot.getBoundingClientRect()
-    const frame = canvas
-      .getByRole('region', { name: hero.heading })
-      .getBoundingClientRect()
-    await expect(box.left - frame.left).toBe(16)
-    await expect(frame.bottom - box.bottom).toBe(16)
-    await expect(box.width).toBeGreaterThanOrEqual(56)
-    await expect(box.height).toBe(box.width)
-    await expect(getComputedStyle(slot).backgroundImage).toContain(
-      TOOLBOX_STILL_SRC,
-    )
     const target = canvas
-      .getByRole('link', { name: messages.en.common.ctas.seeHowItWorks })
+      .getByRole('link', { name: ctas.browseTasks })
       .getBoundingClientRect()
     await expect(target.height).toBe(44)
-    await expect(box.right).toBeLessThanOrEqual(target.left)
-    await expect(box.top).toBeGreaterThanOrEqual(
-      canvas.getByRole('list').getBoundingClientRect().bottom,
+
+    const scene = canvas.getByRole('img', { name: stageCopy.label })
+    await expect(scene.getBoundingClientRect().width).toBeLessThanOrEqual(
+      canvasElement.getBoundingClientRect().width,
     )
   },
 }
 
-/** A phone, the live scene drawn: the still in the slot fades out, and the scene's own toolbox is in its place. */
-export const MobileSceneReady: Story = {
-  globals: { viewport: { value: 'mobile1', isRotated: false } },
-  parameters: { layout: 'fullscreen' },
-  beforeEach: () => {
-    setSceneReady(true)
-    return () => setSceneReady(false)
-  },
+/** No scene: the copy alone, closed by the old foot (96px on a wide screen). */
+export const WithoutScene: Story = {
+  args: { stage: undefined },
+  globals: { viewport: { value: 'desktop', isRotated: false } },
   play: async ({ canvasElement }) => {
-    const slot = canvasElement.querySelector(HERO_TOOLBOX_SLOT)
-    if (!slot) throw new Error('The hero has no toolbox slot')
-    await waitFor(() => expect(getComputedStyle(slot).opacity).toBe('0'), {
-      timeout: 3000,
-    })
+    const stack = canvasElement.querySelector('h1')?.parentElement
+    if (!stack) throw new Error('The hero has no content stack')
+    await expect(getComputedStyle(stack).paddingBottom).toBe('96px')
+    await expect(within(canvasElement).queryByRole('img')).toBeNull()
   },
 }
 
@@ -186,7 +187,11 @@ export const MobileSceneReady: Story = {
 export const TraditionalChinese: Story = {
   args: {
     copy: messages.zh_hk.landing.hero,
-    ctas: { seeHowItWorks: messages.zh_hk.common.ctas.seeHowItWorks },
+    ctas: {
+      postTask: messages.zh_hk.common.ctas.postTask,
+      browseTasks: messages.zh_hk.common.ctas.browseTasks,
+    },
+    stage: <HeroStage copy={messages.zh_hk.landing.heroStage} />,
   },
 }
 

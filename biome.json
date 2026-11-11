@@ -12,7 +12,8 @@
       "build/**",
       "node_modules/**",
       "storybook-static/**",
-      ".codegen/**"
+      ".codegen/**",
+      "src/app/(marketing)/components/stage/kit/**"
     ]
   },
   "formatter": {

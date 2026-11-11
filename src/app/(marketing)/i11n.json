@@ -31,10 +31,83 @@
       "hero": {
         "heading": "Help around the corner.",
         "body": "Trusted local workers. Clear quotes. Slashie takes no cut of the job.",
-        "searchPlaceholder": "What do you need help with?",
-        "searchSubmit": "Search",
-        "searchAriaLabel": "What do you need help with?",
+        "taskPlaceholder": "What do you need done?",
+        "taskAriaLabel": "What do you need done?",
+        "workerPrompt": "Looking for work?",
         "trustChips": ["No cut of the job", "Local workers", "Pay directly"]
+      },
+      "heroStage": {
+        "label": "A picture of Slashie: workers nearby send quotes on a task, and the customer accepts one.",
+        "url": "slashie.app/tasks/hedge-trimming",
+        "open": "Open",
+        "booked": "Booked",
+        "quotes": "Quotes",
+        "accept": "Accept",
+        "accepted": "Accepted",
+        "send": "Send quote",
+        "sent": "Quote sent",
+        "acceptedFor": "Accepted, Sat 9:00",
+        "forTask": "for this task",
+        "sentQuote": "{name} sent a quote",
+        "tasks": [
+          {
+            "title": "Hedge trimming and garden tidy-up",
+            "area": "Clapham",
+            "when": "This weekend",
+            "kind": "Gardening",
+            "budget": 80,
+            "base": [
+              {
+                "name": "Sam R.",
+                "rating": "5.0",
+                "jobs": "7",
+                "note": "Price includes green-waste bags.",
+                "price": 110
+              }
+            ],
+            "pulses": [
+              {
+                "name": "Jordan K.",
+                "rating": "4.8",
+                "jobs": "19",
+                "note": "Free on Sunday afternoon.",
+                "price": 95
+              },
+              {
+                "name": "Alex M.",
+                "rating": "4.9",
+                "jobs": "32",
+                "note": "I can come on Saturday morning.",
+                "price": 80
+              }
+            ]
+          },
+          {
+            "title": "Help moving two boxes",
+            "area": "Camden",
+            "when": "Today",
+            "kind": "Moving",
+            "budget": 45,
+            "base": [
+              {
+                "name": "Priya S.",
+                "rating": "4.7",
+                "jobs": "12",
+                "note": "I have a van nearby.",
+                "price": 45
+              }
+            ],
+            "pulses": [
+              {
+                "name": "Dan W.",
+                "rating": "4.9",
+                "jobs": "41",
+                "note": "Can be there within the hour.",
+                "price": 40
+              }
+            ]
+          }
+        ]
       },
       "trust": {
         "points": [
@@ -326,10 +399,83 @@
       "hero": {
         "heading": "幫手就在街角。",
         "body": "可信本地工作者。清楚報價。Slashie 不從任務抽成。",
-        "searchPlaceholder": "你需要什麼幫忙？",
-        "searchSubmit": "搜尋",
-        "searchAriaLabel": "你需要什麼幫忙？",
+        "taskPlaceholder": "你需要什麼幫忙？",
+        "taskAriaLabel": "你需要什麼幫忙？",
+        "workerPrompt": "想接工作？",
         "trustChips": ["不從任務抽成", "本地工作者", "直接付款"]
+      },
+      "heroStage": {
+        "label": "Slashie 示意圖：附近的工作者為任務報價，顧客接受其中一個報價。",
+        "url": "slashie.app/tasks/hedge-trimming",
+        "open": "開放中",
+        "booked": "已預約",
+        "quotes": "報價",
+        "accept": "接受",
+        "accepted": "已接受",
+        "send": "發送報價",
+        "sent": "已發送報價",
+        "acceptedFor": "已接受，星期六 9:00",
+        "forTask": "此任務",
+        "sentQuote": "{name} 發送了報價",
+        "tasks": [
+          {
+            "title": "修剪樹籬及整理花園",
+            "area": "Clapham",
+            "when": "這個週末",
+            "kind": "園藝",
+            "budget": 80,
+            "base": [
+              {
+                "name": "Sam R.",
+                "rating": "5.0",
+                "jobs": "7",
+                "note": "價錢已包括園藝垃圾袋。",
+                "price": 110
+              }
+            ],
+            "pulses": [
+              {
+                "name": "Jordan K.",
+                "rating": "4.8",
+                "jobs": "19",
+                "note": "星期日下午有空。",
+                "price": 95
+              },
+              {
+                "name": "Alex M.",
+                "rating": "4.9",
+                "jobs": "32",
+                "note": "我星期六早上可以過來。",
+                "price": 80
+              }
+            ]
+          },
+          {
+            "title": "幫忙搬兩個箱",
+            "area": "Camden",
+            "when": "今天",
+            "kind": "搬運",
+            "budget": 45,
+            "base": [
+              {
+                "name": "Priya S.",
+                "rating": "4.7",
+                "jobs": "12",
+                "note": "我的客貨車就在附近。",
+                "price": 45
+              }
+            ],
+            "pulses": [
+              {
+                "name": "Dan W.",
+                "rating": "4.9",
+                "jobs": "41",
+                "note": "一小時內可以到。",
+                "price": 40
+              }
+            ]
+          }
+        ]
       },
       "trust": {
         "points": [

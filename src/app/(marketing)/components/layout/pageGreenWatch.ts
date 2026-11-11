@@ -5,7 +5,7 @@
  *
  * The header's action is the green primary once the header is solid. A page
  * that carries a green action of its own marks that button with
- * `data-page-green-action`: the hero's Search pill, the closing call's Post a
+ * `data-page-green-action`: the hero's Post a task pill, the closing call's Post a
  * task pill, the paid plan's action on /pricing. While one of those buttons is
  * on screen the header's action stays secondary, so the screen has one green
  * fill. The moment none is on screen the header's action is the green one

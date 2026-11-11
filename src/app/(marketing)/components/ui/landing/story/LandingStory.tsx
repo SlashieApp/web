@@ -20,7 +20,6 @@ import {
 } from '../phone/PhoneDemo'
 import { PHONE_ASPECT } from '../phone/PhoneFrame'
 import type { PhoneCopy, StoryCopy } from '../phone/phoneCopy'
-import { HeroObjectsPoster } from '../scene/HeroObjectsPoster'
 import { StoryIndex } from './StoryIndex'
 import { StoryStageMarker } from './StoryTracker'
 import {
@@ -251,7 +250,6 @@ export function LandingStory({
   const { customer, worker } = story
   return (
     <Box position="relative">
-      <HeroObjectsPoster />
       <StoryStageMarker stage="hero">{hero}</StoryStageMarker>
       {showcase}
       <Box

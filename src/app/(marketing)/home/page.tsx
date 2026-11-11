@@ -15,13 +15,12 @@ import {
 import { LenisRoot } from '../components/ui/landing/LenisRoot'
 import { BentoSection } from '../components/ui/landing/bento/BentoSection'
 import { HeroSection } from '../components/ui/landing/hero/HeroSection'
-import { LandingBackdrop } from '../components/ui/landing/scene/LandingBackdrop'
 import { FinalCtaBand } from '../components/ui/landing/sections/FinalCtaBand'
 import { FloatingPostPill } from '../components/ui/landing/sections/FloatingPostPill'
 import { PricingTeaser } from '../components/ui/landing/sections/PricingTeaser'
 import { TrustSection } from '../components/ui/landing/sections/TrustSection'
 import { landingPricing } from '../components/ui/landing/sections/landingPricing'
-import { MapShowcase } from '../components/ui/landing/showcase/MapShowcase'
+import { HeroStage } from '../components/ui/landing/stage/HeroStage'
 import { LandingStory } from '../components/ui/landing/story/LandingStory'
 import {
   StoryStageMarker,
@@ -40,16 +39,17 @@ export async function generateMetadata() {
 }
 
 /**
- * Marketing landing at `/home`: a scroll story (hero, the map panel, the
- * bento, customer act, worker act, trust, pricing, close) on a white page with
- * floating 3D objects, and a demo phone that follows the story. The sections
- * sit in the marketing frame (rails down the content column from `lg`, a
- * full-width rule between sections); the footer is its own band under it. A
- * floating "Post a task" pill (to the same place as the close's) shows once the
- * hero is out of view and gives way to the close and the footer. All
- * copy is server-rendered (SEO + no-JS legible); the scene, phone motion and
- * scroll tracking are client layers on top. Root `/` auth-redirects guests
- * here and signed-in users to `/search`.
+ * Marketing landing at `/home`: a scroll story (the hero with its scene, the
+ * bento, customer act, worker act, trust, pricing, close) on a white page,
+ * and a demo phone that follows the story. The hero's scene (`HeroStage`,
+ * FE-542) is the product doing its job: quotes arrive on a task and the
+ * customer accepts one. The sections sit in the marketing frame (rails down
+ * the content column from `lg`, a full-width rule between sections); the
+ * footer is its own band under it. A floating "Post a task" pill (to the same
+ * place as the close's) shows once the hero is out of view and gives way to
+ * the close and the footer. All copy is server-rendered (SEO + no-JS
+ * legible); the scene, phone motion and scroll tracking are client layers on
+ * top. Root `/` auth-redirects guests here and signed-in users to `/search`.
  */
 export default async function MarketingHomePage() {
   const locale = await getRequestLocale()
@@ -68,22 +68,24 @@ export default async function MarketingHomePage() {
   }
 
   return (
-    <Box position="relative" isolation="isolate">
+    // The white page (`bg.surface`, no mint wash) is this box's own ground.
+    <Box position="relative" isolation="isolate" bg="bg.surface">
       <LenisRoot />
-      <LandingBackdrop />
       <Box position="relative" zIndex={1}>
         <MarketingFrame>
           <LandingStory
             hero={
               <HeroSection
                 copy={landing.hero}
-                ctas={{ seeHowItWorks: ctas.seeHowItWorks }}
+                ctas={{
+                  postTask: ctas.postTask,
+                  browseTasks: ctas.browseTasks,
+                }}
+                stage={<HeroStage copy={landing.heroStage} />}
               />
             }
             showcase={
               <>
-                <SectionRule />
-                <MapShowcase copy={landing.phone} />
                 <SectionRule />
                 <BentoSection
                   steps={landing.story.customer.steps}
