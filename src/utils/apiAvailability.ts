@@ -69,6 +69,14 @@ export function shouldFallbackToLandingOnApiFailure(pathname: string): boolean {
 
 export function redirectToLandingIfAppRoute(): void {
   if (typeof window === 'undefined') return
+  // In Storybook there is no API to be down (FE-551): a story that reaches
+  // the app's real client is a story bug, so say so and stay on the page.
+  if (process.env.NEXT_PUBLIC_STORYBOOK === 'true') {
+    console.warn(
+      '[storybook] A request went to the app API client. Give the story its own client or canned answers.',
+    )
+    return
+  }
   const path = window.location.pathname
   if (!shouldFallbackToLandingOnApiFailure(path)) return
   markApiUnavailable()

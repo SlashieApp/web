@@ -6,6 +6,20 @@ import type { RollupLog } from 'rollup'
 import { type UserConfig, mergeConfig } from 'vite'
 import graphqlLoader from 'vite-plugin-graphql-loader'
 
+/**
+ * Stories never reach a real API (FE-551). Storybook builds the app's own
+ * Apollo client (`src/utils/apolloClient.ts`), and code that uses it directly
+ * (the user store's `getUser()`, Messages, photo uploads) would otherwise send
+ * requests to the API in `.env`, the live one. Port 9 on this machine refuses
+ * at once, so such a request fails fast and locally. Set here, before the
+ * Next.js plugin reads the environment: a value already in `process.env` wins
+ * over `.env` files. `NEXT_PUBLIC_STORYBOOK` lets the app skip what only makes
+ * sense on a real page (sending the page to `/home` when the API is down).
+ */
+export const STORYBOOK_API_URL = 'http://127.0.0.1:9'
+process.env.NEXT_PUBLIC_GRAPHQL_URL = STORYBOOK_API_URL
+process.env.NEXT_PUBLIC_STORYBOOK = 'true'
+
 const rootDir = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const schemaPath = resolve(rootDir, '.codegen/schema.ts')
 
