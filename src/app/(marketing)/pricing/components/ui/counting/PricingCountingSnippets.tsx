@@ -11,7 +11,6 @@ import {
   snippetEnter,
   useSnippetEntrance,
 } from '@/app/(marketing)/components/ui/landing/bento/useSnippetEntrance'
-import type { PhoneCopy } from '@/app/(marketing)/components/ui/landing/phone/phoneCopy'
 import { formatMessage } from '@/i18n/loadPageI11n'
 import { sdlFigure, sdlMotion } from '@/theme/styles'
 import { Card } from '@ui'
@@ -19,7 +18,7 @@ import { Card } from '@ui'
 import type messages from '../../../i11n.json'
 
 export type CountingCopy = (typeof messages)['en']['counting']
-type DemoTask = { title: string; price: string }
+import type { DemoTask } from './countingDemoTasks'
 
 /** At most this many segments on the meter; a bigger allowance shows as a plain count. */
 const METER_MAX_SEGMENTS = 10
@@ -364,13 +363,4 @@ export function UnlimitedSnippet({
       </Stack>
     </SnippetPanel>
   )
-}
-
-/** The demo tasks the snippets quote on, from the landing's phone copy. */
-export function countingDemoTasks(phone: PhoneCopy): DemoTask[] {
-  const { hedge, wardrobe, paint, move } = phone.tasks
-  return [hedge, wardrobe, paint, move].map((task) => ({
-    title: task.title,
-    price: task.price,
-  }))
 }

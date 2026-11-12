@@ -14,8 +14,8 @@ import {
   EditedQuoteSnippet,
   FreeQuotesSnippet,
   UnlimitedSnippet,
-  countingDemoTasks,
 } from './PricingCountingSnippets'
+import { countingDemoTasks } from './countingDemoTasks'
 
 type CellKey = 'free' | 'edits' | 'unlimited'
 const CELLS: readonly CellKey[] = ['free', 'edits', 'unlimited']
