@@ -1,7 +1,9 @@
-import chromeMessages from '@/app/(marketing)/i11n.chrome.json'
+import { landingCtaPath } from '@/app/(marketing)/components/ui/landing/sections/landingCtaPath'
+import marketingMessages from '@/app/(marketing)/i11n.json'
 import { getHasAuthSession } from '@/app/helpers/getHasAuthSession'
 import { getRequestLocale } from '@/i18n/getRequestLocale'
 import { loadPageI11n, metadataFromI11n } from '@/i18n/loadPageI11n'
+import { withLocale } from '@/i18n/navigation'
 import { Footer } from '@ui'
 
 import { PricingPageView } from './components/PricingPageView'
@@ -17,20 +19,25 @@ export async function generateMetadata() {
 }
 
 /**
- * /pricing: the page header with a large "Membership" (FE-458: it shrinks
- * into the bar on scroll, as on Account and Plan & billing; it is the page's
- * h1), then the plans section (its own heading, the viewer's plans: see
- * views/README.md) and the FAQ, in the marketing frame (FE-471). The footer
- * is its own band under the frame.
+ * /pricing, redesigned to match Home (FE-552): Home's hero with the plans in
+ * it, how quotes are counted (three cells with live snippets), the questions
+ * and Home's closing band, in the marketing frame. The footer is its own band
+ * under the frame. The demo tasks and the closing band's copy are Home's own
+ * strings (`(marketing)/i11n.json`).
  */
 export default async function PricingPage() {
   const locale = await getRequestLocale()
   const copy = loadPageI11n(messages, locale)
-  const chrome = loadPageI11n(chromeMessages, locale)
+  const marketing = loadPageI11n(marketingMessages, locale)
   const [{ pricing }, hasSession] = await Promise.all([
     getPricingForPage(),
     getHasAuthSession(),
   ])
+  const session = hasSession ? 'signedIn' : 'guest'
+  // A guest registers first, then goes on to the page the action is for.
+  const ctaHref = (next: string) =>
+    withLocale(locale, landingCtaPath(next, session))
+  const ctas = marketing.common.ctas
 
   return (
     <>
@@ -38,7 +45,15 @@ export default async function PricingPage() {
         pricing={pricing}
         hasSession={hasSession}
         copy={copy}
-        eyebrow={chrome.pricing}
+        phone={marketing.landing.phone}
+        finalCta={{
+          copy: marketing.landing.finalCta,
+          primary: { label: ctas.postTask, href: ctaHref('/tasks/create') },
+          secondary: {
+            label: ctas.becomeWorker,
+            href: ctaHref('/worker/setup'),
+          },
+        }}
       />
       <Footer />
       <PricingViewCapture />

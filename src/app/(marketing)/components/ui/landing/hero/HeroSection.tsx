@@ -16,7 +16,7 @@ import { HeroTaskCta } from './HeroTaskCta'
  * CSS entrance (runs without JS; disabled under reduced motion): a fade with an
  * 8px rise, 400ms on the decelerate curve, once, the same as `Reveal`.
  */
-function riseIn(delayMs: number) {
+export function riseIn(delayMs: number) {
   return {
     animationName: 'fade-rise',
     animationDuration: '400ms',
@@ -63,7 +63,7 @@ export const HERO_PB_BARE = { base: 14, md: 16, lg: 20, xl: 24 } as const
  * The faint radial grey at the top of the page: `bg.subtle` at the top edge
  * fading to nothing, so it has no seam under the header or at the hero's foot.
  */
-const HERO_GLOW =
+export const HERO_GLOW =
   'radial-gradient(ellipse 62% 100% at 50% 0%, {colors.bg.subtle} 0%, transparent 100%)'
 
 type HeroSectionCopy = {

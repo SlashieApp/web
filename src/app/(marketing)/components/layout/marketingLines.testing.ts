@@ -107,6 +107,45 @@ export function expectTitleOnLogoLine(canvasElement: HTMLElement) {
 }
 
 /**
+ * A container with no gutters whose cells bring their own (`gutters="none"`,
+ * a bento like Home's): the cells are marked `data-page-cell`, and the
+ * leftmost cell's content starts on the logo line, the rightmost's ends on
+ * the menu line (FE-552).
+ */
+function expectCellsOnLines(
+  container: Element,
+  logo: number,
+  menu: number,
+  name: string,
+) {
+  const cells = [...container.querySelectorAll('[data-page-cell]')]
+  expect(
+    cells.length,
+    `a container with no gutters marks the cells that bring them (${name})`,
+  ).toBeGreaterThan(0)
+  const boxes = cells.map(contentBox)
+  expectExact(
+    Math.min(...boxes.map((box) => box.left)),
+    logo,
+    `a cell starts on the logo line (${name})`,
+  )
+  expectExact(
+    Math.max(...boxes.map((box) => box.right)),
+    menu,
+    `a cell ends on the menu line (${name})`,
+  )
+}
+
+/** Names a container in a failure: its nearest section's data attributes. */
+function describeContainer(container: Element) {
+  const section = container.closest('section, footer') ?? container
+  const attrs = [...section.attributes]
+    .map((attr) => attr.name)
+    .filter((name) => name.startsWith('data-'))
+  return `${section.tagName.toLowerCase()} ${attrs.join(' ')}`.trim()
+}
+
+/**
  * R1 for the content: every page container outside the rails (the sections of
  * the page, the footer's) has its content on the logo line and the menu line.
  */
@@ -120,9 +159,14 @@ export function expectContainersOnLines(canvasElement: HTMLElement) {
   )
   expect(containers.length, 'page containers').toBeGreaterThan(0)
   for (const container of containers) {
+    const name = describeContainer(container)
+    if (getComputedStyle(container).paddingLeft === '0px') {
+      expectCellsOnLines(container, logo, menu, name)
+      continue
+    }
     const box = contentBox(container)
-    expectExact(box.left, logo, 'a container starts on the logo line')
-    expectExact(box.right, menu, 'a container ends on the menu line')
+    expectExact(box.left, logo, `a container starts on the logo line (${name})`)
+    expectExact(box.right, menu, `a container ends on the menu line (${name})`)
   }
 }
 
@@ -177,11 +221,22 @@ export function expectRulesFullBleed(
 export function expectMarketingPage(
   canvasElement: HTMLElement,
   width: number,
-  { header, pageHeader = true }: { header: boolean; pageHeader?: boolean },
+  {
+    header,
+    pageHeader = true,
+    centredTitle = false,
+  }: {
+    header: boolean
+    pageHeader?: boolean
+    /** A Home-style hero: the h1 is centred, so it has no line to sit on (FE-552). */
+    centredTitle?: boolean
+  },
 ) {
   expectWindowWidth(canvasElement, width)
   if (header) expectSiteHeaderOnLines(canvasElement, width)
-  if (pageHeader) expectPageHeaderOnLines(canvasElement)
+  if (centredTitle) {
+    // Its content box still sits on the lines (`expectContainersOnLines`).
+  } else if (pageHeader) expectPageHeaderOnLines(canvasElement)
   else expectTitleOnLogoLine(canvasElement)
   expectContainersOnLines(canvasElement)
   expectRailsOnContainerEdge(canvasElement, width)

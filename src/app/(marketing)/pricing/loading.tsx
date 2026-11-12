@@ -5,44 +5,46 @@ import {
   SECTION_PY,
   SectionRule,
 } from '@/app/(marketing)/components/layout/MarketingFrame'
+import { HERO_PB_BARE } from '@/app/(marketing)/components/ui/landing/hero/HeroSection'
 import { PageContainer } from '@/ui/PageContainer'
 import { Footer } from '@ui'
 
 import { PRICING_SPLIT } from './components/ui/layout/PricingSection'
 
 /**
- * The page header's bar and the large title's room, then the plans section
- * (head, the two plan cards) and the questions (head, hairline rows), in the
- * same frame, rules and grid as the page.
+ * The page's shape while it loads (FE-552): the centred headline and body,
+ * the two plan cards under them, then the counting cells and the questions,
+ * in the same frame and rules as the page.
  */
 export default function PricingLoading() {
   return (
     <>
       <MarketingFrame bg="bg.surface">
-        <PageContainer>
-          {/* The 56px bar and the large "Membership" 8px under it (FE-458). */}
-          <Box h="56px" aria-hidden />
-          <Skeleton
-            h="41px"
-            w="min(12rem, 60%)"
-            mt={2}
-            mb={{ base: 4, md: 6 }}
-          />
-        </PageContainer>
-        <SectionRule />
-        <Box as="section" py={SECTION_PY}>
+        <Box as="section" pt={SECTION_PY} pb={HERO_PB_BARE}>
           <PageContainer>
-            <Grid {...PRICING_SPLIT}>
-              <Stack gap={3}>
-                <Skeleton h="41px" w="min(24rem, 90%)" />
-                <Skeleton h="18px" w="min(32rem, 90%)" />
-                <Skeleton h="18px" w="min(20rem, 60%)" />
+            <Stack gap={{ base: 10, md: 14 }} mx="auto" maxW="64rem">
+              <Stack gap={{ base: 5, md: 6 }} align="center">
+                <Skeleton
+                  h={{ base: '48px', md: '72px' }}
+                  w="min(36rem, 90%)"
+                />
+                <Skeleton h="22px" w="min(28rem, 80%)" />
               </Stack>
               <SimpleGrid columns={{ base: 1, md: 2 }} gap={{ base: 4, md: 5 }}>
                 <Skeleton h="440px" borderRadius="lg" />
                 <Skeleton h="440px" borderRadius="lg" />
               </SimpleGrid>
-            </Grid>
+            </Stack>
+          </PageContainer>
+        </Box>
+        <SectionRule />
+        <Box as="section" py={SECTION_PY}>
+          <PageContainer>
+            <SimpleGrid columns={{ base: 1, lg: 3 }} gap={{ base: 8, lg: 10 }}>
+              <Skeleton h="320px" borderRadius="xl" />
+              <Skeleton h="320px" borderRadius="xl" />
+              <Skeleton h="320px" borderRadius="xl" />
+            </SimpleGrid>
           </PageContainer>
         </Box>
         <SectionRule />

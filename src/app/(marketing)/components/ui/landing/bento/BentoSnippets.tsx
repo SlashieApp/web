@@ -56,7 +56,7 @@ const Figure = chakra('figure')
  * short snippet's panel is taller than it: the snippet sits at the panel's
  * top, where the other two start, and the spare room is under it.
  */
-function SnippetPanel({
+export function SnippetPanel({
   snippet,
   labelledBy,
   panelRef,

@@ -16,8 +16,9 @@ export default meta
 type Story = StoryObj<typeof meta>
 
 /**
- * Route loading screen: the page's frame with its two section rules, the
- * skeleton header, two plan cards and FAQ rows above the footer.
+ * Route loading screen (FE-552): the page's frame with its two section rules,
+ * the centred headline and the two plan cards, the counting cells and the
+ * FAQ rows above the footer.
  */
 export const Default: Story = {
   globals: { viewport: { value: 'desktop', isRotated: false } },
@@ -28,7 +29,7 @@ export const Default: Story = {
     await expect(
       canvasElement.querySelector('[data-marketing-rails]'),
     ).not.toBeNull()
-    await expect(canvasElement.querySelectorAll('section')).toHaveLength(2)
+    await expect(canvasElement.querySelectorAll('section')).toHaveLength(3)
     const root = canvasElement.ownerDocument.documentElement
     await expect(root.scrollWidth).toBeLessThanOrEqual(root.clientWidth)
   },

@@ -2,78 +2,88 @@ import {
   MarketingFrame,
   SectionRule,
 } from '@/app/(marketing)/components/layout/MarketingFrame'
-import { MarketingPageHeader } from '@/app/(marketing)/components/layout/MarketingPageHeader'
+import type { PhoneCopy } from '@/app/(marketing)/components/ui/landing/phone/phoneCopy'
+import { FinalCtaBand } from '@/app/(marketing)/components/ui/landing/sections/FinalCtaBand'
 
 import type { PricingRecord } from '../helpers/getPricingForPage'
 import type messages from '../i11n.json'
 import { PricingPlans } from './PricingPlans'
-import { PricingSection } from './ui/layout/PricingSection'
+import { PricingCountingSection } from './ui/counting/PricingCountingSection'
+import { PricingHero } from './ui/hero/PricingHero'
 import { PricingFaq } from './ui/shared/PricingFaq'
-import {
-  PRICING_PLANS_HEADING_ID,
-  PricingHeader,
-} from './ui/shared/PricingHeader'
 
 type PricingCopy = (typeof messages)['en']
 
+type CtaLink = { label: string; href: string }
+
 /**
- * The pricing page inside the marketing frame (FE-471, tone train 2): a white
- * page, from `lg` a 1px rail down each side of the page column and a
- * full-width rule between the sections, which are the page header's title (the
- * h1, FE-458: it collapses into the bar as the page scrolls), the plans and
- * the questions. Everything but the footer and the view's analytics: the page
- * (`page.tsx`) adds those under it.
+ * The pricing page, redesigned to match Home (FE-552), inside the marketing
+ * frame (rails down the content column from `lg`, a full-width rule between
+ * sections):
  *
- * The page header sits outside the page container and says its colour, so the
- * rules can run edge to edge inside it; each section brings its own
- * `PageContainer`.
+ * 1. The hero, built like Home's: the h1 and body centred over the faint
+ *    radial grey, and the two plans straight under them.
+ * 2. How quotes are counted: three cells like Home's bento, each with a small
+ *    live snippet (the free allowance filling up, an edit that does not count
+ *    again, Slashie Unlimited with no limit).
+ * 3. The questions.
+ * 4. Home's closing band: Post a task and Become a worker.
  *
- * With no plans from the API (`pricing: null`) the plans section shows the
- * "Pricing isn't loading" card and the questions are left out, as before.
+ * Everything but the footer and the view's analytics: the page (`page.tsx`)
+ * adds those under it. With no plans from the API (`pricing: null`) the hero
+ * shows the "Pricing isn't loading" card and the counting and questions are
+ * left out: they need the live allowance and price.
  */
 export function PricingPageView({
   pricing,
   hasSession,
   copy,
-  eyebrow,
+  phone,
+  finalCta,
 }: {
   pricing: PricingRecord | null
   hasSession: boolean
   copy: PricingCopy
-  /** The plans head's eyebrow: the nav's "Pricing" (`i11n.chrome.json`). */
-  eyebrow: string
+  /** The landing's demo copy: the snippets quote on its tasks. */
+  phone: PhoneCopy
+  /** Home's closing band: its copy and its two actions (hrefs localized). */
+  finalCta: {
+    copy: { heading: string; body: string }
+    primary: CtaLink
+    secondary: CtaLink
+  }
 }) {
   return (
-    // The page header's bar is opaque and 10 deep: the rails go over it.
-    <MarketingFrame bg="bg.surface" railsZIndex={11}>
-      <MarketingPageHeader title={copy.title} background="bg.surface">
-        <SectionRule />
-        <PricingSection
-          data-pricing-plans-section=""
-          headingId={PRICING_PLANS_HEADING_ID}
-          head={<PricingHeader copy={copy.header} eyebrow={eyebrow} />}
-        >
-          <PricingPlans
+    <MarketingFrame bg="bg.surface">
+      <PricingHero copy={copy.header}>
+        <PricingPlans
+          pricing={pricing}
+          hasSession={hasSession}
+          copy={{
+            plans: copy.plans,
+            intervals: copy.intervals,
+            unavailable: copy.unavailable,
+          }}
+        />
+      </PricingHero>
+      {pricing ? (
+        <>
+          <SectionRule />
+          <PricingCountingSection
             pricing={pricing}
-            hasSession={hasSession}
-            copy={{
-              plans: copy.plans,
-              intervals: copy.intervals,
-              unavailable: copy.unavailable,
-            }}
+            copy={copy.counting}
+            phone={phone}
           />
-        </PricingSection>
-        {pricing ? (
-          <>
-            <SectionRule />
-            <PricingFaq
-              pricing={pricing}
-              copy={copy.faq}
-              intervals={copy.intervals}
-            />
-          </>
-        ) : null}
-      </MarketingPageHeader>
+          <SectionRule />
+          <PricingFaq
+            pricing={pricing}
+            copy={copy.faq}
+            intervals={copy.intervals}
+          />
+        </>
+      ) : null}
+      <SectionRule />
+      <FinalCtaBand {...finalCta} />
     </MarketingFrame>
   )
 }

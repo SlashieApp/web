@@ -4,7 +4,6 @@
       "title": "Pricing | Slashie",
       "description": "Customers use Slashie for free. Workers get free quotes every month, or unlimited quotes with Slashie Unlimited. Job payments stay between customer and worker."
     },
-    "title": "Membership",
     "header": {
       "heading": "Simple plans. Clear quotes.",
       "body": "Customers post tasks for free. Workers start free and upgrade when they want unlimited quotes."
@@ -55,6 +54,28 @@
       },
       "purchasesNote": "Purchases are processed securely. On iOS and Android, subscription management may open your platform billing settings when available."
     },
+    "counting": {
+      "free": {
+        "title": "{count} free quotes every month",
+        "body": "On the free plan you can quote on up to {count} new tasks a month. The count starts again on the 1st."
+      },
+      "edits": {
+        "title": "Changing a quote counts once",
+        "body": "Update your price or times on a task you have quoted, and it still counts as one quote."
+      },
+      "unlimited": {
+        "title": "No limit with {product}",
+        "body": "Quote on as many tasks as you like. It is a subscription for sending quotes, never a cut of the jobs you win."
+      },
+      "snippet": {
+        "sent": "Quote sent",
+        "updated": "Quote updated",
+        "freePlan": "Free plan",
+        "used": "{used} of {count} used this month",
+        "unlimited": "Unlimited quotes",
+        "resets": "Starts again on the 1st"
+      }
+    },
     "unavailable": {
       "heading": "Pricing isn't loading",
       "body": "We couldn't load plan details just now. Customers always post tasks for free, and workers can start free.",
@@ -99,7 +120,6 @@
       "title": "收費方案 | Slashie",
       "description": "客戶免費使用 Slashie。工作者每月有免費報價，或訂閱 Slashie Unlimited 無限報價。任務付款由客戶和工作者直接安排。"
     },
-    "title": "會員計劃",
     "header": {
       "heading": "簡單方案，清楚報價。",
       "body": "客戶免費發布任務。工作者先免費開始，需要無限報價時再升級。"
@@ -149,6 +169,28 @@
         ]
       },
       "purchasesNote": "購買會安全處理。在 iOS 和 Android 上，訂閱管理可能會開啟平台帳單設定（如適用）。"
+    },
+    "counting": {
+      "free": {
+        "title": "每月 {count} 次免費報價",
+        "body": "使用免費方案時，你每月可為最多 {count} 個新任務報價，額度於每月 1 日重設。"
+      },
+      "edits": {
+        "title": "修改報價只計一次",
+        "body": "在已報價的任務上更改價錢或時間，仍然只計作一次報價。"
+      },
+      "unlimited": {
+        "title": "{product} 不設上限",
+        "body": "想為多少任務報價都可以。這是報價用的訂閱，絕不會從你接到的工作中抽成。"
+      },
+      "snippet": {
+        "sent": "已發送報價",
+        "updated": "已更新報價",
+        "freePlan": "免費方案",
+        "used": "本月已用 {used} / {count}",
+        "unlimited": "無限報價",
+        "resets": "每月 1 日重設"
+      }
     },
     "unavailable": {
       "heading": "暫時無法載入收費",
