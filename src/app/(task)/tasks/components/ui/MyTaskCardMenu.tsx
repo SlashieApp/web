@@ -4,7 +4,6 @@ import { Stack } from '@chakra-ui/react'
 import { LuEllipsisVertical, LuPencil, LuShare2 } from 'react-icons/lu'
 
 import { ReportControl } from '@/content/trust/ReportControl'
-import { useLocalizedHref } from '@/i18n/LocaleProvider'
 import { formatMessage } from '@/i18n/loadPageI11n'
 import { useI11n } from '@/i18n/useI11n'
 import { Button, Dropdown, IconButton, Link, useDropdownClose } from '@ui'
@@ -16,12 +15,8 @@ import bag from '../../i11n.json'
 function MenuItems({ row }: { row: MyTaskHubRow }) {
   const t = useI11n(bag)
   const close = useDropdownClose()
-  const localize = useLocalizedHref()
   const hosted = row.roles.includes('hosted')
-  const share = useShareTask(
-    row.title,
-    () => new URL(localize(`/tasks/${row.id}`), window.location.origin).href,
-  )
+  const share = useShareTask(row.title, row.id)
 
   return (
     <Stack gap={0.5}>

@@ -109,6 +109,61 @@ export const OwnerOpenTask: Story = {
 }
 
 /**
+ * Share copies the task's own link, even when the page was opened from
+ * Search with the sharer's map position in its address (FE-475).
+ */
+export const ShareCopiesTheTaskLink: Story = {
+  ...desktop,
+  ...menu({ viewer: 'visitor' }),
+  play: async ({ canvasElement }) => {
+    const win = canvasElement.ownerDocument.defaultView as Window
+    const before = win.location.href
+    // The page as Search opens it: the sharer's map centre in the address.
+    win.history.replaceState(
+      win.history.state,
+      '',
+      `${win.location.pathname}?from=search&lat=51.50735&lng=-0.12776`,
+    )
+    const realShare = win.navigator.share
+    const copied: string[] = []
+    const realWrite = win.navigator.clipboard?.writeText
+    Object.defineProperty(win.navigator, 'share', {
+      value: undefined,
+      configurable: true,
+    })
+    Object.defineProperty(win.navigator, 'clipboard', {
+      value: {
+        writeText: async (text: string) => {
+          copied.push(text)
+        },
+      },
+      configurable: true,
+    })
+    try {
+      const panel = await openMenu(canvasElement)
+      await userEvent.click(
+        await panel.findByRole('button', { name: 'Share task' }),
+      )
+      await waitFor(() => expect(copied).toHaveLength(1))
+      const url = new URL(copied[0] ?? '')
+      await expect(url.pathname).toMatch(/^\/tasks\/[^/]+$/)
+      await expect(url.search).toBe('')
+      await expect(copied[0]).not.toMatch(/lat|lng|from=/)
+    } finally {
+      win.history.replaceState(win.history.state, '', before)
+      Object.defineProperty(win.navigator, 'share', {
+        value: realShare,
+        configurable: true,
+      })
+      Object.defineProperty(win.navigator, 'clipboard', {
+        value: { writeText: realWrite },
+        configurable: true,
+      })
+    }
+  },
+}
+
+/**
  * The popover's frame on the spacing steps (FE-481 menus): the panel pads the
  * rows 8 on every side (the rows used to add 4 of their own inside the panel's
  * 4), and the rows stay rows: 44 tall, 4 apart.

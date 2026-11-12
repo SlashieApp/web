@@ -313,7 +313,7 @@ export function TaskOverflowActions({
   const t = useI11n(bag)
   const { task, permissions, cancelError } = useTaskDetail()
   const insideDrawer = useInsideDrawer()
-  const onShare = useShareTask(task?.title?.trim() || t.fallbackTask)
+  const onShare = useShareTask(task?.title?.trim() || t.fallbackTask, task?.id)
 
   if (!task) return null
   const flush = !packed || insideDrawer
