@@ -15,6 +15,7 @@ import {
   type OpenCamera,
 } from '../src/ui/CameraCapture/CameraCapture'
 import { TOUCH_SCREEN_QUERY } from '../src/ui/PhotoSourcePicker/photoSource'
+import { clearAuthToken } from '../src/utils/auth'
 
 /**
  * Default client for every story: requests never answer, so a story can't
@@ -149,11 +150,20 @@ const preview: Preview = {
     ),
   ],
   /**
+   * Every story starts signed out (FE-550). Test pages share one cookie jar,
+   * and a story's clean-up does not run when its page is torn down, so a
+   * story that signs in (`setAuthToken`) could leave its fake token to the
+   * next file. With a token, the app's `getUser()` asks the live API who is
+   * signed in; that fails, and the app sends the page to `/home`, which
+   * stopped the next file from running. Stories that need a session set the
+   * token in their own decorator, after this.
+   *
    * A desktop browser never matches the touch-screen query, so a story with
    * `parameters: { touchScreen: true }` answers it as a phone or tablet does:
    * the photo button (`@ui` PhotoSourcePicker) then offers Take photo.
    */
   beforeEach: ({ parameters }) => {
+    clearAuthToken()
     if (!parameters.touchScreen) return
     const realMatchMedia = window.matchMedia
     window.matchMedia = (query) =>
