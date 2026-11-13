@@ -8,20 +8,6 @@ import {
   Stack,
   Text,
 } from '@chakra-ui/react'
-import type { IconType } from 'react-icons'
-import {
-  LuBike,
-  LuBrush,
-  LuDroplets,
-  LuHammer,
-  LuLaptop,
-  LuLeaf,
-  LuSparkles,
-  LuTag,
-  LuTruck,
-  LuWrench,
-  LuZap,
-} from 'react-icons/lu'
 
 import { TaskRolePill } from '@/app/(task)/components/ui/TaskRolePill'
 import { taskDetailHrefFromMyTasks } from '@/app/(task)/helpers/openTaskDetailFromBrowse'
@@ -32,7 +18,7 @@ import { formatMessage } from '@/i18n/loadPageI11n'
 import { useI11n } from '@/i18n/useI11n'
 import { sdlFigure, sdlFocusRing } from '@/theme/styles'
 import { TASK_ORDER_SECTION_ID } from '@/utils/orderHelpers'
-import { Badge, Button, Card, Link, Thumbnail } from '@ui'
+import { Badge, Button, Link, Thumbnail } from '@ui'
 
 import type {
   MyTaskAction,
@@ -48,30 +34,6 @@ type Layout = 'card' | 'row'
 
 /** Task detail's quotes list (`QuotesModule`). */
 const TASK_QUOTES_SECTION_ID = 'task-quotes'
-
-/**
- * The photo placeholder's icon. Categories are open text (BE-79), so the
- * first one is matched by word, as on Expo; anything else gets a tag.
- */
-const CATEGORY_ICONS: readonly (readonly [word: string, icon: IconType])[] = [
-  ['clean', LuSparkles],
-  ['moving', LuTruck],
-  ['removal', LuTruck],
-  ['repair', LuWrench],
-  ['handyman', LuWrench],
-  ['plumb', LuDroplets],
-  ['electr', LuZap],
-  ['garden', LuLeaf],
-  ['paint', LuBrush],
-  ['assembl', LuHammer],
-  ['deliver', LuBike],
-  ['tech', LuLaptop],
-]
-
-function categoryIcon(categories: readonly string[]): IconType {
-  const first = categories[0]?.toLowerCase() ?? ''
-  return CATEGORY_ICONS.find(([word]) => first.includes(word))?.[1] ?? LuTag
-}
 
 function formatDate(
   at: string,
@@ -237,37 +199,19 @@ function TitleLink({ row }: { row: MyTaskHubRow }) {
   )
 }
 
+/** The task's own photo, when it has one. No placeholder tile (Ryan, 13 Nov). */
 function RowThumbnail({ row }: { row: MyTaskHubRow }) {
-  if (row.thumbnailSrc) {
-    return (
-      <Thumbnail
-        alt=""
-        src={row.thumbnailSrc}
-        size="sm"
-        minW="56px"
-        w="56px"
-        borderRadius="md"
-        flexShrink={0}
-      />
-    )
-  }
-  const Icon = categoryIcon(row.categories)
+  if (!row.thumbnailSrc) return null
   return (
-    <Box
-      aria-hidden
-      display="flex"
-      alignItems="center"
-      justifyContent="center"
-      boxSize="56px"
-      flexShrink={0}
+    <Thumbnail
+      alt=""
+      src={row.thumbnailSrc}
+      size="sm"
+      minW="56px"
+      w="56px"
       borderRadius="md"
-      borderWidth="1px"
-      borderColor="border.default"
-      bg="bg.surface"
-      color="text.muted"
-    >
-      <Icon size={24} />
-    </Box>
+      flexShrink={0}
+    />
   )
 }
 
@@ -283,8 +227,8 @@ function OverOverlay({ children, ...rest }: BoxProps) {
 export type MyTaskCardProps = {
   row: MyTaskHubRow
   /**
-   * `card`: Upcoming's frame. `row`: Open and Past, flat. Both show the same
-   * photo, text column and button.
+   * `card`: Upcoming. `row`: Open and Past. Both are the same hairline row:
+   * the photo (when the task has one), the text column and the button.
    */
   layout: Layout
 }
@@ -312,9 +256,9 @@ function PillLine({ row }: { row: MyTaskHubRow }) {
 }
 
 /**
- * One task on My Tasks, the same in every section: the photo (else the
- * category's icon), then the title, a line of pills and the muted line.
- * Upcoming adds its time above the title and sits in a card. Tapping it opens
+ * One task on My Tasks, the same hairline row in every section: the task's
+ * photo when it has one, then the title, a line of pills and the muted line.
+ * Upcoming adds its time above the title. Tapping it opens
  * the task. It shows the one button task detail waits on you for (or Review),
  * else the ⋮ menu.
  */
@@ -384,25 +328,26 @@ export function MyTaskCard({ row, layout }: MyTaskCardProps) {
     </HStack>
   )
 
-  // Every section's rows are Home's card (white, a hairline, e1, 12px
-  // corners), FE-560; `layout` still names the section's kind of row.
+  // A hairline row, not a card (Ryan, 13 Nov: no card per task). The list
+  // draws the lines; `layout` still names the section's kind of row.
   return (
-    <Card
+    <Box
       position="relative"
-      maxW="full"
-      p={4}
+      py={4}
+      borderTopWidth="1px"
+      borderColor="border.default"
       data-my-task-layout={layout}
       _hover={{ bg: 'bg.subtle' }}
     >
       {content}
-    </Card>
+    </Box>
   )
 }
 
 /**
- * The loading shape of a section: its heading, then three rows with the
- * photo's square and the three text lines (title, pills, muted line), in the
- * row's paddings and line heights, so nothing moves when the list arrives.
+ * The loading shape of a section: its heading, then three hairline rows with
+ * the three text lines (title, pills, muted line), in the row's paddings and
+ * line heights, so nothing moves when the list arrives.
  */
 export function MyTasksListSkeleton() {
   return (
@@ -410,16 +355,16 @@ export function MyTasksListSkeleton() {
       <Box h="30px" display="flex" alignItems="center">
         <Skeleton h="18px" w="96px" borderRadius="md" />
       </Box>
-      <Stack gap={3} as="ul" listStyleType="none" m={0} p={0}>
+      <Stack gap={0} as="ul" listStyleType="none" m={0} p={0}>
         {[0, 1, 2].map((key) => (
-          <Card as="li" key={key} p={4} w="full" maxW="full">
+          <Box
+            as="li"
+            key={key}
+            py={4}
+            borderTopWidth="1px"
+            borderColor="border.default"
+          >
             <HStack gap={3}>
-              <Skeleton
-                data-testid="my-tasks-skeleton-thumb"
-                boxSize="56px"
-                flexShrink={0}
-                borderRadius="md"
-              />
               <Stack gap={0} flex={1} minW={0}>
                 <Box h="1.3em" fontSize="md" display="flex" alignItems="center">
                   <Skeleton h="1em" w="70%" borderRadius="md" />
@@ -438,7 +383,7 @@ export function MyTasksListSkeleton() {
                 </Box>
               </Stack>
             </HStack>
-          </Card>
+          </Box>
         ))}
       </Stack>
     </Stack>

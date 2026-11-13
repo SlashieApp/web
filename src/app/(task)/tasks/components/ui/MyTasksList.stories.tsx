@@ -139,7 +139,7 @@ const near = (label: string, actual: number, expected: number) =>
 
 /**
  * The skeleton is drawn like the rows it stands for: heading, rows and gaps
- * are the same heights, and the squares sit where the photos will, so
+ * are the same heights, and the text starts where the rows' does, so
  * nothing jumps when the list arrives.
  */
 export const SkeletonMatchesRows: Story = {
@@ -179,29 +179,18 @@ export const SkeletonMatchesRows: Story = {
       a.top - skeletonHeading.getBoundingClientRect().bottom,
       b.top - heading.getBoundingClientRect().bottom,
     )
-    // The square sits where the photo does, 56 by 56.
-    const square = skeletonRow.querySelector(
-      '[data-testid="my-tasks-skeleton-thumb"]',
-    ) as HTMLElement
-    const photo = realRow.querySelector('[aria-hidden]') as HTMLElement
-    near(
-      'square left',
-      square.getBoundingClientRect().left,
-      photo.getBoundingClientRect().left,
-    )
-    near(
-      'square top',
-      square.getBoundingClientRect().top - a.top,
-      photo.getBoundingClientRect().top - b.top,
-    )
-    near('square w', square.getBoundingClientRect().width, 56)
-    near('square h', square.getBoundingClientRect().height, 56)
-    // Three rows 8 apart, like the list.
+    // The text starts where the row's does (no photo square, no tile).
+    const skeletonText = skeletonRow.querySelector('[class]') as HTMLElement
+    near('text left', skeletonText.getBoundingClientRect().left, b.left)
+    // Hairline rows, touching: the line above each is the divider.
     const rows = [...skeleton.querySelectorAll('li')].map((row) =>
       row.getBoundingClientRect(),
     )
-    near('gap 1', rows[1].top - rows[0].bottom, 12)
-    near('gap 2', rows[2].top - rows[1].bottom, 12)
+    near('gap 1', rows[1].top - rows[0].bottom, 0)
+    near('gap 2', rows[2].top - rows[1].bottom, 0)
+    for (const row of skeleton.querySelectorAll('li')) {
+      await expect(getComputedStyle(row).borderTopWidth).toBe('1px')
+    }
   },
 }
 

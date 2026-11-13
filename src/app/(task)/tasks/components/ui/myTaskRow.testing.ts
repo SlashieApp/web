@@ -10,7 +10,10 @@ export function rowParts(canvasElement: HTMLElement, title: string) {
   )
   if (!pills) throw new Error('no pill line')
   const column = pills.parentElement as HTMLElement
-  const photo = column.previousElementSibling as HTMLElement
+  // The task's photo, when it has one; no placeholder tile (Ryan, 13 Nov).
+  const photo = column.previousElementSibling as HTMLElement | null
+  const row = pills.closest<HTMLElement>('[data-my-task-layout]')
+  if (!row) throw new Error('no row')
   const titleLink = [...canvasElement.querySelectorAll('a')].find(
     (link) => link.textContent === title,
   )
@@ -19,28 +22,39 @@ export function rowParts(canvasElement: HTMLElement, title: string) {
   const line = pills.nextElementSibling as HTMLElement | null
   const first = column.firstElementChild as HTMLElement
   const time = first === titleText ? undefined : first
-  return { photo, column, titleText, pills, line, time }
+  return { row, photo, column, titleText, pills, line, time }
 }
 
 /**
- * Every row, in every section, reads the same: a 56 square photo (or the
- * icon), then the title, the pills 4 below it with 8 between them, and the
- * muted line; Upcoming's time line is above the title.
+ * Every row, in every section, reads the same: a hairline row, never a card
+ * (Ryan, 13 Nov): a 1px line above it, no shadow, no corners. The task's 56
+ * square photo when it has one (else the text starts at the row's edge), then
+ * the title, the pills 4 below it with 8 between them, and the muted line;
+ * Upcoming's time line is above the title.
  */
 export async function expectRowAnatomy(
   canvasElement: HTMLElement,
   title: string,
   options: { time?: boolean; pills: number } = { pills: 2 },
 ) {
-  const { photo, column, titleText, pills, line, time } = rowParts(
+  const { row, photo, column, titleText, pills, line, time } = rowParts(
     canvasElement,
     title,
   )
-  const box = photo.getBoundingClientRect()
-  near(box.width, 56)
-  near(box.height, 56)
-  // The photo sits left of the text, 12 apart.
-  near(column.getBoundingClientRect().left - box.right, 12)
+  const rowStyle = getComputedStyle(row)
+  await expect(rowStyle.borderTopWidth).toBe('1px')
+  await expect(rowStyle.boxShadow).toBe('none')
+  await expect(rowStyle.borderTopLeftRadius).toBe('0px')
+  await expect(rowStyle.borderLeftWidth).toBe('0px')
+  if (photo) {
+    const box = photo.getBoundingClientRect()
+    near(box.width, 56)
+    near(box.height, 56)
+    // The photo sits left of the text, 12 apart.
+    near(column.getBoundingClientRect().left - box.right, 12)
+  } else {
+    near(column.getBoundingClientRect().left, row.getBoundingClientRect().left)
+  }
   const titleBox = titleText.getBoundingClientRect()
   const pillBox = pills.getBoundingClientRect()
   near(pillBox.top - titleBox.bottom, 4)

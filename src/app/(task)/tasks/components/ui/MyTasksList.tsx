@@ -111,7 +111,10 @@ function Section({
           {t.sectionEmpty[section.id]}
         </Text>
       ) : (
-        <Stack as="ul" gap={3} listStyleType="none" m={0} p={0}>
+        // Hairline rows, never a card per task (Ryan, 13 Nov): a 1px line
+        // above each row. The section's full-width rule closes the list, so
+        // the list draws no line of its own under the last row.
+        <Stack as="ul" gap={0} listStyleType="none" m={0} p={0}>
           {rows.map((row) => (
             <li key={row.id}>
               <MyTaskCard
