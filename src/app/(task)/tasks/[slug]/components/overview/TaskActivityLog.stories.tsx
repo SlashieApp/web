@@ -382,12 +382,12 @@ export const ZhHkSuspendedAndReopened: Story = {
   ],
   play: ({ canvasElement }) =>
     expectLines(canvasElement, [
-      '你發布了這個任務',
+      '你發佈了這個任務',
       '你取消了這個任務',
       '你重新開放了任務',
       'Slashie 暫停了此任務',
       '此任務已恢復',
-      '因發布者帳戶被暫停，此任務已暫停',
+      '因發佈者帳戶被暫停，此任務已暫停',
     ]),
 }
 
@@ -450,7 +450,7 @@ export const ZhHk: Story = {
     const canvas = within(canvasElement)
     await canvas.findByText('動態')
     for (const line of [
-      '你發布了這個任務',
+      '你發佈了這個任務',
       '你修改了任務：預算、時間',
       'Jordan Lee 送出了報價',
       '你預約了 Jordan Lee',

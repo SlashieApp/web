@@ -39,7 +39,7 @@
     "registration": "{company} is a company registered in England and Wales. Company no. {number}. Registered office: {office}."
   },
   "zh_hk": {
-    "tagline": "幫手就在街角。發布任務、比較本地工作者的報價，並直接付款給他們。",
+    "tagline": "幫手就在街角。發佈任務、比較本地工作者的報價，並直接付款給他們。",
     "copyright": "© {year} Slashie Ltd",
     "columns": {
       "product": "產品",
@@ -50,7 +50,7 @@
     },
     "product": {
       "search": "搜尋任務",
-      "postTask": "發布任務",
+      "postTask": "發佈任務",
       "howItWorks": "運作方式",
       "pricing": "收費"
     },

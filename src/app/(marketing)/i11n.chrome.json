@@ -5,7 +5,7 @@
     "language": "Language",
     "pricing": "Pricing",
     "about": "About",
-    "feedback": "Feedback",
+    "feedback": "Send feedback",
     "logIn": "Log in",
     "getStarted": "Get started",
     "openInApp": "Open in app"
@@ -16,7 +16,7 @@
     "language": "語言",
     "pricing": "收費",
     "about": "關於",
-    "feedback": "意見",
+    "feedback": "傳送意見",
     "logIn": "登入",
     "getStarted": "開始使用",
     "openInApp": "在應用程式中開啟"

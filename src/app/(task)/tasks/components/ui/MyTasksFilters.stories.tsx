@@ -279,7 +279,7 @@ export const TraditionalChinese: Story = {
       '篩選，已套用 3 項',
       '篩選任務',
     )
-    await pressed(page, '我發布的')
+    await pressed(page, '我發佈的')
     await expect(page.getByRole('button', { name: '套用' })).toBeVisible()
   },
 }

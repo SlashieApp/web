@@ -3,7 +3,7 @@
     "ariaLabel": "Primary navigation",
     "search": "Search",
     "myTasks": "My tasks",
-    "createTask": "Post task",
+    "createTask": "Post a task",
     "messages": "Messages",
     "messagesUnread": "Messages, {count} unread",
     "profile": "Profile",

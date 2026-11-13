@@ -167,7 +167,7 @@ export const FeedbackDialogOpen: Story = {
   args: { variant: 'default' },
   play: async ({ canvasElement }) => {
     await userEvent.click(
-      within(canvasElement).getByRole('button', { name: 'Feedback' }),
+      within(canvasElement).getByRole('button', { name: 'Send feedback' }),
     )
     await waitFor(
       () =>

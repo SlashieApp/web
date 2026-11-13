@@ -15,9 +15,11 @@ import { expect, userEvent, waitFor, within } from 'storybook/test'
 import { type MeSnapshot, useUserStore } from '@/app/(auth)/store/user'
 import { messagesValue } from '@/app/(messages)/messages/components/messagesStoryFixtures'
 import { MessagesContext } from '@/app/(messages)/messages/context/MessagesProvider'
+import { LocaleProvider } from '@/i18n/LocaleProvider'
 
 import { Card } from '../Card/Card'
 import { FeedbackDialogProvider } from '../FeedbackDialog/FeedbackDialogProvider'
+import { viewportAt } from '../PageContainer/pageLines.testing'
 import { MobileBottomNav } from './MobileBottomNav'
 import { MOBILE_BOTTOM_NAV_CLEARANCE } from './mobileBottomNavLayout'
 
@@ -229,7 +231,7 @@ export const UnreadOver99: Story = {
   },
 }
 
-/** My tasks active: on /tasks the My tasks item is ink (inactive items are text.subtle) and is the current page. The Post task button is the only green. */
+/** My tasks active: on /tasks the My tasks item is ink (inactive items are text.subtle), its icon filled, and is the current page. The Post a task button is the only green. */
 export const MyTasksActive: Story = {
   parameters: { nextjs: { navigation: { pathname: '/tasks' } } },
   render: () => (
@@ -248,10 +250,113 @@ export const MyTasksActive: Story = {
     const label = active.querySelector('p')
     if (!label) throw new Error('No tab label')
     await expect(getComputedStyle(label).fontWeight).toBe('500')
+    // FE-541: the active icon is filled (the app's cue); the others outline.
+    await expect(
+      active.querySelector('[data-nav-icon]')?.getAttribute('data-nav-icon'),
+    ).toBe('filled')
+    await expect(
+      inactive.querySelector('[data-nav-icon]')?.getAttribute('data-nav-icon'),
+    ).toBe('outline')
+    expectBarFrame(canvasElement)
   },
 }
 
-/** Post task active: on /tasks/create the raised Post task button is the current page. */
+/**
+ * FE-541: the bar is solid white (nothing shows through it), its labels are
+ * 12px and share one line, the Post a task label included, and the raised
+ * circle stops above its label.
+ */
+function expectBarFrame(canvasElement: HTMLElement) {
+  const nav = canvasElement.ownerDocument.querySelector('nav[aria-label]')
+  if (!(nav instanceof HTMLElement)) throw new Error('No bar')
+  const fab = nav.querySelector('[data-create-fab]')
+  const pill = fab?.closest('a')?.parentElement
+  if (!fab || !pill) throw new Error('No raised button')
+  expect(getComputedStyle(pill).backgroundColor).toBe('rgb(255, 255, 255)')
+  const labels = [...nav.querySelectorAll<HTMLElement>('[data-nav-label]')]
+  expect(labels).toHaveLength(5)
+  const tops = labels.map((label) =>
+    Math.round(label.getBoundingClientRect().top),
+  )
+  for (const label of labels) {
+    expect(getComputedStyle(label).fontSize).toBe('12px')
+    // Never cut: a label wraps between words instead.
+    expect(label.scrollWidth).toBeLessThanOrEqual(label.clientWidth)
+  }
+  expect(new Set(tops).size).toBe(1)
+  expect(fab.getBoundingClientRect().bottom).toBeLessThanOrEqual(
+    (tops[0] ?? 0) - 1,
+  )
+  return labels
+}
+
+/** 390 (phone): every label on one line, Messages too. */
+export const LabelsAt390: Story = {
+  ...viewportAt(390),
+  render: () => (
+    <Screen>
+      <MobileBottomNav />
+    </Screen>
+  ),
+  play: async ({ canvasElement }) => {
+    const labels = expectBarFrame(canvasElement)
+    const heights = labels.map((label) => label.getBoundingClientRect().height)
+    await expect(Math.max(...heights)).toBeLessThanOrEqual(16)
+  },
+}
+
+/** 320 (the narrowest): a long label wraps between words, never inside one, and the tops still share a line. */
+export const LabelsAt320: Story = {
+  ...viewportAt(320),
+  render: () => (
+    <Screen>
+      <MobileBottomNav />
+    </Screen>
+  ),
+  play: async ({ canvasElement }) => {
+    const labels = expectBarFrame(canvasElement)
+    const messages = labels.find((label) => label.textContent === 'Messages')
+    await expect(messages?.getBoundingClientRect().height).toBeLessThanOrEqual(
+      16,
+    )
+  },
+}
+
+/** Traditional Chinese at 320: the labels fit on one line, 發佈任務 for Post a task. */
+export const TraditionalChinese: Story = {
+  ...viewportAt(320),
+  parameters: {
+    ...viewportAt(320).parameters,
+    nextjs: { navigation: { pathname: '/zh-hk/tasks' } },
+  },
+  decorators: [
+    (Story) => (
+      <LocaleProvider>
+        <Story />
+      </LocaleProvider>
+    ),
+  ],
+  render: () => (
+    <Screen>
+      <MobileBottomNav />
+    </Screen>
+  ),
+  play: async ({ canvasElement }) => {
+    const labels = expectBarFrame(canvasElement)
+    await expect(labels.map((label) => label.textContent)).toEqual([
+      '搜尋',
+      '我的任務',
+      '發佈任務',
+      '訊息',
+      '帳戶',
+    ])
+    for (const label of labels) {
+      await expect(label.getBoundingClientRect().height).toBeLessThanOrEqual(16)
+    }
+  },
+}
+
+/** Post a task active: on /tasks/create the raised Post a task button is the current page. */
 export const PostTaskActive: Story = {
   parameters: { nextjs: { navigation: { pathname: '/tasks/create' } } },
   render: () => (
@@ -261,7 +366,7 @@ export const PostTaskActive: Story = {
   ),
   play: async ({ canvasElement }) => {
     await expect(
-      within(canvasElement).getByRole('link', { name: 'Post task' }),
+      within(canvasElement).getByRole('link', { name: 'Post a task' }),
     ).toHaveAttribute('aria-current', 'page')
   },
 }

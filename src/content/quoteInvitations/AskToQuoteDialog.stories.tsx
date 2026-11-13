@@ -273,7 +273,7 @@ export const ZhHk: Story = {
     const rows = d.getAllByRole('radio')
     await expect(rows[0]).toHaveTextContent('2 個報價')
     await expect(rows[2]).toHaveTextContent('已邀請')
-    await expect(d.getByRole('link', { name: '發布新任務' })).toHaveAttribute(
+    await expect(d.getByRole('link', { name: '發佈新任務' })).toHaveAttribute(
       'href',
       `/zh-hk/tasks/create?askWorker=${WORKER_ID}`,
     )

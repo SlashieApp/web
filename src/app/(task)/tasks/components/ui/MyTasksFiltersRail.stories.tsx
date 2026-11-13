@@ -366,7 +366,7 @@ export const TraditionalChinese: Story = {
       canvas.getByRole('complementary', { name: '篩選任務' }),
     ).toBeVisible()
     await expect(
-      canvas.getByRole('button', { name: '我發布的' }),
+      canvas.getByRole('button', { name: '我發佈的' }),
     ).toHaveAttribute('aria-pressed', 'true')
     await expect(canvas.getByRole('button', { name: '清除篩選' })).toBeVisible()
   },

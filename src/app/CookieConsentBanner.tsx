@@ -82,12 +82,12 @@ export function CookieConsentBanner() {
       bottom={0}
       zIndex="banner"
       bg="bg.canvas"
-      py={{ base: 4, md: 5 }}
+      py={{ base: 3, md: 5 }}
       boxShadow="e3"
     >
       <Stack
         direction={{ base: 'column', md: 'row' }}
-        gap={{ base: 4, md: 6 }}
+        gap={{ base: 3, md: 6 }}
         align={{ base: 'stretch', md: 'center' }}
         justify="space-between"
       >
@@ -98,14 +98,13 @@ export function CookieConsentBanner() {
           </Link>
           {policyAfter}
         </Text>
-        <HStack
-          gap={3}
-          flexShrink={0}
-          justify={{ base: 'flex-end', md: 'initial' }}
-        >
+        {/* One row of equal halves on a phone (FE-541), the same style:
+            rejecting is as easy as accepting. */}
+        <HStack gap={3} flexShrink={0} w={{ base: 'full', md: 'auto' }}>
           <Button
             variant="secondary"
             size="md"
+            flex={{ base: 1, md: 'initial' }}
             onClick={() => decide('rejected')}
           >
             {t.essentialOnly}
@@ -113,6 +112,7 @@ export function CookieConsentBanner() {
           <Button
             variant="secondary"
             size="md"
+            flex={{ base: 1, md: 'initial' }}
             onClick={() => decide('accepted')}
           >
             {t.acceptAll}

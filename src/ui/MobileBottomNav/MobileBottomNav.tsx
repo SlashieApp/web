@@ -10,6 +10,17 @@ import {
 } from '@chakra-ui/react'
 import { usePathname } from 'next/navigation'
 import { useState } from 'react'
+import {
+  IoAdd,
+  IoChatbubble,
+  IoChatbubbleOutline,
+  IoClipboard,
+  IoClipboardOutline,
+  IoPersonCircle,
+  IoPersonCircleOutline,
+  IoSearch,
+  IoSearchOutline,
+} from 'react-icons/io5'
 
 import { useUserStore } from '@/app/(auth)/store/user'
 import { useMessagesOptional } from '@/app/(messages)/messages/context/MessagesProvider'
@@ -43,22 +54,9 @@ const MOBILE_BOTTOM_NAV_FADE_HEIGHT =
   'calc(64px + env(safe-area-inset-bottom, 0px))' as const
 
 const canvasVar = 'var(--chakra-colors-bg-canvas, #FAFAFA)'
-const surfaceVar = 'var(--chakra-colors-bg-surface, #FFFFFF)'
 
 const reducedTransparencyQuery =
   '@media (prefers-reduced-transparency: reduce), (prefers-reduced-motion: reduce)' as const
-
-/** Frosted pill: semantic surface at ~72% + blur. More opaque without blur when reduced. */
-const glassPillCss = {
-  background: `color-mix(in srgb, ${surfaceVar} 72%, transparent)`,
-  backdropFilter: 'blur(24px)',
-  WebkitBackdropFilter: 'blur(24px)',
-  [reducedTransparencyQuery]: {
-    background: `color-mix(in srgb, ${surfaceVar} 94%, transparent)`,
-    backdropFilter: 'none',
-    WebkitBackdropFilter: 'none',
-  },
-} as SystemStyleObject
 
 /** Blur that softens toward the top — no hard rectangular frost edge. */
 const fadeBlurCss = {
@@ -106,7 +104,8 @@ type NavItem = {
   key: NavKey
   href: string
   label: string
-  icon: React.ReactNode
+  /** The dock icon; the raised Post a task button draws its own plus. */
+  icon?: keyof typeof NAV_ICONS
   emphasize?: boolean
   /** Unread count badge (Messages). */
   badge?: number
@@ -114,90 +113,40 @@ type NavItem = {
   onPress?: () => void
 }
 
-function MessagesIcon() {
-  return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden>
-      <title>Messages</title>
-      <path
-        d="M5 5.5h14a1.5 1.5 0 0 1 1.5 1.5v8.5A1.5 1.5 0 0 1 19 17H10l-4.5 3.5V17H5a1.5 1.5 0 0 1-1.5-1.5V7A1.5 1.5 0 0 1 5 5.5Z"
-        stroke="currentColor"
-        strokeWidth="1.8"
-        strokeLinejoin="round"
-      />
-    </svg>
-  )
-}
+/** The bar's label size: 12px, scaling with the reader's text size up to about 1.3 times. */
+const NAV_LABEL_FONT_SIZE = 'min(0.75rem, 15.6px)'
 
-function SearchIcon() {
-  return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden>
-      <title>Search</title>
-      <circle cx="11" cy="11" r="6.5" stroke="currentColor" strokeWidth="1.8" />
-      <path
-        d="M16.5 16.5 20 20"
-        stroke="currentColor"
-        strokeWidth="1.8"
-        strokeLinecap="round"
-      />
-    </svg>
-  )
-}
+/**
+ * The app's dock icons (Ionicons): outline, filled on the current tab
+ * (FE-541, Ryan 13 Nov). The darker ink stays; the fill is the second cue.
+ */
+const NAV_ICONS = {
+  search: { idle: IoSearchOutline, active: IoSearch },
+  myTasks: { idle: IoClipboardOutline, active: IoClipboard },
+  messages: { idle: IoChatbubbleOutline, active: IoChatbubble },
+  account: { idle: IoPersonCircleOutline, active: IoPersonCircle },
+} as const
 
-function MyTasksIcon() {
+function NavIcon({
+  name,
+  active,
+}: {
+  name: keyof typeof NAV_ICONS
+  active: boolean
+}) {
+  const Glyph = active ? NAV_ICONS[name].active : NAV_ICONS[name].idle
   return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden>
-      <title>My tasks</title>
-      <rect
-        x="4"
-        y="5"
-        width="16"
-        height="14"
-        rx="2"
-        stroke="currentColor"
-        strokeWidth="1.8"
-      />
-      <path
-        d="M8 3.5v3M16 3.5v3M4 10h16"
-        stroke="currentColor"
-        strokeWidth="1.8"
-        strokeLinecap="round"
-      />
-    </svg>
-  )
-}
-
-function PlusIcon() {
-  return (
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden>
-      <title>Post task</title>
-      <path
-        d="M12 6v12M6 12h12"
-        stroke="currentColor"
-        strokeWidth="2.2"
-        strokeLinecap="round"
-      />
-    </svg>
-  )
-}
-
-function ProfileIcon() {
-  return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden>
-      <title>Profile</title>
-      <circle cx="12" cy="8" r="3.5" stroke="currentColor" strokeWidth="1.8" />
-      <path
-        d="M5 20c0-3.5 3.2-5.5 7-5.5s7 2 7 5.5"
-        stroke="currentColor"
-        strokeWidth="1.8"
-        strokeLinecap="round"
-      />
-    </svg>
+    <Glyph
+      size={20}
+      aria-hidden
+      data-nav-icon={active ? 'filled' : 'outline'}
+    />
   )
 }
 
 /**
  * Mobile-only floating primary nav (lg+ uses Header links instead).
- * Five items (Mobile-Navigation-IA): Search · My tasks · Post task ·
+ * Five items (Mobile-Navigation-IA): Search · My tasks · Post a task ·
  * Messages (unread badge) · Account. Account opens the full-page account
  * drawer when signed in, and goes to log in for guests.
  */
@@ -215,26 +164,25 @@ export function MobileBottomNav() {
       key: 'search',
       href: APP_HOME,
       label: t.search,
-      icon: <SearchIcon />,
+      icon: 'search',
     },
     {
       key: 'myTasks',
       href: MY_TASKS_HREF,
       label: t.myTasks,
-      icon: <MyTasksIcon />,
+      icon: 'myTasks',
     },
     {
       key: 'createTask',
       href: createTaskHref,
       label: t.createTask,
-      icon: <PlusIcon />,
       emphasize: true,
     },
     {
       key: 'messages',
       href: MESSAGES_HREF,
       label: t.messages,
-      icon: <MessagesIcon />,
+      icon: 'messages',
       badge: unread,
     },
     {
@@ -243,7 +191,7 @@ export function MobileBottomNav() {
         ? '/profile'
         : `/login?next=${encodeURIComponent(pathname || '/')}`,
       label: t.account,
-      icon: <ProfileIcon />,
+      icon: 'account',
       onPress: signedIn ? () => setAccountOpen(true) : undefined,
     },
   ]
@@ -273,13 +221,16 @@ export function MobileBottomNav() {
           minW={0}
           mx="auto"
           boxShadow={sdlElevation.e3}
-          px={2}
+          px={1}
           py={1.5}
           gap={0}
           justify="space-between"
-          align="center"
+          // Top-aligned: the labels share one line even when one wraps.
+          align="flex-start"
           overflow="visible"
-          css={glassPillCss}
+          // Solid (FE-541): list rows no longer show through the bar. e3's
+          // ring is the hairline.
+          bg="bg.surface"
         >
           {items.map((item) => {
             const active =
@@ -287,81 +238,17 @@ export function MobileBottomNav() {
                 ? isAccountTabActive(pathname)
                 : isPrimaryNavHrefActive(pathname, item.href)
 
-            if (item.emphasize) {
-              return (
-                <Link
-                  key={item.key}
-                  href={item.href}
-                  aria-label={item.label}
-                  aria-current={active ? 'page' : undefined}
-                  display="flex"
-                  flexDirection="column"
-                  alignItems="center"
-                  justifyContent="center"
-                  flex={1}
-                  minW={0}
-                  gap={0.5}
-                  textDecoration="none"
-                  _hover={{ textDecoration: 'none' }}
-                  _focus={{ outline: 'none' }}
-                  _focusVisible={{
-                    outline: 'none',
-                    '& [data-create-fab]': sdlFocusRing,
-                  }}
-                  {...sdlTransitionWithPress('transform')}
-                  css={sdlPressActiveCss()}
-                >
-                  <Box
-                    data-create-fab
-                    w="48px"
-                    h="48px"
-                    borderRadius="full"
-                    display="flex"
-                    alignItems="center"
-                    justifyContent="center"
-                    bg="action.primary"
-                    color="text.onGreen"
-                    mt={-5}
-                    boxShadow={sdlElevation.e2}
-                    transitionProperty="transform, box-shadow"
-                    transitionDuration={sdlMotion.duration.moderate}
-                    transitionTimingFunction={sdlMotion.easing.standard}
-                    _hover={{ transform: 'translateY(-1px)' }}
-                  >
-                    {item.icon}
-                  </Box>
-                  <Text
-                    fontSize="10px"
-                    fontWeight={500}
-                    color={active ? 'text.default' : 'text.subtle'}
-                    lineHeight="short"
-                    whiteSpace="nowrap"
-                    overflow="hidden"
-                    textOverflow="ellipsis"
-                    maxW="100%"
-                  >
-                    {item.label}
-                  </Text>
-                </Link>
-              )
-            }
-
-            const badge = item.badge ?? 0
-            const label =
-              badge > 0
-                ? formatMessage(t.messagesUnread, { count: badge })
-                : item.label
             const itemProps = {
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
-              justifyContent: 'center',
+              justifyContent: 'flex-start',
               flex: 1,
               minW: 0,
               minH: '44px',
               gap: 0.5,
               py: 1,
-              px: 0.5,
+              px: 0,
               borderRadius: 'lg',
               color: active ? 'text.default' : 'text.subtle',
               textDecoration: 'none',
@@ -375,10 +262,81 @@ export function MobileBottomNav() {
               _focus: { outline: 'none' },
               _focusVisible: sdlFocusRing,
             } as const
+            const labelText = (
+              <Text
+                data-nav-label=""
+                fontSize={NAV_LABEL_FONT_SIZE}
+                fontWeight={500}
+                lineHeight="1.25"
+                textAlign="center"
+                lineClamp={2}
+                // Wrap between words, never inside one ("Messag-es").
+                wordBreak="normal"
+                overflowWrap="normal"
+                maxW="100%"
+                color="inherit"
+              >
+                {item.label}
+              </Text>
+            )
+
+            if (item.emphasize) {
+              // The label sits on its neighbours' line (FE-541); only the
+              // green circle is lifted, out of a 20px slot like theirs.
+              return (
+                <Link
+                  key={item.key}
+                  href={item.href}
+                  aria-label={item.label}
+                  aria-current={active ? 'page' : undefined}
+                  {...itemProps}
+                  _hover={{ textDecoration: 'none', color: 'text.default' }}
+                  _focusVisible={{
+                    outline: 'none',
+                    '& [data-create-fab]': sdlFocusRing,
+                  }}
+                  {...sdlTransitionWithPress('transform')}
+                >
+                  <Box position="relative" w="20px" h="20px" flexShrink={0}>
+                    <Box
+                      data-create-fab
+                      position="absolute"
+                      left="50%"
+                      bottom={0}
+                      ml="-24px"
+                      w="48px"
+                      h="48px"
+                      borderRadius="full"
+                      display="flex"
+                      alignItems="center"
+                      justifyContent="center"
+                      bg="action.primary"
+                      color="text.onGreen"
+                      boxShadow={sdlElevation.e2}
+                      transitionProperty="transform, box-shadow"
+                      transitionDuration={sdlMotion.duration.moderate}
+                      transitionTimingFunction={sdlMotion.easing.standard}
+                      _hover={{ transform: 'translateY(-1px)' }}
+                    >
+                      <IoAdd size={24} aria-hidden />
+                    </Box>
+                  </Box>
+                  {labelText}
+                </Link>
+              )
+            }
+
+            const badge = item.badge ?? 0
+            const label =
+              badge > 0
+                ? formatMessage(t.messagesUnread, { count: badge })
+                : item.label
             const content = (
               <>
                 <Box position="relative" display="inline-flex">
-                  {item.icon}
+                  {item.icon ? (
+                    <NavIcon name={item.icon} active={active} />
+                  ) : null}
                   {badge > 0 ? (
                     <Badge
                       position="absolute"
@@ -399,18 +357,7 @@ export function MobileBottomNav() {
                     </Badge>
                   ) : null}
                 </Box>
-                <Text
-                  fontSize="10px"
-                  fontWeight={500}
-                  lineHeight="short"
-                  whiteSpace="nowrap"
-                  overflow="hidden"
-                  textOverflow="ellipsis"
-                  maxW="100%"
-                  color="inherit"
-                >
-                  {item.label}
-                </Text>
+                {labelText}
               </>
             )
 

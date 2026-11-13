@@ -589,7 +589,7 @@ export const ZhHkSearchAndFilter: Story = {
       '全部',
       '未讀',
       '待你處理',
-      '我發布的',
+      '我發佈的',
       '我接的工作',
       'Slashie 通知',
     ]) {

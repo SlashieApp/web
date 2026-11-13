@@ -702,7 +702,7 @@ export const ZhHk: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
     await expect(
-      await canvas.findByRole('link', { name: '發布任務' }),
+      await canvas.findByRole('link', { name: '發佈任務' }),
     ).toHaveAttribute('href', '/zh-hk/tasks/create')
     await expectOneVisible(
       canvasElement,

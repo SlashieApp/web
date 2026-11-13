@@ -200,7 +200,7 @@
       "heading": "聯絡",
       "actions": {
         "signIn": "登入後聯絡 {name}",
-        "postTask": "發布任務",
+        "postTask": "發佈任務",
         "askToQuote": "請 {name} 報價",
         "viewQuote": "查看 {name} 的報價",
         "openJob": "打開你的工作"
@@ -256,7 +256,7 @@
       "historySearchPlaceholder": "標題、類別或地區",
       "historyEmpty": "呢個範圍沒有已完成的工作。",
       "historyRoleWorker": "我做的",
-      "historyRoleCustomer": "我發布的",
+      "historyRoleCustomer": "我發佈的",
       "calendarLabel": "已完成工作日曆",
       "calendarJobs": "完成 {count} 項"
     }

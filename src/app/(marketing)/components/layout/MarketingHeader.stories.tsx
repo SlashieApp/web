@@ -334,7 +334,7 @@ export const MobileMenuOpen: Story = {
     const rows = [
       within(drawer).getByRole('link', { name: 'Pricing' }),
       within(drawer).getByRole('link', { name: 'About' }),
-      within(drawer).getByRole('button', { name: 'Feedback' }),
+      within(drawer).getByRole('button', { name: 'Send feedback' }),
       within(drawer).getByRole('link', { name: 'Log in' }),
       within(drawer).getByRole('link', { name: 'Get started' }),
     ]

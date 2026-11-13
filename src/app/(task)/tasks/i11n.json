@@ -138,10 +138,10 @@
   "zh_hk": {
     "metadata": {
       "title": "我的任務 | Slashie",
-      "description": "你發布的任務同你報過價的任務：即將進行、開放中同過往。"
+      "description": "你發佈的任務同你報過價的任務：即將進行、開放中同過往。"
     },
     "title": "我的任務",
-    "description": "查看同管理你發布同報價過的任務，包括進度同狀態。",
+    "description": "查看同管理你發佈同報價過的任務，包括進度同狀態。",
     "loading": "正在載入你的任務…",
     "sections": {
       "upcoming": "即將進行",
@@ -150,7 +150,7 @@
     },
     "sectionEmpty": {
       "upcoming": "暫時沒有已預約的工作。報價獲接受後，工作會在這裡顯示。",
-      "open": "暫時沒有等待報價的任務。你發布的任務同送出的報價會在這裡顯示。",
+      "open": "暫時沒有等待報價的任務。你發佈的任務同送出的報價會在這裡顯示。",
       "past": "暫時沒有已結束的任務。已完成同已取消的任務會在這裡顯示。"
     },
     "when": {
@@ -199,7 +199,7 @@
       "clearSearch": "清除搜尋",
       "roleLabel": "顯示",
       "roleAll": "全部任務",
-      "roleHosted": "我發布的",
+      "roleHosted": "我發佈的",
       "roleQuoted": "我報價的",
       "categoryLabel": "類別",
       "categoryAll": "所有類別",
@@ -215,14 +215,14 @@
       },
       "empty": {
         "title": "暫時沒有任務",
-        "description": "發布任務以收集報價，或在地圖上瀏覽並送出報價。"
+        "description": "發佈任務以收集報價，或在地圖上瀏覽並送出報價。"
       },
       "noMatches": {
         "title": "沒有符合的任務",
         "description": "嘗試其他搜尋，或清除部分篩選。"
       },
       "actions": {
-        "postTask": "發布任務",
+        "postTask": "發佈任務",
         "browseTasks": "瀏覽任務",
         "retry": "再試一次",
         "clearFilters": "清除篩選"
@@ -242,9 +242,9 @@
       "worker": "工作者",
       "customer": "客戶",
       "emptyWorker": "你完成的工作會顯示喺呢度。",
-      "emptyCustomer": "你發布並完成的任務會顯示喺呢度。",
+      "emptyCustomer": "你發佈並完成的任務會顯示喺呢度。",
       "completedJobs": "已完成工作",
-      "hostedCompleted": "已完成的發布任務",
+      "hostedCompleted": "已完成的發佈任務",
       "categoryMix": "類別比例",
       "mostWorked": "最常工作地點",
       "mostUsed": "最常用地點",

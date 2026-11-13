@@ -31,7 +31,7 @@
     "errorFallback": "We could not send your feedback. Please try again.",
     "rateLimited": "You’ve sent too much feedback. Try again in {seconds} seconds.",
     "rateLimitedGeneric": "You’ve sent too much feedback. Please wait a bit and try again.",
-    "trigger": "Feedback",
+    "trigger": "Send feedback",
     "triggerMenu": "Send feedback",
     "triggerAria": "Send feedback"
   },
@@ -67,7 +67,7 @@
     "errorFallback": "無法傳送意見，請再試一次。",
     "rateLimited": "傳送次數過多。請在 {seconds} 秒後再試。",
     "rateLimitedGeneric": "傳送次數過多。請稍後再試。",
-    "trigger": "意見",
+    "trigger": "傳送意見",
     "triggerMenu": "傳送意見",
     "triggerAria": "傳送意見"
   }

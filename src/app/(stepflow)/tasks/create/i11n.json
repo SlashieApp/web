@@ -331,7 +331,7 @@
       "verifyPhone": "在帳戶中驗證電話",
       "allowedHeading": "只限允許的任務",
       "allowedBadge": "請注意",
-      "allowedBody": "請勿發布非法、不安全的工作，或在對方沒有所需資格時要求持牌工作。Slashie 不會審查刊登內容。",
+      "allowedBody": "請勿發佈非法、不安全的工作，或在對方沒有所需資格時要求持牌工作。Slashie 不會審查刊登內容。",
       "allowedConfirm": "我確認此任務合法，且不會要求不安全或無牌的工作。"
     },
     "summary": {

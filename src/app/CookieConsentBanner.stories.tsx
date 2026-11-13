@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { expect, userEvent, waitFor, within } from 'storybook/test'
 
 import { LocaleProvider } from '@/i18n/LocaleProvider'
+import { viewportAt } from '@/ui/PageContainer/pageLines.testing'
 import {
   COOKIE_CONSENT_STORAGE_KEY,
   getCookieConsent,
@@ -100,14 +101,45 @@ export const Default: Story = {
   },
 }
 
-/** Phone width: text above, both choices below, right-aligned. */
+/**
+ * A 390 phone (FE-541): the short text above, both choices on one row of
+ * equal halves in the same style, Essential only first; under 130px tall.
+ */
 export const Mobile: Story = {
-  globals: { viewport: { value: 'mobile1', isRotated: false } },
+  ...viewportAt(390),
+  play: async ({ canvasElement }) => {
+    const banner = await within(canvasElement).findByRole('region', {
+      name: 'Cookie consent',
+    })
+    const [essential, accept] = within(banner).getAllByRole('button')
+    if (!essential || !accept) throw new Error('Two choices expected')
+    await expect(essential).toHaveTextContent('Essential only')
+    await expect(accept).toHaveTextContent('Accept all')
+    const a = essential.getBoundingClientRect()
+    const b = accept.getBoundingClientRect()
+    await expect(Math.abs(a.width - b.width)).toBeLessThanOrEqual(1)
+    await expect(a.top).toBe(b.top)
+    await expect(essential.className).toBe(accept.className)
+    await expect(banner).toHaveTextContent('We do not record your screen.')
+    await expect(banner.getBoundingClientRect().height).toBeLessThan(130)
+  },
 }
 
-/** Traditional Chinese copy, picked from the `/zh-hk` URL prefix. */
+/** Traditional Chinese copy, picked from the `/zh-hk` URL prefix: the full stop is 。, inside the copy. */
 export const TraditionalChinese: Story = {
-  parameters: { nextjs: { navigation: { pathname: '/zh-hk' } } },
+  ...viewportAt(390),
+  parameters: {
+    ...viewportAt(390).parameters,
+    nextjs: { navigation: { pathname: '/zh-hk' } },
+  },
+  play: async ({ canvasElement }) => {
+    const banner = await within(canvasElement).findByRole('region', {
+      name: 'Cookie 同意',
+    })
+    await expect(banner).toHaveTextContent('我們不會錄製你的畫面。')
+    await expect(banner.textContent).toMatch(/Cookie 政策。/)
+    await expect(banner.textContent).not.toMatch(/\.$/)
+  },
   decorators: [
     (Story) => (
       <LocaleProvider>

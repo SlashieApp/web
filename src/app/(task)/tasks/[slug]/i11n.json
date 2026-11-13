@@ -601,9 +601,9 @@
       "fieldsLastSeparator": "、",
       "events": {
         "TASK_CREATED": {
-          "you": "你發布了這個任務",
-          "named": "{name} 發布了這個任務",
-          "anon": "任務已發布"
+          "you": "你發佈了這個任務",
+          "named": "{name} 發佈了這個任務",
+          "anon": "任務已發佈"
         },
         "TASK_UPDATED": {
           "you": "你修改了任務",
@@ -625,7 +625,7 @@
         },
         "TASK_SUSPENDED": {
           "SLASHIE": "Slashie 暫停了此任務",
-          "POSTER_SUSPENDED": "因發布者帳戶被暫停，此任務已暫停"
+          "POSTER_SUSPENDED": "因發佈者帳戶被暫停，此任務已暫停"
         },
         "TASK_UNSUSPENDED": "此任務已恢復",
         "QUOTE_SENT": {

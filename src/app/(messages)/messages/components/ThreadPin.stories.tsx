@@ -157,7 +157,8 @@ export const WorkerBookedByOther: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
     await shows(canvasElement, 'pin.closed')
-    await expect(canvas.getByText('Awarded')).toBeVisible()
+    // The status pill says Booked since FE-532 (was Awarded).
+    await expect(canvas.getByText('Booked')).toBeVisible()
     await expect(canvas.getByText('Booked by someone else')).toBeVisible()
     await expect(canvas.queryByText('Your quote')).toBeNull()
     await noButtons(canvasElement)

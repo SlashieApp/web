@@ -167,7 +167,7 @@ export const TraditionalChinese: Story = {
     await expect(canvas.getByRole('group', { name: '顯示' })).toBeVisible()
     await expect(canvas.getByRole('group', { name: '類別' })).toBeVisible()
     await expect(
-      canvas.getByRole('button', { name: '我發布的' }),
+      canvas.getByRole('button', { name: '我發佈的' }),
     ).toHaveAttribute('aria-pressed', 'true')
   },
 }

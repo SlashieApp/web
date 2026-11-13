@@ -64,7 +64,7 @@ describe('taskActivityLines: you, named or anon', () => {
     [
       T.TaskCreated,
       ['You posted the task', 'Alex Chen posted the task', 'Task posted'],
-      ['你發布了這個任務', 'Alex Chen 發布了這個任務', '任務已發布'],
+      ['你發佈了這個任務', 'Alex Chen 發佈了這個任務', '任務已發佈'],
     ],
     [
       T.TaskCancelled,
@@ -165,7 +165,7 @@ describe('taskActivityLines: suspensions (BE-108)', () => {
           viewer,
           'zh_hk',
         ),
-      ).toBe('因發布者帳戶被暫停，此任務已暫停')
+      ).toBe('因發佈者帳戶被暫停，此任務已暫停')
     }
   })
 
