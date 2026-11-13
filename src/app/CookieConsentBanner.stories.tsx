@@ -98,8 +98,14 @@ export const Default: Story = {
       expect(publishedHeight(canvasElement)).toBe(`${banner.offsetHeight}px`),
     )
     await expect(markedOpen(canvasElement)).toBe(true)
-    // First visit: nothing stored, so no current-choice line (FE-565).
+    // First visit: nothing stored, so no current-choice line (FE-565), no
+    // button marked, and the banner does not take focus from the page.
     await expect(banner.querySelector('[data-current-choice]')).toBeNull()
+    for (const button of within(banner).getAllByRole('button')) {
+      await expect(button).not.toHaveAttribute('aria-pressed')
+    }
+    await expect(banner).not.toHaveFocus()
+    await expect(banner).not.toHaveAttribute('aria-describedby')
   },
 }
 
@@ -183,7 +189,11 @@ export const AlreadyDecided: Story = {
   },
 }
 
-/** Footer "Cookie settings" after a stored choice: the banner opens again to change it. */
+/**
+ * Footer "Cookie settings" after a stored choice: the banner opens again to
+ * change it, says the stored choice (FE-565), and takes focus so a screen
+ * reader announces it, with the stored button pressed.
+ */
 export const ReopenedFromFooter: Story = {
   parameters: { storedConsent: 'rejected' },
   play: async ({ canvasElement }) => {
@@ -203,6 +213,14 @@ export const ReopenedFromFooter: Story = {
     ).toBeVisible()
     const [essential, accept] = within(banner).getAllByRole('button')
     await expect(essential?.className).toBe(accept?.className)
+    // Screen readers: the stored choice is the pressed button, and the banner
+    // takes focus with the line as its description.
+    await expect(essential).toHaveAttribute('aria-pressed', 'true')
+    await expect(accept).toHaveAttribute('aria-pressed', 'false')
+    await waitFor(() => expect(banner).toHaveFocus())
+    await expect(banner).toHaveAccessibleDescription(
+      'Current choice: Essential only',
+    )
   },
 }
 
@@ -217,6 +235,16 @@ export const ReopenedAfterAcceptAll: Story = {
     await expect(
       within(banner).getByText('Current choice: Accept all'),
     ).toBeVisible()
+    await expect(
+      within(banner).getByRole('button', { name: 'Accept all' }),
+    ).toHaveAttribute('aria-pressed', 'true')
+    await expect(
+      within(banner).getByRole('button', { name: 'Essential only' }),
+    ).toHaveAttribute('aria-pressed', 'false')
+    await waitFor(() => expect(banner).toHaveFocus())
+    await expect(banner).toHaveAccessibleDescription(
+      'Current choice: Accept all',
+    )
   },
 }
 
@@ -241,5 +269,11 @@ export const ReopenedTraditionalChinese: Story = {
     await expect(
       within(banner).getByText('目前選擇：只使用必要 Cookie'),
     ).toBeVisible()
+    await expect(
+      within(banner).getByRole('button', { name: '只使用必要 Cookie' }),
+    ).toHaveAttribute('aria-pressed', 'true')
+    await expect(banner).toHaveAccessibleDescription(
+      '目前選擇：只使用必要 Cookie',
+    )
   },
 }
