@@ -21,12 +21,18 @@ export function CentredHero({
   headingId,
   heading,
   body,
+  eyebrow,
+  note,
   children,
   ...dataAttrs
 }: {
   headingId: string
   heading: string
   body: string
+  /** A small label over the title (the legal pages' "Legal"). */
+  eyebrow?: ReactNode
+  /** A small line right under the body (the legal pages' "Last updated"). */
+  note?: ReactNode
   /** What the page shows first, under the copy. */
   children?: ReactNode
 } & Record<`data-${string}`, string>) {
@@ -66,6 +72,11 @@ export function CentredHero({
             mx="auto"
             maxW="54rem"
           >
+            {eyebrow ? (
+              <Box data-hero-eyebrow="" {...riseIn(0)}>
+                {eyebrow}
+              </Box>
+            ) : null}
             <Heading
               as="h1"
               id={headingId}
@@ -84,6 +95,11 @@ export function CentredHero({
             >
               {body}
             </Text>
+            {note ? (
+              <Box data-hero-note="" {...riseIn(60)}>
+                {note}
+              </Box>
+            ) : null}
           </Stack>
           {children ? (
             <Box minW={0} {...riseIn(120)}>

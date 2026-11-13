@@ -1,6 +1,6 @@
 import { Box } from '@chakra-ui/react'
 import type { Decorator, Meta, StoryObj } from '@storybook/nextjs-vite'
-import { expect, within } from 'storybook/test'
+import { expect, waitFor, within } from 'storybook/test'
 
 import cookiesBag from '@/app/(marketing)/cookies/i11n.json'
 import safetyBag from '@/app/(marketing)/help/safety/i11n.json'
@@ -66,13 +66,15 @@ function parts(canvasElement: HTMLElement) {
   const policy = canvasElement.querySelector<HTMLElement>(
     '[data-legal-document]',
   )
-  if (!rails || !frame || !policy) {
-    throw new Error('The page is missing its frame or its document')
+  const hero = canvasElement.querySelector<HTMLElement>('[data-legal-hero]')
+  if (!rails || !frame || !policy || !hero) {
+    throw new Error('The page is missing its frame, hero or document')
   }
   return {
     rails,
     frame,
     policy,
+    hero,
     intro: canvasElement.querySelector<HTMLElement>('[data-legal-intro]'),
     rows: [
       ...canvasElement.querySelectorAll<HTMLElement>('[data-legal-section]'),
@@ -148,8 +150,8 @@ async function expectReadingColumn(canvasElement: HTMLElement) {
 
 /**
  * The page in the marketing frame at desktop width (1366): a white page, a
- * rail down each side of the page column, one rule under the page header; the
- * title is the one h1 and the policy one landmark named by it, each section an
+ * rail down each side of the page column, one rule under Home's centred hero (FE-557); the
+ * title is the one h1, naming the hero and the policy (an article), each section an
  * h2; the intro, then the sections as hairline rows with the heading on the
  * left and the text in the reading column; 500-weight headings, muted body, no
  * green fill and nothing heavier than 600. The title carries the footer's column
@@ -158,36 +160,58 @@ async function expectReadingColumn(canvasElement: HTMLElement) {
  */
 async function expectFramedDocument(
   canvasElement: HTMLElement,
-  legal: { title: string; sections: { heading: string; id?: string }[] },
+  legal: {
+    title: string
+    description: string
+    lastUpdated: string
+    sections: { heading: string; id?: string }[]
+  },
   eyebrow = 'Legal',
 ) {
   const canvas = within(canvasElement)
-  const { rails, frame, policy, intro, rows, rules } = parts(canvasElement)
+  const { rails, frame, policy, hero, intro, rows, rules } =
+    parts(canvasElement)
 
-  // One h1 (the page header's title); the policy is one landmark named by it.
+  // One h1, centred, in Home's hero (FE-557); it names the hero (a region)
+  // and the policy (an article).
   await expect(canvas.getAllByRole('heading', { level: 1 })).toHaveLength(1)
-  await expect(
-    canvas.getByRole('heading', { level: 1, name: legal.title }),
-  ).toBeVisible()
-  await expect(canvas.getByRole('region', { name: legal.title })).toBe(policy)
+  const title = canvas.getByRole('heading', { level: 1, name: legal.title })
+  await waitFor(() => expect(title).toBeVisible(), { timeout: 4000 })
+  await expect(getComputedStyle(title).textAlign).toBe('center')
+  await expect(canvas.getByRole('region', { name: legal.title })).toBe(hero)
   await expect(canvas.getAllByRole('region')).toHaveLength(1)
+  await expect(canvas.getByRole('article', { name: legal.title })).toBe(policy)
   await expect(
     canvas
       .getAllByRole('heading', { level: 2 })
       .map((heading) => heading.textContent),
   ).toEqual(legal.sections.map((section) => section.heading))
   await expect(frame.textContent).not.toContain(EM_DASH)
+  // The description and Last updated under the title, centred; no back
+  // button and no page header bar any more.
+  const description = within(hero).getByText(legal.description)
+  await expect(box(description).top).toBeGreaterThan(box(title).bottom)
+  const updated = hero.querySelector('[data-legal-updated]') as HTMLElement
+  await expect(updated).toHaveTextContent(legal.lastUpdated)
+  await expect(box(updated).top).toBeGreaterThan(box(description).bottom)
+  await expect(canvas.queryByRole('button', { name: /back/i })).toBeNull()
+  await expect(
+    canvasElement.querySelector('[data-sticky-header-title]'),
+  ).toBeNull()
 
   // The eyebrow: the footer's column name over the title, caps, with a green
-  // 600 icon before it, both on the title's left edge.
-  const title = canvas.getByRole('heading', { level: 1, name: legal.title })
+  // 600 icon before it, centred over the title.
   const label = canvas.getByText(eyebrow)
   await expect(getComputedStyle(label).textTransform).toBe('uppercase')
   await expect(box(label).bottom).toBeLessThanOrEqual(box(title).top)
   const icon = label.previousElementSibling as HTMLElement
   await expect(icon).toHaveAttribute('aria-hidden', 'true')
   await expect(getComputedStyle(icon).color).toBe(GREEN_600)
-  await expect(box(icon).left).toBe(box(title).left)
+  const eyebrowBox = hero.querySelector('[data-hero-eyebrow]') as HTMLElement
+  const centre = (r: DOMRect) => r.left + r.width / 2
+  await expect(
+    Math.abs(centre(box(eyebrowBox)) - centre(box(title))),
+  ).toBeLessThan(2)
 
   // A white page; the rails bound the page column; one full-width rule sits
   // between the page header and the policy.
@@ -205,9 +229,8 @@ async function expectFramedDocument(
   await expect(box(rule).width).toBe(box(frame).width)
   await expect(box(rule).height).toBe(1)
   await expect(getComputedStyle(rule).backgroundColor).toBe(BORDER_DEFAULT)
+  await expect(box(rule).top).toBeGreaterThanOrEqual(box(hero).bottom - 1)
   await expect(box(rule).bottom).toBeLessThanOrEqual(box(policy).top + 1)
-  // The rails run over the page header's bar, not under it.
-  await expect(Number(getComputedStyle(rails).zIndex)).toBeGreaterThan(10)
 
   // The rhythm: a section's 128px under the policy; none above it, because the
   // page's rule is the first row's hairline and the first row has the same 40px
@@ -324,8 +347,8 @@ export const PrivacyPolicy: Story = {
 
 /**
  * Safety help page: two intro paragraphs and a section with an anchor id (the
- * app links to `#report`), which is the row, so it clears the two bars when
- * it is scrolled to.
+ * app links to `#report`), which is the row, so it clears the site header
+ * when it is scrolled to.
  */
 export const SafetyGuidance: Story = {
   args: { document: safetyBag.en, column: 'support' },
@@ -344,9 +367,10 @@ export const SafetyGuidance: Story = {
         name: 'How to report',
       }),
     ).toBeVisible()
+    // Clear of the site header (66px) and 16px; there is no page bar now.
     await expect(
       getComputedStyle(anchored as HTMLElement).scrollMarginTop,
-    ).toBe('138px')
+    ).toBe('82px')
   },
 }
 
@@ -364,7 +388,7 @@ export const TraditionalChinese: Story = {
       canvas.getByText(
         `${cookiesBag.zh_hk.lastUpdatedLabel}: ${cookiesBag.zh_hk.lastUpdated}`,
       ),
-    ).toBeVisible()
+    ).toBeInTheDocument()
     // A line of Latin words holds more characters, so count the Chinese ones.
     const lines = bodyLines(canvasElement, isCjk)
     await expect(lines.length).toBeGreaterThan(0)
@@ -427,7 +451,7 @@ export const DefaultUpdatedLabel: Story = {
   play: async ({ canvasElement }) => {
     await expect(
       within(canvasElement).getByText('Last updated: 1 October 2026'),
-    ).toBeVisible()
+    ).toBeInTheDocument()
   },
 }
 
@@ -444,7 +468,7 @@ export const EyebrowTraditionalChinese: Story = {
   ],
   globals: { viewport: { value: 'desktop', isRotated: false } },
   play: async ({ canvasElement }) => {
-    await expect(within(canvasElement).getByText('法律')).toBeVisible()
+    await expect(within(canvasElement).getByText('法律')).toBeInTheDocument()
   },
 }
 
@@ -472,7 +496,7 @@ export const EmailLinks: Story = {
     await expect(
       canvas.getByRole('link', { name: 'hello@example.com' }),
     ).toHaveAttribute('href', 'mailto:hello@example.com')
-    // Back (the page header's button) is not a link: the three are the emails.
+    // The three links are the emails.
     const links = canvas.getAllByRole('link')
     await expect(links).toHaveLength(3)
     // A link inside a sentence is told from the text by more than colour (WCAG
@@ -543,38 +567,50 @@ export const Mobile: Story = {
   },
 }
 
-/** R1, R2, R5 (FE-493): the title and the rows on the logo and menu lines, the rails on the container edge from lg (32px outside the lines), the rules edge to edge at 390 (phone). */
+/** R1, R2, R5 (FE-493): the rows on the logo and menu lines (the h1 is centred, FE-557), the rails on the container edge from lg (32px outside the lines), the rules edge to edge at 390 (phone). */
 export const PageLines390: Story = {
   ...viewportAt(390),
   args: { document: termsBag.en },
   play: async ({ canvasElement }) => {
-    expectMarketingPage(canvasElement, 390, { header: false })
+    expectMarketingPage(canvasElement, 390, {
+      header: false,
+      centredTitle: true,
+    })
   },
 }
 
-/** R1, R2, R5 (FE-493): the title and the rows on the logo and menu lines, the rails on the container edge from lg (32px outside the lines), the rules edge to edge at 1024 (tablet). */
+/** R1, R2, R5 (FE-493): the rows on the logo and menu lines (the h1 is centred, FE-557), the rails on the container edge from lg (32px outside the lines), the rules edge to edge at 1024 (tablet). */
 export const PageLines1024: Story = {
   ...viewportAt(1024),
   args: { document: termsBag.en },
   play: async ({ canvasElement }) => {
-    expectMarketingPage(canvasElement, 1024, { header: false })
+    expectMarketingPage(canvasElement, 1024, {
+      header: false,
+      centredTitle: true,
+    })
   },
 }
 
-/** R1, R2, R5 (FE-493): the title and the rows on the logo and menu lines, the rails on the container edge from lg (32px outside the lines), the rules edge to edge at 1366 (laptop). */
+/** R1, R2, R5 (FE-493): the rows on the logo and menu lines (the h1 is centred, FE-557), the rails on the container edge from lg (32px outside the lines), the rules edge to edge at 1366 (laptop). */
 export const PageLines1366: Story = {
   ...viewportAt(1366),
   args: { document: termsBag.en },
   play: async ({ canvasElement }) => {
-    expectMarketingPage(canvasElement, 1366, { header: false })
+    expectMarketingPage(canvasElement, 1366, {
+      header: false,
+      centredTitle: true,
+    })
   },
 }
 
-/** R1, R2, R5 (FE-493): the title and the rows on the logo and menu lines, the rails on the container edge from lg (32px outside the lines), the rules edge to edge at 1920 (wide desktop). */
+/** R1, R2, R5 (FE-493): the rows on the logo and menu lines (the h1 is centred, FE-557), the rails on the container edge from lg (32px outside the lines), the rules edge to edge at 1920 (wide desktop). */
 export const PageLines1920: Story = {
   ...viewportAt(1920),
   args: { document: termsBag.en },
   play: async ({ canvasElement }) => {
-    expectMarketingPage(canvasElement, 1920, { header: false })
+    expectMarketingPage(canvasElement, 1920, {
+      header: false,
+      centredTitle: true,
+    })
   },
 }

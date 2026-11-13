@@ -5,9 +5,9 @@ import type { LegalDocument } from '@/content/legal/types'
 import { Link } from '@/ui'
 import { PageContainer } from '@/ui/PageContainer'
 
+import { CentredHero } from './CentredHero'
 import { type LegalColumn, LegalEyebrow } from './LegalEyebrow'
 import { MarketingFrame, SECTION_PY, SectionRule } from './MarketingFrame'
-import { MarketingPageHeader } from './MarketingPageHeader'
 
 const EMAIL_PATTERN = /([a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,})/gi
 
@@ -22,10 +22,14 @@ const EMAIL_PATTERN = /([a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,})/gi
 export const LEGAL_MEASURE = '32em'
 
 /**
- * Clears the marketing header (58 / 66px with its borders), the 56px bar under
- * it, and 16px, so a section reached by its `id` is not under them.
+ * Clears the marketing header (58 / 66px with its borders) and 16px, so a
+ * section reached by its `id` is not under it. There is no page bar under the
+ * header any more (FE-557).
  */
-const ANCHOR_CLEARANCE = { base: '130px', md: '138px' } as const
+const ANCHOR_CLEARANCE = { base: '74px', md: '82px' } as const
+
+/** The hero's heading id: the page's h1, which names the hero and the policy. */
+export const LEGAL_HERO_HEADING_ID = 'legal-hero-heading'
 
 /**
  * One row of the document: its heading on the left and its text in the reading
@@ -47,7 +51,7 @@ const ROW_PY = { base: 8, lg: 10 } as const
 
 /**
  * What the policy section keeps under its last row: a section's worth. It keeps
- * none above the first row: the rule under the page header is that row's
+ * none above the first row: the rule under the hero is that row's
  * hairline, and the row brings the same padding every row has, so the document
  * does not open on a void (128px over the intro against 40px between the rows).
  */
@@ -88,17 +92,16 @@ export function linkifyEmails(paragraph: string): ReactNode[] {
 }
 
 /**
- * Shared prose shell for the public legal pages (/terms, /privacy, /cookies,
- * /help/safety), in the marketing frame (FE-471, tone train 2): a white page,
- * from `lg` a rail down each side of the page column, and a full-width rule
- * under the page header. The page header (FE-458) keeps the title as the h1
- * and "Last updated" under it; it sits outside the page container and says its
- * colour, so the rule can run edge to edge. The policy is one
- * landmark named by the title: the intro, then each section as a hairline row
- * with its heading (an h2, `heading-lg`) beside its text, which sits in a
- * 65 to 75 character reading column (`LEGAL_MEASURE`). Copy comes from
- * `src/content/legal/*` so it can change without touching UI. The footer stays
- * under the frame (the page adds it).
+ * Shared prose shell for the public legal pages (/terms, /privacy, /cookies),
+ * in the marketing frame: a white page, from `lg` a rail down each side of the
+ * page column. The top is Home's centred hero (FE-557, as on Pricing, About
+ * and Safety): the footer's column name as the eyebrow ("Legal"), the title
+ * (the one h1), the document's description and "Last updated". A full-width
+ * rule, then the policy, an article named by the title: the intro, then each
+ * section as a hairline row with its heading (an h2, `heading-lg`) beside its
+ * text, which sits in a 65 to 75 character reading column (`LEGAL_MEASURE`).
+ * Copy comes from each page's `i11n.json` so it can change without touching
+ * UI. The footer stays under the frame (the page adds it).
  */
 export function LegalPageLayout({
   document,
@@ -113,82 +116,86 @@ export function LegalPageLayout({
   const lastIndex = document.sections.length - 1
 
   return (
-    // The page header's bar is opaque and 10 deep: the rails go over it.
-    <MarketingFrame bg="bg.surface" railsZIndex={11}>
-      <MarketingPageHeader
-        title={document.title}
+    <MarketingFrame bg="bg.surface">
+      <CentredHero
+        headingId={LEGAL_HERO_HEADING_ID}
+        heading={document.title}
+        body={document.description}
         eyebrow={<LegalEyebrow column={column} />}
-        description={`${document.lastUpdatedLabel ?? 'Last updated'}: ${document.lastUpdated}`}
-        background="bg.surface"
+        note={
+          <Text data-legal-updated="" textStyle="text-sm" color="text.muted">
+            {`${document.lastUpdatedLabel ?? 'Last updated'}: ${document.lastUpdated}`}
+          </Text>
+        }
+        data-legal-hero=""
+      />
+      <SectionRule />
+      <Box
+        as="article"
+        aria-labelledby={LEGAL_HERO_HEADING_ID}
+        data-legal-document=""
+        pb={POLICY_PB}
       >
-        <SectionRule />
-        <Box
-          as="section"
-          aria-label={document.title}
-          data-legal-document=""
-          pb={POLICY_PB}
-        >
-          <PageContainer>
-            {hasIntro ? (
-              <Box
-                data-legal-intro=""
-                {...ROW_GRID}
-                pt={ROW_PY}
-                // With no sections the intro is the whole document.
-                pb={lastIndex < 0 ? 0 : ROW_PY}
+        <PageContainer>
+          {hasIntro ? (
+            <Box
+              data-legal-intro=""
+              {...ROW_GRID}
+              pt={ROW_PY}
+              // With no sections the intro is the whole document.
+              pb={lastIndex < 0 ? 0 : ROW_PY}
+            >
+              {EMPTY_HEADING_CELL}
+              <Stack gap={4}>
+                {intro.map((paragraph) => (
+                  <Text
+                    key={paragraph.slice(0, 32)}
+                    textStyle="text-lg"
+                    color="text.default"
+                    maxW={LEGAL_MEASURE}
+                  >
+                    {linkifyEmails(paragraph)}
+                  </Text>
+                ))}
+              </Stack>
+            </Box>
+          ) : null}
+          {document.sections.map((section, index) => (
+            <Box
+              key={section.heading}
+              id={section.id}
+              data-legal-section=""
+              {...ROW_GRID}
+              borderTopWidth={index === 0 && !hasIntro ? 0 : '1px'}
+              borderColor="border.default"
+              pt={ROW_PY}
+              pb={index === lastIndex ? 0 : ROW_PY}
+              scrollMarginTop={ANCHOR_CLEARANCE}
+            >
+              <Heading
+                as="h2"
+                textStyle="heading-lg"
+                textWrap="balance"
+                color="text.default"
               >
-                {EMPTY_HEADING_CELL}
-                <Stack gap={4}>
-                  {intro.map((paragraph) => (
-                    <Text
-                      key={paragraph.slice(0, 32)}
-                      textStyle="text-lg"
-                      color="text.default"
-                      maxW={LEGAL_MEASURE}
-                    >
-                      {linkifyEmails(paragraph)}
-                    </Text>
-                  ))}
-                </Stack>
-              </Box>
-            ) : null}
-            {document.sections.map((section, index) => (
-              <Box
-                key={section.heading}
-                id={section.id}
-                data-legal-section=""
-                {...ROW_GRID}
-                borderTopWidth={index === 0 && !hasIntro ? 0 : '1px'}
-                borderColor="border.default"
-                pt={ROW_PY}
-                pb={index === lastIndex ? 0 : ROW_PY}
-                scrollMarginTop={ANCHOR_CLEARANCE}
-              >
-                <Heading
-                  as="h2"
-                  textStyle="heading-lg"
-                  textWrap="balance"
-                  color="text.default"
-                >
-                  {section.heading}
-                </Heading>
-                <Stack gap={4}>
-                  {section.body.map((paragraph) => (
-                    <Text
-                      key={paragraph.slice(0, 32)}
-                      textStyle="text-md"
-                      color="text.muted"
-                      maxW={LEGAL_MEASURE}
-                    >
-                      {linkifyEmails(paragraph)}
-                    </Text>
-                  ))}
-                </Stack>
-              </Box>
-            ))}
-          </PageContainer>
-        </Box>
-      </MarketingPageHeader>
+                {section.heading}
+              </Heading>
+              <Stack gap={4}>
+                {section.body.map((paragraph) => (
+                  <Text
+                    key={paragraph.slice(0, 32)}
+                    textStyle="text-md"
+                    color="text.muted"
+                    maxW={LEGAL_MEASURE}
+                  >
+                    {linkifyEmails(paragraph)}
+                  </Text>
+                ))}
+              </Stack>
+            </Box>
+          ))}
+        </PageContainer>
+      </Box>
     </MarketingFrame>
   )
 }
