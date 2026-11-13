@@ -124,6 +124,8 @@ export function OptionButton({
     <Button
       type="button"
       size="sm"
+      // At least 44 tall on every width, a comfortable touch target (FE-532).
+      minH="44px"
       variant="secondary"
       aria-pressed={pressed}
       onClick={onPress}

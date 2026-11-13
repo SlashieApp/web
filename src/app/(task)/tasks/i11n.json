@@ -24,7 +24,8 @@
       "overdue": "Overdue",
       "flexible": "Flexible",
       "before": "Before {date}",
-      "dateTime": "{date}, {time}"
+      "dateTime": "{date}, {time}",
+      "overdueDate": "Overdue, {date}"
     },
     "line": {
       "quotes": "{count} quotes",
@@ -43,12 +44,12 @@
     },
     "actions": {
       "compareQuotes": "Compare quotes",
-      "answerReschedule": "Answer reschedule",
-      "answerCancel": "Answer cancellation",
+      "answerReschedule": "Reply to reschedule",
+      "answerCancel": "Reply to cancellation",
       "markDone": "Mark done",
       "confirmDone": "Confirm done",
-      "answerFailed": "Answer failed",
-      "conflict": "Sort out conflict",
+      "answerFailed": "Reply to failed job",
+      "conflict": "Resolve conflict",
       "review": "Review",
       "label": "{action}: {title}"
     },
@@ -73,7 +74,8 @@
     },
     "views": {
       "error": {
-        "title": "Could not load your tasks"
+        "title": "Could not load your tasks",
+        "description": "Check your connection and try again."
       },
       "empty": {
         "title": "No tasks yet",
@@ -158,7 +160,8 @@
       "overdue": "已過期",
       "flexible": "時間彈性",
       "before": "{date} 之前",
-      "dateTime": "{date} {time}"
+      "dateTime": "{date} {time}",
+      "overdueDate": "逾期，{date}"
     },
     "line": {
       "quotes": "{count} 個報價",
@@ -171,18 +174,18 @@
       "failed": "未能進行",
       "cancelled": "已取消",
       "closed": "已結束",
-      "bookedByOther": "已由其他人預訂",
+      "bookedByOther": "已由其他人預約",
       "taskCompleted": "任務已完成",
       "otherBookingEnded": "預約已取消"
     },
     "actions": {
       "compareQuotes": "比較報價",
-      "answerReschedule": "回應改期",
-      "answerCancel": "回應取消",
+      "answerReschedule": "回覆改期",
+      "answerCancel": "回覆取消",
       "markDone": "標記完成",
       "confirmDone": "確認完成",
-      "answerFailed": "回應未完成",
-      "conflict": "處理爭議",
+      "answerFailed": "回覆未能進行",
+      "conflict": "解決爭議",
       "review": "評價",
       "label": "{action}：{title}"
     },
@@ -207,7 +210,8 @@
     },
     "views": {
       "error": {
-        "title": "無法載入你的任務"
+        "title": "無法載入你的任務",
+        "description": "請檢查網絡連線後再試。"
       },
       "empty": {
         "title": "暫時沒有任務",
@@ -215,7 +219,7 @@
       },
       "noMatches": {
         "title": "沒有符合的任務",
-        "description": "試下其他搜尋，或清除部分篩選。"
+        "description": "嘗試其他搜尋，或清除部分篩選。"
       },
       "actions": {
         "postTask": "發布任務",

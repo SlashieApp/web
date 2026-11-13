@@ -49,7 +49,7 @@ export const AllSections: Story = {
 
     const upcoming = within(canvas.getByRole('region', { name: 'Upcoming' }))
     await expect(upcoming.getAllByRole('listitem')).toHaveLength(5)
-    await expect(upcoming.getByText('Overdue')).toBeVisible()
+    await expect(upcoming.getByText(/^Overdue,/)).toBeVisible()
     await expect(upcoming.getByText(/^On [A-Za-z]+, 16:25$/)).toBeVisible()
     await expect(
       upcoming.getByRole('link', { name: /^Mark done: / }),

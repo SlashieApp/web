@@ -25,7 +25,7 @@ export const Open: Story = {
 export const Awarded: Story = {
   args: { status: 'AWARDED' },
   play: async ({ canvasElement }) => {
-    await within(canvasElement).findByText('Awarded')
+    await within(canvasElement).findByText('Booked')
   },
 }
 

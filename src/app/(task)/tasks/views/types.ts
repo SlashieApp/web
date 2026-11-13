@@ -7,6 +7,7 @@ export type MyTasksView =
   | 'searching'
   | 'error'
   | 'empty'
+  | 'emptyWorker'
   | 'noMatches'
   | 'list'
 

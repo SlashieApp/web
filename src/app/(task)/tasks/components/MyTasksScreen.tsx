@@ -72,7 +72,8 @@ export function MyTasksScreen() {
     [localize, router],
   )
 
-  const blocker = quoteBlocker(useUserStore((s) => s.me))
+  const me = useUserStore((s) => s.me)
+  const blocker = quoteBlocker(me)
   const requests = useMyRequests()
   const quotes = useMyQuotes()
   const orders = useAccountOrders()
@@ -142,6 +143,7 @@ export function MyTasksScreen() {
         loading: firstLoad || searchLoading,
         failed: Boolean(errorMessage),
         filtered,
+        hasWorkerProfile: Boolean(me?.worker),
       })
     ]
   // From `lg` up, the first load keeps the rail's room so the list does not
@@ -216,9 +218,11 @@ export function MyTasksScreen() {
               />
             ) : null}
           </HStack>
-          <Text fontSize="sm" color="text.muted" lineHeight="1.5">
-            {t.description}
-          </Text>
+          {config.message === 'empty' && !hasTasks ? (
+            <Text fontSize="sm" color="text.muted" lineHeight="1.5">
+              {t.description}
+            </Text>
+          ) : null}
         </Stack>
 
         <Flex

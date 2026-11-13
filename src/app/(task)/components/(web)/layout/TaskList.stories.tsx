@@ -44,7 +44,7 @@ export const Results: Story = {
   },
 }
 
-/** Signed in: tasks you posted say Hosted, tasks you quoted on say Quoted. */
+/** Signed in: tasks you posted say Posted, tasks you quoted on say Quoted. */
 export const SignedInRoles: Story = {
   decorators: [
     withTaskBrowseStory({
@@ -85,7 +85,7 @@ export const SignedInRoles: Story = {
     const canvas = within(canvasElement)
     await canvas.findByText('Hang three shelves')
     // Cards fade in one after another.
-    await waitFor(() => expect(canvas.getByText('Hosted')).toBeVisible())
+    await waitFor(() => expect(canvas.getByText('Posted')).toBeVisible())
     await waitFor(() => expect(canvas.getByText('Quoted')).toBeVisible())
   },
 }

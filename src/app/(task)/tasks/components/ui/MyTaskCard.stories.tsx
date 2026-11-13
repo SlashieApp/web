@@ -57,8 +57,8 @@ export const UpcomingWithMenu: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
     await expect(canvas.getByText(/^On [A-Za-z]+, 16:25$/)).toBeVisible()
-    await expect(canvas.getByText('Hosted')).toBeVisible()
-    await expect(canvas.getByText('Awarded')).toBeVisible()
+    await expect(canvas.getByText('Posted')).toBeVisible()
+    await expect(canvas.getByText('Booked')).toBeVisible()
     const line = canvas.getByText('Southwark · £120')
     await expect(line).toBeVisible()
     await expectRowAnatomy(canvasElement, 'Mount a 55-inch TV', {
@@ -81,19 +81,18 @@ export const UpcomingWithMenu: Story = {
   },
 }
 
-/** Upcoming, your job from yesterday that nobody has marked: Overdue (in red), and Mark done (to the booking) in place of the ⋮ menu. */
+/** Upcoming, your job from yesterday that nobody has marked: Overdue with its date (in red), and Mark done (to the booking) in place of the ⋮ menu. */
 export const UpcomingOverdue: Story = {
   args: { row: storyRows.upcomingOverdue },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
-    const overdue = canvas.getByText('Overdue')
+    const overdue = canvas.getByText(/^Overdue,/)
     await expect(overdue).toBeVisible()
-    // When it was booked for stays, in the muted line.
-    await expect(
-      canvas.getByText('21 Oct, 09:00 · Islington · £150'),
-    ).toBeVisible()
+    // The date is in the red slot now (FE-532); the muted line is place and price.
+    await expect(overdue).toHaveTextContent('21 Oct')
+    await expect(canvas.getByText('Islington · £150')).toBeVisible()
     await expect(getComputedStyle(overdue).color).not.toBe(
-      getComputedStyle(canvas.getByText('Hosted')).color,
+      getComputedStyle(canvas.getByText('Posted')).color,
     )
     await expectRowAnatomy(canvasElement, 'Replace a light fitting', {
       time: true,
@@ -129,7 +128,7 @@ export const UpcomingConfirmDone: Story = {
   },
 }
 
-/** Upcoming, a job you won that the customer asked to move: its date and time, Answer reschedule. */
+/** Upcoming, a job you won that the customer asked to move: its date and time, Reply to reschedule. */
 export const UpcomingAnswerReschedule: Story = {
   args: { row: storyRows.upcomingReschedule },
   play: async ({ canvasElement }) => {
@@ -137,7 +136,7 @@ export const UpcomingAnswerReschedule: Story = {
     await expect(canvas.getByText('Tomorrow, 10:00')).toBeVisible()
     await expect(
       canvas.getByRole('link', {
-        name: 'Answer reschedule: Hang a mirror in the hall',
+        name: 'Reply to reschedule: Hang a mirror in the hall',
       }),
     ).toHaveAttribute(
       'href',
@@ -164,7 +163,7 @@ export const OpenCompareQuotes: Story = {
     const line = canvas.getByText('3 quotes · £80')
     await expect(line).toBeVisible()
     // Hosted only: no status pill before it is booked.
-    await expect(canvas.getByText('Hosted')).toBeVisible()
+    await expect(canvas.getByText('Posted')).toBeVisible()
     await expectRowAnatomy(canvasElement, 'Fix a leaking kitchen tap', {
       pills: 1,
     })
@@ -263,7 +262,7 @@ export const PastReview: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
     await expect(canvas.getByText('20 Oct · £95')).toBeVisible()
-    await expect(canvas.getByText('Hosted')).toBeVisible()
+    await expect(canvas.getByText('Posted')).toBeVisible()
     await expect(canvas.getByText('Completed')).toBeVisible()
     await expectRowAnatomy(canvasElement, 'Deep-clean a studio flat', {
       pills: 2,
@@ -375,10 +374,10 @@ export const TraditionalChinese: Story = {
     const canvas = within(canvasElement)
     await expect(canvas.getByText('明天 10:00')).toBeVisible()
     await expect(canvas.getByText('我報價')).toBeVisible()
-    await expect(canvas.getByText('已選定')).toBeVisible()
+    await expect(canvas.getByText('已預約')).toBeVisible()
     await expect(canvas.getByText('Hackney · £120')).toBeVisible()
     await expect(
-      canvas.getByRole('link', { name: '回應改期：Hang a mirror in the hall' }),
+      canvas.getByRole('link', { name: '回覆改期：Hang a mirror in the hall' }),
     ).toBeVisible()
   },
 }

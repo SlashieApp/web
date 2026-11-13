@@ -1,4 +1,5 @@
 import { empty } from './empty'
+import { emptyWorker } from './emptyWorker'
 import { error } from './error'
 import { list } from './list'
 import { loading } from './loading'
@@ -11,6 +12,7 @@ export const MY_TASKS_VIEWS: Record<MyTasksView, MyTasksViewConfig> = {
   searching,
   error,
   empty,
+  emptyWorker,
   noMatches,
   list,
 }

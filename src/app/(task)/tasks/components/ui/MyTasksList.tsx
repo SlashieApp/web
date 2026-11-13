@@ -167,12 +167,9 @@ export function MyTasksList({
 
   if (config.body === 'message' && config.message) {
     const copy = t.views[config.message]
-    const description =
-      config.message === 'error'
-        ? errorMessage
-        : 'description' in copy
-          ? copy.description
-          : null
+    // A failed load shows one fixed translated line, never the server's own
+    // message (FE-532): the error copy carries its own `description`.
+    const description = 'description' in copy ? copy.description : null
     return (
       <Stack
         gap={3}
@@ -219,7 +216,7 @@ export function MyTasksList({
           flexWrap="wrap"
         >
           <Text fontSize="sm" color="text.muted">
-            {errorMessage}
+            {t.views.error.description}
           </Text>
           <Button type="button" variant="ghost" size="sm" onClick={onRetry}>
             {t.views.actions.retry}

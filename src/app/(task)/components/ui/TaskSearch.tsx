@@ -64,6 +64,9 @@ function SearchFieldButton({
       h={8}
       px={0}
       py={0}
+      position="relative"
+      // A 44 touch area around the 32 visual (FE-532).
+      _after={{ content: '""', position: 'absolute', inset: '-6px' }}
       variant="ghost"
       color="text.muted"
       _hover={{ bg: 'bg.subtle', color: 'text.default' }}

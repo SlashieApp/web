@@ -9,6 +9,7 @@ const settled: MyTasksViewInput = {
   loading: false,
   failed: false,
   filtered: false,
+  hasWorkerProfile: false,
 }
 
 const seen = new Set<MyTasksView>()
@@ -34,8 +35,15 @@ describe('getMyTasksView', () => {
     expectView({ hasTasks: false, hasMatches: false, failed: true }, 'error')
   })
 
-  it('invites a new user to post a task or browse', () => {
+  it('invites a new customer to post a task or browse', () => {
     expectView({ hasTasks: false, hasMatches: false }, 'empty')
+  })
+
+  it('a worker with no tasks leads with Browse (FE-532)', () => {
+    expectView(
+      { hasTasks: false, hasMatches: false, hasWorkerProfile: true },
+      'emptyWorker',
+    )
   })
 
   it('offers Clear filters when the search leaves nothing', () => {

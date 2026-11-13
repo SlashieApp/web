@@ -128,7 +128,11 @@ function timeLabel(when: MyTaskWhen | null, t: Copy, locale: string): string {
 function upcomingTime(when: MyTaskWhen, t: Copy, locale: string): string {
   switch (when.day) {
     case 'overdue':
-      return t.when.overdue
+      // "Overdue, 28 Oct": the date joins Overdue in the red slot (FE-532),
+      // so it shows once and the grey line drops it.
+      return formatMessage(t.when.overdueDate, {
+        date: shortDate(when.at, locale),
+      })
     case 'flexible':
       return t.when.flexible
     case 'before':
@@ -173,11 +177,9 @@ function detailLine(row: MyTaskHubRow, t: Copy, locale: string): string {
       row.priceLabel,
     )
   }
-  // Upcoming: the time leads, above the title. An overdue row keeps when it
-  // was booked for here, under its red Overdue.
-  const booked =
-    row.when?.day === 'overdue' ? timeLabel(row.when, t, locale) : ''
-  return joined(booked, row.location, row.priceLabel)
+  // Upcoming: the time leads, above the title. Overdue shows its date in the
+  // red slot (FE-532), so the grey line is just the place and price.
+  return joined(row.location, row.priceLabel)
 }
 
 /** The task at the button's action, or the review form. */
@@ -349,7 +351,7 @@ export function MyTaskCard({ row, layout }: MyTaskCardProps) {
   // The button drops under the text when the row is too narrow for both.
   const content = (
     <HStack gap={3} rowGap={1} flexWrap="wrap">
-      <HStack gap={3} flex="1 1 12rem" minW={0}>
+      <HStack gap={3} flex="1 1 16rem" minW={0}>
         <RowThumbnail row={row} />
         <Stack gap={0} flex={1} minW={0}>
           {time ? (

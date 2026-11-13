@@ -11,6 +11,8 @@ export type MyTasksViewInput = {
   failed: boolean
   /** Search text, a category or Hosted / Quoted is set. */
   filtered: boolean
+  /** The person has a worker profile: their first job is to quote (FE-532). */
+  hasWorkerProfile: boolean
 }
 
 /** Whether there are tasks at all comes first, then what the search left. */
@@ -20,10 +22,12 @@ export function getMyTasksView({
   loading,
   failed,
   filtered,
+  hasWorkerProfile,
 }: MyTasksViewInput): MyTasksView {
   if (!hasTasks) {
     if (loading) return 'loading'
-    return failed ? 'error' : 'empty'
+    if (failed) return 'error'
+    return hasWorkerProfile ? 'emptyWorker' : 'empty'
   }
   if (hasMatches) return 'list'
   if (loading) return 'searching'
