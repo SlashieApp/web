@@ -105,7 +105,9 @@ function MainCtaControl({
 }) {
   const onReceipt = useReceiptDownload()
 
-  if (model.presentation === 'close') return <OrderCloseCard />
+  // The pin floats over the page and keeps its shadow; beside the title on
+  // desktop the control is flat, as Home's inline controls are (FE-524).
+  if (model.presentation === 'close') return <OrderCloseCard raised={fill} />
 
   if (isButtonOnlyMainCta(model) || !model.content) {
     const Icon = BUTTON_ICONS[model.action]
@@ -114,7 +116,7 @@ function MainCtaControl({
         <Button
           type="button"
           variant="primary"
-          boxShadow="e3"
+          boxShadow={fill ? 'e3' : 'none'}
           w={fill ? 'full' : undefined}
           onClick={onReopen}
         >
@@ -127,7 +129,7 @@ function MainCtaControl({
       <Button
         asChild
         variant="primary"
-        boxShadow="e3"
+        boxShadow={fill ? 'e3' : 'none'}
         w={fill ? 'full' : undefined}
       >
         <Link href={model.href ?? ''} _hover={{ textDecoration: 'none' }}>
@@ -145,6 +147,7 @@ function MainCtaControl({
       meta={model.content.meta}
       note={model.content.note}
       fullWidth={fill || model.presentation === 'quoted'}
+      raised={fill}
       action={{
         label: model.buttonLabel,
         href: model.href,

@@ -8,7 +8,7 @@ const PHOTO = `data:image/svg+xml;utf8,${encodeURIComponent(
   '<svg xmlns="http://www.w3.org/2000/svg" width="80" height="80"><rect width="80" height="80" fill="#7aa17a"/><circle cx="40" cy="32" r="14" fill="#fff"/><rect x="16" y="52" width="48" height="28" rx="14" fill="#fff"/></svg>',
 )}`
 
-/** One quote as a list row: who, when, price, message and the owner's actions. */
+/** One quote as a card (Home's look): who, when, price, message and the owner's actions. */
 const meta = {
   title: 'Task detail/Quotes/QuoteRow',
   component: QuoteRow,
@@ -21,7 +21,6 @@ const meta = {
     message: 'I can do this Saturday morning with my own tools.',
     availabilityLabel: 'Sat 14 Jun, 09:00',
     respondedLabel: 'Responded 2 hours ago',
-    withDivider: false,
   },
   decorators: [
     (Story) => (
@@ -219,9 +218,25 @@ export const AcceptLoading: Story = {
   },
 }
 
-/** In a list the rows carry a hairline under them. */
-export const WithDivider: Story = {
-  args: { withDivider: true },
+/**
+ * Drawn like Home's quote cards: white, a 1px hairline, 12px corners, the rest
+ * elevation, 12px in; the name 15px and the price 18px semibold.
+ */
+export const AsCard: Story = {
+  play: async ({ canvasElement }) => {
+    const card = canvasElement.querySelector<HTMLElement>('[data-quote-card]')
+    await expect(card).not.toBeNull()
+    const cs = getComputedStyle(card as HTMLElement)
+    await expect(cs.borderTopWidth).toBe('1px')
+    await expect(cs.borderTopLeftRadius).toBe('12px')
+    await expect(cs.paddingTop).toBe('12px')
+    await expect(cs.boxShadow).not.toBe('none')
+    const name = within(canvasElement).getByText('Jordan Lee')
+    await expect(getComputedStyle(name).fontSize).toBe('15px')
+    const price = within(canvasElement).getByText('£85')
+    await expect(getComputedStyle(price).fontSize).toBe('18px')
+    await expect(getComputedStyle(price).fontWeight).toBe('600')
+  },
 }
 
 /** Phone width: the message lines up under the name instead of the avatar gutter. */

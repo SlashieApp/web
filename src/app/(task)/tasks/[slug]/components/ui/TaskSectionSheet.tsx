@@ -10,8 +10,10 @@ import { Drawer } from '@ui'
 const TriggerButton = chakra('button')
 
 /**
- * Phones: a section card (icon, title, one-line summary) that opens its
- * content in a bottom sheet. On web the same content sits open in the rail.
+ * Phones: a hairline row (icon, title, one-line summary, chevron) that opens
+ * its content in a bottom sheet; Home's and My tasks' rows, not a card
+ * (FE-524). Put the rows in a `TaskSectionRows`, which draws the rule above
+ * the first. On web the same content sits open in the rail.
  */
 export function TaskSectionSheet({
   icon,
@@ -39,15 +41,13 @@ export function TaskSectionSheet({
         gap={3}
         w="full"
         minH="56px"
-        px={4}
+        px={0}
         py={3}
-        borderRadius="xl"
-        borderWidth="1px"
+        borderBottomWidth="1px"
         borderColor="border.default"
-        bg="bg.surface"
+        bg="transparent"
         textAlign="start"
         cursor="pointer"
-        _hover={{ bg: 'bg.subtle' }}
         _focusVisible={sdlFocusRing}
       >
         <Box
@@ -55,10 +55,7 @@ export function TaskSectionSheet({
           display="inline-flex"
           alignItems="center"
           justifyContent="center"
-          boxSize="36px"
           flexShrink={0}
-          borderRadius="lg"
-          bg="bg.subtle"
           color="text.muted"
         >
           {icon}
@@ -86,5 +83,25 @@ export function TaskSectionSheet({
         {children}
       </Drawer>
     </Box>
+  )
+}
+
+/**
+ * Phones: the group of `TaskSectionSheet` rows, with the rule above the first
+ * (each row draws the one under it). Hidden when no row renders, and from
+ * `lg`, where the rail shows the same content open.
+ */
+export function TaskSectionRows({ children }: { children: ReactNode }) {
+  return (
+    <Stack
+      data-task-section-rows=""
+      gap={0}
+      display={{ base: 'flex', lg: 'none' }}
+      borderTopWidth="1px"
+      borderColor="border.default"
+      css={{ '&:empty': { display: 'none' } }}
+    >
+      {children}
+    </Stack>
   )
 }

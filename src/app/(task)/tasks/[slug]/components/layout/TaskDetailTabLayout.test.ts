@@ -18,10 +18,10 @@ describe('TaskDetailTabLayout slots', () => {
     expect(src).not.toContain('IntersectionObserver')
     expect(src).toContain('stickyTop={`${HEADER_BAR_H}px`}')
     expect(src).toContain(
-      "stickyBg={tabs.length > 1 ? 'bg.canvas' : 'transparent'}",
+      "stickyBg={tabs.length > 1 ? 'bg.surface' : 'transparent'}",
     )
     expect(src).not.toContain('TASK_DETAIL_STICKY_SNAP_OFFSET_PX')
-    expect(src).toContain("panelBg={{ base: 'bg.canvas', lg: 'transparent' }}")
+    expect(src).toContain("panelBg={{ base: 'bg.surface', lg: 'transparent' }}")
     expect(src).toContain('MAP_FADE_BOTTOM')
     expect(src).toContain('COMPACT_TITLE_FADE_CSS')
     expect(src).toContain("width: '100vw'")

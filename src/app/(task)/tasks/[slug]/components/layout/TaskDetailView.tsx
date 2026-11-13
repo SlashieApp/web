@@ -55,7 +55,7 @@ export function TaskDetailView() {
   return (
     <StickyHeader
       overMedia
-      background="bg.canvas"
+      background="bg.surface"
       title={title}
       onBack={onBack}
       backAriaLabel={t.nav.goBackAria}
@@ -100,7 +100,7 @@ export function TaskDetailView() {
           <Box pointerEvents="auto">
             <Box
               display={{ base: 'block', lg: 'none' }}
-              bg="bg.canvas"
+              bg="bg.surface"
               h={TASK_DETAIL_PIN_CLEARANCE}
               aria-hidden
             />

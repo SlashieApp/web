@@ -18,6 +18,12 @@ export type TaskDetailSplitCtaProps = {
   action?: { label: string; href?: string; onClick?: () => void }
   /** Stretch to the container (compact pin). */
   fullWidth?: boolean
+  /**
+   * Floats over the page (the phone's pinned bar), so it keeps the overlay
+   * shadow. When false (desktop, beside the title) it is flat with a hairline,
+   * as Home's inline controls are (FE-524).
+   */
+  raised?: boolean
 }
 
 /**
@@ -36,6 +42,7 @@ export function TaskDetailSplitCta({
   note,
   action,
   fullWidth = false,
+  raised = true,
 }: TaskDetailSplitCtaProps) {
   return (
     <HStack
@@ -46,7 +53,9 @@ export function TaskDetailSplitCta({
       minW={0}
       bg="bg.surface"
       borderRadius="xl"
-      boxShadow="e3"
+      boxShadow={raised ? 'e3' : 'none'}
+      borderWidth={raised ? 0 : '1px'}
+      borderColor="border.default"
       overflow="hidden"
     >
       <Stack

@@ -6,6 +6,7 @@ import { LuBadgeCheck, LuMessageCircle } from 'react-icons/lu'
 
 import { formatMessage } from '@/i18n/loadPageI11n'
 import { useI11n } from '@/i18n/useI11n'
+import { sdlFigure } from '@/theme/styles'
 import { Avatar, Badge, Button, IconButton, Link } from '@ui'
 
 import bag from '../../i11n.json'
@@ -43,8 +44,16 @@ export type QuoteRowProps = {
   onAccept?: () => void
   acceptLoading?: boolean
   messageHref?: string
-  withDivider?: boolean
 }
+
+/** The worker's name, as Home's quote cards set it: 15/20, 500, a touch tight. */
+const QUOTE_NAME = {
+  fontSize: '15px',
+  lineHeight: '20px',
+  fontWeight: 500,
+  letterSpacing: '-0.01em',
+  color: 'text.default',
+} as const
 
 const STATUS_VARIANT = {
   accepted: 'success',
@@ -52,8 +61,10 @@ const STATUS_VARIANT = {
 } as const
 
 /**
- * One quote as a list row (FE-258): avatar, name and times on the left,
- * price on the right, the message under it, and the owner's Accept last.
+ * One quote as a card (FE-258; Home's look, FE-524): avatar, name and times on
+ * the left, price on the right, the message under it, and the owner's Accept
+ * last. The card is drawn like Home's Compare quotes demo: white, a hairline,
+ * 12px corners, the rest elevation, 12px in; the list sits in a grey panel.
  */
 export function QuoteRow({
   name,
@@ -72,7 +83,6 @@ export function QuoteRow({
   onAccept,
   acceptLoading = false,
   messageHref,
-  withDivider = true,
 }: QuoteRowProps) {
   const { quotes: q } = useI11n(bag)
   const card = q.card
@@ -97,10 +107,14 @@ export function QuoteRow({
 
   return (
     <Stack
+      data-quote-card=""
       gap={2}
-      py={4}
-      borderBottomWidth={withDivider ? '1px' : 0}
+      p={3}
+      bg="bg.surface"
+      borderWidth="1px"
       borderColor="border.default"
+      borderRadius="lg"
+      boxShadow="e1"
     >
       <HStack align="flex-start" gap={3}>
         {profileHref ? (
@@ -119,16 +133,11 @@ export function QuoteRow({
         <Stack gap={0.5} flex={1} minW={0}>
           <HStack gap={1.5} flexWrap="wrap" align="center">
             {profileHref ? (
-              <Link
-                href={profileHref}
-                fontWeight={500}
-                color="text.default"
-                truncate
-              >
+              <Link href={profileHref} {...QUOTE_NAME} truncate>
                 {name}
               </Link>
             ) : (
-              <Text fontWeight={500} color="text.default" truncate>
+              <Text {...QUOTE_NAME} truncate>
                 {name}
               </Text>
             )}
@@ -168,11 +177,10 @@ export function QuoteRow({
         {priceLabel ? (
           <Text
             flexShrink={0}
-            fontWeight={600}
-            fontSize="lg"
-            lineHeight="short"
+            fontSize="18px"
+            lineHeight="24px"
             color="text.default"
-            fontVariantNumeric="tabular-nums"
+            {...sdlFigure}
           >
             {priceLabel}
           </Text>

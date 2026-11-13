@@ -79,7 +79,18 @@ const ROW_CSS = {
  * `inPin`: in the Messages pin, whose headline already says the status, the
  * card leaves out its status line (Ryan, 2026-11-07).
  */
-export function OrderCloseCard({ inPin = false }: { inPin?: boolean }) {
+export function OrderCloseCard({
+  inPin = false,
+  raised = true,
+}: {
+  inPin?: boolean
+  /**
+   * Floats over the page (the phone's pinned bar), so it keeps the overlay
+   * shadow. When false (desktop, beside the title) it is flat with a hairline,
+   * as Home's inline controls are (FE-524).
+   */
+  raised?: boolean
+}) {
   const { orderClose, permissions, mainCta } = useTaskDetail()
   const canClose = Boolean(orderClose?.canClose && permissions.showOrderActions)
   const content = mainCta?.presentation === 'close' ? mainCta.content : null
@@ -92,7 +103,9 @@ export function OrderCloseCard({ inPin = false }: { inPin?: boolean }) {
       w="full"
       bg="bg.surface"
       borderRadius="xl"
-      boxShadow="e3"
+      boxShadow={raised ? 'e3' : 'none'}
+      borderWidth={raised ? 0 : '1px'}
+      borderColor="border.default"
       p={4}
     >
       <Box gap={3} css={ROW_CSS}>

@@ -21,7 +21,12 @@ export const TASK_DETAIL_TAB_BODY_MIN_H = {
  */
 export const TASK_TITLE_MAX_LINES = 3
 
-/** Task detail blocks: cards on desktop, flush on the page below `lg`. */
+/**
+ * Task detail blocks: panels on desktop, flush on the page below `lg`. The
+ * panels are Home's (FE-524): a hairline, 16px corners and no shadow.
+ */
 export const TASK_DETAIL_SECTION_CARD = {
   layout: 'section',
+  borderRadius: 'xl',
+  boxShadow: 'none',
 } as const

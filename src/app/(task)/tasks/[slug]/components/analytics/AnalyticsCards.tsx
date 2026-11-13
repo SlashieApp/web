@@ -127,7 +127,7 @@ export function AnalyticsCards() {
 }
 
 /**
- * Phones: an Analytics section card in Overview opens the same snapshot in a
+ * Phones: an Analytics row in Overview opens the same snapshot in a
  * bottom sheet. Old `#analytics` links open it straight away.
  */
 export function TaskAnalyticsTrigger() {

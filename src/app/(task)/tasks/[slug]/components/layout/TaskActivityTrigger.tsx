@@ -13,7 +13,7 @@ import {
 import { TaskSectionSheet } from '../ui/TaskSectionSheet'
 
 /**
- * Phones: an Activity section card in Overview (like Analytics) with the
+ * Phones: an Activity row in Overview (like Analytics) with the
  * latest line as its summary. It opens the whole log in a bottom sheet; web
  * shows the log open in the rail.
  */

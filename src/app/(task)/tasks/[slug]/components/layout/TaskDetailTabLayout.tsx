@@ -172,9 +172,9 @@ export function TaskDetailTabLayout({
         fittedBelowLg={fittedBelowLg}
         sticky
         stickyTop={`${HEADER_BAR_H}px`}
-        stickyBg={tabs.length > 1 ? 'bg.canvas' : 'transparent'}
+        stickyBg={tabs.length > 1 ? 'bg.surface' : 'transparent'}
         stickyChromeProps={{ borderTopRadius: 0 }}
-        panelBg={{ base: 'bg.canvas', lg: 'transparent' }}
+        panelBg={{ base: 'bg.surface', lg: 'transparent' }}
         fadeTabListBorder
         hideTabList={tabs.length < 2}
         w="full"

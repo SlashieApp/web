@@ -203,6 +203,17 @@ function quoteRowWorker(
 
 // ------------------------------------------------------------------ module
 
+/**
+ * The Quotes block is Home's Compare quotes panel (FE-524): grey, a hairline,
+ * 16px corners, no shadow, on a phone as well as on desktop, with a white card
+ * per quote inside it.
+ */
+const QUOTES_PANEL = {
+  framed: true,
+  bg: 'bg.canvas',
+  p: { base: 4, lg: 5 },
+} as const
+
 export type QuotesModuleProps = {
   /**
    * Accepted-worker cap. The API's current model is single-worker (a task is
@@ -285,18 +296,11 @@ export function QuotesModule({ slotsCap = 1 }: QuotesModuleProps) {
 
   const quoteRow = (quote: TaskQuote, index: number) => {
     const content = quoteRowContent(quote, q, intlLocale)
-    const withDivider = index < rows.length - 1
     if (!isOwner) {
       // Another worker's quote: the neutral label and a placeholder avatar,
       // whatever the payload holds (FE-370).
       return (
-        <QuoteRow
-          key={quote.id}
-          {...content}
-          name={fallbackWorker}
-          anonymous
-          withDivider={withDivider}
-        />
+        <QuoteRow key={quote.id} {...content} name={fallbackWorker} anonymous />
       )
     }
     const canAct =
@@ -320,7 +324,6 @@ export function QuotesModule({ slotsCap = 1 }: QuotesModuleProps) {
         onAccept={canAct ? () => requestAccept(quote.id) : undefined}
         messageHref={canAct ? taskThreadHref : undefined}
         acceptLoading={acceptingQuoteId === quote.id}
-        withDivider={withDivider}
       />
     )
   }
@@ -328,6 +331,7 @@ export function QuotesModule({ slotsCap = 1 }: QuotesModuleProps) {
   return (
     <Card
       {...TASK_DETAIL_SECTION_CARD}
+      {...QUOTES_PANEL}
       id="task-quotes"
       eyebrow={q.heading}
       headingAccessory={
@@ -372,7 +376,7 @@ export function QuotesModule({ slotsCap = 1 }: QuotesModuleProps) {
         </HStack>
       ) : null}
       {rows.length > 0 ? (
-        <Stack gap={0}>{rows.map(quoteRow)}</Stack>
+        <Stack gap={3}>{rows.map(quoteRow)}</Stack>
       ) : (
         <Text fontSize="sm" color="text.muted">
           {q.subtitles.C1}

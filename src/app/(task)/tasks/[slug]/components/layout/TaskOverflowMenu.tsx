@@ -153,6 +153,7 @@ function MenuAction({
   disabled?: boolean
 }) {
   const color = danger ? 'status.danger.fg' : undefined
+  const tone = danger ? { 'data-danger': '' } : {}
   if (href) {
     return (
       <Button
@@ -161,6 +162,7 @@ function MenuAction({
         justifyContent="flex-start"
         w="full"
         color={color}
+        {...tone}
       >
         <Link href={href} _hover={{ textDecoration: 'none' }} onClick={onClick}>
           {icon}
@@ -178,6 +180,7 @@ function MenuAction({
       loading={loading}
       disabled={disabled}
       color={color}
+      {...tone}
     >
       {icon}
       {label}
@@ -286,6 +289,18 @@ function BookingActions({
  * adds no visible space. In the desktop popover the panel's own 8 insets them,
  * so they keep their own padding.
  */
+/**
+ * One tone for every row (Home's look, FE-524): the label in ink and the icon
+ * muted, whether the row is a button or a link (a link was green); a danger
+ * row (`data-danger`) keeps its red label and icon.
+ */
+const ROW_TONE = {
+  '& > :is(button, a):not([data-danger])': {
+    color: 'text.default',
+    '& svg': { color: 'text.muted' },
+  },
+} as const
+
 const FLUSH_ROWS = {
   '& > button, & > a': {
     marginInline: '-2',
@@ -323,7 +338,7 @@ export function TaskOverflowActions({
       gap={1}
       minW={packed ? '220px' : undefined}
       w="full"
-      css={flush ? FLUSH_ROWS : undefined}
+      css={flush ? { ...ROW_TONE, ...FLUSH_ROWS } : ROW_TONE}
     >
       <BookingActions onDone={close} onOpenDialog={onOpenDialog} />
       <MenuAction
