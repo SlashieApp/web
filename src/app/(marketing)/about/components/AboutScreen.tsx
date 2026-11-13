@@ -1,5 +1,6 @@
 import {
   Box,
+  Flex,
   Grid,
   HStack,
   Heading,
@@ -10,15 +11,23 @@ import {
 } from '@chakra-ui/react'
 import type { ReactNode } from 'react'
 import type { IconType } from 'react-icons'
-import { LuGithub, LuHardHat, LuLinkedin, LuUser } from 'react-icons/lu'
+import {
+  LuGithub,
+  LuHandCoins,
+  LuHardHat,
+  LuLinkedin,
+  LuUser,
+} from 'react-icons/lu'
 
 import { SLASHIE_GITHUB_URL, SLASHIE_LINKEDIN_URL } from '@/content/social'
 import type { AppLocale } from '@/i18n/locales'
 import { withLocale } from '@/i18n/navigation'
+import { PAGE_GUTTER_X } from '@/theme/pageContainer'
 import { sdlEyebrow } from '@/theme/styles'
-import { PageContainer } from '@/ui/PageContainer'
+import { PageBleed } from '@/ui/PageContainer'
 import { Button, Link } from '@ui'
 
+import { CentredHero } from '../../components/layout/CentredHero'
 import {
   MarketingFrame,
   SECTION_PY,
@@ -26,9 +35,13 @@ import {
   SectionRule,
 } from '../../components/layout/MarketingFrame'
 import { Reveal } from '../../components/ui/landing/Reveal'
+import { QuotesSnippet } from '../../components/ui/landing/bento/BentoSnippets'
+import type { PhoneCopy } from '../../components/ui/landing/phone/phoneCopy'
 import { FinalCtaBand } from '../../components/ui/landing/sections/FinalCtaBand'
 import type messages from '../i11n.json'
 import { ABOUT_VIEWS, type AboutView } from '../views'
+import { AboutMapScene } from './ui/AboutMapScene'
+import { SendQuoteSnippet } from './ui/SendQuoteSnippet'
 
 type AboutCopy = (typeof messages)['en']
 type CtaLabels = Record<'postTask' | 'becomeWorker' | 'browseTasks', string>
@@ -37,6 +50,8 @@ type CtaLabels = Record<'postTask' | 'becomeWorker' | 'browseTasks', string>
 export const ABOUT_HEADING_IDS = {
   hero: 'about-hero-heading',
   how: 'about-how-heading',
+  customers: 'about-how-customers-heading',
+  workers: 'about-how-workers-heading',
   costs: 'about-costs-heading',
   mission: 'about-mission-heading',
   open: 'about-open-heading',
@@ -50,31 +65,6 @@ const HAIRLINE_ABOVE = {
   borderTopWidth: '1px',
   borderColor: 'border.default',
 } as const
-
-/**
- * One section of the page: a landmark named by its heading, with the frame's
- * rhythm (`SECTION_PY`) and the page column. The rules between sections are
- * the page's (`SectionRule`), not the section's.
- */
-function AboutSection({
-  headingId,
-  children,
-  ...dataAttrs
-}: {
-  headingId: string
-  children: ReactNode
-} & Record<`data-${string}`, string>) {
-  return (
-    <Box
-      as="section"
-      aria-labelledby={headingId}
-      py={SECTION_PY}
-      {...dataAttrs}
-    >
-      <PageContainer>{children}</PageContainer>
-    </Box>
-  )
-}
 
 /**
  * One step as a hairline row, the way the landing sets its steps: the number
@@ -120,10 +110,13 @@ function StepRow({ number, step }: { number: number; step: string }) {
 function StepGroup({
   icon: Icon,
   title,
+  titleId,
   steps,
 }: {
   icon: IconType
   title: string
+  /** The h3's id: it names the cell's snippet. */
+  titleId: string
   steps: readonly string[]
 }) {
   return (
@@ -138,7 +131,7 @@ function StepGroup({
         >
           <Icon size={16} />
         </Box>
-        <Heading as="h3" {...sdlEyebrow}>
+        <Heading as="h3" id={titleId} {...sdlEyebrow}>
           {title}
         </Heading>
       </HStack>
@@ -180,29 +173,171 @@ function ExternalButton({
   )
 }
 
+/** The cells' top padding under a section head: a step closer than a section's. */
+const CELL_PT_AFTER_HEAD = { base: 8, md: 10, lg: 12 } as const
+
 /**
- * /about in the marketing frame (FE-471, tone train 2): a white page, from `lg`
- * a 1px rail down each side of the page column and a full-width rule between
- * the sections, which are the same for everyone (see views/README.md): the
- * title (the h1), how it works, what it costs, why we're building it and the
- * open source note (side by side from `md`), and the closing band. The view
- * only picks the closing buttons. The page (`page.tsx`) adds the footer under
- * the frame. Server-rendered, no data.
+ * A row of cells like Home's bento (FE-554): side by side from `md`, divided
+ * by 1px `border.default` lines, stacked below it with a hairline between
+ * them. The row has no gutters; each cell brings the page's own
+ * (`data-page-cell`), so its content sits on the logo and menu lines at the
+ * row's ends. Under a section head the first cells start a step closer;
+ * otherwise each cell has the section's rhythm (`SECTION_PY`). With
+ * `subgrid`, a cell's two parts (its text, its snippet) share rows across the
+ * cells from `md`, so the snippets start on one line.
+ */
+function CellRow({
+  cells,
+  afterHead = false,
+  subgrid = false,
+  list = false,
+  tight = false,
+}: {
+  cells: readonly {
+    key: string
+    content: ReactNode
+    props?: Record<string, string>
+    as?: 'section' | 'div'
+  }[]
+  afterHead?: boolean
+  subgrid?: boolean
+  /** The row is a list (`ul`) and each cell an item. */
+  list?: boolean
+  /**
+   * Short cells (a line or two): stacked on a phone they sit 32px from the
+   * hairline between them instead of a section's 56.
+   */
+  tight?: boolean
+}) {
+  const inner = tight ? 8 : SECTION_PY.base
+  return (
+    <Grid
+      as={list ? 'ul' : 'div'}
+      m={0}
+      p={0}
+      listStyleType="none"
+      templateColumns={{
+        base: 'minmax(0, 1fr)',
+        md: `repeat(${cells.length}, minmax(0, 1fr))`,
+      }}
+      templateRows={subgrid ? { md: 'auto 1fr' } : undefined}
+    >
+      {cells.map((cell, index) => (
+        <Box
+          key={cell.key}
+          as={list ? 'li' : (cell.as ?? 'div')}
+          data-page-cell=""
+          data-about-cell=""
+          {...cell.props}
+          minW={0}
+          px={PAGE_GUTTER_X}
+          pt={
+            afterHead
+              ? {
+                  ...CELL_PT_AFTER_HEAD,
+                  base: index === 0 ? CELL_PT_AFTER_HEAD.base : inner,
+                }
+              : { ...SECTION_PY, base: index === 0 ? SECTION_PY.base : inner }
+          }
+          pb={{
+            ...SECTION_PY,
+            base: index === cells.length - 1 ? SECTION_PY.base : inner,
+          }}
+          borderColor="border.default"
+          borderTopWidth={{ base: index === 0 ? 0 : '1px', md: 0 }}
+          borderInlineStartWidth={{ base: 0, md: index === 0 ? 0 : '1px' }}
+          {...(subgrid
+            ? {
+                display: 'grid',
+                rowGap: { base: 8, md: 10 },
+                gridRow: { md: 'span 2' },
+                gridTemplateRows: { md: 'subgrid' },
+                alignContent: 'start',
+              }
+            : {})}
+        >
+          {cell.content}
+        </Box>
+      ))}
+    </Grid>
+  )
+}
+
+/** A section head over a row of cells: on the page lines, the section's rhythm above it. */
+function CellHead({ children }: { children: ReactNode }) {
+  return (
+    <Box data-page-cell="" px={PAGE_GUTTER_X} pt={SECTION_PY}>
+      {children}
+    </Box>
+  )
+}
+
+/** One cost point: a green 600 icon (a state icon, never a fill), an h3 and a muted line. */
+function CostPoint({
+  icon: Icon,
+  title,
+  body,
+}: {
+  icon: IconType
+  title: string
+  body: string
+}) {
+  return (
+    <Stack gap={3}>
+      <Box
+        as="span"
+        display="inline-flex"
+        color="accent.active"
+        aria-hidden
+        data-about-cost-icon=""
+      >
+        <Icon size={20} />
+      </Box>
+      <Stack gap={1.5}>
+        <Heading as="h3" textStyle="heading-sm">
+          {title}
+        </Heading>
+        <Text textStyle="text-sm" color="text.muted">
+          {body}
+        </Text>
+      </Stack>
+    </Stack>
+  )
+}
+
+const COST_ICONS: readonly IconType[] = [LuUser, LuHardHat, LuHandCoins]
+
+/**
+ * /about, redesigned to follow Home (FE-554). In the marketing frame (white,
+ * rails from `lg`, full-width rules between the sections), the same for
+ * everyone (see views/README.md):
  *
- * Section heads are the frame's `SectionHead`, left-aligned. They have no
- * eyebrow: it would need a string, and this page adds none. The eyebrow style
- * is on the two step groups' names instead, which are today's strings. The
- * step numbers are neutral (Geist Mono 12, `text.subtle`). The page's green is
- * the group icons and the closing band's Post a task pill.
+ * 1. Home's centred hero: the title (the one h1) and the line, then the map
+ *    scene ("a map-first marketplace for local tasks", shown).
+ * 2. How it works: the two ways in as two cells like Home's bento, each its
+ *    steps (hairline rows) over a live snippet: the customer compares quotes
+ *    (Home's snippet), the worker sends one.
+ * 3. What it costs: three cells, each an icon, a title and a line; See
+ *    pricing beside the head.
+ * 4. Why we're building it, and Built in the open: two cells.
+ * 5. Home's closing band. The view only picks its buttons.
+ *
+ * The page (`page.tsx`) adds the footer under the frame. Every string is
+ * today's About copy or Home's demo copy (`landing.phone`). The page's green
+ * fill is the closing band's Post a task; the other green is state (icons,
+ * the selected pin, the quote sent).
  */
 export function AboutScreen({
   copy,
   ctas,
+  phone,
   view,
   locale,
 }: {
   copy: AboutCopy
   ctas: CtaLabels
+  /** Home's demo copy (`landing.phone`), for the scenes. */
+  phone: PhoneCopy
   view: AboutView
   locale: AppLocale
 }) {
@@ -210,171 +345,178 @@ export function AboutScreen({
 
   return (
     <MarketingFrame bg="bg.surface">
-      <AboutSection headingId={ABOUT_HEADING_IDS.hero} data-about-hero="">
-        <Stack gap={{ base: 4, md: 5 }} align="flex-start" maxW="48rem">
-          <Heading
-            as="h1"
-            id={ABOUT_HEADING_IDS.hero}
-            textStyle={{ base: 'display-lg', md: 'display-xl' }}
-            textWrap="balance"
-          >
-            {copy.hero.heading}
-          </Heading>
-          <Text
-            textStyle="text-lg"
-            color="text.muted"
-            textWrap="balance"
-            maxW="56ch"
-          >
-            {copy.hero.body}
-          </Text>
-        </Stack>
-      </AboutSection>
+      <CentredHero
+        headingId={ABOUT_HEADING_IDS.hero}
+        heading={copy.hero.heading}
+        body={copy.hero.body}
+        data-about-hero=""
+      >
+        <AboutMapScene phone={phone} />
+      </CentredHero>
 
       <SectionRule />
-      <AboutSection headingId={ABOUT_HEADING_IDS.how} data-about-how="">
-        <Stack gap={{ base: 8, md: 12 }}>
+      <PageBleed
+        as="section"
+        aria-labelledby={ABOUT_HEADING_IDS.how}
+        data-about-how=""
+        gutters="none"
+      >
+        <CellHead>
           <Reveal>
             <SectionHead
               heading={copy.how.heading}
               headingId={ABOUT_HEADING_IDS.how}
             />
           </Reveal>
-          <Reveal delayMs={80}>
-            <Grid
-              templateColumns={{
-                base: 'minmax(0, 1fr)',
-                md: 'repeat(2, minmax(0, 1fr))',
-              }}
-              columnGap={{ md: 8, lg: 16 }}
-              rowGap={{ base: 10, md: 0 }}
-              alignItems="start"
-            >
-              <StepGroup
-                icon={LuUser}
-                title={copy.how.customers.title}
-                steps={copy.how.customers.steps}
-              />
-              <StepGroup
-                icon={LuHardHat}
-                title={copy.how.workers.title}
-                steps={copy.how.workers.steps}
-              />
-            </Grid>
-          </Reveal>
-        </Stack>
-      </AboutSection>
+        </CellHead>
+        <CellRow
+          afterHead
+          subgrid
+          cells={[
+            {
+              key: 'customers',
+              content: (
+                <>
+                  <Reveal>
+                    <StepGroup
+                      icon={LuUser}
+                      title={copy.how.customers.title}
+                      titleId={ABOUT_HEADING_IDS.customers}
+                      steps={copy.how.customers.steps}
+                    />
+                  </Reveal>
+                  <QuotesSnippet
+                    phone={phone}
+                    labelledBy={ABOUT_HEADING_IDS.customers}
+                  />
+                </>
+              ),
+            },
+            {
+              key: 'workers',
+              content: (
+                <>
+                  <Reveal delayMs={80}>
+                    <StepGroup
+                      icon={LuHardHat}
+                      title={copy.how.workers.title}
+                      titleId={ABOUT_HEADING_IDS.workers}
+                      steps={copy.how.workers.steps}
+                    />
+                  </Reveal>
+                  <SendQuoteSnippet
+                    phone={phone}
+                    labelledBy={ABOUT_HEADING_IDS.workers}
+                  />
+                </>
+              ),
+            },
+          ]}
+        />
+      </PageBleed>
 
       <SectionRule />
-      <AboutSection headingId={ABOUT_HEADING_IDS.costs} data-about-costs="">
-        <Stack gap={{ base: 8, md: 12 }}>
+      <PageBleed
+        as="section"
+        aria-labelledby={ABOUT_HEADING_IDS.costs}
+        data-about-costs=""
+        gutters="none"
+      >
+        <CellHead>
           <Reveal>
-            <SectionHead
-              heading={copy.costs.heading}
-              headingId={ABOUT_HEADING_IDS.costs}
-            />
-          </Reveal>
-          <Reveal delayMs={80}>
-            <Stack gap={{ base: 5, md: 6 }}>
-              <List.Root
-                m={0}
-                ps={0}
-                listStyle="none"
-                display="grid"
-                gridTemplateColumns={{
-                  base: 'minmax(0, 1fr)',
-                  md: 'repeat(3, minmax(0, 1fr))',
-                }}
-                columnGap={{ md: 8, lg: 12 }}
-              >
-                {copy.costs.points.map((point, index) => (
-                  <List.Item
-                    key={point.title}
-                    data-about-cost=""
-                    {...HAIRLINE_ABOVE}
-                    py={5}
-                    // One column: the last point closes the list with a hairline.
-                    borderBottomWidth={{
-                      base: index === copy.costs.points.length - 1 ? '1px' : 0,
-                      md: 0,
-                    }}
-                  >
-                    <Stack gap={1.5}>
-                      <Heading as="h3" textStyle="heading-sm">
-                        {point.title}
-                      </Heading>
-                      <Text textStyle="text-sm" color="text.muted">
-                        {point.body}
-                      </Text>
-                    </Stack>
-                  </List.Item>
-                ))}
-              </List.Root>
+            <Flex
+              direction={{ base: 'column', md: 'row' }}
+              justify="space-between"
+              align={{ base: 'flex-start', md: 'flex-end' }}
+              gap={4}
+            >
+              <SectionHead
+                heading={copy.costs.heading}
+                headingId={ABOUT_HEADING_IDS.costs}
+              />
               <Link href="/pricing" tone="emphasis" w="fit-content">
                 {copy.costs.pricingLink}
               </Link>
-            </Stack>
+            </Flex>
           </Reveal>
-        </Stack>
-      </AboutSection>
-
-      <SectionRule />
-      <Box py={SECTION_PY} data-about-story="">
-        <PageContainer>
-          <Grid
-            templateColumns={{
-              base: 'minmax(0, 1fr)',
-              md: 'repeat(2, minmax(0, 1fr))',
-            }}
-            columnGap={{ md: 8, lg: 16 }}
-            rowGap={{ base: 14, md: 0 }}
-            alignItems="start"
-          >
-            <Box
-              as="section"
-              aria-labelledby={ABOUT_HEADING_IDS.mission}
-              data-about-mission=""
-            >
-              <Reveal>
-                <SectionHead
-                  heading={copy.mission.heading}
-                  headingId={ABOUT_HEADING_IDS.mission}
-                  body={copy.mission.body}
+        </CellHead>
+        <CellRow
+          afterHead
+          list
+          tight
+          cells={copy.costs.points.map((point, index) => ({
+            key: point.title,
+            props: { 'data-about-cost': '' },
+            content: (
+              <Reveal delayMs={index * 70}>
+                <CostPoint
+                  icon={COST_ICONS[index] ?? LuUser}
+                  title={point.title}
+                  body={point.body}
                 />
               </Reveal>
-            </Box>
-            <Box
-              as="section"
-              aria-labelledby={ABOUT_HEADING_IDS.open}
-              data-about-open=""
-            >
-              <Reveal delayMs={80}>
-                <Stack gap={6}>
+            ),
+          }))}
+        />
+      </PageBleed>
+
+      <SectionRule />
+      <PageBleed data-about-story="" gutters="none">
+        <CellRow
+          cells={[
+            {
+              key: 'mission',
+              as: 'section',
+              props: {
+                'aria-labelledby': ABOUT_HEADING_IDS.mission,
+                'data-about-mission': '',
+              },
+              content: (
+                <Reveal>
                   <SectionHead
-                    heading={copy.open.heading}
-                    headingId={ABOUT_HEADING_IDS.open}
-                    body={copy.open.body}
+                    heading={copy.mission.heading}
+                    headingId={ABOUT_HEADING_IDS.mission}
+                    body={copy.mission.body}
                   />
-                  <HStack gap={3} flexWrap="wrap">
-                    <ExternalButton
-                      href={SLASHIE_GITHUB_URL}
-                      icon={<LuGithub size={16} aria-hidden />}
-                      label={copy.open.github}
-                      newTab={copy.open.newTab}
+                </Reveal>
+              ),
+            },
+            {
+              key: 'open',
+              as: 'section',
+              props: {
+                'aria-labelledby': ABOUT_HEADING_IDS.open,
+                'data-about-open': '',
+              },
+              content: (
+                <Reveal delayMs={80}>
+                  <Stack gap={6}>
+                    <SectionHead
+                      heading={copy.open.heading}
+                      headingId={ABOUT_HEADING_IDS.open}
+                      body={copy.open.body}
                     />
-                    <ExternalButton
-                      href={SLASHIE_LINKEDIN_URL}
-                      icon={<LuLinkedin size={16} aria-hidden />}
-                      label={copy.open.linkedin}
-                      newTab={copy.open.newTab}
-                    />
-                  </HStack>
-                </Stack>
-              </Reveal>
-            </Box>
-          </Grid>
-        </PageContainer>
-      </Box>
+                    <HStack gap={3} flexWrap="wrap">
+                      <ExternalButton
+                        href={SLASHIE_GITHUB_URL}
+                        icon={<LuGithub size={16} aria-hidden />}
+                        label={copy.open.github}
+                        newTab={copy.open.newTab}
+                      />
+                      <ExternalButton
+                        href={SLASHIE_LINKEDIN_URL}
+                        icon={<LuLinkedin size={16} aria-hidden />}
+                        label={copy.open.linkedin}
+                        newTab={copy.open.newTab}
+                      />
+                    </HStack>
+                  </Stack>
+                </Reveal>
+              ),
+            },
+          ]}
+        />
+      </PageBleed>
 
       <SectionRule />
       <FinalCtaBand

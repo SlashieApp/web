@@ -18,12 +18,14 @@ export async function generateMetadata() {
 export default async function AboutPage() {
   const locale = await getRequestLocale()
   const session = (await getHasAuthSession()) ? 'signedIn' : 'guest'
+  const marketing = loadPageI11n(marketingMessages, locale)
 
   return (
     <>
       <AboutScreen
         copy={loadPageI11n(messages, locale)}
-        ctas={loadPageI11n(marketingMessages, locale).common.ctas}
+        ctas={marketing.common.ctas}
+        phone={marketing.landing.phone}
         view={getAboutView({ session })}
         locale={locale}
       />

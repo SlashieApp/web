@@ -1,6 +1,6 @@
 import { Box } from '@chakra-ui/react'
 import type { Decorator, Meta, StoryObj } from '@storybook/nextjs-vite'
-import { expect, within } from 'storybook/test'
+import { expect, waitFor, within } from 'storybook/test'
 
 import marketingMessages from '@/app/(marketing)/i11n.json'
 import { viewportAt } from '@/ui/PageContainer/pageLines.testing'
@@ -47,6 +47,7 @@ const meta = {
   args: {
     copy,
     ctas: marketingMessages.en.common.ctas,
+    phone: marketingMessages.en.landing.phone,
     view: 'guest',
     locale: 'en',
   },
@@ -63,6 +64,16 @@ function closingLink(canvasElement: HTMLElement, name: string) {
   return within(canvasElement).getByRole('link', { name })
 }
 
+/**
+ * The hero rises in like Home's (a CSS animation), and the snippets play once
+ * scrolled into view: wait for what a check looks at to be shown.
+ */
+async function shown(element: HTMLElement) {
+  element.scrollIntoView({ block: 'center' })
+  await waitFor(() => expect(element).toBeVisible(), { timeout: 4000 })
+  return element
+}
+
 /** The pieces of the page the stories look at. */
 function parts(canvasElement: HTMLElement) {
   const rails = canvasElement.querySelector<HTMLElement>(
@@ -75,27 +86,22 @@ function parts(canvasElement: HTMLElement) {
   const section = (name: string) =>
     canvasElement.querySelector<HTMLElement>(`[data-about-${name}]`)
   const hero = section('hero')
+  const map = section('map')
+  const mapCard = section('map-card')
   const how = section('how')
   const costs = section('costs')
   const mission = section('mission')
   const open = section('open')
   const closing = canvasElement.querySelector<HTMLElement>('[data-final-cta]')
-  const groups = [
-    ...canvasElement.querySelectorAll<HTMLElement>('[data-about-steps]'),
-  ]
-  const steps = [
-    ...canvasElement.querySelectorAll<HTMLElement>('[data-about-step]'),
-  ]
-  const numbers = [
-    ...canvasElement.querySelectorAll<HTMLElement>('[data-about-step-number]'),
-  ]
-  const costPoints = [
-    ...canvasElement.querySelectorAll<HTMLElement>('[data-about-cost]'),
+  const all = (selector: string) => [
+    ...canvasElement.querySelectorAll<HTMLElement>(selector),
   ]
   if (
     !rails ||
     !frame ||
     !hero ||
+    !map ||
+    !mapCard ||
     !how ||
     !costs ||
     !mission ||
@@ -109,15 +115,18 @@ function parts(canvasElement: HTMLElement) {
     frame,
     rules,
     hero,
+    map,
+    mapCard,
     how,
     costs,
     mission,
     open,
     closing,
-    groups,
-    steps,
-    numbers,
-    costPoints,
+    pins: all('[data-about-pin]'),
+    groups: all('[data-about-steps]'),
+    steps: all('[data-about-step]'),
+    numbers: all('[data-about-step-number]'),
+    costPoints: all('[data-about-cost]'),
   }
 }
 
@@ -126,13 +135,18 @@ function everyNode(root: HTMLElement) {
   return [root, ...root.querySelectorAll<HTMLElement>('*')]
 }
 
+const phone = marketingMessages.en.landing.phone
+
 /**
- * Desktop (1366), signed out: the white page in the marketing frame. A rail
- * down each side of the page column and a full-width rule between the five
- * sections; the title is the one h1; the sections are landmarks named by their
- * headings, the step groups and cost points are h3s. The steps are hairline
- * rows with neutral Geist Mono numbers; the closing buttons go through sign-up
- * first. Green is the group icons and the closing Post a task pill only.
+ * Desktop (1366), signed out, redesigned to follow Home (FE-554): the white
+ * page in the marketing frame, a rail down each side of the page column and
+ * a full-width rule between the five sections. Home's centred hero (the one
+ * h1) over the map scene; how it works as two cells, each its steps over a
+ * live snippet; the costs as three cells; the mission and the open source
+ * note as two cells; Home's closing band. The sections are landmarks named by
+ * their headings, the step groups and cost points are h3s. The closing
+ * buttons go through sign-up first. The one green fill outside the map is the
+ * closing Post a task pill.
  */
 export const Guest: Story = {
   globals: { viewport: { value: 'desktop', isRotated: false } },
@@ -143,23 +157,26 @@ export const Guest: Story = {
       frame,
       rules,
       hero,
+      map,
+      mapCard,
       how,
       costs,
       mission,
       open,
       closing,
+      pins,
       groups,
       steps,
       numbers,
       costPoints,
     } = parts(canvasElement)
 
-    // One h1; each section is a landmark named by its heading; the step
-    // groups and the cost points are h3s.
+    // One h1, centred, naming the hero; each section is a landmark named by
+    // its heading; the step groups and the cost points are h3s.
     await expect(canvas.getAllByRole('heading', { level: 1 })).toHaveLength(1)
-    await expect(
-      canvas.getByRole('heading', { level: 1, name: 'About Slashie' }),
-    ).toBeVisible()
+    const h1 = canvas.getByRole('heading', { level: 1, name: 'About Slashie' })
+    await shown(h1)
+    await expect(getComputedStyle(h1).textAlign).toBe('center')
     await expect(
       canvas
         .getAllByRole('heading', { level: 2 })
@@ -171,24 +188,16 @@ export const Guest: Story = {
       copy.open.heading,
       copy.closing.heading,
     ])
-    await expect(canvas.getByRole('region', { name: copy.hero.heading })).toBe(
-      hero,
-    )
-    await expect(canvas.getByRole('region', { name: copy.how.heading })).toBe(
-      how,
-    )
-    await expect(canvas.getByRole('region', { name: copy.costs.heading })).toBe(
-      costs,
-    )
-    await expect(
-      canvas.getByRole('region', { name: copy.mission.heading }),
-    ).toBe(mission)
-    await expect(canvas.getByRole('region', { name: copy.open.heading })).toBe(
-      open,
-    )
-    await expect(
-      canvas.getByRole('region', { name: copy.closing.heading }),
-    ).toBe(closing)
+    for (const [name, element] of [
+      [copy.hero.heading, hero],
+      [copy.how.heading, how],
+      [copy.costs.heading, costs],
+      [copy.mission.heading, mission],
+      [copy.open.heading, open],
+      [copy.closing.heading, closing],
+    ] as const) {
+      await expect(canvas.getByRole('region', { name })).toBe(element)
+    }
     await expect(
       canvas
         .getAllByRole('heading', { level: 3 })
@@ -199,26 +208,41 @@ export const Guest: Story = {
       ...copy.costs.points.map((point) => point.title),
     ])
     await expect(frame.textContent).not.toContain(EM_DASH)
-
-    // White page, left-aligned heads, 500-weight headings.
     await expect(getComputedStyle(frame).backgroundColor).toBe(WHITE)
     for (const heading of canvas.getAllByRole('heading', { level: 2 })) {
       await expect(Number(getComputedStyle(heading).fontWeight)).toBe(500)
     }
-    for (const name of [copy.how.heading, copy.costs.heading]) {
-      await expect(
-        getComputedStyle(canvas.getByRole('heading', { level: 2, name }))
-          .textAlign,
-      ).toMatch(/^(start|left)$/)
-    }
-    await expect(
-      getComputedStyle(
-        canvas.getByRole('heading', { level: 1, name: 'About Slashie' }),
-      ).fontSize,
-    ).toBe('56px')
 
-    // The rails bound the page column; the rules run edge to edge between
-    // the five sections (four of them), and nowhere else.
+    // The map scene, under the copy: the landing's sketch with nearby tasks'
+    // price pins (decoration), one selected with how far it is, and its card
+    // beside it, which is what a screen reader reads.
+    await expect(box(map).top).toBeGreaterThan(box(h1).bottom)
+    await expect(pins.map((pin) => pin.dataset.aboutPin)).toEqual([
+      'move',
+      'wardrobe',
+      'paint',
+      'clean',
+      'hedge',
+    ])
+    await shown(map)
+    for (const pin of pins) {
+      await waitFor(() => expect(pin).toBeVisible(), { timeout: 4000 })
+    }
+    await expect(pins[0]?.parentElement).toHaveAttribute('aria-hidden', 'true')
+    const selected = pins[4] as HTMLElement
+    await expect(selected).toHaveTextContent(phone.tasks.hedge.distance)
+    await expect(mapCard).toHaveTextContent(phone.tasks.hedge.title)
+    await expect(mapCard).toHaveTextContent('3 quotes')
+    await expect(box(mapCard).left).toBeGreaterThan(box(selected).right)
+    for (const inner of [mapCard, ...pins]) {
+      await expect(box(inner).left).toBeGreaterThanOrEqual(box(map).left)
+      await expect(box(inner).right).toBeLessThanOrEqual(box(map).right)
+      await expect(box(inner).top).toBeGreaterThanOrEqual(box(map).top)
+      await expect(box(inner).bottom).toBeLessThanOrEqual(box(map).bottom)
+    }
+
+    // The rails bound the page column; four rules run edge to edge between
+    // the five sections, and nowhere else.
     await expect(getComputedStyle(rails).display).toBe('block')
     const column = rails.firstElementChild as HTMLElement
     const edge = getComputedStyle(column)
@@ -233,28 +257,21 @@ export const Guest: Story = {
       await expect(box(rule).height).toBe(1)
       await expect(getComputedStyle(rule).backgroundColor).toBe(BORDER_DEFAULT)
     }
-    const [r1, r2, r3, r4] = rules as [
-      HTMLElement,
-      HTMLElement,
-      HTMLElement,
-      HTMLElement,
-    ]
-    await expect(box(r1).top).toBeGreaterThanOrEqual(box(hero).bottom - 1)
-    await expect(box(r1).bottom).toBeLessThanOrEqual(box(how).top + 1)
-    await expect(box(r2).top).toBeGreaterThanOrEqual(box(how).bottom - 1)
-    await expect(box(r2).bottom).toBeLessThanOrEqual(box(costs).top + 1)
-    await expect(box(r3).top).toBeGreaterThanOrEqual(box(costs).bottom - 1)
-    await expect(box(r4).top).toBeGreaterThanOrEqual(box(open).bottom - 1)
-    await expect(box(r4).bottom).toBeLessThanOrEqual(box(closing).top + 1)
-    // The rhythm: 128px above and below each section's content.
-    for (const section of [hero, how, costs, closing]) {
-      await expect(getComputedStyle(section).paddingTop).toBe('128px')
-      await expect(getComputedStyle(section).paddingBottom).toBe('128px')
+    const order = [hero, how, costs, mission, closing]
+    for (let i = 0; i < rules.length; i += 1) {
+      const rule = rules[i] as HTMLElement
+      await expect(box(rule).top).toBeGreaterThanOrEqual(
+        box(order[i] as HTMLElement).bottom - 1,
+      )
+      await expect(box(rule).bottom).toBeLessThanOrEqual(
+        box(order[i + 1] as HTMLElement).top + 1,
+      )
     }
+    await expect(getComputedStyle(closing).paddingTop).toBe('128px')
 
-    // The two step groups sit side by side at one top, in the page column;
-    // each name is an eyebrow (12px caps, 500, +0.08em, `text.subtle`) over
-    // hairline rows; the group icons are green 600.
+    // How it works: two cells side by side, divided by a hairline; each
+    // group's name is an eyebrow (12px caps, 500, +0.08em, `text.subtle`)
+    // with a green 600 icon, over its steps; their snippets start on one line.
     await expect(groups).toHaveLength(2)
     const [customers, workers] = groups as [HTMLElement, HTMLElement]
     await expect(box(customers).top).toBe(box(workers).top)
@@ -282,6 +299,22 @@ export const Guest: Story = {
       ) as HTMLElement
       await expect(getComputedStyle(icon).color).toBe(GREEN_600)
     }
+    const howCells = [...how.querySelectorAll<HTMLElement>('[data-about-cell]')]
+    await expect(howCells).toHaveLength(2)
+    await expect(
+      getComputedStyle(howCells[1] as HTMLElement).borderLeftWidth,
+    ).toBe('1px')
+    const quotes = canvas.getByRole('figure', {
+      name: copy.how.customers.title,
+    })
+    const sendQuote = canvas.getByRole('figure', {
+      name: copy.how.workers.title,
+    })
+    await expect(box(quotes).top).toBe(box(sendQuote).top)
+    await expect(box(quotes).top).toBeGreaterThan(box(customers).bottom)
+    await shown(within(sendQuote).getByText(phone.worker.flow.sentHeadline))
+    await expect(sendQuote).toHaveTextContent(phone.tasks.wardrobe.title)
+    await expect(sendQuote).toHaveTextContent(phone.worker.flow.slot)
 
     // The steps: hairline rows, the last closing the list; the number in
     // Geist Mono 12 in `text.subtle`, neutral and never green; the step in ink.
@@ -298,8 +331,6 @@ export const Guest: Story = {
       const style = getComputedStyle(step)
       await expect(style.borderTopWidth).toBe('1px')
       await expect(style.borderTopColor).toBe(BORDER_DEFAULT)
-      await expect(style.borderTopLeftRadius).toBe('0px')
-      await expect(style.backgroundColor).not.toBe(WHITE)
     }
     for (const index of [2, 5]) {
       await expect(
@@ -310,11 +341,8 @@ export const Guest: Story = {
       const style = getComputedStyle(number)
       await expect(style.fontFamily.toLowerCase()).toContain('mono')
       await expect(style.fontSize).toBe('12px')
-      await expect(Number(style.fontWeight)).toBe(500)
       await expect(style.fontVariantNumeric).toContain('tabular-nums')
       await expect(style.color).toBe(TEXT_SUBTLE)
-      // A plain figure: no disc behind it.
-      await expect(style.backgroundColor).toBe('rgba(0, 0, 0, 0)')
       await expect(number).toHaveAttribute('aria-hidden', 'true')
     }
     for (const text of [
@@ -324,52 +352,52 @@ export const Guest: Story = {
       await expect(getComputedStyle(canvas.getByText(text)).color).toBe(INK)
     }
 
-    // The cost points: three hairline-topped columns at one top, each an h3
-    // at 18/500 over a muted line; the pricing link goes to /pricing.
+    // The costs: a list of three cells at one top, divided by hairlines,
+    // each a green 600 icon, an h3 at 18/500 and a muted 14px line. See
+    // pricing sits beside the head and goes to /pricing.
     await expect(costPoints).toHaveLength(3)
+    await expect(costPoints.every((point) => point.tagName === 'LI')).toBe(true)
     const [a, b, c] = costPoints as [HTMLElement, HTMLElement, HTMLElement]
     await expect(box(a).top).toBe(box(b).top)
     await expect(box(b).top).toBe(box(c).top)
-    await expect(box(b).left).toBeGreaterThan(box(a).right)
-    await expect(box(c).left).toBeGreaterThan(box(b).right)
+    for (const point of [b, c]) {
+      await expect(getComputedStyle(point).borderLeftWidth).toBe('1px')
+    }
     for (const [point, content] of costPoints.map(
       (node, index) => [node, copy.costs.points[index]] as const,
     )) {
-      const style = getComputedStyle(point)
-      await expect(style.borderTopWidth).toBe('1px')
-      await expect(style.borderTopColor).toBe(BORDER_DEFAULT)
-      await expect(style.borderBottomWidth).toBe('0px')
       const title = within(point).getByRole('heading', { level: 3 })
       await expect(getComputedStyle(title).fontSize).toBe('18px')
       await expect(Number(getComputedStyle(title).fontWeight)).toBe(500)
-      const body = within(point).getByText(content.body)
+      const body = within(point).getByText(content?.body ?? '')
       await expect(getComputedStyle(body).color).toBe(TEXT_MUTED)
       await expect(getComputedStyle(body).fontSize).toBe('14px')
+      const icon = point.querySelector('[data-about-cost-icon]') as HTMLElement
+      await expect(getComputedStyle(icon).color).toBe(GREEN_600)
     }
     const pricing = canvas.getByRole('link', { name: copy.costs.pricingLink })
     await expect(pricing).toHaveAttribute('href', '/pricing')
-    await expect(box(pricing).top).toBeGreaterThan(box(a).bottom)
-    // Close to the points, not a section's gap away.
-    await expect(box(pricing).top - box(a).bottom).toBeLessThan(64)
+    await expect(box(pricing).top).toBeLessThan(box(a).top)
+    await expect(costs.querySelector('[data-page-cell]')).toContainElement(
+      pricing,
+    )
+    await expect(box(pricing).right).toBeGreaterThan(box(c).left)
 
-    // The mission and the open source note sit side by side at one top, each
-    // head a left-aligned h2 at the frame's size; the two buttons are outline.
+    // The mission and the open source note: two cells at one top, divided by
+    // a hairline; the two buttons are outline and open a new tab.
     await expect(box(mission).top).toBe(box(open).top)
-    await expect(box(open).left).toBeGreaterThan(box(mission).right)
+    await expect(box(open).left).toBeGreaterThan(box(mission).right - 1)
+    await expect(getComputedStyle(open).borderLeftWidth).toBe('1px')
     const github = canvas.getByRole('link', {
       name: 'View the code on GitHub (opens in a new tab)',
     })
     const linkedin = canvas.getByRole('link', {
       name: 'Follow Slashie on LinkedIn (opens in a new tab)',
     })
-    await expect(github).toHaveAttribute('target', '_blank')
-    await expect(github).toHaveAttribute('rel', 'noopener noreferrer')
-    await expect(linkedin).toHaveAttribute('target', '_blank')
     for (const button of [github, linkedin]) {
-      const style = getComputedStyle(button)
-      await expect(style.backgroundColor).toBe(WHITE)
-      await expect(style.color).toBe(INK)
-      await expect(box(button).top).toBeGreaterThan(box(open).top)
+      await expect(button).toHaveAttribute('target', '_blank')
+      await expect(button).toHaveAttribute('rel', 'noopener noreferrer')
+      await expect(getComputedStyle(button).backgroundColor).toBe(WHITE)
     }
 
     // The closing band: Post a task, then Become a worker, through sign-up.
@@ -382,10 +410,13 @@ export const Guest: Story = {
       '/register?next=%2Fworker%2Fsetup',
     )
 
-    // Green does a job or stays out: the one green fill on the page is the
-    // closing Post a task pill; no green text; no weight above 600.
+    // Green does a job or stays out: outside the map (where the pins' dots
+    // mark places), the one green fill is the closing Post a task pill; no
+    // green text; no weight above 600.
     const fills = everyNode(frame).filter(
-      (node) => getComputedStyle(node).backgroundColor === GREEN_400,
+      (node) =>
+        getComputedStyle(node).backgroundColor === GREEN_400 &&
+        !node.closest('[data-about-map]'),
     )
     await expect(fills).toEqual([closingLink(canvasElement, 'Post a task')])
     for (const node of everyNode(frame)) {
@@ -394,7 +425,6 @@ export const Guest: Story = {
       await expect(Number(style.fontWeight)).toBeLessThanOrEqual(600)
     }
 
-    // Inside the page column: no sideways scroll.
     const root = canvasElement.ownerDocument.documentElement
     await expect(root.scrollWidth).toBeLessThanOrEqual(root.clientWidth)
   },
@@ -417,17 +447,18 @@ export const SignedIn: Story = {
 }
 
 /**
- * A tablet (834px): the rails are gone, the two step groups and the two
- * closing sections stay side by side, the cost points in three columns.
+ * A tablet (834px): the rails are gone; the map card stays beside its pin;
+ * the two how-it-works cells, the three cost cells and the two closing cells
+ * stay side by side.
  */
 export const Tablet: Story = {
   globals: { viewport: { value: 'tablet', isRotated: false } },
   play: async ({ canvasElement }) => {
-    const { rails, rules, groups, costPoints, mission, open, hero } =
+    const { rails, rules, groups, costPoints, mission, open, map, mapCard } =
       parts(canvasElement)
     await expect(getComputedStyle(rails).display).toBe('none')
     await expect(rules).toHaveLength(4)
-    await expect(getComputedStyle(hero).paddingTop).toBe('80px')
+    await expect(box(mapCard).right).toBeLessThanOrEqual(box(map).right)
     const [customers, workers] = groups as [HTMLElement, HTMLElement]
     await expect(box(customers).top).toBe(box(workers).top)
     await expect(box(workers).left).toBeGreaterThan(box(customers).right)
@@ -435,40 +466,49 @@ export const Tablet: Story = {
     await expect(box(a).top).toBe(box(b).top)
     await expect(box(b).top).toBe(box(c).top)
     await expect(box(mission).top).toBe(box(open).top)
-    await expect(box(open).left).toBeGreaterThan(box(mission).right)
+    await expect(box(open).left).toBeGreaterThan(box(mission).right - 1)
     const root = canvasElement.ownerDocument.documentElement
     await expect(root.scrollWidth).toBeLessThanOrEqual(root.clientWidth)
   },
 }
 
 /**
- * Phone width (320px, the narrowest): one column in reading order, no rails,
- * 56px sections, the title at 44px, the steps and the cost points stacked as
- * hairline rows (the last closing its list), inside the page's gutters.
+ * Phone width (320px, the narrowest): one column in reading order, no rails.
+ * The map keeps three pins and its card at its foot, inside the scene; the
+ * cells stack with a hairline between them (the cost points 32px from it,
+ * short as they are); everything inside the page's gutters.
  */
 export const Mobile: Story = {
   globals: { viewport: { value: 'mobile1', isRotated: false } },
   play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement)
     const {
       rails,
       rules,
-      hero,
+      map,
+      mapCard,
+      pins,
       how,
       groups,
-      steps,
       costPoints,
       mission,
       open,
     } = parts(canvasElement)
     await expect(getComputedStyle(rails).display).toBe('none')
     await expect(rules).toHaveLength(4)
-    for (const section of [hero, how]) {
-      await expect(getComputedStyle(section).paddingTop).toBe('56px')
+    const visible = pins.filter(
+      (pin) => getComputedStyle(pin).display !== 'none',
+    )
+    await expect(visible.map((pin) => pin.dataset.aboutPin)).toEqual([
+      'move',
+      'clean',
+      'hedge',
+    ])
+    await expect(box(mapCard).bottom).toBeLessThanOrEqual(box(map).bottom)
+    await expect(box(mapCard).left).toBeGreaterThan(box(map).left)
+    for (const pin of visible) {
+      await expect(box(pin).bottom).toBeLessThanOrEqual(box(mapCard).top)
     }
-    await expect(
-      getComputedStyle(canvas.getByRole('heading', { level: 1 })).fontSize,
-    ).toBe('44px')
+    await expect(how.querySelector('[data-page-cell]')).not.toBeNull()
     const [customers, workers] = groups as [HTMLElement, HTMLElement]
     await expect(box(workers).top).toBeGreaterThanOrEqual(box(customers).bottom)
     await expect(box(workers).left).toBe(box(customers).left)
@@ -477,20 +517,19 @@ export const Mobile: Story = {
       canvasElement.clientWidth - 16,
     )
     for (const [first, second] of [
-      [steps[0], steps[1]],
       [costPoints[0], costPoints[1]],
       [costPoints[1], costPoints[2]],
     ] as const) {
       await expect(box(second as HTMLElement).top).toBeGreaterThanOrEqual(
         box(first as HTMLElement).bottom - 1,
       )
+      await expect(getComputedStyle(second as HTMLElement).borderTopWidth).toBe(
+        '1px',
+      )
+      await expect(getComputedStyle(second as HTMLElement).paddingTop).toBe(
+        '32px',
+      )
     }
-    await expect(
-      getComputedStyle(costPoints[0] as HTMLElement).borderBottomWidth,
-    ).toBe('0px')
-    await expect(
-      getComputedStyle(costPoints[2] as HTMLElement).borderBottomWidth,
-    ).toBe('1px')
     await expect(box(open).top).toBeGreaterThanOrEqual(box(mission).bottom)
     const root = canvasElement.ownerDocument.documentElement
     await expect(root.scrollWidth).toBeLessThanOrEqual(root.clientWidth)
@@ -502,14 +541,13 @@ export const TraditionalChinese: Story = {
   args: {
     copy: messages.zh_hk,
     ctas: marketingMessages.zh_hk.common.ctas,
+    phone: marketingMessages.zh_hk.landing.phone,
     locale: 'zh-hk',
   },
   globals: { viewport: { value: 'desktop', isRotated: false } },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
-    await expect(
-      canvas.getByRole('heading', { level: 1, name: '關於 Slashie' }),
-    ).toBeVisible()
+    await shown(canvas.getByRole('heading', { level: 1, name: '關於 Slashie' }))
     await expect(
       canvas.getByRole('heading', {
         level: 3,
@@ -519,49 +557,51 @@ export const TraditionalChinese: Story = {
     await expect(
       closingLink(canvasElement, marketingMessages.zh_hk.common.ctas.postTask),
     ).toHaveAttribute('href', '/zh-hk/register?next=%2Ftasks%2Fcreate')
+    await expect(canvasElement.textContent).not.toContain('師傅')
+    await expect(canvasElement.textContent).not.toContain(EM_DASH)
   },
 }
 
-/** R1, R2, R5 (FE-493): the title and the sections on the logo and menu lines, the rails on the container edge from lg (32px outside the lines), the rules edge to edge at 390 (phone). */
+/** R1, R2, R5 (FE-493): the sections and the cells on the logo and menu lines (the h1 is centred, FE-554), the rails on the container edge from lg (32px outside the lines), the rules edge to edge at 390 (phone). */
 export const PageLines390: Story = {
   ...viewportAt(390),
   play: async ({ canvasElement }) => {
     expectMarketingPage(canvasElement, 390, {
       header: false,
-      pageHeader: false,
+      centredTitle: true,
     })
   },
 }
 
-/** R1, R2, R5 (FE-493): the title and the sections on the logo and menu lines, the rails on the container edge from lg (32px outside the lines), the rules edge to edge at 1024 (tablet). */
+/** R1, R2, R5 (FE-493): the sections and the cells on the logo and menu lines (the h1 is centred, FE-554), the rails on the container edge from lg (32px outside the lines), the rules edge to edge at 1024 (tablet). */
 export const PageLines1024: Story = {
   ...viewportAt(1024),
   play: async ({ canvasElement }) => {
     expectMarketingPage(canvasElement, 1024, {
       header: false,
-      pageHeader: false,
+      centredTitle: true,
     })
   },
 }
 
-/** R1, R2, R5 (FE-493): the title and the sections on the logo and menu lines, the rails on the container edge from lg (32px outside the lines), the rules edge to edge at 1366 (laptop). */
+/** R1, R2, R5 (FE-493): the sections and the cells on the logo and menu lines (the h1 is centred, FE-554), the rails on the container edge from lg (32px outside the lines), the rules edge to edge at 1366 (laptop). */
 export const PageLines1366: Story = {
   ...viewportAt(1366),
   play: async ({ canvasElement }) => {
     expectMarketingPage(canvasElement, 1366, {
       header: false,
-      pageHeader: false,
+      centredTitle: true,
     })
   },
 }
 
-/** R1, R2, R5 (FE-493): the title and the sections on the logo and menu lines, the rails on the container edge from lg (32px outside the lines), the rules edge to edge at 1920 (wide desktop). */
+/** R1, R2, R5 (FE-493): the sections and the cells on the logo and menu lines (the h1 is centred, FE-554), the rails on the container edge from lg (32px outside the lines), the rules edge to edge at 1920 (wide desktop). */
 export const PageLines1920: Story = {
   ...viewportAt(1920),
   play: async ({ canvasElement }) => {
     expectMarketingPage(canvasElement, 1920, {
       header: false,
-      pageHeader: false,
+      centredTitle: true,
     })
   },
 }
