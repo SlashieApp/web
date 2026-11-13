@@ -64,7 +64,7 @@ const EMPTY_HEADING_CELL = (
  * ink intro), far under the 3:1 that would let colour alone mark it
  * (WCAG 1.4.1), so the underline is what tells the link from the text.
  */
-function linkifyEmails(paragraph: string): ReactNode[] {
+export function linkifyEmails(paragraph: string): ReactNode[] {
   let offset = 0
   return paragraph.split(EMAIL_PATTERN).map((part, index) => {
     // Key by character offset: unique and stable for static copy.
