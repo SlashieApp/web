@@ -648,6 +648,8 @@ and the view's analytics. The views (who sees which button) are unchanged:
   (so the rules can run edge to edge) and says its colour: `MarketingPageHeader`
   takes `background`, and brings the container's measure and gutters itself
   (FE-493: Back and the title start on the logo line and span the container, R2).
+  Later replaced by the centred hero (FE-552); `MarketingPageHeader` was
+  removed on 13 Nov (FE-562).
 - **Sections** are `PricingSection`: a landmark named by its h2 (`aria-labelledby`),
   `SECTION_PY`, the page column. Below `xl` the head sits over the content; from
   `xl` the head is the left column (4fr) and the content the right one (8fr),
@@ -761,8 +763,8 @@ each `page.tsx` only loads the copy and adds the footer under the frame.
   icon: "Legal" (法律) on `/terms`, `/privacy` and `/cookies`, "Support" (支援) on
   `/help/safety`, which sits under Support in the footer (`LegalEyebrow`, a client
   component reading the footer's own bag, so no string is added; the page passes
-  `column="support"`). `StickyHeader` takes an optional `eyebrow` for it (`MarketingPageHeader`
-  passes it on): the eyebrow is part of the page, so it scrolls away, and the title
+  `column="support"`). `StickyHeader` takes an optional `eyebrow` for it (`MarketingPageHeader`,
+  removed in FE-562, passed it on): the eyebrow is part of the page, so it scrolls away, and the title
   collapses into the bar once it has reached it (the collapse reads where the title rests,
   so a title under an eyebrow starts later, as one under a map does). The eyebrow is the
   shared `Eyebrow` of `MarketingFrame`, which `SectionHead` uses too.
