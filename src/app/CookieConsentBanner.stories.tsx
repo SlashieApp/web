@@ -98,6 +98,8 @@ export const Default: Story = {
       expect(publishedHeight(canvasElement)).toBe(`${banner.offsetHeight}px`),
     )
     await expect(markedOpen(canvasElement)).toBe(true)
+    // First visit: nothing stored, so no current-choice line (FE-565).
+    await expect(banner.querySelector('[data-current-choice]')).toBeNull()
   },
 }
 
@@ -195,5 +197,49 @@ export const ReopenedFromFooter: Story = {
     await waitFor(() =>
       expect(publishedHeight(canvasElement)).toBe(`${banner.offsetHeight}px`),
     )
+    // FE-565: the stored choice, as one line; the buttons stay identical.
+    await expect(
+      within(banner).getByText('Current choice: Essential only'),
+    ).toBeVisible()
+    const [essential, accept] = within(banner).getAllByRole('button')
+    await expect(essential?.className).toBe(accept?.className)
+  },
+}
+
+/** Reopened after "Accept all" (FE-565): the line names that choice. */
+export const ReopenedAfterAcceptAll: Story = {
+  parameters: { storedConsent: 'accepted' },
+  play: async ({ canvasElement }) => {
+    openCookieSettings()
+    const banner = await within(canvasElement).findByRole('region', {
+      name: 'Cookie consent',
+    })
+    await expect(
+      within(banner).getByText('Current choice: Accept all'),
+    ).toBeVisible()
+  },
+}
+
+/** Reopened in Chinese (FE-565): 目前選擇 with the banner's own button word. */
+export const ReopenedTraditionalChinese: Story = {
+  parameters: {
+    storedConsent: 'rejected',
+    nextjs: { navigation: { pathname: '/zh-hk' } },
+  },
+  decorators: [
+    (Story) => (
+      <LocaleProvider>
+        <Story />
+      </LocaleProvider>
+    ),
+  ],
+  play: async ({ canvasElement }) => {
+    openCookieSettings()
+    const banner = await within(canvasElement).findByRole('region', {
+      name: 'Cookie 同意',
+    })
+    await expect(
+      within(banner).getByText('目前選擇：只使用必要 Cookie'),
+    ).toBeVisible()
   },
 }

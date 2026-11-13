@@ -13,7 +13,8 @@
       "body": "Essential cookies keep you signed in. Analytics is optional. We do not record your screen. {link}.",
       "policy": "Cookie Policy",
       "essentialOnly": "Essential only",
-      "acceptAll": "Accept all"
+      "acceptAll": "Accept all",
+      "currentChoice": "Current choice: {choice}"
     }
   },
   "zh_hk": {
@@ -30,7 +31,8 @@
       "body": "必要的 Cookie 讓你保持登入。分析功能可自行選擇。我們不會錄製你的畫面。{link}。",
       "policy": "Cookie 政策",
       "essentialOnly": "只使用必要 Cookie",
-      "acceptAll": "全部接受"
+      "acceptAll": "全部接受",
+      "currentChoice": "目前選擇：{choice}"
     }
   }
 }

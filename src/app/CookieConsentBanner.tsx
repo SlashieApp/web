@@ -3,6 +3,7 @@
 import { Box, HStack, Stack, Text } from '@chakra-ui/react'
 import { useCallback, useEffect, useState } from 'react'
 
+import { formatMessage } from '@/i18n/loadPageI11n'
 import { useI11n } from '@/i18n/useI11n'
 import {
   type CookieConsentValue,
@@ -38,6 +39,9 @@ import bag from './i11n.json'
 export function CookieConsentBanner() {
   const t = useI11n(bag).cookieBanner
   const [visible, setVisible] = useState(false)
+  // Reopened from Cookie settings: the choice stored now, shown as one line
+  // (FE-565). Null on the first visit, when nothing is stored yet.
+  const [current, setCurrent] = useState<CookieConsentValue | null>(null)
 
   // The banner mounts only while it is open, so the ref callback's setup is
   // "open" and its cleanup is "closed".
@@ -59,8 +63,13 @@ export function CookieConsentBanner() {
 
   useEffect(() => {
     setVisible(getCookieConsent() === 'unset')
-    // Footer "Cookie settings" reopens the banner to change the choice.
-    return onCookieSettingsOpen(() => setVisible(true))
+    // "Cookie settings" (footer, account menu, auth pages) reopens the banner
+    // to change the choice, and says which choice is stored now.
+    return onCookieSettingsOpen(() => {
+      const stored = getCookieConsent()
+      setCurrent(stored === 'unset' ? null : stored)
+      setVisible(true)
+    })
   }, [])
 
   if (!visible) return null
@@ -97,6 +106,19 @@ export function CookieConsentBanner() {
             {t.policy}
           </Link>
           {policyAfter}
+          {current ? (
+            <Text
+              as="span"
+              display="block"
+              mt={1}
+              color="text.muted"
+              data-current-choice=""
+            >
+              {formatMessage(t.currentChoice, {
+                choice: current === 'accepted' ? t.acceptAll : t.essentialOnly,
+              })}
+            </Text>
+          ) : null}
         </Text>
         {/* One row of equal halves on a phone (FE-541), the same style:
             rejecting is as easy as accepting. */}

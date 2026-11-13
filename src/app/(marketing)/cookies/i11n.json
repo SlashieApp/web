@@ -2,7 +2,7 @@
   "en": {
     "title": "Cookie Policy",
     "description": "The cookies and similar storage Slashie uses, and how to control them.",
-    "lastUpdated": "20 October 2026",
+    "lastUpdated": "13 November 2026",
     "intro": [
       "Cookies are small pieces of data stored in your browser. Slashie also uses similar browser storage (localStorage). This page lists what we set and why, and how you can control it."
     ],
@@ -12,7 +12,8 @@
         "body": [
           "These are required for the site to work and do not need consent. They are always on.",
           "auth (cookie): keeps you signed in after you log in or register. Lasts up to 7 days.",
-          "slashie.cookie-consent (localStorage): remembers whether you accepted or declined analytics cookies, so we do not ask you on every visit."
+          "slashie.cookie-consent (localStorage): remembers whether you accepted or declined analytics cookies, so we do not ask you on every visit.",
+          "slashie.last-sign-in (localStorage): remembers whether you last signed in with email, so the email form opens straight away. It never holds your email address."
         ]
       },
       {
@@ -26,7 +27,7 @@
         "heading": "3. Your choices",
         "body": [
           "On your first visit we ask whether to allow analytics cookies. You can accept all or keep essential only, and we remember your choice in your browser.",
-          "To change your mind, clear the stored data for slashie.app in your browser settings (the banner will ask again on your next visit). Your browser also lets you block or delete cookies entirely, though blocking essential cookies will stop sign-in from working."
+          "To change your mind, choose Cookie settings: in the footer, in your account menu, or under Log in and Sign up. The banner opens again and shows your current choice. Your browser also lets you block or delete cookies entirely, though blocking essential cookies will stop sign-in from working."
         ]
       },
       {
@@ -45,7 +46,7 @@
   "zh_hk": {
     "title": "Cookie 政策",
     "description": "Slashie 使用的 cookie 和類似儲存方式，以及你如何控制它們。",
-    "lastUpdated": "2026 年 10 月 20 日",
+    "lastUpdated": "2026 年 11 月 13 日",
     "lastUpdatedLabel": "最後更新",
     "intro": [
       "Cookie 是儲存在瀏覽器中的小型資料。Slashie 也使用類似的瀏覽器儲存方式（localStorage）。本頁列出我們設定的內容、原因，以及你可以如何控制。"
@@ -56,21 +57,22 @@
         "body": [
           "這些項目是網站運作所必需，不需要同意，並會一直啟用。",
           "auth（cookie）：在你登入或註冊後保持登入狀態，最長保留 7 天。",
-          "slashie.cookie-consent（localStorage）：記住你接受或拒絕分析 cookie 的選擇，避免每次造訪都重新詢問。"
+          "slashie.cookie-consent（localStorage）：記住你接受或拒絕分析 cookie 的選擇，避免每次造訪都重新詢問。",
+          "slashie.last-sign-in（localStorage）：記住你上次是否以電郵登入，讓電郵表格直接打開。它不會儲存你的電郵地址。"
         ]
       },
       {
         "heading": "2. 分析 cookie（可選）",
         "body": [
           "如果你在 cookie 橫幅選擇「全部接受」，我們會載入 PostHog（我們的產品分析工具）來衡量產品使用情況，例如瀏覽頁面、裝置和瀏覽器類型，以及發佈任務或發送報價等操作。Slashie 不會錄製你的畫面、點擊或輸入內容。",
-          "我們使用這些資料改善 Slashie。PostHog 資料託管在歐盟，我們不會向它傳送你的電郵地址。如選擇「只限必要」，PostHog 不會載入。"
+          "我們使用這些資料改善 Slashie。PostHog 資料託管在歐盟，我們不會向它傳送你的電郵地址。如選擇「只使用必要 Cookie」，PostHog 不會載入。"
         ]
       },
       {
         "heading": "3. 你的選擇",
         "body": [
           "首次造訪時，我們會詢問是否允許分析 cookie。你可以全部接受或只保留必要項目。",
-          "如要更改選擇，請在瀏覽器設定中清除 slashie.app 的已儲存資料。"
+          "如要更改選擇，請按「Cookie 設定」：位於頁尾、帳戶選單，或登入及註冊頁下方。橫幅會再次打開，並顯示你目前的選擇。你亦可在瀏覽器中封鎖或刪除所有 cookie，但封鎖必要 cookie 會令你無法登入。"
         ]
       },
       {
