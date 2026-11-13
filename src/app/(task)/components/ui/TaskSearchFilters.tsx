@@ -98,7 +98,19 @@ export function FilterChip({
   )
 }
 
-/** One choice in a filter chip's panel. Shared with My Tasks. */
+/**
+ * The chosen choice's colours: Home's selected chip (the post snippet's "This
+ * weekend"), a soft mint with a green hairline and green 800 text, not a green
+ * fill. A fill would compete with the screen's one green action (FE-560).
+ */
+const CHOSEN_OPTION = {
+  bg: 'status.success.soft',
+  borderColor: 'status.success.border',
+  color: 'status.success.fg',
+  _hover: { bg: 'status.success.soft', borderColor: 'status.success.fg' },
+} as const
+
+/** One choice in a filter chip's panel. Shared with My Tasks and Search. */
 export function OptionButton({
   pressed,
   onPress,
@@ -112,9 +124,10 @@ export function OptionButton({
     <Button
       type="button"
       size="sm"
-      variant={pressed ? 'primary' : 'secondary'}
+      variant="secondary"
       aria-pressed={pressed}
       onClick={onPress}
+      {...(pressed ? CHOSEN_OPTION : {})}
     >
       {children}
     </Button>

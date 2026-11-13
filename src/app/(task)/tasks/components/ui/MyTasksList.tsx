@@ -71,9 +71,12 @@ function ActionButton({
 function Section({
   section,
   filtered,
+  first,
 }: {
   section: MyTaskHubSection
   filtered: boolean
+  /** The first section shown takes no rule above it. */
+  first: boolean
 }) {
   const t = useI11n(bag)
   const [showAll, setShowAll] = useState(false)
@@ -84,7 +87,16 @@ function Section({
     collapsible && !showAll ? section.rows.slice(0, PAST_PREVIEW) : section.rows
 
   return (
-    <Stack as="section" gap={3} aria-label={label}>
+    <Stack
+      as="section"
+      gap={3}
+      aria-label={label}
+      data-my-tasks-section={section.id}
+      // Home's full-width hairline between the sections (FE-560).
+      pt={first ? 0 : 8}
+      borderTopWidth={first ? 0 : '1px'}
+      borderColor="border.default"
+    >
       <Heading
         as="h2"
         fontSize="lg"
@@ -99,7 +111,7 @@ function Section({
           {t.sectionEmpty[section.id]}
         </Text>
       ) : (
-        <Stack as="ul" gap={2} listStyleType="none" m={0} p={0}>
+        <Stack as="ul" gap={3} listStyleType="none" m={0} p={0}>
           {rows.map((row) => (
             <li key={row.id}>
               <MyTaskCard
@@ -214,8 +226,13 @@ export function MyTasksList({
           </Button>
         </HStack>
       ) : null}
-      {shown.map((section) => (
-        <Section key={section.id} section={section} filtered={filtered} />
+      {shown.map((section, index) => (
+        <Section
+          key={section.id}
+          section={section}
+          filtered={filtered}
+          first={index === 0}
+        />
       ))}
       <Box aria-hidden h={1} />
     </Stack>

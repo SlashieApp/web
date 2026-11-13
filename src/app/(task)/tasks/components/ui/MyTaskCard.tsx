@@ -382,23 +382,16 @@ export function MyTaskCard({ row, layout }: MyTaskCardProps) {
     </HStack>
   )
 
-  if (layout === 'row') {
-    return (
-      <Box
-        position="relative"
-        px={2}
-        py={2}
-        mx={-2}
-        borderRadius="lg"
-        _hover={{ bg: 'bg.subtle' }}
-      >
-        {content}
-      </Box>
-    )
-  }
-
+  // Every section's rows are Home's card (white, a hairline, e1, 12px
+  // corners), FE-560; `layout` still names the section's kind of row.
   return (
-    <Card position="relative" maxW="full" p={4} _hover={{ bg: 'bg.subtle' }}>
+    <Card
+      position="relative"
+      maxW="full"
+      p={4}
+      data-my-task-layout={layout}
+      _hover={{ bg: 'bg.subtle' }}
+    >
       {content}
     </Card>
   )
@@ -415,28 +408,35 @@ export function MyTasksListSkeleton() {
       <Box h="30px" display="flex" alignItems="center">
         <Skeleton h="18px" w="96px" borderRadius="md" />
       </Box>
-      <Stack gap={2} as="ul" listStyleType="none" m={0} p={0}>
+      <Stack gap={3} as="ul" listStyleType="none" m={0} p={0}>
         {[0, 1, 2].map((key) => (
-          <HStack as="li" key={key} gap={3} px={2} py={2} mx={-2}>
-            <Skeleton boxSize="56px" flexShrink={0} borderRadius="md" />
-            <Stack gap={0} flex={1} minW={0}>
-              <Box h="1.3em" fontSize="md" display="flex" alignItems="center">
-                <Skeleton h="1em" w="70%" borderRadius="md" />
-              </Box>
-              <Box mt={1} h="26px" display="flex" alignItems="center">
-                <Skeleton h="full" w="40%" borderRadius="full" />
-              </Box>
-              <Box
-                mt={1}
-                h="1.5em"
-                fontSize="sm"
-                display="flex"
-                alignItems="center"
-              >
-                <Skeleton h="1em" w="55%" borderRadius="md" />
-              </Box>
-            </Stack>
-          </HStack>
+          <Card as="li" key={key} p={4} w="full" maxW="full">
+            <HStack gap={3}>
+              <Skeleton
+                data-testid="my-tasks-skeleton-thumb"
+                boxSize="56px"
+                flexShrink={0}
+                borderRadius="md"
+              />
+              <Stack gap={0} flex={1} minW={0}>
+                <Box h="1.3em" fontSize="md" display="flex" alignItems="center">
+                  <Skeleton h="1em" w="70%" borderRadius="md" />
+                </Box>
+                <Box mt={1} h="26px" display="flex" alignItems="center">
+                  <Skeleton h="full" w="40%" borderRadius="full" />
+                </Box>
+                <Box
+                  mt={1}
+                  h="1.5em"
+                  fontSize="sm"
+                  display="flex"
+                  alignItems="center"
+                >
+                  <Skeleton h="1em" w="55%" borderRadius="md" />
+                </Box>
+              </Stack>
+            </HStack>
+          </Card>
         ))}
       </Stack>
     </Stack>

@@ -186,7 +186,8 @@ export function MyTasksScreen() {
     <AccountAuthGate insideShell>
       <PageBleed
         ref={onMountRef}
-        bg="bg.canvas"
+        // White, as Home's sections are (FE-560).
+        bg="bg.surface"
         minH="100%"
         contentProps={{
           display: 'flex',
@@ -197,7 +198,13 @@ export function MyTasksScreen() {
       >
         <Stack gap={1}>
           <HStack justify="space-between" align="center" gap={3}>
-            <Heading as="h1" size="lg" color="text.default" minW={0}>
+            <Heading
+              as="h1"
+              // One step above the section names (FE-532 item 8): 24 on 30.
+              textStyle="heading-lg"
+              color="text.default"
+              minW={0}
+            >
               {t.title}
             </Heading>
             {config.search ? (

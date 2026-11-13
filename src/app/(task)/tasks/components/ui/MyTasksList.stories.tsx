@@ -180,7 +180,9 @@ export const SkeletonMatchesRows: Story = {
       b.top - heading.getBoundingClientRect().bottom,
     )
     // The square sits where the photo does, 56 by 56.
-    const square = skeletonRow.firstElementChild as HTMLElement
+    const square = skeletonRow.querySelector(
+      '[data-testid="my-tasks-skeleton-thumb"]',
+    ) as HTMLElement
     const photo = realRow.querySelector('[aria-hidden]') as HTMLElement
     near(
       'square left',
@@ -198,8 +200,8 @@ export const SkeletonMatchesRows: Story = {
     const rows = [...skeleton.querySelectorAll('li')].map((row) =>
       row.getBoundingClientRect(),
     )
-    near('gap 1', rows[1].top - rows[0].bottom, 8)
-    near('gap 2', rows[2].top - rows[1].bottom, 8)
+    near('gap 1', rows[1].top - rows[0].bottom, 12)
+    near('gap 2', rows[2].top - rows[1].bottom, 12)
   },
 }
 
