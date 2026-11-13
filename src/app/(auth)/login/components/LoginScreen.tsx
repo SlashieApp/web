@@ -17,6 +17,7 @@ import {
   authSwitchHref,
   getSafeNextPath,
 } from '@/app/(auth)/helpers/authRedirect'
+import { rememberSignIn } from '@/app/(auth)/helpers/lastSignIn'
 import { useCooldownSeconds } from '@/app/(auth)/helpers/useCooldownSeconds'
 import { useProgressiveCaptcha } from '@/app/(auth)/helpers/useProgressiveCaptcha'
 import { useUserStore } from '@/app/(auth)/store/user'
@@ -85,6 +86,7 @@ export function LoginScreen({ hasSession }: { hasSession: boolean }) {
       })
       clearLoginFailCount()
       captcha.setFailCount(0)
+      rememberSignIn('email')
       // Keep the button busy until the next page takes over.
       setLeaving(true)
       router.push(next ?? APP_HOME)

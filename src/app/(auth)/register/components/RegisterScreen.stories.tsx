@@ -8,6 +8,7 @@ import {
   withAuthWidgets,
   withSession,
 } from '@/app/(auth)/helpers/authStoryDecorator'
+import { withLastSignIn } from '@/app/(auth)/helpers/lastSignIn.testing'
 import { LocaleProvider } from '@/i18n/LocaleProvider'
 import { formSpace, minHitArea } from '@/theme/styles'
 import { gapBelow, heightOf } from '@/ui/FormField/formGap.testing'
@@ -15,10 +16,10 @@ import { gapBelow, heightOf } from '@/ui/FormField/formGap.testing'
 import { RegisterScreen } from './RegisterScreen'
 
 /**
- * /register in the form spacing order (FE-481): the fields, then the 18+,
- * Terms and marketing boxes as the last field group above the main button, the
- * "Or continue with" divider, then Google and Apple. The boxes still gate
- * Google and Apple.
+ * /register (FE-563, Ryan 13 Nov): one consent line (18 or over, Terms and
+ * Privacy) and the unticked marketing box above every way in, then Google,
+ * Apple and Continue with email, which opens into the "Or with email" divider
+ * and the form. No consent boxes: Google and Apple work in one tap.
  */
 const meta = {
   title: 'Auth/Register/RegisterScreen',
@@ -49,17 +50,28 @@ const freshFailCount: Decorator = (Story) => (
   </StorySeed>
 )
 
+/** Most stories are about the form: open it, as for a returning email user. */
 const decorate = (session: StorySessionOptions = {}) => [
   freshFailCount,
   withAuthWidgets(),
   withSession(session),
+  withLastSignIn('email'),
+]
+
+/** A first visit: the three ways in, closed. */
+const decorateFirstVisit = () => [
+  freshFailCount,
+  withAuthWidgets(),
+  withSession(),
+  withLastSignIn(null),
 ]
 
 type Canvas = ReturnType<typeof within>
 
+const CONSENT =
+  "By continuing, you confirm you're 18 or over and agree to the Terms of Service and Privacy Policy."
+
 async function fillForm(canvas: Canvas) {
-  await userEvent.click(canvas.getByText('I confirm I am 18 or over.'))
-  await userEvent.click(canvas.getByText(/I agree to the/))
   await userEvent.type(canvas.getByLabelText('Full name'), 'Alex Chen')
   await userEvent.type(canvas.getByLabelText('Email'), 'alex@example.com')
   await userEvent.type(canvas.getByLabelText('Password'), 'password1')
@@ -67,32 +79,50 @@ async function fillForm(canvas: Canvas) {
   await userEvent.click(canvas.getByRole('button', { name: 'Create account' }))
 }
 
-const HINT =
-  'Confirm you are 18 or over and agree to the Terms before continuing with Google or Apple.'
-
-/** One consent row: the box, its label's lines, its tap target and its error. */
-function consentRow(canvas: Canvas, name: string | RegExp) {
+/** The marketing row: its box, its label's lines and its tap target. */
+function marketingRow(canvas: Canvas) {
   const root = canvas
-    .getByRole('checkbox', { name })
+    .getByRole('checkbox', { name: /Send me Slashie news and tips/ })
     .closest('label') as HTMLElement
-  const control = root.querySelector('[data-part="control"]') as HTMLElement
   const label = root.querySelector('[data-part="label"]') as HTMLElement
   return {
     root,
-    control,
-    /** The label's lines: the visible row, 20 tall per line. */
+    control: root.querySelector('[data-part="control"]') as HTMLElement,
     label,
-    /** The tap target: the label's row grown to 44 or more. */
     hit: label.parentElement as HTMLElement,
-    /** Where the row's error goes, 4 under it. */
-    errorOf: (text: string) => canvas.getByText(text),
   }
 }
 
-/** The pieces of the sign-up card the spacing checks measure. */
-async function registerParts(canvas: Canvas) {
+/** The consent block and the ways in, open or closed. */
+async function topParts(canvas: Canvas) {
   const title = await canvas.findByRole('heading', { level: 1 })
   const subtitle = title.nextElementSibling as HTMLElement
+  const consent = canvasConsent(canvas)
+  const apple = await canvas.findByRole('button', {
+    name: 'Continue with Apple',
+  })
+  return {
+    title,
+    subtitle,
+    consent,
+    marketing: marketingRow(canvas),
+    // Google's widget sits in its own container, above Apple's button.
+    google: apple.previousElementSibling as HTMLElement,
+    apple,
+  }
+}
+
+function canvasConsent(canvas: Canvas) {
+  return canvas.getByText(
+    (_: string, node: Element | null) => node?.textContent === CONSENT,
+    {
+      selector: 'p',
+    },
+  )
+}
+
+/** The open email section's pieces. */
+async function formParts(canvas: Canvas) {
   const field = (name: string) =>
     canvas.getByText(name, { selector: 'label' }).parentElement as HTMLElement
   const shellOf = (root: HTMLElement) =>
@@ -101,121 +131,85 @@ async function registerParts(canvas: Canvas) {
   const email = field('Email')
   const password = field('Password')
   const confirm = field('Confirm password')
-  const apple = await canvas.findByRole('button', {
-    name: 'Continue with Apple',
-  })
   return {
-    title,
-    subtitle,
+    divider: (await canvas.findByText('Or with email'))
+      .parentElement as HTMLElement,
     fullName,
     email,
     password,
     confirm,
     fields: [fullName, email, password, confirm],
     shellOf,
-    over18: consentRow(canvas, 'I confirm I am 18 or over.'),
-    terms: consentRow(canvas, /I agree to the/),
-    marketing: consentRow(canvas, /Send me Slashie news and tips/),
     main: canvas.getByRole('button', { name: 'Create account' }),
-    divider: (await canvas.findByText('Or continue with'))
-      .parentElement as HTMLElement,
-    // Google's widget sits in its own container, above Apple's button.
-    google: apple.previousElementSibling as HTMLElement,
-    apple,
   }
 }
 
 /**
  * The spec's gaps (wiki: Foundations-Form-Spacing), measured between visible
- * edges: header 8 and 24, label 8, fields 20, the password helper 4, the three
- * consent rows 20 apart as one last field group, 20 to the main button, the
- * divider 24 either side, Google and Apple 8 apart, the hint 8 under Apple;
- * 48 tall. Labels may wrap on a phone, so each row is measured from its
- * label's lines, not from a fixed height.
+ * edges: header 8 and 24, the consent line 20 above the marketing row and the
+ * row 20 above Google, Google and Apple 8 apart, the "Or with email" divider
+ * 24 either side, label 8, fields 20, the password helper 4, 20 to the main
+ * button; 48 tall; the marketing row 44 to tap.
  */
 async function expectRegisterSpacing(canvas: Canvas) {
-  const p = await registerParts(canvas)
+  const t = await topParts(canvas)
+  const f = await formParts(canvas)
 
-  await expect(gapBelow(p.title, p.subtitle)).toBe(formSpace.titleToSubtitle)
-  await expect(gapBelow(p.subtitle, p.fullName)).toBe(formSpace.headerToBody)
-  for (const field of p.fields) {
+  await expect(gapBelow(t.title, t.subtitle)).toBe(formSpace.titleToSubtitle)
+  await expect(gapBelow(t.subtitle, t.consent)).toBe(formSpace.headerToBody)
+  await expect(gapBelow(t.consent, t.marketing.control)).toBe(
+    formSpace.fieldGap,
+  )
+  await expect(gapBelow(t.marketing.label, t.google)).toBe(formSpace.fieldGap)
+  await expect(gapBelow(t.google, t.apple)).toBe(formSpace.alternativesGap)
+  await expect(gapBelow(t.apple, f.divider)).toBe(
+    formSpace.dividerToAlternatives,
+  )
+  await expect(gapBelow(f.divider, f.fullName)).toBe(
+    formSpace.dividerToAlternatives,
+  )
+  for (const field of f.fields) {
     const label = field.querySelector('label') as HTMLElement
-    await expect(gapBelow(label, p.shellOf(field))).toBe(
+    await expect(gapBelow(label, f.shellOf(field))).toBe(
       formSpace.labelToControl,
     )
   }
-  // The password helper sits 4 under its field; then the field gap.
+  await expect(gapBelow(f.shellOf(f.fullName), f.email)).toBe(
+    formSpace.fieldGap,
+  )
+  await expect(gapBelow(f.shellOf(f.email), f.password)).toBe(
+    formSpace.fieldGap,
+  )
   const helper = canvas.getByText('At least 8 characters.')
-  await expect(gapBelow(p.shellOf(p.password), helper)).toBe(
+  await expect(gapBelow(f.shellOf(f.password), helper)).toBe(
     formSpace.controlToHelper,
   )
-  await expect(gapBelow(helper, p.confirm)).toBe(formSpace.fieldGap)
-  await expect(gapBelow(p.shellOf(p.fullName), p.email)).toBe(
-    formSpace.fieldGap,
-  )
-  await expect(gapBelow(p.shellOf(p.email), p.password)).toBe(
-    formSpace.fieldGap,
+  await expect(gapBelow(helper, f.confirm)).toBe(formSpace.fieldGap)
+  await expect(gapBelow(f.shellOf(f.confirm), f.main)).toBe(
+    formSpace.bodyToAction,
   )
 
-  // The last field group: the three rows, 20 apart, then 20 to the button.
-  await expect(gapBelow(p.shellOf(p.confirm), p.over18.control)).toBe(
-    formSpace.fieldGap,
-  )
-  await expect(gapBelow(p.over18.label, p.terms.control)).toBe(
-    formSpace.fieldGap,
-  )
-  await expect(gapBelow(p.terms.label, p.marketing.control)).toBe(
-    formSpace.fieldGap,
-  )
-  await expect(gapBelow(p.marketing.label, p.main)).toBe(formSpace.bodyToAction)
-
-  await expect(gapBelow(p.main, p.divider)).toBe(formSpace.actionToDivider)
-  await expect(gapBelow(p.divider, p.google)).toBe(
-    formSpace.dividerToAlternatives,
-  )
-  await expect(gapBelow(p.google, p.apple)).toBe(formSpace.alternativesGap)
-
-  // Nothing ticked: the hint is one more item in the group, 8 under Apple.
-  await expect(gapBelow(p.apple, canvas.getByText(HINT))).toBe(
-    formSpace.alternativesGap,
-  )
-
-  // 48 tall: the fields, the main button, Google and Apple.
   for (const control of [
-    ...p.fields.map(p.shellOf),
-    p.main,
-    p.google,
-    p.apple,
+    ...f.fields.map(f.shellOf),
+    f.main,
+    t.google,
+    t.apple,
   ]) {
     await expect(heightOf(control)).toBe(formSpace.controlHeight)
   }
+  await expect(heightOf(t.marketing.control)).toBe(20)
+  await expect(heightOf(t.marketing.hit)).toBeGreaterThanOrEqual(minHitArea)
 
-  // Every box is 20, level with its label's first line, and its row is whole
-  // lines of 20.
-  for (const row of [p.over18, p.terms, p.marketing]) {
-    await expect(heightOf(row.control)).toBe(20)
-    await expect(row.control.getBoundingClientRect().top).toBe(
-      row.label.getBoundingClientRect().top,
-    )
-    await expect(heightOf(row.label) % 20).toBe(0)
-    await expect(heightOf(row.hit)).toBeGreaterThanOrEqual(minHitArea)
-  }
-
-  // Order, top to bottom: header, fields, the boxes, the button, the divider,
-  // then Google and Apple. The old order is gone.
+  // Order: header, consent, marketing, Google, Apple, divider, form.
   const inOrder = [
-    p.title,
-    p.fullName,
-    p.email,
-    p.password,
-    p.confirm,
-    p.over18.root,
-    p.terms.root,
-    p.marketing.root,
-    p.main,
-    p.divider,
-    p.google,
-    p.apple,
+    t.title,
+    t.consent,
+    t.marketing.root,
+    t.google,
+    t.apple,
+    f.divider,
+    f.fullName,
+    f.main,
   ]
   inOrder.forEach((node, i) => {
     const next = inOrder[i + 1]
@@ -225,365 +219,150 @@ async function expectRegisterSpacing(canvas: Canvas) {
       )
     }
   })
-  await expect(canvas.queryByText('Or continue with email')).toBeNull()
+  // No consent boxes any more: the line is the consent.
+  await expect(
+    canvas.queryByRole('checkbox', { name: /18 or over/ }),
+  ).toBeNull()
+  await expect(canvas.queryByRole('checkbox', { name: /I agree/ })).toBeNull()
 }
 
-/** Nothing ticked yet: the consent hint shows under Google and Apple. */
+/**
+ * A first visit (FE-563): the consent line and the unticked marketing box,
+ * then Google, Apple and Continue with email, closed. The line's links go to
+ * the Terms and the Privacy Policy.
+ */
 export const Default: Story = {
-  decorators: decorate(),
+  decorators: decorateFirstVisit(),
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
     await canvas.findByRole('heading', {
       level: 1,
       name: 'Create your account',
     })
-    await canvas.findByText(HINT)
-    await expectRegisterSpacing(canvas)
+    const t = await topParts(canvas)
+    const email = canvas.getByRole('button', { name: 'Continue with email' })
+    await expect(gapBelow(t.apple, email)).toBe(formSpace.alternativesGap)
+    await expect(heightOf(email)).toBe(formSpace.controlHeight)
+    await expect(email).toHaveAttribute('aria-expanded', 'false')
+    await expect(canvas.queryByLabelText('Full name')).toBeNull()
+    await expect(
+      within(t.consent).getByRole('link', { name: 'Terms of Service' }),
+    ).toHaveAttribute('href', '/terms')
+    await expect(
+      within(t.consent).getByRole('link', { name: 'Privacy Policy' }),
+    ).toHaveAttribute('href', '/privacy')
+    await expect(
+      canvas.getByRole('checkbox', { name: /Send me Slashie news and tips/ }),
+    ).not.toBeChecked()
   },
 }
 
 /**
- * Phone width: the same gaps, with the longer labels on two or three lines.
+ * Google and Apple work in one tap: nothing blocks or describes them, as the
+ * consent line above covers every way in.
  */
+export const OneTapGoogleAndApple: Story = {
+  decorators: decorateFirstVisit(),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const t = await topParts(canvas)
+    await expect(t.apple).toBeEnabled()
+    await expect(t.apple).not.toHaveAttribute('aria-describedby')
+    await expect(canvas.queryByText(/before continuing with Google/)).toBeNull()
+  },
+}
+
+/** Continue with email opens the section in place; the cursor is in Full name. */
+export const ContinueWithEmail: Story = {
+  decorators: decorateFirstVisit(),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await userEvent.click(
+      await canvas.findByRole('button', { name: 'Continue with email' }),
+    )
+    const name = await canvas.findByLabelText('Full name')
+    await waitFor(() => expect(name).toHaveFocus())
+    await expectRegisterSpacing(canvas)
+  },
+}
+
+/** A returning email user: the section is already open, with the same gaps. */
+export const OpenForEmailUsers: Story = {
+  decorators: decorate(),
+  play: async ({ canvasElement }) => {
+    await expectRegisterSpacing(within(canvasElement))
+  },
+}
+
+/** Phone width: the same gaps; the consent line wraps. */
 export const Phone: Story = {
   globals: { viewport: { value: 'mobile1' } },
   decorators: decorate(),
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
     await expectRegisterSpacing(canvas)
-    // At this width the marketing label wraps, so a wrapped row is measured.
-    const marketing = consentRow(canvas, /Send me Slashie news and tips/)
-    await expect(heightOf(marketing.label)).toBeGreaterThan(20)
+    await expect(heightOf(canvasConsent(canvas))).toBeGreaterThan(20)
   },
 }
 
 /**
- * Every box row is at least 44 tall to tap, yet adds no visible space: it
- * reaches into the gaps above and below it. Rows sit 20 apart, so the three
- * share the gaps between them without overlap (`checkboxRunReach`): the middle
- * row takes 12 and 12, its neighbours the 8 that is left of each shared gap,
- * and the first and last rows take the rest (16) from the free gaps under the
- * last field and above the button. A press on the visible row always lands on
- * its own box, and a press on the last pixel of one target never lands on the
- * next row.
+ * The marketing row is 44 tall to tap, yet adds no visible space: it reaches
+ * into the 20 gaps above and below it, and a press on its edges lands on it,
+ * never on the consent line or Google.
  */
 export const TapTargets: Story = {
   decorators: decorate(),
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
-    const p = await registerParts(canvas)
-    p.terms.root.scrollIntoView({ block: 'center' })
-
+    const t = await topParts(canvas)
+    t.marketing.root.scrollIntoView({ block: 'center' })
     const at = (x: number, y: number) => document.elementFromPoint(x, y)
-    const rows = [p.over18, p.terms, p.marketing]
-    for (const row of rows) {
-      const hit = row.hit.getBoundingClientRect()
-      const x = hit.left + 4
-      await expect(hit.height).toBeGreaterThanOrEqual(minHitArea)
-      // A press on the visible row's top and bottom lines lands on its box.
-      const visible = row.label.getBoundingClientRect()
-      await expect(row.root.contains(at(x, visible.top + 1))).toBe(true)
-      await expect(row.root.contains(at(x, visible.bottom - 1))).toBe(true)
-    }
-    // A one-line row is exactly 44: no more than the touch size is taken.
-    await expect(heightOf(p.over18.hit)).toBe(minHitArea)
-
-    // No two targets overlap, and a press on the edge of one lands on it.
-    for (const [upper, lower] of [
-      [p.over18, p.terms],
-      [p.terms, p.marketing],
-    ] as const) {
-      await expect(gapBelow(upper.hit, lower.hit)).toBe(0)
-      const end = upper.hit.getBoundingClientRect()
-      const start = lower.hit.getBoundingClientRect()
-      await expect(upper.root.contains(at(end.left + 4, end.bottom - 1))).toBe(
-        true,
-      )
-      await expect(lower.root.contains(at(start.left + 4, start.top + 1))).toBe(
-        true,
-      )
-    }
-
-    // The ends take the free gap, and stop short of the field and the button.
-    const shell = p.shellOf(p.confirm)
-    await expect(gapBelow(shell, p.over18.hit)).toBe(formSpace.fieldGap - 16)
-    await expect(gapBelow(p.marketing.hit, p.main)).toBe(
-      formSpace.bodyToAction - 16,
+    const hit = t.marketing.hit.getBoundingClientRect()
+    await expect(hit.height).toBeGreaterThanOrEqual(minHitArea)
+    await expect(t.marketing.root.contains(at(hit.left + 4, hit.top + 1))).toBe(
+      true,
     )
-    const first = p.over18.hit.getBoundingClientRect()
     await expect(
-      p.over18.root.contains(
-        at(first.left + 4, shell.getBoundingClientRect().bottom - 1),
-      ),
-    ).toBe(false)
-  },
-}
-
-/**
- * Google draws its button a moment after its script loads: the in-page
- * `role="button"` node inside the widget's container (not the container, and
- * not the 0x0 frame beside it).
- */
-async function googleButtonOf(google: HTMLElement) {
-  return waitFor(
-    () => {
-      const node = google.querySelector<HTMLElement>('[role="button"]')
-      expect(node).not.toBeNull()
-      return node as HTMLElement
-    },
-    { timeout: 8000 },
-  )
-}
-
-/**
- * Until both boxes are ticked, Google and Apple only explain themselves: the
- * hint under Apple is what they are described by, so a screen reader reads why
- * they do nothing yet. For Google that is its own role="button" node (a
- * description on a wrapper is not read for the focused button). Ticking both
- * boxes removes the hint and the pointer to it.
- */
-export const BlockedButtonsAreDescribed: Story = {
-  decorators: decorate(),
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement)
-    const p = await registerParts(canvas)
-    const hint = await canvas.findByText(HINT)
-    await expect(hint.id).not.toBe('')
-    await expect(p.apple).toHaveAccessibleDescription(HINT)
-    const google = await googleButtonOf(p.google)
-    await waitFor(() => expect(google).toHaveAccessibleDescription(HINT))
-    await expect(google).toHaveAttribute('aria-describedby', hint.id)
-    // Nothing on the wrapper: only the control that takes focus is described.
-    await expect(p.google).not.toHaveAttribute('aria-describedby')
-
-    await userEvent.click(canvas.getByText('I confirm I am 18 or over.'))
-    await userEvent.click(canvas.getByText(/I agree to the/))
-    await expect(canvas.queryByText(HINT)).toBeNull()
-    await expect(p.apple).not.toHaveAttribute('aria-describedby')
-    await waitFor(() => expect(google).not.toHaveAttribute('aria-describedby'))
-  },
-}
-
-/**
- * Blocked, Enter and Space on Google's button ask for the boxes (each box says
- * what is missing) instead of reaching Google's own key handler, which would
- * open its sign-in with the boxes unticked. The keys are sent as events on the
- * real node and nothing is let through to Google: its popup and credential
- * request are replaced for the length of the check, so even a miss could not
- * reach the provider.
- */
-export const BlockedGoogleKeysAskForConsent: Story = {
-  decorators: decorate(),
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement)
-    const p = await registerParts(canvas)
-    const google = await googleButtonOf(p.google)
-    await waitFor(() => expect(google).toHaveAccessibleDescription(HINT))
-
-    const popup = spyOn(window, 'open').mockImplementation(() => null)
-    const credentials = spyOn(navigator.credentials, 'get').mockRejectedValue(
-      new DOMException('Not sent: story', 'NotAllowedError'),
+      t.marketing.root.contains(at(hit.left + 4, hit.bottom - 1)),
+    ).toBe(true)
+    await expect(hit.top).toBeGreaterThanOrEqual(
+      t.consent.getBoundingClientRect().bottom,
     )
-    // Google's own handler would sit on this node: this stands in for it.
-    const reached: string[] = []
-    const onKey = (event: Event) => reached.push(event.type)
-    for (const type of ['keydown', 'keypress', 'keyup']) {
-      google.addEventListener(type, onKey)
-    }
-    try {
-      const ageError = 'You must confirm you are 18 or over to use Slashie.'
-      await expect(canvas.queryByText(ageError)).toBeNull()
-
-      const press = (type: string, key: string) => {
-        const event = new KeyboardEvent(type, {
-          key,
-          code: key === ' ' ? 'Space' : key,
-          bubbles: true,
-          cancelable: true,
-        })
-        google.dispatchEvent(event)
-        return event
-      }
-      await expect(press('keydown', 'Enter').defaultPrevented).toBe(true)
-      await expect(press('keyup', 'Enter').defaultPrevented).toBe(true)
-      await canvas.findByText(ageError)
-      await canvas.findByText(
-        'Please agree to the Terms of Service and Privacy Policy.',
-      )
-      await expect(press('keydown', ' ').defaultPrevented).toBe(true)
-      await expect(press('keyup', ' ').defaultPrevented).toBe(true)
-
-      // Google's handler saw none of it, and Tab still moves on.
-      await expect(reached).toEqual([])
-      await expect(press('keydown', 'Tab').defaultPrevented).toBe(false)
-      await expect(reached).toEqual(['keydown'])
-      await expect(popup).not.toHaveBeenCalled()
-      await expect(credentials).not.toHaveBeenCalled()
-    } finally {
-      for (const type of ['keydown', 'keypress', 'keyup']) {
-        google.removeEventListener(type, onKey)
-      }
-      popup.mockRestore()
-      credentials.mockRestore()
-    }
-  },
-}
-
-/**
- * Blocked, a click on Google's button asks for the boxes too. A click is what
- * assistive technology sends to activate a button (a screen reader's Enter or
- * VO+Space, a switch, voice control): it lands on the role="button" node
- * itself, not at a point, so it never meets the pointer overlay, and Google's
- * button listens for `click` as well as keys. It is sent as a click on the real
- * node, and also on whatever is on top of the widget at its centre (the
- * overlay a pointer hits). Nothing is let through to Google: its popup and
- * credential request are replaced for the length of the check.
- */
-export const BlockedGoogleClickAsksForConsent: Story = {
-  decorators: decorate(),
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement)
-    const p = await registerParts(canvas)
-    const google = await googleButtonOf(p.google)
-    await waitFor(() => expect(google).toHaveAccessibleDescription(HINT))
-
-    const popup = spyOn(window, 'open').mockImplementation(() => null)
-    const credentials = spyOn(navigator.credentials, 'get').mockRejectedValue(
-      new DOMException('Not sent: story', 'NotAllowedError'),
+    await expect(hit.bottom).toBeLessThanOrEqual(
+      t.google.getBoundingClientRect().top,
     )
-    // Google's own click handler would sit on this node: this stands in for it.
-    const reached: string[] = []
-    const onClick = (event: Event) => reached.push(event.type)
-    google.addEventListener('click', onClick)
-    try {
-      const ageError = 'You must confirm you are 18 or over to use Slashie.'
-      const termsError =
-        'Please agree to the Terms of Service and Privacy Policy.'
-      await expect(canvas.queryByText(ageError)).toBeNull()
-
-      // A click sent at the node itself.
-      google.click()
-      await canvas.findByText(ageError)
-      await canvas.findByText(termsError)
-      await expect(reached).toEqual([])
-
-      // The pointer path: what is on top of the widget takes the click.
-      const box = google.getBoundingClientRect()
-      const top = canvasElement.ownerDocument.elementFromPoint(
-        box.left + box.width / 2,
-        box.top + box.height / 2,
-      )
-      await expect(top).not.toBeNull()
-      await expect(google.contains(top)).toBe(false)
-      await userEvent.click(top as Element)
-      await expect(reached).toEqual([])
-
-      await expect(popup).not.toHaveBeenCalled()
-      await expect(credentials).not.toHaveBeenCalled()
-    } finally {
-      google.removeEventListener('click', onClick)
-      popup.mockRestore()
-      credentials.mockRestore()
-    }
   },
 }
 
 /**
- * Submitted empty: every field and both required boxes say what's missing,
- * each 4 under what it is about and 20 above the next field.
+ * Submitted empty: every field says what's missing, each 4 under what it is
+ * about and 20 above the next field.
  */
 export const EmptySubmit: Story = {
   decorators: decorate(),
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
     await userEvent.click(
-      canvas.getByRole('button', { name: 'Create account' }),
+      await canvas.findByRole('button', { name: 'Create account' }),
     )
     await canvas.findByText('Enter your full name.')
     await canvas.findByText('Enter your email.')
     await canvas.findByText('Use at least 8 characters.')
-    const ageError = await canvas.findByText(
-      'You must confirm you are 18 or over to use Slashie.',
-    )
-    const termsError = await canvas.findByText(
-      'Please agree to the Terms of Service and Privacy Policy.',
-    )
-
-    const p = await registerParts(canvas)
+    const f = await formParts(canvas)
     const errorOf = (field: HTMLElement) =>
       field.querySelector('[id$="-error"]') as HTMLElement
-    await expect(gapBelow(p.shellOf(p.fullName), errorOf(p.fullName))).toBe(
+    await expect(gapBelow(f.shellOf(f.fullName), errorOf(f.fullName))).toBe(
       formSpace.controlToHelper,
     )
-    await expect(gapBelow(errorOf(p.fullName), p.email)).toBe(
+    await expect(gapBelow(errorOf(f.fullName), f.email)).toBe(
       formSpace.fieldGap,
     )
-    // The password helper and its error are 4 apart, helper first.
     const helper = canvas.getByText('At least 8 characters.')
-    await expect(gapBelow(helper, errorOf(p.password))).toBe(
+    await expect(gapBelow(helper, errorOf(f.password))).toBe(
       formSpace.helperGap,
     )
-    await expect(gapBelow(errorOf(p.password), p.confirm)).toBe(
+    await expect(gapBelow(errorOf(f.password), f.confirm)).toBe(
       formSpace.fieldGap,
-    )
-    // A box's error sits 4 under its row, then the next row's 20.
-    await expect(gapBelow(p.over18.label, ageError)).toBe(
-      formSpace.controlToHelper,
-    )
-    await expect(gapBelow(ageError, p.terms.control)).toBe(formSpace.fieldGap)
-    await expect(gapBelow(p.terms.label, termsError)).toBe(
-      formSpace.controlToHelper,
-    )
-    await expect(gapBelow(termsError, p.marketing.control)).toBe(
-      formSpace.fieldGap,
-    )
-    await expect(gapBelow(p.marketing.label, p.main)).toBe(
-      formSpace.bodyToAction,
-    )
-  },
-}
-
-/** Both required boxes ticked: the consent hint goes and Google / Apple open. */
-export const ConsentGiven: Story = {
-  decorators: decorate(),
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement)
-    await userEvent.click(canvas.getByText('I confirm I am 18 or over.'))
-    await userEvent.click(canvas.getByText(/I agree to the/))
-    expect(
-      canvas.queryByText(/before continuing with Google or Apple/),
-    ).toBeNull()
-    // Without the hint, Apple is the last item: nothing trails it.
-    const p = await registerParts(canvas)
-    await expect(p.apple.nextElementSibling).toBeNull()
-    await expect(gapBelow(p.google, p.apple)).toBe(formSpace.alternativesGap)
-  },
-}
-
-/**
- * The boxes still gate Google and Apple, now under the divider: pressing Apple
- * with them unticked asks for them, in the boxes above.
- */
-export const ConsentGatesAlternatives: Story = {
-  decorators: decorate(),
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement)
-    const apple = await canvas.findByRole('button', {
-      name: 'Continue with Apple',
-    })
-    await expect(apple).toBeEnabled()
-    await userEvent.click(apple)
-    await canvas.findByText(
-      'You must confirm you are 18 or over to use Slashie.',
-    )
-    await canvas.findByText(
-      'Please agree to the Terms of Service and Privacy Policy.',
-    )
-    // Still on the page, the hint still shows, and the boxes are above Apple.
-    await canvas.findByText(HINT)
-    const p = await registerParts(canvas)
-    await expect(p.marketing.root.compareDocumentPosition(p.apple)).toBe(
-      Node.DOCUMENT_POSITION_FOLLOWING,
     )
   },
 }
@@ -603,15 +382,16 @@ export const EmailTaken: Story = {
       'An account with this email already exists. Log in instead.',
     )
     // A form-level error is one more field: 20 above it and 20 to the button.
-    const p = await registerParts(canvas)
-    await expect(gapBelow(p.marketing.label, alert)).toBe(formSpace.fieldGap)
-    await expect(gapBelow(alert, p.main)).toBe(formSpace.bodyToAction)
+    const f = await formParts(canvas)
+    await expect(gapBelow(f.shellOf(f.confirm), alert)).toBe(formSpace.fieldGap)
+    await expect(gapBelow(alert, f.main)).toBe(formSpace.bodyToAction)
   },
 }
 
 /**
  * The API asks for the security check: it is one more field, 20 below the
- * boxes, 8 from its label to the widget, and 20 to the error and the button.
+ * last field, 8 from its label to the widget, and 20 to the error and the
+ * button.
  */
 export const SecurityCheck: Story = {
   decorators: decorate({
@@ -628,14 +408,14 @@ export const SecurityCheck: Story = {
       canvas.getByRole('button', { name: 'Create account' }),
     ).toBeDisabled()
 
-    const p = await registerParts(canvas)
+    const f = await formParts(canvas)
     const label = canvas.getByText('Security check')
     const check = label.parentElement as HTMLElement
     const widget = check.lastElementChild as HTMLElement
-    await expect(gapBelow(p.marketing.label, check)).toBe(formSpace.fieldGap)
+    await expect(gapBelow(f.shellOf(f.confirm), check)).toBe(formSpace.fieldGap)
     await expect(gapBelow(label, widget)).toBe(formSpace.labelToControl)
     await expect(gapBelow(check, alert)).toBe(formSpace.fieldGap)
-    await expect(gapBelow(alert, p.main)).toBe(formSpace.bodyToAction)
+    await expect(gapBelow(alert, f.main)).toBe(formSpace.bodyToAction)
   },
 }
 
@@ -669,11 +449,11 @@ export const NetworkError: Story = {
   },
 }
 
-/** Traditional Chinese copy, picked from the `/zh-hk` URL prefix. */
+/** Traditional Chinese, first visit: the consent line, then 使用電郵繼續. */
 export const TraditionalChinese: Story = {
   parameters: { nextjs: { navigation: { pathname: '/zh-hk/register' } } },
   decorators: [
-    ...decorate(),
+    ...decorateFirstVisit(),
     (Story) => (
       <LocaleProvider>
         <Story />
@@ -683,12 +463,17 @@ export const TraditionalChinese: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
     await canvas.findByRole('heading', { level: 1, name: '建立你的帳戶' })
-    await canvas.findByText('或使用以下方式繼續')
-    expect(canvas.queryByText('或使用電郵繼續')).toBeNull()
-    // The divider sits under the main button, then Google and Apple.
-    const main = canvas.getByRole('button', { name: '建立帳戶' })
-    const divider = (await canvas.findByText('或使用以下方式繼續'))
-      .parentElement as HTMLElement
-    await expect(gapBelow(main, divider)).toBe(formSpace.actionToDivider)
+    await expect(
+      canvas.getByText(
+        (_, node) =>
+          node?.textContent ===
+          '繼續即表示你確認已年滿 18 歲，並同意服務條款及私隱政策。',
+        { selector: 'p' },
+      ),
+    ).toBeVisible()
+    await expect(
+      canvas.getByRole('button', { name: '使用電郵繼續' }),
+    ).toBeVisible()
+    expect(canvas.queryByText('或使用以下方式繼續')).toBeNull()
   },
 }

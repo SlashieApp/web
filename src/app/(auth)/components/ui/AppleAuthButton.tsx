@@ -22,6 +22,7 @@ import {
   type AuthRedirectIntent,
   resolvePostAuthRedirect,
 } from '@/app/(auth)/helpers/authRedirect'
+import { rememberSignIn } from '@/app/(auth)/helpers/lastSignIn'
 import { socialButtonPx } from '@/app/(auth)/helpers/socialButton'
 import { useUserStore } from '@/app/(auth)/store/user'
 import { useLocale } from '@/i18n/LocaleProvider'
@@ -32,6 +33,7 @@ import { showAppToast } from '@/utils/appToast'
 import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
 
 import bag from '../i11n.json'
+import { GoogleStyleButton } from './GoogleStyleButton'
 
 type AppleClientConfig = {
   clientId: string
@@ -74,14 +76,7 @@ function loadAppleScript(locale: string): Promise<void> {
   return appleScript
 }
 
-/**
- * Google's outline button, matched exactly: their widget can't be restyled (it
- * provides the ID token the API verifies), so Apple follows it. Apple's
- * guidelines allow this white, outlined style. The colours are Google's
- * fixed values, not theme tokens: their widget stays white in dark mode too.
- * Google's button is scaled to the form control height (48), so Apple is built
- * at 48 with the same scale on its padding, text and logo.
- */
+/** Apple's button in Google's outline style (see `GoogleStyleButton`). */
 export function AppleSignInButton({
   label,
   disabled = false,
@@ -95,44 +90,20 @@ export function AppleSignInButton({
   onClick: () => void
 }) {
   return (
-    <chakra.button
-      type="button"
-      aria-describedby={describedBy}
-      w="full"
-      maxW="400px"
-      h="form.controlHeight"
-      px={`${socialButtonPx(12)}px`}
-      display="flex"
-      alignItems="center"
-      gap={`${socialButtonPx(8)}px`}
-      borderRadius="full"
-      borderWidth="1px"
-      borderColor="#dadce0"
-      bg="white"
-      color="#3c4043"
-      fontFamily='"Google Sans", arial, sans-serif'
-      fontSize={`${socialButtonPx(14)}px`}
-      fontWeight={500}
-      letterSpacing={`${socialButtonPx(0.25)}px`}
-      cursor="pointer"
-      transition="background-color 0.218s, border-color 0.218s"
-      _hover={{ bg: '#f8faff', borderColor: '#d2e3fc' }}
+    <GoogleStyleButton
+      label={label}
       disabled={disabled}
-      _disabled={{ opacity: 0.6, cursor: 'not-allowed' }}
-      _focusVisible={sdlFocusRing}
+      describedBy={describedBy}
       onClick={onClick}
-    >
-      <FaApple
-        size={socialButtonPx(18)}
-        color="#000"
-        aria-hidden
-        style={{ flexShrink: 0 }}
-      />
-      {/* Centred in the space after the logo, like Google's label. */}
-      <chakra.span flex={1} textAlign="center">
-        {label}
-      </chakra.span>
-    </chakra.button>
+      icon={
+        <FaApple
+          size={socialButtonPx(18)}
+          color="#000"
+          aria-hidden
+          style={{ flexShrink: 0 }}
+        />
+      }
+    />
   )
 }
 
@@ -292,6 +263,7 @@ export function AppleAuthButton({
     }
     try {
       await loginWithApple(credential)
+      rememberSignIn('apple')
       await onSignedIn?.()
       const me = useUserStore.getState().me
       router.push(

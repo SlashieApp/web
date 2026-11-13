@@ -1,14 +1,16 @@
 import { z } from 'zod'
 
 /** Messages are keys into the page copy's `validation`. */
+/**
+ * Age and Terms are confirmed by the consent line above every way in
+ * (FE-563), not by boxes in this form.
+ */
 export const registerFormSchema = z
   .object({
     fullName: z.string().trim().min(1, 'fullNameRequired'),
     email: z.string().trim().min(1, 'emailRequired').email('emailInvalid'),
     password: z.string().min(8, 'passwordTooShort'),
     confirmPassword: z.string(),
-    isOver18: z.boolean(),
-    agreedToTerms: z.boolean(),
     /** Optional, unticked (BE-65: marketing email is opt-in). */
     marketingOptIn: z.boolean(),
   })
@@ -18,20 +20,6 @@ export const registerFormSchema = z
         code: z.ZodIssueCode.custom,
         message: 'passwordsDontMatch',
         path: ['confirmPassword'],
-      })
-    }
-    if (!data.isOver18) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: 'over18Required',
-        path: ['isOver18'],
-      })
-    }
-    if (!data.agreedToTerms) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: 'termsRequired',
-        path: ['agreedToTerms'],
       })
     }
   })
@@ -44,5 +32,3 @@ export type RegisterValidationKey =
   | 'emailInvalid'
   | 'passwordTooShort'
   | 'passwordsDontMatch'
-  | 'over18Required'
-  | 'termsRequired'

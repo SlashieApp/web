@@ -70,6 +70,10 @@
       "text": "Verify your email to post tasks and send quotes.",
       "checkInbox": "Check inbox",
       "resend": "Resend email"
+    },
+    "emailOption": {
+      "continue": "Continue with email",
+      "divider": "Or with email"
     }
   },
   "zh_hk": {
@@ -143,6 +147,10 @@
       "text": "請驗證你的電郵，以便發佈任務和發送報價。",
       "checkInbox": "查看收件匣",
       "resend": "重新傳送電郵"
+    },
+    "emailOption": {
+      "continue": "使用電郵繼續",
+      "divider": "或使用電郵"
     }
   }
 }

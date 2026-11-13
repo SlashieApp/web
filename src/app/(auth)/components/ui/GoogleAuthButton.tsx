@@ -15,6 +15,7 @@ import {
   getGoogleClientId,
   isGoogleAuthConfigured,
 } from '@/app/(auth)/helpers/googleAuthConfig'
+import { rememberSignIn } from '@/app/(auth)/helpers/lastSignIn'
 import { googleButtonDrawing } from '@/app/(auth)/helpers/socialButton'
 import { useUserStore } from '@/app/(auth)/store/user'
 import { useI11n } from '@/i18n/useI11n'
@@ -143,6 +144,7 @@ export function GoogleAuthButton({
 
       try {
         await loginWithGoogle(idToken)
+        rememberSignIn('google')
         await onSignedIn?.()
         const me = useUserStore.getState().me
         router.push(

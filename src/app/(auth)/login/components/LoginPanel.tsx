@@ -2,6 +2,7 @@
 
 import { Box, chakra } from '@chakra-ui/react'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { useEffect } from 'react'
 import { Controller, useForm, useWatch } from 'react-hook-form'
 
 import authBag from '@/app/(auth)/components/i11n.json'
@@ -13,6 +14,10 @@ import {
   EmailInput,
   PasswordInput,
 } from '@/app/(auth)/components/ui/AuthFields'
+import {
+  AuthOptions,
+  useEmailSection,
+} from '@/app/(auth)/components/ui/EmailOption'
 import { GoogleAuthButton } from '@/app/(auth)/components/ui/GoogleAuthButton'
 import { TurnstileField } from '@/app/(auth)/components/ui/TurnstileField'
 import {
@@ -30,14 +35,7 @@ import {
   hitAreaLabel,
   hitAreaLinkFocusRing,
 } from '@/theme/styles'
-import {
-  Button,
-  FormAlternatives,
-  FormDivider,
-  FormField,
-  FormStack,
-  Link,
-} from '@ui'
+import { Button, FormField, FormStack, Link } from '@ui'
 
 import bag from '../i11n.json'
 import {
@@ -94,6 +92,7 @@ export function LoginPanel({
     register,
     handleSubmit,
     control,
+    setFocus,
     formState: { errors },
   } = useForm<LoginFormValues>({
     resolver: zodResolver(loginFormSchema),
@@ -112,6 +111,15 @@ export function LoginPanel({
       : message
         ? shared.messages[message]
         : null
+
+  // FE-563: the email form opens at once when the page brings an email or a
+  // failed try; otherwise when this browser last used email, or on the button.
+  const email = useEmailSection(
+    Boolean(defaultValues.email) || message !== null || waiting,
+  )
+  useEffect(() => {
+    if (email.openedByTap) setFocus('email')
+  }, [email.openedByTap, setFocus])
 
   const noticeText = !notice
     ? null
@@ -137,111 +145,114 @@ export function LoginPanel({
         </>
       }
     >
-      {/* Form spacing (FE-481): the header, the fields and the main button, the
-          divider, then Google and Apple. The divider owns its 24 either side,
-          so this is a plain box, not a gapped stack. */}
+      {/* FE-563: Google, Apple, then Continue with email, which opens into
+          the divider and the form (FE-481 spacing: the divider owns its 24
+          either side). */}
       <Box w="full">
         {noticeText ? (
           <Box mb="form.fieldGap">
             <AuthAlert tone="info">{noticeText}</AuthAlert>
           </Box>
         ) : null}
-        <Box asChild w="full">
-          <form
-            method="post"
-            onSubmit={handleSubmit((values) => {
-              if (!disabled) onSubmit(values)
-            })}
-            noValidate
-          >
-            <FormStack>
-              <FormField
-                label={t.emailLabel}
-                errorText={fieldError(errors.email?.message)}
-              >
-                <EmailInput autoComplete="username" {...register('email')} />
-              </FormField>
+        <AuthOptions
+          social={
+            isSocialAuthConfigured() ? (
+              <>
+                <GoogleAuthButton next={next} />
+                <AppleAuthButton next={next} />
+              </>
+            ) : null
+          }
+          open={email.open}
+          onExpand={email.expand}
+        >
+          <Box asChild w="full">
+            <form
+              method="post"
+              onSubmit={handleSubmit((values) => {
+                if (!disabled) onSubmit(values)
+              })}
+              noValidate
+            >
+              <FormStack>
+                <FormField
+                  label={t.emailLabel}
+                  errorText={fieldError(errors.email?.message)}
+                >
+                  <EmailInput autoComplete="username" {...register('email')} />
+                </FormField>
 
-              {/* The link is outside the label, so the field's name stays "Password". */}
-              <FormField
-                label={t.passwordLabel}
-                errorText={fieldError(errors.password?.message)}
-                helperAction={
-                  <Link
-                    href="/forgot-password"
-                    display="block"
-                    fontWeight={500}
-                    color="text.link"
-                    onClick={() => stashResetEmail(emailValue ?? '')}
-                    // 44 to tap, reaching up to the field's edge and down into
-                    // the gap; the keyboard ring hugs the text, not the 44.
-                    {...hitAreaGrowth(
-                      FORGOT_LINK_HEIGHT,
-                      formSpace.controlToHelper,
-                    )}
-                    {...hitAreaLinkFocusRing}
-                  >
-                    <chakra.span {...hitAreaLabel}>
-                      {t.forgotPassword}
-                    </chakra.span>
-                  </Link>
-                }
-              >
-                <PasswordInput
-                  autoComplete="current-password"
-                  {...register('password')}
-                />
-              </FormField>
-
-              <Controller
-                name="rememberMe"
-                control={control}
-                render={({ field }) => (
-                  <AuthCheckbox
-                    name={field.name}
-                    checked={field.value}
-                    onCheckedChange={field.onChange}
-                    inputRef={field.ref}
-                    label={t.remember}
+                {/* The link is outside the label, so the field's name stays "Password". */}
+                <FormField
+                  label={t.passwordLabel}
+                  errorText={fieldError(errors.password?.message)}
+                  helperAction={
+                    <Link
+                      href="/forgot-password"
+                      display="block"
+                      fontWeight={500}
+                      color="text.link"
+                      onClick={() => stashResetEmail(emailValue ?? '')}
+                      // 44 to tap, reaching up to the field's edge and down into
+                      // the gap; the keyboard ring hugs the text, not the 44.
+                      {...hitAreaGrowth(
+                        FORGOT_LINK_HEIGHT,
+                        formSpace.controlToHelper,
+                      )}
+                      {...hitAreaLinkFocusRing}
+                    >
+                      <chakra.span {...hitAreaLabel}>
+                        {t.forgotPassword}
+                      </chakra.span>
+                    </Link>
+                  }
+                >
+                  <PasswordInput
+                    autoComplete="current-password"
+                    {...register('password')}
                   />
-                )}
-              />
+                </FormField>
 
-              {config.securityCheck ? (
-                <TurnstileField
-                  onTokenChange={onSecurityToken}
-                  resetSignal={securityResetSignal}
+                <Controller
+                  name="rememberMe"
+                  control={control}
+                  render={({ field }) => (
+                    <AuthCheckbox
+                      name={field.name}
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                      inputRef={field.ref}
+                      label={t.remember}
+                    />
+                  )}
                 />
-              ) : null}
 
-              {messageText ? <AuthAlert>{messageText}</AuthAlert> : null}
+                {config.securityCheck ? (
+                  <TurnstileField
+                    onTokenChange={onSecurityToken}
+                    resetSignal={securityResetSignal}
+                  />
+                ) : null}
 
-              <Button
-                type="submit"
-                loading={submitting}
-                disabled={disabled}
-                w="full"
-                size="form"
-              >
-                {waiting
-                  ? formatMessage(shared.tryAgainIn, {
-                      seconds: retryInSeconds,
-                    })
-                  : t.submit}
-              </Button>
-            </FormStack>
-          </form>
-        </Box>
+                {messageText ? <AuthAlert>{messageText}</AuthAlert> : null}
 
-        {isSocialAuthConfigured() ? (
-          <>
-            <FormDivider />
-            <FormAlternatives>
-              <GoogleAuthButton next={next} />
-              <AppleAuthButton next={next} />
-            </FormAlternatives>
-          </>
-        ) : null}
+                <Button
+                  type="submit"
+                  loading={submitting}
+                  disabled={disabled}
+                  w="full"
+                  size="form"
+                >
+                  {waiting
+                    ? formatMessage(shared.tryAgainIn, {
+                        seconds: retryInSeconds,
+                      })
+                    : t.submit}
+                </Button>
+              </FormStack>
+            </form>
+          </Box>
+        </AuthOptions>
       </Box>
     </AuthCard>
   )

@@ -5,7 +5,7 @@ import { Box, Text } from '@chakra-ui/react'
 import type { RegisterMutation } from '@codegen/schema'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { useId, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 
 import authBag from '@/app/(auth)/components/i11n.json'
@@ -17,6 +17,10 @@ import {
   EmailInput,
   PasswordInput,
 } from '@/app/(auth)/components/ui/AuthFields'
+import {
+  AuthOptions,
+  useEmailSection,
+} from '@/app/(auth)/components/ui/EmailOption'
 import { GoogleAuthButton } from '@/app/(auth)/components/ui/GoogleAuthButton'
 import { TurnstileField } from '@/app/(auth)/components/ui/TurnstileField'
 import { parseAuthAbuseError } from '@/app/(auth)/helpers/authAbuseErrors'
@@ -31,6 +35,7 @@ import {
 } from '@/app/(auth)/helpers/authMessages'
 import { authSwitchHref } from '@/app/(auth)/helpers/authRedirect'
 import { captchaMutationContext } from '@/app/(auth)/helpers/captchaMutationContext'
+import { rememberSignIn } from '@/app/(auth)/helpers/lastSignIn'
 import { isSocialAuthConfigured } from '@/app/(auth)/helpers/socialAuthConfig'
 import { useCooldownSeconds } from '@/app/(auth)/helpers/useCooldownSeconds'
 import { useProgressiveCaptcha } from '@/app/(auth)/helpers/useProgressiveCaptcha'
@@ -97,7 +102,7 @@ export function RegisterScreen() {
     register: registerField,
     handleSubmit,
     control,
-    trigger,
+    setFocus,
     watch,
     formState: { errors },
   } = useForm<RegisterFormValues>({
@@ -107,18 +112,12 @@ export function RegisterScreen() {
       email: '',
       password: '',
       confirmPassword: '',
-      isOver18: false,
-      agreedToTerms: false,
       marketingOptIn: false,
     },
   })
   const fieldError = (key: string | undefined) =>
     key ? t.validation[key as RegisterValidationKey] : undefined
 
-  const oauthBlocked = !watch('isOver18') || !watch('agreedToTerms')
-  // The hint under Apple says why Google and Apple do nothing yet; both describe
-  // themselves by it while they are blocked.
-  const consentHintId = useId()
   const marketingOptIn = watch('marketingOptIn')
   const [updateSettings] = useMutation(UpdateMySettings)
   const [registerMutation, { loading }] =
@@ -162,6 +161,7 @@ export function RegisterScreen() {
       setAuthToken(token)
       await getUser()
       await applyMarketingOptIn()
+      rememberSignIn('email')
       clearRegisterFailCount()
       captcha.setFailCount(0)
       trackFlowSucceeded(EVENTS.register_success, {
@@ -205,7 +205,15 @@ export function RegisterScreen() {
       : message
         ? shared.messages[message]
         : null
-  const askConsent = () => void trigger(['isOver18', 'agreedToTerms'])
+  // FE-563: the email section opens at once after a failed try; otherwise
+  // when this browser last used email, or on the button.
+  const email = useEmailSection(message !== null || waiting)
+  useEffect(() => {
+    if (email.openedByTap) setFocus('fullName')
+  }, [email.openedByTap, setFocus])
+  const [termsBefore, termsMiddle = '', termsAfter = ''] = t.consentLine.split(
+    /\{terms\}|\{privacy\}/,
+  )
 
   return (
     <AuthCard
@@ -224,173 +232,129 @@ export function RegisterScreen() {
         </>
       }
     >
-      {/* The divider owns its 24 either side, so this is a plain box, not a
-          gapped stack: FormStack gives the fields, the boxes and the main
-          button their 20, FormAlternatives the 8 between Google and Apple. */}
+      {/* FE-563 (Ryan 13 Nov): one consent line and the marketing opt-in for
+          every way in, then Google, Apple and Continue with email, which
+          opens into the divider and the form. */}
       <Box w="full">
-        <Box asChild w="full">
-          <form method="post" onSubmit={handleSubmit(onValid)} noValidate>
-            <FormStack>
-              <FormField
-                label={t.fullNameLabel}
-                errorText={fieldError(errors.fullName?.message)}
-              >
-                <Input
-                  placeholder={t.namePlaceholder}
-                  autoComplete="name"
-                  {...registerField('fullName')}
-                />
-              </FormField>
-
-              <FormField
-                label={t.emailLabel}
-                errorText={fieldError(errors.email?.message)}
-              >
-                <EmailInput autoComplete="email" {...registerField('email')} />
-              </FormField>
-
-              <FormField
-                label={t.passwordLabel}
-                helperText={shared.fields.passwordHint}
-                errorText={fieldError(errors.password?.message)}
-              >
-                <PasswordInput
-                  autoComplete="new-password"
-                  {...registerField('password')}
-                />
-              </FormField>
-
-              <FormField
-                label={t.confirmPasswordLabel}
-                errorText={fieldError(errors.confirmPassword?.message)}
-              >
-                <PasswordInput
-                  autoComplete="new-password"
-                  {...registerField('confirmPassword')}
-                />
-              </FormField>
-
-              {/* The last field group: each row is a field in the 20 rhythm. */}
-              <Controller
-                name="isOver18"
-                control={control}
-                render={({ field }) => (
-                  <AuthCheckbox
-                    name={field.name}
-                    checked={field.value}
-                    onCheckedChange={field.onChange}
-                    inputRef={field.ref}
-                    label={t.over18Label}
-                    errorText={fieldError(errors.isOver18?.message)}
-                    {...checkboxRunReach('first')}
-                  />
-                )}
+        <Box mb="form.fieldGap" data-signup-consent="">
+          <Text
+            fontSize="sm"
+            color="text.muted"
+            lineHeight="tall"
+            mb="form.fieldGap"
+            data-consent-line=""
+          >
+            {termsBefore}
+            <Link href="/terms" fontWeight={500} color="text.link">
+              {t.termsLink}
+            </Link>
+            {termsMiddle}
+            <Link href="/privacy" fontWeight={500} color="text.link">
+              {t.privacyLink}
+            </Link>
+            {termsAfter}
+          </Text>
+          <Controller
+            name="marketingOptIn"
+            control={control}
+            render={({ field }) => (
+              <AuthCheckbox
+                name={field.name}
+                checked={field.value}
+                onCheckedChange={field.onChange}
+                inputRef={field.ref}
+                label={t.marketingOptIn}
+                {...checkboxRunReach('middle')}
               />
-              <Controller
-                name="agreedToTerms"
-                control={control}
-                render={({ field }) => (
-                  <AuthCheckbox
-                    name={field.name}
-                    checked={field.value}
-                    onCheckedChange={field.onChange}
-                    inputRef={field.ref}
-                    errorText={fieldError(errors.agreedToTerms?.message)}
-                    {...checkboxRunReach('middle')}
-                    label={
-                      <>
-                        {t.termsBefore}{' '}
-                        <Link href="/terms" fontWeight={500} color="text.link">
-                          {t.termsLink}
-                        </Link>{' '}
-                        {t.termsAnd}{' '}
-                        <Link
-                          href="/privacy"
-                          fontWeight={500}
-                          color="text.link"
-                        >
-                          {t.privacyLink}
-                        </Link>
-                        .
-                      </>
-                    }
-                  />
-                )}
-              />
-              <Controller
-                name="marketingOptIn"
-                control={control}
-                render={({ field }) => (
-                  <AuthCheckbox
-                    name={field.name}
-                    checked={field.value}
-                    onCheckedChange={field.onChange}
-                    inputRef={field.ref}
-                    label={t.marketingOptIn}
-                    {...checkboxRunReach('last')}
-                  />
-                )}
-              />
-
-              {captcha.requiresCaptcha ? (
-                <TurnstileField
-                  onTokenChange={captcha.setToken}
-                  resetSignal={captcha.resetSignal}
-                />
-              ) : null}
-
-              {messageText ? <AuthAlert>{messageText}</AuthAlert> : null}
-
-              <Button
-                type="submit"
-                loading={loading}
-                disabled={waiting || checkPending}
-                w="full"
-                size="form"
-              >
-                {waiting
-                  ? formatMessage(shared.tryAgainIn, {
-                      seconds: retryInSeconds,
-                    })
-                  : t.submit}
-              </Button>
-            </FormStack>
-          </form>
+            )}
+          />
         </Box>
-
-        {isSocialAuthConfigured() ? (
-          <>
-            <FormDivider />
-            <FormAlternatives>
-              <GoogleAuthButton
-                next={next}
-                blocked={oauthBlocked}
-                blockedTitle={t.googleBlockedTitle}
-                blockedDescription={t.googleBlockedDescription}
-                describedBy={oauthBlocked ? consentHintId : undefined}
-                onBlocked={askConsent}
-                onSignedIn={applyMarketingOptIn}
-              />
-              <AppleAuthButton
-                next={next}
-                blocked={oauthBlocked}
-                describedBy={oauthBlocked ? consentHintId : undefined}
-                onBlocked={askConsent}
-                onSignedIn={applyMarketingOptIn}
-              />
-              {oauthBlocked ? (
-                <Text
-                  id={consentHintId}
-                  fontSize="xs"
-                  color="text.muted"
-                  lineHeight="tall"
+        <AuthOptions
+          social={
+            isSocialAuthConfigured() ? (
+              <>
+                <GoogleAuthButton
+                  next={next}
+                  onSignedIn={applyMarketingOptIn}
+                />
+                <AppleAuthButton next={next} onSignedIn={applyMarketingOptIn} />
+              </>
+            ) : null
+          }
+          open={email.open}
+          onExpand={email.expand}
+        >
+          <Box asChild w="full">
+            <form method="post" onSubmit={handleSubmit(onValid)} noValidate>
+              <FormStack>
+                <FormField
+                  label={t.fullNameLabel}
+                  errorText={fieldError(errors.fullName?.message)}
                 >
-                  {t.googleConsentHint}
-                </Text>
-              ) : null}
-            </FormAlternatives>
-          </>
-        ) : null}
+                  <Input
+                    placeholder={t.namePlaceholder}
+                    autoComplete="name"
+                    {...registerField('fullName')}
+                  />
+                </FormField>
+
+                <FormField
+                  label={t.emailLabel}
+                  errorText={fieldError(errors.email?.message)}
+                >
+                  <EmailInput
+                    autoComplete="email"
+                    {...registerField('email')}
+                  />
+                </FormField>
+
+                <FormField
+                  label={t.passwordLabel}
+                  helperText={shared.fields.passwordHint}
+                  errorText={fieldError(errors.password?.message)}
+                >
+                  <PasswordInput
+                    autoComplete="new-password"
+                    {...registerField('password')}
+                  />
+                </FormField>
+
+                <FormField
+                  label={t.confirmPasswordLabel}
+                  errorText={fieldError(errors.confirmPassword?.message)}
+                >
+                  <PasswordInput
+                    autoComplete="new-password"
+                    {...registerField('confirmPassword')}
+                  />
+                </FormField>
+
+                {captcha.requiresCaptcha ? (
+                  <TurnstileField
+                    onTokenChange={captcha.setToken}
+                    resetSignal={captcha.resetSignal}
+                  />
+                ) : null}
+
+                {messageText ? <AuthAlert>{messageText}</AuthAlert> : null}
+
+                <Button
+                  type="submit"
+                  loading={loading}
+                  disabled={waiting || checkPending}
+                  w="full"
+                  size="form"
+                >
+                  {waiting
+                    ? formatMessage(shared.tryAgainIn, {
+                        seconds: retryInSeconds,
+                      })
+                    : t.submit}
+                </Button>
+              </FormStack>
+            </form>
+          </Box>
+        </AuthOptions>
       </Box>
     </AuthCard>
   )

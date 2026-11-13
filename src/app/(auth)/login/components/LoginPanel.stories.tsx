@@ -1,11 +1,12 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
-import { expect, fn, userEvent, within } from 'storybook/test'
+import { expect, fn, userEvent, waitFor, within } from 'storybook/test'
 
 import { expectRingHugsLabel } from '@/app/(auth)/helpers/authSpacing.testing'
 import {
   withAuthWidgets,
   withSession,
 } from '@/app/(auth)/helpers/authStoryDecorator'
+import { withLastSignIn } from '@/app/(auth)/helpers/lastSignIn.testing'
 import { LocaleProvider } from '@/i18n/LocaleProvider'
 import { formSpace, minHitArea } from '@/theme/styles'
 import { gapBelow, heightOf } from '@/ui/FormField/formGap.testing'
@@ -32,7 +33,7 @@ async function loginParts(canvas: Canvas) {
   ) as HTMLElement
   const keepLabel = canvas.getByText('Keep me signed in')
   const main = canvas.getByRole('button', { name: 'Log in' })
-  const divider = (await canvas.findByText('Or continue with'))
+  const divider = (await canvas.findByText('Or with email'))
     .parentElement as HTMLElement
   const apple = await canvas.findByRole('button', {
     name: 'Continue with Apple',
@@ -62,15 +63,23 @@ async function loginParts(canvas: Canvas) {
 
 /**
  * The spec's gaps (wiki: Foundations-Form-Spacing), measured between visible
- * edges: header 8 and 24, label 8, fields 20, "Forgot password?" 4 under the
- * field, Keep me signed in 20 below it, the main button 20, the divider 24
- * either side, Google and Apple 8 apart; 48 tall; 44 to tap.
+ * edges, with the email section open (FE-563): header 8 and 24, Google and
+ * Apple 8 apart, the "Or with email" divider 24 either side, label 8, fields
+ * 20, "Forgot password?" 4 under the field, Keep me signed in 20 below it, the
+ * main button 20; 48 tall; 44 to tap.
  */
 async function expectLoginSpacing(canvas: Canvas) {
   const p = await loginParts(canvas)
 
   await expect(gapBelow(p.title, p.subtitle)).toBe(formSpace.titleToSubtitle)
-  await expect(gapBelow(p.subtitle, p.email)).toBe(formSpace.headerToBody)
+  await expect(gapBelow(p.subtitle, p.google)).toBe(formSpace.headerToBody)
+  await expect(gapBelow(p.google, p.apple)).toBe(formSpace.alternativesGap)
+  await expect(gapBelow(p.apple, p.divider)).toBe(
+    formSpace.dividerToAlternatives,
+  )
+  await expect(gapBelow(p.divider, p.email)).toBe(
+    formSpace.dividerToAlternatives,
+  )
   for (const field of [p.email, p.password]) {
     const label = field.querySelector('label') as HTMLElement
     const shell = (field.querySelector('input') as HTMLElement)
@@ -83,11 +92,6 @@ async function expectLoginSpacing(canvas: Canvas) {
   )
   await expect(gapBelow(p.forgotLine, p.keepControl)).toBe(formSpace.fieldGap)
   await expect(gapBelow(p.keepControl, p.main)).toBe(formSpace.bodyToAction)
-  await expect(gapBelow(p.main, p.divider)).toBe(formSpace.actionToDivider)
-  await expect(gapBelow(p.divider, p.google)).toBe(
-    formSpace.dividerToAlternatives,
-  )
-  await expect(gapBelow(p.google, p.apple)).toBe(formSpace.alternativesGap)
 
   // Right-aligned in the helper slot, inset 4 like the label and helper text.
   const shellRight = p.passwordShell.getBoundingClientRect().right
@@ -104,8 +108,16 @@ async function expectLoginSpacing(canvas: Canvas) {
     await expect(heightOf(control)).toBe(formSpace.controlHeight)
   }
 
-  // Order, top to bottom: header, fields, button, divider, Google, Apple.
-  const inOrder = [p.title, p.email, p.password, p.main, p.divider, p.google]
+  // Order, top to bottom: header, Google, Apple, divider, fields, button.
+  const inOrder = [
+    p.title,
+    p.google,
+    p.apple,
+    p.divider,
+    p.email,
+    p.password,
+    p.main,
+  ]
   inOrder.forEach((node, i) => {
     const next = inOrder[i + 1]
     if (next) {
@@ -114,7 +126,10 @@ async function expectLoginSpacing(canvas: Canvas) {
       )
     }
   })
-  await expect(canvas.queryByText('Or continue with email')).toBeNull()
+  // Open: the button has become the section, so it is gone.
+  await expect(
+    canvas.queryByRole('button', { name: 'Continue with email' }),
+  ).toBeNull()
 
   // The visible row is one 20px line; the tap targets are 44 and add no space.
   await expect(heightOf(p.keepControl)).toBe(20)
@@ -142,16 +157,17 @@ const meta = {
     defaultValues: { email: '', password: '' },
     onSubmit: fn(),
   },
-  decorators: [withAuthWidgets(), withSession()],
+  // Most stories are about the form: open it, as for a returning email user.
+  decorators: [withAuthWidgets(), withSession(), withLastSignIn('email')],
 } satisfies Meta<typeof LoginPanel>
 
 export default meta
 type Story = StoryObj<typeof meta>
 
 /**
- * Signed out: the email form first, then the main button, the "Or continue
- * with" divider and Google and Apple. No eyebrow above the title. The gaps are
- * the form spacing system's (`formSpace`), measured.
+ * A returning email user (FE-563): Google and Apple, then the email section
+ * already open under its "Or with email" divider. No eyebrow above the title.
+ * The gaps are the form spacing system's (`formSpace`), measured.
  */
 export const SignIn: Story = {
   play: async ({ canvasElement }) => {
@@ -335,11 +351,11 @@ export const DeletionScheduled: Story = {
     const notice = await canvas.findByText(
       'Your account will be deleted on 12 November 2030. Sign in before then to restore it.',
     )
-    // Header 24, the notice, then 20 to the first field.
+    // Header 24, the notice, then 20 to the first way in (Google).
     const p = await loginParts(canvas)
     const box = notice.closest('[role="status"]') as HTMLElement
     await expect(gapBelow(p.subtitle, box)).toBe(formSpace.headerToBody)
-    await expect(gapBelow(box, p.email)).toBe(formSpace.fieldGap)
+    await expect(gapBelow(box, p.google)).toBe(formSpace.fieldGap)
   },
 }
 
@@ -370,7 +386,102 @@ export const TraditionalChinese: Story = {
       level: 1,
       name: '登入 Slashie',
     })
-    await canvas.findByText('或使用以下方式繼續')
-    expect(canvas.queryByText('或使用電郵繼續')).toBeNull()
+    // Open after a failed try (FE-563): the email section's divider.
+    await canvas.findByText('或使用電郵')
+    expect(canvas.queryByText('或使用以下方式繼續')).toBeNull()
+  },
+}
+
+/** The three ways in, closed (FE-563): what a first visit sees. */
+async function closedOptions(canvas: Canvas) {
+  const apple = await canvas.findByRole('button', {
+    name: 'Continue with Apple',
+  })
+  const email = canvas.getByRole('button', { name: 'Continue with email' })
+  return { google: apple.previousElementSibling as HTMLElement, apple, email }
+}
+
+/**
+ * A first visit (FE-563, Ryan 13 Nov): Google, Apple and Continue with email,
+ * one stack of equal outlined buttons 8 apart, 48 tall, under the header. No
+ * field yet, so a password manager has nothing to fill.
+ */
+export const OptionsFirst: Story = {
+  decorators: [withLastSignIn(null)],
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const subtitle = (await canvas.findByRole('heading', { level: 1 }))
+      .nextElementSibling as HTMLElement
+    const { google, apple, email } = await closedOptions(canvas)
+    await expect(gapBelow(subtitle, google)).toBe(formSpace.headerToBody)
+    await expect(gapBelow(google, apple)).toBe(formSpace.alternativesGap)
+    await expect(gapBelow(apple, email)).toBe(formSpace.alternativesGap)
+    for (const button of [google, apple, email]) {
+      await expect(heightOf(button)).toBe(formSpace.controlHeight)
+    }
+    // Apple's and email's are one style: same width, border and corners.
+    await expect(email.getBoundingClientRect().width).toBe(
+      apple.getBoundingClientRect().width,
+    )
+    await expect(getComputedStyle(email).borderColor).toBe(
+      getComputedStyle(apple).borderColor,
+    )
+    await expect(email).toHaveAttribute('aria-expanded', 'false')
+    await expect(canvas.queryByLabelText('Email')).toBeNull()
+    await expect(canvas.queryByText('Or with email')).toBeNull()
+  },
+}
+
+/**
+ * Continue with email turns into the email section in place: the divider,
+ * then the form, and the cursor is in Email.
+ */
+export const ContinueWithEmail: Story = {
+  decorators: [withLastSignIn(null)],
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const { email } = await closedOptions(canvas)
+    await userEvent.click(email)
+    await canvas.findByText('Or with email')
+    const field = canvas.getByLabelText('Email')
+    await waitFor(() => expect(field).toHaveFocus())
+    await expect(
+      canvas.queryByRole('button', { name: 'Continue with email' }),
+    ).toBeNull()
+    await expectLoginSpacing(canvas)
+  },
+}
+
+/** A link that brings an email opens the section with it filled in. */
+export const OpensWithEmail: Story = {
+  decorators: [withLastSignIn(null)],
+  args: { defaultValues: { email: 'alex@example.com', password: '' } },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(await canvas.findByLabelText('Email')).toHaveValue(
+      'alex@example.com',
+    )
+  },
+}
+
+/** Traditional Chinese, closed: 使用電郵繼續 beside Google and Apple. */
+export const OptionsFirstChinese: Story = {
+  decorators: [
+    withLastSignIn(null),
+    (Story) => (
+      <LocaleProvider>
+        <Story />
+      </LocaleProvider>
+    ),
+  ],
+  parameters: { nextjs: { navigation: { pathname: '/zh-hk/login' } } },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(
+      await canvas.findByRole('button', { name: '使用電郵繼續' }),
+    ).toBeVisible()
+    await expect(
+      canvas.getByRole('button', { name: '使用 Apple 繼續' }),
+    ).toBeVisible()
   },
 }

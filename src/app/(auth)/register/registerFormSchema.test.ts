@@ -7,32 +7,34 @@ const valid = {
   email: 'alex@example.com',
   password: 'password1',
   confirmPassword: 'password1',
-  isOver18: true,
-  agreedToTerms: true,
   marketingOptIn: false,
 }
 
 describe('registerFormSchema', () => {
-  it('accepts an explicit 18+ confirmation', () => {
+  it('accepts the fields alone: age and Terms are the consent line above every way in (FE-563)', () => {
     expect(registerFormSchema.safeParse(valid).success).toBe(true)
   })
 
-  it('rejects an unticked 18+ checkbox', () => {
-    const result = registerFormSchema.safeParse({ ...valid, isOver18: false })
-    expect(result.success).toBe(false)
-    if (result.success) return
-    expect(result.error.flatten().fieldErrors.isOver18?.[0]).toBe(
-      'over18Required',
-    )
+  it('leaves marketing email opt-in, unticked by default', () => {
+    expect(
+      registerFormSchema.safeParse({ ...valid, marketingOptIn: true }).success,
+    ).toBe(true)
   })
 
-  it('rejects missing Terms agreement', () => {
+  it('asks for a name, a valid email and 8 characters', () => {
     const result = registerFormSchema.safeParse({
       ...valid,
-      agreedToTerms: false,
-      marketingOptIn: false,
+      fullName: ' ',
+      email: 'alex',
+      password: 'short',
+      confirmPassword: 'short',
     })
     expect(result.success).toBe(false)
+    if (result.success) return
+    const errors = result.error.flatten().fieldErrors
+    expect(errors.fullName?.[0]).toBe('fullNameRequired')
+    expect(errors.email?.[0]).toBe('emailInvalid')
+    expect(errors.password?.[0]).toBe('passwordTooShort')
   })
 
   it('asks for matching passwords', () => {

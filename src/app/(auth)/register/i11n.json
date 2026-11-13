@@ -10,14 +10,8 @@
     "passwordLabel": "Password",
     "fullNameLabel": "Full name",
     "confirmPasswordLabel": "Confirm password",
-    "over18Label": "I confirm I am 18 or over.",
-    "termsBefore": "I agree to the",
     "termsLink": "Terms of Service",
-    "termsAnd": "and",
     "privacyLink": "Privacy Policy",
-    "googleConsentHint": "Confirm you are 18 or over and agree to the Terms before continuing with Google or Apple.",
-    "googleBlockedTitle": "Confirm you are 18 or over",
-    "googleBlockedDescription": "Tick both boxes above, then continue with Google.",
     "submit": "Create account",
     "loginPrompt": "Already have an account?",
     "loginLink": "Log in",
@@ -28,15 +22,14 @@
       "emailRequired": "Enter your email.",
       "emailInvalid": "Enter a valid email.",
       "passwordTooShort": "Use at least 8 characters.",
-      "passwordsDontMatch": "Passwords do not match.",
-      "over18Required": "You must confirm you are 18 or over to use Slashie.",
-      "termsRequired": "Please agree to the Terms of Service and Privacy Policy."
+      "passwordsDontMatch": "Passwords do not match."
     },
     "messages": {
       "emailTaken": "An account with this email already exists. Log in instead.",
       "weakPassword": "Use at least 8 characters.",
       "failed": "Registration failed."
-    }
+    },
+    "consentLine": "By continuing, you confirm you're 18 or over and agree to the {terms} and {privacy}."
   },
   "zh_hk": {
     "metadata": {
@@ -49,14 +42,8 @@
     "passwordLabel": "密碼",
     "fullNameLabel": "全名",
     "confirmPasswordLabel": "確認密碼",
-    "over18Label": "我確認自己年滿 18 歲。",
-    "termsBefore": "我同意",
     "termsLink": "服務條款",
-    "termsAnd": "及",
     "privacyLink": "私隱政策",
-    "googleConsentHint": "繼續使用 Google 或 Apple 前，請先確認年滿 18 歲並同意條款。",
-    "googleBlockedTitle": "請確認你年滿 18 歲",
-    "googleBlockedDescription": "先勾選上面兩項，再繼續使用 Google。",
     "submit": "建立帳戶",
     "loginPrompt": "已有帳戶？",
     "loginLink": "登入",
@@ -67,14 +54,13 @@
       "emailRequired": "請輸入電郵。",
       "emailInvalid": "請輸入有效的電郵。",
       "passwordTooShort": "請使用最少 8 個字元。",
-      "passwordsDontMatch": "兩次輸入的密碼不一致。",
-      "over18Required": "你必須確認年滿 18 歲才可使用 Slashie。",
-      "termsRequired": "請同意服務條款及私隱政策。"
+      "passwordsDontMatch": "兩次輸入的密碼不一致。"
     },
     "messages": {
       "emailTaken": "此電郵已有帳戶，請改為登入。",
       "weakPassword": "請使用最少 8 個字元。",
       "failed": "註冊失敗。"
-    }
+    },
+    "consentLine": "繼續即表示你確認已年滿 18 歲，並同意{terms}及{privacy}。"
   }
 }
