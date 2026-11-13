@@ -6,6 +6,8 @@ query MyRequests($filter: TaskFilter, $sort: TaskSort) {
       description
       categories
       createdAt
+      # When it was booked or cancelled (BE-127): Past rows' date.
+      closedAt
       budget {
         amount
         currency

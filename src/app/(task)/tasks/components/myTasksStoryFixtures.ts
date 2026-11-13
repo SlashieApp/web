@@ -168,7 +168,10 @@ export const storyRows = {
     priceLabel: '£50',
     orderId: 'order-failed',
   }),
-  /** A quote that closed with its booking (BE-113): no end date in the hub's data. */
+  /**
+   * A quote that closed with its booking (BE-113), closed before the API kept
+   * the date (BE-127): no date, no stand-in.
+   */
   pastClosed: row({
     id: 'past-closed',
     title: 'Clear a small garden',
@@ -178,13 +181,17 @@ export const storyRows = {
     priceLabel: '£90',
     categories: ['Gardening'],
   }),
-  /** Your quote is still pending while someone else is booked (BE-113): no button. */
+  /**
+   * Your quote is still pending while someone else is booked (BE-113): no
+   * button. Dated when the other worker was booked (`Quote.closedAt`, BE-127).
+   */
   pastBookedByOther: row({
     id: 'past-booked-by-other',
     title: 'Paint a fence',
     section: 'past',
     roles: ['quoted'],
     outcome: 'bookedByOther',
+    endedAt: at(10, 22, 9, 0),
     priceLabel: '£80',
     categories: ['Painting'],
   }),

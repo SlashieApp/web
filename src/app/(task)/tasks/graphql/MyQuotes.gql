@@ -55,6 +55,8 @@ query MyQuotes($filter: TaskFilter, $sort: TaskSort) {
           }
           status
           createdAt
+          # Your quote's: when it stopped being live (BE-127), Past rows' date.
+          closedAt
         }
       }
     }

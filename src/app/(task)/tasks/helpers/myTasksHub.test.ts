@@ -839,6 +839,84 @@ describe('buildMyTasksHub Past', () => {
   })
 })
 
+describe('buildMyTasksHub Past dates for rows never booked (BE-127)', () => {
+  it('dates a cancelled task, a quote left pending, a withdrawn quote and a closed one from the API', () => {
+    const sections = buildMyTasksHub({
+      now: NOW,
+      userId: ME,
+      posted: [
+        task({
+          id: 'my-cancelled',
+          title: 'My cancelled',
+          status: 'CANCELLED',
+          closedAt: local(10, 18, 9),
+        }),
+        // Closed before the API kept the date: no date, no stand-in.
+        task({
+          id: 'old-cancelled',
+          title: 'Old cancelled',
+          status: 'CANCELLED',
+        }),
+      ],
+      sentQuotes: [
+        {
+          task: task({
+            id: 'booked-by-other',
+            title: 'Booked by other',
+            status: 'AWARDED',
+            bookingStatus: 'BOOKED',
+          }),
+          quote: {
+            id: 'q1',
+            workerUserId: ME,
+            status: 'PENDING',
+            createdAt: local(10, 2, 9),
+            closedAt: local(10, 22, 9),
+          },
+        },
+        {
+          task: task({ id: 'withdrawn', title: 'Withdrawn', status: 'OPEN' }),
+          quote: {
+            id: 'q2',
+            workerUserId: ME,
+            status: 'WITHDRAWN',
+            createdAt: local(10, 2, 9),
+            closedAt: local(10, 5, 9),
+          },
+        },
+      ],
+      orders: [],
+    })
+    const past = sections.find((section) => section.id === 'past')
+    expect(past?.rows.map((row) => [row.id, row.endedAt])).toEqual([
+      ['booked-by-other', local(10, 22, 9)],
+      ['my-cancelled', local(10, 18, 9)],
+      ['withdrawn', local(10, 5, 9)],
+      ['old-cancelled', null],
+    ])
+  })
+
+  it("takes the later of the booking's close and the task's on your own task", () => {
+    const booked = hostedBooking('ended', {
+      status: 'CANCELLED',
+      closedAt: local(10, 20, 12),
+    })
+    // Booked on 10 Oct, the booking cancelled on 20 Oct: the cancellation.
+    booked.posted = { ...booked.posted, closedAt: local(10, 10, 12) }
+    const sections = buildMyTasksHub({
+      now: NOW,
+      userId: ME,
+      posted: [booked.posted],
+      sentQuotes: [],
+      orders: [booked.order],
+    })
+    const past = sections.find((section) => section.id === 'past')
+    expect(past?.rows.map((row) => [row.id, row.endedAt])).toEqual([
+      ['ended', local(10, 20, 12)],
+    ])
+  })
+})
+
 describe('buildMyTasksHub prices', () => {
   it('shows the agreed price once booked, your quote on a quote you sent, else the budget', () => {
     const booked = hostedBooking('booked', { agreedPrice: { amount: 95 } })

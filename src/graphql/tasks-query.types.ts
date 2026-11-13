@@ -16,6 +16,8 @@ export type TaskQuoteListItem = {
   message?: string | null
   status: string
   createdAt: unknown
+  /** When it stopped being live (BE-127). `MyQuotes` selects it; your own quote's only. */
+  closedAt?: unknown
   worker?: {
     id: string
     profile?: { name?: string | null; avatarUrl?: string | null } | null
@@ -45,6 +47,8 @@ export type TaskListItem = {
   /** Public view count; null during cold-start. Browse `tasks` only. */
   views?: number | null
   createdAt: unknown
+  /** Booked or cancelled (BE-127). `MyRequests` selects it; the owner only. */
+  closedAt?: unknown
   completedAt?: unknown
   confirmedAt?: unknown
   datetime?: TaskDateTime | null

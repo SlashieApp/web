@@ -285,7 +285,7 @@ export const PastCancelled: Story = {
   },
 }
 
-/** Past row: how it ended is a pill; the line has the price (no end date known); the ⋮ menu. */
+/** Past row: how it ended is a pill; the line has the price (closed before the API kept the date: none shown); the ⋮ menu. */
 export const PastRow: Story = {
   args: { row: storyRows.pastClosed, layout: 'row' },
   play: async ({ canvasElement }) => {
@@ -301,14 +301,15 @@ export const PastRow: Story = {
 
 /**
  * Past row: your quote is still pending while someone else is booked (BE-113).
- * The status is a pill, and there is no button, only the ⋮ menu.
+ * The status is a pill, the line has the day the other worker was booked
+ * (BE-127, FE-532), and there is no button, only the ⋮ menu.
  */
 export const PastRowBookedByOther: Story = {
   args: { row: storyRows.pastBookedByOther, layout: 'row' },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
     await expect(canvas.getByText('Booked by someone else')).toBeVisible()
-    await expect(canvas.getByText('£80')).toBeVisible()
+    await expect(canvas.getByText('22 Oct · £80')).toBeVisible()
     await expect(
       canvas.getByRole('button', { name: 'Options for Paint a fence' }),
     ).toBeVisible()

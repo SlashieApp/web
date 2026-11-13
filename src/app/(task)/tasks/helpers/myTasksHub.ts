@@ -81,6 +81,11 @@ export type MyTaskQuoteSource = {
   workerUserId: string
   status: string
   createdAt?: unknown
+  /**
+   * `Quote.closedAt` (BE-127): when it stopped being live (withdrawn, closed,
+   * or left PENDING when the task was booked or cancelled). Your own only.
+   */
+  closedAt?: unknown
   price?: { amount: number } | null
 }
 
@@ -89,6 +94,11 @@ export type MyTaskSource = {
   title: string
   /** When it was posted; Past falls back to it to sort. */
   createdAt?: unknown
+  /**
+   * `Task.closedAt` (BE-127): its latest booking or cancellation. The owner
+   * only; null on tasks you quoted on.
+   */
+  closedAt?: unknown
   categories?: readonly string[] | null
   status: string
   images?: readonly string[] | null
@@ -404,6 +414,25 @@ function actionFor(input: {
   return view ? (ACTION_BY_VIEW[view] ?? null) : null
 }
 
+/**
+ * When a Past row ended: the latest of the booking's close, your task's
+ * close (your own tasks: booked or cancelled) and your quote's close
+ * (BE-127). Rows closed before the API kept these get 0: no date, no
+ * stand-in (FE-532).
+ */
+function endedMs(
+  task: MyTaskSource,
+  hosted: boolean,
+  myQuote: MyTaskQuoteSource | null,
+  order: MyTaskOrderSource | null,
+): number {
+  return Math.max(
+    timeOf(order?.closedAt),
+    hosted ? timeOf(task.closedAt) : 0,
+    timeOf(myQuote?.closedAt),
+  )
+}
+
 /** Upcoming and Open: when it happens. Past: when it ended (see `sortMs`). */
 type SortableRow = MyTaskHubRow & { sortMs: number }
 
@@ -489,7 +518,8 @@ export function buildMyTasksHub(input: {
         : task.datetime,
       now,
     )
-    const closedMs = section === 'past' ? timeOf(order?.closedAt) : 0
+    const closedMs =
+      section === 'past' ? endedMs(task, hosted, myQuote, order) : 0
     const view =
       section === 'past'
         ? null
