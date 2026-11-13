@@ -19,6 +19,7 @@ import { stripLocalePrefix } from '@/i18n/navigation'
 import { useOpenFeedbackDialog } from '@/ui/FeedbackDialog/FeedbackDialogProvider'
 import { HEADER_MIN_HEIGHT, HeaderToolbarSeparator } from '@/ui/Header'
 import { PageContainer } from '@/ui/PageContainer'
+import { SkipLink } from '@/ui/SkipLink/SkipLink'
 import { APP_HOME, MARKETING_HOME, SAFETY_HREF } from '@/utils/appRoutes'
 import { openAppOnAndroid } from '@/utils/nativeApp'
 import { Button, Drawer, IconButton, Link } from '@ui'
@@ -32,38 +33,6 @@ const MARKETING_NAV_LINKS = [
 ] as const
 
 type MarketingChromeCopy = (typeof chromeMessages)['en']
-
-const SkipLinkAnchor = chakra('a')
-
-/** Keyboard skip link — visually hidden until focused (first tab stop). */
-function SkipLink({ label }: { label: string }) {
-  return (
-    <SkipLinkAnchor
-      href="#main-content"
-      position="absolute"
-      top={2}
-      left={2}
-      zIndex={100}
-      px={4}
-      py={2}
-      bg="bg.surface"
-      color="text.default"
-      fontSize="sm"
-      fontWeight={500}
-      borderRadius="md"
-      boxShadow="e3"
-      transform="translateY(-300%)"
-      _focusVisible={{
-        transform: 'none',
-        outline: '2px solid',
-        outlineColor: 'border.focus',
-        outlineOffset: '2px',
-      }}
-    >
-      {label}
-    </SkipLinkAnchor>
-  )
-}
 
 /**
  * One row of the phone menu. Links and the Feedback button share these, so
@@ -446,7 +415,7 @@ export function MarketingHeader(props: MarketingHeaderProps) {
         top={0}
         {...props}
       >
-        <SkipLink label={copy.skipToContent} />
+        <SkipLink />
         <PageContainer
           w="full"
           minH={HEADER_MIN_HEIGHT}

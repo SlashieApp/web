@@ -1,5 +1,6 @@
 import { Box } from '@chakra-ui/react'
 
+import { MAIN_CONTENT_ID } from '@/ui/SkipLink/mainContent'
 import { MarketingHeader } from './components/layout/MarketingHeader'
 
 export default function MarketingLayout({
@@ -22,7 +23,9 @@ export default function MarketingLayout({
           collapses main to max-content width, breaking full-bleed sections. */}
       <Box
         as="main"
-        id="main-content"
+        id={MAIN_CONTENT_ID}
+        tabIndex={-1}
+        _focusVisible={{ outline: 'none' }}
         flex={1}
         w="full"
         minW={0}

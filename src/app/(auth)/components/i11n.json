@@ -41,7 +41,9 @@
       "legalAria": "Legal",
       "terms": "Terms",
       "privacy": "Privacy",
-      "contact": "Contact"
+      "contact": "Contact",
+      "language": "Language: {name}",
+      "cookieSettings": "Cookie settings"
     },
     "fields": {
       "showPassword": "Show password",
@@ -62,6 +64,12 @@
       "sent": "Verification email sent. Check your inbox.",
       "tooSoon": "Please wait 2 minutes before resending.",
       "failed": "Could not send the verification email. Try again shortly."
+    },
+    "verifyBanner": {
+      "ariaLabel": "Verify your email",
+      "text": "Verify your email to post tasks and send quotes.",
+      "checkInbox": "Check inbox",
+      "resend": "Resend email"
     }
   },
   "zh_hk": {
@@ -106,7 +114,9 @@
       "legalAria": "法律資訊",
       "terms": "條款",
       "privacy": "私隱",
-      "contact": "聯絡我們"
+      "contact": "聯絡我們",
+      "language": "語言：{name}",
+      "cookieSettings": "Cookie 設定"
     },
     "fields": {
       "showPassword": "顯示密碼",
@@ -127,6 +137,12 @@
       "sent": "已傳送驗證電郵，請查看你的收件匣。",
       "tooSoon": "請等候 2 分鐘再重新傳送。",
       "failed": "未能傳送驗證電郵，請稍後再試。"
+    },
+    "verifyBanner": {
+      "ariaLabel": "驗證你的電郵",
+      "text": "請驗證你的電郵，以便發佈任務和發送報價。",
+      "checkInbox": "查看收件匣",
+      "resend": "重新傳送電郵"
     }
   }
 }

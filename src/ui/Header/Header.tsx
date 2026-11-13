@@ -39,10 +39,7 @@ import { PageBleed } from '../PageContainer'
 import { AccountMenu } from './account/AccountMenu'
 import { accountNavLinkRowProps } from './account/accountNavLinkProps'
 import bag from './i11n.json'
-import {
-  HeaderGuestAuthButtons,
-  HeaderToolbarSeparator,
-} from './shell/GuestHeaderAuth'
+import { HeaderGuestAuthButtons } from './shell/GuestHeaderAuth'
 import { HEADER_MIN_HEIGHT } from './shell/headerShell'
 
 export { HEADER_MIN_HEIGHT } from './shell/headerShell'
@@ -160,7 +157,6 @@ function HeaderAuthSkeleton() {
 
   return (
     <>
-      <HeaderToolbarSeparator display="block" ml={2} />
       <HStack
         gap={1}
         align="center"
@@ -243,24 +239,26 @@ function AppHeaderNavigation({ hasSession }: { hasSession: boolean }) {
             <Logo />
           </Box>
         </Link>
-
-        <GetAppButton display={{ base: 'none', lg: 'inline-flex' }} />
       </HStack>
 
       <HStack align="center" flexShrink={0} overflow="visible">
         <DesktopPrimaryNav signedIn={isLoggedIn} />
+        {/* One Get app: the outlined pill, on the right with the other
+            actions, as on Search (FE-541). */}
+        <GetAppButton
+          variant="secondary"
+          display={{ base: 'none', lg: 'inline-flex' }}
+        />
         {showAuthSkeleton ? (
           <HeaderAuthSkeleton />
         ) : isLoggedIn ? (
           <>
-            <HeaderToolbarSeparator display="block" ml={2} />
             <HStack gap={1} align="center" flexShrink={0} overflow="visible">
               <AccountMenu />
             </HStack>
           </>
         ) : (
           <>
-            <HeaderToolbarSeparator />
             <Box display={{ base: 'none', lg: 'inline-flex' }}>
               <FeedbackTrigger variant="button" />
             </Box>

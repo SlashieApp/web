@@ -1,6 +1,5 @@
 {
   "en": {
-    "skipToContent": "Skip to content",
     "menu": "Menu",
     "language": "Language",
     "pricing": "Pricing",
@@ -11,7 +10,6 @@
     "openInApp": "Open in app"
   },
   "zh_hk": {
-    "skipToContent": "跳到主要內容",
     "menu": "選單",
     "language": "語言",
     "pricing": "收費",

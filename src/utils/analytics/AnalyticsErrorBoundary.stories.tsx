@@ -11,6 +11,8 @@ import {
 import { expectCentredCardBox } from '@/ui/StatusCard/statusCard.testing'
 import { APP_HOME } from '@/utils/appRoutes'
 
+import { LocaleProvider } from '@/i18n/LocaleProvider'
+
 import { AnalyticsErrorBoundary } from './AnalyticsErrorBoundary'
 
 /** A child that always fails to render, so the boundary shows its message. */
@@ -79,6 +81,40 @@ export const Retry: Story = {
     )
     await expect(
       await within(canvasElement).findByRole('button', { name: 'Try again' }),
+    ).toBeVisible()
+  },
+}
+
+/** FE-541: the error page's own words, and Search beside Try again. */
+export const SameWordsAsErrorPage: Story = {
+  play: async ({ canvasElement }) => {
+    const card = cardOf(canvasElement)
+    await expect(card).toHaveTextContent(
+      "Sorry, this page didn't load. Try again, or head back to search.",
+    )
+    await expect(
+      within(card).getByRole('link', { name: 'Search tasks' }),
+    ).toBeVisible()
+  },
+}
+
+/** FE-541: in Chinese, from the `/zh-hk` prefix, like the error page. */
+export const TraditionalChinese: Story = {
+  parameters: { nextjs: { navigation: { pathname: '/zh-hk' } } },
+  decorators: [
+    (Story) => (
+      <LocaleProvider>
+        <Story />
+      </LocaleProvider>
+    ),
+  ],
+  play: async ({ canvasElement }) => {
+    const card = within(canvasElement).getByRole('alert', {
+      name: '出了點問題',
+    })
+    await expect(card).toHaveTextContent('抱歉，此頁面未能載入。')
+    await expect(
+      within(card).getByRole('button', { name: '再試一次' }),
     ).toBeVisible()
   },
 }

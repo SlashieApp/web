@@ -3,7 +3,7 @@ import { ApolloProvider } from '@apollo/client/react'
 import { Box, Heading, Stack, Text } from '@chakra-ui/react'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { NEVER } from 'rxjs'
-import { expect, within } from 'storybook/test'
+import { expect, userEvent, within } from 'storybook/test'
 
 import { useUserStore } from '@/app/(auth)/store/user'
 
@@ -75,6 +75,29 @@ export const Default: Story = {
         name: 'Primary navigation',
       }),
     ).toBeNull()
+  },
+}
+
+/**
+ * FE-541: the first Tab stop is "Skip to content", hidden until focused; it
+ * jumps to the main pane, which takes focus.
+ */
+export const SkipToContent: Story = {
+  play: async ({ canvasElement }) => {
+    const main = canvasElement.querySelector('main')
+    if (!main) throw new Error('No main')
+    await expect(main).toHaveAttribute('id', 'main-content')
+    await expect(main).toHaveAttribute('tabindex', '-1')
+    await userEvent.tab()
+    const skip = within(canvasElement).getByRole('link', {
+      name: 'Skip to content',
+    })
+    await expect(skip).toHaveFocus()
+    await expect(skip).toHaveAttribute('href', '#main-content')
+    // Following the link is the browser's own hash jump; the test page can't
+    // take it (its frame would navigate away), so check the target takes focus.
+    main.focus()
+    await expect(main).toHaveFocus()
   },
 }
 

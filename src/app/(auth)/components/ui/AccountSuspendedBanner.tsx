@@ -1,6 +1,6 @@
 'use client'
 
-import { Box, Text } from '@chakra-ui/react'
+import { Box } from '@chakra-ui/react'
 import { useCallback, useRef } from 'react'
 
 import { useAccountSuspended } from '@/app/(auth)/helpers/accountDisabled'
@@ -10,6 +10,7 @@ import { getAuthToken } from '@/utils/auth'
 import { Link } from '@ui'
 
 import bag from '../i11n.json'
+import { AccountNotice } from './AccountNotice'
 
 export function AccountSuspendedBanner() {
   const t = useI11n(bag).suspended
@@ -34,35 +35,23 @@ export function AccountSuspendedBanner() {
     <>
       <Box ref={onHydrateRef} display="none" aria-hidden />
       {visible ? (
-        <Box
-          role="alert"
-          aria-label={t.ariaLabel}
-          bg="status.warning.soft"
-          borderBottomWidth="1px"
-          borderColor="status.warning.solid"
-          px={{ base: 3, lg: 4 }}
-          py={2}
+        <AccountNotice
+          announce="alert"
+          ariaLabel={t.ariaLabel}
+          data-suspended-banner=""
         >
-          <Text
+          {t.beforeEmail}
+          <Link
+            href={mailto}
             fontSize="sm"
-            color="status.warning.fg"
             fontWeight={500}
-            lineHeight="tall"
-            textAlign="center"
+            color="text.link"
+            _hover={{ textDecoration: 'underline' }}
           >
-            {t.beforeEmail}
-            <Link
-              href={mailto}
-              fontSize="sm"
-              fontWeight={500}
-              color="text.link"
-              _hover={{ textDecoration: 'underline' }}
-            >
-              {t.email}
-            </Link>
-            {t.afterEmail}
-          </Text>
-        </Box>
+            {t.email}
+          </Link>
+          {t.afterEmail}
+        </AccountNotice>
       ) : null}
     </>
   )

@@ -1,7 +1,12 @@
 'use client'
 
+import NextLink from 'next/link'
 import { Component, type ErrorInfo, type ReactNode } from 'react'
 
+import errorBag from '@/app/i11n.json'
+import { useLocalizedHref } from '@/i18n/LocaleProvider'
+import { useI11n } from '@/i18n/useI11n'
+import { APP_HOME } from '@/utils/appRoutes'
 import { Button, StatusCard } from '@ui'
 
 import {
@@ -9,6 +14,35 @@ import {
   shouldFallbackToLandingOnApiFailure,
 } from '@/utils/apiAvailability'
 import { capture, getCurrentRoute } from './capture'
+
+/**
+ * The card when the whole app has failed: the error page's own words
+ * (`app/error.tsx`), in the reader's language, with Try again and Search
+ * (FE-541). The boundary wraps the app, so the card is the page and its one
+ * main (fullPage).
+ */
+function LastResortCard({ onRetry }: { onRetry: () => void }) {
+  const t = useI11n(errorBag)
+  const href = useLocalizedHref()
+  return (
+    <StatusCard
+      fullPage
+      role="alert"
+      title={t.errorTitle}
+      body={t.errorBody}
+      actions={
+        <>
+          <Button size="form" variant="primary" onClick={onRetry}>
+            {t.retry}
+          </Button>
+          <Button asChild size="form" variant="ghost">
+            <NextLink href={href(APP_HOME)}>{t.search}</NextLink>
+          </Button>
+        </>
+      }
+    />
+  )
+}
 
 type AnalyticsErrorBoundaryProps = {
   children: ReactNode
@@ -56,20 +90,6 @@ export class AnalyticsErrorBoundary extends Component<
   render() {
     if (!this.state.hasError) return this.props.children
 
-    return (
-      // The boundary wraps the whole app, so when it trips the shell and its
-      // main are gone: the card is the page and its one main (fullPage).
-      <StatusCard
-        fullPage
-        role="alert"
-        title="Something went wrong"
-        body="An unexpected error occurred. Try again or refresh the page."
-        actions={
-          <Button size="form" variant="primary" onClick={this.handleRetry}>
-            Try again
-          </Button>
-        }
-      />
-    )
+    return <LastResortCard onRetry={this.handleRetry} />
   }
 }

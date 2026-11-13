@@ -16,6 +16,8 @@ import {
   MOBILE_BOTTOM_NAV_CLEARANCE,
   MobileBottomNav,
 } from '../MobileBottomNav'
+import { SkipLink } from '../SkipLink/SkipLink'
+import { MAIN_CONTENT_ID } from '../SkipLink/mainContent'
 
 import { shouldHideMobileNav } from './shouldHideMobileNav'
 import { useHideHeaderOnScroll } from './useHideHeaderOnScroll'
@@ -91,6 +93,8 @@ export function AppShellBody({
 
   return (
     <>
+      {/* The first tab stop (FE-541): past the header to the page. */}
+      <SkipLink />
       <Box
         flexShrink={0}
         display={{ base: 'block', lg: 'contents' }}
@@ -113,6 +117,9 @@ export function AppShellBody({
       </Box>
       <Box
         as="main"
+        id={MAIN_CONTENT_ID}
+        tabIndex={-1}
+        _focusVisible={{ outline: 'none' }}
         flex={1}
         minH={0}
         minW={0}

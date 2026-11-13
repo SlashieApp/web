@@ -95,3 +95,36 @@ export const Phone: Story = {
     expectAuthColumn(canvasElement, 358)
   },
 }
+
+/**
+ * FE-541, Ryan 13 Nov: a guest on a phone reaches Language, Terms, Privacy and
+ * Cookie settings from the links row under the form, which wraps inside the
+ * column at 390 rather than running off it.
+ */
+export const GuestLinksRow: Story = {
+  ...viewportAt(390),
+  play: async ({ canvasElement }) => {
+    const nav = within(canvasElement).getByRole('navigation', { name: 'Legal' })
+    const row = within(nav)
+    await expect(
+      row.getByRole('button', { name: 'Language: English' }),
+    ).toBeVisible()
+    await expect(row.getByRole('link', { name: 'Terms' })).toHaveAttribute(
+      'href',
+      '/terms',
+    )
+    await expect(row.getByRole('link', { name: 'Privacy' })).toHaveAttribute(
+      'href',
+      '/privacy',
+    )
+    await expect(
+      row.getByRole('button', { name: 'Cookie settings' }),
+    ).toBeVisible()
+    const box = nav.getBoundingClientRect()
+    for (const item of nav.children) {
+      const r = item.getBoundingClientRect()
+      await expect(r.left).toBeGreaterThanOrEqual(box.left - 0.5)
+      await expect(r.right).toBeLessThanOrEqual(box.right + 0.5)
+    }
+  },
+}
