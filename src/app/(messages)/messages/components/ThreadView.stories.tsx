@@ -380,7 +380,12 @@ export const WorkerBookedByOther: Story = {
     // Quiet: the log holds only the quote the worker sent, and nothing new.
     await expect(within(log).getByText('Booked by someone else')).toBeVisible()
     await expect(within(log).queryByText('Awaiting reply')).toBeNull()
-    await expect(log.querySelectorAll('[data-flash-line]')).toHaveLength(0)
+    // The quote's own line (FE-567) heads its card; no other event.
+    await expect(
+      log.querySelectorAll(
+        '[data-flash-line]:not([data-flash-line="QUOTE_RECEIVED"])',
+      ),
+    ).toHaveLength(0)
     await expect(canvas.queryByRole('textbox')).toBeNull()
   },
 }
@@ -448,7 +453,12 @@ export const WorkerOtherBookingEnded: Story = {
     await expect(canvas.getAllByText('Booking cancelled')).toHaveLength(2)
     await expect(within(log).getByText('Booking cancelled')).toBeVisible()
     await expect(within(log).queryByText('Awaiting reply')).toBeNull()
-    await expect(log.querySelectorAll('[data-flash-line]')).toHaveLength(0)
+    // The quote's own line (FE-567) heads its card; no other event.
+    await expect(
+      log.querySelectorAll(
+        '[data-flash-line]:not([data-flash-line="QUOTE_RECEIVED"])',
+      ),
+    ).toHaveLength(0)
     await expect(canvas.queryByRole('textbox')).toBeNull()
   },
 }

@@ -1,6 +1,13 @@
 'use client'
 
-import { Box, HStack, Stack, Text, chakra } from '@chakra-ui/react'
+import {
+  Box,
+  type BoxProps,
+  HStack,
+  Stack,
+  Text,
+  chakra,
+} from '@chakra-ui/react'
 import type { ThreadFieldsFragment } from '@codegen/schema'
 import {
   type ReactNode,
@@ -36,7 +43,7 @@ import {
 import taskBag from '@/app/(task)/tasks/[slug]/i11n.json'
 import { formatMessage } from '@/i18n/loadPageI11n'
 import { useI11n } from '@/i18n/useI11n'
-import { sdlFigure, sdlFocusRing, sdlMotion } from '@/theme/styles'
+import { sdlFigure, sdlFocusRing } from '@/theme/styles'
 import { formatOrderAgreedPrice } from '@/utils/orderHelpers'
 import { formatTimeSlotLabel } from '@/utils/timeSlots'
 import { Avatar, Drawer } from '@ui'
@@ -86,21 +93,18 @@ type BookingSummary = NonNullable<ReturnType<typeof useBookingSummary>>
 /**
  * The booking in the Home "Hire and pay directly" language (FE-543): the
  * other person and the agreed price, then, under a hairline, the booked time
- * and how they pay. `compact` is the card pinned under the header: the time
- * on one line under the person (how they pay is in the sheet), with a
- * chevron, so it keeps the conversation its room on a phone.
+ * and how they pay, in the booking's sheet. The pin under the header shows
+ * only the status and the time (`ThreadBookingPin`, FE-567).
  */
 function BookingFacts({
   summary,
-  compact = false,
 }: {
   summary: BookingSummary
-  compact?: boolean
 }) {
   const head = (
     <HStack gap={3} align="center">
       <Avatar
-        size={compact ? 'md' : 'lg'}
+        size="lg"
         name={summary.name}
         src={summary.avatarUrl ?? undefined}
       />
@@ -114,16 +118,6 @@ function BookingFacts({
         >
           {summary.name}
         </Text>
-        {compact ? (
-          <HStack gap={1.5} fontSize="sm" color="text.muted" minW={0}>
-            <Box as="span" display="inline-flex" flexShrink={0}>
-              <LuCalendar size={14} aria-hidden />
-            </Box>
-            <Text as="span" truncate>
-              {summary.time}
-            </Text>
-          </HStack>
-        ) : null}
       </Stack>
       <Text
         as="span"
@@ -135,14 +129,8 @@ function BookingFacts({
       >
         {summary.price}
       </Text>
-      {compact ? (
-        <Box as="span" display="inline-flex" color="text.subtle" aria-hidden>
-          <LuChevronRight size={16} />
-        </Box>
-      ) : null}
     </HStack>
   )
-  if (compact) return head
   return (
     <>
       {head}
@@ -187,15 +175,17 @@ const CARD_FRAME = {
   borderColor: 'border.default',
 } as const
 
-const PRESSABLE_CSS = {
-  touchAction: 'manipulation',
-  '&:hover': { borderColor: 'border.hover' },
-  '&:focus-visible': sdlFocusRing,
-  '@media (prefers-reduced-motion: reduce)': { transition: 'none' },
-} as const
-
-/** "Needs you" and the headline, in the warning colour, with a chevron. */
-function NeedsLine({ need }: { need: ThreadNeed }) {
+/**
+ * "Needs you" and the headline, in the warning colour, with a chevron unless
+ * the row it sits in has one (the booked pin's).
+ */
+function NeedsLine({
+  need,
+  chevron = true,
+}: {
+  need: ThreadNeed
+  chevron?: boolean
+}) {
   const t = useI11n(bag)
   return (
     <HStack gap={2} align="center">
@@ -214,24 +204,61 @@ function NeedsLine({ need }: { need: ThreadNeed }) {
         {' · '}
         {need.headline}
       </Text>
-      <Box as="span" display="inline-flex" color="text.subtle" aria-hidden>
-        <LuChevronRight size={16} />
-      </Box>
+      {chevron ? <PinChevron /> : null}
     </HStack>
   )
 }
 
+function PinChevron() {
+  return (
+    <Box
+      as="span"
+      display="inline-flex"
+      flexShrink={0}
+      color="text.subtle"
+      aria-hidden
+    >
+      <LuChevronRight size={16} />
+    </Box>
+  )
+}
+
 /**
- * The booking card pinned under the thread's header once someone is booked
- * (FE-543), in place of the quotes strip: who, the agreed price, when and how
- * to pay, and, when something needs the viewer, a "Needs you" line with what
- * it is. The whole card opens the booking in the thread's sheet: what needs
- * them, Mark done, Reschedule and Cancel booking.
+ * The top pin as one flat band (FE-567): no card inside it. When it opens the
+ * sheet the whole band is the button, with a hover fill and the focus ring.
  */
-export function ThreadBookingCard({
+const PIN_BAND_BUTTON = {
+  display: 'block',
+  w: 'full',
+  textAlign: 'start',
+  bg: 'transparent',
+  cursor: 'pointer',
+  css: {
+    touchAction: 'manipulation',
+    '&:hover': { bg: 'bg.subtle' },
+    '&:focus-visible': { ...sdlFocusRing, outlineOffset: '-2px' },
+  },
+} as const
+
+/**
+ * The booked pin under the thread's header (FE-543, flat since FE-567): the
+ * status pill and when the job is, then, when something needs the viewer, a
+ * "Needs you" line with what it is. Nothing the header or the thread already
+ * shows (who, the price). The whole band opens the booking in the thread's
+ * sheet: what needs them, Mark done, Reschedule and Cancel booking. The pin
+ * draws the band and its padding; this is the row inside it.
+ */
+export function ThreadBookingPin({
   attention,
+  pill,
+  px,
+  py,
 }: {
   attention: ThreadFieldsFragment['attention']
+  /** The task's status pill (Booked), from the pin. */
+  pill: ReactNode
+  px: BoxProps['px']
+  py: BoxProps['py']
 }) {
   const t = useI11n(bag)
   const sheet = useThreadSheet()
@@ -244,20 +271,32 @@ export function ThreadBookingCard({
         need: need.headline,
       })
     : formatMessage(t.sheet.openBooking, { name: summary.name })
-  const body = (
-    <>
-      <BookingFacts summary={summary} compact />
-      {need ? (
-        <Box mt={3} pt={3} borderTopWidth="1px" borderColor="border.default">
-          <NeedsLine need={need} />
-        </Box>
-      ) : null}
-    </>
+  const row = (
+    <HStack gap={3} align="center">
+      <Stack gap={1.5} flex={1} minW={0}>
+        <HStack columnGap={2} rowGap={1} flexWrap="wrap">
+          {pill}
+          <HStack gap={1.5} fontSize="sm" fontWeight={500} minW={0}>
+            <Box
+              as="span"
+              display="inline-flex"
+              flexShrink={0}
+              color="text.muted"
+            >
+              <LuCalendar size={14} aria-hidden />
+            </Box>
+            <Text as="span">{summary.time}</Text>
+          </HStack>
+        </HStack>
+        {need ? <NeedsLine need={need} chevron={false} /> : null}
+      </Stack>
+      {sheet ? <PinChevron /> : null}
+    </HStack>
   )
   if (!sheet) {
     return (
-      <Box data-thread-booking="" {...CARD_FRAME} p={3}>
-        {body}
+      <Box data-thread-booking="" px={px} py={py}>
+        {row}
       </Box>
     )
   }
@@ -268,21 +307,19 @@ export function ThreadBookingCard({
       data-needs={need?.name}
       aria-label={label}
       onClick={() => sheet.open({ kind: 'booking' })}
-      cursor="pointer"
-      transitionProperty="border-color"
-      transitionDuration={sdlMotion.duration.moderate}
-      css={PRESSABLE_CSS}
-      {...CARD_FRAME}
-      p={3}
+      {...PIN_BAND_BUTTON}
+      px={px}
+      py={py}
     >
-      {body}
+      {row}
     </CardButton>
   )
 }
 
 /**
  * Before a booking, what needs the viewer (an invitation to quote) as one
- * line under the top pin's status; it opens the sheet with its answers.
+ * plain line under the top pin's status, no box (FE-567); it opens the sheet
+ * with its answers.
  */
 export function ThreadNeedsButton({
   attention,
@@ -299,14 +336,9 @@ export function ThreadNeedsButton({
       data-thread-needs={need.name}
       aria-label={formatMessage(t.sheet.openNeeds, { need: need.headline })}
       onClick={() => sheet.open({ kind: 'needs' })}
-      cursor="pointer"
-      transitionProperty="border-color"
-      transitionDuration={sdlMotion.duration.moderate}
-      css={PRESSABLE_CSS}
-      {...CARD_FRAME}
-      p={3}
-      bg="status.warning.soft"
-      borderColor="status.warning.border"
+      {...PIN_BAND_BUTTON}
+      minH="44px"
+      borderRadius="md"
     >
       <NeedsLine need={need} />
     </CardButton>

@@ -125,14 +125,25 @@ export const Timeline: Story = {
     ),
 }
 
-/** The worker's "quote sent" flash, seen by the poster: the full quote card with Accept, the only answer. */
+/**
+ * The worker's "quote sent" flash, seen by the poster: a line ("New quote ·
+ * time"), then the quote card on its own, with no card around it (FE-567).
+ */
 export const QuoteSentPoster: Story = {
   decorators: [asOwner],
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
     await expect(
-      canvasElement.querySelector('[data-flash-card="QUOTE_RECEIVED"]'),
+      canvasElement.querySelector('[data-flash-line="QUOTE_RECEIVED"]'),
     ).toBeVisible()
+    await expect(
+      canvasElement.querySelector('[data-flash-quote] [data-thread-quote]'),
+    ).toBeVisible()
+    await expect(canvasElement.querySelector('[data-flash-card]')).toBeNull()
+    // The flash's sentence is not repeated over the card.
+    await expect(
+      canvas.queryByText('Sample Worker can come on Saturday morning.'),
+    ).toBeNull()
     // The answer is in the thread's sheet (FE-543), not on the card.
     await expect(canvas.queryByRole('button', { name: 'Accept' })).toBeNull()
     await expect(canvas.queryByRole('button', { name: 'Decline' })).toBeNull()

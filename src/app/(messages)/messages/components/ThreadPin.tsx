@@ -19,7 +19,7 @@ import { formatTimeSlotLabel } from '@/utils/timeSlots'
 import bag from '../i11n.json'
 import { PIN_VIEWS, getBottomPinView, getThreadPinView } from '../views'
 import { QuoteStatusBadge } from './ThreadQuote'
-import { ThreadBookingCard, ThreadNeedsButton } from './ThreadSheet'
+import { ThreadBookingPin, ThreadNeedsButton } from './ThreadSheet'
 
 const PIN_PX = { base: 4, lg: 5 } as const
 
@@ -112,9 +112,10 @@ function PinSkeleton() {
 
 /**
  * The top pin under a task thread's header (Thread screen v2): the live
- * quote(s) before a booking (the poster's, or a worker's own), the booking
- * card once someone is booked (FE-543: it opens the booking's sheet, with a
- * "Needs you" line when something needs the viewer), then the last status.
+ * quote(s) before a booking (the poster's, or a worker's own), once someone
+ * is booked the status and the booked time (FE-543, one flat band since
+ * FE-567: it opens the booking's sheet, with a "Needs you" line when
+ * something needs the viewer), then the last status.
  * Before a booking, what needs the viewer (an invitation to quote) is a line
  * under the status that opens the sheet. Renders inside the thread's
  * `TaskDetailProvider` and reads task detail's own view.
@@ -158,19 +159,23 @@ export function ThreadPin({
       <TaskStatusPill status={taskView.pill} size="sm" />
     ) : null
 
-  // Booked: the booking card, which opens the booking's sheet (FE-543).
+  // Booked: one flat band, the status and when the job is, which opens the
+  // booking's sheet (FE-543; flat, no card inside, since FE-567).
   if (config.facts === 'booking') {
     return (
       <Box
         data-thread-pin={pinView}
-        px={PIN_PX}
-        py={3}
-        bg="bg.canvas"
+        bg="bg.surface"
         borderBottomWidth="1px"
         borderColor="border.default"
         aria-live="polite"
       >
-        <ThreadBookingCard attention={attention} />
+        <ThreadBookingPin
+          attention={attention}
+          pill={pill}
+          px={PIN_PX}
+          py={2.5}
+        />
       </Box>
     )
   }

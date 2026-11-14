@@ -225,9 +225,9 @@ export const WorkerQuoteClosed: Story = {
 }
 
 /**
- * pin.booking: booked: the booking card (FE-543), in the Home "Hire and pay
- * directly" language: who, the agreed price, the slot and how to pay. The
- * whole card opens the booking's sheet.
+ * pin.booking: booked: one flat band (FE-567): the Booked pill and when the
+ * job is, nothing the header or the thread already shows (who, the price),
+ * and no card inside it. The whole band opens the booking's sheet.
  */
 export const Booking: Story = {
   ...pin(
@@ -237,14 +237,19 @@ export const Booking: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
     await shows(canvasElement, 'pin.booking')
-    // The booking card (FE-543): who, the agreed price, when, how to pay.
-    const card = canvas.getByRole('button', {
+    const band = canvas.getByRole('button', {
       name: 'Your booking with Jordan Lee. Open it for its actions.',
     })
-    await expect(within(card).getByText('Jordan Lee')).toBeVisible()
-    await expect(within(card).getByText('£85')).toBeVisible()
-    await expect(within(card).getByText(/\d{1,2}:\d{2}/)).toBeVisible()
-    await expect(within(card).queryByText('Needs you')).toBeNull()
+    await expect(within(band).getByText('Booked')).toBeVisible()
+    await expect(within(band).getByText(/\d{1,2}:\d{2}/)).toBeVisible()
+    // No repeated detail: the header names the person; the thread has the price.
+    await expect(within(band).queryByText('Jordan Lee')).toBeNull()
+    await expect(within(band).queryByText('£85')).toBeNull()
+    await expect(within(band).queryByText('Needs you')).toBeNull()
+    // Flat: the band is the button, with no border or fill of its own.
+    const cs = getComputedStyle(band)
+    await expect(cs.borderTopWidth).toBe('0px')
+    await expect(cs.boxShadow).toBe('none')
   },
 }
 
@@ -257,11 +262,11 @@ export const BookingWaiting: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
     await shows(canvasElement, 'pin.booking')
-    const card = canvas.getByRole('button', {
+    const band = canvas.getByRole('button', {
       name: 'Your booking with Alex Chen. Open it for its actions.',
     })
-    await expect(within(card).getByText('£85')).toBeVisible()
-    await expect(within(card).queryByText('Needs you')).toBeNull()
+    await expect(within(band).getByText('Booked')).toBeVisible()
+    await expect(within(band).queryByText('Needs you')).toBeNull()
   },
 }
 
@@ -278,14 +283,14 @@ export const BookingWhileAsked: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
     await shows(canvasElement, 'pin.booking')
-    // What needs the viewer is a line on the card, which opens the sheet.
-    const card = canvas.getByRole('button', {
+    // What needs the viewer is a line in the band, which opens the sheet.
+    const band = canvas.getByRole('button', {
       name: 'Your booking with Jordan Lee. Needs you: Jordan Lee wants to move the booking',
     })
-    await expect(within(card).getByText('£85')).toBeVisible()
-    await expect(within(card).getByText('Needs you')).toBeVisible()
+    await expect(within(band).getByText('Booked')).toBeVisible()
+    await expect(within(band).getByText('Needs you')).toBeVisible()
     await expect(
-      within(card).getByText(/Jordan Lee wants to move the booking/),
+      within(band).getByText(/Jordan Lee wants to move the booking/),
     ).toBeVisible()
   },
 }
@@ -322,6 +327,34 @@ export const Completed: Story = {
     await expect(canvas.getByText('Completed')).toBeVisible()
     await expect(canvas.getByText('Job complete')).toBeVisible()
     await noButtons(canvasElement)
+  },
+}
+
+/**
+ * Before a booking, something needs the viewer (asked to quote): "Needs you"
+ * is a plain line under the status that opens the sheet, with no box round it
+ * (FE-567).
+ */
+export const WorkerInvited: Story = {
+  ...pin(
+    'worker',
+    storyTaskDetail({
+      quotes: [],
+      viewerQuoteInvitation: {
+        customerName: 'Alex Chen',
+        createdAt: '2026-06-01T10:00:00.000Z',
+        dismissed: false,
+      },
+    }),
+    needs(ThreadAttentionKind.QuoteInvitation),
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const line = await canvas.findByRole('button', { name: /Needs you/ })
+    await expect(within(line).getByText('Needs you')).toBeVisible()
+    const cs = getComputedStyle(line)
+    await expect(cs.borderTopWidth).toBe('0px')
+    await expect(cs.backgroundColor).toBe('rgba(0, 0, 0, 0)')
   },
 }
 

@@ -18,7 +18,7 @@ import { useThreadSheet } from './ThreadSheetContext'
 
 type Item = ThreadItemFieldsFragment
 
-/** A centred card: the worker's quote, or a Slashie announcement. */
+/** A centred card: a Slashie announcement. */
 function FlashCard({
   item,
   time,
@@ -85,11 +85,14 @@ function FlashLine({
   time,
   slot,
   onOpen,
+  withBody = true,
 }: {
   item: Item
   time: string
   /** The booked slot, already formatted. */
   slot?: string | null
+  /** False for the quote event, whose card says the rest (FE-567). */
+  withBody?: boolean
   /** The request still waits on the viewer: open it in the sheet (FE-543). */
   onOpen?: () => void
 }) {
@@ -119,7 +122,7 @@ function FlashLine({
         {slot ? ` · ${slot}` : null}
         {time ? ` · ${time}` : null}
       </Text>
-      {item.body ? (
+      {withBody && item.body ? (
         <Text fontSize="xs" color="text.muted" whiteSpace="pre-line">
           {item.body}
         </Text>
@@ -177,8 +180,8 @@ function AcceptedLine({
 
 /**
  * One timeline entry: a chat bubble (mine on the right) or a flash. Only the
- * worker's "quote sent" flash is a full quote card, where the poster accepts;
- * Slashie announcements stay cards; every other event is a short line
+ * worker's "quote sent" flash is its line and then the quote card, where the
+ * poster accepts (no card around it, FE-567); Slashie announcements stay cards; every other event is a short line
  * (Thread screen v2), the worker's Task cancelled and Task reopened (BE-108)
  * included. Day dividers carry the date, so times are clock times; a run of
  * messages shows one (FE-291).
@@ -200,10 +203,20 @@ export function ThreadTimelineItem({
 
   if (item.type === ThreadItemType.Flash) {
     if (item.flashKind === FlashKind.QuoteReceived && item.quote) {
+      // The event as a line ("New quote · 15:03"), then the quote card on
+      // its own: no card around the card (FE-567). The flash's sentence
+      // ("A quote was sent on ...") names the task the header already shows.
       return (
-        <FlashCard item={item} time={time}>
+        <Stack
+          data-flash-quote=""
+          alignSelf="center"
+          w="full"
+          maxW="420px"
+          gap={1.5}
+        >
+          <FlashLine item={item} time={time} withBody={false} />
           <ThreadQuote quote={item.quote} />
-        </FlashCard>
+        </Stack>
       )
     }
     if (
