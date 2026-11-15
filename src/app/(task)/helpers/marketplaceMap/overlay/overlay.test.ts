@@ -288,7 +288,9 @@ describe('overlayCss', () => {
       ),
       'utf8',
     )
-    expect(tabLayout).toContain('MAP_FADE_BOTTOM')
+    // The title's wash covers the title and a short fade above it (FE-524).
+    expect(tabLayout).toContain('MAP_FADE_TITLE')
+    expect(tabLayout).not.toContain('MAP_FADE_BOTTOM')
     expect(tabLayout).toContain('COMPACT_TITLE_FADE_CSS')
   })
 })

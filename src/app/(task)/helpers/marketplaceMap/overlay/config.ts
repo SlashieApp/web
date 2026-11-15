@@ -70,12 +70,27 @@ export const MAP_FADE_WIDE_BOTTOM = mapFadeGradient('bottom')
 /**
  * Compact task-detail map hero (StatusHeader spacer). The shared Mapbox
  * canvas is full-bleed; this is the visible window above overlapping chrome.
- * Offset camera padding uses the same pixel heights.
+ * Offset camera padding uses the same pixel heights. 420 on a phone and 480
+ * on a tablet (Ryan, 15 Nov, FE-524): about 270 of clear map above the
+ * title, enough to see the streets, the area and the pin.
  */
 export const COMPACT_DETAIL_HERO_H = {
-  base: '300px',
-  md: '360px',
+  base: '420px',
+  md: '480px',
 } as const
+
+/**
+ * Compact task detail: the white wash under the title reaches this far above
+ * the title's top, fading to clear (FE-524). Below that line the map is not
+ * washed at all.
+ */
+export const COMPACT_TITLE_FADE_ABOVE = '48px'
+
+/**
+ * The title's wash: solid behind the title (it stays readable over streets),
+ * then clear over the `COMPACT_TITLE_FADE_ABOVE` above it.
+ */
+export const MAP_FADE_TITLE = `linear-gradient(to top, ${MAP_FADE_EDGE} 0%, ${MAP_FADE_EDGE} calc(100% - ${COMPACT_TITLE_FADE_ABOVE}), ${white(0)} 100%)`
 
 /** Phone search: top wash behind the logo and search bar, carousel wash below. */
 export const OVERLAY_MOBILE_SEARCH: OverlayCompactRecipe = {

@@ -120,6 +120,7 @@ describe('offsetPaddingForMobile', () => {
   it('pins the task in the upper hero band', () => {
     const padding = offsetPaddingForMobile(390, 800)
     expect(padding.top).toBe(48)
-    expect(padding.bottom).toBeGreaterThan(400)
+    // The 420 band (FE-524): the pin's window ends above the title chrome.
+    expect(padding.bottom).toBe(800 - 420)
   })
 })

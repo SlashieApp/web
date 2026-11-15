@@ -74,26 +74,27 @@ describe('approxCircleFrame, phone', () => {
       height: 844,
       pillHeight: ONE_LINE,
     })
-    // Chrome top 300 - 148 = 152; the pill's bottom is 8 above it.
-    expect(f.pill).toEqual({ top: 112, bottom: 144 })
+    // Chrome top 420 - 148 = 272 (FE-524); the pill's bottom is 8 above it.
+    expect(f.pill).toEqual({ top: 232, bottom: 264 })
     // The window runs from top + 4 to the pill's top - 6.
-    expect(f.window).toEqual({ top: 4, bottom: 106 })
+    expect(f.window).toEqual({ top: 4, bottom: 226 })
     expect(f.diameterPx).toBe(100)
     expect(f.centerX).toBe(195)
-    expect(f.padding).toEqual({ top: 4, bottom: 738, left: 0, right: 0 })
+    expect(f.padding).toEqual({ top: 4, bottom: 618, left: 0, right: 0 })
   })
 
-  it('shrinks the circle when the pill wraps to two lines', () => {
+  it('keeps the circle whole when the pill wraps to two lines', () => {
     const f = approxCircleFrame({
       viewport: 'mobile',
       width: 360,
       height: 740,
       pillHeight: TWO_LINES,
     })
-    expect(f.pill).toEqual({ top: 98, bottom: 144 })
-    expect(f.window).toEqual({ top: 4, bottom: 92 })
-    expect(f.diameterPx).toBe(88)
-    expect(f.padding.bottom).toBe(740 - 92)
+    expect(f.pill).toEqual({ top: 218, bottom: 264 })
+    expect(f.window).toEqual({ top: 4, bottom: 212 })
+    // The 420 band leaves room for the full circle (FE-524).
+    expect(f.diameterPx).toBe(100)
+    expect(f.padding.bottom).toBe(740 - 212)
   })
 
   it('adds the top inset (the app: the safe area) to the whole column', () => {
@@ -105,7 +106,7 @@ describe('approxCircleFrame, phone', () => {
       topInset: 47,
     })
     expect(f.window.top).toBe(51)
-    expect(f.pill.bottom).toBe(47 + 144)
+    expect(f.pill.bottom).toBe(47 + 264)
     expect(f.diameterPx).toBe(100)
   })
 
@@ -124,18 +125,18 @@ describe('approxCircleFrame, phone', () => {
 })
 
 describe('approxCircleFrame, tablet', () => {
-  it('uses the 360 px hero, so the chrome starts at 212', () => {
+  it('uses the 480 px hero, so the chrome starts at 332', () => {
     const f = approxCircleFrame({
       viewport: 'tablet',
       width: 820,
       height: 1180,
       pillHeight: ONE_LINE,
     })
-    expect(f.pill).toEqual({ top: 172, bottom: 204 })
-    expect(f.window).toEqual({ top: 4, bottom: 166 })
+    expect(f.pill).toEqual({ top: 292, bottom: 324 })
+    expect(f.window).toEqual({ top: 4, bottom: 286 })
     expect(f.diameterPx).toBe(100)
     expect(f.centerX).toBe(410)
-    expect(f.padding).toEqual({ top: 4, bottom: 1014, left: 0, right: 0 })
+    expect(f.padding).toEqual({ top: 4, bottom: 894, left: 0, right: 0 })
   })
 })
 
@@ -262,9 +263,9 @@ describe('the page’s top (status banners, the header)', () => {
       ONE_LINE,
       45,
     )
-    expect(none).toEqual({ top: 4, bottom: 738, left: 0, right: 0 })
+    expect(none).toEqual({ top: 4, bottom: 618, left: 0, right: 0 })
     // 45 px of banner: the window starts 45 lower, and so does its bottom.
-    expect(banner).toEqual({ top: 49, bottom: 738 - 45, left: 0, right: 0 })
+    expect(banner).toEqual({ top: 49, bottom: 618 - 45, left: 0, right: 0 })
   })
 
   it('moves the wide window down with the bar, and keeps the content top where it is', () => {
@@ -293,7 +294,7 @@ describe('the approximate variant of the view padding', () => {
       }).padding,
     )
     expect(marketplaceMapViewPadding(820, 1180, 'approximate')?.bottom).toBe(
-      1014,
+      894,
     )
     expect(marketplaceMapViewPadding(1366, 900, 'approximate')?.top).toBe(168)
   })
@@ -301,15 +302,15 @@ describe('the approximate variant of the view padding', () => {
   it('takes the measured pill height', () => {
     expect(
       marketplaceMapViewPadding(360, 740, 'approximate', TWO_LINES)?.bottom,
-    ).toBe(740 - 92)
+    ).toBe(740 - 212)
   })
 
-  it('leaves the exact padding exactly as it was', () => {
+  it('frames the exact pin in the taller band (FE-524), and web as it was', () => {
     expect(offsetPaddingForViewport('mobile', 390, 844, 'exact')).toEqual({
       top: 48,
       left: 16,
       right: 20,
-      bottom: 544,
+      bottom: 424,
     })
     expect(offsetPaddingForViewport('web', 1366, 900, 'exact')).toEqual({
       top: 58,

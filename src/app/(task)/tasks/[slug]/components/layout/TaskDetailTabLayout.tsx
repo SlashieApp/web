@@ -5,9 +5,9 @@ import { Box, Grid, HStack, Stack } from '@chakra-ui/react'
 import type { ReactNode } from 'react'
 
 import {
-  COMPACT_DETAIL_HERO_H,
-  MAP_FADE_BOTTOM,
+  COMPACT_TITLE_FADE_ABOVE,
   MAP_FADE_EDGE,
+  MAP_FADE_TITLE,
 } from '@/app/(task)/helpers/marketplaceMap'
 import { WEB_MIN_PX } from '@/theme/breakpoints'
 import { HEADER_BAR_H, MOBILE_BOTTOM_NAV_MAX_W, Tabs } from '@ui'
@@ -69,7 +69,8 @@ const BESIDE_CTA_MAX_W = `calc(100% - ${WEB_MAIN_CTA_W} - 1.5rem)`
 /**
  * Compact (phone + tablet) wash sits under the title and fades up into the
  * map, not on the Mapbox canvas. It travels with the title as the page
- * scrolls.
+ * scrolls. It covers only the title and a short fade above it (FE-524): the
+ * map above is clear, so its streets, the area and the pin read.
  */
 const COMPACT_TITLE_FADE_CSS = {
   isolation: 'isolate',
@@ -86,18 +87,12 @@ const COMPACT_TITLE_FADE_CSS = {
       width: '100vw',
       transform: 'translateX(-50%)',
       bottom: 0,
-      height: COMPACT_DETAIL_HERO_H.base,
-      backgroundImage: MAP_FADE_BOTTOM,
+      height: `calc(100% + ${COMPACT_TITLE_FADE_ABOVE})`,
+      backgroundImage: MAP_FADE_TITLE,
       pointerEvents: 'none',
       zIndex: -2,
     },
   },
-  [`@media screen and (min-width: 768px) and (max-width: ${COMPACT_MAX_PX}px)`]:
-    {
-      '&::before': {
-        height: COMPACT_DETAIL_HERO_H.md,
-      },
-    },
 } as const
 
 /**

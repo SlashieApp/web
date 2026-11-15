@@ -422,8 +422,8 @@ describe('the host’s framing for the page’s top', () => {
     expect(banner.view.mapProps?.viewPadding?.top).toBe(49)
     expect(banner.view.approxFrame?.window.top).toBe(49)
     expect(banner.view.approxFrame?.pill).toEqual({
-      top: 112 + 45,
-      bottom: 144 + 45,
+      top: 232 + 45,
+      bottom: 264 + 45,
     })
     // Same diameter: the window moved, it did not shrink.
     expect(banner.view.approxFrame?.diameterPx).toBe(

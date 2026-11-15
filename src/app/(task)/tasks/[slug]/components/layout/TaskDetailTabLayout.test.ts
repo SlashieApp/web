@@ -22,7 +22,10 @@ describe('TaskDetailTabLayout slots', () => {
     )
     expect(src).not.toContain('TASK_DETAIL_STICKY_SNAP_OFFSET_PX')
     expect(src).toContain("panelBg={{ base: 'bg.surface', lg: 'transparent' }}")
-    expect(src).toContain('MAP_FADE_BOTTOM')
+    expect(src).toContain('MAP_FADE_TITLE')
+    // Only the title and the fade above it, not the whole band (FE-524).
+    expect(src).toContain('height: `calc(100% + ${COMPACT_TITLE_FADE_ABOVE})`')
+    expect(src).not.toContain('COMPACT_DETAIL_HERO_H')
     expect(src).toContain('COMPACT_TITLE_FADE_CSS')
     expect(src).toContain("width: '100vw'")
     expect(src).toContain('&::before')
