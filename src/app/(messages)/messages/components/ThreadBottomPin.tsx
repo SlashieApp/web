@@ -1,17 +1,24 @@
 'use client'
 
-import { Box, HStack, Stack, Text } from '@chakra-ui/react'
-import type { ThreadFieldsFragment } from '@codegen/schema'
+import { Stack, Text } from '@chakra-ui/react'
+import { OrderStatus, type ThreadFieldsFragment } from '@codegen/schema'
+import { type ReactNode, useState } from 'react'
 
-import { OrderCloseCard } from '@/app/(task)/tasks/[slug]/components/overview/OrderCloseCard'
+import { OrderDoneSlide } from '@/app/(task)/tasks/[slug]/components/overview/OrderCloseCard'
+import {
+  OrderRescheduleDialog,
+  useOrderRequestOptions,
+} from '@/app/(task)/tasks/[slug]/components/overview/OrderRequestDialogs'
 import { useSummaryLines } from '@/app/(task)/tasks/[slug]/components/summary/TaskSummary'
-import { RequestFact } from '@/app/(task)/tasks/[slug]/components/summary/facts/BookingActionFacts'
+import { useDateLocale } from '@/app/(task)/tasks/[slug]/components/summary/facts/TaskFacts'
 import { useTaskDetail } from '@/app/(task)/tasks/[slug]/context/TaskDetailProvider'
 import { TASK_DETAIL_VIEWS } from '@/app/(task)/tasks/[slug]/views'
 import { useDismissQuoteInvitation } from '@/content/quoteInvitations/useDismissQuoteInvitation'
 import { formatMessage } from '@/i18n/loadPageI11n'
 import { useI11n } from '@/i18n/useI11n'
-import { Button, Link } from '@ui'
+import { orderRequestView } from '@/utils/orderHelpers'
+import { formatTimeSlotLabel, isTimeSlotPast } from '@/utils/timeSlots'
+import { Button, Link, RadioButton } from '@ui'
 
 import taskBag from '@/app/(task)/tasks/[slug]/i11n.json'
 
@@ -22,6 +29,7 @@ import {
   type BottomPinViewName,
   getBottomPinView,
 } from '../views'
+import { SheetActions, SheetSection } from './ThreadSheetParts'
 
 /** What needs the viewer now, and the line that says it. */
 export type ThreadNeed = {
@@ -71,31 +79,31 @@ export function useThreadNeed(
 }
 
 /**
- * The "Needs you" section of the thread's sheet (FE-543): the headline, its
- * sub-line where the view has one, and task detail's own controls: their
- * times (Use this time, or Propose other times: no rejecting a reschedule,
- * BE-125) or a cancel request to accept, the Done card's slide, the
- * invitation's Send a quote and Not for me, or Open task for a conflict.
+ * The "Needs you" part of a thread drawer (FE-543; flat since FE-569, like
+ * the quote drawer): a warning label, the headline and its sub-line, what to
+ * choose from (their proposed times as a pick list), then the answers as
+ * full-width buttons at the foot, the main one first. `actions` follow them
+ * in the same stack (the booking's Reschedule and Cancel booking), so every
+ * action sits together at the bottom.
  */
-export function ThreadNeedsYou({ need }: { need: ThreadNeed }) {
-  const { task, orderClose, permissions, refetch } = useTaskDetail()
+export function ThreadNeedsYou({
+  need,
+  actions,
+}: {
+  need: ThreadNeed
+  actions?: ReactNode
+}) {
+  const { task } = useTaskDetail()
   const t = useI11n(bag).pin
-  const messages = useMessagesOptional()
-  const { dismiss, loading: dismissing } = useDismissQuoteInvitation()
   if (!task) return null
   const config = BOTTOM_PIN_VIEWS[need.name]
 
-  return (
+  const head = (
     <Stack
       as="section"
       aria-label={t.needsYou}
       data-thread-need={need.name}
       gap={1}
-      p={4}
-      bg="status.warning.soft"
-      borderWidth="1px"
-      borderColor="status.warning.border"
-      borderRadius="lg"
       aria-live="polite"
     >
       <Text textStyle="label-sm" color="status.warning.fg">
@@ -109,47 +117,21 @@ export function ThreadNeedsYou({ need }: { need: ThreadNeed }) {
           {need.subline}
         </Text>
       ) : null}
-      {config.controls === 'request' ? <RequestFact /> : null}
-      {/* The Done card only while this viewer can close the booking: without
-          its slide it would only repeat the headline. */}
-      {config.controls === 'close' &&
-      orderClose?.canClose &&
-      permissions.showOrderActions ? (
-        <Box pt={2}>
-          <OrderCloseCard inPin />
-        </Box>
-      ) : null}
-      {config.controls === 'invitation' ? (
-        <HStack gap={2} pt={2} flexWrap="wrap">
-          <Button asChild size="sm" variant="primary">
-            <Link
-              href={`/tasks/${task.id}/quote`}
-              _hover={{ textDecoration: 'none' }}
-            >
-              {t.sendQuote}
-            </Link>
-          </Button>
-          <Button
-            type="button"
-            size="sm"
-            variant="secondary"
-            loading={dismissing}
-            onClick={async () => {
-              // Silent for the customer. The task and the inbox are read
-              // again so the need goes (the view does not change).
-              if (await dismiss(task.id)) {
-                refetch()
-                messages?.refetchThreads()
-              }
-            }}
-          >
-            {t.notForMe}
-          </Button>
-        </HStack>
-      ) : null}
-      {config.controls === 'openTask' ? (
-        <Box pt={2}>
-          <Button asChild size="sm" variant="primary">
+    </Stack>
+  )
+
+  if (config.controls === 'request') {
+    return <RequestAnswer head={head} actions={actions} />
+  }
+
+  return (
+    <>
+      {head}
+      <SheetActions>
+        {config.controls === 'close' ? <OrderDoneSlide /> : null}
+        {config.controls === 'invitation' ? <InvitationAnswer /> : null}
+        {config.controls === 'openTask' ? (
+          <Button asChild size="form" w="full" variant="primary">
             <Link
               href={`/tasks/${task.id}`}
               _hover={{ textDecoration: 'none' }}
@@ -157,8 +139,216 @@ export function ThreadNeedsYou({ need }: { need: ThreadNeed }) {
               {t.openTask}
             </Link>
           </Button>
-        </Box>
+        ) : null}
+        {actions}
+      </SheetActions>
+    </>
+  )
+}
+
+/** Asked to quote: Send a quote, or Not for me (silent for the customer). */
+function InvitationAnswer() {
+  const { task, refetch } = useTaskDetail()
+  const t = useI11n(bag).pin
+  const messages = useMessagesOptional()
+  const { dismiss, loading: dismissing } = useDismissQuoteInvitation()
+  if (!task) return null
+  return (
+    <>
+      <Button asChild size="form" w="full" variant="primary">
+        <Link
+          href={`/tasks/${task.id}/quote`}
+          _hover={{ textDecoration: 'none' }}
+        >
+          {t.sendQuote}
+        </Link>
+      </Button>
+      <Button
+        type="button"
+        size="form"
+        w="full"
+        variant="secondary"
+        loading={dismissing}
+        onClick={async () => {
+          // The task and the inbox are read again so the need goes (the view
+          // does not change).
+          if (await dismiss(task.id)) {
+            refetch()
+            messages?.refetchThreads()
+          }
+        }}
+      >
+        {t.notForMe}
+      </Button>
+    </>
+  )
+}
+
+/**
+ * Their reschedule or cancel request. A reschedule: their times as a pick
+ * list (the accept dialog's rows), its hint, then "Use this time" for the
+ * picked one and "Propose other times" (no rejecting a reschedule, BE-125).
+ * A cancel request: the lapse note, then Accept cancellation and Keep
+ * booking. While the booking is frozen nobody can answer (BE-108).
+ */
+function RequestAnswer({
+  head,
+  actions,
+}: {
+  head: ReactNode
+  actions?: ReactNode
+}) {
+  const { myOrder, me, permissions, runOrderAction, orderActionPending } =
+    useTaskDetail()
+  const t = useI11n(taskBag)
+  const sheet = useI11n(bag).sheet
+  const locale = useDateLocale()
+  const options = useOrderRequestOptions()
+  const [counterOpen, setCounterOpen] = useState(false)
+  const request = myOrder ? orderRequestView(myOrder, me?.id) : null
+  const future =
+    request?.kind === 'RESCHEDULE'
+      ? request.proposedSlots.filter((slot) => !isTimeSlotPast(slot))
+      : []
+  const [picked, setPicked] = useState<string | null>(null)
+  const slotId = picked ?? future[0]?.id ?? null
+  const r = t.requests
+  const busy = orderActionPending != null
+  const canAnswer =
+    request != null && !request.mine && permissions.showOrderActions
+
+  if (!myOrder || !request) {
+    return (
+      <>
+        {head}
+        <SheetActions>{actions}</SheetActions>
+      </>
+    )
+  }
+
+  if (request.kind === 'RESCHEDULE') {
+    return (
+      <>
+        {head}
+        <SheetSection label={sheet.proposedTimes}>
+          <Stack gap={2} role="radiogroup" aria-label={sheet.proposedTimes}>
+            {request.proposedSlots.map((slot) => {
+              const past = isTimeSlotPast(slot)
+              const label = formatTimeSlotLabel(slot, locale)
+              return canAnswer ? (
+                <RadioButton
+                  key={slot.id}
+                  role="radio"
+                  checked={slotId === slot.id}
+                  disabled={past || busy}
+                  label={past ? `${label} · ${t.quotes.pastSlot}` : label}
+                  onChange={() => setPicked(slot.id)}
+                />
+              ) : (
+                <Text
+                  key={slot.id}
+                  fontSize="sm"
+                  color={past ? 'text.muted' : 'text.default'}
+                >
+                  {past ? `${label} · ${t.quotes.pastSlot}` : label}
+                </Text>
+              )
+            })}
+          </Stack>
+          {canAnswer && options ? (
+            <Text fontSize="sm" color="text.muted">
+              {formatMessage(r.answerHint, { name: options.counterpartName })}
+            </Text>
+          ) : null}
+        </SheetSection>
+        <SheetActions>
+          {canAnswer ? (
+            <Button
+              type="button"
+              size="form"
+              w="full"
+              variant="primary"
+              disabled={busy || slotId == null}
+              loading={orderActionPending === 'confirmReschedule'}
+              onClick={() => {
+                if (slotId) {
+                  void runOrderAction({ type: 'confirmReschedule', slotId })
+                }
+              }}
+            >
+              {r.confirmSlot}
+            </Button>
+          ) : null}
+          {canAnswer && options?.canCounterPropose ? (
+            <Button
+              type="button"
+              size="form"
+              w="full"
+              variant="secondary"
+              disabled={busy}
+              onClick={() => setCounterOpen(true)}
+            >
+              {r.counterPropose}
+            </Button>
+          ) : null}
+          {actions}
+        </SheetActions>
+        {canAnswer && options ? (
+          <OrderRescheduleDialog
+            open={counterOpen}
+            onOpenChange={setCounterOpen}
+            counterpartName={options.counterpartName}
+            counter
+          />
+        ) : null}
+      </>
+    )
+  }
+
+  // A cancel request lapses at the booked time, except in CONFLICT and
+  // while frozen (the lapse waits until the suspension is lifted).
+  const lapse = myOrder.status !== OrderStatus.Conflict && !permissions.isFrozen
+  return (
+    <>
+      {head}
+      {lapse ? (
+        <Text fontSize="sm" color="text.muted">
+          {r.lapseNote}
+        </Text>
       ) : null}
-    </Stack>
+      <SheetActions>
+        {canAnswer ? (
+          <>
+            <Button
+              type="button"
+              size="form"
+              w="full"
+              variant="primary"
+              disabled={busy}
+              loading={orderActionPending === 'acceptCancellation'}
+              onClick={() =>
+                void runOrderAction({ type: 'acceptCancellation' })
+              }
+            >
+              {r.acceptCancel}
+            </Button>
+            <Button
+              type="button"
+              size="form"
+              w="full"
+              variant="secondary"
+              disabled={busy}
+              loading={orderActionPending === 'declineCancellation'}
+              onClick={() =>
+                void runOrderAction({ type: 'declineCancellation' })
+              }
+            >
+              {r.declineCancel}
+            </Button>
+          </>
+        ) : null}
+        {actions}
+      </SheetActions>
+    </>
   )
 }

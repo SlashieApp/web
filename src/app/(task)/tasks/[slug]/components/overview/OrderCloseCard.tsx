@@ -16,9 +16,11 @@ import bag from '../../i11n.json'
 function SlideDone({
   onMarked,
   compact = false,
+  labelSize,
 }: {
   onMarked?: () => void
   compact?: boolean
+  labelSize?: 'md'
 }) {
   const { runOrderAction, orderActionPending } = useTaskDetail()
   const c = useI11n(bag).close
@@ -27,6 +29,7 @@ function SlideDone({
   return (
     <SlideToConfirm
       compact={compact}
+      labelSize={labelSize}
       label={c.slideDone}
       armedLabel={c.tapAgainDone}
       loading={orderActionPending === 'markDone'}
@@ -131,6 +134,22 @@ export function OrderCloseCard({
         </Box>
       ) : null}
     </Box>
+  )
+}
+
+/**
+ * The thread drawer's Done action (FE-569): what Done means, then the slide
+ * at full width as one row, 48 tall and round like the drawer's buttons.
+ * Nothing when this viewer can't close the booking.
+ */
+export function OrderDoneSlide() {
+  const { orderClose, permissions } = useTaskDetail()
+  if (!orderClose?.canClose || !permissions.showOrderActions) return null
+  return (
+    <Stack gap={2} w="full" data-order-done-slide="">
+      <DoneMeaning align="start" />
+      <SlideDone compact labelSize="md" />
+    </Stack>
   )
 }
 

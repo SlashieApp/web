@@ -101,9 +101,17 @@ export const Reschedule: Story = {
     await expect(
       canvas.getByText('Jordan Lee wants to move the booking'),
     ).toBeVisible()
+    // Their times are a pick list, then one Use this time for the picked
+    // one (FE-569): the first future time is picked to start with.
+    const times = canvas.getByRole('radiogroup', { name: 'Times offered' })
+    await expect(within(times).getAllByRole('radio')).toHaveLength(2)
+    await expect(within(times).getAllByRole('radio')[0]).toHaveAttribute(
+      'aria-checked',
+      'true',
+    )
     await expect(
       canvas.getAllByRole('button', { name: 'Use this time' }),
-    ).toHaveLength(2)
+    ).toHaveLength(1)
     // No rejecting a reschedule (BE-125): propose other times instead.
     await expect(
       canvas.getByRole('button', { name: 'Propose other times' }),

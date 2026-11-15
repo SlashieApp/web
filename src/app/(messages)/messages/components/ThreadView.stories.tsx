@@ -296,12 +296,28 @@ async function checkNeedsYouSheet(canvasElement: HTMLElement) {
   await expect(
     within(need).getByText('Jordan Lee wants to move the booking'),
   ).toBeVisible()
+  // Laid out like the quote drawer (FE-569): their times to pick from, then
+  // every action at the foot at full width, and no Message (the drawer is
+  // over the conversation).
   await expect(
-    within(need).getByRole('button', { name: 'Propose other times' }),
+    within(sheet).getByRole('radiogroup', { name: 'Times offered' }),
   ).toBeVisible()
+  const use = within(sheet).getByRole('button', { name: 'Use this time' })
+  const propose = within(sheet).getByRole('button', {
+    name: 'Propose other times',
+  })
+  const sheetWidth = sheet.querySelector('[data-booking-sheet]')
+  await expect(sheetWidth).not.toBeNull()
+  for (const action of [use, propose]) {
+    await expect(action.getBoundingClientRect().width).toBe(
+      (sheetWidth as HTMLElement).getBoundingClientRect().width,
+    )
+  }
   await expect(
-    within(sheet).getByRole('button', { name: 'Message Jordan Lee' }),
-  ).toBeVisible()
+    within(sheet).queryByRole('button', { name: 'Message Jordan Lee' }),
+  ).toBeNull()
+  // Flat: no box round Needs you.
+  await expect(getComputedStyle(need).borderTopWidth).toBe('0px')
   // The sheet is the conversation's: it rises from its foot, over the composer.
   const column = canvasElement.querySelector('[data-thread-column]')
   await expect(column).toContainElement(sheet)
@@ -330,6 +346,59 @@ export const NeedsYou: Story = {
     task: askedTask,
   }),
   play: async ({ canvasElement }) => checkNeedsYouSheet(canvasElement),
+}
+
+const doneTask = bookedTaskWith({
+  bookedStart: '2024-06-10T14:00:00.000Z',
+  bookedEnd: '2024-06-10T16:00:00.000Z',
+})
+const doneThread = taskThread(
+  'owner',
+  { attention: needs(ThreadAttentionKind.MarkDone) },
+  ownerItems,
+)
+
+/**
+ * The booked time has started: the drawer's main action is Slide to mark
+ * Done, one row at full width and the shape of the buttons under it (FE-569),
+ * with what Done means just above it.
+ */
+export const BookingDrawerMarkDone: Story = {
+  decorators: messagesStory({
+    viewer: 'owner',
+    thread: doneThread,
+    items: ownerItems,
+    ...FRAME,
+    height: '900px',
+    task: doneTask,
+  }),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const band = await canvas.findByRole('button', {
+      name: /^Your booking with Jordan Lee/,
+    })
+    await userEvent.click(band)
+    const sheet = await canvas.findByRole('dialog', { name: 'Your booking' })
+    const body = sheet.querySelector('[data-booking-sheet]') as HTMLElement
+    const slide = await within(sheet).findByRole('button', {
+      name: 'Slide to mark Done',
+    })
+    const track = slide.parentElement as HTMLElement
+    await expect(track.getBoundingClientRect().width).toBe(
+      body.getBoundingClientRect().width,
+    )
+    await expect(Math.round(track.getBoundingClientRect().height)).toBe(48)
+    await expect(
+      within(sheet).getByText(
+        'Done means the work is finished and payment is settled.',
+      ),
+    ).toBeVisible()
+    await expect(
+      within(sheet).queryByRole('button', { name: 'Message Jordan Lee' }),
+    ).toBeNull()
+    // No card in the drawer.
+    await expect(sheet.querySelector('[data-order-close-card]')).toBeNull()
+  },
 }
 
 /** Phones: the same ask; the pin stays above the composer and the newest message stays in view. */

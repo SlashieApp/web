@@ -35,6 +35,12 @@ export type SlideToConfirmProps = {
    * default is 56 tall.
    */
   compact?: boolean
+  /**
+   * The label's size. Default: 12 when `compact`, 14 otherwise. A slide that
+   * stands in for a full-width button (a thread drawer's Done, FE-569) takes
+   * the button's 16.
+   */
+  labelSize?: 'xs' | 'sm' | 'md'
 }
 
 /**
@@ -50,6 +56,7 @@ export function SlideToConfirm({
   disabled = false,
   loading = false,
   compact = false,
+  labelSize,
 }: SlideToConfirmProps) {
   const thumbPx = compact ? COMPACT_THUMB_PX : THUMB_PX
   const trackRef = useRef<HTMLDivElement>(null)
@@ -159,7 +166,7 @@ export function SlideToConfirm({
         justifyContent="center"
         pl={`${thumbPx}px`}
         pr={compact ? 2 : 4}
-        fontSize={compact ? 'xs' : 'sm'}
+        fontSize={labelSize ?? (compact ? 'xs' : 'sm')}
         fontWeight={500}
         color="status.success.fg"
         textAlign="center"
