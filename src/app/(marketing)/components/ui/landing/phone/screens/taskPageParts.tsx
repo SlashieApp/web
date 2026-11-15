@@ -170,101 +170,131 @@ export function AcceptPill({
 }
 
 /**
- * One quote, as the task page's `QuoteRow` lays it out for the owner: the
- * worker (with Best match on the best one), when they can come and how fast
- * they answered, the price, their message, then Message and Accept.
+ * The task page's Quotes panel (FE-524): Home's Compare quotes panel, grey
+ * with a hairline and 16px corners, holding the heading and a white card per
+ * quote (`AppQuoteRow`).
+ */
+export function AppQuotesPanel({
+  compact = false,
+  children,
+}: {
+  compact?: boolean
+  children: ReactNode
+}) {
+  return (
+    <Box
+      data-quotes-panel=""
+      p={compact ? '10px' : '16px'}
+      bg="bg.canvas"
+      borderWidth="1px"
+      borderColor="border.default"
+      borderRadius={compact ? '12px' : '16px'}
+    >
+      {children}
+    </Box>
+  )
+}
+
+/**
+ * One quote, as the task page's `QuoteRow` draws it for the owner (a card
+ * since FE-524): the worker (with Best match on the best one), when they can
+ * come and how fast they answered, the price, their message, then Message and
+ * Accept. The space above it is its own, so a card that arrives brings it.
  */
 export function AppQuoteRow({
   quote,
   copy,
   best = false,
   compact = false,
-  divider = true,
   accept,
 }: {
   quote: DemoQuote
   copy: PhoneCopy['quotes']
   best?: boolean
   compact?: boolean
-  divider?: boolean
   /** The Accept control, when the screen makes it a tap target. */
   accept?: ReactNode
 }) {
   return (
-    <Stack
-      gap={compact ? '6px' : '8px'}
-      py={compact ? '10px' : '16px'}
-      borderBottomWidth={divider ? '1px' : 0}
-      borderColor="border.default"
-      data-quote-row={quote.name}
-    >
-      <HStack align="flex-start" gap={compact ? '10px' : '12px'}>
-        <QuoteDisc name={quote.name} size={compact ? 32 : 40} />
-        <Stack gap="2px" flex={1} minW={0}>
-          <HStack gap="6px" flexWrap="wrap" align="center">
-            <Text
-              fontSize={compact ? '13px' : '16px'}
-              lineHeight={compact ? '18px' : '24px'}
-              fontWeight={500}
-            >
-              {quote.name}
-            </Text>
-            {best ? (
-              <Box
-                px="8px"
-                borderRadius="full"
-                bg="status.success.soft"
-                color="status.success.fg"
-                fontSize={compact ? '11px' : '12px'}
-                lineHeight="20px"
-                fontWeight={500}
-                whiteSpace="nowrap"
-              >
-                {copy.bestMatch}
-              </Box>
-            ) : null}
-          </HStack>
-          <Text
-            fontSize={compact ? '11px' : '12px'}
-            lineHeight="16px"
-            color="text.muted"
-            lineClamp={1}
-          >
-            {quote.slot} · {copy.responded}
-          </Text>
-        </Stack>
-        <Text
-          flexShrink={0}
-          fontSize={compact ? '14px' : '18px'}
-          lineHeight={compact ? '18px' : '24px'}
-          fontWeight={600}
-          fontVariantNumeric="tabular-nums"
-        >
-          {quote.price}
-        </Text>
-      </HStack>
-      <Text
-        fontSize={compact ? '12px' : '14px'}
-        lineHeight={compact ? '17px' : '22px'}
-        color="text.muted"
-        lineClamp={compact ? 1 : 2}
+    <Box pt={compact ? '8px' : '12px'} data-quote-row={quote.name}>
+      <Stack
+        gap={compact ? '6px' : '8px'}
+        p={compact ? '10px' : '12px'}
+        bg="bg.surface"
+        borderWidth="1px"
+        borderColor="border.default"
+        borderRadius={compact ? '10px' : '12px'}
+        boxShadow="e1"
       >
-        {quote.note}
-      </Text>
-      <HStack gap="8px" justify="flex-end">
-        <Box
-          w={compact ? '32px' : '40px'}
-          h={compact ? '32px' : '40px'}
-          display="inline-flex"
-          alignItems="center"
-          justifyContent="center"
-          aria-hidden
+        <HStack align="flex-start" gap={compact ? '10px' : '12px'}>
+          <QuoteDisc name={quote.name} size={compact ? 32 : 40} />
+          <Stack gap="2px" flex={1} minW={0}>
+            <HStack gap="6px" flexWrap="wrap" align="center">
+              <Text
+                fontSize={compact ? '13px' : '15px'}
+                lineHeight={compact ? '18px' : '20px'}
+                fontWeight={500}
+                letterSpacing="-0.01em"
+              >
+                {quote.name}
+              </Text>
+              {best ? (
+                <Box
+                  px="8px"
+                  borderRadius="full"
+                  bg="status.success.soft"
+                  color="status.success.fg"
+                  fontSize={compact ? '11px' : '12px'}
+                  lineHeight="20px"
+                  fontWeight={500}
+                  whiteSpace="nowrap"
+                >
+                  {copy.bestMatch}
+                </Box>
+              ) : null}
+            </HStack>
+            <Text
+              fontSize={compact ? '11px' : '12px'}
+              lineHeight="16px"
+              color="text.muted"
+              lineClamp={1}
+            >
+              {quote.slot} · {copy.responded}
+            </Text>
+          </Stack>
+          <Text
+            flexShrink={0}
+            fontSize={compact ? '14px' : '18px'}
+            lineHeight={compact ? '18px' : '24px'}
+            fontWeight={600}
+            fontVariantNumeric="tabular-nums"
+          >
+            {quote.price}
+          </Text>
+        </HStack>
+        <Text
+          fontSize={compact ? '12px' : '14px'}
+          lineHeight={compact ? '17px' : '22px'}
+          color="text.muted"
+          lineClamp={compact ? 1 : 2}
         >
-          <LuMessageCircle size={18} />
-        </Box>
-        {accept ?? <AcceptPill label={copy.accept} compact={compact} />}
-      </HStack>
-    </Stack>
+          {quote.note}
+        </Text>
+        <HStack gap="8px" justify="flex-end">
+          <Box
+            w={compact ? '32px' : '40px'}
+            h={compact ? '32px' : '40px'}
+            display="inline-flex"
+            alignItems="center"
+            justifyContent="center"
+            aria-hidden
+          >
+            <LuMessageCircle size={18} />
+          </Box>
+          {accept ?? <AcceptPill label={copy.accept} compact={compact} />}
+        </HStack>
+      </Stack>
+    </Box>
   )
 }
 

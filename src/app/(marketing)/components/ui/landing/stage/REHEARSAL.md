@@ -99,3 +99,34 @@ Not checked:
 - A real iPhone or Android device, Safari and Firefox (filmed in Chromium).
 - Motion inside the tool's sampling gaps, and past the loop's second round.
 - Dark mode: the site's theme is forced light.
+
+## FE-566: the task page's quote cards (15 Nov)
+
+The task page's quotes changed under FE-524: a grey Quotes panel (Home's
+Compare quotes panel) holding one white card per quote, on a white page with
+flat panels. The scene and the phone demos now draw the same. Beats, timing
+and copy are unchanged.
+
+- Page white, panels the site's grey canvas, flat (no shadow at rest); the
+  floating preview and the worker card keep a shadow only on the phone,
+  where they sit over the page.
+- Quotes: the panel grey, each quote a white card (hairline, 12px corners,
+  the site's resting shadow), name 15px, price 18px. On the phone the panel
+  keeps its frame a page gutter in.
+- Help and actions: icons in the text colour; Cancel stays red.
+- The phone demos (`QuotesScreen`, `HireScreen`) wrap their lists in
+  `AppQuotesPanel`; `AppQuoteRow` is a card with its own space above it, so
+  a quote that arrives brings its gap.
+
+Gate: `film.mjs --gate`, 20 frames 1.15s apart, at 1440 and at 390 (phone):
+both `rehearsal passed`.
+
+- `uneven padding` on `.sh-quote` → fixed. The gate reads the avatar's
+  letter, not its circle, as the card's side edge (26px in at 1440, 20px at
+  390), so 12px above the words read as short. The card pads 18px above and
+  below at 12px sides (16px on the phone).
+- Left, as before: `hard edge` (the budget, a pill and an icon cut by the bar
+  while the page scrolls), the page scrolling under its header.
+
+Not checked: as above, plus the phone demos only as stills and in their
+Storybook tests, not filmed.

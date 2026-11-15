@@ -13,6 +13,7 @@ import { enterStyle, useDemoBeat } from '../useDemoBeat'
 import {
   AcceptPill,
   AppQuoteRow,
+  AppQuotesPanel,
   PinnedAction,
   PinnedBar,
   QuoteDisc,
@@ -291,7 +292,7 @@ export function HireScreen({
 
   // The quotes, with Accept on the best one as the screen's tap target.
   const list = (
-    <>
+    <AppQuotesPanel compact={compact}>
       <QuotesHead label={q.heading} count={q.items.length} compact={compact} />
       <Box style={enterStyle(entered, 0)}>
         <AppQuoteRow
@@ -313,15 +314,10 @@ export function HireScreen({
       </Box>
       {rest.map((quote, index) => (
         <Box key={quote.name} style={enterStyle(entered, index + 1)}>
-          <AppQuoteRow
-            quote={quote}
-            copy={q}
-            compact={compact}
-            divider={index < rest.length - 1}
-          />
+          <AppQuoteRow quote={quote} copy={q} compact={compact} />
         </Box>
       ))}
-    </>
+    </AppQuotesPanel>
   )
 
   if (compact) {

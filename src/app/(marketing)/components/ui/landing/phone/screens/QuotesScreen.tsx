@@ -12,6 +12,7 @@ import { CompactBar } from '../phoneParts'
 import { enterStyle, useDemoBeat } from '../useDemoBeat'
 import {
   AppQuoteRow,
+  AppQuotesPanel,
   PinnedAction,
   PinnedBar,
   QuoteNotice,
@@ -105,7 +106,7 @@ export function QuotesScreen({
         <AppQuoteRow quote={arriving} copy={t} compact={compact} />
       </Arriving>
       <Box style={enterStyle(entered, 1)}>
-        <AppQuoteRow quote={last} copy={t} compact={compact} divider={false} />
+        <AppQuoteRow quote={last} copy={t} compact={compact} />
       </Box>
     </>
   )
@@ -120,8 +121,10 @@ export function QuotesScreen({
         />
         {/* The list starts under the 44px bar and fades out toward the crop. */}
         <Stack gap={0} px="12px" pt="10px" css={phoneCropFade(44)}>
-          <QuotesHead label={t.heading} count={count} compact />
-          {rows}
+          <AppQuotesPanel compact>
+            <QuotesHead label={t.heading} count={count} compact />
+            {rows}
+          </AppQuotesPanel>
         </Stack>
         {banner}
       </Box>
@@ -132,8 +135,10 @@ export function QuotesScreen({
     <Box position="absolute" inset={0} bg="bg.surface">
       <TaskAppBar title={task.title} />
       <Stack gap={0} px="16px" pt="16px">
-        <QuotesHead label={t.heading} count={count} />
-        {rows}
+        <AppQuotesPanel>
+          <QuotesHead label={t.heading} count={count} />
+          {rows}
+        </AppQuotesPanel>
       </Stack>
       <PinnedBar>
         <PinnedAction icon={<LuEye size={16} aria-hidden />}>
