@@ -75,7 +75,7 @@ const failed = { kind: OrderCloseKind.Failed, at: AT }
 const otherWorker = {
   id: 'worker-detail-2',
   profile: { name: 'Sam Taylor', avatarUrl: null },
-  worker: { id: 'worker-profile-2', isVerified: false },
+  worker: { id: 'worker-profile-2', isVerified: false, title: null },
 }
 
 function quotes(mine: QuoteStatus | null, other: QuoteStatus) {

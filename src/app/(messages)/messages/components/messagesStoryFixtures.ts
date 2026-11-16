@@ -490,7 +490,7 @@ export const needs = (
 const sam = {
   id: 'worker-detail-2',
   profile: { name: 'Sam Taylor', avatarUrl: null },
-  worker: { id: 'worker-profile-2', isVerified: false },
+  worker: { id: 'worker-profile-2', isVerified: false, title: null },
 }
 
 /** Jordan's quote (when given, in `mine`) and Sam's (in `other`). */
@@ -524,7 +524,11 @@ export function manyLiveQuotes(count: number) {
       worker: {
         id: `worker-many-${index}`,
         profile: { name: names[index % names.length], avatarUrl: null },
-        worker: { id: `worker-profile-many-${index}`, isVerified: false },
+        worker: {
+          id: `worker-profile-many-${index}`,
+          isVerified: false,
+          title: null,
+        },
       },
     }),
   )

@@ -147,6 +147,16 @@
         "radius": "Travel radius must be a positive number of miles.",
         "portfolioMany": "Keep it to {count} photos.",
         "portfolioUrl": "One of your portfolio entries can't be saved. Remove it and try again."
+      },
+      "title": {
+        "label": "Title",
+        "none": "Worker (no title)",
+        "help": "Shown with your name on your profile, your quotes and in Find workers. Without one, you're shown as a worker.",
+        "unlimited": "Unlimited",
+        "locked": "Pick a title with Slashie Unlimited.",
+        "lockedKept": "Hidden while you're not on Slashie Unlimited. It shows again when you are.",
+        "seePlans": "See plans",
+        "saveFailed": "Couldn't save your title. Try again."
       }
     }
   },
@@ -298,6 +308,16 @@
         "radius": "服務距離必須為正數（英里）。",
         "portfolioMany": "最多只可加入 {count} 張相片。",
         "portfolioUrl": "你的作品集中有一項未能儲存。請移除後再試。"
+      },
+      "title": {
+        "label": "職稱",
+        "none": "工作者（不設職稱）",
+        "help": "會與你的名字一同顯示在個人檔案、報價及「尋找工作者」中。不設職稱時，會顯示為工作者。",
+        "unlimited": "Unlimited",
+        "locked": "訂閱 Slashie Unlimited 即可選擇職稱。",
+        "lockedKept": "你未訂閱 Slashie Unlimited 期間，職稱會被隱藏，重新訂閱後會再次顯示。",
+        "seePlans": "查看方案",
+        "saveFailed": "未能儲存職稱，請再試一次。"
       }
     }
   }

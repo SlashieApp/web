@@ -710,3 +710,31 @@ export const ZhHk: Story = {
     )
   },
 }
+
+/** BE-130: a worker on Unlimited shows their title in place of "Worker". */
+export const WorkerWithTitle: Story = {
+  args: {
+    view: 'worker.visitor',
+    model: sampleWorker({ titleLabel: 'Plumber' }),
+    reviewHref: REVIEW_HREF,
+  },
+  play: async ({ canvasElement }) => {
+    await expectOneVisible(canvasElement, 'Plumber')
+    const worker = within(canvasElement)
+      .queryAllByText('Worker', { exact: true })
+      .filter((element) => element.checkVisibility())
+    await expect(worker).toHaveLength(0)
+  },
+}
+
+/** No title (free plan, or none picked): "Worker", as before. */
+export const WorkerWithoutTitle: Story = {
+  args: {
+    view: 'worker.visitor',
+    model: sampleWorker({ titleLabel: null }),
+    reviewHref: REVIEW_HREF,
+  },
+  play: async ({ canvasElement }) => {
+    await expectOneVisible(canvasElement, 'Worker')
+  },
+}

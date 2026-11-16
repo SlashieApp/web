@@ -34,6 +34,7 @@ export type PublicProfileHeroProps = {
     | 'avatarUrl'
     | 'verified'
     | 'isWorker'
+    | 'titleLabel'
     | 'headline'
     | 'tagline'
     | 'serviceAreaLabel'
@@ -117,7 +118,10 @@ export function PublicProfileHero({
             </Box>
           ) : null}
           <Badge variant="neutral" shape="pill" size="sm">
-            {model.isWorker ? t.userType.worker : t.userType.customer}
+            {/* BE-130: a worker on Unlimited shows their title instead. */}
+            {model.isWorker
+              ? (model.titleLabel ?? t.userType.worker)
+              : t.userType.customer}
           </Badge>
         </HStack>
         {model.headline ? (

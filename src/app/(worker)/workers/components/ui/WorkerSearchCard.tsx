@@ -50,6 +50,11 @@ export type WorkerSearchCardProps = {
   name: string
   avatarUrl?: string | null
   verified?: boolean
+  /**
+   * The worker's title (BE-130, Unlimited), e.g. "Plumber". Shown as a pill
+   * under the name; nothing without one (everyone here is a worker).
+   */
+  title?: string | null
   subtitle?: string | null
   ratingLabel?: string | null
   experienceLabel?: string | null
@@ -67,6 +72,7 @@ export function WorkerSearchCard({
   name,
   avatarUrl,
   verified,
+  title,
   subtitle,
   ratingLabel,
   experienceLabel,
@@ -175,6 +181,21 @@ export function WorkerSearchCard({
             </Heading>
             {verified ? <CheckDisc size={14} /> : null}
           </HStack>
+
+          {title ? (
+            <HStack minW={0}>
+              <Badge
+                variant="neutral"
+                shape="pill"
+                size="sm"
+                maxW="full"
+                truncate
+                data-worker-title=""
+              >
+                {title}
+              </Badge>
+            </HStack>
+          ) : null}
 
           {subtitle ? (
             <Text

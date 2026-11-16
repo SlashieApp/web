@@ -16,6 +16,8 @@ import { useI11n } from '@/i18n/useI11n'
 import { milesToKmRounded } from '@/utils/geoDistance'
 import { Button, Card, SpotIllustration } from '@ui'
 
+import { workerTitleLabel } from '@/app/(stepflow)/worker/setup/helpers/workerSetupCategories'
+import setupBag from '@/app/(stepflow)/worker/setup/i11n.json'
 import { publicProfilePath } from '@/app/helpers/publicProfilePath'
 import { useWorkerSearch } from '../../context/WorkerSearchProvider'
 import {
@@ -142,6 +144,7 @@ function WorkersResultsTitle() {
 export function WorkersResultsGrid() {
   const { workers, loading, dataLoaded, canShowWorkersEmptyState } =
     useWorkerSearch()
+  const trades = useI11n(setupBag).trades
 
   return (
     <Stack gap={4}>
@@ -168,6 +171,7 @@ export function WorkersResultsGrid() {
                 name={workerDisplayName(worker)}
                 avatarUrl={workerAvatarUrl(worker)}
                 verified={Boolean(worker.isVerified)}
+                title={workerTitleLabel(worker.title, trades)}
                 subtitle={workerSubtitle(worker)}
                 ratingLabel={workerRatingLabel(worker)}
                 experienceLabel={workerExperienceShortLabel(worker)}

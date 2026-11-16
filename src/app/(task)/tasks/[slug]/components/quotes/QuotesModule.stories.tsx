@@ -1,4 +1,9 @@
-import { QuoteStatus, TaskBookingStatus, TaskStatus } from '@codegen/schema'
+import {
+  QuoteStatus,
+  TaskBookingStatus,
+  TaskStatus,
+  WorkerPrimaryCategory,
+} from '@codegen/schema'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { expect, userEvent, waitFor, within } from 'storybook/test'
 
@@ -53,7 +58,7 @@ const competitorB = storyTaskQuote({
   worker: {
     id: 'worker-user-b',
     profile: { name: 'Maria L.', avatarUrl: null },
-    worker: { id: 'worker-profile-b', isVerified: false },
+    worker: { id: 'worker-profile-b', isVerified: false, title: null },
   } as never,
 })
 
@@ -65,7 +70,12 @@ const competitorC = storyTaskQuote({
   worker: {
     id: 'worker-user-c',
     profile: { name: 'Sam K.', avatarUrl: null },
-    worker: { id: 'worker-profile-c', isVerified: true },
+    // On Unlimited with a title (BE-130).
+    worker: {
+      id: 'worker-profile-c',
+      isVerified: true,
+      title: WorkerPrimaryCategory.Carpentry,
+    },
   } as never,
 })
 
@@ -145,6 +155,10 @@ export const C2CustomerList: Story = {
     await expect(
       canvas.getAllByRole('button', { name: 'Accept' }),
     ).toHaveLength(3)
+    // BE-130: Sam's title (Unlimited) is a pill on his card; no one else has one.
+    const titles = canvasElement.querySelectorAll('[data-worker-title]')
+    await expect(titles).toHaveLength(1)
+    await expect(titles[0]).toHaveTextContent('Carpenter')
     // Accept is the owner's only answer to a quote.
     expect(canvas.queryByRole('button', { name: 'Decline' })).toBeNull()
   },

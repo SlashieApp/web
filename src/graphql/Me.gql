@@ -46,6 +46,8 @@ query Me {
       bio
       tagline
       primaryCategory
+      # BE-130: the title they saved (shown locked after Unlimited ends).
+      titleChoice
       yearsExperience
       skills
       qualifications

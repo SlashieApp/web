@@ -59,6 +59,8 @@ export function WorkerSetupProfilePreview() {
             avatarUrl: account.avatarUrl,
             verified: false,
             isWorker: true,
+            // A title is picked later, in the profile editor (Unlimited).
+            titleLabel: null,
             headline: workerHeadline(
               categoryEnumFromSlug(form.primaryCategory),
               form.skills,

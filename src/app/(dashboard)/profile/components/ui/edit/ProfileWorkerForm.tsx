@@ -1,10 +1,10 @@
 'use client'
 
-import { useApolloClient } from '@apollo/client/react'
+import { useApolloClient, useMutation } from '@apollo/client/react'
 import { Text } from '@chakra-ui/react'
 import { WorkerPublishState } from '@codegen/schema'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 
 import { useUserStore } from '@/app/(auth)/store/user'
@@ -15,7 +15,12 @@ import {
   WorkerSetupQualificationsInput,
   WorkerSetupSkillsInput,
 } from '@/app/(stepflow)/worker/setup/components'
-import { categorySkills } from '@/app/(stepflow)/worker/setup/helpers/workerSetupCategories'
+import {
+  type WorkerTradeSlug,
+  categoryEnumFromSlug,
+  categorySkills,
+  categorySlugFromEnum,
+} from '@/app/(stepflow)/worker/setup/helpers/workerSetupCategories'
 import { workerSetupErrorMessage } from '@/app/(stepflow)/worker/setup/helpers/workerSetupErrors'
 import { HEADLINE_MAX_CHARS } from '@/app/(stepflow)/worker/setup/helpers/workerSetupValidation'
 import setupBag from '@/app/(stepflow)/worker/setup/i11n.json'
@@ -24,6 +29,7 @@ import { EVENTS, trackFlowFailed, trackFlowSucceeded } from '@/utils/analytics'
 import { showAppToast } from '@/utils/appToast'
 import { Button, DrawerBar, FormField, FormRow, FormStack, Input } from '@ui'
 
+import SetWorkerTitle from '../../../graphql/SetWorkerTitle.gql'
 import {
   WorkerProfileSaveError,
   saveWorkerProfileForm,
@@ -34,6 +40,10 @@ import {
   createWorkerFormSchema,
   workerFormValuesFromMe,
 } from '../../../workerFormSchema'
+import { WorkerTitleField } from './WorkerTitleField'
+
+/** The title didn't save (the profile, if changed, did). */
+class WorkerTitleSaveError extends Error {}
 
 /**
  * Edit a finished worker profile (the Profile drawer). Unfinished workers
@@ -57,6 +67,14 @@ export function ProfileWorkerForm({
   // Save waits for portfolio photos that are still uploading (FE-548).
   const [photosUploading, setPhotosUploading] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
+  // BE-130: the title saves on its own (setWorkerTitle), after the profile.
+  const savedTitle = categorySlugFromEnum(me?.worker?.titleChoice)
+  const [title, setTitle] = useState<WorkerTradeSlug | ''>(savedTitle)
+  // A new saved title (after a save or a refresh) is the field's new start.
+  useEffect(() => setTitle(savedTitle), [savedTitle])
+  const titleDirty = title !== savedTitle
+  const titleLocked = !me?.worker?.membership?.hasUnlimitedQuotes
+  const [setWorkerTitle] = useMutation(SetWorkerTitle)
   const schema = useMemo(() => createWorkerFormSchema(t.errors), [t.errors])
 
   const formValues = useMemo(
@@ -84,8 +102,19 @@ export function ProfileWorkerForm({
     setSubmitError(null)
     setSaving(true)
     try {
-      await saveWorkerProfileForm(client, values, me, setMe)
-      reset(values)
+      if (isDirty) {
+        await saveWorkerProfileForm(client, values, me, setMe)
+        reset(values)
+      }
+      if (titleDirty && !titleLocked) {
+        try {
+          await setWorkerTitle({
+            variables: { title: categoryEnumFromSlug(title) ?? null },
+          })
+        } catch {
+          throw new WorkerTitleSaveError()
+        }
+      }
       await getUser()
       trackFlowSucceeded(EVENTS.profile_update_success, {
         section: 'worker',
@@ -106,16 +135,18 @@ export function ProfileWorkerForm({
       // Each API code in this page's language (worker setup's copy); the
       // editor's own line for a draft, and "couldn't save" for the rest.
       const message =
-        error instanceof WorkerProfileSaveError
-          ? setup.serverErrors[error.code]
-          : workerSetupErrorMessage(error, {
-              ...setup,
-              saveFailed: t.saveFailed,
-              serverErrors: {
-                ...setup.serverErrors,
-                WORKER_SETUP_INCOMPLETE: t.setupIncomplete,
-              },
-            })
+        error instanceof WorkerTitleSaveError
+          ? t.title.saveFailed
+          : error instanceof WorkerProfileSaveError
+            ? setup.serverErrors[error.code]
+            : workerSetupErrorMessage(error, {
+                ...setup,
+                saveFailed: t.saveFailed,
+                serverErrors: {
+                  ...setup.serverErrors,
+                  WORKER_SETUP_INCOMPLETE: t.setupIncomplete,
+                },
+              })
       setSubmitError(message)
       showAppToast({ title: message, type: 'error' })
     } finally {
@@ -180,6 +211,14 @@ export function ProfileWorkerForm({
               shouldValidate: true,
             })
           }
+        />
+
+        <WorkerTitleField
+          value={title}
+          onChange={setTitle}
+          locked={titleLocked}
+          trades={trades}
+          copy={t.title}
         />
 
         <WorkerSetupSkillsInput
@@ -268,6 +307,7 @@ export function ProfileWorkerForm({
             size="form"
             onClick={() => {
               reset(formValues)
+              setTitle(savedTitle)
               onCancel?.()
             }}
             disabled={saving}
@@ -279,7 +319,7 @@ export function ProfileWorkerForm({
             variant="primary"
             size="form"
             loading={saving || isSubmitting || photosUploading}
-            disabled={!isDirty && !photosUploading}
+            disabled={!isDirty && !titleDirty && !photosUploading}
           >
             {editor.save}
           </Button>

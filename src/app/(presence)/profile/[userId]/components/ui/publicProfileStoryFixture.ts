@@ -216,6 +216,7 @@ export function sampleWorker(
     name: 'Alex Morgan',
     avatarUrl: null,
     joinedLabel: 'Mar 2024',
+    titleLabel: null,
     headline: 'Handyman · Furniture assembly',
     tagline: 'Careful work across north London.',
     serviceAreaLabel: 'Camden & Islington (~5 miles)',

@@ -1,5 +1,6 @@
 import { Box } from '@chakra-ui/react'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
+import { expect, within } from 'storybook/test'
 
 import { withStoryApollo } from '../storyApollo'
 import { storyPhoto } from '../workersStoryFixtures'
@@ -106,5 +107,39 @@ export const Minimal: Story = {
     workerId: 'worker-minimal',
     name: 'Sam',
     profileHref: '/profile/user-minimal',
+  },
+}
+
+/** BE-130: a worker on Unlimited with a title: a pill under the name. */
+export const WithTitle: Story = {
+  args: {
+    ...Default.args,
+    workerId: 'worker-title',
+    title: 'Plumber',
+  },
+  play: async ({ canvasElement }) => {
+    const pill = canvasElement.querySelector('[data-worker-title]')
+    await expect(pill).toHaveTextContent('Plumber')
+    // Under the name, before the headline.
+    const name = within(canvasElement).getByRole('heading', { name: 'Tom H.' })
+    const headline = within(canvasElement).getByText(
+      'Handyman · Furniture assembly',
+    )
+    await expect(
+      name.compareDocumentPosition(pill as Element) &
+        Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy()
+    await expect(
+      (pill as Element).compareDocumentPosition(headline) &
+        Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy()
+  },
+}
+
+/** No title: no pill (everyone here is a worker, so no "Worker" either). */
+export const WithoutTitle: Story = {
+  args: { ...Default.args, workerId: 'worker-no-title' },
+  play: async ({ canvasElement }) => {
+    await expect(canvasElement.querySelector('[data-worker-title]')).toBeNull()
   },
 }

@@ -9,6 +9,7 @@ import { PublicProfileUserType, ReviewPartyRole } from '@codegen/schema'
 import {
   type WorkerTradesCopy,
   categoryLabelFromEnum,
+  workerTitleLabel,
 } from '@/app/(stepflow)/worker/setup/helpers/workerSetupCategories'
 import setupBag from '@/app/(stepflow)/worker/setup/i11n.json'
 import type { TaskCardTask } from '@/app/(task)/components/ui/TaskCard'
@@ -96,6 +97,11 @@ export type PublicProfileModel = {
   avatarUrl: string | null
   /** "Mar 2024" in the viewer's language. */
   joinedLabel: string | null
+  /**
+   * The worker's title (BE-130, Unlimited), e.g. "Plumber" / 水喉師傅, shown
+   * in place of "Worker". Null without one.
+   */
+  titleLabel: string | null
   headline: string | null
   tagline: string | null
   serviceAreaLabel: string | null
@@ -323,6 +329,9 @@ export function toPublicProfileModel(
         month: 'short',
         year: 'numeric',
       }) || null,
+    titleLabel: worker
+      ? workerTitleLabel(worker.title, loadPageI11n(setupBag, locale).trades)
+      : null,
     headline: worker
       ? workerHeadline(
           worker.primaryCategory,

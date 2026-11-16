@@ -40,7 +40,7 @@ export function storyTaskDetail(
       worker: {
         id: STORY_WORKER_ID,
         profile: { name: 'Jordan Lee', avatarUrl: STORY_AVATAR },
-        worker: { id: 'worker-profile-1', isVerified: true },
+        worker: { id: 'worker-profile-1', isVerified: true, title: null },
       },
     }),
     storyTaskQuote({
@@ -52,7 +52,7 @@ export function storyTaskDetail(
       worker: {
         id: 'worker-detail-2',
         profile: { name: 'Sam Taylor', avatarUrl: null },
-        worker: { id: 'worker-profile-2', isVerified: false },
+        worker: { id: 'worker-profile-2', isVerified: false, title: null },
       },
     }),
   ]
@@ -330,7 +330,7 @@ export function storyTaskQuote(
     worker: {
       id: STORY_WORKER_ID,
       profile: { name: 'Jordan Lee', avatarUrl: STORY_AVATAR },
-      worker: { id: 'worker-profile-1', isVerified: true },
+      worker: { id: 'worker-profile-1', isVerified: true, title: null },
     },
     ...overrides,
   } as TaskDetailRecord['quotes'][number]

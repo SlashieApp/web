@@ -5,6 +5,11 @@ import { useId, useMemo, useState } from 'react'
 import { HStack, Stack, Text, chakra } from '@chakra-ui/react'
 import { QuoteStatus } from '@codegen/schema'
 
+import {
+  type WorkerTradesCopy,
+  workerTitleLabel,
+} from '@/app/(stepflow)/worker/setup/helpers/workerSetupCategories'
+import setupBag from '@/app/(stepflow)/worker/setup/i11n.json'
 import { publicProfilePath } from '@/app/helpers/publicProfilePath'
 import { useLocale } from '@/i18n/LocaleProvider'
 import { formatMessage } from '@/i18n/loadPageI11n'
@@ -187,6 +192,7 @@ function quoteRowWorker(
   quote: TaskQuote,
   workerFallback: string,
   taskId: string,
+  trades: WorkerTradesCopy,
 ) {
   const name = quote.worker?.profile?.name?.trim() || workerFallback
   const profileUserId = quote.worker?.id
@@ -195,6 +201,7 @@ function quoteRowWorker(
     avatarLabel: workerNameInitials(name, quote.workerUserId ?? quote.id),
     avatarUrl: quote.worker?.profile?.avatarUrl,
     showVerified: Boolean(quote.worker?.worker?.isVerified),
+    workerTitle: workerTitleLabel(quote.worker?.worker?.title, trades),
     workerProfileHref: profileUserId
       ? publicProfilePath(profileUserId, { fromTask: taskId })
       : undefined,
@@ -244,6 +251,7 @@ function rowStatus(status: QuoteStatus | string): QuoteRowStatus | null {
 export function QuotesModule({ slotsCap = 1 }: QuotesModuleProps) {
   const t = useI11n(bag)
   const { quotes: q, fallbackWorker } = t
+  const trades = useI11n(setupBag).trades
   const intlLocale = useLocale() === 'zh-hk' ? 'zh-HK' : 'en-GB'
   const {
     task,
@@ -311,7 +319,7 @@ export function QuotesModule({ slotsCap = 1 }: QuotesModuleProps) {
       <QuoteRow
         key={quote.id}
         {...content}
-        {...quoteRowWorker(quote, fallbackWorker, task.id)}
+        {...quoteRowWorker(quote, fallbackWorker, task.id, trades)}
         status={rowStatus(quote.status)}
         accountSuspended={suspended}
         isBestMatch={

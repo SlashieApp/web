@@ -1,0 +1,8 @@
+# BE-130: pick the title shown with this worker (Unlimited), or clear it.
+mutation SetWorkerTitle($title: WorkerPrimaryCategory) {
+  setWorkerTitle(title: $title) {
+    id
+    title
+    titleChoice
+  }
+}

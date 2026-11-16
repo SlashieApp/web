@@ -1,3 +1,5 @@
+import { WorkerPrimaryCategory } from '@codegen/schema'
+
 import type { WorkerSearchItem } from '../helpers/workerSearchHelpers'
 
 /** A gradient "photo" as a data URI, so stories need no network. */
@@ -14,6 +16,8 @@ function storyWorker(
   return {
     id,
     tagline: null,
+    // BE-130: no title unless a story's worker is on Unlimited with one.
+    title: null,
     isVerified: false,
     yearsExperience: null,
     skills: [],
@@ -31,6 +35,7 @@ function storyWorker(
 export const storyWorkers: readonly WorkerSearchItem[] = [
   storyWorker('worker-1', 'Maya Okafor', {
     tagline: 'Flat-pack, shelving and mounting, tidy every time',
+    title: WorkerPrimaryCategory.Handyman,
     isVerified: true,
     yearsExperience: 5,
     skills: ['Assembly', 'Mounting', 'Shelving', 'Painting', 'Repairs'],

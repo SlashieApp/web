@@ -33,6 +33,10 @@ export const Default: Story = {
       await canvas.findByRole('heading', { name: '8 workers near London' }),
     ).toBeVisible()
     await expect(await canvas.findByText('Maya Okafor')).toBeVisible()
+    // BE-130: Maya is on Unlimited with a title; no one else has one.
+    const titles = canvasElement.querySelectorAll('[data-worker-title]')
+    await expect(titles).toHaveLength(1)
+    await expect(titles[0]).toHaveTextContent('Handyman')
   },
 }
 

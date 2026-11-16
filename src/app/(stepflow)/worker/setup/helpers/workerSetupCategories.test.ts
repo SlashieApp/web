@@ -128,3 +128,24 @@ describe('prefillHeadline', () => {
     )
   })
 })
+
+describe('workerTitleLabel (BE-130)', () => {
+  it("is the trade's noun in the reader's language, or null", async () => {
+    const { workerTitleLabel } = await import('./workerSetupCategories')
+    const bag = (await import('../i11n.json')).default
+    expect(
+      workerTitleLabel(WorkerPrimaryCategory.Plumbing, bag.en.trades),
+    ).toBe('Plumber')
+    expect(
+      workerTitleLabel(WorkerPrimaryCategory.Plumbing, bag.zh_hk.trades),
+    ).toBe('水喉師傅')
+    expect(workerTitleLabel(null, bag.en.trades)).toBeNull()
+    expect(workerTitleLabel(undefined, bag.en.trades)).toBeNull()
+    // Every trade has a title in both languages.
+    for (const trades of [bag.en.trades, bag.zh_hk.trades]) {
+      for (const value of Object.values(WorkerPrimaryCategory)) {
+        expect(workerTitleLabel(value, trades)?.trim()).toBeTruthy()
+      }
+    }
+  })
+})

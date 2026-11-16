@@ -50,7 +50,7 @@ const phone = { globals: { viewport: { value: 'mobile1' } } } as const
 const otherWorker = {
   id: 'worker-detail-2',
   profile: { name: 'Sam Taylor', avatarUrl: null },
-  worker: { id: 'worker-profile-2', isVerified: false },
+  worker: { id: 'worker-profile-2', isVerified: false, title: null },
 }
 
 const competitorQuote = storyTaskQuote({

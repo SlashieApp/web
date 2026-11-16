@@ -70,6 +70,19 @@ export function categoryLabelFromEnum(
   return slug ? trades[slug].label : null
 }
 
+/**
+ * A worker's title (BE-130, a Slashie Unlimited feature): the trade's noun in
+ * the reader's language (Plumber, 水喉師傅), or null when they have none. The
+ * API sends `title` only while they have Unlimited.
+ */
+export function workerTitleLabel(
+  title: WorkerPrimaryCategoryEnum | null | undefined,
+  trades: WorkerTradesCopy,
+): string | null {
+  const slug = categorySlugFromEnum(title)
+  return slug ? trades[slug].noun : null
+}
+
 /** Skill chips to suggest for a trade; none until one is chosen. */
 export function categorySkills(
   slug: string,

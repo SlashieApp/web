@@ -56,6 +56,8 @@ query PublicProfile($userId: ID!, $excludeTaskId: ID) {
       bio
       tagline
       primaryCategory
+      # BE-130: the worker's title, only while they have Unlimited.
+      title
       skills
       qualifications
       serviceAreaLabel

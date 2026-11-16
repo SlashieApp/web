@@ -5,6 +5,8 @@ query WorkersSearch($filter: WorkerFilter, $sort: WorkerSort) {
   workers(filter: $filter, sort: $sort) {
     id
     tagline
+    # BE-130: the worker's title, only while they have Unlimited.
+    title
     isVerified
     yearsExperience
     skills

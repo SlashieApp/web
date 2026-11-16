@@ -74,7 +74,7 @@ const bookedTask = (workerPhone: string | null = null) =>
             avatarUrl: null,
             contactNumber: workerPhone,
           },
-          worker: { id: 'worker-profile-1', isVerified: true },
+          worker: { id: 'worker-profile-1', isVerified: true, title: null },
         } as never,
       }),
     ],

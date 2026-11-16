@@ -244,3 +244,22 @@ export const Phone: Story = {
   args: { onAccept: fn(), showVerified: true },
   globals: { viewport: { value: 'mobile1' } },
 }
+
+/** BE-130: the worker's title (Unlimited) as a pill after the name. */
+export const WithTitle: Story = {
+  args: { workerTitle: 'Plumber', showVerified: true },
+  play: async ({ canvasElement }) => {
+    const pill = canvasElement.querySelector('[data-worker-title]')
+    await expect(pill).toHaveTextContent('Plumber')
+    await expect(pill).toBeVisible()
+  },
+}
+
+/** Another worker's quote (FE-370): never their title, whatever is passed in. */
+export const AnonymousNeverShowsTitle: Story = {
+  args: { anonymous: true, workerTitle: 'Plumber' },
+  play: async ({ canvasElement }) => {
+    await expect(canvasElement.querySelector('[data-worker-title]')).toBeNull()
+    await expect(within(canvasElement).queryByText('Plumber')).toBeNull()
+  },
+}

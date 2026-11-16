@@ -34,6 +34,11 @@ export type QuoteRowProps = {
   availabilityLabel?: string | null
   respondedLabel?: string | null
   showVerified?: boolean
+  /**
+   * The worker's title (BE-130, Unlimited), e.g. "Plumber": a pill after the
+   * name. Nothing without one, and never on another worker's quote.
+   */
+  workerTitle?: string | null
   status?: QuoteRowStatus | null
   /**
    * The worker's account is suspended (BE-108): an "Account suspended" pill,
@@ -77,6 +82,7 @@ export function QuoteRow({
   availabilityLabel,
   respondedLabel,
   showVerified = false,
+  workerTitle = null,
   status,
   accountSuspended = false,
   isBestMatch = false,
@@ -93,6 +99,7 @@ export function QuoteRow({
   // Never who sent another worker's quote, whatever is passed in.
   const profileHref = anonymous ? undefined : workerProfileHref
   const verified = !anonymous && showVerified
+  const title = anonymous ? null : workerTitle
   const avatar = anonymous ? (
     <Avatar name={name} size="lg" fallback="icon" />
   ) : (
@@ -151,6 +158,16 @@ export function QuoteRow({
               >
                 <LuBadgeCheck size={16} aria-hidden />
               </HStack>
+            ) : null}
+            {title ? (
+              <Badge
+                variant="neutral"
+                size="sm"
+                shape="pill"
+                data-worker-title=""
+              >
+                {title}
+              </Badge>
             ) : null}
             {isBestMatch ? (
               <Badge variant="success" size="sm" shape="pill">

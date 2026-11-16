@@ -104,6 +104,8 @@ query Task($id: ID!) {
         worker {
           id
           isVerified
+          # BE-130: the worker's title, only while they have Unlimited.
+          title
         }
       }
     }
