@@ -213,6 +213,18 @@ function normaliseMessage(message: string) {
   return message.trim().toUpperCase()
 }
 
+/**
+ * An API error code rather than words (`QUOTE_NOT_AVAILABLE`): the API throws
+ * plain codes, and one with no copy here must never reach the screen
+ * (FE-512, the app's `CODE_PATTERN`).
+ */
+const CODE_PATTERN = /^[A-Z][A-Z0-9_]+$/
+
+/** The message, unless it is a bare code: then the caller's fallback. */
+function readableOr(message: string, fallback: string) {
+  return CODE_PATTERN.test(message.trim()) ? fallback : message
+}
+
 export function pickGraphQLError(error: unknown): GraphQLErrorLike | null {
   if (!error || typeof error !== 'object') return null
   const candidate = error as {
@@ -326,11 +338,11 @@ export function getFriendlyErrorMessage(error: unknown, fallback: string) {
     const normalisedMessage = normaliseMessage(graphQLError.message)
     const mappedMessage = FRIENDLY_ERROR_BY_MESSAGE[normalisedMessage]
     if (mappedMessage) return mappedMessage
-    return graphQLError.message
+    return readableOr(graphQLError.message, fallback)
   }
 
   if (error instanceof Error && error.message.trim().length > 0) {
-    return error.message
+    return readableOr(error.message, fallback)
   }
 
   return fallback

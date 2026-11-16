@@ -161,3 +161,42 @@ describe('when a failed request ends the session', () => {
     expect(isSessionEndedError(gqlError('INTERNAL_SERVER_ERROR'))).toBe(false)
   })
 })
+
+describe('a code with no copy is never shown (FE-512)', () => {
+  const internal = (message: string): unknown => ({
+    errors: [{ message, extensions: { code: 'INTERNAL_SERVER_ERROR' } }],
+  })
+
+  it('shows the fallback for an unknown code, however it arrives', () => {
+    expect(
+      getFriendlyErrorMessage(internal('QUOTE_NOT_AVAILABLE'), 'fallback'),
+    ).toBe('fallback')
+    expect(
+      getFriendlyErrorMessage(gqlError('NO_COPY_FOR_THIS_CODE'), 'fallback'),
+    ).toBe('fallback')
+    expect(
+      getFriendlyErrorMessage(new Error('SOME_NEW_CODE'), 'fallback'),
+    ).toBe('fallback')
+  })
+
+  it('passes readable messages through', () => {
+    expect(
+      getFriendlyErrorMessage(
+        internal('That task is no longer open.'),
+        'fallback',
+      ),
+    ).toBe('That task is no longer open.')
+    expect(
+      getFriendlyErrorMessage(
+        new Error('Sign-in returned no session.'),
+        'fallback',
+      ),
+    ).toBe('Sign-in returned no session.')
+  })
+
+  it('still maps codes that have copy', () => {
+    expect(getFriendlyErrorMessage(internal('SLOT_IN_PAST'), 'fallback')).toBe(
+      'That time has already passed. Pick a time in the future.',
+    )
+  })
+})
