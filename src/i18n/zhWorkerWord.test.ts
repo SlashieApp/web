@@ -29,8 +29,9 @@ function chineseStrings(): Array<{ where: string; text: string }> {
 
 /**
  * zh-HK calls a worker 工作者, not the English word (FE-572). `{worker}`
- * placeholders are names filled in at run time. (Worker setup's trade names,
- * such as 水喉師傅, are pinned by its own tests.)
+ * placeholders are names filled in at run time. 師傅 is allowed in trade
+ * titles only (Ryan, 16 Nov): worker setup's trade nouns (水喉師傅, 雜工師傅)
+ * and the headline examples that quote one. Never as the general word.
  */
 describe('zh-HK copy names workers 工作者', () => {
   const strings = chineseStrings()
@@ -44,5 +45,22 @@ describe('zh-HK copy names workers 工作者', () => {
       /\bworkers?\b/i.test(text.replace(/\{[^}]+\}/g, '')),
     )
     expect(english).toEqual([])
+  })
+
+  it('uses 師傅 only in trade titles', () => {
+    const tradeTitle = (where: string) =>
+      /worker\/setup\/i11n\.json zh_hk\.(trades\.[^.]+\.noun|fields\.headlinePlaceholder|errors\.headlineOneWord)$/.test(
+        where,
+      )
+    const elsewhere = strings.filter(
+      ({ where, text }) => text.includes('師傅') && !tradeTitle(where),
+    )
+    expect(elsewhere).toEqual([])
+    // The trade titles are still there (the exception is used, not stale).
+    expect(
+      strings.filter(
+        ({ where, text }) => text.includes('師傅') && tradeTitle(where),
+      ).length,
+    ).toBeGreaterThan(5)
   })
 })
