@@ -176,14 +176,25 @@ export const ManyCategories: Story = {
         'Painting',
         'Furniture',
         'Assembly',
+        'Garden and outdoor',
+        'Cleaning and tidying',
       ],
     },
   },
   play: async ({ canvasElement }) => {
-    const pill = within(canvasElement).getByText('Assembly')
-    // Still in the row (one line), past the visible edge.
+    // The API allows 10 categories: enough to run past any card's edge, so
+    // this doesn't hang on a font's widths (FE-461: 8 fitted to the pixel).
+    const pill = within(canvasElement).getByText('Cleaning and tidying')
     await expect(pill).toBeInTheDocument()
     const row = pill.parentElement as HTMLElement
+    // One line: every pill shares the first one's top.
+    const tops = new Set(
+      [...row.children].map((child) =>
+        Math.round(child.getBoundingClientRect().top),
+      ),
+    )
+    await expect(tops.size).toBe(1)
+    // Past the visible edge.
     await expect(row.scrollWidth).toBeGreaterThan(row.clientWidth)
   },
 }
