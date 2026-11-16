@@ -27,6 +27,8 @@ const FRIENDLY_ERROR_BY_MESSAGE: Record<string, string> = {
   LAST_LOGIN_METHOD:
     'Set a password or keep your other sign-in before removing this one.',
   LOGIN_METHOD_NOT_SUPPORTED: 'That sign-in method cannot be changed here.',
+  TERMS_VERSION_UNKNOWN:
+    'Something went wrong. Refresh the page and try again.',
   APPLE_EMAIL_REQUIRED:
     'Apple did not share an email address. Try again and share your email.',
   INVALID_OR_EXPIRED_RESET_TOKEN: 'This reset link is invalid or has expired.',

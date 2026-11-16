@@ -14,6 +14,7 @@ import {
   EmailInput,
   PasswordInput,
 } from '@/app/(auth)/components/ui/AuthFields'
+import { ConsentLine } from '@/app/(auth)/components/ui/ConsentLine'
 import {
   AuthOptions,
   useEmailSection,
@@ -154,12 +155,20 @@ export function LoginPanel({
             <AuthAlert tone="info">{noticeText}</AuthAlert>
           </Box>
         ) : null}
+        {/* FE-570 (Ryan 15 Nov): Google and Apple make an account for someone
+            new here too, so the same consent line sits above them, and they
+            send it. Email log in never makes an account. */}
+        {isSocialAuthConfigured() ? (
+          <Box mb="form.fieldGap">
+            <ConsentLine />
+          </Box>
+        ) : null}
         <AuthOptions
           social={
             isSocialAuthConfigured() ? (
               <>
-                <GoogleAuthButton next={next} />
-                <AppleAuthButton next={next} />
+                <GoogleAuthButton next={next} consent />
+                <AppleAuthButton next={next} consent />
               </>
             ) : null
           }

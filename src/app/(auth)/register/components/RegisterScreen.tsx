@@ -17,6 +17,7 @@ import {
   EmailInput,
   PasswordInput,
 } from '@/app/(auth)/components/ui/AuthFields'
+import { ConsentLine } from '@/app/(auth)/components/ui/ConsentLine'
 import {
   AuthOptions,
   useEmailSection,
@@ -41,6 +42,7 @@ import { useCooldownSeconds } from '@/app/(auth)/helpers/useCooldownSeconds'
 import { useProgressiveCaptcha } from '@/app/(auth)/helpers/useProgressiveCaptcha'
 import { useUserStore } from '@/app/(auth)/store/user'
 import UpdateMySettings from '@/app/(dashboard)/account/graphql/UpdateMySettings.gql'
+import { signUpConsent } from '@/content/legal/termsVersion'
 import { formatMessage } from '@/i18n/loadPageI11n'
 import { useI11n } from '@/i18n/useI11n'
 import { EVENTS, trackFlowFailed, trackFlowSucceeded } from '@/utils/analytics'
@@ -148,6 +150,7 @@ export function RegisterScreen() {
           email: data.email,
           password: data.password,
           name: data.fullName.trim() || undefined,
+          consent: signUpConsent(),
         },
         context: captchaMutationContext(captcha.token),
       })
@@ -211,9 +214,6 @@ export function RegisterScreen() {
   useEffect(() => {
     if (email.openedByTap) setFocus('fullName')
   }, [email.openedByTap, setFocus])
-  const [termsBefore, termsMiddle = '', termsAfter = ''] = t.consentLine.split(
-    /\{terms\}|\{privacy\}/,
-  )
 
   return (
     <AuthCard
@@ -237,23 +237,9 @@ export function RegisterScreen() {
           opens into the divider and the form. */}
       <Box w="full">
         <Box mb="form.fieldGap" data-signup-consent="">
-          <Text
-            fontSize="sm"
-            color="text.muted"
-            lineHeight="tall"
-            mb="form.fieldGap"
-            data-consent-line=""
-          >
-            {termsBefore}
-            <Link href="/terms" fontWeight={500} color="text.link">
-              {t.termsLink}
-            </Link>
-            {termsMiddle}
-            <Link href="/privacy" fontWeight={500} color="text.link">
-              {t.privacyLink}
-            </Link>
-            {termsAfter}
-          </Text>
+          <Box mb="form.fieldGap">
+            <ConsentLine />
+          </Box>
           <Controller
             name="marketingOptIn"
             control={control}
@@ -276,8 +262,13 @@ export function RegisterScreen() {
                 <GoogleAuthButton
                   next={next}
                   onSignedIn={applyMarketingOptIn}
+                  consent
                 />
-                <AppleAuthButton next={next} onSignedIn={applyMarketingOptIn} />
+                <AppleAuthButton
+                  next={next}
+                  onSignedIn={applyMarketingOptIn}
+                  consent
+                />
               </>
             ) : null
           }

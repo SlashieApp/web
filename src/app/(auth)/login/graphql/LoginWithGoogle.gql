@@ -1,5 +1,7 @@
-mutation LoginWithGoogle($token: String!) {
-  loginWithMethod(input: { method: GOOGLE, oauthToken: $token }) {
+mutation LoginWithGoogle($token: String!, $consent: SignUpConsentInput) {
+  loginWithMethod(
+    input: { method: GOOGLE, oauthToken: $token, consent: $consent }
+  ) {
     token
     user {
       id

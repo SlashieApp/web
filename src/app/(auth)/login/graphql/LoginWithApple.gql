@@ -4,6 +4,7 @@ mutation LoginWithApple(
   $authorizationCode: String
   $firstName: String
   $lastName: String
+  $consent: SignUpConsentInput
 ) {
   loginWithMethod(
     input: {
@@ -13,6 +14,7 @@ mutation LoginWithApple(
       authorizationCode: $authorizationCode
       firstName: $firstName
       lastName: $lastName
+      consent: $consent
     }
   ) {
     token

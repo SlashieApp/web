@@ -23,6 +23,7 @@ import { captchaMutationContext } from '@/app/(auth)/helpers/captchaMutationCont
 import Login from '@/app/(auth)/login/graphql/Login.gql'
 import LoginWithApple from '@/app/(auth)/login/graphql/LoginWithApple.gql'
 import LoginWithGoogle from '@/app/(auth)/login/graphql/LoginWithGoogle.gql'
+import { signUpConsent } from '@/content/legal/termsVersion'
 import Me from '@/graphql/Me.gql'
 import { clearDeletionScheduled } from '@/utils/accountDeletionState'
 import {
@@ -67,6 +68,12 @@ type LoginInput = {
   analytics?: LoginAnalyticsExtras
 }
 
+/** How a Google or Apple sign-in was started (FE-570). */
+export type SocialSignInOptions = {
+  /** The screen showed the consent line: send it, so a new account records it. */
+  consent?: boolean
+}
+
 type UserStore = {
   user: AuthUser | null
   /** Full `me` snapshot mirrored from Apollo. Source of truth for dashboard reads. */
@@ -78,12 +85,22 @@ type UserStore = {
   /** Shallow-merge into the cached `me`; ignored when no `me` is present. */
   patchMe: (patch: Partial<MeSnapshot>) => void
   login: (input: LoginInput) => Promise<AuthUser | null>
-  loginWithGoogle: (idToken: string) => Promise<AuthUser | null>
+  /**
+   * `options.consent`: the screen showed the consent line (Sign up, Log in),
+   * so a new account records it (BE-128). Re-auth while signed in sends none.
+   */
+  loginWithGoogle: (
+    idToken: string,
+    options?: SocialSignInOptions,
+  ) => Promise<AuthUser | null>
   /**
    * Apple identity token with its raw nonce and one-time code; the name comes
-   * only on the first authorization.
+   * only on the first authorization. `options` as for Google.
    */
-  loginWithApple: (credential: AppleCredential) => Promise<AuthUser | null>
+  loginWithApple: (
+    credential: AppleCredential,
+    options?: SocialSignInOptions,
+  ) => Promise<AuthUser | null>
   logout: () => void
   getUser: () => Promise<AuthUser | null>
 }
@@ -231,7 +248,7 @@ export const useUserStore = create<UserStore>((set, get) => ({
       throw error
     }
   },
-  loginWithGoogle: async (idToken) => {
+  loginWithGoogle: async (idToken, options) => {
     set({ isLoading: true })
     try {
       const result = await apolloClient.mutate<
@@ -239,7 +256,10 @@ export const useUserStore = create<UserStore>((set, get) => ({
         LoginWithGoogleMutationVariables
       >({
         mutation: LoginWithGoogle,
-        variables: { token: idToken },
+        variables: {
+          token: idToken,
+          ...(options?.consent ? { consent: signUpConsent() } : {}),
+        },
       })
 
       const token = result.data?.loginWithMethod?.token?.trim()
@@ -266,7 +286,7 @@ export const useUserStore = create<UserStore>((set, get) => ({
       throw error
     }
   },
-  loginWithApple: async ({ idToken, ...rest }) => {
+  loginWithApple: async ({ idToken, ...rest }, options) => {
     set({ isLoading: true })
     try {
       const result = await apolloClient.mutate<
@@ -274,7 +294,11 @@ export const useUserStore = create<UserStore>((set, get) => ({
         LoginWithAppleMutationVariables
       >({
         mutation: LoginWithApple,
-        variables: { token: idToken, ...rest },
+        variables: {
+          token: idToken,
+          ...rest,
+          ...(options?.consent ? { consent: signUpConsent() } : {}),
+        },
       })
 
       const token = result.data?.loginWithMethod?.token?.trim()

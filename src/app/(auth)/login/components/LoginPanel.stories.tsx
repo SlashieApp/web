@@ -15,6 +15,19 @@ import { LoginPanel } from './LoginPanel'
 
 type Canvas = ReturnType<typeof within>
 
+/** The consent line above Google and Apple (FE-570), as Sign up has it. */
+const CONSENT =
+  "By continuing, you confirm you're 18 or over and agree to the Terms of Service and Privacy Policy."
+
+/** The consent line's paragraph. */
+async function consentLine(canvas: Canvas) {
+  return canvas.findByText(
+    (_: string, node: Element | null) =>
+      node?.hasAttribute('data-consent-line') === true &&
+      node.textContent === CONSENT,
+  )
+}
+
 /** The pieces of the log-in card the spacing checks measure. */
 async function loginParts(canvas: Canvas) {
   const title = await canvas.findByRole('heading', { level: 1 })
@@ -43,6 +56,7 @@ async function loginParts(canvas: Canvas) {
   return {
     title,
     subtitle,
+    consent: await consentLine(canvas),
     email,
     password,
     emailShell: shellOf(email),
@@ -72,7 +86,8 @@ async function expectLoginSpacing(canvas: Canvas) {
   const p = await loginParts(canvas)
 
   await expect(gapBelow(p.title, p.subtitle)).toBe(formSpace.titleToSubtitle)
-  await expect(gapBelow(p.subtitle, p.google)).toBe(formSpace.headerToBody)
+  await expect(gapBelow(p.subtitle, p.consent)).toBe(formSpace.headerToBody)
+  await expect(gapBelow(p.consent, p.google)).toBe(formSpace.fieldGap)
   await expect(gapBelow(p.google, p.apple)).toBe(formSpace.alternativesGap)
   await expect(gapBelow(p.apple, p.divider)).toBe(
     formSpace.dividerToAlternatives,
@@ -108,9 +123,11 @@ async function expectLoginSpacing(canvas: Canvas) {
     await expect(heightOf(control)).toBe(formSpace.controlHeight)
   }
 
-  // Order, top to bottom: header, Google, Apple, divider, fields, button.
+  // Order, top to bottom: header, consent, Google, Apple, divider, fields,
+  // button.
   const inOrder = [
     p.title,
+    p.consent,
     p.google,
     p.apple,
     p.divider,
@@ -351,11 +368,12 @@ export const DeletionScheduled: Story = {
     const notice = await canvas.findByText(
       'Your account will be deleted on 12 November 2030. Sign in before then to restore it.',
     )
-    // Header 24, the notice, then 20 to the first way in (Google).
+    // Header 24, the notice, 20 to the consent line, 20 to Google.
     const p = await loginParts(canvas)
     const box = notice.closest('[role="status"]') as HTMLElement
     await expect(gapBelow(p.subtitle, box)).toBe(formSpace.headerToBody)
-    await expect(gapBelow(box, p.google)).toBe(formSpace.fieldGap)
+    await expect(gapBelow(box, p.consent)).toBe(formSpace.fieldGap)
+    await expect(gapBelow(p.consent, p.google)).toBe(formSpace.fieldGap)
   },
 }
 
@@ -413,7 +431,16 @@ export const OptionsFirst: Story = {
     const subtitle = (await canvas.findByRole('heading', { level: 1 }))
       .nextElementSibling as HTMLElement
     const { google, apple, email } = await closedOptions(canvas)
-    await expect(gapBelow(subtitle, google)).toBe(formSpace.headerToBody)
+    // FE-570: the consent line, with its links, between the header and Google.
+    const consent = await consentLine(canvas)
+    await expect(
+      within(consent).getByRole('link', { name: 'Terms of Service' }),
+    ).toHaveAttribute('href', '/terms')
+    await expect(
+      within(consent).getByRole('link', { name: 'Privacy Policy' }),
+    ).toHaveAttribute('href', '/privacy')
+    await expect(gapBelow(subtitle, consent)).toBe(formSpace.headerToBody)
+    await expect(gapBelow(consent, google)).toBe(formSpace.fieldGap)
     await expect(gapBelow(google, apple)).toBe(formSpace.alternativesGap)
     await expect(gapBelow(apple, email)).toBe(formSpace.alternativesGap)
     for (const button of [google, apple, email]) {
@@ -479,6 +506,14 @@ export const OptionsFirstChinese: Story = {
     const canvas = within(canvasElement)
     await expect(
       await canvas.findByRole('button', { name: '使用電郵繼續' }),
+    ).toBeVisible()
+    await expect(
+      canvas.getByText(
+        (_: string, node: Element | null) =>
+          node?.textContent ===
+          '繼續即表示你確認已年滿 18 歲，並同意服務條款及私隱政策。',
+        { selector: 'p' },
+      ),
     ).toBeVisible()
     await expect(
       canvas.getByRole('button', { name: '使用 Apple 繼續' }),

@@ -74,6 +74,11 @@
     "emailOption": {
       "continue": "Continue with email",
       "divider": "Or with email"
+    },
+    "consent": {
+      "line": "By continuing, you confirm you're 18 or over and agree to the {terms} and {privacy}.",
+      "terms": "Terms of Service",
+      "privacy": "Privacy Policy"
     }
   },
   "zh_hk": {
@@ -151,6 +156,11 @@
     "emailOption": {
       "continue": "使用電郵繼續",
       "divider": "或使用電郵"
+    },
+    "consent": {
+      "line": "繼續即表示你確認已年滿 18 歲，並同意{terms}及{privacy}。",
+      "terms": "服務條款",
+      "privacy": "私隱政策"
     }
   }
 }

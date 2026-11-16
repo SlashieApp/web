@@ -10,8 +10,6 @@
     "passwordLabel": "Password",
     "fullNameLabel": "Full name",
     "confirmPasswordLabel": "Confirm password",
-    "termsLink": "Terms of Service",
-    "privacyLink": "Privacy Policy",
     "submit": "Create account",
     "loginPrompt": "Already have an account?",
     "loginLink": "Log in",
@@ -28,8 +26,7 @@
       "emailTaken": "An account with this email already exists. Log in instead.",
       "weakPassword": "Use at least 8 characters.",
       "failed": "Registration failed."
-    },
-    "consentLine": "By continuing, you confirm you're 18 or over and agree to the {terms} and {privacy}."
+    }
   },
   "zh_hk": {
     "metadata": {
@@ -42,8 +39,6 @@
     "passwordLabel": "密碼",
     "fullNameLabel": "全名",
     "confirmPasswordLabel": "確認密碼",
-    "termsLink": "服務條款",
-    "privacyLink": "私隱政策",
     "submit": "建立帳戶",
     "loginPrompt": "已有帳戶？",
     "loginLink": "登入",
@@ -60,7 +55,6 @@
       "emailTaken": "此電郵已有帳戶，請改為登入。",
       "weakPassword": "請使用最少 8 個字元。",
       "failed": "註冊失敗。"
-    },
-    "consentLine": "繼續即表示你確認已年滿 18 歲，並同意{terms}及{privacy}。"
+    }
   }
 }

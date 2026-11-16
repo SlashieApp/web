@@ -122,6 +122,11 @@ type AppleAuthButtonProps = {
   /** Runs after sign-in succeeds, before the redirect (e.g. sign-up opt-ins). */
   onSignedIn?: () => Promise<void> | void
   /**
+   * The screen shows the consent line (Sign up, Log in): a new account
+   * records it (BE-128, FE-570). Off for re-auth, which shows no line.
+   */
+  consent?: boolean
+  /**
    * Link mode: hands over Apple's credential instead of signing in, so the
    * session and redirect stay as they are (Account → link Apple).
    */
@@ -145,6 +150,7 @@ export function AppleAuthButton({
   onBlocked,
   describedBy,
   onSignedIn,
+  consent = false,
   onToken,
   busy = false,
 }: AppleAuthButtonProps) {
@@ -262,7 +268,7 @@ export function AppleAuthButton({
       return
     }
     try {
-      await loginWithApple(credential)
+      await loginWithApple(credential, { consent })
       rememberSignIn('apple')
       await onSignedIn?.()
       const me = useUserStore.getState().me
@@ -283,6 +289,7 @@ export function AppleAuthButton({
     }
   }, [
     blocked,
+    consent,
     fallbackPath,
     intent,
     loginWithApple,

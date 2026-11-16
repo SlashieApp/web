@@ -3,12 +3,14 @@ mutation Register(
   $password: String!
   $name: String
   $contactNumber: String
+  $consent: SignUpConsentInput
 ) {
   register(
     email: $email
     password: $password
     name: $name
     contactNumber: $contactNumber
+    consent: $consent
   ) {
     token
     user {
