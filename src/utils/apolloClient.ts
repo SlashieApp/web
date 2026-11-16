@@ -67,6 +67,9 @@ const errorLink = onError(({ error, operation }) => {
     !isReplacedSession(operation.getContext().headers?.authorization)
   ) {
     clearAuthToken()
+    // FE-474: the next person on this tab must not see this one's data. After
+    // this request settles, so clearing doesn't cut it off mid-flight.
+    setTimeout(() => void clearSessionCache(), 0)
   }
 
   const operationName = operation?.operationName ?? 'unknown'
@@ -204,3 +207,19 @@ export const apolloClient = new ApolloClient({
     },
   }),
 })
+
+/**
+ * Ends what this tab holds for the signed-in person (FE-474): every cached
+ * result (exact task addresses, order snapshots, quotes, threads, `me`) and
+ * the live-updates socket, which reconnects with whatever token is current.
+ * For log out, a session the API ended, and a sign-in as someone else.
+ * Nothing is kept on disk, so a reload already starts clean. Never throws.
+ */
+export async function clearSessionCache(): Promise<void> {
+  restartRealtimeConnection()
+  try {
+    await apolloClient.clearStore()
+  } catch {
+    // A query cut off by the clear rejects; there is nothing left to keep.
+  }
+}

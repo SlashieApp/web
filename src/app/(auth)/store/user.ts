@@ -34,7 +34,7 @@ import {
   trackFlowSucceeded,
 } from '@/utils/analytics'
 import { clearApiUnavailable } from '@/utils/apiAvailability'
-import { apolloClient } from '@/utils/apolloClient'
+import { apolloClient, clearSessionCache } from '@/utils/apolloClient'
 import { clearAuthToken, getAuthToken, setAuthToken } from '@/utils/auth'
 import {
   cacheGooglePhotoUrl,
@@ -149,6 +149,9 @@ function applyDisabledFromAuthPayload(user: unknown) {
 }
 
 async function hydrateMeAfterAuth(authUser: unknown): Promise<AuthUser | null> {
+  // FE-474: signed in as someone else (re-auth with another account): drop
+  // what was cached for the last person before loading this one.
+  await clearCacheIfUserChanged(toAuthUser(authUser)?.id)
   try {
     const meResult = await apolloClient.query<MeQuery>({
       query: Me,
@@ -331,7 +334,7 @@ export const useUserStore = create<UserStore>((set, get) => ({
     clearAccountDisabled()
     clearDeletionScheduled()
     set({ user: null, me: null })
-    void apolloClient.clearStore()
+    void clearSessionCache()
   },
   getUser: async () => {
     const token = getAuthToken()
@@ -348,6 +351,8 @@ export const useUserStore = create<UserStore>((set, get) => ({
         fetchPolicy: 'network-only',
       })
       const synced = syncStateFromMe(result.data?.me)
+      // Sign up stores its token and then lands here (FE-474).
+      await clearCacheIfUserChanged(synced.user?.id)
       set({ ...synced, isLoading: false })
       syncAnalyticsIdentity(synced.me)
       clearApiUnavailable()
@@ -368,10 +373,23 @@ export const useUserStore = create<UserStore>((set, get) => ({
       resetAnalyticsIdentity()
       clearAccountDisabled()
       set({ user: null, me: null, isLoading: false })
+      // FE-474: the session is over, so is what was cached for it.
+      await clearSessionCache()
       return null
     }
   },
 }))
+
+/**
+ * Clears the cache when `nextUserId` isn't the person this tab last held
+ * (FE-474). Signing in again as the same person keeps it.
+ */
+async function clearCacheIfUserChanged(nextUserId: string | null | undefined) {
+  const previous = useUserStore.getState().user?.id
+  if (previous && nextUserId && previous !== nextUserId) {
+    await clearSessionCache()
+  }
+}
 
 /** Stable selector hook for the current `me` snapshot (Zustand-mirrored). */
 export function useMe() {
