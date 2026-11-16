@@ -32,7 +32,7 @@
       "description": "登入 Slashie，發佈任務、傳送報價，並管理你的本地服務帳戶。"
     },
     "title": "登入 Slashie",
-    "description": "用一個帳戶管理請求、報價和 worker 工具。",
+    "description": "用一個帳戶管理請求、報價和工作者工具。",
     "emailLabel": "電郵",
     "passwordLabel": "密碼",
     "remember": "保持登入",

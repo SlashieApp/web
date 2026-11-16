@@ -31,10 +31,10 @@
   "zh_hk": {
     "metadata": {
       "title": "建立帳戶 | Slashie",
-      "description": "建立 Slashie 帳戶，發佈任務、比較報價，或成為本地 worker。"
+      "description": "建立 Slashie 帳戶，發佈任務、比較報價，或成為本地工作者。"
     },
     "title": "建立你的帳戶",
-    "description": "一個帳戶即可發佈任務、比較報價，並以 worker 身份賺取收入。",
+    "description": "一個帳戶即可發佈任務、比較報價，並以工作者身份賺取收入。",
     "emailLabel": "電郵",
     "passwordLabel": "密碼",
     "fullNameLabel": "全名",
