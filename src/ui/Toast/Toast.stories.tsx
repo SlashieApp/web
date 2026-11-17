@@ -36,7 +36,7 @@ const samples: Record<UiToastType, { title: string; description: string }> = {
   },
   warning: {
     title: 'Card expiring soon',
-    description: 'Update your payment method to keep Slashie Unlimited.',
+    description: 'Update your payment method to keep Slashie Pro.',
   },
   loading: {
     title: 'Sending quote…',
@@ -226,7 +226,7 @@ const longToasts: ShownToast[] = [
     closable: true,
     title: 'Your payment method needs updating before the next billing date',
     description:
-      'We could not charge the card ending 4242 for your Slashie Unlimited plan. Update it in your account settings within seven days to keep unlimited quotes and priority placement.',
+      'We could not charge the card ending 4242 for your Slashie Pro plan. Update it in your account settings within seven days to keep unlimited quotes and priority placement.',
   },
 ]
 

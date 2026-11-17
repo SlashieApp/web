@@ -14,7 +14,7 @@ import { PageBleed } from '@/ui/PageContainer'
 import { Reveal } from '../Reveal'
 
 export type LandingPricing = {
-  /** e.g. "Slashie Unlimited" */
+  /** e.g. "Slashie Pro" */
   productName: string
   /** Premium-card headline: live trial label when one exists, else the price. */
   headline: string

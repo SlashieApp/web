@@ -106,7 +106,7 @@ async function titleSelect(canvasElement: HTMLElement) {
   })) as HTMLSelectElement
 }
 
-/** Free plan: Title is locked, with the Unlimited badge and a way to Pricing. */
+/** Free plan: Title is locked, with the Pro badge and a way to Pricing. */
 export const TitleLockedOnFree: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
@@ -114,16 +114,17 @@ export const TitleLockedOnFree: Story = {
     await expect(select).toBeDisabled()
     await expect(select).toHaveValue('')
     await expect(
-      canvas.getByText('Pick a title with Slashie Unlimited.'),
+      canvas.getByText('Pick a title with Slashie Pro.'),
     ).toBeVisible()
     await expect(
       canvas.getByRole('link', { name: 'See plans' }),
     ).toHaveAttribute('href', '/pricing')
-    await expect(canvas.getByText('Unlimited')).toBeVisible()
+    // The badge names the plan: Slashie Pro (FE-578).
+    await expect(canvas.getByText('Pro')).toBeVisible()
   },
 }
 
-/** Unlimited ended: the title they picked shows, locked, and why it's hidden. */
+/** Slashie Pro ended: the title they picked shows, locked, and why it's hidden. */
 export const TitleKeptAfterLapse: Story = {
   parameters: {
     session: withSession({
@@ -140,14 +141,12 @@ export const TitleKeptAfterLapse: Story = {
     await expect(select).toBeDisabled()
     await expect(select).toHaveValue('plumbing')
     await expect(
-      within(canvasElement).getByText(
-        /Hidden while you're not on Slashie Unlimited/,
-      ),
+      within(canvasElement).getByText(/Hidden while you're not on Slashie Pro/),
     ).toBeVisible()
   },
 }
 
-/** On Unlimited: pick a trade's title; Save turns on for it alone. */
+/** On Slashie Pro: pick a trade's title; Save turns on for it alone. */
 export const TitlePickOnUnlimited: Story = {
   parameters: {
     session: withSession({

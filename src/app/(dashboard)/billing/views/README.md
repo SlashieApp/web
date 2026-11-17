@@ -27,7 +27,7 @@ reads "£54 every 3 months" (zh-HK "每 3 個月 £54") in place of "/ month".
 | `lapsed` | Free after a subscription (`canUpgrade`, no trial) | Free | Ended on {date} | yes | £19.99 / month | Resubscribe |
 | `trialing` | `TRIALING` | Trial | Free until {date} | no | Then £19.99 / month | Manage billing + "Cancel anytime in Manage billing." |
 | `subscribed` | `ACTIVE` | Active | Renews on {date} | no | £19.99 / month | Manage billing |
-| `cancelling` | Unlimited with `cancelAtPeriodEnd` | Ending | Unlimited quotes until {date} | no | no | Keep Slashie Unlimited (portal) |
+| `cancelling` | Unlimited with `cancelAtPeriodEnd` | Ending | Unlimited quotes until {date} | no | no | Keep Slashie Pro (portal) |
 | `paymentProblem` | `PAST_DUE` or `UNPAID` | Payment problem | Quoting is paused until it's fixed | no | no | Fix payment (portal) |
 | `paused` | `PAUSED` | Paused | Open Manage billing to resume | no | no | Manage billing |
 | `incomplete` | `INCOMPLETE` | Not finished | Checkout didn't finish | no | no | Check again (re-sync) |
@@ -56,4 +56,4 @@ states and missing dates.
 
 ## Unlimited given by Slashie (BE-119)
 
-A plan given in admin reads like a paid one but has no Stripe plan (`canManageBilling` false), so `billingActionFor` adjusts the button: with an end date, Keep Slashie Unlimited starts Checkout (`canUpgrade`; the first charge is on that date); with no end, Manage billing is hidden.
+A plan given in admin reads like a paid one but has no Stripe plan (`canManageBilling` false), so `billingActionFor` adjusts the button: with an end date, Keep Slashie Pro starts Checkout (`canUpgrade`; the first charge is on that date); with no end, Manage billing is hidden.

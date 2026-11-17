@@ -299,7 +299,7 @@ export const PricingUnavailable: Story = {
 export const LongText: Story = {
   args: {
     pricing: {
-      productName: 'Slashie Unlimited for busy local workers',
+      productName: 'Slashie Pro for busy local workers',
       headline: 'Your first three months free, no card needed up front',
       subline: formatMessage(copy.unlimitedSublineWithPrice, {
         priceLine: '£9.99/month, billed monthly, cancel any time',

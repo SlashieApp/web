@@ -14,7 +14,7 @@ import type bag from '../../../i11n.json'
 type TitleCopy = (typeof bag)['en']['workerForm']['title']
 
 /**
- * The worker's title (BE-130, a Slashie Unlimited feature): one of the setup
+ * The worker's title (BE-130, a Slashie Pro feature): one of the setup
  * trades, shown with their name on their profile, quotes and Find workers.
  * Without Unlimited the field is locked, with the badge and a link to Pricing;
  * a title kept from an earlier membership shows here, locked, and is hidden
@@ -41,7 +41,7 @@ export function WorkerTitleField({
         <HStack as="span" gap={2}>
           <span>{copy.label}</span>
           <Badge variant="success" size="sm" shape="pill">
-            {copy.unlimited}
+            {copy.pro}
           </Badge>
         </HStack>
       }

@@ -26,7 +26,7 @@ export type PricingActionLabel =
 export type PricingAction =
   /** Goes to a page (bare path; the link adds the locale). */
   | { kind: 'link'; label: PricingActionLabel; href: string }
-  /** Starts Stripe Checkout for Slashie Unlimited. */
+  /** Starts Stripe Checkout for Slashie Pro. */
   | { kind: 'checkout'; label: PricingActionLabel }
   /** A placeholder while the signed-in profile loads. */
   | { kind: 'pending' }

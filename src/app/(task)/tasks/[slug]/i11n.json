@@ -503,7 +503,7 @@
       "quoteClosedSubline": "Your booking ended. You can send a new quote."
     },
     "quoteLimit": {
-      "heading": "Slashie Unlimited",
+      "heading": "Slashie Pro",
       "body": "Quote on as many tasks as you like. Your free quotes reset on {date}.",
       "action": "Go unlimited"
     }
@@ -1012,7 +1012,7 @@
       "quoteClosedSubline": "你的預約已結束。你可以傳送新的報價。"
     },
     "quoteLimit": {
-      "heading": "Slashie Unlimited",
+      "heading": "Slashie Pro",
       "body": "可為任何數量的任務報價。你的免費報價於 {date} 重設。",
       "action": "升級為無限報價"
     }

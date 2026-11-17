@@ -219,7 +219,7 @@ export const CustomHeader: Story = {
       header={
         <HStack justify="space-between">
           <Text fontWeight={600} color="text.default">
-            Slashie Unlimited
+            Slashie Pro
           </Text>
           <Badge variant="success" dot>
             £9/mo

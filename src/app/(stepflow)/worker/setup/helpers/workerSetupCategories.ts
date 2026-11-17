@@ -71,7 +71,7 @@ export function categoryLabelFromEnum(
 }
 
 /**
- * A worker's title (BE-130, a Slashie Unlimited feature): the trade's noun in
+ * A worker's title (BE-130, a Slashie Pro feature): the trade's noun in
  * the reader's language (Plumber, 水喉師傅), or null when they have none. The
  * API sends `title` only while they have Unlimited.
  */

@@ -51,7 +51,7 @@ describe('pricingTrialLength', () => {
 
 /** £19.99 a month, as the live API returns it. */
 const storyPricing: PricingRecord = {
-  productName: 'Slashie Unlimited',
+  productName: 'Slashie Pro',
   priceAmount: 1999,
   priceCurrency: 'gbp',
   priceInterval: 'month',

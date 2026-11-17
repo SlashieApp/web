@@ -2,7 +2,7 @@
   "en": {
     "metadata": {
       "title": "Pricing | Slashie",
-      "description": "Customers use Slashie for free. Workers get free quotes every month, or unlimited quotes with Slashie Unlimited. Job payments stay between customer and worker."
+      "description": "Customers use Slashie for free. Workers get free quotes every month, or unlimited quotes with Slashie Pro. Job payments stay between customer and worker."
     },
     "header": {
       "heading": "Simple plans. Clear quotes.",
@@ -93,7 +93,7 @@
         "answer": "On the free plan you can quote on up to {count} new tasks a month. The count resets on the 1st of each month."
       },
       "unlimited": {
-        "question": "What does Slashie Unlimited include?",
+        "question": "What does Slashie Pro include?",
         "answer": "Unlimited quotes. It's a subscription for sending quotes, not a fee on the jobs you win."
       },
       "payments": {
@@ -102,7 +102,7 @@
       },
       "trial": {
         "question": "What happens after the free trial?",
-        "answer": "Slashie Unlimited continues at {priceLine} unless you cancel before the trial ends."
+        "answer": "Slashie Pro continues at {priceLine} unless you cancel before the trial ends."
       },
       "cancel": {
         "question": "Can I cancel?",
@@ -118,7 +118,7 @@
   "zh_hk": {
     "metadata": {
       "title": "收費方案 | Slashie",
-      "description": "客戶免費使用 Slashie。工作者每月有免費報價，或訂閱 Slashie Unlimited 無限報價。任務付款由客戶和工作者直接安排。"
+      "description": "客戶免費使用 Slashie。工作者每月有免費報價，或訂閱 Slashie Pro 無限報價。任務付款由客戶和工作者直接安排。"
     },
     "header": {
       "heading": "簡單方案，清楚報價。",
@@ -209,7 +209,7 @@
         "answer": "使用免費方案時，你每月可為最多 {count} 個新任務報價，額度於每月 1 日重設。"
       },
       "unlimited": {
-        "question": "Slashie Unlimited 包括甚麼？",
+        "question": "Slashie Pro 包括甚麼？",
         "answer": "無限報價。這是發送報價的訂閱，並非從你接到的工作中收取的費用。"
       },
       "payments": {
@@ -218,7 +218,7 @@
       },
       "trial": {
         "question": "免費試用結束後會怎樣？",
-        "answer": "除非你在試用期結束前取消，Slashie Unlimited 會以 {priceLine} 繼續。"
+        "answer": "除非你在試用期結束前取消，Slashie Pro 會以 {priceLine} 繼續。"
       },
       "cancel": {
         "question": "可以取消嗎？",

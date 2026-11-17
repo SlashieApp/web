@@ -31,7 +31,7 @@ export type StoryMembershipKind =
   | 'canceled'
 
 const UNLIMITED = {
-  planName: 'Slashie Unlimited',
+  planName: 'Slashie Pro',
   hasUnlimitedQuotes: true,
   freeQuotesPerMonth: 3,
   canStartTrial: false,

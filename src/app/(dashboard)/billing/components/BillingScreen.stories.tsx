@@ -170,14 +170,14 @@ export const Subscribed: Story = {
   },
 }
 
-/** `cancelling`: Ending, unlimited until the date, Keep Slashie Unlimited. */
+/** `cancelling`: Ending, unlimited until the date, Keep Slashie Pro. */
 export const Cancelling: Story = {
   ...screenFor(worker('activeCancelling')),
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
     await expect(await canvas.findByText('Ending')).toBeVisible()
     await expect(
-      canvas.getByRole('button', { name: 'Keep Slashie Unlimited' }),
+      canvas.getByRole('button', { name: 'Keep Slashie Pro' }),
     ).toBeVisible()
   },
 }
@@ -201,7 +201,7 @@ export const GivenUntilDate: Story = {
     const canvas = within(canvasElement)
     await expect(await canvas.findByText('Ending')).toBeVisible()
     await expect(
-      canvas.getByRole('button', { name: 'Keep Slashie Unlimited' }),
+      canvas.getByRole('button', { name: 'Keep Slashie Pro' }),
     ).toBeVisible()
   },
 }

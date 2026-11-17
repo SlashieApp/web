@@ -367,7 +367,7 @@ export const Desktop: Story = {
 /**
  * The snippets use the live plans: the free allowance fills its meter, an
  * edited quote shows its old price struck and leaves the meter at one, and
- * Slashie Unlimited has no meter. They name themselves by their cell's title.
+ * Slashie Pro has no meter. They name themselves by their cell's title.
  */
 export const HowQuotesAreCounted: Story = {
   globals: { viewport: { value: 'desktop', isRotated: false } },

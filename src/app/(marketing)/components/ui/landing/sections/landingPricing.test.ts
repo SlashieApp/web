@@ -8,7 +8,7 @@ import { landingPricing } from './landingPricing'
 
 /** What the live API returns: its trial label is English in every language. */
 const live: PricingRecord = {
-  productName: 'Slashie Unlimited',
+  productName: 'Slashie Pro',
   priceAmount: 1999,
   priceCurrency: 'gbp',
   priceInterval: 'month',
@@ -24,7 +24,7 @@ const zh = [messages.zh_hk.landing.pricingTeaser, pricingBag.zh_hk] as const
 describe('landingPricing', () => {
   it('builds the trial line from the trial days, in the page language', () => {
     expect(landingPricing(live, ...zh)).toEqual({
-      productName: 'Slashie Unlimited',
+      productName: 'Slashie Pro',
       headline: '免費 6 個月',
       subline: '之後 £19.99 / 月 · 無限報價',
       freeHeadline: '每月 3 個報價',

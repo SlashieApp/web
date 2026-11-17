@@ -76,7 +76,7 @@ export const WorkerFreePlan: Story = {
   },
 }
 
-/** Only works, on Slashie Unlimited: the quotes line says Unlimited. */
+/** Only works, on Slashie Pro: the quotes line says Unlimited. */
 export const WorkerUnlimited: Story = {
   args: {
     panels: buildAchievementPanels({

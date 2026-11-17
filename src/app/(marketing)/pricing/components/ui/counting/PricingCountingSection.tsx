@@ -27,7 +27,7 @@ export const countingTitleId = (key: CellKey) => `pricing-counting-${key}-title`
  * How quotes are counted (FE-552), laid out like Home's bento: three cells
  * divided by hairlines, each a title and body over a small live snippet on a
  * `bg.canvas` panel. The free allowance fills up; an edited quote leaves the
- * meter where it was; Slashie Unlimited has no meter at all. The allowance
+ * meter where it was; Slashie Pro has no meter at all. The allowance
  * and the plan's name are the live ones from the API.
  *
  * From `lg` the cells sit side by side and share their rows, so the panels

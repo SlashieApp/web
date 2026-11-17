@@ -11,7 +11,7 @@
         "workersOnly": "Plans are for workers",
         "finishSetup": "Finish setup first",
         "free": "Free",
-        "unlimited": "Slashie Unlimited"
+        "unlimited": "Slashie Pro"
       },
       "badges": {
         "free": "Free",
@@ -24,12 +24,12 @@
         "activating": "Activating"
       },
       "bodies": {
-        "customer": "Slashie Unlimited gives workers unlimited quotes. Set up a worker profile to see your plan.",
+        "customer": "Slashie Pro gives workers unlimited quotes. Set up a worker profile to see your plan.",
         "workerSetup": "Plans start once your worker profile is set up.",
         "free": "Quote on {count} new tasks a month, or go unlimited.",
         "priceUnavailable": "We couldn't load the price right now.",
-        "lapsed": "Your Slashie Unlimited ended on {date}. You're on the free plan.",
-        "lapsedNoDate": "Your Slashie Unlimited ended. You're on the free plan.",
+        "lapsed": "Your Slashie Pro ended on {date}. You're on the free plan.",
+        "lapsedNoDate": "Your Slashie Pro ended. You're on the free plan.",
         "trialing": "Free until {date}.",
         "trialingNoDate": "You're on the free trial.",
         "subscribed": "Renews on {date}.",
@@ -48,7 +48,7 @@
         "startTrial": "Start free trial",
         "resubscribe": "Resubscribe",
         "manageBilling": "Manage billing",
-        "keepUnlimited": "Keep Slashie Unlimited",
+        "keepUnlimited": "Keep Slashie Pro",
         "fixPayment": "Fix payment",
         "checkAgain": "Check again",
         "retryPricing": "Try again"
@@ -86,7 +86,7 @@
     "toasts": {
       "checkoutCancelledTitle": "Checkout cancelled",
       "checkoutCancelledBody": "You can start again anytime from this page.",
-      "activatedTitle": "Slashie Unlimited is active",
+      "activatedTitle": "Slashie Pro is active",
       "checkoutFailedTitle": "Couldn't start checkout",
       "portalFailedTitle": "Couldn't open billing",
       "tryAgainShortly": "Try again shortly."
@@ -104,7 +104,7 @@
         "workersOnly": "方案只適用於工作者",
         "finishSetup": "請先完成設定",
         "free": "免費",
-        "unlimited": "Slashie Unlimited"
+        "unlimited": "Slashie Pro"
       },
       "badges": {
         "free": "免費",
@@ -117,12 +117,12 @@
         "activating": "啟用中"
       },
       "bodies": {
-        "customer": "Slashie Unlimited 讓工作者無限次報價。設定工作者個人檔案後即可查看你的方案。",
+        "customer": "Slashie Pro 讓工作者無限次報價。設定工作者個人檔案後即可查看你的方案。",
         "workerSetup": "完成工作者個人檔案設定後，方案便會開始。",
         "free": "每月可為 {count} 個新任務報價，或升級為無限報價。",
         "priceUnavailable": "暫時未能載入價格。",
-        "lapsed": "你的 Slashie Unlimited 已於 {date} 結束，你現在使用免費方案。",
-        "lapsedNoDate": "你的 Slashie Unlimited 已結束，你現在使用免費方案。",
+        "lapsed": "你的 Slashie Pro 已於 {date} 結束，你現在使用免費方案。",
+        "lapsedNoDate": "你的 Slashie Pro 已結束，你現在使用免費方案。",
         "trialing": "免費試用至 {date}。",
         "trialingNoDate": "你正在免費試用。",
         "subscribed": "將於 {date} 續期。",
@@ -141,7 +141,7 @@
         "startTrial": "開始免費試用",
         "resubscribe": "重新訂閱",
         "manageBilling": "管理帳單",
-        "keepUnlimited": "保留 Slashie Unlimited",
+        "keepUnlimited": "保留 Slashie Pro",
         "fixPayment": "處理付款",
         "checkAgain": "再檢查一次",
         "retryPricing": "再試一次"
@@ -179,7 +179,7 @@
     "toasts": {
       "checkoutCancelledTitle": "已取消結帳",
       "checkoutCancelledBody": "你可隨時在此頁重新開始。",
-      "activatedTitle": "Slashie Unlimited 已啟用",
+      "activatedTitle": "Slashie Pro 已啟用",
       "checkoutFailedTitle": "未能開始結帳",
       "portalFailedTitle": "未能打開帳單",
       "tryAgainShortly": "請稍後再試。"

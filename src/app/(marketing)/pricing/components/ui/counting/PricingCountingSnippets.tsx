@@ -299,7 +299,7 @@ export function EditedQuoteSnippet({
 }
 
 /**
- * Slashie Unlimited: the plan's card in its plum, "Unlimited quotes", and
+ * Slashie Pro: the plan's card in its plum, "Unlimited quotes", and
  * more quotes sent past the free allowance, with no meter.
  */
 export function UnlimitedSnippet({

@@ -93,7 +93,7 @@ export const Worker: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
     await expect(await canvas.findAllByText('Verified')).toHaveLength(2)
-    await expect(canvas.queryByText('Slashie Unlimited')).toBeNull()
+    await expect(canvas.queryByText('Slashie Pro')).toBeNull()
     await expect(canvas.queryByText(/quoted this month/)).toBeNull()
   },
 }

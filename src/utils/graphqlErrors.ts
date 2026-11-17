@@ -61,9 +61,9 @@ const FRIENDLY_ERROR_BY_MESSAGE: Record<string, string> = {
   INVALID_UNSUBSCRIBE_TOKEN: "This unsubscribe link doesn't work.",
   PHONE_NOT_VERIFIED: 'Verify your phone to continue.',
   MONTHLY_CONNECTION_LIMIT_REACHED:
-    "You've reached the free limit of 3 quote connections this calendar month (UTC). Upgrade to Slashie Unlimited for unlimited quotes, or try again next month.",
+    "You've reached the free limit of 3 quote connections this calendar month (UTC). Upgrade to Slashie Pro for unlimited quotes, or try again next month.",
   WORKER_QUOTE_LIMIT_REACHED:
-    "You've quoted your free limit of new tasks this month (UTC). You can still edit quotes on tasks you've already quoted. Upgrade to Slashie Unlimited to quote more tasks, or wait until next month.",
+    "You've quoted your free limit of new tasks this month (UTC). You can still edit quotes on tasks you've already quoted. Upgrade to Slashie Pro to quote more tasks, or wait until next month.",
   WORKER_SETUP_INCOMPLETE: 'Finish worker setup before quoting on tasks.',
   TAGLINE_TOO_LONG: 'Keep your headline to 80 characters.',
   BIO_TOO_LONG: 'Keep your bio to 300 characters.',

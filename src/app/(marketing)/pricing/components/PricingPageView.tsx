@@ -25,7 +25,7 @@ type CtaLink = { label: string; href: string }
  *    radial grey, and the two plans straight under them.
  * 2. How quotes are counted: three cells like Home's bento, each with a small
  *    live snippet (the free allowance filling up, an edit that does not count
- *    again, Slashie Unlimited with no limit).
+ *    again, Slashie Pro with no limit).
  * 3. The questions.
  * 4. Home's closing band: Post a task and Become a worker.
  *

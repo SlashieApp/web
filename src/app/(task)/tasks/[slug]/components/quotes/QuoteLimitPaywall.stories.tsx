@@ -26,7 +26,7 @@ const meta = {
 export default meta
 type Story = StoryObj<typeof meta>
 
-/** The Slashie Unlimited offer, the reset date and a Go unlimited button. */
+/** The Slashie Pro offer, the reset date and a Go unlimited button. */
 export const Default: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)

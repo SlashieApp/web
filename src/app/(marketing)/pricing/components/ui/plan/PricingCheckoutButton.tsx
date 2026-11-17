@@ -4,7 +4,7 @@ import { useBillingActions } from '@/app/(dashboard)/billing/helpers/useBillingA
 import { Button } from '@ui'
 
 /**
- * Starts Stripe Checkout for Slashie Unlimited (Billing handles the return).
+ * Starts Stripe Checkout for Slashie Pro (Billing handles the return).
  * It is the paid plan's button and so the page's main action: the green
  * primary, like the paid plan's links, and it carries `data-page-green-action`
  * so the marketing header's Get started gives way to it while it is on screen

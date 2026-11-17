@@ -197,7 +197,7 @@ function PlanCard({
 }
 
 /**
- * Free and Slashie Unlimited side by side (stacked on phones), rendered from
+ * Free and Slashie Pro side by side (stacked on phones), rendered from
  * the view's config: which card is "Your plan", whether Unlimited leads with
  * the trial, and each card's button. Prices and trial come from the API. The
  * store purchases note sits under the cards, the same for every view. The

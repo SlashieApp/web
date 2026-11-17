@@ -3,7 +3,7 @@
 `/pricing` shows the page header (FE-458: Back and a large "Membership" that
 shrinks into the bar on scroll, as Account and Plan & billing do; it is the
 page's one h1), the plans section (its head "Simple plans. Clear quotes.", an
-h2, and the two plan cards, Free and Slashie Unlimited) and the FAQ, in the
+h2, and the two plan cards, Free and Slashie Pro) and the FAQ, in the
 marketing frame (FE-471: `components/PricingPageView.tsx`; the layout is described
 in `components/ui/landing/README.md`, Pricing page). The cards depend on who's
 looking, so they come from one view at a time. `getPricingView({ available, session, worker })` picks it, each view
@@ -54,5 +54,5 @@ Route loading is `../loading.tsx` (header, two card skeletons, FAQ rows).
 
 ## FAQ
 
-Same for everyone: customers, free quotes, Slashie Unlimited, payments, the
+Same for everyone: customers, free quotes, Slashie Pro, payments, the
 trial (only when the API reports one), cancelling; then a Terms link.

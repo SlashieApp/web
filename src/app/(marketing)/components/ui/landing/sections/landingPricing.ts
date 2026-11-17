@@ -30,7 +30,7 @@ export function landingPricing(
 ): LandingPricing {
   if (!pricing) {
     return {
-      productName: 'Slashie Unlimited',
+      productName: 'Slashie Pro',
       headline: copy.unlimitedHeadlineFallback,
       subline: pricingCopy.plans.unlimited.subtitle,
       freeHeadline: copy.freeHeadlineFallback,

@@ -83,7 +83,7 @@ const accountMenuMe: MeSnapshot = {
     locationLat: 51.5074,
     locationLng: -0.1278,
     membership: {
-      planName: 'Slashie Unlimited',
+      planName: 'Slashie Pro',
       statusLabel: 'Trial',
       statusDescription: 'Unlimited quotes until 9 Dec 2026',
       subscriptionStatus: WorkerSubscriptionStatus.Trialing,

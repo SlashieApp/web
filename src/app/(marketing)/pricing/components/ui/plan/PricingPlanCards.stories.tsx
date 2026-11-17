@@ -76,7 +76,7 @@ export const CardRecipe: Story = {
     const freeTitle = within(free).getByRole('heading', { level: 3 })
     const paidTitle = within(unlimited).getByRole('heading', { level: 3 })
     await expect(freeTitle).toHaveTextContent('Free')
-    await expect(paidTitle).toHaveTextContent('Slashie Unlimited')
+    await expect(paidTitle).toHaveTextContent('Slashie Pro')
     await expect(getComputedStyle(freeTitle).color).toBe(TEXT_MUTED)
     await expect(getComputedStyle(paidTitle).color).toBe(PLUM)
     await expect(Number(getComputedStyle(paidTitle).fontWeight)).toBe(500)

@@ -13,7 +13,7 @@ import type { PricingRecord } from '../helpers/getPricingForPage'
 
 /** What the live API returns: £19.99 a month, a 180-day trial, 3 free quotes. */
 export const storyPricing: PricingRecord = {
-  productName: 'Slashie Unlimited',
+  productName: 'Slashie Pro',
   priceAmount: 1999,
   priceCurrency: 'gbp',
   priceInterval: 'month',
