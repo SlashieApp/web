@@ -12,8 +12,12 @@ import {
 import { LuCheck, LuMapPin } from 'react-icons/lu'
 
 import { ReportControl } from '@/content/trust/ReportControl'
+import { formatMessage } from '@/i18n/loadPageI11n'
+import { useI11n } from '@/i18n/useI11n'
 import { sdlMotion } from '@/theme/styles'
 import { Badge, Card, Link, Rating } from '@ui'
+
+import bag from '../../i11n.json'
 
 const MAX_SKILL_CHIPS = 3
 
@@ -80,6 +84,7 @@ export function WorkerSearchCard({
   skills = [],
   profileHref,
 }: WorkerSearchCardProps) {
+  const t = useI11n(bag).card
   const visibleSkills = skills.slice(0, MAX_SKILL_CHIPS)
   const extraSkillCount = skills.length - visibleSkills.length
   const showPhoto = Boolean(avatarUrl?.trim())
@@ -211,7 +216,7 @@ export function WorkerSearchCard({
           {ratingLabel || experienceLabel ? (
             <HStack gap={1.5} color="text.muted" fontSize="xs" minW={0}>
               {ratingLabel ? (
-                <Rating value={ratingLabel} size="sm" label="Worker rating" />
+                <Rating value={ratingLabel} size="sm" label={t.rating} />
               ) : null}
               {ratingLabel && experienceLabel ? (
                 <Text as="span" fontSize="xs" aria-hidden>
@@ -232,8 +237,8 @@ export function WorkerSearchCard({
             </Box>
             <Text lineClamp={1}>
               {serviceAreaLabel
-                ? `Serves ${serviceAreaLabel}`
-                : 'Service area not set'}
+                ? formatMessage(t.servesArea, { area: serviceAreaLabel })
+                : t.serviceAreaUnset}
             </Text>
           </HStack>
 

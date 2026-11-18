@@ -4,9 +4,16 @@ import {
 } from '../../helpers/browseReferenceLocation'
 
 /** Short place label for “near …” list headings. */
-export function browseNearPlaceLabel(areaLabel: string): string {
-  if (areaLabel === CURRENT_LOCATION_LABEL) return 'you'
-  if (areaLabel === URL_SEEDED_AREA_LABEL) return 'this area'
+export function browseNearPlaceLabel(
+  areaLabel: string,
+  /** Find workers passes its own words; /search is still English (FE-422). */
+  words: { you: string; thisArea: string } = {
+    you: 'you',
+    thisArea: 'this area',
+  },
+): string {
+  if (areaLabel === CURRENT_LOCATION_LABEL) return words.you
+  if (areaLabel === URL_SEEDED_AREA_LABEL) return words.thisArea
   return areaLabel
 }
 

@@ -105,7 +105,7 @@ function WorkersResultsTitle() {
         letterSpacing={{ base: '-0.01em', md: '-0.015em' }}
         color="text.default"
       >
-        {formatWorkersListTitle(workers.length, referenceLocation.label)}
+        {formatWorkersListTitle(workers.length, referenceLocation.label, t)}
       </Heading>
       {tags.length > 0 ? (
         <HStack
@@ -145,6 +145,7 @@ export function WorkersResultsGrid() {
   const { workers, loading, dataLoaded, canShowWorkersEmptyState } =
     useWorkerSearch()
   const trades = useI11n(setupBag).trades
+  const card = useI11n(bag).card
 
   return (
     <Stack gap={4}>
@@ -168,14 +169,17 @@ export function WorkersResultsGrid() {
             <Box key={worker.id} minW={0}>
               <WorkerSearchCard
                 workerId={worker.id}
-                name={workerDisplayName(worker)}
+                name={workerDisplayName(worker, card.nameFallback)}
                 avatarUrl={workerAvatarUrl(worker)}
                 verified={Boolean(worker.isVerified)}
                 title={workerTitleLabel(worker.title, trades)}
-                subtitle={workerSubtitle(worker)}
+                subtitle={workerSubtitle(worker, card.subtitleFallback)}
                 ratingLabel={workerRatingLabel(worker)}
-                experienceLabel={workerExperienceShortLabel(worker)}
-                serviceAreaLabel={workerServiceAreaLabel(worker)}
+                experienceLabel={workerExperienceShortLabel(worker, card)}
+                serviceAreaLabel={workerServiceAreaLabel(
+                  worker,
+                  card.areaWithRadius,
+                )}
                 skills={worker.skills ?? []}
                 profileHref={publicProfilePath(worker.user.id)}
               />

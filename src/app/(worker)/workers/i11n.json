@@ -27,7 +27,21 @@
     "emptyTitle": "No workers here yet",
     "emptyDescription": "No workers cover {area} with these filters. Try a wider area or different skills. New workers join Slashie every week.",
     "clearFilters": "Clear filters",
-    "backAria": "Back"
+    "backAria": "Back",
+    "resultsTitle": "{count} workers near {area}",
+    "resultsTitleOne": "{count} worker near {area}",
+    "nearYou": "you",
+    "nearThisArea": "this area",
+    "card": {
+      "nameFallback": "Worker",
+      "subtitleFallback": "Local worker on Slashie",
+      "servesArea": "Serves {area}",
+      "serviceAreaUnset": "Service area not set",
+      "areaWithRadius": "{area} (~{miles} miles)",
+      "experienceOne": "{count} yr exp",
+      "experienceMany": "{count} yrs exp",
+      "rating": "Worker rating"
+    }
   },
   "zh_hk": {
     "metadata": {
@@ -57,6 +71,20 @@
     "emptyTitle": "這裏還沒有工作者",
     "emptyDescription": "沒有工作者以這些篩選覆蓋 {area}。試試擴大範圍或更換技能，每週都有新工作者加入 Slashie。",
     "clearFilters": "清除篩選",
-    "backAria": "返回"
+    "backAria": "返回",
+    "resultsTitle": "{area}附近有 {count} 位工作者",
+    "resultsTitleOne": "{area}附近有 {count} 位工作者",
+    "nearYou": "你",
+    "nearThisArea": "此區域",
+    "card": {
+      "nameFallback": "工作者",
+      "subtitleFallback": "Slashie 本地工作者",
+      "servesArea": "服務{area}",
+      "serviceAreaUnset": "尚未設定服務範圍",
+      "areaWithRadius": "{area}（約 {miles} 英里）",
+      "experienceOne": "{count} 年經驗",
+      "experienceMany": "{count} 年經驗",
+      "rating": "工作者評分"
+    }
   }
 }
