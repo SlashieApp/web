@@ -1,7 +1,7 @@
 fragment WorkerMembershipFields on WorkerMembership {
   planName
   subscriptionStatus
-  hasUnlimitedQuotes
+  hasPro
   cancelAtPeriodEnd
   canceledAt
   freeQuotesPerMonth

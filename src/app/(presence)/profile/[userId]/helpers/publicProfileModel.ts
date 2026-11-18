@@ -298,7 +298,7 @@ export function toPublicProfileModel(
           quoteAllowance: {
             used: profile.taskAchievements.worker.quotesThisMonth,
             cap: profile.taskAchievements.worker.freeQuotesPerMonth,
-            unlimited: profile.taskAchievements.worker.hasUnlimitedQuotes,
+            unlimited: profile.taskAchievements.worker.hasPro,
           },
         })
       : []

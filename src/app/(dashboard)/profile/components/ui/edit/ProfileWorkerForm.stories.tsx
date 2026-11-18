@@ -189,7 +189,7 @@ export const TitleSaveFails: Story = {
         SetWorkerTitle: {
           kind: 'graphqlError',
           code: 'INTERNAL_SERVER_ERROR',
-          message: 'UNLIMITED_REQUIRED',
+          message: 'PRO_REQUIRED',
         },
       },
     }),

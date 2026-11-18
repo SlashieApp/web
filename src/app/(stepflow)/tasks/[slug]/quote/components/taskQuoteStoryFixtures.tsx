@@ -68,7 +68,7 @@ export const QUOTE_STORY_MESSAGE =
 export const LIMIT_REACHED_MEMBERSHIP = {
   planName: 'Free',
   subscriptionStatus: WorkerSubscriptionStatus.None,
-  hasUnlimitedQuotes: false,
+  hasPro: false,
   cancelAtPeriodEnd: false,
   canceledAt: null,
   freeQuotesPerMonth: 5,

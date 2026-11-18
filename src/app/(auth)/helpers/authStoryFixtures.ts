@@ -32,7 +32,7 @@ export type StoryMembershipKind =
 
 const UNLIMITED = {
   planName: 'Slashie Pro',
-  hasUnlimitedQuotes: true,
+  hasPro: true,
   freeQuotesPerMonth: 3,
   canStartTrial: false,
   canUpgrade: false,
@@ -41,7 +41,7 @@ const UNLIMITED = {
 
 const FREE = {
   planName: 'Free',
-  hasUnlimitedQuotes: false,
+  hasPro: false,
   cancelAtPeriodEnd: false,
   canceledAt: null,
   freeQuotesPerMonth: 3,
@@ -114,7 +114,7 @@ export function storyMembership(
     pastDue: {
       ...UNLIMITED,
       subscriptionStatus: WorkerSubscriptionStatus.PastDue,
-      hasUnlimitedQuotes: false,
+      hasPro: false,
       cancelAtPeriodEnd: false,
       canceledAt: null,
       quotesUsedThisMonth: 3,
@@ -125,7 +125,7 @@ export function storyMembership(
     unpaid: {
       ...UNLIMITED,
       subscriptionStatus: WorkerSubscriptionStatus.Unpaid,
-      hasUnlimitedQuotes: false,
+      hasPro: false,
       cancelAtPeriodEnd: false,
       canceledAt: null,
       quotesUsedThisMonth: 3,

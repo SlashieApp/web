@@ -23,7 +23,7 @@ export type BillingViewInput = {
     setupComplete: boolean
     membership: Pick<
       WorkerMembershipSnapshot,
-      | 'hasUnlimitedQuotes'
+      | 'hasPro'
       | 'canUpgrade'
       | 'canStartTrial'
       | 'cancelAtPeriodEnd'

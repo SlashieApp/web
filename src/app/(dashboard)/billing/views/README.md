@@ -6,7 +6,7 @@ price, and one button. Under it: job payments are arranged directly (Slashie
 never handles them) and **Compare plans** (`/pricing`).
 
 `getBillingView({ worker, pricing, checkout })` picks the view from the API's
-membership flags (the same `hasUnlimitedQuotes` / `canUpgrade` /
+membership flags (the same `hasPro` / `canUpgrade` /
 `canStartTrial` that `/pricing` reads) plus the Checkout return. The Stripe
 status only tells apart what the flags can't: trial vs paid, payment trouble,
 paused, unfinished. Each view has one config file here; `index.ts` maps names

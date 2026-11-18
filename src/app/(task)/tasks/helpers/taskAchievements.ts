@@ -31,7 +31,7 @@ export type WorkerAchievementsInput = {
   mostWorkedLocation?: AchievementLocationInput
   quotesThisMonth?: number | null
   freeQuotesPerMonth?: number | null
-  hasUnlimitedQuotes?: boolean | null
+  hasPro?: boolean | null
   streakWeeks?: number | null
   agreedTotalsOnCompletedJobs?: readonly AgreedTotalInput[] | null
 }
@@ -221,7 +221,7 @@ function workerQuotes(
   worker: WorkerAchievementsInput | null,
   allowance: QuoteAllowanceInput,
 ): AchievementQuotes | null {
-  const unlimited = worker?.hasUnlimitedQuotes ?? allowance.unlimited
+  const unlimited = worker?.hasPro ?? allowance.unlimited
   if (unlimited) return { kind: 'unlimited' }
   const used = worker?.quotesThisMonth ?? allowance.used
   const cap = worker?.freeQuotesPerMonth ?? allowance.cap

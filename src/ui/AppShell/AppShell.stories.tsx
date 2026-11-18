@@ -75,7 +75,7 @@ const meWorker: MeSnapshot = {
     membership: {
       planName: 'Slashie Pro',
       subscriptionStatus: WorkerSubscriptionStatus.Trialing,
-      hasUnlimitedQuotes: true,
+      hasPro: true,
       cancelAtPeriodEnd: false,
       canceledAt: null,
       freeQuotesPerMonth: 3,

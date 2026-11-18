@@ -15,14 +15,14 @@ const NONE: Membership = {
   ...base,
   canManageBilling: false,
   subscriptionStatus: S.None,
-  hasUnlimitedQuotes: false,
+  hasPro: false,
   canUpgrade: true,
   canStartTrial: true,
 }
 const TRIALING: Membership = {
   ...base,
   subscriptionStatus: S.Trialing,
-  hasUnlimitedQuotes: true,
+  hasPro: true,
   canUpgrade: false,
   canStartTrial: false,
 }
@@ -49,7 +49,7 @@ const CANCELED: Membership = {
 const PAST_DUE: Membership = {
   ...base,
   subscriptionStatus: S.PastDue,
-  hasUnlimitedQuotes: false,
+  hasPro: false,
   canUpgrade: false,
   canStartTrial: false,
 }

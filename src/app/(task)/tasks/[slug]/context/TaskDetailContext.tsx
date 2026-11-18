@@ -54,7 +54,7 @@ export type TaskDetailData = {
   sortedQuotes: TaskDetailRecord['quotes']
   lowestPricePence: number | null
   workerBillingLoading: boolean
-  hasUnlimitedQuotes: boolean
+  hasPro: boolean
   quotesRemainingThisMonth: number | null
   quoteLimitReached: boolean
 }

@@ -118,7 +118,7 @@ query PublicProfile($userId: ID!, $excludeTaskId: ID) {
         }
         quotesThisMonth
         freeQuotesPerMonth
-        hasUnlimitedQuotes
+        hasPro
         streakWeeks
         agreedTotalsOnCompletedJobs {
           amount

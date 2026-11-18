@@ -11,7 +11,7 @@ import {
 type Membership = NonNullable<BillingViewInput['worker']>['membership']
 
 const free: Membership = {
-  hasUnlimitedQuotes: false,
+  hasPro: false,
   canUpgrade: true,
   canStartTrial: true,
   cancelAtPeriodEnd: false,
@@ -35,7 +35,7 @@ const view = (
   return result
 }
 const unlimited = (status: WorkerSubscriptionStatus) => ({
-  hasUnlimitedQuotes: true,
+  hasPro: true,
   canUpgrade: false,
   canStartTrial: false,
   subscriptionStatus: status,

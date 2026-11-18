@@ -36,7 +36,7 @@ export function useCheckoutReturn() {
 
   const sync = useCallback(async () => {
     const { membership } = await syncMembershipFromStripe(apolloClient, setMe)
-    return Boolean(membership?.hasUnlimitedQuotes)
+    return Boolean(membership?.hasPro)
   }, [apolloClient, setMe])
 
   const rootRef = useCallback(

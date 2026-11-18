@@ -73,7 +73,7 @@ export function ProfileWorkerForm({
   // A new saved title (after a save or a refresh) is the field's new start.
   useEffect(() => setTitle(savedTitle), [savedTitle])
   const titleDirty = title !== savedTitle
-  const titleLocked = !me?.worker?.membership?.hasUnlimitedQuotes
+  const titleLocked = !me?.worker?.membership?.hasPro
   const [setWorkerTitle] = useMutation(SetWorkerTitle)
   const schema = useMemo(() => createWorkerFormSchema(t.errors), [t.errors])
 

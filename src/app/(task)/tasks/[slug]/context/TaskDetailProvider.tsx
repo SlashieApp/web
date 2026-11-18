@@ -306,7 +306,7 @@ export function TaskDetailProvider({
   const hasWorkerRow = Boolean(me?.worker?.id)
   const hasWorkerProfile = isWorkerSetupComplete(me)
   const workerMembership = me?.worker?.membership ?? null
-  const hasUnlimitedQuotes = hasUnlimitedQuoting(workerMembership)
+  const hasPro = hasUnlimitedQuoting(workerMembership)
   const quotesRemainingThisMonth =
     workerMembership?.quotesRemainingThisMonth ?? null
   const quoteLimitReached = isQuoteLimitReached(workerMembership)
@@ -1120,7 +1120,7 @@ export function TaskDetailProvider({
       sortedQuotes,
       lowestPricePence,
       workerBillingLoading,
-      hasUnlimitedQuotes,
+      hasPro,
       quotesRemainingThisMonth,
       quoteLimitReached,
       quoteAmountInput,
@@ -1177,7 +1177,7 @@ export function TaskDetailProvider({
       sortedQuotes,
       lowestPricePence,
       workerBillingLoading,
-      hasUnlimitedQuotes,
+      hasPro,
       quotesRemainingThisMonth,
       quoteLimitReached,
       quoteAmountInput,

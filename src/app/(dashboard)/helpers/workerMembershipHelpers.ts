@@ -3,12 +3,12 @@ import { WorkerSubscriptionStatus } from '@codegen/schema'
 
 export type WorkerMembershipSnapshot = WorkerMembershipFieldsFragment
 
-/** Trust API `hasUnlimitedQuotes`; never grant unlimited to lapsed/canceled workers. */
+/** Trust API `hasPro`; never grant unlimited to lapsed/canceled workers. */
 export function hasUnlimitedQuoting(
   membership: WorkerMembershipSnapshot | null | undefined,
 ): boolean {
   if (!membership) return false
-  if (membership.hasUnlimitedQuotes) return true
+  if (membership.hasPro) return true
   if (
     membership.subscriptionStatus === WorkerSubscriptionStatus.Canceled ||
     membership.subscriptionStatus === WorkerSubscriptionStatus.None

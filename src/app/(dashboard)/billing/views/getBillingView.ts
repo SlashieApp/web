@@ -14,11 +14,11 @@ export function getBillingView({
 }: BillingViewInput): BillingView {
   if (!worker) return 'customer'
   const m = worker.membership
-  if (!m.hasUnlimitedQuotes && checkout === 'returning') return 'activating'
-  if (!m.hasUnlimitedQuotes && checkout === 'delayed') {
+  if (!m.hasPro && checkout === 'returning') return 'activating'
+  if (!m.hasPro && checkout === 'delayed') {
     return 'activationDelayed'
   }
-  if (m.hasUnlimitedQuotes) {
+  if (m.hasPro) {
     if (m.cancelAtPeriodEnd) return 'cancelling'
     return m.subscriptionStatus === WorkerSubscriptionStatus.Trialing
       ? 'trialing'

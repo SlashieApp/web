@@ -35,7 +35,7 @@ type Membership = NonNullable<MeSnapshot['worker']>['membership']
 export const freeMembership: Membership = {
   planName: 'Free',
   subscriptionStatus: WorkerSubscriptionStatus.None,
-  hasUnlimitedQuotes: false,
+  hasPro: false,
   cancelAtPeriodEnd: false,
   freeQuotesPerMonth: 3,
   quotesUsedThisMonth: 1,

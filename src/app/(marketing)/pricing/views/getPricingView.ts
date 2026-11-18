@@ -14,7 +14,7 @@ export type PricingViewInput = {
     setupComplete: boolean
     membership: Pick<
       WorkerMembershipSnapshot,
-      | 'hasUnlimitedQuotes'
+      | 'hasPro'
       | 'canUpgrade'
       | 'canStartTrial'
       | 'canManageBilling'
@@ -40,7 +40,7 @@ export function getPricingView({
   if (session === 'guest') return 'guest'
   if (!worker) return 'customer'
   const m = worker.membership
-  if (m.hasUnlimitedQuotes) {
+  if (m.hasPro) {
     if (m.cancelAtPeriodEnd) {
       // No Stripe plan to keep: Slashie Pro given until a date (BE-119).
       return m.canManageBilling ? 'workerCancelling' : 'workerGivenUntil'

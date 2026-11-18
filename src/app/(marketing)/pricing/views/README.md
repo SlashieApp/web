@@ -24,7 +24,7 @@ each card's button), and `index.ts` maps names to configs.
   `data-page-green-action` (the page's one main action; the marketing header's
   Get started yields to it while it is on screen); Free's is outline. Plum is
   that card's title and hairline.
-- Membership comes from the API's flags (`hasUnlimitedQuotes`, `canUpgrade`,
+- Membership comes from the API's flags (`hasPro`, `canUpgrade`,
   `canStartTrial`, `canManageBilling`, `cancelAtPeriodEnd`) and the status only
   where the flags can't tell (a trial, payment trouble, paused, unfinished), in
   the same order as Billing's `getBillingView`.
