@@ -40,7 +40,7 @@ export function WorkerTitleField({
       label={
         <HStack as="span" gap={2}>
           <span>{copy.label}</span>
-          <Badge variant="success" size="sm" shape="pill">
+          <Badge variant="premium" size="sm" shape="pill">
             {copy.pro}
           </Badge>
         </HStack>

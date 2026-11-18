@@ -242,6 +242,13 @@ describe('tone refresh tokens (Train 1)', () => {
     expect(status.premium.border.value.base).toBe('#E6DEFD')
   })
 
+  it('gives plum a full tag set for the Slashie Pro badge (FE-580)', () => {
+    const status = lightSemanticColors.status
+    expect(status.premium.soft.value.base).toBe('#F4F1FE')
+    expect(status.premium.fg.value.base).toBe('#5925DC')
+    expect(status.premium.solid.value.base).toBe('#6938EF')
+  })
+
   it('keeps green, plum and the status primitives', () => {
     expect(system.token('colors.green.400')).toBe('#00DC82')
     expect(system.token('colors.green.800')).toBe('#05683F')

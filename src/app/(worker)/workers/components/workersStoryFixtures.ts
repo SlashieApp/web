@@ -16,8 +16,10 @@ function storyWorker(
   return {
     id,
     tagline: null,
-    // BE-130: no title unless a story's worker is on Unlimited with one.
+    // BE-130: no title unless a story's worker is on Slashie Pro with one.
     title: null,
+    // BE-137: Slashie Pro now; a worker with a title always has it.
+    hasPro: Boolean(overrides.title),
     isVerified: false,
     yearsExperience: null,
     skills: [],

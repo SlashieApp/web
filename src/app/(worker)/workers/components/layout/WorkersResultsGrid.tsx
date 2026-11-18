@@ -173,6 +173,7 @@ export function WorkersResultsGrid() {
                 avatarUrl={workerAvatarUrl(worker)}
                 verified={Boolean(worker.isVerified)}
                 title={workerTitleLabel(worker.title, trades)}
+                pro={Boolean(worker.hasPro)}
                 subtitle={workerSubtitle(worker, card.subtitleFallback)}
                 ratingLabel={workerRatingLabel(worker)}
                 experienceLabel={workerExperienceShortLabel(worker, card)}

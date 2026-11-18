@@ -55,10 +55,15 @@ export type WorkerSearchCardProps = {
   avatarUrl?: string | null
   verified?: boolean
   /**
-   * The worker's title (BE-130, Unlimited), e.g. "Plumber". Shown as a pill
+   * The worker's title (BE-130, Slashie Pro), e.g. "Plumber". Shown as a pill
    * under the name; nothing without one (everyone here is a worker).
    */
   title?: string | null
+  /**
+   * Has Slashie Pro now (BE-137, `worker.hasPro`): a plum "Pro" badge beside
+   * the title pill, or alone in that row (FE-580).
+   */
+  pro?: boolean
   subtitle?: string | null
   ratingLabel?: string | null
   experienceLabel?: string | null
@@ -77,6 +82,7 @@ export function WorkerSearchCard({
   avatarUrl,
   verified,
   title,
+  pro = false,
   subtitle,
   ratingLabel,
   experienceLabel,
@@ -187,18 +193,35 @@ export function WorkerSearchCard({
             {verified ? <CheckDisc size={14} /> : null}
           </HStack>
 
-          {title ? (
-            <HStack minW={0}>
-              <Badge
-                variant="neutral"
-                shape="pill"
-                size="sm"
-                maxW="full"
-                truncate
-                data-worker-title=""
-              >
-                {title}
-              </Badge>
+          {title || pro ? (
+            <HStack minW={0} gap={1.5}>
+              {title ? (
+                <Badge
+                  variant="neutral"
+                  shape="pill"
+                  size="sm"
+                  minW={0}
+                  maxW="full"
+                  data-worker-title=""
+                >
+                  {/* The badge is a flex box, so the "…" goes on this span. */}
+                  <Box as="span" minW={0} truncate>
+                    {title}
+                  </Box>
+                </Badge>
+              ) : null}
+              {pro ? (
+                <Badge
+                  variant="premium"
+                  shape="pill"
+                  size="sm"
+                  flexShrink={0}
+                  aria-label={t.proLabel}
+                  data-worker-pro=""
+                >
+                  {t.pro}
+                </Badge>
+              ) : null}
             </HStack>
           ) : null}
 

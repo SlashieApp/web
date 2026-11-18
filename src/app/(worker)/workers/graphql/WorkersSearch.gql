@@ -5,8 +5,10 @@ query WorkersSearch($filter: WorkerFilter, $sort: WorkerSort) {
   workers(filter: $filter, sort: $sort) {
     id
     tagline
-    # BE-130: the worker's title, only while they have Unlimited.
+    # BE-130: the worker's title, only while they have Slashie Pro.
     title
+    # BE-137: whether they have Slashie Pro now (the card's Pro badge).
+    hasPro
     isVerified
     yearsExperience
     skills

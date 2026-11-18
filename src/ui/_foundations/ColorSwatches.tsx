@@ -142,10 +142,14 @@ export const semanticAction: SemanticRole[] = [
   },
 ]
 
-export const statusFamilies = ['success', 'warning', 'danger', 'info'] as const
-
-/** Families that only have a tag border so far (premium, plum). */
-const borderOnlyFamilies = ['premium'] as const
+/** `premium` is plum, for the Slashie Pro badge only (FE-580). */
+export const statusFamilies = [
+  'success',
+  'warning',
+  'danger',
+  'info',
+  'premium',
+] as const
 
 // ── Atoms ───────────────────────────────────────────────────────────────────
 
@@ -314,20 +318,6 @@ function ColorContents() {
                   role={`status.${family}.solid`}
                   token={`--chakra-colors-status-${family}-solid`}
                 />
-                <SemanticSwatch
-                  role={`status.${family}.border`}
-                  token={`--chakra-colors-status-${family}-border`}
-                  note="tag border"
-                />
-              </SimpleGrid>
-            </Stack>
-          ))}
-          {borderOnlyFamilies.map((family) => (
-            <Stack key={family} gap={2}>
-              <Text fontSize="xs" fontWeight={500} color="text.default">
-                status.{family}
-              </Text>
-              <SimpleGrid columns={{ base: 2, sm: 4 }} gap={4}>
                 <SemanticSwatch
                   role={`status.${family}.border`}
                   token={`--chakra-colors-status-${family}-border`}

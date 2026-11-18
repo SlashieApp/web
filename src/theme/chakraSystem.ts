@@ -369,8 +369,14 @@ export const lightSemanticColors = {
       solid: { value: { base: '#2E90FA' } },
       border: { value: { base: '#D3E5FD' } },
     },
-    /** Premium (plum) tags: only the border is a status role so far. */
+    /**
+     * Premium (plum) tags: the Slashie Pro badge (FE-580). Plum 50 behind plum
+     * 600 text (7:1), plum 100 border.
+     */
     premium: {
+      soft: { value: { base: '#F4F1FE' } },
+      fg: { value: { base: '#5925DC' } },
+      solid: { value: { base: '#6938EF' } },
       border: { value: { base: '#E6DEFD' } },
     },
   },
@@ -469,6 +475,9 @@ export const darkSemanticColors = {
       border: { value: { base: 'rgba(46, 144, 250, 0.32)' } },
     },
     premium: {
+      soft: { value: { base: 'rgba(122, 90, 248, 0.16)' } },
+      fg: { value: { base: '#BDB4FE' } },
+      solid: { value: { base: '#7A5AF8' } },
       border: { value: { base: 'rgba(122, 90, 248, 0.32)' } },
     },
   },

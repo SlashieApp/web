@@ -10,6 +10,7 @@ const FAMILIES: UiBadgeVariant[] = [
   'danger',
   'info',
   'neutral',
+  'premium',
 ]
 
 const meta = {
@@ -57,6 +58,18 @@ export const Danger: Story = {
 /** Info: neutral progress such as In progress. */
 export const Info: Story = {
   args: { variant: 'info', children: 'In progress' },
+}
+
+/** Premium (plum): only the Slashie Pro badge (FE-580). Plum 600 on plum 50, plum 100 border. */
+export const Premium: Story = {
+  args: { variant: 'premium', dot: false, children: 'Pro' },
+  play: async ({ canvasElement }) => {
+    const badge = within(canvasElement).getByText('Pro')
+    const style = getComputedStyle(badge)
+    await expect(style.backgroundColor).toBe('rgb(244, 241, 254)')
+    await expect(style.color).toBe('rgb(89, 37, 220)')
+    await expect(style.borderTopColor).toBe('rgb(230, 222, 253)')
+  },
 }
 
 /** Neutral (the default): categories, and inactive or low-emphasis state such as Draft. */

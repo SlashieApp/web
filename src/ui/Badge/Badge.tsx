@@ -20,6 +20,8 @@ export type UiBadgeVariant =
   | 'danger'
   | 'info'
   | 'neutral'
+  /** Plum: Slashie Pro only (FE-580), as on Pricing. */
+  | 'premium'
   // legacy aliases (migration)
   | 'alternative'
   | 'gray'
@@ -37,7 +39,13 @@ export type UiBadgeProps = Omit<BadgeProps, 'variant' | 'size'> & {
   dot?: boolean
 }
 
-type SdlFamily = 'success' | 'warning' | 'danger' | 'info' | 'neutral'
+type SdlFamily =
+  | 'success'
+  | 'warning'
+  | 'danger'
+  | 'info'
+  | 'neutral'
+  | 'premium'
 
 const familyAlias: Record<UiBadgeVariant, SdlFamily> = {
   brand: 'success',
@@ -47,6 +55,7 @@ const familyAlias: Record<UiBadgeVariant, SdlFamily> = {
   info: 'info',
   blue: 'info',
   neutral: 'neutral',
+  premium: 'premium',
   gray: 'neutral',
   alternative: 'neutral',
 }

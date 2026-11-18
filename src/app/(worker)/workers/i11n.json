@@ -40,7 +40,9 @@
       "areaWithRadius": "{area} (~{miles} miles)",
       "experienceOne": "{count} yr exp",
       "experienceMany": "{count} yrs exp",
-      "rating": "Worker rating"
+      "rating": "Worker rating",
+      "pro": "Pro",
+      "proLabel": "Slashie Pro"
     }
   },
   "zh_hk": {
@@ -84,7 +86,9 @@
       "areaWithRadius": "{area}（約 {miles} 英里）",
       "experienceOne": "{count} 年經驗",
       "experienceMany": "{count} 年經驗",
-      "rating": "工作者評分"
+      "rating": "工作者評分",
+      "pro": "Pro",
+      "proLabel": "Slashie Pro"
     }
   }
 }

@@ -141,5 +141,66 @@ export const WithoutTitle: Story = {
   args: { ...Default.args, workerId: 'worker-no-title' },
   play: async ({ canvasElement }) => {
     await expect(canvasElement.querySelector('[data-worker-title]')).toBeNull()
+    await expect(canvasElement.querySelector('[data-worker-pro]')).toBeNull()
+  },
+}
+
+/**
+ * Slashie Pro (FE-580): a plum "Pro" badge beside the title pill, read out as
+ * "Slashie Pro". A long title shortens; the badge never does.
+ */
+export const ProWithTitle: Story = {
+  args: {
+    ...Default.args,
+    workerId: 'worker-pro',
+    title: 'Plumber',
+    pro: true,
+  },
+  play: async ({ canvasElement }) => {
+    const pro = within(canvasElement).getByLabelText('Slashie Pro')
+    await expect(pro).toHaveTextContent('Pro')
+    await expect(pro).toHaveAttribute('data-worker-pro')
+    const title = canvasElement.querySelector('[data-worker-title]')
+    // Same row, after the title.
+    await expect(title?.parentElement).toBe(pro.parentElement)
+    await expect(
+      (title as Element).compareDocumentPosition(pro) &
+        Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy()
+  },
+}
+
+/** Slashie Pro with no title picked: the badge sits alone in the title's row. */
+export const ProWithoutTitle: Story = {
+  args: { ...Default.args, workerId: 'worker-pro-no-title', pro: true },
+  play: async ({ canvasElement }) => {
+    await expect(canvasElement.querySelector('[data-worker-title]')).toBeNull()
+    await expect(
+      within(canvasElement).getByLabelText('Slashie Pro'),
+    ).toBeVisible()
+  },
+}
+
+/** A long title next to Pro: the title truncates and the badge stays whole. */
+export const ProWithLongTitle: Story = {
+  args: {
+    ...Default.args,
+    workerId: 'worker-pro-long',
+    title: 'Electrician and smart home installer',
+    pro: true,
+  },
+  play: async ({ canvasElement }) => {
+    const pro = within(canvasElement).getByLabelText('Slashie Pro')
+    await expect(pro.scrollWidth).toBeLessThanOrEqual(pro.clientWidth + 1)
+    const row = pro.parentElement as HTMLElement
+    await expect(row.scrollWidth).toBeLessThanOrEqual(row.clientWidth + 1)
+    // The title ends in "…" inside its padding, and is still read in full.
+    const title = canvasElement.querySelector('[data-worker-title]') as Element
+    const text = title.firstElementChild as HTMLElement
+    await expect(getComputedStyle(text).textOverflow).toBe('ellipsis')
+    await expect(text.scrollWidth).toBeGreaterThan(text.clientWidth)
+    await expect(title).toHaveTextContent(
+      'Electrician and smart home installer',
+    )
   },
 }
