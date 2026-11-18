@@ -57,7 +57,6 @@ const storyPricing: PricingRecord = {
   priceInterval: 'month',
   priceIntervalCount: 1,
   trialDays: 180,
-  trialLabel: '6 months free',
   freeQuotesPerMonth: 3,
 }
 

@@ -80,7 +80,7 @@ export const Default: Story = {
 
 /** The API reports no trial: the trial question is left out. */
 export const NoTrial: Story = {
-  args: { pricing: { ...storyPricing, trialDays: null, trialLabel: null } },
+  args: { pricing: { ...storyPricing, trialDays: null } },
   play: async ({ canvasElement }) => {
     await expect(
       within(canvasElement).getAllByRole('heading', { level: 3 }),

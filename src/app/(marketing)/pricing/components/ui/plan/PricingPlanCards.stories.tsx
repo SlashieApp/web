@@ -295,7 +295,7 @@ export const WorkerBilling: Story = {
 
 /** The API reports no trial: Unlimited shows its price even to a guest. */
 export const NoTrial: Story = {
-  args: { pricing: { ...storyPricing, trialDays: null, trialLabel: null } },
+  args: { pricing: { ...storyPricing, trialDays: null } },
   play: async ({ canvasElement }) => {
     await expect(within(canvasElement).queryByText(/free$/)).toBeNull()
   },

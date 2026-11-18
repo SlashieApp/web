@@ -1,7 +1,5 @@
 fragment WorkerMembershipFields on WorkerMembership {
   planName
-  statusLabel
-  statusDescription
   subscriptionStatus
   hasUnlimitedQuotes
   cancelAtPeriodEnd

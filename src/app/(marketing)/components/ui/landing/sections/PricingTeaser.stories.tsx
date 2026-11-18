@@ -252,7 +252,7 @@ export const Default: Story = {
 export const PriceOnly: Story = {
   args: {
     pricing: landingPricing(
-      { ...storyPricing, trialDays: null, trialLabel: null },
+      { ...storyPricing, trialDays: null },
       copy,
       pricingBag.en,
     ),
@@ -389,7 +389,8 @@ export const TraditionalChinese: Story = {
     await expect(within(premium).getByRole('heading')).toHaveTextContent(
       formatMessage(pricingBag.zh_hk.plans.trial.months, { count: 6 }),
     )
-    await expect(premium.textContent).not.toContain(storyPricing.trialLabel)
+    // Never the API's English trial label (deprecated, BE-88).
+    await expect(premium.textContent).not.toContain('6 months free')
     await expect(
       canvas.getByRole('region', { name: zhCopy.heading }),
     ).toBeVisible()

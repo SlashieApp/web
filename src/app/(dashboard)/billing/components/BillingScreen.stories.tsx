@@ -215,7 +215,6 @@ export const GivenNoEnd: Story = {
           canManageBilling: false,
           canUpgrade: false,
           currentPeriodEnd: null,
-          statusDescription: null,
         }),
       }),
     }),

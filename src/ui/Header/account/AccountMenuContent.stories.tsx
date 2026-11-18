@@ -23,8 +23,6 @@ type Membership = NonNullable<MeSnapshot['worker']>['membership']
 /** Worker on the 6-month trial: unlimited quotes. */
 const trial: Membership = {
   planName: 'Slashie Pro',
-  statusLabel: 'Trial',
-  statusDescription: 'Unlimited quotes until 9 Dec 2026',
   subscriptionStatus: WorkerSubscriptionStatus.Trialing,
   hasUnlimitedQuotes: true,
   cancelAtPeriodEnd: false,
@@ -43,8 +41,6 @@ const trial: Membership = {
 const free: Membership = {
   ...trial,
   planName: 'Free',
-  statusLabel: 'Free',
-  statusDescription: null,
   subscriptionStatus: WorkerSubscriptionStatus.None,
   hasUnlimitedQuotes: false,
   quotesUsedThisMonth: 2,

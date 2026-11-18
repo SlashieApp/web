@@ -14,7 +14,6 @@ const live: PricingRecord = {
   priceInterval: 'month',
   priceIntervalCount: 1,
   trialDays: 180,
-  trialLabel: '6 months free',
   freeQuotesPerMonth: 3,
 }
 
@@ -35,16 +34,13 @@ describe('landingPricing', () => {
       freeHeadline: '3 quotes a month',
     })
     // The trial comes from the days, not from the API's label.
-    expect(
-      landingPricing({ ...live, trialDays: 14, trialLabel: null }, ...zh)
-        .headline,
-    ).toBe('免費 14 日')
+    expect(landingPricing({ ...live, trialDays: 14 }, ...zh).headline).toBe(
+      '免費 14 日',
+    )
   })
 
   it('leads with the price when there is no trial', () => {
-    expect(
-      landingPricing({ ...live, trialDays: null, trialLabel: null }, ...en),
-    ).toMatchObject({
+    expect(landingPricing({ ...live, trialDays: null }, ...en)).toMatchObject({
       headline: '£19.99 / month',
       subline: 'Unlimited quotes for one subscription',
     })

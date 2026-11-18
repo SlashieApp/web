@@ -94,8 +94,6 @@ const meWorker: MeSnapshot = {
     locationLng: -0.1278,
     membership: {
       planName: 'Slashie Pro',
-      statusLabel: 'Trial',
-      statusDescription: 'Unlimited quotes until 9 Dec 2026',
       subscriptionStatus: WorkerSubscriptionStatus.Trialing,
       hasUnlimitedQuotes: true,
       cancelAtPeriodEnd: false,

@@ -471,7 +471,7 @@ export const Mobile: Story = {
 
 /** No trial from the API: the paid card leads with its price and the trial question is left out. */
 export const NoTrial: Story = {
-  args: { pricing: { ...storyPricing, trialDays: null, trialLabel: null } },
+  args: { pricing: { ...storyPricing, trialDays: null } },
   globals: { viewport: { value: 'desktop', isRotated: false } },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)

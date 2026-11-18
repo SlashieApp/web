@@ -67,8 +67,6 @@ export const QUOTE_STORY_MESSAGE =
 /** A free-plan worker who has used every free quote this month. */
 export const LIMIT_REACHED_MEMBERSHIP = {
   planName: 'Free',
-  statusLabel: 'Free plan',
-  statusDescription: null,
   subscriptionStatus: WorkerSubscriptionStatus.None,
   hasUnlimitedQuotes: false,
   cancelAtPeriodEnd: false,

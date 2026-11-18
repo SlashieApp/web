@@ -59,8 +59,6 @@ export function storyMembership(
   const byKind: Record<StoryMembershipKind, StoryMembership> = {
     free: {
       ...FREE,
-      statusLabel: 'Free',
-      statusDescription: null,
       subscriptionStatus: WorkerSubscriptionStatus.None,
       quotesUsedThisMonth: 1,
       quotesRemainingThisMonth: 2,
@@ -68,8 +66,6 @@ export function storyMembership(
     },
     freeLimitReached: {
       ...FREE,
-      statusLabel: 'Free',
-      statusDescription: null,
       subscriptionStatus: WorkerSubscriptionStatus.None,
       quotesUsedThisMonth: 3,
       quotesRemainingThisMonth: 0,
@@ -77,8 +73,6 @@ export function storyMembership(
     },
     trial: {
       ...UNLIMITED,
-      statusLabel: 'Trial',
-      statusDescription: null,
       subscriptionStatus: WorkerSubscriptionStatus.Trialing,
       cancelAtPeriodEnd: false,
       canceledAt: null,
@@ -89,8 +83,6 @@ export function storyMembership(
     },
     trialCancelling: {
       ...UNLIMITED,
-      statusLabel: 'Trial, cancelling',
-      statusDescription: null,
       subscriptionStatus: WorkerSubscriptionStatus.Trialing,
       cancelAtPeriodEnd: true,
       canceledAt: null,
@@ -101,8 +93,6 @@ export function storyMembership(
     },
     active: {
       ...UNLIMITED,
-      statusLabel: 'Active',
-      statusDescription: null,
       subscriptionStatus: WorkerSubscriptionStatus.Active,
       cancelAtPeriodEnd: false,
       canceledAt: null,
@@ -113,8 +103,6 @@ export function storyMembership(
     },
     activeCancelling: {
       ...UNLIMITED,
-      statusLabel: 'Cancelling',
-      statusDescription: null,
       subscriptionStatus: WorkerSubscriptionStatus.Active,
       cancelAtPeriodEnd: true,
       canceledAt: null,
@@ -125,8 +113,6 @@ export function storyMembership(
     },
     pastDue: {
       ...UNLIMITED,
-      statusLabel: 'Payment issue',
-      statusDescription: null,
       subscriptionStatus: WorkerSubscriptionStatus.PastDue,
       hasUnlimitedQuotes: false,
       cancelAtPeriodEnd: false,
@@ -138,8 +124,6 @@ export function storyMembership(
     },
     unpaid: {
       ...UNLIMITED,
-      statusLabel: 'Unpaid',
-      statusDescription: null,
       subscriptionStatus: WorkerSubscriptionStatus.Unpaid,
       hasUnlimitedQuotes: false,
       cancelAtPeriodEnd: false,
@@ -151,8 +135,6 @@ export function storyMembership(
     },
     canceled: {
       ...FREE,
-      statusLabel: 'Ended',
-      statusDescription: null,
       subscriptionStatus: WorkerSubscriptionStatus.Canceled,
       canceledAt: '2026-09-20T12:00:00.000Z',
       quotesUsedThisMonth: 1,

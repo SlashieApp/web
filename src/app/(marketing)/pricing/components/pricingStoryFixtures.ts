@@ -19,7 +19,6 @@ export const storyPricing: PricingRecord = {
   priceInterval: 'month',
   priceIntervalCount: 1,
   trialDays: 180,
-  trialLabel: '6 months free',
   freeQuotesPerMonth: 3,
 }
 
@@ -35,7 +34,6 @@ type Membership = NonNullable<MeSnapshot['worker']>['membership']
 /** A free worker who has never subscribed (`NONE`). */
 export const freeMembership: Membership = {
   planName: 'Free',
-  statusLabel: 'Free',
   subscriptionStatus: WorkerSubscriptionStatus.None,
   hasUnlimitedQuotes: false,
   cancelAtPeriodEnd: false,

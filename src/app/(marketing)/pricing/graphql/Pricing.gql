@@ -6,7 +6,6 @@ query Pricing {
     priceInterval
     priceIntervalCount
     trialDays
-    trialLabel
     freeQuotesPerMonth
   }
 }
