@@ -10,17 +10,26 @@ export type PricingView =
   | 'workerSetup'
   | 'workerFree'
   | 'workerLapsed'
+  | 'workerTrialing'
   | 'workerUnlimited'
+  | 'workerCancelling'
+  | 'workerGivenUntil'
+  | 'workerGiven'
+  | 'workerPaymentProblem'
+  | 'workerPaused'
+  | 'workerIncomplete'
   | 'workerBilling'
 
 /** Button copy key (`plans.actions`). */
 export type PricingActionLabel =
-  | 'getStarted'
   | 'becomeWorker'
   | 'startTrial'
   | 'finishSetup'
   | 'resubscribe'
   | 'manageBilling'
+  | 'keepPro'
+  | 'fixPayment'
+  | 'checkAgain'
 
 /** What a plan card's button does. */
 export type PricingAction =
@@ -28,16 +37,41 @@ export type PricingAction =
   | { kind: 'link'; label: PricingActionLabel; href: string }
   /** Starts Stripe Checkout for Slashie Pro. */
   | { kind: 'checkout'; label: PricingActionLabel }
+  /** Opens the Stripe billing portal, as Billing's button does. */
+  | { kind: 'portal'; label: PricingActionLabel }
+  /** Asks the API to re-read the plan from Stripe, as Billing's Check again. */
+  | { kind: 'sync'; label: PricingActionLabel }
   /** A placeholder while the signed-in profile loads. */
   | { kind: 'pending' }
+
+/**
+ * The paid card's big line and the line under it (FE-290). Billing's words
+ * where Billing says the same thing, so the two pages agree.
+ * - `trial`: "6 months free", then the price, and that a card is needed
+ *   (the price alone when the API reports no trial).
+ * - `price`: the price per interval.
+ * - `trialing`: the price, then "Free until {date}."
+ * - `ending`: "Ends {date}" (a plan that won't renew, paid or given).
+ * - `given`: given by Slashie with no end date: no price.
+ * - `paymentProblem`, `paused`, `notFinished`: the state, then Billing's line.
+ */
+export type PricingPaidLine =
+  | 'trial'
+  | 'price'
+  | 'trialing'
+  | 'ending'
+  | 'given'
+  | 'paymentProblem'
+  | 'paused'
+  | 'notFinished'
 
 export type PricingViewConfig = {
   /** False shows "Pricing isn't loading" instead of the plan cards. */
   plans: boolean
   /** The card marked "Your plan". */
   current: 'free' | 'unlimited' | null
-  /** The Unlimited card leads with the free trial (when the API offers one). */
-  trial: boolean
+  /** What the paid card says under its name. */
+  paid: PricingPaidLine
   free: PricingAction | null
   unlimited: PricingAction | null
 }

@@ -8,7 +8,7 @@ import {
   Stack,
   Text,
 } from '@chakra-ui/react'
-import { LuCheck, LuSparkles } from 'react-icons/lu'
+import { LuCheck } from 'react-icons/lu'
 
 import { formatMessage } from '@/i18n/loadPageI11n'
 import { sdlCardSurface, sdlFigure } from '@/theme/styles'
@@ -25,6 +25,8 @@ import type { PricingRecord } from '../../../helpers/getPricingForPage'
 import type messages from '../../../i11n.json'
 import type { PricingAction, PricingViewConfig } from '../../../views'
 import { PricingCheckoutButton } from './PricingCheckoutButton'
+import { PricingPortalButton } from './PricingPortalButton'
+import { PricingSyncButton } from './PricingSyncButton'
 
 type PricingCopy = (typeof messages)['en']
 export type PricingPlansCopy = PricingCopy['plans']
@@ -55,6 +57,12 @@ function PlanAction({
   if (action.kind === 'checkout') {
     return <PricingCheckoutButton label={labels[action.label]} />
   }
+  if (action.kind === 'portal') {
+    return <PricingPortalButton label={labels[action.label]} />
+  }
+  if (action.kind === 'sync') {
+    return <PricingSyncButton label={labels[action.label]} />
+  }
   return (
     <Button
       asChild
@@ -71,12 +79,13 @@ function PlanAction({
 
 /**
  * One plan: the card recipe of the product and of the landing's teaser (white,
- * a 1px hairline, `e1`, 12px corners), left-aligned: the plan's name as a
- * label, its line, the price as a figure (600, tabular), a hairline, the
- * features with green 600 checks and a pill. The paid plan swaps the hairline
- * and the label for plum (`accent.premium`, with the sparkle) and its pill is
- * the green primary (the page's main action); nothing else changes between the
- * two, so they read as a pair.
+ * a 1px hairline, `e1`, 12px corners), left-aligned: the plan's name as the
+ * card's title (16, 500, ink), its line, the price as a figure (600, tabular)
+ * with what follows it in ink (the price after the trial, FE-290) and a muted
+ * line under that, a hairline, the features with green 600 checks and a pill.
+ * The paid plan's name and hairline are plum (`accent.premium`; no sparkle,
+ * FE-290) and its pill is the green primary (the page's main action); nothing
+ * else changes between the two, so they read as a pair.
  */
 function PlanCard({
   featured = false,
@@ -85,6 +94,7 @@ function PlanCard({
   amount,
   suffix,
   note,
+  detail,
   features,
   current,
   yourPlan,
@@ -97,7 +107,10 @@ function PlanCard({
   subtitle: string
   amount: string
   suffix?: string
+  /** Right under the figure, in ink: "Then £19.99 / month". */
   note?: string
+  /** Under that, muted: "Card needed to start", or a state's sentence. */
+  detail?: string
   features: readonly string[]
   current: boolean
   yourPlan: string
@@ -116,13 +129,17 @@ function PlanCard({
       borderColor={featured ? 'accent.premium' : 'border.default'}
     >
       <Stack gap={1.5}>
-        <HStack justify="space-between" align="center" gap={3} minH="26px">
-          <HStack gap={1.5} color={featured ? 'accent.premium' : 'text.muted'}>
-            {featured ? <LuSparkles size={16} aria-hidden /> : null}
-            <Heading as="h3" textStyle="label-md" fontSize="sm" color="inherit">
-              {title}
-            </Heading>
-          </HStack>
+        {/* The "Your plan" badge is 28px tall: every card's row is, so the titles line up. */}
+        <HStack justify="space-between" align="center" gap={3} minH="28px">
+          <Heading
+            as="h3"
+            fontSize="md"
+            lineHeight="24px"
+            fontWeight={500}
+            color={featured ? 'accent.premium' : 'text.default'}
+          >
+            {title}
+          </Heading>
           {current ? (
             <Badge variant="success" px={3} py={1}>
               {yourPlan}
@@ -150,8 +167,13 @@ function PlanCard({
           ) : null}
         </HStack>
         {note ? (
-          <Text textStyle="text-sm" color="text.muted">
+          <Text fontSize="md" fontWeight={500} color="text.default">
             {note}
+          </Text>
+        ) : null}
+        {detail ? (
+          <Text textStyle="text-sm" color="text.muted">
+            {detail}
           </Text>
         ) : null}
       </Stack>
@@ -198,22 +220,25 @@ function PlanCard({
 
 /**
  * Free and Slashie Pro side by side (stacked on phones), rendered from
- * the view's config: which card is "Your plan", whether Unlimited leads with
- * the trial, and each card's button. Prices and trial come from the API. The
- * store purchases note sits under the cards, the same for every view. The
- * cards fill the column they are in (the page's section sets its width) and
- * stand at one height.
+ * the view's config: which card is "Your plan", what the paid card says (the
+ * trial, the price, or where the worker's plan stands, in Billing's words) and
+ * each card's button. Prices and trial come from the API. The payment note
+ * sits under the cards, the same for every view. The cards fill the column
+ * they are in (the page's section sets its width) and stand at one height.
  */
 export function PricingPlanCards({
   pricing,
   config,
   copy,
   intervals,
+  paidDate = null,
 }: {
   pricing: PricingRecord
   config: PricingViewConfig
   copy: PricingPlansCopy
   intervals: PricingCopy['intervals']
+  /** The date the paid line names (trial end, or when the plan ends), already formatted. */
+  paidDate?: string | null
 }) {
   // Free has no billing period of its own: it reads per one interval.
   const freePerInterval = pricingPerInterval(
@@ -222,8 +247,17 @@ export function PricingPlanCards({
   )
   const perInterval = pricingPerInterval(pricing, intervals)
   const price = pricingDisplayPrice(pricing)
-  const trial = config.trial ? pricingTrialLength(pricing.trialDays) : null
+  const trial =
+    config.paid === 'trial' ? pricingTrialLength(pricing.trialDays) : null
   const count = pricing.freeQuotesPerMonth
+  const paid = paidLines(config.paid, {
+    copy,
+    price,
+    perInterval,
+    trial,
+    priceLine: pricingPriceLine(pricing, intervals),
+    date: paidDate,
+  })
 
   return (
     <Stack gap={4} w="full">
@@ -254,19 +288,7 @@ export function PricingPlanCards({
           featured
           title={pricing.productName}
           subtitle={copy.unlimited.subtitle}
-          amount={
-            trial
-              ? formatMessage(copy.trial[trial.unit], { count: trial.count })
-              : price
-          }
-          suffix={trial ? undefined : perInterval}
-          note={
-            trial
-              ? formatMessage(copy.thenPrice, {
-                  priceLine: pricingPriceLine(pricing, intervals),
-                })
-              : undefined
-          }
+          {...paid}
           features={copy.unlimited.features}
           current={config.current === 'unlimited'}
           yourPlan={copy.yourPlan}
@@ -279,4 +301,49 @@ export function PricingPlanCards({
       </Text>
     </Stack>
   )
+}
+
+/** The paid card's figure and the lines under it, for the view's `paid` (FE-290). */
+function paidLines(
+  line: PricingViewConfig['paid'],
+  input: {
+    copy: PricingPlansCopy
+    price: string
+    perInterval: string
+    trial: ReturnType<typeof pricingTrialLength>
+    priceLine: string
+    date: string | null
+  },
+): { amount: string; suffix?: string; note?: string; detail?: string } {
+  const { copy, price, perInterval, trial, priceLine, date } = input
+  const s = copy.paidStatus
+  const priced = { amount: price, suffix: perInterval }
+  switch (line) {
+    case 'trial':
+      return trial
+        ? {
+            amount: formatMessage(copy.trial[trial.unit], {
+              count: trial.count,
+            }),
+            note: formatMessage(copy.thenPrice, { priceLine }),
+            detail: copy.cardNeeded,
+          }
+        : priced
+    case 'price':
+      return priced
+    case 'trialing':
+      return date
+        ? { ...priced, detail: formatMessage(s.trialing, { date }) }
+        : priced
+    case 'ending':
+      return { amount: date ? formatMessage(s.endsOn, { date }) : s.ending }
+    case 'given':
+      return { amount: s.given, detail: s.givenNote }
+    case 'paymentProblem':
+      return { amount: s.paymentProblem, detail: s.paymentProblemNote }
+    case 'paused':
+      return { amount: s.paused, detail: s.pausedNote }
+    case 'notFinished':
+      return { amount: s.notFinished, detail: s.notFinishedNote }
+  }
 }

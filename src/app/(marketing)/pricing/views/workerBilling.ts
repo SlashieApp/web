@@ -1,10 +1,10 @@
 import type { PricingViewConfig } from './types'
 
-/** Subscription stuck (payment failed, paused, checkout unfinished): Billing sorts it. */
+/** Anything else that can't start Checkout: Billing sorts it out. */
 export const workerBilling: PricingViewConfig = {
   plans: true,
   current: 'free',
-  trial: false,
+  paid: 'price',
   free: null,
   unlimited: { kind: 'link', label: 'manageBilling', href: '/billing' },
 }

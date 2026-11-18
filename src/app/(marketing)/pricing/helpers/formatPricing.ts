@@ -98,3 +98,21 @@ export function pricingTrialLength(
 export function pricingDisplayPrice(pricing: PricingRecord): string {
   return formatPricingAmount(pricing.priceAmount, pricing.priceCurrency)
 }
+
+/**
+ * A plan date as Billing writes it (9 Dec 2026 / 2026年12月9日), for the paid
+ * card's "Free until" and "Ends" lines (FE-290). Null for no or a bad date.
+ */
+export function formatPlanDate(
+  value: string | null | undefined,
+  locale: string,
+): string | null {
+  if (!value) return null
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return null
+  return new Intl.DateTimeFormat(locale === 'zh-hk' ? 'zh-HK' : 'en-GB', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+  }).format(date)
+}

@@ -1,10 +1,9 @@
 import type { PricingViewConfig } from './types'
 
-/** Worker profile not finished: finish it before paying (they can't quote yet). */
 export const workerSetup: PricingViewConfig = {
   plans: true,
   current: 'free',
-  trial: true,
+  paid: 'trial',
   free: null,
   unlimited: {
     kind: 'link',

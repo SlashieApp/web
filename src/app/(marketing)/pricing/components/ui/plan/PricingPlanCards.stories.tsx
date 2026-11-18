@@ -72,19 +72,30 @@ export const CardRecipe: Story = {
     await expect(getComputedStyle(free).borderTopColor).toBe(BORDER_DEFAULT)
     await expect(getComputedStyle(unlimited).borderTopColor).toBe(PLUM)
 
-    // Each plan's name is an h3 at 500; muted on Free, plum with the sparkle on the paid plan.
+    // Each plan's name is the card's title (FE-290): an h3, 16px at 500, ink
+    // on Free and plum on the paid plan, with no sparkle.
     const freeTitle = within(free).getByRole('heading', { level: 3 })
     const paidTitle = within(unlimited).getByRole('heading', { level: 3 })
     await expect(freeTitle).toHaveTextContent('Free')
     await expect(paidTitle).toHaveTextContent('Slashie Pro')
-    await expect(getComputedStyle(freeTitle).color).toBe(TEXT_MUTED)
+    await expect(getComputedStyle(freeTitle).color).toBe(INK)
     await expect(getComputedStyle(paidTitle).color).toBe(PLUM)
-    await expect(Number(getComputedStyle(paidTitle).fontWeight)).toBe(500)
-    await expect(freeTitle.previousElementSibling).toBeNull()
-    await expect(paidTitle.previousElementSibling).toHaveAttribute(
-      'aria-hidden',
-      'true',
-    )
+    for (const title of [freeTitle, paidTitle]) {
+      await expect(getComputedStyle(title).fontSize).toBe('16px')
+      await expect(Number(getComputedStyle(title).fontWeight)).toBe(500)
+      await expect(title.previousElementSibling).toBeNull()
+    }
+    await expect(unlimited.querySelector('svg.lucide-sparkles')).toBeNull()
+
+    // The price after the trial reads as part of the offer: ink, 16px, 500.
+    const then = within(unlimited).getByText('Then £19.99 / month')
+    await expect(getComputedStyle(then).color).toBe(INK)
+    await expect(getComputedStyle(then).fontSize).toBe('16px')
+    await expect(Number(getComputedStyle(then).fontWeight)).toBe(500)
+    await expect(
+      getComputedStyle(within(unlimited).getByText('Card needed to start'))
+        .color,
+    ).toBe(TEXT_MUTED)
 
     // The price: a figure, 34px at 600 with tabular figures, in ink.
     for (const text of ['£0', '6 months free']) {
@@ -111,7 +122,7 @@ export const CardRecipe: Story = {
     // label on the paid plan (the main action stays green; plum is the card's
     // label, sparkle and hairline), and only that one carries the hook the
     // marketing header's Get started yields to.
-    const freeButton = link(free, 'Get started')
+    const freeButton = link(free, 'Become a worker')
     const paidButton = link(unlimited, 'Start free trial')
     await expect(getComputedStyle(freeButton).backgroundColor).toBe(WHITE)
     await expect(getComputedStyle(freeButton).borderTopColor).toBe(
@@ -151,13 +162,18 @@ export const CardRecipe: Story = {
   },
 }
 
-/** `guest`: both buttons go through sign-up; the trial leads on Unlimited. */
+/**
+ * `guest`: both buttons go through sign-up; the trial leads on the paid plan,
+ * with the price after it and that a card is needed. Free says Become a
+ * worker, since it leads into worker setup (FE-290).
+ */
 export const Guest: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
     await expect(canvas.getByText('6 months free')).toBeVisible()
     await expect(canvas.getByText('Then £19.99 / month')).toBeVisible()
-    await expect(link(canvasElement, 'Get started')).toHaveAttribute(
+    await expect(canvas.getByText('Card needed to start')).toBeVisible()
+    await expect(link(canvasElement, 'Become a worker')).toHaveAttribute(
       'href',
       '/register?next=%2Fworker%2Fsetup',
     )
@@ -166,9 +182,7 @@ export const Guest: Story = {
       '/register?next=%2Fworker%2Fsetup%3Fnext%3D%2Fpricing',
     )
     await expect(
-      canvas.getByText(
-        'Purchases are processed securely. On iOS and Android, subscription management may open your platform billing settings when available.',
-      ),
+      canvas.getByText(pricingBag.en.plans.purchasesNote),
     ).toBeVisible()
   },
 }
@@ -262,26 +276,26 @@ export const WorkerLapsed: Story = {
   },
 }
 
-/** `workerUnlimited`: Unlimited is their plan; Manage billing goes to Billing. */
+/** `workerUnlimited`: Slashie Pro is their plan; Manage billing goes to Billing. */
 export const WorkerUnlimited: Story = {
   args: { config: PRICING_VIEWS.workerUnlimited },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
     await expect(canvas.queryByText('6 months free')).toBeNull()
-    await expect(canvas.queryByRole('link', { name: 'Get started' })).toBeNull()
+    await expect(
+      canvas.queryByRole('link', { name: 'Become a worker' }),
+    ).toBeNull()
     await expect(link(canvasElement, 'Manage billing')).toHaveAttribute(
       'href',
       '/billing',
     )
     await expect(
-      canvas.getByText(
-        'Purchases are processed securely. On iOS and Android, subscription management may open your platform billing settings when available.',
-      ),
+      canvas.getByText(pricingBag.en.plans.purchasesNote),
     ).toBeVisible()
   },
 }
 
-/** `workerBilling`: payment failed or paused; Billing, never a second Checkout. */
+/** `workerBilling`: anything else that can't start Checkout: Billing, never a second Checkout. */
 export const WorkerBilling: Story = {
   args: { config: PRICING_VIEWS.workerBilling },
   play: async ({ canvasElement }) => {
@@ -290,6 +304,139 @@ export const WorkerBilling: Story = {
       'href',
       '/billing',
     )
+  },
+}
+
+/** `workerTrialing`: their plan, the price, and when the trial ends (Billing's words). */
+export const WorkerTrialing: Story = {
+  args: { config: PRICING_VIEWS.workerTrialing, paidDate: '9 Dec 2026' },
+  play: async ({ canvasElement }) => {
+    const { unlimited } = cards(canvasElement)
+    await expect(within(unlimited).getByText('Your plan')).toBeVisible()
+    await expect(within(unlimited).getByText('£19.99')).toBeVisible()
+    await expect(
+      within(unlimited).getByText('Free until 9 Dec 2026.'),
+    ).toBeVisible()
+    await expect(link(canvasElement, 'Manage billing')).toHaveAttribute(
+      'href',
+      '/billing',
+    )
+  },
+}
+
+/**
+ * `workerCancelling`: a plan that won't renew says when it ends in place of
+ * the price, and Keep Slashie Pro opens the billing portal (FE-290).
+ */
+export const WorkerCancelling: Story = {
+  args: { config: PRICING_VIEWS.workerCancelling, paidDate: '5 Jan 2027' },
+  play: async ({ canvasElement }) => {
+    const { unlimited } = cards(canvasElement)
+    await expect(within(unlimited).getByText('Your plan')).toBeVisible()
+    await expect(within(unlimited).getByText('Ends 5 Jan 2027')).toBeVisible()
+    await expect(within(unlimited).queryByText('£19.99')).toBeNull()
+    const keep = within(unlimited).getByRole('button', {
+      name: 'Keep Slashie Pro',
+    })
+    await expect(keep).toBeEnabled()
+    await expect(keep).toHaveAttribute('data-page-green-action', '')
+  },
+}
+
+/** `workerGivenUntil`: Slashie Pro given until a date; Keep starts Checkout (BE-119). */
+export const WorkerGivenUntil: Story = {
+  args: { config: PRICING_VIEWS.workerGivenUntil, paidDate: '5 Jan 2027' },
+  play: async ({ canvasElement }) => {
+    const { unlimited } = cards(canvasElement)
+    await expect(within(unlimited).getByText('Ends 5 Jan 2027')).toBeVisible()
+    await expect(
+      within(unlimited).getByRole('button', { name: 'Keep Slashie Pro' }),
+    ).toBeEnabled()
+  },
+}
+
+/** `workerGiven`: given by Slashie with no end: no price and no button. */
+export const WorkerGiven: Story = {
+  args: { config: PRICING_VIEWS.workerGiven },
+  play: async ({ canvasElement }) => {
+    const { unlimited } = cards(canvasElement)
+    await expect(within(unlimited).getByText('Your plan')).toBeVisible()
+    await expect(within(unlimited).getByText('Given by Slashie')).toBeVisible()
+    await expect(
+      within(unlimited).getByText('Unlimited quotes, with no end date.'),
+    ).toBeVisible()
+    await expect(within(unlimited).queryByText('£19.99')).toBeNull()
+    await expect(within(canvasElement).queryAllByRole('link')).toHaveLength(0)
+    await expect(within(canvasElement).queryAllByRole('button')).toHaveLength(0)
+  },
+}
+
+/**
+ * `workerPaymentProblem`: the paid plan is still theirs, with Billing's line
+ * and Fix payment (the portal). Free is not marked as their plan (FE-290).
+ */
+export const WorkerPaymentProblem: Story = {
+  args: { config: PRICING_VIEWS.workerPaymentProblem },
+  play: async ({ canvasElement }) => {
+    const { free, unlimited } = cards(canvasElement)
+    await expect(within(free).queryByText('Your plan')).toBeNull()
+    await expect(within(unlimited).getByText('Your plan')).toBeVisible()
+    await expect(within(unlimited).getByText('Payment problem')).toBeVisible()
+    await expect(
+      within(unlimited).getByText(
+        pricingBag.en.plans.paidStatus.paymentProblemNote,
+      ),
+    ).toBeVisible()
+    await expect(
+      within(unlimited).getByRole('button', { name: 'Fix payment' }),
+    ).toBeEnabled()
+  },
+}
+
+/** `workerPaused`: the paid plan is theirs, paused, with Manage billing. */
+export const WorkerPaused: Story = {
+  args: { config: PRICING_VIEWS.workerPaused },
+  play: async ({ canvasElement }) => {
+    const { unlimited } = cards(canvasElement)
+    await expect(within(unlimited).getByText('Your plan')).toBeVisible()
+    await expect(within(unlimited).getByText('Paused')).toBeVisible()
+    await expect(link(canvasElement, 'Manage billing')).toHaveAttribute(
+      'href',
+      '/billing',
+    )
+  },
+}
+
+/** `workerIncomplete`: Checkout didn't finish; Free is their plan; Check again. */
+export const WorkerIncomplete: Story = {
+  args: { config: PRICING_VIEWS.workerIncomplete },
+  play: async ({ canvasElement }) => {
+    const { free, unlimited } = cards(canvasElement)
+    await expect(within(free).getByText('Your plan')).toBeVisible()
+    await expect(within(unlimited).getByText('Not finished')).toBeVisible()
+    await expect(
+      within(unlimited).getByRole('button', { name: 'Check again' }),
+    ).toBeEnabled()
+  },
+}
+
+/** zh-HK: a plan that won't renew, in Billing's words. */
+export const WorkerCancellingZhHk: Story = {
+  args: {
+    config: PRICING_VIEWS.workerCancelling,
+    paidDate: '2027年1月5日',
+    copy: pricingBag.zh_hk.plans,
+    intervals: pricingBag.zh_hk.intervals,
+  },
+  play: async ({ canvasElement }) => {
+    const { unlimited } = cards(canvasElement)
+    await expect(within(unlimited).getByText('2027年1月5日 結束')).toBeVisible()
+    await expect(
+      within(unlimited).getByRole('button', { name: '保留 Slashie Pro' }),
+    ).toBeVisible()
+    await expect(
+      within(canvasElement).getByText('可隨時在「方案與帳單」取消'),
+    ).toBeVisible()
   },
 }
 
@@ -339,10 +486,8 @@ export const TraditionalChinese: Story = {
     const canvas = within(canvasElement)
     await expect(canvas.getByText('免費 6 個月')).toBeVisible()
     await expect(canvas.getByText('之後 £19.99 / 月')).toBeVisible()
-    await expect(
-      canvas.getByText(
-        '購買會安全處理。在 iOS 和 Android 上，訂閱管理可能會開啟平台帳單設定（如適用）。',
-      ),
-    ).toBeVisible()
+    await expect(canvas.getByText('開始試用需提供信用卡')).toBeVisible()
+    await expect(canvas.getByText('你會以信用卡經 Stripe 付款。')).toBeVisible()
+    await expect(canvas.getByText('成為工作者')).toBeVisible()
   },
 }

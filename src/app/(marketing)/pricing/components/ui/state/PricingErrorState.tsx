@@ -5,9 +5,10 @@ import { Button, Card, Link } from '@ui'
 /**
  * The API didn't return plans: what's always true, a retry and a way on. It
  * stands where the plan cards would, in the plans section under its h2, so its
- * own heading is an h3; it is left-aligned like everything on the page. Both
- * pills are outline: the marketing header's Get started is the screen's one
- * green button.
+ * own heading is an h3; it is left-aligned like everything on the page. Try
+ * again is the green main action (it carries `data-page-green-action`, so the
+ * marketing header's Get started gives way to it); Browse tasks is a text link
+ * (FE-290).
  */
 export function PricingErrorState({
   copy,
@@ -25,17 +26,17 @@ export function PricingErrorState({
             {copy.body}
           </Text>
         </Stack>
-        <HStack gap={3} flexWrap="wrap">
-          <Button asChild variant="secondary">
+        {/* One main action (FE-290): Try again is the green button, Browse
+            tasks a text link beside it. */}
+        <HStack gap={5} flexWrap="wrap" rowGap={3}>
+          <Button asChild variant="primary" data-page-green-action="">
             <Link href="/pricing" _hover={{ textDecoration: 'none' }}>
               {copy.retry}
             </Link>
           </Button>
-          <Button asChild variant="secondary">
-            <Link href="/search" _hover={{ textDecoration: 'none' }}>
-              {copy.browse}
-            </Link>
-          </Button>
+          <Link href="/search" fontWeight={500} color="text.link">
+            {copy.browse}
+          </Link>
         </HStack>
       </Stack>
     </Card>

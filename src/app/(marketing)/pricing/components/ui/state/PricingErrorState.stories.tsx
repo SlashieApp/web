@@ -42,12 +42,18 @@ export const Default: Story = {
     await expect(
       canvas.getByRole('link', { name: 'Try again' }),
     ).toHaveAttribute('href', '/pricing')
-    // Both pills are outline: no second green button next to the header's.
-    for (const name of ['Try again', 'Browse tasks']) {
-      const style = getComputedStyle(canvas.getByRole('link', { name }))
-      await expect(style.backgroundColor).toBe('rgb(255, 255, 255)')
-      await expect(style.borderTopColor).toBe('rgb(212, 212, 216)')
-    }
+    // FE-290: Try again is the one green action; Browse tasks a text link.
+    const retry = canvas.getByRole('link', { name: 'Try again' })
+    await expect(retry).toHaveAttribute('data-page-green-action', '')
+    await expect(getComputedStyle(retry).backgroundColor).not.toBe(
+      'rgb(255, 255, 255)',
+    )
+    const browse = canvas.getByRole('link', { name: 'Browse tasks' })
+    await expect(browse).toHaveAttribute('href', '/search')
+    await expect(browse).not.toHaveAttribute('data-page-green-action')
+    await expect(getComputedStyle(browse).backgroundColor).toBe(
+      'rgba(0, 0, 0, 0)',
+    )
   },
 }
 

@@ -56,7 +56,8 @@
       "price": {
         "trialThenPrice": "{trial}, then {priceLine}",
         "thenPrice": "Then {priceLine}",
-        "price": "{priceLine}"
+        "price": "{priceLine}",
+        "cardNeeded": "Card needed to start"
       },
       "trial": {
         "days": "{count} days free",
@@ -149,7 +150,8 @@
       "price": {
         "trialThenPrice": "{trial}，之後 {priceLine}",
         "thenPrice": "之後 {priceLine}",
-        "price": "{priceLine}"
+        "price": "{priceLine}",
+        "cardNeeded": "開始試用需提供信用卡"
       },
       "trial": {
         "days": "免費 {count} 日",

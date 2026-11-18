@@ -32,7 +32,7 @@ type Story = StoryObj<typeof meta>
 export const Guest: Story = {
   play: async ({ canvasElement }) => {
     await expect(
-      within(canvasElement).getByRole('link', { name: 'Get started' }),
+      within(canvasElement).getByRole('link', { name: 'Become a worker' }),
     ).toBeVisible()
   },
 }

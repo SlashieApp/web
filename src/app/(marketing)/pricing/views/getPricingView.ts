@@ -1,3 +1,5 @@
+import { WorkerSubscriptionStatus } from '@codegen/schema'
+
 import type { WorkerMembershipSnapshot } from '@/app/(dashboard)/helpers/workerMembershipHelpers'
 
 import type { PricingView } from './types'
@@ -12,15 +14,21 @@ export type PricingViewInput = {
     setupComplete: boolean
     membership: Pick<
       WorkerMembershipSnapshot,
-      'hasUnlimitedQuotes' | 'canUpgrade' | 'canStartTrial'
+      | 'hasUnlimitedQuotes'
+      | 'canUpgrade'
+      | 'canStartTrial'
+      | 'canManageBilling'
+      | 'cancelAtPeriodEnd'
+      | 'subscriptionStatus'
     >
   } | null
 }
 
 /**
- * Plans first, then the session, then the worker's membership. Membership
- * reads the API's flags, not the Stripe status, so pricing offers exactly what
- * Billing would.
+ * Plans first, then the session, then the worker's membership, in Billing's
+ * order (`getBillingView`), so the two pages always say the same thing
+ * (FE-290). It reads the API's flags first and the status only to tell apart
+ * what the flags can't: a trial, payment trouble, paused, unfinished.
  */
 export function getPricingView({
   available,
@@ -31,11 +39,30 @@ export function getPricingView({
   if (session === 'checking') return 'checkingSession'
   if (session === 'guest') return 'guest'
   if (!worker) return 'customer'
-  const { membership } = worker
-  if (membership.hasUnlimitedQuotes) return 'workerUnlimited'
+  const m = worker.membership
+  if (m.hasUnlimitedQuotes) {
+    if (m.cancelAtPeriodEnd) {
+      // No Stripe plan to keep: Slashie Pro given until a date (BE-119).
+      return m.canManageBilling ? 'workerCancelling' : 'workerGivenUntil'
+    }
+    // No Stripe plan and no end: given by Slashie (BE-117).
+    if (!m.canManageBilling) return 'workerGiven'
+    return m.subscriptionStatus === WorkerSubscriptionStatus.Trialing
+      ? 'workerTrialing'
+      : 'workerUnlimited'
+  }
+  switch (m.subscriptionStatus) {
+    case WorkerSubscriptionStatus.PastDue:
+    case WorkerSubscriptionStatus.Unpaid:
+      return 'workerPaymentProblem'
+    case WorkerSubscriptionStatus.Paused:
+      return 'workerPaused'
+    case WorkerSubscriptionStatus.Incomplete:
+      return 'workerIncomplete'
+  }
   if (!worker.setupComplete) return 'workerSetup'
-  if (membership.canUpgrade) {
-    return membership.canStartTrial ? 'workerFree' : 'workerLapsed'
+  if (m.canUpgrade) {
+    return m.canStartTrial ? 'workerFree' : 'workerLapsed'
   }
   return 'workerBilling'
 }

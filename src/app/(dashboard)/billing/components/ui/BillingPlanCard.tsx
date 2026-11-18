@@ -69,10 +69,20 @@ function PriceLine({
           line === 'thenPrice' ? t.price.thenPrice : t.price.price,
           vars,
         )
+  // Starting the trial goes through Stripe Checkout, which asks for a card
+  // (FE-290): say so before the button, as Pricing does.
+  const cardNeeded = line === 'trialThenPrice' && trial
   return (
-    <Text fontSize="sm" color="text.muted">
-      {text}
-    </Text>
+    <Stack gap={0.5}>
+      <Text fontSize="sm" color="text.muted">
+        {text}
+      </Text>
+      {cardNeeded ? (
+        <Text fontSize="sm" color="text.muted">
+          {t.price.cardNeeded}
+        </Text>
+      ) : null}
+    </Stack>
   )
 }
 

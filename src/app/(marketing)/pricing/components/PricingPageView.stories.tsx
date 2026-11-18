@@ -49,7 +49,6 @@ const WHITE = 'rgb(255, 255, 255)'
 const PLUM = 'rgb(105, 56, 239)'
 const BORDER_DEFAULT = 'rgb(228, 228, 231)'
 const BORDER_STRONG = 'rgb(212, 212, 216)'
-const TEXT_MUTED = 'rgb(82, 82, 91)'
 const INK = 'rgb(10, 21, 18)'
 const GREEN_400 = 'rgb(0, 220, 130)'
 const GREEN_600 = 'rgb(2, 165, 103)'
@@ -269,7 +268,8 @@ export const Desktop: Story = {
     await expect(getComputedStyle(unlimited).borderTopColor).toBe(PLUM)
     const freeTitle = within(free).getByRole('heading', { level: 3 })
     const paidTitle = within(unlimited).getByRole('heading', { level: 3 })
-    await expect(getComputedStyle(freeTitle).color).toBe(TEXT_MUTED)
+    // The plan names are the cards' titles (FE-290): ink on Free, plum on the paid plan.
+    await expect(getComputedStyle(freeTitle).color).toBe(INK)
     await expect(getComputedStyle(paidTitle).color).toBe(PLUM)
 
     // The price is a figure: 34px at 600 with tabular figures, in ink.
@@ -283,7 +283,9 @@ export const Desktop: Story = {
     }
 
     // Pills: outline on Free, the green primary on the paid plan.
-    const freeButton = within(free).getByRole('link', { name: 'Get started' })
+    const freeButton = within(free).getByRole('link', {
+      name: 'Become a worker',
+    })
     const paidButton = within(unlimited).getByRole('link', {
       name: 'Start free trial',
     })

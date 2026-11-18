@@ -1,13 +1,13 @@
 import type { PricingViewConfig } from './types'
 
-/** Signed out: sign up, set up a worker profile, then (for the trial) back here. */
 export const guest: PricingViewConfig = {
   plans: true,
   current: null,
-  trial: true,
+  paid: 'trial',
+  // "Become a worker": Free leads into worker setup, so the button says so (FE-290).
   free: {
     kind: 'link',
-    label: 'getStarted',
+    label: 'becomeWorker',
     href: `/register?next=${encodeURIComponent('/worker/setup')}`,
   },
   unlimited: {

@@ -1,3 +1,4 @@
+import { WorkerSubscriptionStatus as S } from '@codegen/schema'
 import { afterAll, describe, expect, it } from 'vitest'
 
 import { PRICING_VIEWS, getPricingView } from '.'
@@ -5,27 +6,62 @@ import type { PricingView, PricingViewInput } from '.'
 
 type Membership = NonNullable<PricingViewInput['worker']>['membership']
 
-/** Flags as the API sends them for each subscription state. */
+/** Flags as the API sends them for each state (FE-290: Billing's order). */
+const base = {
+  canManageBilling: true,
+  cancelAtPeriodEnd: false,
+}
 const NONE: Membership = {
+  ...base,
+  canManageBilling: false,
+  subscriptionStatus: S.None,
   hasUnlimitedQuotes: false,
   canUpgrade: true,
   canStartTrial: true,
 }
 const TRIALING: Membership = {
+  ...base,
+  subscriptionStatus: S.Trialing,
   hasUnlimitedQuotes: true,
   canUpgrade: false,
   canStartTrial: false,
 }
-const CANCELED: Membership = {
-  hasUnlimitedQuotes: false,
+const ACTIVE: Membership = { ...TRIALING, subscriptionStatus: S.Active }
+const CANCELLING: Membership = { ...ACTIVE, cancelAtPeriodEnd: true }
+/** Slashie Pro given in admin (BE-117/119): no Stripe plan. */
+const GIVEN_UNTIL: Membership = {
+  ...ACTIVE,
+  canManageBilling: false,
+  cancelAtPeriodEnd: true,
   canUpgrade: true,
+}
+const GIVEN: Membership = {
+  ...ACTIVE,
+  canManageBilling: false,
+  cancelAtPeriodEnd: false,
+}
+const CANCELED: Membership = {
+  ...NONE,
+  canManageBilling: true,
+  subscriptionStatus: S.Canceled,
   canStartTrial: false,
 }
 const PAST_DUE: Membership = {
+  ...base,
+  subscriptionStatus: S.PastDue,
   hasUnlimitedQuotes: false,
   canUpgrade: false,
   canStartTrial: false,
 }
+const UNPAID: Membership = { ...PAST_DUE, subscriptionStatus: S.Unpaid }
+const PAUSED: Membership = { ...PAST_DUE, subscriptionStatus: S.Paused }
+const INCOMPLETE: Membership = {
+  ...PAST_DUE,
+  canManageBilling: false,
+  subscriptionStatus: S.Incomplete,
+}
+/** Can't start Checkout and nothing else applies (e.g. billing not set up). */
+const STUCK: Membership = { ...NONE, canUpgrade: false }
 
 function worker(membership: Membership, setupComplete = true) {
   return { setupComplete, membership }
@@ -75,19 +111,51 @@ describe('getPricingView', () => {
     expectView({ ...signedIn, worker: worker(CANCELED) }, 'workerLapsed')
   })
 
-  it('marks Unlimited as the plan of a trialing or paying worker', () => {
-    expectView({ ...signedIn, worker: worker(TRIALING) }, 'workerUnlimited')
+  it('shows a worker on the free trial when it ends', () => {
+    expectView({ ...signedIn, worker: worker(TRIALING) }, 'workerTrialing')
   })
 
-  it('keeps Unlimited for a subscriber even if their profile is unfinished', () => {
+  it('marks Slashie Pro as the plan of a paying worker', () => {
+    expectView({ ...signedIn, worker: worker(ACTIVE) }, 'workerUnlimited')
+  })
+
+  it('keeps Slashie Pro for a subscriber even if their profile is unfinished', () => {
     expectView(
-      { ...signedIn, worker: worker(TRIALING, false) },
+      { ...signedIn, worker: worker(ACTIVE, false) },
       'workerUnlimited',
     )
   })
 
-  it('sends a worker whose payment failed to Billing, never to a second Checkout', () => {
-    expectView({ ...signedIn, worker: worker(PAST_DUE) }, 'workerBilling')
+  it('says when a cancelled plan ends, with Keep Slashie Pro in the portal', () => {
+    expectView({ ...signedIn, worker: worker(CANCELLING) }, 'workerCancelling')
+  })
+
+  it('says when Slashie Pro given until a date ends, with Keep through Checkout', () => {
+    expectView({ ...signedIn, worker: worker(GIVEN_UNTIL) }, 'workerGivenUntil')
+  })
+
+  it('shows Slashie Pro given with no end, with nothing to pay or manage', () => {
+    expectView({ ...signedIn, worker: worker(GIVEN) }, 'workerGiven')
+  })
+
+  it('says a payment failed, past due or unpaid, never offering a second Checkout', () => {
+    expectView(
+      { ...signedIn, worker: worker(PAST_DUE) },
+      'workerPaymentProblem',
+    )
+    expectView({ ...signedIn, worker: worker(UNPAID) }, 'workerPaymentProblem')
+  })
+
+  it('says a plan is paused', () => {
+    expectView({ ...signedIn, worker: worker(PAUSED) }, 'workerPaused')
+  })
+
+  it('says Checkout did not finish, with Check again', () => {
+    expectView({ ...signedIn, worker: worker(INCOMPLETE) }, 'workerIncomplete')
+  })
+
+  it('sends anyone else who cannot start Checkout to Billing', () => {
+    expectView({ ...signedIn, worker: worker(STUCK) }, 'workerBilling')
   })
 
   afterAll(() => {
@@ -96,10 +164,50 @@ describe('getPricingView', () => {
 })
 
 describe('PRICING_VIEWS', () => {
-  it('never offers the trial to someone who has or had a subscription', () => {
-    expect(PRICING_VIEWS.workerUnlimited.trial).toBe(false)
-    expect(PRICING_VIEWS.workerLapsed.trial).toBe(false)
-    expect(PRICING_VIEWS.workerBilling.trial).toBe(false)
+  it('only offers the trial to someone who never subscribed', () => {
+    const withTrial = Object.entries(PRICING_VIEWS)
+      .filter(([, config]) => config.paid === 'trial')
+      .map(([view]) => view)
+      .sort()
+    expect(withTrial).toEqual(
+      [
+        'checkingSession',
+        'customer',
+        'guest',
+        'workerFree',
+        'workerSetup',
+      ].sort(),
+    )
+  })
+
+  it('marks the paid plan as theirs while it is failing or paused, and Free while Checkout is unfinished', () => {
+    expect(PRICING_VIEWS.workerPaymentProblem.current).toBe('unlimited')
+    expect(PRICING_VIEWS.workerPaused.current).toBe('unlimited')
+    expect(PRICING_VIEWS.workerIncomplete.current).toBe('free')
+  })
+
+  it('uses Billing’s actions: the portal to keep or fix, Checkout for a given plan, a re-sync to check again', () => {
+    expect(PRICING_VIEWS.workerCancelling.unlimited).toEqual({
+      kind: 'portal',
+      label: 'keepPro',
+    })
+    expect(PRICING_VIEWS.workerPaymentProblem.unlimited).toEqual({
+      kind: 'portal',
+      label: 'fixPayment',
+    })
+    expect(PRICING_VIEWS.workerGivenUntil.unlimited).toEqual({
+      kind: 'checkout',
+      label: 'keepPro',
+    })
+    expect(PRICING_VIEWS.workerIncomplete.unlimited).toEqual({
+      kind: 'sync',
+      label: 'checkAgain',
+    })
+    expect(PRICING_VIEWS.workerGiven.unlimited).toBeNull()
+  })
+
+  it('the guest’s Free button says Become a worker, as it leads into worker setup', () => {
+    expect(PRICING_VIEWS.guest.free).toMatchObject({ label: 'becomeWorker' })
   })
 
   it('brings sign-ups who want the trial back to pricing after setup', () => {

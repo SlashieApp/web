@@ -31,8 +31,15 @@ export default function PricingLoading() {
                 <Skeleton h="22px" w="min(28rem, 80%)" />
               </Stack>
               <SimpleGrid columns={{ base: 1, md: 2 }} gap={{ base: 4, md: 5 }}>
-                <Skeleton h="440px" borderRadius="lg" />
-                <Skeleton h="440px" borderRadius="lg" />
+                {/* A guest's cards (FE-290): 423px side by side, about 395px stacked. */}
+                <Skeleton
+                  h={{ base: '396px', md: '424px' }}
+                  borderRadius="lg"
+                />
+                <Skeleton
+                  h={{ base: '396px', md: '424px' }}
+                  borderRadius="lg"
+                />
               </SimpleGrid>
             </Stack>
           </PageContainer>

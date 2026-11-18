@@ -27,12 +27,14 @@
       },
       "thenPrice": "Then {priceLine}",
       "actions": {
-        "getStarted": "Get started",
         "becomeWorker": "Become a worker",
         "startTrial": "Start free trial",
         "finishSetup": "Finish worker setup",
         "resubscribe": "Resubscribe",
-        "manageBilling": "Manage billing"
+        "manageBilling": "Manage billing",
+        "keepPro": "Keep Slashie Pro",
+        "fixPayment": "Fix payment",
+        "checkAgain": "Check again"
       },
       "free": {
         "title": "Free",
@@ -49,10 +51,24 @@
         "features": [
           "Unlimited quotes, every month",
           "Everything in Free",
-          "Cancel anytime from Billing"
+          "Cancel anytime in Plan & billing"
         ]
       },
-      "purchasesNote": "Purchases are processed securely. On iOS and Android, subscription management may open your platform billing settings when available."
+      "purchasesNote": "You pay by card through Stripe.",
+      "paidStatus": {
+        "trialing": "Free until {date}.",
+        "endsOn": "Ends {date}",
+        "ending": "Ending",
+        "given": "Given by Slashie",
+        "givenNote": "Unlimited quotes, with no end date.",
+        "paymentProblem": "Payment problem",
+        "paymentProblemNote": "Your last payment failed. Quoting is paused until it's fixed.",
+        "paused": "Paused",
+        "pausedNote": "Your plan is paused. Open Manage billing to resume it.",
+        "notFinished": "Not finished",
+        "notFinishedNote": "Your checkout didn't finish. If you paid, it can take a few minutes to show here."
+      },
+      "cardNeeded": "Card needed to start"
     },
     "counting": {
       "free": {
@@ -106,7 +122,7 @@
       },
       "cancel": {
         "question": "Can I cancel?",
-        "answer": "Yes, anytime from Billing. You keep unlimited quotes until the end of your trial or billing period, then move to the free plan."
+        "answer": "Yes, anytime in Plan & billing. You keep unlimited quotes until the end of your trial or billing period, then move to the free plan."
       },
       "terms": {
         "before": "Full details are in our ",
@@ -143,12 +159,14 @@
       },
       "thenPrice": "之後 {priceLine}",
       "actions": {
-        "getStarted": "開始使用",
         "becomeWorker": "成為工作者",
         "startTrial": "開始免費試用",
         "finishSetup": "完成工作者設定",
         "resubscribe": "重新訂閱",
-        "manageBilling": "管理帳單"
+        "manageBilling": "管理帳單",
+        "keepPro": "保留 Slashie Pro",
+        "fixPayment": "處理付款",
+        "checkAgain": "再檢查一次"
       },
       "free": {
         "title": "免費方案",
@@ -165,10 +183,24 @@
         "features": [
           "每月無限報價",
           "包含免費方案的所有功能",
-          "可隨時在帳單頁取消"
+          "可隨時在「方案與帳單」取消"
         ]
       },
-      "purchasesNote": "購買會安全處理。在 iOS 和 Android 上，訂閱管理可能會開啟平台帳單設定（如適用）。"
+      "purchasesNote": "你會以信用卡經 Stripe 付款。",
+      "paidStatus": {
+        "trialing": "免費試用至 {date}。",
+        "endsOn": "{date} 結束",
+        "ending": "即將結束",
+        "given": "Slashie 贈送",
+        "givenNote": "無限次報價，沒有結束日期。",
+        "paymentProblem": "付款問題",
+        "paymentProblemNote": "你上次的付款未能成功。處理好之前，報價功能會暫停。",
+        "paused": "已暫停",
+        "pausedNote": "你的方案已暫停。打開「管理帳單」即可恢復。",
+        "notFinished": "未完成",
+        "notFinishedNote": "你的結帳未完成。如你已付款，可能需要幾分鐘才會在這裡顯示。"
+      },
+      "cardNeeded": "開始試用需提供信用卡"
     },
     "counting": {
       "free": {
@@ -222,7 +254,7 @@
       },
       "cancel": {
         "question": "可以取消嗎？",
-        "answer": "可以，隨時在帳單頁取消。你可繼續無限報價至試用期或計費期結束，之後轉回免費方案。"
+        "answer": "可以，隨時在「方案與帳單」取消。你可繼續無限報價至試用期或計費期結束，之後轉回免費方案。"
       },
       "terms": {
         "before": "詳情請參閱我們的",

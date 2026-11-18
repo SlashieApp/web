@@ -1,10 +1,10 @@
 import type { PricingViewConfig } from './types'
 
-/** Has unlimited quotes (trial, active, or cancelling with time left). */
+/** A paid plan that renews: the price and Manage billing. */
 export const workerUnlimited: PricingViewConfig = {
   plans: true,
   current: 'unlimited',
-  trial: false,
+  paid: 'price',
   free: null,
   unlimited: { kind: 'link', label: 'manageBilling', href: '/billing' },
 }
