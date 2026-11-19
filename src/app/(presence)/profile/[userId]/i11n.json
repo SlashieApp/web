@@ -20,7 +20,9 @@
       "saveAria": "Save this worker",
       "savedAria": "Remove saved worker",
       "saveFailed": "Could not update this save. Please try again.",
-      "leaveReview": "Leave a review"
+      "leaveReview": "Leave a review",
+      "pro": "Pro",
+      "proLabel": "Slashie Pro"
     },
     "stats": {
       "reviewsCount": "{count} reviews",
@@ -151,7 +153,9 @@
       "saveAria": "收藏呢位工作者",
       "savedAria": "取消收藏",
       "saveFailed": "無法更新收藏，請再試一次。",
-      "leaveReview": "撰寫評價"
+      "leaveReview": "撰寫評價",
+      "pro": "Pro",
+      "proLabel": "Slashie Pro"
     },
     "stats": {
       "reviewsCount": "{count} 則評價",

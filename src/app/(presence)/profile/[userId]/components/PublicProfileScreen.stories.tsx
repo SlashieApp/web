@@ -727,6 +727,68 @@ export const WorkerWithTitle: Story = {
   },
 }
 
+/**
+ * FE-580: Slashie Pro, plum, right after the title pill and read out as
+ * "Slashie Pro".
+ */
+export const WorkerWithTitleAndPro: Story = {
+  args: {
+    view: 'worker.visitor',
+    model: sampleWorker({ titleLabel: 'Plumber', pro: true }),
+    reviewHref: REVIEW_HREF,
+  },
+  play: async ({ canvasElement }) => {
+    const pros = within(canvasElement)
+      .queryAllByLabelText('Slashie Pro')
+      .filter((element) => element.checkVisibility())
+    await expect(pros).toHaveLength(1)
+    const pro = pros[0] as HTMLElement
+    await expect(pro).toHaveTextContent('Pro')
+    const title = within(pro.parentElement as HTMLElement).getByText('Plumber')
+    await expect(
+      title.compareDocumentPosition(pro) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy()
+  },
+}
+
+/** Slashie Pro with no title picked: "Worker", then Pro. */
+export const WorkerProWithoutTitle: Story = {
+  args: {
+    view: 'worker.visitor',
+    model: sampleWorker({ titleLabel: null, pro: true }),
+    reviewHref: REVIEW_HREF,
+  },
+  play: async ({ canvasElement }) => {
+    await expectOneVisible(canvasElement, 'Worker')
+    const pros = within(canvasElement)
+      .queryAllByLabelText('Slashie Pro')
+      .filter((element) => element.checkVisibility())
+    await expect(pros).toHaveLength(1)
+  },
+}
+
+/**
+ * On a phone the name fills the line: "Worker" and Pro move under it together,
+ * never Pro alone.
+ */
+export const WorkerProPhone: Story = {
+  ...WorkerProWithoutTitle,
+  globals: { viewport: { value: 'mobile1' } },
+  play: async ({ canvasElement }) => {
+    const pros = within(canvasElement)
+      .queryAllByLabelText('Slashie Pro')
+      .filter((element) => element.checkVisibility())
+    await expect(pros).toHaveLength(1)
+    const pro = pros[0] as HTMLElement
+    const role = within(pro.parentElement as HTMLElement).getByText('Worker')
+    await expect(
+      Math.abs(
+        pro.getBoundingClientRect().top - role.getBoundingClientRect().top,
+      ),
+    ).toBeLessThan(2)
+  },
+}
+
 /** No title (free plan, or none picked): "Worker", as before. */
 export const WorkerWithoutTitle: Story = {
   args: {
@@ -736,5 +798,6 @@ export const WorkerWithoutTitle: Story = {
   },
   play: async ({ canvasElement }) => {
     await expectOneVisible(canvasElement, 'Worker')
+    await expect(canvasElement.querySelector('[data-profile-pro]')).toBeNull()
   },
 }

@@ -59,8 +59,10 @@ export function WorkerSetupProfilePreview() {
             avatarUrl: account.avatarUrl,
             verified: false,
             isWorker: true,
-            // A title is picked later, in the profile editor (Unlimited).
+            // A title is picked later, in the profile editor (Slashie Pro).
             titleLabel: null,
+            // A new worker is on Free: no Pro badge in the preview.
+            pro: false,
             headline: workerHeadline(
               categoryEnumFromSlug(form.primaryCategory),
               form.skills,

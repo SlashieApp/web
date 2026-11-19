@@ -35,6 +35,7 @@ export type PublicProfileHeroProps = {
     | 'verified'
     | 'isWorker'
     | 'titleLabel'
+    | 'pro'
     | 'headline'
     | 'tagline'
     | 'serviceAreaLabel'
@@ -117,12 +118,27 @@ export function PublicProfileHero({
               <LuCheck size={13} strokeWidth={3.5} aria-hidden />
             </Box>
           ) : null}
-          <Badge variant="neutral" shape="pill" size="sm">
-            {/* BE-130: a worker on Unlimited shows their title instead. */}
-            {model.isWorker
-              ? (model.titleLabel ?? t.userType.worker)
-              : t.userType.customer}
-          </Badge>
+          {/* The title pill and Pro wrap as a pair, so Pro never sits alone on a phone. */}
+          <HStack gap={1.5} data-profile-pills="">
+            <Badge variant="neutral" shape="pill" size="sm">
+              {/* BE-130: a worker on Slashie Pro shows their title instead. */}
+              {model.isWorker
+                ? (model.titleLabel ?? t.userType.worker)
+                : t.userType.customer}
+            </Badge>
+            {/* FE-580: Slashie Pro, plum, right after the title pill. */}
+            {model.isWorker && model.pro ? (
+              <Badge
+                variant="premium"
+                shape="pill"
+                size="sm"
+                aria-label={t.hero.proLabel}
+                data-profile-pro=""
+              >
+                {t.hero.pro}
+              </Badge>
+            ) : null}
+          </HStack>
         </HStack>
         {model.headline ? (
           <Text fontWeight={500} color="text.default">

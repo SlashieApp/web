@@ -141,6 +141,7 @@ describe('toPublicProfileModel', () => {
           isVerified: false,
           phoneVerified: false,
           emailVerified: false,
+          hasPro: false,
           completedJobsCount: 140,
           completedJobs: [],
           viewer: {
@@ -163,6 +164,32 @@ describe('toPublicProfileModel', () => {
       reviewOrderId: 'order-9',
       reviewTaskId: 'task-9',
     })
+  })
+
+  it('carries Slashie Pro from the API for the header badge (FE-580)', () => {
+    const withPro = (hasPro: boolean) =>
+      toPublicProfileModel(
+        record({
+          userType: PublicProfileUserType.Worker,
+          worker: {
+            id: 'worker-1',
+            skills: [],
+            qualifications: [],
+            portfolioUrls: [],
+            isVerified: false,
+            phoneVerified: false,
+            emailVerified: false,
+            hasPro,
+            completedJobsCount: 0,
+            completedJobs: [],
+          },
+        }),
+        'en',
+      ).pro
+    expect(withPro(true)).toBe(true)
+    expect(withPro(false)).toBe(false)
+    // A customer has no worker, so never a badge.
+    expect(toPublicProfileModel(record(), 'en').pro).toBe(false)
   })
 
   it('shows the join date as a short month in the viewer’s language', () => {

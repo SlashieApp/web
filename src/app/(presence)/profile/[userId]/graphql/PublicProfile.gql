@@ -56,8 +56,10 @@ query PublicProfile($userId: ID!, $excludeTaskId: ID) {
       bio
       tagline
       primaryCategory
-      # BE-130: the worker's title, only while they have Unlimited.
+      # BE-130: the worker's title, only while they have Slashie Pro.
       title
+      # BE-137: whether they have Slashie Pro now (the header's Pro badge).
+      hasPro
       skills
       qualifications
       serviceAreaLabel

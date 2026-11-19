@@ -98,10 +98,12 @@ export type PublicProfileModel = {
   /** "Mar 2024" in the viewer's language. */
   joinedLabel: string | null
   /**
-   * The worker's title (BE-130, Unlimited), e.g. "Plumber" / 水喉師傅, shown
+   * The worker's title (BE-130, Slashie Pro), e.g. "Plumber" / 水喉師傅, shown
    * in place of "Worker". Null without one.
    */
   titleLabel: string | null
+  /** Has Slashie Pro now (BE-137): the plum Pro badge after the title pill (FE-580). */
+  pro: boolean
   headline: string | null
   tagline: string | null
   serviceAreaLabel: string | null
@@ -332,6 +334,7 @@ export function toPublicProfileModel(
     titleLabel: worker
       ? workerTitleLabel(worker.title, loadPageI11n(setupBag, locale).trades)
       : null,
+    pro: Boolean(worker?.hasPro),
     headline: worker
       ? workerHeadline(
           worker.primaryCategory,
