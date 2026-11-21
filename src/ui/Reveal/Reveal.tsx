@@ -109,26 +109,28 @@ export function Reveal({
       }}
       {...rest}
     >
-      <Box
-        minH={0}
-        minW={0}
-        // Clipped top and bottom only while it moves; never at the sides,
-        // where a focus ring sits.
-        overflowY={settled ? 'visible' : 'clip'}
-        pt={spaceAbove}
-        transform={shown ? 'none' : `translateY(${REVEAL_RISE})`}
-        transitionProperty="transform"
-        transitionDuration={sdlMotion.duration.moderate}
-        transitionTimingFunction={sdlMotion.easing.decelerate}
-        transitionDelay={arriving ? `${delayMs}ms` : '0ms'}
-        css={{
-          '@media (prefers-reduced-motion: reduce)': {
-            transform: 'none',
-            transitionProperty: 'none',
-          },
-        }}
-      >
-        {children}
+      {/*
+        The fold: it has no padding of its own, so it shrinks to nothing.
+        Clipped top and bottom only while it moves; never at the sides, where
+        a focus ring sits.
+      */}
+      <Box minH={0} minW={0} overflowY={settled ? 'visible' : 'clip'}>
+        <Box
+          pt={spaceAbove}
+          transform={shown ? 'none' : `translateY(${REVEAL_RISE})`}
+          transitionProperty="transform"
+          transitionDuration={sdlMotion.duration.moderate}
+          transitionTimingFunction={sdlMotion.easing.decelerate}
+          transitionDelay={arriving ? `${delayMs}ms` : '0ms'}
+          css={{
+            '@media (prefers-reduced-motion: reduce)': {
+              transform: 'none',
+              transitionProperty: 'none',
+            },
+          }}
+        >
+          {children}
+        </Box>
       </Box>
     </Box>
   )
