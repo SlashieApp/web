@@ -6,7 +6,6 @@ import {
   browseCoverageMiles,
   browseDatePresetRange,
   buildActiveBrowseFilterTags,
-  formatBudget,
   parseBrowseBudget,
   taskCardMetaParts,
 } from './taskBrowseHelpers'
@@ -108,24 +107,16 @@ describe('parseBrowseBudget', () => {
   })
 })
 
-describe('formatBudget', () => {
-  it('flags a fixed sterling budget', () => {
-    const result = formatBudget(
-      listTask({
-        budget: { amount: 120, currency: 'GBP' } as TaskListItem['budget'],
-      }),
-    )
-    expect(result.hasBudget).toBe(true)
-    expect(result.main).toBe('£120')
-  })
-
-  it('omits the card £ slot when budget is missing', () => {
-    expect(formatBudget(listTask({ budget: null })).hasBudget).toBe(false)
-    expect(formatBudget(listTask({ budget: null })).main).toBe('Open')
-  })
-})
-
 describe('taskCardMetaParts', () => {
+  it('carries the budget’s small label beside the amount (FE-584)', () => {
+    expect(
+      taskCardMetaParts({ priceLabel: '£60', priceUnitLabel: 'Per day' })[0],
+    ).toEqual({ kind: 'budget', label: '£60', detail: 'Per day' })
+    expect(
+      taskCardMetaParts({ priceLabel: 'Open budget', priceUnitLabel: '' })[0],
+    ).toEqual({ kind: 'budget', label: 'Open budget', detail: undefined })
+  })
+
   it('keeps budget · distance · timing and drops empties', () => {
     expect(
       taskCardMetaParts({

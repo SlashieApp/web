@@ -90,11 +90,13 @@ export function formatTaskDateTimeType(type: string): string {
 /**
  * Hero budget line: the owner's quote range (e.g. "£85–£95"), else the
  * posted budget. Anyone else sees the budget unless they quoted, then their
- * own price; other workers' prices are in the quotes list, not here.
+ * own price; other workers' prices are in the quotes list, not here. With no
+ * budget it reads `openLabel` ("Open budget", "Open" on the map pin; FE-584).
  */
 export function taskBudgetDisplayLine(
   task: TaskDetailRecord,
   viewer: TaskBudgetViewerContext,
+  openLabel: string,
   viewerUserId?: string | null,
 ): string {
   const quotes =
@@ -109,7 +111,7 @@ export function taskBudgetDisplayLine(
       .filter((price): price is number => price != null)
     if (prices.length === 0) {
       if (task.budget) return formatBudgetAmount(task.budget)
-      return 'Open'
+      return openLabel
     }
     const min = Math.min(...prices)
     const max = Math.max(...prices)
@@ -117,7 +119,7 @@ export function taskBudgetDisplayLine(
     return `${formatPoundsFromPence(min)}–${formatPoundsFromPence(max)}`
   }
   if (task.budget) return formatBudgetAmount(task.budget)
-  return 'Open'
+  return openLabel
 }
 
 /**
@@ -262,18 +264,6 @@ export function orderCounterpart(
     phone: profile?.contactNumber?.trim() || null,
     email: isOwner ? null : task.poster?.email?.trim() || null,
   }
-}
-
-/** Short label for budget `type` (e.g. badge next to amount). */
-export function budgetKindLabel(
-  budgetType: string | null | undefined,
-): string | null {
-  if (!budgetType) return null
-  const u = budgetType.trim().toUpperCase().replaceAll(' ', '_')
-  if (u === 'ONE_OFF' || u === 'FIXED') return 'Fixed price'
-  if (u === 'PER_HOUR') return 'Per hour'
-  if (u === 'PER_DAY') return 'Per day'
-  return null
 }
 
 export function workerQuoteAvatarLabel(workerUserId: string) {

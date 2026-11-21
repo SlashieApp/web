@@ -13,6 +13,7 @@ import {
 } from '@/app/(stepflow)/worker/setup/helpers/workerSetupCategories'
 import setupBag from '@/app/(stepflow)/worker/setup/i11n.json'
 import type { TaskCardTask } from '@/app/(task)/components/ui/TaskCard'
+import { taskBudgetBag } from '@/app/(task)/helpers/taskBudget/taskBudget'
 import { taskCategoriesSummary } from '@/app/(task)/helpers/taskCategories'
 import {
   type AchievementPanel,
@@ -370,7 +371,9 @@ export function toPublicProfileModel(
       : [],
     completedJobsCount: worker?.completedJobsCount ?? 0,
     hostedCompletedCount: profile.hostedCompletedCount,
-    openTasks: profile.openTasks.map(toPublicUserTaskCard),
+    openTasks: profile.openTasks.map((task) =>
+      toPublicUserTaskCard(task, loadPageI11n(taskBudgetBag, locale)),
+    ),
     openTaskCount: profile.openTaskCount,
     reviews: profile.reviews.map((review) => ({
       id: review.id,

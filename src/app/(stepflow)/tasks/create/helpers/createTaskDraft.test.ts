@@ -27,6 +27,32 @@ const values = {
 }
 
 describe('create task draft', () => {
+  it('a draft from before FE-584: its budget type becomes the unit field', () => {
+    for (const [budgetType, budgetUnit] of [
+      ['PER_HOUR', 'per hour'],
+      ['PER_DAY', 'per day'],
+      ['ONE_OFF', ''],
+    ]) {
+      const storage = memoryStorage()
+      storage.setItem(
+        KEY,
+        JSON.stringify({
+          v: 1,
+          savedAt: NOW,
+          step: 'budget',
+          done: ['location'],
+          values: { title: 'Paint a fence', budgetMajor: '20', budgetType },
+        }),
+      )
+      const draft = readCreateTaskDraft(storage, KEY, NOW)
+      expect(draft?.values).toEqual({
+        title: 'Paint a fence',
+        budgetMajor: '20',
+        budgetUnit,
+      })
+    }
+  })
+
   it('has nothing to restore at first', () => {
     expect(readCreateTaskDraft(memoryStorage(), KEY, NOW)).toBeNull()
   })

@@ -1,8 +1,4 @@
-import {
-  TaskBudgetType,
-  TaskContactMethod,
-  TaskDateTimeType,
-} from '@codegen/schema'
+import { TaskContactMethod, TaskDateTimeType } from '@codegen/schema'
 import type { Decorator, Meta, StoryObj } from '@storybook/nextjs-vite'
 import { expect, userEvent, waitFor, within } from 'storybook/test'
 
@@ -67,7 +63,8 @@ const answers: CreateTaskDraftValues = {
   preferredDate: storyDateInDays(3),
   preferredTime: '09:00',
   budgetMajor: '80',
-  budgetType: TaskBudgetType.OneOff,
+  budgetUnit: '',
+  openBudget: false,
 }
 
 /** A fresh visit: no draft on this browser. */
@@ -585,15 +582,29 @@ export const PhotosConvertingPhoto: Story = {
   },
 }
 
-/** create.budget: the amount's label follows the budget type. */
+/**
+ * create.budget (FE-584): the amount, what it's for with suggestions, and
+ * Skip, which folds both into an Open budget note that Add a budget undoes.
+ */
 export const Budget: Story = {
   decorators: [atStep('budget')],
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
+    await expect(await canvas.findByLabelText(/^Amount/)).toBeVisible()
+    const perDay = canvas.getByRole('button', { name: 'per day' })
+    await userEvent.click(perDay)
+    await expect(perDay).toHaveAttribute('aria-pressed', 'true')
+    await expect(canvas.getByLabelText(/What's it for/)).toHaveValue('per day')
     await userEvent.click(
-      await canvas.findByRole('radio', { name: 'Per hour' }),
+      canvas.getByRole('button', { name: 'Skip: let workers quote' }),
     )
-    await expect(canvas.getByLabelText(/Budget per hour/)).toBeVisible()
+    await expect(canvas.getByText('Open budget')).toBeVisible()
+    await expect(canvas.queryByLabelText(/^Amount/)).toBeNull()
+    await expect(
+      canvas.getByRole('button', { name: 'Add a budget' }),
+    ).toHaveFocus()
+    // How you'll pay is asked either way.
+    await expect(canvas.getByText("How you'll pay")).toBeVisible()
   },
 }
 

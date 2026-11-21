@@ -1,6 +1,6 @@
 import {
   Currency,
-  TaskBudgetType,
+  TaskBudgetUnit,
   TaskDateTimeType,
   TaskPaymentMethod,
   TaskStatus,
@@ -28,9 +28,9 @@ export function storyBrowseTask(
     budget: {
       amount: 120,
       currency: Currency.Gbp,
-      type: TaskBudgetType.OneOff,
-      paymentMethod: TaskPaymentMethod.Cash,
+      unit: TaskBudgetUnit.Total,
     },
+    paymentMethod: TaskPaymentMethod.Cash,
     images: [STORY_THUMBNAIL],
     location: { lat: 51.5035, lng: -0.0948, name: 'Southwark', address: null },
     poster: {
@@ -51,9 +51,9 @@ export const storyBrowseTasks: TaskListItem[] = [
     budget: {
       amount: 18,
       currency: Currency.Gbp,
-      type: TaskBudgetType.PerHour,
-      paymentMethod: TaskPaymentMethod.BankTransfer,
+      unit: TaskBudgetUnit.PerHour,
     },
+    paymentMethod: TaskPaymentMethod.BankTransfer,
     datetime: {
       type: TaskDateTimeType.Exact,
       date: '2030-06-15',
@@ -68,9 +68,9 @@ export const storyBrowseTasks: TaskListItem[] = [
     budget: {
       amount: 60,
       currency: Currency.Gbp,
-      type: TaskBudgetType.OneOff,
-      paymentMethod: TaskPaymentMethod.Cash,
+      unit: TaskBudgetUnit.Total,
     },
+    paymentMethod: TaskPaymentMethod.Cash,
     datetime: {
       type: TaskDateTimeType.Before,
       date: '2030-06-21',
@@ -98,9 +98,9 @@ export const storyBrowseTasks: TaskListItem[] = [
     budget: {
       amount: 25,
       currency: Currency.Gbp,
-      type: TaskBudgetType.PerHour,
-      paymentMethod: TaskPaymentMethod.Cash,
+      unit: TaskBudgetUnit.PerHour,
     },
+    paymentMethod: TaskPaymentMethod.Cash,
     images: [],
     location: { lat: 51.4613, lng: -0.1384, name: 'Clapham', address: null },
   }),

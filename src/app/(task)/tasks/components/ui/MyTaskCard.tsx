@@ -11,6 +11,7 @@ import {
 
 import { TaskRolePill } from '@/app/(task)/components/ui/TaskRolePill'
 import { taskDetailHrefFromMyTasks } from '@/app/(task)/helpers/openTaskDetailFromBrowse'
+import { taskBudgetBag } from '@/app/(task)/helpers/taskBudget/taskBudget'
 import { setTaskHandoff } from '@/app/(task)/helpers/taskCardHandoff'
 import { TaskStatusPill } from '@/app/(task)/tasks/[slug]/components/ui/TaskStatusPill'
 import { useLocale } from '@/i18n/LocaleProvider'
@@ -264,8 +265,13 @@ function PillLine({ row }: { row: MyTaskHubRow }) {
  */
 export function MyTaskCard({ row, layout }: MyTaskCardProps) {
   const t = useI11n(bag)
+  const budgetCopy = useI11n(taskBudgetBag)
   const locale = useLocale()
-  const line = detailLine(row, t, locale)
+  const line = detailLine(
+    row.openBudget ? { ...row, priceLabel: budgetCopy.open } : row,
+    t,
+    locale,
+  )
   // Only Upcoming rows have a time.
   const time = row.when ? upcomingTime(row.when, t, locale) : ''
   // Every row can have one, so its name says which task.

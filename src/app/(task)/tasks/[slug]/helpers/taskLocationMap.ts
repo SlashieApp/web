@@ -14,10 +14,17 @@ export function buildTaskDetailMapPinTask(
   task: TaskDetailRecord,
   coords: { lat: number; lng: number },
   viewer: TaskBudgetViewerContext,
+  /** The pin's word for no budget: "Open". */
+  openLabel: string,
   viewerUserId?: string | null,
   origin?: { lat: number; lng: number } | null,
 ): TaskMapTask {
-  const priceLabel = taskBudgetDisplayLine(task, viewer, viewerUserId)
+  const priceLabel = taskBudgetDisplayLine(
+    task,
+    viewer,
+    openLabel,
+    viewerUserId,
+  )
   const distanceLabel = origin
     ? formatDistanceAwayLabel(
         distanceMilesBetween(origin.lat, origin.lng, coords.lat, coords.lng),

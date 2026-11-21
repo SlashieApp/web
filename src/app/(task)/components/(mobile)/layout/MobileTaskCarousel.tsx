@@ -5,6 +5,7 @@ import { motion } from 'motion/react'
 import { useMemo, useRef } from 'react'
 
 import { useUserStore } from '@/app/(auth)/store/user'
+import { taskBudgetBag } from '@/app/(task)/helpers/taskBudget/taskBudget'
 import { toBrowseTaskCard } from '@/app/(task)/helpers/toBrowseTaskCard'
 import { useOpenTaskDetailFromBrowse } from '@/app/(task)/helpers/useOpenTaskDetailFromBrowse'
 import { captureSearchCardImpression } from '@/app/(task)/search/components/analytics/searchCardImpression'
@@ -34,14 +35,15 @@ export function MobileTaskCarousel() {
     isInitialTasksLoad,
   } = useTaskBrowseData()
   const viewerId = useUserStore((state) => state.user?.id)
+  const budgetCopy = useI11n(taskBudgetBag)
   const seenImpressionsRef = useRef(new Set<string>())
 
   const tasks = useMemo(
     () =>
       filteredSorted.map((task) =>
-        toBrowseTaskCard(task, referenceLocation, viewerId),
+        toBrowseTaskCard(task, referenceLocation, viewerId, budgetCopy),
       ),
-    [filteredSorted, referenceLocation, viewerId],
+    [budgetCopy, filteredSorted, referenceLocation, viewerId],
   )
 
   if (isInitialTasksLoad) {

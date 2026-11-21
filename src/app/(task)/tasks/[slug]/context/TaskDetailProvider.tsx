@@ -1,5 +1,6 @@
 'use client'
 
+import { taskBudgetBag } from '@/app/(task)/helpers/taskBudget/taskBudget'
 import { invitedProperty } from '@/content/quoteInvitations/invitedProperty'
 import { useLocale } from '@/i18n/LocaleProvider'
 import { useI11n } from '@/i18n/useI11n'
@@ -267,6 +268,7 @@ export function TaskDetailProvider({
   const router = useRouter()
   const pathname = usePathname()
   const t = useI11n(bag)
+  const budgetCopy = useI11n(taskBudgetBag)
   /** `Intl` locale for dates (as `useDateLocale` in TaskFacts). */
   const dateLocale = useLocale() === 'zh-hk' ? 'zh-HK' : 'en-GB'
   // A failed request in the reader's language where this bag has the code.
@@ -1071,6 +1073,7 @@ export function TaskDetailProvider({
             invitedBy,
             messageHref: taskThreadHref,
             copy: t,
+            budgetCopy,
             dateLocale,
           })
         : null,
@@ -1087,6 +1090,7 @@ export function TaskDetailProvider({
       invitedBy,
       taskThreadHref,
       t,
+      budgetCopy,
       dateLocale,
     ],
   )

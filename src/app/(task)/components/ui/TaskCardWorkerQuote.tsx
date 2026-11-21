@@ -25,8 +25,11 @@ import {
   workerQuoteOnsiteCountdown,
   workerQuoteOnsiteScheduleLabel,
 } from '@/app/(dashboard)/quotes/helpers/workerQuoteSchedule'
+import {
+  taskBudgetBag,
+  taskBudgetUnitLabel,
+} from '@/app/(task)/helpers/taskBudget/taskBudget'
 import { taskCategoriesSummary } from '@/app/(task)/helpers/taskCategories'
-import { budgetKindLabel } from '@/app/(task)/tasks/[slug]/helpers/taskDetailUtils'
 import detailBag from '@/app/(task)/tasks/[slug]/i11n.json'
 import { formatMessage } from '@/i18n/loadPageI11n'
 import { useI11n } from '@/i18n/useI11n'
@@ -52,6 +55,7 @@ export function TaskCardWorkerQuote({
   const [expanded, setExpanded] = useState(initialExpanded)
   const [previewIndex, setPreviewIndex] = useState<number | null>(null)
   const detail = useI11n(detailBag)
+  const budgetCopy = useI11n(taskBudgetBag)
   const stage = workerQuoteStage(task, quote, workerOrder)
   const photos = (task.images ?? [])
     .filter((src): src is string => Boolean(src?.trim()))
@@ -67,7 +71,7 @@ export function TaskCardWorkerQuote({
   const orderClosed = workerOrder ? isOrderClosed(workerOrder.status) : false
   const jobHref = taskOrderSectionHref(task.id)
   const categoryLabel = taskCategoriesSummary(task.categories)
-  const priceKindLabel = budgetKindLabel(task.budget?.type)
+  const priceKindLabel = taskBudgetUnitLabel(task.budget, budgetCopy)
   const locationLabel = taskPublicLocationLabel(task) || 'Location TBC'
   const sentLabel = formatRelativePosted(quote.createdAt).replace(
     /^Posted /,

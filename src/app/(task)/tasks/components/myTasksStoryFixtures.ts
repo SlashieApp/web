@@ -21,6 +21,7 @@ function row(
   return {
     location: 'Islington',
     priceLabel: '£80',
+    openBudget: false,
     categories: ['Handyman'],
     roles: ['hosted'],
     when: null,

@@ -1,11 +1,13 @@
 import {
   Currency,
-  TaskBudgetType,
+  TaskBudgetUnit,
   TaskDateTimeType,
   TaskPaymentMethod,
   TaskStatus,
 } from '@codegen/schema'
 import { describe, expect, it } from 'vitest'
+
+import budgetBag from '@/app/(task)/helpers/taskBudget/i11n.json'
 
 import {
   type PublicUserOpenTask,
@@ -26,9 +28,9 @@ function openTask(
     budget: {
       amount: 85,
       currency: Currency.Gbp,
-      type: TaskBudgetType.OneOff,
-      paymentMethod: TaskPaymentMethod.Cash,
+      unit: TaskBudgetUnit.Total,
     },
+    paymentMethod: TaskPaymentMethod.Cash,
     datetime: { date: null, time: null, type: TaskDateTimeType.Flexible },
     location: { name: 'Kennedy Town' },
     ...overrides,
@@ -37,29 +39,46 @@ function openTask(
 
 describe('toPublicUserTaskCard', () => {
   it('maps public task fields onto the browse card', () => {
-    const card = toPublicUserTaskCard(openTask())
+    const card = toPublicUserTaskCard(openTask(), budgetBag.en)
     expect(card).toMatchObject({
       id: 'task-1',
       title: 'Fix a leaking tap',
       location: 'Kennedy Town',
       priceLabel: '£85',
+      priceUnitLabel: 'Fixed price',
       categories: ['Handyman'],
       timingLabel: 'Flexible',
     })
     expect(card.viewsLabel).toBeUndefined()
   })
 
-  it('omits a zero budget', () => {
+  it('an open budget (or a zero one) reads "Open budget" with no unit, as on Search', () => {
+    for (const budget of [
+      null,
+      { amount: 0, currency: Currency.Gbp, unit: TaskBudgetUnit.Total },
+    ]) {
+      const card = toPublicUserTaskCard(openTask({ budget }), budgetBag.en)
+      expect(card.priceLabel).toBe('Open budget')
+      expect(card.priceUnitLabel).toBeUndefined()
+    }
+    expect(
+      toPublicUserTaskCard(openTask({ budget: null }), budgetBag.zh_hk)
+        .priceLabel,
+    ).toBe('開放預算')
+  })
+
+  it('the poster’s own unit, as typed', () => {
     const card = toPublicUserTaskCard(
       openTask({
         budget: {
-          amount: 0,
+          amount: 15,
           currency: Currency.Gbp,
-          type: TaskBudgetType.OneOff,
-          paymentMethod: TaskPaymentMethod.Cash,
+          unit: TaskBudgetUnit.Custom,
+          customUnit: 'per room',
         },
       }),
+      budgetBag.en,
     )
-    expect(card.priceLabel).toBe('')
+    expect(card.priceUnitLabel).toBe('per room')
   })
 })

@@ -8,9 +8,10 @@ mutation UpdateTask($taskId: ID!, $input: UpdateTaskInput!) {
     budget {
       amount
       currency
-      type
-      paymentMethod
+      unit
+      customUnit
     }
+    paymentMethod
     location {
       lat
       lng

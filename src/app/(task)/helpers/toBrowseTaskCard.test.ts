@@ -1,8 +1,10 @@
+import { Currency, TaskBudgetUnit } from '@codegen/schema'
 import { describe, expect, it } from 'vitest'
 
 import type { TaskListItem } from '@/graphql/tasks-query.types'
 
 import type { BrowseReferenceLocation } from './browseReferenceLocation'
+import budgetBag from './taskBudget/i11n.json'
 import { taskViewerRole, toBrowseTaskCard } from './toBrowseTaskCard'
 
 const reference: BrowseReferenceLocation = {
@@ -30,20 +32,50 @@ function listTask(overrides: Partial<TaskListItem> = {}): TaskListItem {
 }
 
 describe('toBrowseTaskCard', () => {
-  it('omits price when the task has no budget', () => {
-    const card = toBrowseTaskCard(listTask({ budget: null }), reference)
-    expect(card.priceLabel).toBe('')
+  it('an open budget reads "Open budget", with no unit (FE-584)', () => {
+    const card = toBrowseTaskCard(
+      listTask({ budget: null }),
+      reference,
+      null,
+      budgetBag.en,
+    )
+    expect(card.priceLabel).toBe('Open budget')
+    expect(card.priceUnitLabel).toBeUndefined()
     expect(card.categories).toEqual(['Tech setup'])
+    expect(
+      toBrowseTaskCard(
+        listTask({ budget: null }),
+        reference,
+        null,
+        budgetBag.zh_hk,
+      ).priceLabel,
+    ).toBe('開放預算')
   })
 
-  it('maps a fixed budget onto the scan card', () => {
-    const card = toBrowseTaskCard(
-      listTask({
-        budget: { amount: 85, currency: 'GBP' } as TaskListItem['budget'],
-      }),
-      reference,
-    )
-    expect(card.priceLabel).toBe('£85')
+  it('a priced task: the amount, and its unit in the reader’s language or as typed', () => {
+    const card = (budget: TaskListItem['budget'], copy = budgetBag.en) =>
+      toBrowseTaskCard(listTask({ budget }), reference, null, copy)
+    const total = card({
+      amount: 85,
+      currency: Currency.Gbp,
+      unit: TaskBudgetUnit.Total,
+    })
+    expect(total.priceLabel).toBe('£85')
+    expect(total.priceUnitLabel).toBe('Fixed price')
+    expect(
+      card(
+        { amount: 20, currency: Currency.Gbp, unit: TaskBudgetUnit.PerHour },
+        budgetBag.zh_hk,
+      ).priceUnitLabel,
+    ).toBe('按小時')
+    expect(
+      card({
+        amount: 15,
+        currency: Currency.Gbp,
+        unit: TaskBudgetUnit.Custom,
+        customUnit: 'per room',
+      }).priceUnitLabel,
+    ).toBe('per room')
   })
 })
 
@@ -59,7 +91,9 @@ describe('taskViewerRole', () => {
   it('marks tasks you posted as Hosted', () => {
     const task = listTask({ poster: { id: 'me' } })
     expect(taskViewerRole(task, 'me')).toBe('hosted')
-    expect(toBrowseTaskCard(task, reference, 'me').viewerRole).toBe('hosted')
+    expect(
+      toBrowseTaskCard(task, reference, 'me', budgetBag.en).viewerRole,
+    ).toBe('hosted')
   })
 
   it('marks tasks you quoted on as Quoted', () => {
@@ -74,6 +108,8 @@ describe('taskViewerRole', () => {
     const task = listTask({ poster: { id: 'alex' }, quotes: [quote('sam')] })
     expect(taskViewerRole(task, 'me')).toBeUndefined()
     expect(taskViewerRole(task, null)).toBeUndefined()
-    expect(toBrowseTaskCard(task, reference).viewerRole).toBeUndefined()
+    expect(
+      toBrowseTaskCard(task, reference, null, budgetBag.en).viewerRole,
+    ).toBeUndefined()
   })
 })

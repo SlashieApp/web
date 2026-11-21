@@ -7,9 +7,10 @@ mutation CreateTask($input: CreateTaskInput!) {
     budget {
       amount
       currency
-      type
-      paymentMethod
+      unit
+      customUnit
     }
+    paymentMethod
     datetime {
       date
       time

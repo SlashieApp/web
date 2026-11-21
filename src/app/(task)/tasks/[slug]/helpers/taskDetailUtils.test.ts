@@ -16,6 +16,8 @@ import {
 
 const gbp = (amount: number) => ({ amount, currency: Currency.Gbp })
 
+const OPEN = 'Open budget'
+
 describe('taskBudgetDisplayLine', () => {
   const task = storyTaskDetail({
     quotes: [
@@ -25,11 +27,12 @@ describe('taskBudgetDisplayLine', () => {
   })
 
   it("gives the owner the quotes' range with an en dash", () => {
-    expect(taskBudgetDisplayLine(task, 'owner')).toBe('£85–£95')
+    expect(taskBudgetDisplayLine(task, 'owner', OPEN)).toBe('£85–£95')
     expect(
       taskBudgetDisplayLine(
         storyTaskDetail({ quotes: [storyTaskQuote({ price: gbp(85) })] }),
         'owner',
+        OPEN,
       ),
     ).toBe('£85')
   })
@@ -38,22 +41,25 @@ describe('taskBudgetDisplayLine', () => {
     const others = storyTaskDetail({
       quotes: [storyPublicQuote({ price: gbp(60) })],
     })
-    expect(taskBudgetDisplayLine(others, 'visitor')).toBe('£120')
-    expect(taskBudgetDisplayLine(others, 'visitor', null)).toBe('£120')
-    expect(taskBudgetDisplayLine(others, 'visitor', 'someone-else')).toBe(
+    expect(taskBudgetDisplayLine(others, 'visitor', OPEN)).toBe('£120')
+    expect(taskBudgetDisplayLine(others, 'visitor', OPEN, null)).toBe('£120')
+    expect(taskBudgetDisplayLine(others, 'visitor', OPEN, 'someone-else')).toBe(
       '£120',
     )
     // Their own quote's price once they've quoted.
-    expect(taskBudgetDisplayLine(task, 'visitor', STORY_WORKER_ID)).toBe('£95')
+    expect(taskBudgetDisplayLine(task, 'visitor', OPEN, STORY_WORKER_ID)).toBe(
+      '£95',
+    )
   })
 
-  it('falls back to "Open" with no budget and no quotes', () => {
+  it('an open budget with no quotes reads the given label (FE-584)', () => {
     expect(
       taskBudgetDisplayLine(
         storyTaskDetail({ budget: null, quotes: [] }),
         'owner',
+        OPEN,
       ),
-    ).toBe('Open')
+    ).toBe('Open budget')
   })
 })
 

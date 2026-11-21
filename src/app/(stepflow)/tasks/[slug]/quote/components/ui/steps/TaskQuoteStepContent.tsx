@@ -7,7 +7,6 @@ import { LuEye, LuPlus, LuX } from 'react-icons/lu'
 import { formatMessage } from '@/i18n/loadPageI11n'
 import { useI11n } from '@/i18n/useI11n'
 import { sdlFigure } from '@/theme/styles'
-import { formatBudgetAmount } from '@/utils/price'
 import {
   FormField,
   FormStack,
@@ -21,6 +20,11 @@ import {
 } from '@ui'
 import type { TextareaProps } from '@ui'
 
+import {
+  hasTaskBudget,
+  taskBudgetBag,
+  taskBudgetPhrase,
+} from '@/app/(task)/helpers/taskBudget/taskBudget'
 import { useTaskDetail } from '@/app/(task)/tasks/[slug]/context/TaskDetailProvider'
 import type { TaskQuoteSubStepId } from '../../../helpers/taskQuoteSteps.config'
 import bag from '../../../i11n.json'
@@ -112,15 +116,17 @@ export function TaskQuoteStepContent({
     setQuoteSlots,
   } = useTaskDetail()
   const t = useI11n(bag)
+  const budgetCopy = useI11n(taskBudgetBag)
   const visibilityNoteId = useId()
 
   if (!task) return null
 
-  const priceHelperText = task.budget
+  // "Customer budget: £20 an hour." or, with none, that it's an open budget.
+  const priceHelperText = hasTaskBudget(task.budget)
     ? formatMessage(t.price.helperWithBudget, {
-        budget: formatBudgetAmount(task.budget),
+        budget: taskBudgetPhrase(task.budget, budgetCopy),
       })
-    : t.price.helper
+    : t.price.helperOpenBudget
   const [termsBefore, termsAfter = ''] = t.review.terms.split('{terms}')
 
   const showSummary =

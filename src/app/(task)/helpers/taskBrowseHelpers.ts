@@ -6,7 +6,7 @@ import {
   formatDistanceAwayLabel,
   parseGeoCoord,
 } from '@/utils/geoDistance'
-import { budgetToPence, formatGbpMajor, priceToPence } from '@/utils/price'
+import { formatGbpMajor } from '@/utils/price'
 import {
   type TaskDatetimeLike,
   parseTaskScheduleDate,
@@ -14,43 +14,6 @@ import {
 } from '@/utils/taskJobSchedule'
 
 import type { BrowseReferenceLocation } from './browseReferenceLocation'
-
-export function formatBudget(task: TaskListItem): {
-  main: string
-  sub: string
-  /** False when there is no fixed budget or quote range — cards omit the £ slot. */
-  hasBudget: boolean
-} {
-  const open = { main: 'Open', sub: 'Estimated budget', hasBudget: false }
-  const fixed = budgetToPence(task.budget)
-  if (fixed != null && fixed > 0) {
-    return {
-      main: formatGbpMajor(fixed / 100),
-      sub: 'Fixed price',
-      hasBudget: true,
-    }
-  }
-  const quotes = task.quotes ?? []
-  if (quotes.length === 0) return open
-  const prices = quotes
-    .map((o) => priceToPence(o.price))
-    .filter((price): price is number => price != null)
-  if (prices.length === 0) return open
-  const min = Math.min(...prices)
-  const max = Math.max(...prices)
-  if (min === max) {
-    return {
-      main: formatGbpMajor(min / 100),
-      sub: 'From quotes',
-      hasBudget: true,
-    }
-  }
-  return {
-    main: `${formatGbpMajor(min / 100)} – ${formatGbpMajor(max / 100)}`,
-    sub: 'Estimated budget',
-    hasBudget: true,
-  }
-}
 
 /** Public display name for a worker (`profile.name`). */
 export function workerDisplayName(
@@ -252,6 +215,8 @@ export function buildActiveBrowseFilterTags(
 export type TaskCardMetaPart = {
   kind: 'budget' | 'distance' | 'timing'
   label: string
+  /** The budget's small label beside the amount: "Per day" (FE-584). */
+  detail?: string
 }
 
 /**
@@ -260,12 +225,17 @@ export type TaskCardMetaPart = {
  */
 export function taskCardMetaParts(input: {
   priceLabel?: string | null
+  priceUnitLabel?: string | null
   distanceLabel?: string | null
   timingLabel?: string | null
   timingFirst?: boolean
 }): TaskCardMetaPart[] {
   const parts: TaskCardMetaPart[] = [
-    { kind: 'budget', label: input.priceLabel?.trim() ?? '' },
+    {
+      kind: 'budget',
+      label: input.priceLabel?.trim() ?? '',
+      detail: input.priceUnitLabel?.trim() || undefined,
+    },
     { kind: 'distance', label: input.distanceLabel?.trim() ?? '' },
     { kind: 'timing', label: input.timingLabel?.trim() ?? '' },
   ]

@@ -29,6 +29,7 @@ import {
 import { taskServerError } from '@/app/(stepflow)/tasks/create/helpers/taskFieldError'
 import { useTaskPhotos } from '@/app/(stepflow)/tasks/create/helpers/useTaskPhotos'
 import createBag from '@/app/(stepflow)/tasks/create/i11n.json'
+import { taskBudgetBag } from '@/app/(task)/helpers/taskBudget/taskBudget'
 import {
   taskImageUrls,
   taskToEditFormValues,
@@ -97,6 +98,7 @@ export function EditTaskScreen({
 }: EditTaskScreenProps) {
   const t = useI11n(bag)
   const create = useI11n(createBag)
+  const budgetCopy = useI11n(taskBudgetBag)
   const router = useRouter()
   const localize = useLocalizedHref()
   const apollo = useApolloClient()
@@ -104,7 +106,10 @@ export function EditTaskScreen({
   const taskHref = `/tasks/${task.id}`
   const [existing] = useState(() => taskImageUrls(task))
   const [initial] = useState(() => {
-    const { preferredContactMethod: _, ...values } = taskToEditFormValues(task)
+    const { preferredContactMethod: _, ...values } = taskToEditFormValues(
+      task,
+      budgetCopy,
+    )
     return values
   })
 
@@ -378,13 +383,19 @@ export function EditTaskScreen({
               bare
               register={sharedRegister}
               budgetCurrency={values.budgetCurrency}
-              budgetType={values.budgetType}
+              budgetUnit={values.budgetUnit}
+              openBudget={values.openBudget}
               paymentMethod={values.paymentMethod}
-              onBudgetTypeChange={(v) => setValue('budgetType', v, UPDATE)}
+              onBudgetUnitChange={(v) => setValue('budgetUnit', v, UPDATE)}
+              onOpenBudgetChange={(open) => {
+                setValue('openBudget', open, UPDATE)
+                form.clearErrors(['budgetMajor', 'budgetUnit'])
+              }}
               onPaymentMethodChange={(v) =>
                 setValue('paymentMethod', v, UPDATE)
               }
               budgetMajorError={errors.budgetMajor?.message}
+              budgetUnitError={errors.budgetUnit?.message}
             />
           </FormSection>
 

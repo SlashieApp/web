@@ -1,3 +1,4 @@
+import { hasTaskBudget } from '@/app/(task)/helpers/taskBudget/taskBudget'
 import type { TaskStatusValue } from '@/app/(task)/tasks/[slug]/components/ui/TaskStatusPill'
 import { TASK_DETAIL_VIEWS } from '@/app/(task)/tasks/[slug]/views'
 import {
@@ -155,6 +156,8 @@ export type MyTaskHubRow = {
   location: string
   /** The agreed price once booked; else your quote (quotes you sent) or the budget. */
   priceLabel: string
+  /** No price to show and the task has no budget: the row says "Open budget" (FE-584). */
+  openBudget: boolean
   /** The task's categories (BE-79): the role filter, Report and the photo placeholder. */
   categories: string[]
   /** The task's first photo. */
@@ -528,11 +531,13 @@ export function buildMyTasksHub(input: {
     if (hosted) roles.push('hosted')
     if (myQuote) roles.push('quoted')
 
+    const price = priceLabel(task, hosted, myQuote, order)
     rows.push({
       id: task.id,
       title: task.title,
       location: taskPublicLocationLabel(task),
-      priceLabel: priceLabel(task, hosted, myQuote, order),
+      priceLabel: price,
+      openBudget: !price && !hasTaskBudget(task.budget),
       categories: (task.categories ?? []).map((c) => c.trim()).filter(Boolean),
       thumbnailSrc: task.images?.[0],
       roles,

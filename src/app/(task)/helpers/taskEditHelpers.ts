@@ -1,6 +1,5 @@
 import {
   Currency,
-  TaskBudgetType,
   TaskContactMethod,
   TaskDateTimeType,
   type TaskForEditQuery,
@@ -11,6 +10,11 @@ import {
   type CreateTaskFormFieldValues,
   londonToday,
 } from '@/app/(stepflow)/tasks/create/createTaskFormSchema'
+import {
+  type TaskBudgetCopy,
+  budgetUnitText,
+  hasTaskBudget,
+} from './taskBudget/taskBudget'
 import { taskCategoryLabels } from './taskCategories'
 
 export type EditableTask = NonNullable<TaskForEditQuery['task']>
@@ -25,9 +29,13 @@ export function taskImageUrls(
   )
 }
 
-/** Map a `task(id)` record into create/edit form field values. */
+/**
+ * Map a `task(id)` record into create/edit form field values. The unit field
+ * reads in the reader's language (`budgetCopy`); no budget is an open one.
+ */
 export function taskToEditFormValues(
   task: EditableTask,
+  budgetCopy: TaskBudgetCopy,
 ): Omit<CreateTaskFormFieldValues, 'acceptedProhibitedUse'> {
   const dt = task.datetime
   const datetimeType = dt?.type ?? TaskDateTimeType.Flexible
@@ -54,8 +62,9 @@ export function taskToEditFormValues(
         ? String(budgetAmount)
         : '',
     budgetCurrency: task.budget?.currency ?? Currency.Gbp,
-    budgetType: task.budget?.type ?? TaskBudgetType.OneOff,
-    paymentMethod: task.budget?.paymentMethod ?? TaskPaymentMethod.Cash,
+    budgetUnit: budgetUnitText(task.budget, budgetCopy),
+    openBudget: !hasTaskBudget(task.budget),
+    paymentMethod: task.paymentMethod ?? TaskPaymentMethod.Cash,
     // contactMethod was removed from the Task type; the edit form starts from
     // the default (per-task contact method now lives on the poster profile).
     preferredContactMethod: TaskContactMethod.InApp,

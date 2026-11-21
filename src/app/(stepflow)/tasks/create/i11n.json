@@ -117,10 +117,15 @@
       "budgetType": "Budget type",
       "oneOff": "One-off",
       "perHour": "Per hour",
-      "perDay": "Per day",
       "budget": "Budget",
-      "budgetPerHour": "Budget per hour",
-      "budgetPerDay": "Budget per day",
+      "amount": "Amount",
+      "budgetUnit": "What's it for? (optional)",
+      "budgetUnitPlaceholder": "e.g. per room",
+      "budgetUnitHint": "Leave empty for the whole job.",
+      "skipBudget": "Skip: let workers quote",
+      "openBudget": "Open budget",
+      "openBudgetBody": "Workers will quote their own price.",
+      "addBudget": "Add a budget",
       "payment": "How you'll pay",
       "cash": "Cash",
       "bankTransfer": "Bank transfer",
@@ -151,10 +156,7 @@
       "photoCount": "{count} photos",
       "flexible": "Flexible",
       "before": "Before {date}",
-      "exact": "{date} at {time}",
-      "oneOff": "{amount}",
-      "perHour": "{amount} an hour",
-      "perDay": "{amount} a day"
+      "exact": "{date} at {time}"
     },
     "verify": {
       "title": "Verify your email to post",
@@ -169,6 +171,7 @@
       "areaRequired": "Search or move the map to set the area.",
       "mapUnreadable": "We couldn't read the map. Move it slightly and try again.",
       "budgetRequired": "Enter a budget above zero.",
+      "budgetUnitTooLong": "Keep it to 30 characters or fewer.",
       "dateRequired": "Pick a date.",
       "dateInPast": "Pick today or a later date.",
       "dateInvalid": "That date isn't valid. Pick another.",
@@ -193,7 +196,10 @@
       "INVALID_DATE": "That date isn't valid. Pick another.",
       "DATE_IN_PAST": "That date has passed in the UK. Pick today or a later date.",
       "TASK_SUSPENDED": "This task is suspended, so it can't be changed.",
-      "ACCOUNT_DISABLED": "Your account is suspended. Contact support if you think this is a mistake."
+      "ACCOUNT_DISABLED": "Your account is suspended. Contact support if you think this is a mistake.",
+      "INVALID_BUDGET": "Enter a budget above zero.",
+      "INVALID_BUDGET_UNIT": "Say what it's for in 30 characters or fewer, on one line.",
+      "PAYMENT_METHOD_REQUIRED": "Choose how you'll pay."
     }
   },
   "zh_hk": {
@@ -314,10 +320,15 @@
       "budgetType": "預算類型",
       "oneOff": "一次性",
       "perHour": "按小時",
-      "perDay": "按日",
       "budget": "預算",
-      "budgetPerHour": "每小時預算",
-      "budgetPerDay": "每日預算",
+      "amount": "金額",
+      "budgetUnit": "按甚麼計算？（選填）",
+      "budgetUnitPlaceholder": "例如：每間房",
+      "budgetUnitHint": "留空即代表整項工作的價錢。",
+      "skipBudget": "略過：讓工作者報價",
+      "openBudget": "開放預算",
+      "openBudgetBody": "工作者會自行報價。",
+      "addBudget": "加入預算",
       "payment": "付款方式",
       "cash": "現金",
       "bankTransfer": "銀行轉帳",
@@ -348,10 +359,7 @@
       "photoCount": "{count} 張相片",
       "flexible": "彈性",
       "before": "{date} 前",
-      "exact": "{date} {time}",
-      "oneOff": "{amount}",
-      "perHour": "每小時 {amount}",
-      "perDay": "每日 {amount}"
+      "exact": "{date} {time}"
     },
     "verify": {
       "title": "請先驗證電郵才可發佈",
@@ -366,6 +374,7 @@
       "areaRequired": "請搜尋或移動地圖以設定地區。",
       "mapUnreadable": "未能讀取地圖，請稍為移動地圖再試。",
       "budgetRequired": "請輸入大於零的預算。",
+      "budgetUnitTooLong": "請以 30 個字元以內描述。",
       "dateRequired": "請揀選日期。",
       "dateInPast": "請揀選今日或之後的日期。",
       "dateInvalid": "這個日期無效，請揀選另一日。",
@@ -390,7 +399,10 @@
       "INVALID_DATE": "這個日期無效，請揀選另一日。",
       "DATE_IN_PAST": "按英國時間，這個日期已過。請揀選今日或之後的日期。",
       "TASK_SUSPENDED": "此任務已暫停，無法更改。",
-      "ACCOUNT_DISABLED": "你的帳戶已被暫停。如你認為有誤，請聯絡客服。"
+      "ACCOUNT_DISABLED": "你的帳戶已被暫停。如你認為有誤，請聯絡客服。",
+      "INVALID_BUDGET": "請輸入大於零的預算。",
+      "INVALID_BUDGET_UNIT": "請用一行、30 個字元以內說明按甚麼計算。",
+      "PAYMENT_METHOD_REQUIRED": "請選擇付款方式。"
     }
   }
 }

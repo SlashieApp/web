@@ -5,10 +5,10 @@ import { taskPublicLocationLabel } from '@/utils/taskLocationDisplay'
 
 import type { BrowseReferenceLocation } from './browseReferenceLocation'
 import {
-  formatBudget,
   taskDistanceShortLabelFromReference,
   taskScheduleCompactLabel,
 } from './taskBrowseHelpers'
+import { type TaskBudgetCopy, taskBudgetPrice } from './taskBudget/taskBudget'
 import { taskCategoryLabels } from './taskCategories'
 
 /** Hosted when you posted it, Quoted when you've sent a quote; guests get neither. */
@@ -23,19 +23,24 @@ export function taskViewerRole(
     : undefined
 }
 
-/** Browse-list view model for TaskCard + the listing→detail handoff. */
+/**
+ * Browse-list view model for TaskCard + the listing→detail handoff. The price
+ * is the amount and its unit, or "Open budget" (FE-584).
+ */
 export function toBrowseTaskCard(
   task: TaskListItem,
   referenceLocation: BrowseReferenceLocation,
-  viewerId?: string | null,
+  viewerId: string | null | undefined,
+  budgetCopy: TaskBudgetCopy,
 ): TaskCardTask {
-  const { main, hasBudget } = formatBudget(task)
+  const price = taskBudgetPrice(task.budget, budgetCopy)
   return {
     id: task.id,
     title: task.title,
     description: task.description,
     location: taskPublicLocationLabel(task).trim() || 'Location on request',
-    priceLabel: hasBudget ? main : '',
+    priceLabel: price.amount,
+    priceUnitLabel: price.unitLabel ?? undefined,
     categories: taskCategoryLabels(task.categories),
     viewerRole: taskViewerRole(task, viewerId),
     thumbnailSrc: task.images?.[0] ?? undefined,

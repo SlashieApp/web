@@ -1,8 +1,24 @@
+import { TaskBudgetUnit } from '@codegen/schema'
+
+import {
+  type TaskBudgetLike,
+  hasTaskBudget,
+  taskBudgetCustomUnit,
+  taskBudgetUnit,
+} from '@/app/(task)/helpers/taskBudget/taskBudget'
 import { formatMessage } from '@/i18n/loadPageI11n'
 
 import type { TaskSummaryCopy, TaskSummaryCopyKey } from './types'
 
-export type TaskSummaryBudgetType = 'fixed' | 'hourly' | 'daily' | 'none'
+export type TaskSummaryBudgetType =
+  | 'fixed'
+  | 'hourly'
+  | 'daily'
+  | 'weekly'
+  | 'visit'
+  | 'item'
+  | 'custom'
+  | 'none'
 
 export type TaskSummaryCopyParams = {
   /** Live (PENDING) quotes. */
@@ -10,22 +26,35 @@ export type TaskSummaryCopyParams = {
   budgetType: TaskSummaryBudgetType
   /** Formatted budget, e.g. "£120". */
   amount: string
+  /** The poster's own unit, e.g. "per room" (`custom` only). */
+  unit: string
   /** The other person on the booking. */
   name: string
   /** The booking's auto-Done date. */
   date: string
 }
 
-/** Which earn headline a budget gets. No amount reads as no budget. */
+const BUDGET_TYPE_BY_UNIT: Record<TaskBudgetUnit, TaskSummaryBudgetType> = {
+  [TaskBudgetUnit.Total]: 'fixed',
+  [TaskBudgetUnit.PerHour]: 'hourly',
+  [TaskBudgetUnit.PerDay]: 'daily',
+  [TaskBudgetUnit.PerWeek]: 'weekly',
+  [TaskBudgetUnit.PerVisit]: 'visit',
+  [TaskBudgetUnit.PerItem]: 'item',
+  [TaskBudgetUnit.Custom]: 'custom',
+}
+
+/**
+ * Which earn headline a budget gets, by its unit (FE-584). No budget (an
+ * open budget) reads as none; a custom unit with no words, as the whole job.
+ */
 export function summaryBudgetType(
-  budgetType: string | null | undefined,
-  amount: string,
+  budget: TaskBudgetLike,
 ): TaskSummaryBudgetType {
-  if (!amount) return 'none'
-  const type = budgetType?.trim().toUpperCase().replaceAll(' ', '_')
-  if (type === 'PER_HOUR') return 'hourly'
-  if (type === 'PER_DAY') return 'daily'
-  return 'fixed'
+  if (!hasTaskBudget(budget)) return 'none'
+  const type = BUDGET_TYPE_BY_UNIT[taskBudgetUnit(budget)]
+  if (type === 'custom' && !taskBudgetCustomUnit(budget)) return 'fixed'
+  return type
 }
 
 /**

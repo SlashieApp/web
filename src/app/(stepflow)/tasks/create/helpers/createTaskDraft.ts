@@ -1,3 +1,5 @@
+import { taskBudgetBag } from '@/app/(task)/helpers/taskBudget/taskBudget'
+
 import type { CreateTaskFormFieldValues } from '../createTaskFormSchema'
 import { CREATE_TASK_STEPS, type CreateTaskStepId } from '../views'
 
@@ -47,9 +49,31 @@ export function readCreateTaskDraft(
     if (!draft.values || typeof draft.values !== 'object') return null
     // A step the flow no longer has can't be reopened.
     if (!CREATE_TASK_STEPS.some((view) => view.step === draft.step)) return null
-    return draft
+    return withLegacyBudgetType(draft)
   } catch {
     return null
+  }
+}
+
+/**
+ * A draft from before FE-584 kept a budget type, not a unit: per hour and per
+ * day become the unit field's text, anything else the whole job.
+ */
+function withLegacyBudgetType(draft: CreateTaskDraft): CreateTaskDraft {
+  const { budgetType, ...values } = draft.values as CreateTaskDraftValues & {
+    budgetType?: unknown
+  }
+  if (budgetType === undefined) return draft
+  const words = taskBudgetBag.en.suggestion
+  const legacyUnit =
+    budgetType === 'PER_HOUR'
+      ? words.PER_HOUR
+      : budgetType === 'PER_DAY'
+        ? words.PER_DAY
+        : ''
+  return {
+    ...draft,
+    values: { ...values, budgetUnit: values.budgetUnit ?? legacyUnit },
   }
 }
 

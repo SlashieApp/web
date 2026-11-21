@@ -1,10 +1,11 @@
 import type { TaskContactMethod, UpdateTaskInput } from '@codegen/schema'
 
 import { buildDatetimePayload } from '@/app/(stepflow)/tasks/create/createTaskFormSchema'
+import { budgetUnitFromText } from '@/app/(task)/helpers/taskBudget/taskBudget'
 
 import type { EditTaskFormValues } from '../editTaskFormSchema'
 
-const BUDGET = ['budgetMajor', 'budgetCurrency', 'budgetType', 'paymentMethod']
+const BUDGET = ['budgetMajor', 'budgetCurrency', 'budgetUnit', 'openBudget']
 const LOCATION = ['streetAddress', 'mapPlaceName', 'locationLat', 'locationLng']
 const TIMING = ['datetimeType', 'preferredDate', 'preferredTime']
 
@@ -31,14 +32,18 @@ export function buildEditTaskInput({
   if (dirty.title) input.title = values.title.trim()
   if (dirty.description) input.description = values.description.trim()
   if (dirty.categories) input.categories = values.categories
-  if (changed(BUDGET)) {
+  // BE-139: `budget: null` opens the budget (only when it was priced); a
+  // priced one is sent whole when any part of it changed.
+  if (values.openBudget) {
+    if (dirty.openBudget) input.budget = null
+  } else if (changed(BUDGET)) {
     input.budget = {
       amount: Number.parseFloat(values.budgetMajor),
       currency: values.budgetCurrency,
-      type: values.budgetType,
-      paymentMethod: values.paymentMethod,
+      ...budgetUnitFromText(values.budgetUnit),
     }
   }
+  if (dirty.paymentMethod) input.paymentMethod = values.paymentMethod
   if (changed(LOCATION)) {
     input.location = {
       lat: Number.parseFloat(values.locationLat),

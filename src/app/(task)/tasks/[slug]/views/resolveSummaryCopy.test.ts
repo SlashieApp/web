@@ -1,3 +1,4 @@
+import { TaskBudgetUnit } from '@codegen/schema'
 import { describe, expect, it } from 'vitest'
 
 import bag from '../i11n.json'
@@ -15,6 +16,7 @@ const params: TaskSummaryCopyParams = {
   count: 0,
   budgetType: 'fixed',
   amount: '£120',
+  unit: '',
   name: 'Jordan',
   date: 'Sat 18 Oct',
 }
@@ -185,11 +187,44 @@ describe('reopenSubline (BE-113)', () => {
 })
 
 describe('summaryBudgetType', () => {
-  it('reads hourly and daily budgets, and no amount as no budget', () => {
-    expect(summaryBudgetType('PER_HOUR', '£20')).toBe('hourly')
-    expect(summaryBudgetType('per day', '£150')).toBe('daily')
-    expect(summaryBudgetType('ONE_OFF', '£120')).toBe('fixed')
-    expect(summaryBudgetType('PER_HOUR', '')).toBe('none')
+  const budget = (unit: TaskBudgetUnit, customUnit: string | null = null) => ({
+    amount: 20,
+    currency: 'GBP',
+    unit,
+    customUnit,
+  })
+
+  it('reads each unit, and no budget (an open budget) as none (FE-584)', () => {
+    expect(summaryBudgetType(budget(TaskBudgetUnit.PerHour))).toBe('hourly')
+    expect(summaryBudgetType(budget(TaskBudgetUnit.PerDay))).toBe('daily')
+    expect(summaryBudgetType(budget(TaskBudgetUnit.PerWeek))).toBe('weekly')
+    expect(summaryBudgetType(budget(TaskBudgetUnit.PerVisit))).toBe('visit')
+    expect(summaryBudgetType(budget(TaskBudgetUnit.PerItem))).toBe('item')
+    expect(summaryBudgetType(budget(TaskBudgetUnit.Total))).toBe('fixed')
+    expect(summaryBudgetType(budget(TaskBudgetUnit.Custom, 'per room'))).toBe(
+      'custom',
+    )
+    expect(summaryBudgetType(null)).toBe('none')
+    // An older budget read by its type.
+    expect(summaryBudgetType({ amount: 20, type: 'PER_HOUR' })).toBe('hourly')
+  })
+
+  it('the earn headline says the unit, in both languages', () => {
+    const headline = (
+      budgetType: TaskSummaryCopyParams['budgetType'],
+      lang: 'en' | 'zh_hk' = 'en',
+    ) =>
+      resolveSummaryCopy(
+        TASK_DETAIL_VIEWS['guest.open'].headline,
+        { ...params, budgetType, amount: '£15', unit: 'per room' },
+        bag[lang].summary,
+      )
+    expect(headline('weekly')).toBe('You can earn £15 a week')
+    expect(headline('visit')).toBe('You can earn £15 a visit')
+    expect(headline('item')).toBe('You can earn £15 an item')
+    expect(headline('custom')).toBe('You can earn £15 per room')
+    expect(headline('custom', 'zh_hk')).toBe('你可賺取 £15（per room）')
+    expect(headline('none')).toBe('Open for quotes')
   })
 })
 

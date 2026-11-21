@@ -5,10 +5,14 @@ import { formatPrice } from '@/utils/price'
 import { repostTaskHref } from '@/utils/taskHandoff'
 import { formatDoneCardDate } from '@/utils/taskJobSchedule'
 
+import {
+  type TaskBudgetCopy,
+  taskBudgetUnitLabel,
+} from '@/app/(task)/helpers/taskBudget/taskBudget'
 import type bag from '../i11n.json'
 import type { TaskDetailPrimaryAction } from '../views'
+
 import {
-  budgetKindLabel,
   formatTaskBudgetPaymentMethodLabel,
   orderCounterpart,
   taskBudgetDisplayLine,
@@ -43,14 +47,15 @@ export type TaskDetailMainCtaModel = {
 function budgetContent(
   task: TaskDetailRecord,
   copy: TaskDetailCopy,
+  budgetCopy: TaskBudgetCopy,
 ): TaskDetailMainCtaContent {
-  const payment = task.budget?.paymentMethod?.trim()
+  const payment = task.paymentMethod?.trim()
   return {
     eyebrow: copy.details.budget,
-    value: taskBudgetDisplayLine(task, 'visitor'),
+    value: taskBudgetDisplayLine(task, 'visitor', budgetCopy.open),
     meta:
       [
-        budgetKindLabel(task.budget?.type),
+        taskBudgetUnitLabel(task.budget, budgetCopy),
         payment ? formatTaskBudgetPaymentMethodLabel(payment) : null,
       ]
         .filter(Boolean)
@@ -81,6 +86,8 @@ export function buildTaskDetailMainCta(input: {
   /** The task's Messages thread, or the inbox when it is not known yet. */
   messageHref: string
   copy: TaskDetailCopy
+  /** Budget words in the reader's language (FE-584). */
+  budgetCopy: TaskBudgetCopy
   /** `Intl` locale for the Done card's date (`en-GB`, `zh-HK`). */
   dateLocale: string
 }): TaskDetailMainCtaModel | null {
@@ -128,7 +135,7 @@ export function buildTaskDetailMainCta(input: {
       return quoted(
         copy.cta.sendQuote,
         {
-          ...budgetContent(task, copy),
+          ...budgetContent(task, copy, input.budgetCopy),
           // A blank name reads as the customer fallback, as the Messages pin does.
           note:
             input.invitedBy == null
@@ -140,7 +147,7 @@ export function buildTaskDetailMainCta(input: {
         `${taskPath}/quote`,
       )
     case 'becomeWorker': {
-      const budget = budgetContent(task, copy)
+      const budget = budgetContent(task, copy, input.budgetCopy)
       return quoted(
         copy.cta.becomeWorker,
         task.budget ? { ...budget, eyebrow: copy.cta.youCanEarn } : budget,

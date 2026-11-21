@@ -2,11 +2,14 @@
 
 import { useCallback } from 'react'
 
+import { useI11n } from '@/i18n/useI11n'
+
 import {
   useTaskBrowseData,
   useTaskBrowseLayout,
 } from '../context/TaskBrowseProvider'
 import { mapPinTapAction } from './mapPinTapAction'
+import { taskBudgetBag } from './taskBudget/taskBudget'
 import { setTaskHandoff } from './taskCardHandoff'
 import { toBrowseTaskCard } from './toBrowseTaskCard'
 import { useOpenTaskDetailFromBrowse } from './useOpenTaskDetailFromBrowse'
@@ -21,15 +24,26 @@ export function useOpenBrowseTaskFromMap() {
   const { setIsFilterOpen } = useTaskBrowseLayout()
   const { filteredSorted, referenceLocation } = useTaskBrowseData()
   const { openTaskDetail } = useOpenTaskDetailFromBrowse()
+  const budgetCopy = useI11n(taskBudgetBag)
 
   return useCallback(
     (id: string) => {
       setIsFilterOpen(false)
       const task = filteredSorted.find((row) => row.id === id)
-      if (task) setTaskHandoff(toBrowseTaskCard(task, referenceLocation))
+      if (task) {
+        setTaskHandoff(
+          toBrowseTaskCard(task, referenceLocation, undefined, budgetCopy),
+        )
+      }
       openTaskDetail(id, 'map')
     },
-    [filteredSorted, openTaskDetail, referenceLocation, setIsFilterOpen],
+    [
+      budgetCopy,
+      filteredSorted,
+      openTaskDetail,
+      referenceLocation,
+      setIsFilterOpen,
+    ],
   )
 }
 

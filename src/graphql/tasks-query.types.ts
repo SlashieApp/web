@@ -3,6 +3,7 @@ import type {
   TaskBookingStatus,
   TaskBudget,
   TaskDateTime,
+  TaskPaymentMethod,
 } from '@codegen/schema'
 
 /**
@@ -52,7 +53,13 @@ export type TaskListItem = {
   completedAt?: unknown
   confirmedAt?: unknown
   datetime?: TaskDateTime | null
-  budget?: TaskBudget | null
+  /** No budget is an open budget (BE-139); the queries read `unit`, not `type`. */
+  budget?: Pick<
+    TaskBudget,
+    'amount' | 'currency' | 'unit' | 'customUnit'
+  > | null
+  /** The way to pay, on open-budget tasks too (BE-139). */
+  paymentMethod?: TaskPaymentMethod | null
   contactMethod?: string | null
   images?: string[]
   poster?: {

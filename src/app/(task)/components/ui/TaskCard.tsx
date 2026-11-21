@@ -57,8 +57,10 @@ export type TaskCardTask = {
   title: string
   description: string
   location: string
-  /** Empty when the task has no budget — the £ slot is omitted. */
+  /** "£60", or "Open budget"; empty omits the £ slot (My Tasks' own rows). */
   priceLabel: string
+  /** The small label beside the amount: "Fixed price", "Per day", "per room" (FE-584). */
+  priceUnitLabel?: string
   /** Category labels, one pill each on a single row that fades at the end. */
   categories?: readonly string[]
   /** You posted it, or you've quoted on it: a pill before the categories. */
@@ -234,6 +236,7 @@ function TaskCardBrowse(props: TaskCardBrowseProps) {
     id: taskId,
     title,
     priceLabel,
+    priceUnitLabel,
     categories = [],
     viewerRole,
     distanceLabel,
@@ -260,6 +263,7 @@ function TaskCardBrowse(props: TaskCardBrowseProps) {
     props.activateAriaLabel ?? `${title}. Select to highlight on map.`
   const metaParts = taskCardMetaParts({
     priceLabel,
+    priceUnitLabel,
     distanceLabel,
     timingLabel,
     timingFirst: Boolean(timingTone),
@@ -413,6 +417,17 @@ function TaskCardBrowse(props: TaskCardBrowseProps) {
                     {...META_PART_STYLE[metaPartStyle(part, timingTone)]}
                   >
                     {part.label}
+                    {part.detail ? (
+                      <Text
+                        as="span"
+                        ms={1}
+                        fontSize="xs"
+                        fontWeight={500}
+                        color="text.muted"
+                      >
+                        {part.detail}
+                      </Text>
+                    ) : null}
                   </Text>
                 )
                 return (

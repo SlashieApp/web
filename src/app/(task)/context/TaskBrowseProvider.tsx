@@ -14,6 +14,12 @@ import {
 
 import { useMe } from '@/app/(auth)/store/user'
 import Tasks from '@/app/(task)/graphql/Tasks.gql'
+import {
+  type TaskBudgetCopy,
+  taskBudgetBag,
+  taskBudgetPinLabel,
+  taskBudgetPrice,
+} from '@/app/(task)/helpers/taskBudget/taskBudget'
 import type { TaskListItem, TasksQueryData } from '@/graphql/tasks-query.types'
 import { useLocale } from '@/i18n/LocaleProvider'
 import { useI11n } from '@/i18n/useI11n'
@@ -48,7 +54,6 @@ import {
   DEFAULT_BROWSE_SUBMITTED_RADIUS_MILES,
   browseCoverageMiles,
   buildActiveBrowseFilterTags,
-  formatBudget,
   parseBrowseBudget,
   taskDistanceLabelFromReference,
 } from '../helpers/taskBrowseHelpers'
@@ -226,11 +231,13 @@ function subscribeWindowResize(onStoreChange: () => void) {
   return () => window.removeEventListener('resize', onStoreChange)
 }
 
+/** The pin reads the amount or "Open"; its line adds the unit (FE-584). */
 function toBrowseMapTask(
   task: TaskListItem,
   reference: BrowseReferenceLocation,
+  budgetCopy: TaskBudgetCopy,
 ): BrowseMapTask {
-  const { main, sub } = formatBudget(task)
+  const price = taskBudgetPrice(task.budget, budgetCopy)
   return {
     id: task.id,
     title: task.title,
@@ -239,8 +246,10 @@ function toBrowseMapTask(
     location: taskPublicLocationLabel(task),
     locationLat: task.location?.lat ?? null,
     locationLng: task.location?.lng ?? null,
-    priceLabel: main,
-    detailLine: `${main} · ${sub}`,
+    priceLabel: taskBudgetPinLabel(task.budget, budgetCopy),
+    detailLine: price.unitLabel
+      ? `${price.amount} · ${price.unitLabel}`
+      : price.amount,
     distanceLabel: taskDistanceLabelFromReference(task, reference),
   }
 }
@@ -255,6 +264,7 @@ export function TaskBrowseProvider({
   const mapboxToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN
   const hasMapboxToken = Boolean(mapboxToken?.trim())
   const t = useI11n(bag)
+  const budgetCopy = useI11n(taskBudgetBag)
   const dateLocale = useLocale() === 'zh-hk' ? 'zh-HK' : 'en-GB'
   const me = useMe()
 
@@ -544,8 +554,10 @@ export function TaskBrowseProvider({
 
   const effectiveMapTasksForBox = useMemo(
     () =>
-      filteredSorted.map((task) => toBrowseMapTask(task, referenceLocation)),
-    [filteredSorted, referenceLocation],
+      filteredSorted.map((task) =>
+        toBrowseMapTask(task, referenceLocation, budgetCopy),
+      ),
+    [budgetCopy, filteredSorted, referenceLocation],
   )
 
   const confirmSearchThisAreaFromMap = useCallback(

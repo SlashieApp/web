@@ -99,6 +99,7 @@ describe('buildTaskDetailMapPinTask', () => {
       task,
       { lat: 51.5085, lng: -0.1278 },
       'visitor',
+      'Open',
       null,
       { lat: 51.5074, lng: -0.1278 },
     )
@@ -111,6 +112,7 @@ describe('buildTaskDetailMapPinTask', () => {
       task,
       { lat: 51.5074, lng: -0.1278 },
       'visitor',
+      'Open',
     )
     expect(pin.distanceLabel).toBeUndefined()
   })

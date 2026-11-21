@@ -11,9 +11,10 @@ query TaskCore($id: ID!) {
     budget {
       amount
       currency
-      type
-      paymentMethod
+      unit
+      customUnit
     }
+    paymentMethod
     datetime {
       date
       time

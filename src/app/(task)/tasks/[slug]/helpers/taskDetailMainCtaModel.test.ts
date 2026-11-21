@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 
 import type { OrderItem } from '@/utils/orderHelpers'
 
+import budgetBag from '@/app/(task)/helpers/taskBudget/i11n.json'
 import bag from '../i11n.json'
 import type { TaskDetailPrimaryAction } from '../views'
 import { buildTaskDetailMainCta } from './taskDetailMainCtaModel'
@@ -47,6 +48,7 @@ function cta(
     viewerHasSubmittedReview: false,
     messageHref: '/messages',
     copy: bag.en,
+    budgetCopy: budgetBag.en,
     dateLocale: 'en-GB',
     ...over,
   })

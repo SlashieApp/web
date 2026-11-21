@@ -7,9 +7,10 @@ query Tasks($filter: TaskFilter, $sort: TaskSort, $first: Int, $after: ID) {
     budget {
       amount
       currency
-      type
-      paymentMethod
+      unit
+      customUnit
     }
+    paymentMethod
     datetime {
       date
       time

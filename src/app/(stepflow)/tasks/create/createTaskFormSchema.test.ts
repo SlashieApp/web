@@ -1,6 +1,5 @@
 import {
   Currency,
-  TaskBudgetType,
   TaskContactMethod,
   TaskDateTimeType,
   TaskPaymentMethod,
@@ -26,7 +25,8 @@ const valid = {
   preferredTime: '',
   budgetMajor: '80',
   budgetCurrency: Currency.Gbp,
-  budgetType: TaskBudgetType.OneOff,
+  budgetUnit: '',
+  openBudget: false,
   paymentMethod: TaskPaymentMethod.Cash,
   preferredContactMethod: TaskContactMethod.InApp,
   acceptedProhibitedUse: true,
@@ -66,6 +66,39 @@ describe('createTaskFormSchema', () => {
     expect(fieldError({ categories: [] }, 'categories')).toBe(
       'categoryRequired',
     )
+  })
+
+  it('an open budget needs no amount; a priced one does (FE-584)', () => {
+    expect(
+      createTaskFormSchema.safeParse({
+        ...valid,
+        budgetMajor: '',
+        openBudget: true,
+      }).success,
+    ).toBe(true)
+    expect(fieldError({ budgetMajor: '' }, 'budgetMajor')).toBe(
+      'budgetRequired',
+    )
+  })
+
+  it('what it is for fits the API: 30 characters, spaces tidied', () => {
+    expect(fieldError({ budgetUnit: 'x'.repeat(31) }, 'budgetUnit')).toBe(
+      'budgetUnitTooLong',
+    )
+    expect(
+      createTaskFormSchema.safeParse({
+        ...valid,
+        budgetUnit: ` ${'x'.repeat(30)}   `,
+      }).success,
+    ).toBe(true)
+    // Skipped, the unit is not sent, so it is not checked.
+    expect(
+      createTaskFormSchema.safeParse({
+        ...valid,
+        openBudget: true,
+        budgetUnit: 'x'.repeat(31),
+      }).success,
+    ).toBe(true)
   })
 
   it('turns down a date that has passed', () => {

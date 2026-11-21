@@ -3,7 +3,7 @@ import {
   Currency,
   OrderStatus,
   QuoteStatus,
-  TaskBudgetType,
+  TaskBudgetUnit,
   TaskDateTimeType,
   TaskPaymentMethod,
   TaskStatus,
@@ -98,8 +98,7 @@ function inHours(hours: number) {
 const fixedBudget = {
   amount: 120,
   currency: Currency.Gbp,
-  type: TaskBudgetType.OneOff,
-  paymentMethod: TaskPaymentMethod.Cash,
+  unit: TaskBudgetUnit.Total,
 }
 
 /** The summary headline and facts follow the task; these tasks are all open. */
@@ -120,9 +119,9 @@ export const BudgetHourly: Story = fact(BudgetFact, {
     budget: {
       amount: 18,
       currency: Currency.Gbp,
-      type: TaskBudgetType.PerHour,
-      paymentMethod: TaskPaymentMethod.BankTransfer,
+      unit: TaskBudgetUnit.PerHour,
     },
+    paymentMethod: TaskPaymentMethod.BankTransfer,
   }),
 })
 
@@ -133,16 +132,41 @@ export const BudgetDaily: Story = fact(BudgetFact, {
     budget: {
       amount: 140,
       currency: Currency.Gbp,
-      type: TaskBudgetType.PerDay,
-      paymentMethod: TaskPaymentMethod.Cash,
+      unit: TaskBudgetUnit.PerDay,
+    },
+    paymentMethod: TaskPaymentMethod.Cash,
+  }),
+})
+
+/** An open budget (FE-584): "Open budget", no unit, and the way to pay. */
+export const BudgetOpen: Story = fact(BudgetFact, {
+  ...visitor,
+  task: storyTaskDetail({ budget: null }),
+})
+
+/** The poster's own unit, shown as typed beside the amount. */
+export const BudgetCustomUnit: Story = fact(BudgetFact, {
+  ...visitor,
+  task: storyTaskDetail({
+    budget: {
+      amount: 15,
+      currency: Currency.Gbp,
+      unit: TaskBudgetUnit.Custom,
+      customUnit: 'per room',
     },
   }),
 })
 
-/** No budget on the task: "Open", with no kind or payment badges. */
-export const BudgetOpen: Story = fact(BudgetFact, {
+/** A known unit from the new list: "Per visit". */
+export const BudgetPerVisit: Story = fact(BudgetFact, {
   ...visitor,
-  task: storyTaskDetail({ budget: null }),
+  task: storyTaskDetail({
+    budget: {
+      amount: 40,
+      currency: Currency.Gbp,
+      unit: TaskBudgetUnit.PerVisit,
+    },
+  }),
 })
 
 /** Opened from a search card: the card's price shows while the task loads. */
@@ -169,17 +193,18 @@ export const PaymentCash: Story = fact(PaymentFact, {
 export const PaymentBankTransfer: Story = fact(PaymentFact, {
   ...visitor,
   task: storyTaskDetail({
-    budget: { ...fixedBudget, paymentMethod: TaskPaymentMethod.BankTransfer },
+    budget: fixedBudget,
+    paymentMethod: TaskPaymentMethod.BankTransfer,
   }),
 })
 
-/** No budget, so no payment method: the row is left out. */
+/** No way to pay on record: the row is left out. */
 export const PaymentNone: Story = {
   render: () => <FactsCard facts={[PaymentFact]} />,
   decorators: [
     withTaskDetailStory({
       ...visitor,
-      task: storyTaskDetail({ budget: null }),
+      task: storyTaskDetail({ budget: null, paymentMethod: null }),
     }),
   ],
   play: async ({ canvasElement }) => {

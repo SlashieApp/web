@@ -140,6 +140,10 @@ export type TaskSummaryCopy =
         fixed: TaskSummaryCopyKey
         hourly: TaskSummaryCopyKey
         daily: TaskSummaryCopyKey
+        weekly: TaskSummaryCopyKey
+        visit: TaskSummaryCopyKey
+        item: TaskSummaryCopyKey
+        custom: TaskSummaryCopyKey
         none: TaskSummaryCopyKey
       }
     }

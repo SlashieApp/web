@@ -1,0 +1,58 @@
+{
+  "en": {
+    "open": "Open budget",
+    "openShort": "Open",
+    "unit": {
+      "TOTAL": "Fixed price",
+      "PER_HOUR": "Per hour",
+      "PER_DAY": "Per day",
+      "PER_WEEK": "Per week",
+      "PER_VISIT": "Per visit",
+      "PER_ITEM": "Per item"
+    },
+    "suggestion": {
+      "PER_HOUR": "per hour",
+      "PER_DAY": "per day",
+      "PER_WEEK": "per week",
+      "PER_VISIT": "per visit",
+      "PER_ITEM": "per item"
+    },
+    "phrase": {
+      "TOTAL": "{amount}",
+      "PER_HOUR": "{amount} an hour",
+      "PER_DAY": "{amount} a day",
+      "PER_WEEK": "{amount} a week",
+      "PER_VISIT": "{amount} a visit",
+      "PER_ITEM": "{amount} an item",
+      "CUSTOM": "{amount} {unit}"
+    }
+  },
+  "zh_hk": {
+    "open": "開放預算",
+    "openShort": "開放",
+    "unit": {
+      "TOTAL": "固定價",
+      "PER_HOUR": "按小時",
+      "PER_DAY": "按日",
+      "PER_WEEK": "按星期",
+      "PER_VISIT": "按次",
+      "PER_ITEM": "按件"
+    },
+    "suggestion": {
+      "PER_HOUR": "按小時",
+      "PER_DAY": "按日",
+      "PER_WEEK": "按星期",
+      "PER_VISIT": "按次",
+      "PER_ITEM": "按件"
+    },
+    "phrase": {
+      "TOTAL": "{amount}",
+      "PER_HOUR": "每小時 {amount}",
+      "PER_DAY": "每日 {amount}",
+      "PER_WEEK": "每星期 {amount}",
+      "PER_VISIT": "每次 {amount}",
+      "PER_ITEM": "每件 {amount}",
+      "CUSTOM": "{amount}（{unit}）"
+    }
+  }
+}

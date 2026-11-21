@@ -1,7 +1,6 @@
 import { InMemoryCache } from '@apollo/client/core'
 import {
   Currency,
-  TaskBudgetType,
   TaskContactMethod,
   TaskDateTimeType,
   TaskPaymentMethod,
@@ -33,7 +32,8 @@ export const emptyCreateTaskValues: CreateTaskFormFieldValues = {
   preferredTime: '',
   budgetMajor: '',
   budgetCurrency: Currency.Gbp,
-  budgetType: TaskBudgetType.OneOff,
+  budgetUnit: '',
+  openBudget: false,
   paymentMethod: TaskPaymentMethod.Cash,
   preferredContactMethod: TaskContactMethod.InApp,
   acceptedProhibitedUse: false,

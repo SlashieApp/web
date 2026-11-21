@@ -10,6 +10,10 @@ import { sdlFocusRing } from '@/theme/styles'
 import { taskPublicLocationLabel } from '@/utils/taskLocationDisplay'
 import { ImagePreview } from '@ui'
 
+import {
+  taskBudgetBag,
+  taskBudgetUnitLabel,
+} from '@/app/(task)/helpers/taskBudget/taskBudget'
 import { useTaskDetail } from '@/app/(task)/tasks/[slug]/context/TaskDetailProvider'
 import { taskAvailabilityRangeLabel } from '@/app/(task)/tasks/[slug]/helpers/taskDetailUtils'
 import detailBag from '@/app/(task)/tasks/[slug]/i11n.json'
@@ -22,6 +26,7 @@ export function TaskQuoteSummaryCard() {
   const { task } = useTaskDetail()
   const t = useI11n(bag)
   const detail = useI11n(detailBag)
+  const budgetCopy = useI11n(taskBudgetBag)
   const dateLocale = useLocale() === 'zh-hk' ? 'zh-HK' : 'en-GB'
   const [previewIndex, setPreviewIndex] = useState<number | null>(null)
   if (!task) return null
@@ -36,8 +41,8 @@ export function TaskQuoteSummaryCard() {
     }))
   const thumb = photos[0]
   const locationLine = taskPublicLocationLabel(task)
-  const budgetType = task.budget?.type
-  const kind = budgetType ? (t.summary.budgetKind[budgetType] ?? null) : null
+  // The small label: "Fixed price", "Per day", the poster's words, or "Open budget".
+  const kind = taskBudgetUnitLabel(task.budget, budgetCopy) ?? budgetCopy.open
   const when = taskAvailabilityRangeLabel(task, {
     locale: dateLocale,
     typeLabels: t.summary.timing,

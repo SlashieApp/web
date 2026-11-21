@@ -47,6 +47,7 @@ function layerFor(
     isOwner: false,
     meId: 'worker-detail-1',
     approxLabel: LABEL,
+    openLabel: 'Open',
     keepBrowse: false,
     origin: SEARCH_ORIGIN,
     ...overrides,

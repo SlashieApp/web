@@ -21,6 +21,10 @@ import {
   LuUser,
 } from 'react-icons/lu'
 
+import {
+  taskBudgetBag,
+  taskBudgetUnitLabel,
+} from '@/app/(task)/helpers/taskBudget/taskBudget'
 import { publicProfilePath } from '@/app/helpers/publicProfilePath'
 import { useLocale } from '@/i18n/LocaleProvider'
 import { formatMessage } from '@/i18n/loadPageI11n'
@@ -41,7 +45,6 @@ import {
   taskDetailTimeChip,
 } from '../../../helpers/taskDetailMetaTags'
 import {
-  budgetKindLabel,
   formatTaskBudgetPaymentMethodLabel,
   taskBudgetDisplayLine,
   taskDetailLocationLabel,
@@ -218,13 +221,19 @@ function Description({ text }: { text: string }) {
   )
 }
 
-/** The posted budget, big, with its type and payment method. */
+/**
+ * The posted budget, big, with its unit and payment method; "Open budget"
+ * with no unit when there is none (FE-584).
+ */
 export function BudgetFact() {
   const { task, seed } = useTaskDetail()
   const t = useI11n(bag)
-  const line = task ? taskBudgetDisplayLine(task, 'visitor') : seed?.priceLabel
-  const kind = budgetKindLabel(task?.budget?.type)
-  const payment = paymentLabel(task?.budget?.paymentMethod)
+  const budgetCopy = useI11n(taskBudgetBag)
+  const line = task
+    ? taskBudgetDisplayLine(task, 'visitor', budgetCopy.open)
+    : seed?.priceLabel
+  const kind = taskBudgetUnitLabel(task?.budget, budgetCopy)
+  const payment = paymentLabel(task?.paymentMethod)
 
   return (
     <Stack gap={2} py={3}>
@@ -265,7 +274,7 @@ export function BudgetFact() {
 export function PaymentFact() {
   const { task } = useTaskDetail()
   const t = useI11n(bag)
-  const payment = paymentLabel(task?.budget?.paymentMethod)
+  const payment = paymentLabel(task?.paymentMethod)
   if (!payment) return null
   return (
     <DetailRow icon={<LuCreditCard />} label={t.details.payment}>
@@ -278,6 +287,7 @@ export function PaymentFact() {
 export function MyQuoteFact() {
   const { task, myQuote } = useTaskDetail()
   const t = useI11n(bag)
+  const budgetCopy = useI11n(taskBudgetBag)
   const locale = useDateLocale()
   if (!task || !myQuote?.price) return null
 
@@ -313,10 +323,10 @@ export function MyQuoteFact() {
       <Grid templateColumns="repeat(2, minmax(0, 1fr))" gap={3}>
         <PriceColumn
           label={t.cta.clientBudget}
-          value={taskBudgetDisplayLine(task, 'visitor')}
+          value={taskBudgetDisplayLine(task, 'visitor', budgetCopy.open)}
           detail={[
-            budgetKindLabel(task.budget?.type),
-            paymentLabel(task.budget?.paymentMethod),
+            taskBudgetUnitLabel(task.budget, budgetCopy),
+            paymentLabel(task.paymentMethod),
           ]
             .filter(Boolean)
             .join(' · ')}

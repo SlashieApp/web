@@ -3,6 +3,7 @@
 import { Heading, Skeleton, Stack, Text } from '@chakra-ui/react'
 import type { ComponentType } from 'react'
 
+import { taskBudgetCustomUnit } from '@/app/(task)/helpers/taskBudget/taskBudget'
 import { useI11n } from '@/i18n/useI11n'
 import { TASK_ORDER_SECTION_ID } from '@/utils/orderHelpers'
 import { formatBudgetAmount } from '@/utils/price'
@@ -91,8 +92,9 @@ export function useSummaryLines(config: TaskDetailViewConfig) {
   const amount = task.budget ? formatBudgetAmount(task.budget, '') : ''
   const params = {
     count: liveQuoteCount(task.quotes),
-    budgetType: summaryBudgetType(task.budget?.type, amount),
+    budgetType: summaryBudgetType(task.budget),
     amount,
+    unit: taskBudgetCustomUnit(task.budget) ?? '',
     name: myOrder
       ? orderCounterpart(task, myOrder, permissions.isOwner, t).name
       : '',

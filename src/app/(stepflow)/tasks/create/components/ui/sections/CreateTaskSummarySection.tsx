@@ -3,12 +3,16 @@
 import { Box, HStack, Stack, Text } from '@chakra-ui/react'
 import {
   type Currency,
-  TaskBudgetType,
   TaskDateTimeType,
   TaskPaymentMethod,
 } from '@codegen/schema'
 import type { ReactNode } from 'react'
 
+import {
+  budgetPhrase,
+  budgetUnitFromText,
+  taskBudgetBag,
+} from '@/app/(task)/helpers/taskBudget/taskBudget'
 import { useLocale } from '@/i18n/LocaleProvider'
 import { formatMessage } from '@/i18n/loadPageI11n'
 import { useI11n } from '@/i18n/useI11n'
@@ -30,7 +34,10 @@ export type CreateTaskSummary = {
   preferredTime: string
   budgetMajor: string
   budgetCurrency: Currency
-  budgetType: TaskBudgetType
+  /** The unit field's text (FE-584). */
+  budgetUnit: string
+  /** Skipped: shown as "Open budget". */
+  openBudget: boolean
   paymentMethod: TaskPaymentMethod
   photoCount: number
 }
@@ -103,6 +110,7 @@ export function CreateTaskSummarySection({
   onEdit,
 }: CreateTaskSummarySectionProps) {
   const t = useI11n(bag)
+  const units = useI11n(taskBudgetBag)
   const s = t.summary
   const locale = useLocale() === 'zh-hk' ? 'zh-HK' : 'en-GB'
   const editLabel = (step: CreateTaskStepId) =>
@@ -128,14 +136,9 @@ export function CreateTaskSummarySection({
   const price = Number.isFinite(amount)
     ? money(amount, summary.budgetCurrency)
     : ''
-  const budget = formatMessage(
-    summary.budgetType === TaskBudgetType.PerHour
-      ? s.perHour
-      : summary.budgetType === TaskBudgetType.PerDay
-        ? s.perDay
-        : s.oneOff,
-    { amount: price },
-  )
+  const budget = summary.openBudget
+    ? units.open
+    : budgetPhrase(price, budgetUnitFromText(summary.budgetUnit), units)
   const payment =
     summary.paymentMethod === TaskPaymentMethod.BankTransfer
       ? t.fields.bankTransfer

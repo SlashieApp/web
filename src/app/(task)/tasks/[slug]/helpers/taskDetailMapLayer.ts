@@ -67,6 +67,8 @@ export function buildTaskDetailMapLayer(
     isOwner: boolean
     meId?: string | null
     approxLabel: string
+    /** The pin's word for an open budget: "Open" (FE-584). */
+    openLabel: string
     /** The live Search canvas is kept (opened from /search). */
     keepBrowse: boolean
     /** The Search page's centre from the URL; only an exact viewer's route uses it. */
@@ -106,6 +108,7 @@ export function buildTaskDetailMapLayer(
     task,
     coords,
     input.isOwner ? 'owner' : 'visitor',
+    input.openLabel,
     input.meId,
     input.origin,
   )

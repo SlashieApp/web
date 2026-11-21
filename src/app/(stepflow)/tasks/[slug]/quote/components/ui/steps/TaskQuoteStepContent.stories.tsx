@@ -1,4 +1,4 @@
-import { Currency, TaskBudgetType, TaskPaymentMethod } from '@codegen/schema'
+import { Currency, TaskBudgetUnit, TaskPaymentMethod } from '@codegen/schema'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { useState } from 'react'
 import { expect, userEvent, waitFor, within } from 'storybook/test'
@@ -104,9 +104,9 @@ export const PricePerHourBudget: Story = {
     budget: {
       amount: 30,
       currency: Currency.Usd,
-      type: TaskBudgetType.PerHour,
-      paymentMethod: TaskPaymentMethod.Cash,
+      unit: TaskBudgetUnit.PerHour,
     },
+    paymentMethod: TaskPaymentMethod.Cash,
   }),
 }
 

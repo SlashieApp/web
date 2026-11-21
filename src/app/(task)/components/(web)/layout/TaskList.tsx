@@ -6,6 +6,7 @@ import { motion } from 'motion/react'
 import { useCallback, useMemo, useRef } from 'react'
 
 import { useUserStore } from '@/app/(auth)/store/user'
+import { taskBudgetBag } from '@/app/(task)/helpers/taskBudget/taskBudget'
 import { taskHandoffFor } from '@/app/(task)/helpers/taskCardHandoff'
 import { toBrowseTaskCard } from '@/app/(task)/helpers/toBrowseTaskCard'
 import { useOpenTaskDetailFromBrowse } from '@/app/(task)/helpers/useOpenTaskDetailFromBrowse'
@@ -49,6 +50,7 @@ export function TaskList({
     loadMoreTasks,
   } = useTaskBrowseData()
   const viewerId = useUserStore((state) => state.user?.id)
+  const budgetCopy = useI11n(taskBudgetBag)
   const sheetMode = Boolean(onOpenTask)
   const showError = Boolean(error) && !loading
   const cardRefs = useRef<Map<string, HTMLDivElement | null>>(new Map())
@@ -95,7 +97,12 @@ export function TaskList({
     <>
       {filteredSorted.length > 0
         ? filteredSorted.map((task, index) => {
-            const cardTask = toBrowseTaskCard(task, referenceLocation, viewerId)
+            const cardTask = toBrowseTaskCard(
+              task,
+              referenceLocation,
+              viewerId,
+              budgetCopy,
+            )
             // Reverse morph needs this card opaque in the same commit as
             // the back navigation. An enter fade would snapshot a ghost.
             const skipEnter = taskHandoffFor(task.id) !== null

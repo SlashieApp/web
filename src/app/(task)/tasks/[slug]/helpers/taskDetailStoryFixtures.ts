@@ -4,8 +4,10 @@ import {
   OrderStatus,
   QuoteStatus,
   TaskBookingStatus,
+  TaskBudgetUnit,
   TaskContactMethod,
   TaskEditableField,
+  TaskPaymentMethod,
   TaskTimelineEventType,
   UserLanguage,
 } from '@codegen/schema'
@@ -66,9 +68,9 @@ export function storyTaskDetail(
     budget: {
       amount: 120,
       currency: Currency.Gbp,
-      type: 'ONE_OFF',
-      paymentMethod: 'CASH',
+      unit: TaskBudgetUnit.Total,
     },
+    paymentMethod: TaskPaymentMethod.Cash,
     datetime: { date: '2026-06-10', time: '14:00', type: 'EXACT' },
     images: [
       STORY_THUMBNAIL,

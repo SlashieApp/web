@@ -7,12 +7,15 @@ import { z } from 'zod'
 
 import {
   Currency,
-  TaskBudgetType,
   TaskContactMethod,
   TaskDateTimeType,
   TaskPaymentMethod,
 } from '@codegen/schema'
 
+import {
+  CUSTOM_UNIT_MAX,
+  normalizeUnitText,
+} from '@/app/(task)/helpers/taskBudget/taskBudget'
 import { taskCategoriesSchema } from '@/app/(task)/helpers/taskCategories'
 
 export const taskDetailsFields = {
@@ -38,15 +41,16 @@ export const taskDetailsFields = {
   datetimeType: z.nativeEnum(TaskDateTimeType),
   preferredDate: z.string(),
   preferredTime: z.string(),
-  budgetMajor: z
-    .string()
-    .trim()
-    .refine((s) => {
-      const n = Number.parseFloat(s)
-      return Number.isFinite(n) && n > 0
-    }, 'budgetRequired'),
+  /** The amount; checked by `refineTaskBudget`, as an open budget has none. */
+  budgetMajor: z.string().trim(),
   budgetCurrency: z.nativeEnum(Currency),
-  budgetType: z.nativeEnum(TaskBudgetType),
+  /**
+   * What the amount is for (FE-584): blank is the whole job, a suggestion is
+   * that unit, anything else is the poster's own words (`budgetUnitFromText`).
+   */
+  budgetUnit: z.string(),
+  /** Skip: no amount, workers quote their own price (BE-139). */
+  openBudget: z.boolean(),
   paymentMethod: z.nativeEnum(TaskPaymentMethod),
   preferredContactMethod: z.nativeEnum(TaskContactMethod),
 }
@@ -103,6 +107,32 @@ export function refineTaskSchedule(
   }
 }
 
+/**
+ * An amount above zero, unless the poster skipped it (open budget); the
+ * unit fits the API's 30 characters (`INVALID_BUDGET_UNIT`).
+ */
+export function refineTaskBudget(
+  data: { budgetMajor: string; budgetUnit: string; openBudget: boolean },
+  ctx: z.RefinementCtx,
+) {
+  if (data.openBudget) return
+  const amount = Number.parseFloat(data.budgetMajor)
+  if (!(Number.isFinite(amount) && amount > 0)) {
+    ctx.addIssue({
+      code: 'custom',
+      message: 'budgetRequired',
+      path: ['budgetMajor'],
+    })
+  }
+  if (normalizeUnitText(data.budgetUnit).length > CUSTOM_UNIT_MAX) {
+    ctx.addIssue({
+      code: 'custom',
+      message: 'budgetUnitTooLong',
+      path: ['budgetUnit'],
+    })
+  }
+}
+
 export const createTaskFormSchema = z
   .object({
     ...taskDetailsFields,
@@ -110,6 +140,7 @@ export const createTaskFormSchema = z
   })
   .superRefine((data, ctx) => {
     refineTaskSchedule(data, ctx)
+    refineTaskBudget(data, ctx)
     if (!data.acceptedProhibitedUse) {
       ctx.addIssue({
         code: 'custom',

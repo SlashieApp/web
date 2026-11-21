@@ -13,6 +13,7 @@ import {
   shouldKeepBrowseMarketplaceMap,
 } from '@/app/(task)/helpers/marketplaceMap'
 import { isTaskDetailFromSearchQuery } from '@/app/(task)/helpers/openTaskDetailFromBrowse'
+import { taskBudgetBag } from '@/app/(task)/helpers/taskBudget/taskBudget'
 import { useI11n } from '@/i18n/useI11n'
 
 import { useTaskDetail } from '../../context/TaskDetailProvider'
@@ -43,6 +44,7 @@ export function TaskDetailMapBinder() {
     useTaskDetail()
   const t = useI11n(bag)
   const approxLabel = t.details.locationApproxPill
+  const openLabel = useI11n(taskBudgetBag).openShort
   const { published, focusTaskId } = useMarketplaceMapState()
   const fromSearch =
     typeof window === 'undefined'
@@ -76,6 +78,7 @@ export function TaskDetailMapBinder() {
         isOwner: permissions.isOwner,
         meId: me?.id,
         approxLabel,
+        openLabel,
         keepBrowse,
         // Only an exact viewer's route uses it.
         origin:
@@ -94,6 +97,7 @@ export function TaskDetailMapBinder() {
       myOrder,
       locationAccess,
       approxLabel,
+      openLabel,
     ],
   )
 

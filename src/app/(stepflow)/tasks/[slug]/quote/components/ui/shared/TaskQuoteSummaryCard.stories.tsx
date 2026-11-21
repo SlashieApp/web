@@ -1,6 +1,6 @@
 import {
   Currency,
-  TaskBudgetType,
+  TaskBudgetUnit,
   TaskDateTimeType,
   TaskPaymentMethod,
 } from '@codegen/schema'
@@ -68,9 +68,9 @@ export const PerHourBudget: Story = {
     budget: {
       amount: 25,
       currency: Currency.Gbp,
-      type: TaskBudgetType.PerHour,
-      paymentMethod: TaskPaymentMethod.Cash,
+      unit: TaskBudgetUnit.PerHour,
     },
+    paymentMethod: TaskPaymentMethod.Cash,
   }),
 }
 

@@ -1,6 +1,6 @@
 import {
   Currency,
-  TaskBudgetType,
+  TaskBudgetUnit,
   TaskContactMethod,
   TaskDateTimeType,
   TaskPaymentMethod,
@@ -23,14 +23,22 @@ const values: EditTaskFormValues = {
   preferredTime: '09:00',
   budgetMajor: '80',
   budgetCurrency: Currency.Gbp,
-  budgetType: TaskBudgetType.OneOff,
+  budgetUnit: '',
+  openBudget: false,
   paymentMethod: TaskPaymentMethod.Cash,
 }
 
 const build = (
   dirty: Record<string, unknown>,
   contact: TaskContactMethod | null = null,
-) => buildEditTaskInput({ values, dirty, contact, publicName: 'Westminster' })
+  changes: Partial<EditTaskFormValues> = {},
+) =>
+  buildEditTaskInput({
+    values: { ...values, ...changes },
+    dirty,
+    contact,
+    publicName: 'Westminster',
+  })
 
 describe('buildEditTaskInput', () => {
   it('sends nothing when nothing changed', () => {
@@ -46,10 +54,69 @@ describe('buildEditTaskInput', () => {
       budget: {
         amount: 80,
         currency: Currency.Gbp,
-        type: TaskBudgetType.OneOff,
-        paymentMethod: TaskPaymentMethod.Cash,
+        unit: TaskBudgetUnit.Total,
+        customUnit: null,
       },
     })
+    expect(
+      build({ budgetUnit: true }, null, { budgetUnit: 'per day' }),
+    ).toEqual({
+      budget: {
+        amount: 80,
+        currency: Currency.Gbp,
+        unit: TaskBudgetUnit.PerDay,
+        customUnit: null,
+      },
+    })
+    expect(
+      build({ budgetUnit: true }, null, { budgetUnit: ' per  room ' }),
+    ).toEqual({
+      budget: {
+        amount: 80,
+        currency: Currency.Gbp,
+        unit: TaskBudgetUnit.Custom,
+        customUnit: 'per room',
+      },
+    })
+  })
+
+  it('Skip on a priced task opens the budget (BE-139); an open one stays open', () => {
+    expect(build({ openBudget: true }, null, { openBudget: true })).toEqual({
+      budget: null,
+    })
+    // Already open: an amount typed then skipped again sends nothing.
+    expect(build({ budgetMajor: true }, null, { openBudget: true })).toEqual({})
+  })
+
+  it('Add a budget on an open task sends the new budget', () => {
+    expect(
+      build({ openBudget: true, budgetMajor: true }, null, {
+        openBudget: false,
+        budgetMajor: '45',
+        budgetUnit: 'per visit',
+      }),
+    ).toEqual({
+      budget: {
+        amount: 45,
+        currency: Currency.Gbp,
+        unit: TaskBudgetUnit.PerVisit,
+        customUnit: null,
+      },
+    })
+  })
+
+  it('a new way to pay is sent on the task, with or without a budget', () => {
+    expect(
+      build({ paymentMethod: true }, null, {
+        paymentMethod: TaskPaymentMethod.BankTransfer,
+      }),
+    ).toEqual({ paymentMethod: TaskPaymentMethod.BankTransfer })
+    expect(
+      build({ paymentMethod: true }, null, {
+        openBudget: true,
+        paymentMethod: TaskPaymentMethod.BankTransfer,
+      }),
+    ).toEqual({ paymentMethod: TaskPaymentMethod.BankTransfer })
   })
 
   it('sends the location with the town workers see when it changed', () => {

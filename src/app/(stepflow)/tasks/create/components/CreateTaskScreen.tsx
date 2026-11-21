@@ -5,7 +5,6 @@ import { HStack, Text } from '@chakra-ui/react'
 import {
   type CreateTaskMutation,
   Currency,
-  TaskBudgetType,
   TaskContactMethod,
   TaskDateTimeType,
   type TaskForEditQuery,
@@ -22,6 +21,10 @@ import { AppStatusBanners } from '@/app/(auth)/components/ui/AppStatusBanners'
 import type { ContactOption } from '@/app/(dashboard)/profile/profileEligibility'
 import CreateTask from '@/app/(stepflow)/tasks/create/graphql/CreateTask.gql'
 import { MARKETPLACE_MAP_MOTION_MS } from '@/app/(task)/helpers/marketplaceMap/motion'
+import {
+  budgetUnitFromText,
+  taskBudgetBag,
+} from '@/app/(task)/helpers/taskBudget/taskBudget'
 import { taskToEditFormValues } from '@/app/(task)/helpers/taskEditHelpers'
 import TaskForEdit from '@/app/(task)/tasks/[slug]/graphql/TaskForEdit.gql'
 import {
@@ -161,7 +164,8 @@ function defaultValues(
     preferredTime: '09:00',
     budgetMajor: '',
     budgetCurrency: Currency.Gbp,
-    budgetType: TaskBudgetType.OneOff,
+    budgetUnit: '',
+    openBudget: false,
     paymentMethod: TaskPaymentMethod.Cash,
     preferredContactMethod: contact,
     acceptedProhibitedUse: false,
@@ -194,6 +198,7 @@ export function CreateTaskScreen({
   contactOptions,
 }: CreateTaskScreenProps) {
   const t = useI11n(bag)
+  const budgetCopy = useI11n(taskBudgetBag)
   const router = useRouter()
   const localize = useLocalizedHref()
   const apollo = useApolloClient()
@@ -279,7 +284,7 @@ export function CreateTaskScreen({
     const source = repostData?.task
     if (!source || repostAppliedRef.current) return
     repostAppliedRef.current = true
-    const copied = taskToEditFormValues(source)
+    const copied = taskToEditFormValues(source, budgetCopy)
     if (copied.locationLat && copied.locationLng) {
       location.pinChosenRef.current = true
     }
@@ -294,10 +299,11 @@ export function CreateTaskScreen({
       locationLng: copied.locationLng,
       budgetMajor: copied.budgetMajor,
       budgetCurrency: copied.budgetCurrency,
-      budgetType: copied.budgetType,
+      budgetUnit: copied.budgetUnit,
+      openBudget: copied.openBudget,
       paymentMethod: copied.paymentMethod,
     })
-  }, [form, getValues, location.pinChosenRef, repostData])
+  }, [budgetCopy, form, getValues, location.pinChosenRef, repostData])
 
   // Keep the draft: at every step change, and a moment after each answer.
   const stepRef = useRef(step)
@@ -475,12 +481,15 @@ export function CreateTaskScreen({
             title: submitted.title.trim(),
             description: submitted.description.trim(),
             categories: submitted.categories,
-            budget: {
-              amount: Number.parseFloat(located.budgetMajor),
-              currency: submitted.budgetCurrency,
-              type: submitted.budgetType,
-              paymentMethod: submitted.paymentMethod,
-            },
+            // Skipped: an open budget, workers quote their own (BE-139).
+            budget: submitted.openBudget
+              ? null
+              : {
+                  amount: Number.parseFloat(located.budgetMajor),
+                  currency: submitted.budgetCurrency,
+                  ...budgetUnitFromText(submitted.budgetUnit),
+                },
+            paymentMethod: submitted.paymentMethod,
             location: {
               lat,
               lng,
@@ -616,11 +625,17 @@ export function CreateTaskScreen({
             bare
             register={register}
             budgetCurrency={values.budgetCurrency}
-            budgetType={values.budgetType}
+            budgetUnit={values.budgetUnit}
+            openBudget={values.openBudget}
             paymentMethod={values.paymentMethod}
-            onBudgetTypeChange={(v) => setValue('budgetType', v, UPDATE)}
+            onBudgetUnitChange={(v) => setValue('budgetUnit', v, UPDATE)}
+            onOpenBudgetChange={(open) => {
+              setValue('openBudget', open, UPDATE)
+              form.clearErrors(['budgetMajor', 'budgetUnit'])
+            }}
             onPaymentMethodChange={(v) => setValue('paymentMethod', v, UPDATE)}
             budgetMajorError={errors.budgetMajor?.message}
+            budgetUnitError={errors.budgetUnit?.message}
           />
         )
       case 'summary':
@@ -637,7 +652,8 @@ export function CreateTaskScreen({
               preferredTime: values.preferredTime,
               budgetMajor: values.budgetMajor,
               budgetCurrency: values.budgetCurrency,
-              budgetType: values.budgetType,
+              budgetUnit: values.budgetUnit,
+              openBudget: values.openBudget,
               paymentMethod: values.paymentMethod,
               photoCount: photos.files.length,
             }}

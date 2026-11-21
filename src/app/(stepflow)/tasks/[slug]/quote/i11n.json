@@ -59,7 +59,8 @@
       "label": "Your quote",
       "helper": "Enter the total price you'd like to charge.",
       "helperWithBudget": "Customer budget: {budget}. Enter the total price you'd like to charge.",
-      "invalid": "Enter a valid total price."
+      "invalid": "Enter a valid total price.",
+      "helperOpenBudget": "Open budget: the customer wants your price. Enter the total price you'd like to charge."
     },
     "message": {
       "label": "Message to customer",
@@ -87,11 +88,6 @@
       "body": "Once you send it, anyone can see your price, times and message. Only the customer sees your name and profile."
     },
     "summary": {
-      "budgetKind": {
-        "ONE_OFF": "Fixed price",
-        "PER_HOUR": "Per hour",
-        "PER_DAY": "Per day"
-      },
       "timing": {
         "EXACT": "Exact time",
         "BEFORE": "Before",
@@ -169,7 +165,8 @@
       "label": "你的報價",
       "helper": "輸入你想收取的總價錢。",
       "helperWithBudget": "顧客預算：{budget}。輸入你想收取的總價錢。",
-      "invalid": "請輸入有效的總價錢。"
+      "invalid": "請輸入有效的總價錢。",
+      "helperOpenBudget": "開放預算：顧客想知道你的價錢。輸入你想收取的總價錢。"
     },
     "message": {
       "label": "給顧客的訊息",
@@ -197,11 +194,6 @@
       "body": "送出後，任何人都可以看到你的價錢、時間和留言。只有顧客會看到你的名字和個人檔案。"
     },
     "summary": {
-      "budgetKind": {
-        "ONE_OFF": "固定價",
-        "PER_HOUR": "按小時",
-        "PER_DAY": "按日"
-      },
       "timing": {
         "EXACT": "指定時間",
         "BEFORE": "在某日期前",

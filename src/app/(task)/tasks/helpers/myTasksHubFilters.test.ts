@@ -21,6 +21,7 @@ function row(
     title: base.id,
     location: 'Islington',
     priceLabel: '£80',
+    openBudget: false,
     categories: ['HANDYMAN'],
     when: null,
     liveQuoteCount: 0,
