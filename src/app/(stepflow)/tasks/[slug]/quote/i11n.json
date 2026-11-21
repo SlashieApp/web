@@ -57,7 +57,6 @@
     },
     "price": {
       "label": "Your quote",
-      "helper": "Enter the total price you'd like to charge.",
       "helperWithBudget": "Customer budget: {budget}. Enter the total price you'd like to charge.",
       "invalid": "Enter a valid total price.",
       "helperOpenBudget": "Open budget: the customer wants your price. Enter the total price you'd like to charge."
@@ -163,7 +162,6 @@
     },
     "price": {
       "label": "你的報價",
-      "helper": "輸入你想收取的總價錢。",
       "helperWithBudget": "顧客預算：{budget}。輸入你想收取的總價錢。",
       "invalid": "請輸入有效的總價錢。",
       "helperOpenBudget": "開放預算：顧客想知道你的價錢。輸入你想收取的總價錢。"
