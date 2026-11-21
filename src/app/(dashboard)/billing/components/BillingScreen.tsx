@@ -18,15 +18,28 @@ import { Link } from '@ui'
 
 import { useBillingActions } from '../helpers/useBillingActions'
 import { useCheckoutReturn } from '../helpers/useCheckoutReturn'
+import { usePromoCode } from '../helpers/usePromoCode'
 import bag from '../i11n.json'
 import { BILLING_VIEWS, type BillingAction, getBillingView } from '../views'
 import { billingActionFor, keepUnlimitedOpens } from '../views/billingAction'
 import { BillingViewCapture } from './analytics/BillingViewCapture'
 import { BillingPlanCard } from './ui/BillingPlanCard'
+import { PromoCodeField } from './ui/PromoCodeField'
 
 /** The first day of next month (UTC), when the free allowance resets. */
 function nextMonthStart(now: Date): Date {
   return new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1))
+}
+
+/** The card's button starts Stripe Checkout, so "Have a code?" goes under it (FE-586). */
+function startsCheckout(
+  action: BillingAction | null,
+  membership: Parameters<typeof keepUnlimitedOpens>[0],
+): boolean {
+  if (action === 'startTrial' || action === 'resubscribe') return true
+  return (
+    action === 'keepUnlimited' && keepUnlimitedOpens(membership) === 'checkout'
+  )
 }
 
 /**
@@ -43,6 +56,13 @@ export function BillingScreen() {
   const { checkout, checkAgain, rootRef } = useCheckoutReturn()
   const { startCheckout, openBillingPortal, checkoutLoading, portalLoading } =
     useBillingActions()
+  const promo = usePromoCode()
+  // A typed code is checked first; one that can't be used stays on the page (FE-586).
+  const checkoutWithCode = async () => {
+    const promoCode = await promo.codeForCheckout()
+    if (promoCode === false) return
+    await startCheckout('billing', { promoCode, onPromoProblem: promo.refuse })
+  }
   const pricingQuery = useQuery<PricingQuery>(Pricing, {
     fetchPolicy: 'cache-first',
   })
@@ -80,6 +100,8 @@ export function BillingScreen() {
       })
     ]
 
+  const cardAction = billingActionFor(config.action, worker?.membership ?? null)
+
   const onAction = (action: BillingAction) => {
     switch (action) {
       case 'becomeWorker':
@@ -88,12 +110,12 @@ export function BillingScreen() {
         return
       case 'startTrial':
       case 'resubscribe':
-        void startCheckout('billing')
+        void checkoutWithCode()
         return
       case 'keepUnlimited':
         // Unlimited given by Slashie has no Stripe plan to resume (BE-119).
         if (keepUnlimitedOpens(worker?.membership ?? null) === 'checkout') {
-          void startCheckout('billing')
+          void checkoutWithCode()
           return
         }
         void openBillingPortal()
@@ -121,14 +143,19 @@ export function BillingScreen() {
       <BillingPlanCard
         config={{
           ...config,
-          action: billingActionFor(config.action, worker?.membership ?? null),
+          action: cardAction,
         }}
         membership={worker?.membership ?? null}
         pricing={pricing}
         formatDate={formatDate}
         resetsOn={formatDate(nextMonthStart(new Date()).toISOString())}
-        actionLoading={checkoutLoading || portalLoading}
+        actionLoading={checkoutLoading || portalLoading || promo.checking}
         onAction={onAction}
+        promo={
+          startsCheckout(cardAction, worker?.membership ?? null) ? (
+            <PromoCodeField promo={promo} disabled={checkoutLoading} />
+          ) : null
+        }
       />
       <Stack gap={2}>
         <Text fontSize="sm" color="text.muted">

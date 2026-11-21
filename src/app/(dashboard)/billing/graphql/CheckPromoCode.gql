@@ -1,0 +1,13 @@
+query CheckPromoCode($code: String!) {
+  checkPromoCode(code: $code) {
+    code
+    valid
+    problem
+    percentOff
+    amountOff
+    currency
+    duration
+    durationInMonths
+    startsAfterTrial
+  }
+}

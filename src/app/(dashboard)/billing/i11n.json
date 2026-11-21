@@ -91,6 +91,33 @@
       "checkoutFailedTitle": "Couldn't start checkout",
       "portalFailedTitle": "Couldn't open billing",
       "tryAgainShortly": "Try again shortly."
+    },
+    "promo": {
+      "link": "Have a code?",
+      "label": "Promo code",
+      "placeholder": "Enter code",
+      "apply": "Apply",
+      "remove": "Remove",
+      "removeLabel": "Remove {code}",
+      "applied": "{code}: {gives}",
+      "afterTrial": "Starts after your free trial.",
+      "gives": {
+        "percentOnce": "{percent}% off your first month",
+        "percentMonths": "{percent}% off for {months} months",
+        "percentForever": "{percent}% off every month",
+        "amountOnce": "{amount} off your first month",
+        "amountMonths": "{amount} off for {months} months",
+        "amountForever": "{amount} off every month"
+      },
+      "problems": {
+        "NOT_FOUND": "We couldn't find that code. Check it and try again.",
+        "EXPIRED": "This code has expired.",
+        "USED_UP": "This code has been fully used.",
+        "NOT_FOR_THIS_PLAN": "This code isn't for Slashie Pro.",
+        "FIRST_TIME_ONLY": "This code can't be used with a free trial.",
+        "RATE_LIMITED": "Too many tries. Wait a few minutes and try again.",
+        "FAILED": "We couldn't check the code. Try again."
+      }
     }
   },
   "zh_hk": {
@@ -185,6 +212,33 @@
       "checkoutFailedTitle": "未能開始結帳",
       "portalFailedTitle": "未能打開帳單",
       "tryAgainShortly": "請稍後再試。"
+    },
+    "promo": {
+      "link": "有優惠碼？",
+      "label": "優惠碼",
+      "placeholder": "輸入優惠碼",
+      "apply": "套用",
+      "remove": "移除",
+      "removeLabel": "移除 {code}",
+      "applied": "{code}：{gives}",
+      "afterTrial": "免費試用結束後開始生效。",
+      "gives": {
+        "percentOnce": "首月減 {percent}%",
+        "percentMonths": "首 {months} 個月減 {percent}%",
+        "percentForever": "每月減 {percent}%",
+        "amountOnce": "首月減 {amount}",
+        "amountMonths": "首 {months} 個月減 {amount}",
+        "amountForever": "每月減 {amount}"
+      },
+      "problems": {
+        "NOT_FOUND": "找不到這個優惠碼，請檢查後再試。",
+        "EXPIRED": "這個優惠碼已過期。",
+        "USED_UP": "這個優惠碼已被用完。",
+        "NOT_FOR_THIS_PLAN": "這個優惠碼不適用於 Slashie Pro。",
+        "FIRST_TIME_ONLY": "這個優惠碼不能與免費試用一起使用。",
+        "RATE_LIMITED": "嘗試次數太多，請等幾分鐘再試。",
+        "FAILED": "未能檢查優惠碼，請再試一次。"
+      }
     }
   }
 }

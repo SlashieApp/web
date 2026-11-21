@@ -103,6 +103,10 @@ export const Free: Story = {
     await expect(
       canvas.getByRole('link', { name: 'Compare plans' }),
     ).toBeVisible()
+    // FE-586: Start free trial opens Checkout, so "Have a code?" sits under it.
+    await expect(
+      canvas.getByRole('button', { name: 'Have a code?' }),
+    ).toBeVisible()
   },
 }
 
@@ -157,6 +161,10 @@ export const Trialing: Story = {
     await expect(
       canvas.getByText('Cancel anytime in Manage billing.'),
     ).toBeVisible()
+    // Manage billing opens Stripe's portal, not Checkout: no code field.
+    await expect(
+      canvas.queryByRole('button', { name: 'Have a code?' }),
+    ).toBeNull()
   },
 }
 

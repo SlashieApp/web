@@ -16,6 +16,7 @@ import { showAppToast } from '@/utils/appToast'
 
 import bag from '../i11n.json'
 import { billingReturnUrl } from './billingUrls'
+import { type PromoProblem, promoProblemFromError } from './promoCode'
 
 export type BillingCheckoutSource =
   | 'billing'
@@ -23,8 +24,18 @@ export type BillingCheckoutSource =
   | 'task_quote'
   | 'account'
 
+/** A promo code for Checkout (FE-586), and where a refused one is said. */
+export type CheckoutPromo = {
+  promoCode?: string | null
+  /** Checkout refused the code: shown under the field, not as a toast. */
+  onPromoProblem?: (problem: PromoProblem) => void
+}
+
 type UseBillingActionsResult = {
-  startCheckout: (source?: BillingCheckoutSource) => Promise<void>
+  startCheckout: (
+    source?: BillingCheckoutSource,
+    promo?: CheckoutPromo,
+  ) => Promise<void>
   openBillingPortal: () => Promise<void>
   checkoutLoading: boolean
   portalLoading: boolean
@@ -49,23 +60,36 @@ export function useBillingActions(): UseBillingActionsResult {
   )
 
   const startCheckout = useCallback(
-    async (source: BillingCheckoutSource = 'billing') => {
+    async (
+      source: BillingCheckoutSource = 'billing',
+      promo?: CheckoutPromo,
+    ) => {
       if (checkoutLoading) return
       setCheckoutLoading(true)
+      const promoCode = promo?.promoCode?.trim() || null
       try {
-        capture(EVENTS.checkout_start, { source })
+        capture(EVENTS.checkout_start, {
+          source,
+          has_promo_code: Boolean(promoCode),
+        })
         const origin = window.location.origin
         const result = await createCheckout({
           variables: {
             successUrl: billingReturnUrl(origin, locale, 'success'),
             cancelUrl: billingReturnUrl(origin, locale, 'cancelled'),
+            promoCode,
           },
         })
         const url = result.data?.createWorkerSubscriptionCheckout?.url?.trim()
         if (!url) throw new Error('No checkout URL')
         window.location.href = url
-      } catch {
+      } catch (err) {
         setCheckoutLoading(false)
+        const problem = promoCode ? promoProblemFromError(err) : null
+        if (problem && promo?.onPromoProblem) {
+          promo.onPromoProblem(problem)
+          return
+        }
         showAppToast({
           title: t.checkoutFailedTitle,
           description: t.tryAgainShortly,

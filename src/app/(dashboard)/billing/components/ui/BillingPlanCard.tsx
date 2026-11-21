@@ -18,6 +18,7 @@ import type { PricingRecord } from '@/app/(marketing)/pricing/helpers/getPricing
 import { formatMessage } from '@/i18n/loadPageI11n'
 import { useI11n } from '@/i18n/useI11n'
 import { Badge, Button, Card } from '@ui'
+import type { ReactNode } from 'react'
 
 import bag from '../../i11n.json'
 import type { BillingAction, BillingDate, BillingViewConfig } from '../../views'
@@ -33,6 +34,8 @@ export type BillingPlanCardProps = {
   resetsOn: string | null
   actionLoading: boolean
   onAction: (action: BillingAction) => void
+  /** "Have a code?" under the button, when it starts Checkout (FE-586). */
+  promo?: ReactNode
 }
 
 function membershipDate(
@@ -99,6 +102,7 @@ export function BillingPlanCard({
   resetsOn,
   actionLoading,
   onAction,
+  promo,
 }: BillingPlanCardProps) {
   const t = useI11n(bag).views
   const date = config.date
@@ -154,6 +158,7 @@ export function BillingPlanCard({
                 {t.actions[config.action]}
               </Button>
             ) : null}
+            {config.action && promo ? promo : null}
             {config.price ? (
               <PriceLine line={config.price} pricing={pricing} />
             ) : null}

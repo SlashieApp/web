@@ -1,10 +1,12 @@
 mutation CreateWorkerSubscriptionCheckout(
   $successUrl: String!
   $cancelUrl: String!
+  $promoCode: String
 ) {
   createWorkerSubscriptionCheckout(
     successUrl: $successUrl
     cancelUrl: $cancelUrl
+    promoCode: $promoCode
   ) {
     url
   }
