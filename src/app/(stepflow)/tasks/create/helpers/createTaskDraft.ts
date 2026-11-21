@@ -49,7 +49,7 @@ export function readCreateTaskDraft(
     if (!draft.values || typeof draft.values !== 'object') return null
     // A step the flow no longer has can't be reopened.
     if (!CREATE_TASK_STEPS.some((view) => view.step === draft.step)) return null
-    return withLegacyBudgetType(draft)
+    return withBudgetAnswer(withLegacyBudgetType(draft))
   } catch {
     return null
   }
@@ -74,6 +74,24 @@ function withLegacyBudgetType(draft: CreateTaskDraft): CreateTaskDraft {
   return {
     ...draft,
     values: { ...values, budgetUnit: values.budgetUnit ?? legacyUnit },
+  }
+}
+
+/**
+ * A draft from before the budget question (22 Nov) has no answer of its own:
+ * an amount it holds is Set a budget, Skip was Open budget, and neither
+ * leaves the question to be asked.
+ */
+function withBudgetAnswer(draft: CreateTaskDraft): CreateTaskDraft {
+  if (typeof draft.values.budgetAnswered === 'boolean') return draft
+  return {
+    ...draft,
+    values: {
+      ...draft.values,
+      budgetAnswered:
+        draft.values.openBudget === true ||
+        Boolean(draft.values.budgetMajor?.trim()),
+    },
   }
 }
 

@@ -49,7 +49,13 @@ export const taskDetailsFields = {
    * that unit, anything else is the poster's own words (`budgetUnitFromText`).
    */
   budgetUnit: z.string(),
-  /** Skip: no amount, workers quote their own price (BE-139). */
+  /**
+   * "Do you have a budget in mind?" has been answered (Ryan 22 Nov): false on
+   * a new task, where neither choice starts picked. With `openBudget` it
+   * reads Set a budget (false) or Open budget (true).
+   */
+  budgetAnswered: z.boolean(),
+  /** Open budget: no amount, workers quote their own price (BE-139). */
   openBudget: z.boolean(),
   paymentMethod: z.nativeEnum(TaskPaymentMethod),
   preferredContactMethod: z.nativeEnum(TaskContactMethod),
@@ -108,13 +114,26 @@ export function refineTaskSchedule(
 }
 
 /**
- * An amount above zero, unless the poster skipped it (open budget); the
- * unit fits the API's 30 characters (`INVALID_BUDGET_UNIT`).
+ * The budget question answered; then an amount above zero, unless it is an
+ * open budget; the unit fits the API's 30 characters (`INVALID_BUDGET_UNIT`).
  */
 export function refineTaskBudget(
-  data: { budgetMajor: string; budgetUnit: string; openBudget: boolean },
+  data: {
+    budgetMajor: string
+    budgetUnit: string
+    budgetAnswered: boolean
+    openBudget: boolean
+  },
   ctx: z.RefinementCtx,
 ) {
+  if (!data.budgetAnswered) {
+    ctx.addIssue({
+      code: 'custom',
+      message: 'budgetChoiceRequired',
+      path: ['budgetAnswered'],
+    })
+    return
+  }
   if (data.openBudget) return
   const amount = Number.parseFloat(data.budgetMajor)
   if (!(Number.isFinite(amount) && amount > 0)) {

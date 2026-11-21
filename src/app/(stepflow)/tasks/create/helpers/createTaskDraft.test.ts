@@ -49,8 +49,43 @@ describe('create task draft', () => {
         title: 'Paint a fence',
         budgetMajor: '20',
         budgetUnit,
+        // It held an amount, so the budget question reads as answered.
+        budgetAnswered: true,
       })
     }
+  })
+
+  it('a draft from before the budget question: its answer is what it held', () => {
+    const answered = (values: Record<string, unknown>) => {
+      const storage = memoryStorage()
+      storage.setItem(
+        KEY,
+        JSON.stringify({
+          v: 1,
+          savedAt: NOW,
+          step: 'budget',
+          done: ['location'],
+          values: { title: 'Paint a fence', ...values },
+        }),
+      )
+      return readCreateTaskDraft(storage, KEY, NOW)?.values
+    }
+    // An amount was Set a budget; Skip was Open budget.
+    expect(answered({ budgetMajor: '20' })).toMatchObject({
+      budgetAnswered: true,
+    })
+    expect(answered({ openBudget: true })).toMatchObject({
+      budgetAnswered: true,
+      openBudget: true,
+    })
+    // Neither: the question is still to be asked.
+    expect(answered({ budgetMajor: ' ' })).toMatchObject({
+      budgetAnswered: false,
+    })
+    // A draft saved since keeps its own answer.
+    expect(
+      answered({ budgetMajor: '20', budgetAnswered: false }),
+    ).toMatchObject({ budgetAnswered: false })
   })
 
   it('has nothing to restore at first', () => {

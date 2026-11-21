@@ -217,10 +217,11 @@ export function PostScreen({
         {...shell}
         action={<FlowAction label={f.continue} compact={compact} />}
       >
-        <FlowGroup label={f.budgetTypeLabel} compact={compact}>
-          <FlowRadio label={f.budgetOneOff} selected compact={compact} />
-          {compact ? null : <FlowRadio label={f.budgetPerHour} />}
-        </FlowGroup>
+        {/* The step's title asks; the answers have no label of their own. */}
+        <Stack gap={compact ? '4px' : '8px'}>
+          <FlowRadio label={f.budgetSet} selected compact={compact} />
+          {compact ? null : <FlowRadio label={f.budgetOpen} />}
+        </Stack>
         <FlowField
           label={f.summaryBudget}
           prefix="£"

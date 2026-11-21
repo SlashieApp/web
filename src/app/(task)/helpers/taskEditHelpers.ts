@@ -63,6 +63,8 @@ export function taskToEditFormValues(
         : '',
     budgetCurrency: task.budget?.currency ?? Currency.Gbp,
     budgetUnit: budgetUnitText(task.budget, budgetCopy),
+    // A saved task has its answer: a budget, or an open one.
+    budgetAnswered: true,
     openBudget: !hasTaskBudget(task.budget),
     paymentMethod: task.paymentMethod ?? TaskPaymentMethod.Cash,
     // contactMethod was removed from the Task type; the edit form starts from

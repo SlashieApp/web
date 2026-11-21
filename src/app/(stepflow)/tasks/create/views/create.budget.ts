@@ -1,6 +1,9 @@
 import type { CreateTaskViewConfig } from './types'
 
-/** The amount and what it's for, or Skip (an open budget), then how you'll pay. */
+/**
+ * "Do you have a budget in mind?" first (Ryan 22 Nov): Set a budget (the
+ * amount, then what it's for) or Open budget, then how you'll pay.
+ */
 export const createBudget: CreateTaskViewConfig = {
   layout: 'step',
   step: 'budget',
@@ -9,6 +12,7 @@ export const createBudget: CreateTaskViewConfig = {
   fields: [
     'budgetMajor',
     'budgetUnit',
+    'budgetAnswered',
     'openBudget',
     'budgetCurrency',
     'paymentMethod',

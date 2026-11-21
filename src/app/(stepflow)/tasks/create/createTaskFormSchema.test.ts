@@ -26,6 +26,7 @@ const valid = {
   budgetMajor: '80',
   budgetCurrency: Currency.Gbp,
   budgetUnit: '',
+  budgetAnswered: true,
   openBudget: false,
   paymentMethod: TaskPaymentMethod.Cash,
   preferredContactMethod: TaskContactMethod.InApp,
@@ -79,6 +80,17 @@ describe('createTaskFormSchema', () => {
     expect(fieldError({ budgetMajor: '' }, 'budgetMajor')).toBe(
       'budgetRequired',
     )
+  })
+
+  it('the budget question must be answered first (Ryan 22 Nov)', () => {
+    // A new task: neither Set a budget nor Open budget is picked.
+    expect(
+      fieldError({ budgetAnswered: false, budgetMajor: '' }, 'budgetAnswered'),
+    ).toBe('budgetChoiceRequired')
+    // Only the one message: the amount isn't asked for until it is answered.
+    expect(
+      fieldError({ budgetAnswered: false, budgetMajor: '' }, 'budgetMajor'),
+    ).toBeUndefined()
   })
 
   it('what it is for fits the API: 30 characters, spaces tidied', () => {

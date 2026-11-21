@@ -19,6 +19,11 @@ export type RadioButtonGroupOption<T extends string> = {
 
 export type RadioButtonGroupProps<T extends string> = {
   label: ReactNode
+  /**
+   * Keep the label for screen readers only: the screen's own title already
+   * asks the question (Post a task's budget step).
+   */
+  labelHidden?: boolean
   /** Null: nothing chosen yet. */
   value: T | null
   options: readonly RadioButtonGroupOption<T>[]
@@ -48,6 +53,7 @@ export function RadioButtonGroup<T extends string>({
   helperText,
   errorText,
   columns = options.length,
+  labelHidden = false,
 }: RadioButtonGroupProps<T>) {
   const id = useId()
   const labelId = `${id}-label`
@@ -61,9 +67,15 @@ export function RadioButtonGroup<T extends string>({
 
   return (
     <Stack gap={0} w="full">
-      <Text id={labelId} {...formControlLabelProps} px={1}>
-        {label}
-      </Text>
+      {labelHidden ? (
+        <Text id={labelId} srOnly>
+          {label}
+        </Text>
+      ) : (
+        <Text id={labelId} {...formControlLabelProps} px={1}>
+          {label}
+        </Text>
+      )}
       <SimpleGrid
         role="radiogroup"
         aria-labelledby={labelId}

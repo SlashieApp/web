@@ -1,24 +1,26 @@
 'use client'
 
-import { HStack, Stack, Text, Wrap, chakra } from '@chakra-ui/react'
+import { Box, Stack, Text, Wrap, chakra } from '@chakra-ui/react'
 import { Currency, TaskPaymentMethod } from '@codegen/schema'
-import { useEffect, useRef } from 'react'
+import { useEffect, useId, useRef, useState } from 'react'
 import type { UseFormRegister } from 'react-hook-form'
-import { LuChevronRight } from 'react-icons/lu'
 
 import {
   BUDGET_UNIT_SUGGESTIONS,
+  type BudgetUnitSuggestion,
   CUSTOM_UNIT_MAX,
   chosenUnitSuggestion,
+  normalizeUnitText,
   taskBudgetBag,
 } from '@/app/(task)/helpers/taskBudget/taskBudget'
 import { useI11n } from '@/i18n/useI11n'
 import { sdlFigure, sdlFocusRing, sdlMotion } from '@/theme/styles'
 import {
-  Button,
   FormField,
   Input,
   RadioButtonGroup,
+  Reveal,
+  formControlLabelProps,
   formControlRootProps,
 } from '@ui'
 
@@ -27,22 +29,35 @@ import { taskFieldError } from '../../../helpers/taskFieldError'
 import bag from '../../../i11n.json'
 import { CreateTaskSection } from '../../layout/shared/CreateTaskSection'
 
+/** The answer to "Do you have a budget in mind?"; null until it is picked. */
+export type BudgetChoice = 'set' | 'open'
+
 export type CreateTaskBudgetSectionProps = {
   /** Bare inside the create flow's step; a titled section on edit. */
   bare?: boolean
   sectionHeading?: string
+  /**
+   * The screen's own title already asks "Do you have a budget in mind?" (the
+   * create step), so the choice's label is for screen readers only.
+   */
+  questionInTitle?: boolean
   register: UseFormRegister<CreateTaskFormFieldValues>
   /** Shown as the amount's symbol; tasks are posted in GBP. */
   budgetCurrency: Currency
-  /** The unit field's text: blank, a suggestion, or the poster's own words. */
+  /** The amount as typed: what it's for is only asked once there is one. */
+  budgetMajor: string
+  /** What the amount is for: blank (the whole job), a suggestion, or the poster's own words. */
   budgetUnit: string
-  /** Skipped: no amount or unit, workers quote their own price. */
+  /** The budget question has been answered; false on a new task. */
+  budgetAnswered: boolean
+  /** Open budget: no amount or unit, workers quote their own price. */
   openBudget: boolean
   paymentMethod: TaskPaymentMethod
   onBudgetUnitChange: (value: string) => void
-  onOpenBudgetChange: (open: boolean) => void
+  onBudgetChoiceChange: (choice: BudgetChoice) => void
   onPaymentMethodChange: (value: TaskPaymentMethod) => void
   /** Copy keys from the form schema. */
+  budgetChoiceError?: string
   budgetMajorError?: string
   budgetUnitError?: string
 }
@@ -58,48 +73,155 @@ const chipTransition = {
   transitionTimingFunction: sdlMotion.easing.standard,
 } as const
 
-const ChipButton = chakra('button')
+const ChipLabel = chakra('label')
+const ChipInput = chakra('input')
 
 /**
- * The budget (FE-584, BE-139; Ryan 21 Nov): the amount, then what it's for
- * (blank is the whole job; tap a suggestion or type your own), then Skip,
- * which folds both into an Open budget note that "Add a budget" undoes. How
- * you'll pay is asked either way. The same in Edit task and the Expo app.
+ * One of the "What's it for?" choices: a pill, green when it is the one
+ * picked. A real radio input under the pill, so the arrow keys move between
+ * the choices and each is announced as "2 of 7".
+ */
+function UnitChip({
+  name,
+  on,
+  label,
+  onPick,
+}: {
+  /** The group's name: one choice at a time. */
+  name: string
+  on: boolean
+  label: string
+  /** `byPointer`: tapped or clicked, not reached with the arrow keys. */
+  onPick: (byPointer: boolean) => void
+}) {
+  const pointer = useRef(false)
+  return (
+    <ChipLabel
+      position="relative"
+      display="inline-flex"
+      alignItems="center"
+      px={3}
+      minH="44px"
+      borderRadius="full"
+      borderWidth="1px"
+      borderColor={on ? 'transparent' : 'border.strong'}
+      bg={on ? 'status.success.soft' : 'bg.surface'}
+      color={on ? 'status.success.fg' : 'text.muted'}
+      fontSize="sm"
+      fontWeight={500}
+      cursor="pointer"
+      _hover={
+        on
+          ? undefined
+          : {
+              bg: 'bg.subtle',
+              borderColor: 'border.hover',
+              color: 'text.default',
+            }
+      }
+      _focusWithin={{ '&:has(:focus-visible)': sdlFocusRing }}
+      {...chipTransition}
+    >
+      <ChipInput
+        type="radio"
+        name={name}
+        checked={on}
+        // A real click has a count; one made by the keyboard has none.
+        onClick={(e) => {
+          pointer.current = e.detail > 0
+        }}
+        onChange={() => {
+          onPick(pointer.current)
+          pointer.current = false
+        }}
+        position="absolute"
+        inset={0}
+        w="full"
+        h="full"
+        m={0}
+        opacity={0}
+        cursor="pointer"
+      />
+      {label}
+    </ChipLabel>
+  )
+}
+
+/** The second thing an answer reveals follows the first by this much (staggering). */
+const STAGGER_MS = 60
+
+/**
+ * The budget, one question at a time (Ryan 22 Nov; it replaces the Skip link
+ * of FE-584). "Do you have a budget in mind?" starts with neither choice
+ * picked. Set a budget opens the amount under it, with the cursor in it; once
+ * an amount is typed, "What's it for?" opens with Whole job picked, the
+ * suggestions, and Other, which opens a field for the poster's own words.
+ * Open budget shows the one-line note. "How you'll pay" follows either
+ * answer. Each part slides open from the answer that revealed it (`Reveal`).
+ * Changing the answer keeps what was typed. The same in Edit task and the
+ * Expo app.
  */
 export function CreateTaskBudgetSection({
   bare = false,
   sectionHeading = '',
+  questionInTitle = false,
   register,
   budgetCurrency,
+  budgetMajor,
   budgetUnit,
+  budgetAnswered,
   openBudget,
   paymentMethod,
   onBudgetUnitChange,
-  onOpenBudgetChange,
+  onBudgetChoiceChange,
   onPaymentMethodChange,
+  budgetChoiceError,
   budgetMajorError,
   budgetUnitError,
 }: CreateTaskBudgetSectionProps) {
   const t = useI11n(bag)
   const units = useI11n(taskBudgetBag)
   const f = t.fields
-  const chosen = chosenUnitSuggestion(budgetUnit)
+  const unitLabelId = useId()
 
-  // Focus follows the switch: to "Add a budget" after Skip, to the amount after it.
+  const choice: BudgetChoice | null = !budgetAnswered
+    ? null
+    : openBudget
+      ? 'open'
+      : 'set'
+  const amount = Number.parseFloat(budgetMajor)
+  const hasAmount = Number.isFinite(amount) && amount > 0
+
+  // What it's for: the poster's own words keep Other picked; a blank unit is
+  // the whole job unless Other was just tapped and nothing is typed yet.
+  const chosen = chosenUnitSuggestion(budgetUnit)
+  const ownWords = normalizeUnitText(budgetUnit) !== '' && chosen === null
+  const [otherTapped, setOtherTapped] = useState(false)
+  const otherOn = ownWords || otherTapped
+  const wholeJobOn = !otherOn && chosen === null
+  const unitName = useId()
+  const pickUnit = (unit: BudgetUnitSuggestion | null) => {
+    setOtherTapped(false)
+    onBudgetUnitChange(unit ? units.suggestion[unit] : '')
+  }
+
+  // Focus follows the answer: into the amount after Set a budget, into the
+  // field after Other. Only after a tap here, never on load.
   const amountField = register('budgetMajor')
   const amountRef = useRef<HTMLInputElement | null>(null)
-  const addBudgetRef = useRef<HTMLButtonElement | null>(null)
-  const switched = useRef(false)
-  useEffect(() => {
-    if (!switched.current) return
-    switched.current = false
-    if (openBudget) addBudgetRef.current?.focus()
-    else amountRef.current?.focus()
-  }, [openBudget])
-  const switchTo = (open: boolean) => {
-    switched.current = true
-    onOpenBudgetChange(open)
+  const otherRef = useRef<HTMLInputElement | null>(null)
+  const focusNext = useRef<'amount' | 'other' | null>(null)
+  // The field is usually not there yet (its fold mounts it a moment later):
+  // it takes the focus as it arrives. One still folding away takes it here.
+  const focusIfAsked = (which: 'amount' | 'other', el: HTMLElement | null) => {
+    if (!el || focusNext.current !== which) return
+    focusNext.current = null
+    el.focus()
   }
+  useEffect(() => {
+    if (choice === 'set') focusIfAsked('amount', amountRef.current)
+    if (otherOn) focusIfAsked('other', otherRef.current)
+  })
 
   return (
     <CreateTaskSection
@@ -111,39 +233,24 @@ export function CreateTaskBudgetSection({
         </Text>
       }
     >
-      {openBudget ? (
-        <HStack
-          data-open-budget
-          justify="space-between"
-          gap={3}
-          pl={4}
-          pr={1}
-          py={2}
-          borderRadius="lg"
-          bg="bg.subtle"
-        >
-          <Stack gap={0.5} minW={0}>
-            <Text fontSize="sm" fontWeight={500} color="text.default">
-              {f.openBudget}
-            </Text>
-            <Text fontSize="sm" color="text.muted">
-              {f.openBudgetBody}
-            </Text>
-          </Stack>
-          <Button
-            ref={addBudgetRef}
-            type="button"
-            variant="ghost"
-            minH="44px"
-            color="text.link"
-            flexShrink={0}
-            onClick={() => switchTo(false)}
-          >
-            {f.addBudget}
-          </Button>
-        </HStack>
-      ) : (
-        <>
+      {/* One block with no gap: each part brings its own space, inside its fold. */}
+      <Stack gap={0} w="full" data-budget-choice={choice ?? 'none'}>
+        <RadioButtonGroup
+          label={f.budgetChoice}
+          labelHidden={questionInTitle}
+          value={choice}
+          options={[
+            { value: 'set', label: f.setBudget },
+            { value: 'open', label: f.openBudget },
+          ]}
+          onChange={(next) => {
+            if (next === 'set') focusNext.current = 'amount'
+            onBudgetChoiceChange(next)
+          }}
+          errorText={taskFieldError(t.errors, budgetChoiceError)}
+        />
+
+        <Reveal open={choice === 'set'} spaceAbove="form.fieldGap">
           <FormField
             label={f.amount}
             required
@@ -165,92 +272,100 @@ export function CreateTaskBudgetSection({
               ref={(el) => {
                 amountField.ref(el)
                 amountRef.current = el
+                focusIfAsked('amount', el)
               }}
             />
           </FormField>
+        </Reveal>
 
-          <FormField
-            label={f.budgetUnit}
-            helperText={f.budgetUnitHint}
-            errorText={taskFieldError(t.errors, budgetUnitError)}
-          >
-            <Stack gap="form.labelToControl" w="full">
-              <Input
-                value={budgetUnit}
-                maxLength={CUSTOM_UNIT_MAX}
-                placeholder={f.budgetUnitPlaceholder}
-                onChange={(e) => onBudgetUnitChange(e.target.value)}
-                rootProps={{ ...formControlRootProps, maxW: { md: '360px' } }}
+        <Reveal
+          open={choice === 'set' && hasAmount}
+          spaceAbove="form.fieldGap"
+          data-budget-unit=""
+        >
+          <Stack gap={0} w="full">
+            <Text id={unitLabelId} {...formControlLabelProps} px={1}>
+              {f.budgetUnit}
+            </Text>
+            <Wrap
+              role="radiogroup"
+              aria-labelledby={unitLabelId}
+              gap="form.alternativesGap"
+            >
+              <UnitChip
+                name={unitName}
+                on={wholeJobOn}
+                label={f.unitWholeJob}
+                onPick={() => pickUnit(null)}
               />
-              <Wrap gap="form.alternativesGap">
-                {BUDGET_UNIT_SUGGESTIONS.map((unit) => {
-                  const on = chosen === unit
-                  return (
-                    <ChipButton
-                      key={unit}
-                      type="button"
-                      aria-pressed={on}
-                      // Tapping the chosen one again clears it (the whole job).
-                      onClick={() =>
-                        onBudgetUnitChange(on ? '' : units.suggestion[unit])
-                      }
-                      display="inline-flex"
-                      alignItems="center"
-                      px={3}
-                      minH="44px"
-                      borderRadius="full"
-                      borderWidth="1px"
-                      borderColor={on ? 'transparent' : 'border.strong'}
-                      bg={on ? 'status.success.soft' : 'bg.surface'}
-                      color={on ? 'status.success.fg' : 'text.muted'}
-                      fontSize="sm"
-                      fontWeight={500}
-                      cursor="pointer"
-                      _hover={
-                        on
-                          ? undefined
-                          : {
-                              bg: 'bg.subtle',
-                              borderColor: 'border.hover',
-                              color: 'text.default',
-                            }
-                      }
-                      _focusVisible={sdlFocusRing}
-                      {...chipTransition}
-                    >
-                      {units.suggestion[unit]}
-                    </ChipButton>
-                  )
-                })}
-              </Wrap>
-            </Stack>
-          </FormField>
+              {BUDGET_UNIT_SUGGESTIONS.map((unit) => (
+                <UnitChip
+                  key={unit}
+                  name={unitName}
+                  on={!otherOn && chosen === unit}
+                  label={units.unit[unit]}
+                  onPick={() => pickUnit(unit)}
+                />
+              ))}
+              <UnitChip
+                name={unitName}
+                on={otherOn}
+                label={f.unitOther}
+                onPick={(byPointer) => {
+                  // Arrowing past Other must not pull focus out of the choices.
+                  if (byPointer) focusNext.current = 'other'
+                  setOtherTapped(true)
+                  // A tapped suggestion isn't the poster's own words.
+                  if (chosen !== null) onBudgetUnitChange('')
+                }}
+              />
+            </Wrap>
+            <Reveal open={otherOn} spaceAbove="form.labelToControl">
+              <FormField
+                label={f.unitOtherLabel}
+                labelProps={{ srOnly: true }}
+                errorText={taskFieldError(t.errors, budgetUnitError)}
+              >
+                <Input
+                  ref={(el) => {
+                    otherRef.current = el
+                    focusIfAsked('other', el)
+                  }}
+                  value={budgetUnit}
+                  maxLength={CUSTOM_UNIT_MAX}
+                  placeholder={f.budgetUnitPlaceholder}
+                  onChange={(e) => onBudgetUnitChange(e.target.value)}
+                  rootProps={{ ...formControlRootProps, maxW: { md: '360px' } }}
+                />
+              </FormField>
+            </Reveal>
+          </Stack>
+        </Reveal>
 
-          <Button
-            type="button"
-            variant="ghost"
-            minH="44px"
-            px={2}
-            ml={-2}
-            alignSelf="flex-start"
-            color="text.link"
-            onClick={() => switchTo(true)}
-          >
-            {f.skipBudget}
-            <LuChevronRight aria-hidden />
-          </Button>
-        </>
-      )}
+        <Reveal open={choice === 'open'} spaceAbove="form.fieldGap">
+          <Box data-open-budget px={4} py={3} borderRadius="lg" bg="bg.subtle">
+            <Text fontSize="sm" color="text.muted">
+              {f.openBudgetBody}
+            </Text>
+          </Box>
+        </Reveal>
 
-      <RadioButtonGroup
-        label={f.payment}
-        value={paymentMethod}
-        options={[
-          { value: TaskPaymentMethod.Cash, label: f.cash },
-          { value: TaskPaymentMethod.BankTransfer, label: f.bankTransfer },
-        ]}
-        onChange={onPaymentMethodChange}
-      />
+        <Reveal
+          open={choice !== null}
+          delayMs={STAGGER_MS}
+          spaceAbove="form.fieldGap"
+        >
+          <RadioButtonGroup
+            label={f.payment}
+            value={paymentMethod}
+            options={[
+              { value: TaskPaymentMethod.Cash, label: f.cash },
+              { value: TaskPaymentMethod.BankTransfer, label: f.bankTransfer },
+            ]}
+            onChange={onPaymentMethodChange}
+          />
+        </Reveal>
+      </Stack>
     </CreateTaskSection>
   )
 }

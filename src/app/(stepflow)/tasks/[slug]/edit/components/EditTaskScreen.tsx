@@ -383,17 +383,25 @@ export function EditTaskScreen({
               bare
               register={sharedRegister}
               budgetCurrency={values.budgetCurrency}
+              budgetMajor={values.budgetMajor}
               budgetUnit={values.budgetUnit}
+              budgetAnswered={values.budgetAnswered}
               openBudget={values.openBudget}
               paymentMethod={values.paymentMethod}
               onBudgetUnitChange={(v) => setValue('budgetUnit', v, UPDATE)}
-              onOpenBudgetChange={(open) => {
-                setValue('openBudget', open, UPDATE)
-                form.clearErrors(['budgetMajor', 'budgetUnit'])
+              onBudgetChoiceChange={(choice) => {
+                setValue('budgetAnswered', true, UPDATE)
+                setValue('openBudget', choice === 'open', UPDATE)
+                form.clearErrors([
+                  'budgetAnswered',
+                  'budgetMajor',
+                  'budgetUnit',
+                ])
               }}
               onPaymentMethodChange={(v) =>
                 setValue('paymentMethod', v, UPDATE)
               }
+              budgetChoiceError={errors.budgetAnswered?.message}
               budgetMajorError={errors.budgetMajor?.message}
               budgetUnitError={errors.budgetUnit?.message}
             />

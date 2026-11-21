@@ -24,6 +24,7 @@ const values: EditTaskFormValues = {
   budgetMajor: '80',
   budgetCurrency: Currency.Gbp,
   budgetUnit: '',
+  budgetAnswered: true,
   openBudget: false,
   paymentMethod: TaskPaymentMethod.Cash,
 }

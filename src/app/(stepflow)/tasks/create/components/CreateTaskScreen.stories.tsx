@@ -63,6 +63,7 @@ const answers: CreateTaskDraftValues = {
   preferredDate: storyDateInDays(3),
   preferredTime: '09:00',
   budgetMajor: '80',
+  budgetAnswered: true,
   budgetUnit: '',
   openBudget: false,
 }
@@ -528,7 +529,9 @@ export const PhotosContinueWithout: Story = {
     await canvas.findByRole('heading', { name: 'Add photos' })
     await userEvent.click(canvas.getByRole('button', { name: /Continue/ }))
     await expect(
-      await canvas.findByRole('heading', { name: "What's your budget?" }),
+      await canvas.findByRole('heading', {
+        name: 'Do you have a budget in mind?',
+      }),
     ).toBeVisible()
   },
 }
@@ -583,28 +586,65 @@ export const PhotosConvertingPhoto: Story = {
 }
 
 /**
- * create.budget (FE-584): the amount, what it's for with suggestions, and
- * Skip, which folds both into an Open budget note that Add a budget undoes.
+ * create.budget, a saved draft with an amount (Ryan 22 Nov): Set a budget is
+ * picked under the title that asks, the amount and what it's for show, and
+ * Open budget folds them into the note. How you'll pay is asked either way.
  */
 export const Budget: Story = {
   decorators: [atStep('budget')],
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
-    await expect(await canvas.findByLabelText(/^Amount/)).toBeVisible()
-    const perDay = canvas.getByRole('button', { name: 'per day' })
-    await userEvent.click(perDay)
-    await expect(perDay).toHaveAttribute('aria-pressed', 'true')
-    await expect(canvas.getByLabelText(/What's it for/)).toHaveValue('per day')
-    await userEvent.click(
-      canvas.getByRole('button', { name: 'Skip: let workers quote' }),
-    )
-    await expect(canvas.getByText('Open budget')).toBeVisible()
-    await expect(canvas.queryByLabelText(/^Amount/)).toBeNull()
     await expect(
-      canvas.getByRole('button', { name: 'Add a budget' }),
-    ).toHaveFocus()
-    // How you'll pay is asked either way.
+      await canvas.findByRole('heading', {
+        name: 'Do you have a budget in mind?',
+      }),
+    ).toBeVisible()
+    await expect(
+      canvas.getByRole('radio', { name: 'Set a budget' }),
+    ).toBeChecked()
+    await expect(await canvas.findByLabelText(/^Amount/)).toHaveValue(80)
+    await userEvent.click(canvas.getByRole('radio', { name: 'Per day' }))
+    await expect(canvas.getByRole('radio', { name: 'Per day' })).toBeChecked()
+    await userEvent.click(canvas.getByRole('radio', { name: 'Open budget' }))
+    await expect(
+      await canvas.findByText('Workers will quote their own price.'),
+    ).toBeInTheDocument()
+    await waitFor(() => expect(canvas.queryByLabelText(/^Amount/)).toBeNull())
     await expect(canvas.getByText("How you'll pay")).toBeVisible()
+  },
+}
+
+/**
+ * create.budget on a new task: neither answer is picked and nothing shows
+ * under them. Continue asks for one, and stays on the step.
+ */
+export const BudgetNotAnswered: Story = {
+  decorators: [
+    atStep('budget', { ...answers, budgetMajor: '', budgetAnswered: false }),
+  ],
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await canvas.findByRole('heading', {
+      name: 'Do you have a budget in mind?',
+    })
+    await expect(
+      canvas.getByRole('radio', { name: 'Set a budget' }),
+    ).not.toBeChecked()
+    await expect(
+      canvas.getByRole('radio', { name: 'Open budget' }),
+    ).not.toBeChecked()
+    await expect(canvas.queryByLabelText(/^Amount/)).toBeNull()
+    await expect(canvas.queryByText("How you'll pay")).toBeNull()
+    await userEvent.click(canvas.getByRole('button', { name: /Continue/ }))
+    await expect(
+      await canvas.findByText('Choose one to continue.'),
+    ).toBeVisible()
+    // Open budget is a full answer: Continue then moves on to the review.
+    await userEvent.click(canvas.getByRole('radio', { name: 'Open budget' }))
+    await userEvent.click(canvas.getByRole('button', { name: /Continue/ }))
+    await expect(
+      await canvas.findByRole('heading', { name: 'What workers will see' }),
+    ).toBeVisible()
   },
 }
 

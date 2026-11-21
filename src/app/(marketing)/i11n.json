@@ -265,7 +265,7 @@
               },
               "budget": {
                 "label": "Budget",
-                "title": "What's your budget?",
+                "title": "Do you have a budget in mind?",
                 "description": "A realistic budget gets better quotes. You pay your worker directly."
               },
               "review": {
@@ -280,9 +280,8 @@
             "whenFlexible": "Flexible",
             "whenBefore": "Before a date",
             "whenExact": "On a date and time",
-            "budgetTypeLabel": "Budget type",
-            "budgetOneOff": "One-off",
-            "budgetPerHour": "Per hour",
+            "budgetSet": "Set a budget",
+            "budgetOpen": "Open budget",
             "paymentLabel": "How you'll pay",
             "paymentCash": "Cash",
             "summaryTask": "Task",
@@ -756,7 +755,7 @@
               },
               "budget": {
                 "label": "預算",
-                "title": "你的預算是多少？",
+                "title": "你心目中有預算嗎？",
                 "description": "合理的預算會帶來更好的報價。你會直接付款給工作者。"
               },
               "review": {
@@ -771,9 +770,8 @@
             "whenFlexible": "彈性",
             "whenBefore": "在某日期前",
             "whenExact": "指定日期和時間",
-            "budgetTypeLabel": "預算類型",
-            "budgetOneOff": "一次性",
-            "budgetPerHour": "按小時",
+            "budgetSet": "設定預算",
+            "budgetOpen": "開放預算",
             "paymentLabel": "付款方式",
             "paymentCash": "現金",
             "summaryTask": "任務",

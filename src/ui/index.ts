@@ -128,6 +128,7 @@ export { PhoneInput } from './PhoneInput'
 export { PhotoSourcePicker } from './PhotoSourcePicker'
 export { ProgressBar } from './ProgressBar'
 export { RadioButton, RadioButtonGroup } from './RadioButton'
+export { REVEAL_MS, Reveal } from './Reveal'
 export { Rating, RatingStars } from './Rating'
 export {
   REPORT_REASON_VALUES,
@@ -311,4 +312,5 @@ export type {
 } from './Badge'
 export type { UiInfoBarProps, UiInfoBarTone } from './InfoBar'
 export type { UiLinkProps, UiLinkTone } from './Link'
+export type { RevealProps } from './Reveal'
 export type { UiToastData, UiToastProps, UiToastType } from './Toast'

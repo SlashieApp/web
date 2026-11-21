@@ -33,6 +33,7 @@ export const emptyCreateTaskValues: CreateTaskFormFieldValues = {
   budgetMajor: '',
   budgetCurrency: Currency.Gbp,
   budgetUnit: '',
+  budgetAnswered: false,
   openBudget: false,
   paymentMethod: TaskPaymentMethod.Cash,
   preferredContactMethod: TaskContactMethod.InApp,

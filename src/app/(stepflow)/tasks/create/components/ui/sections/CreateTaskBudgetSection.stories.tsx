@@ -2,7 +2,7 @@ import { Currency, TaskPaymentMethod } from '@codegen/schema'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { expect, userEvent, within } from 'storybook/test'
+import { expect, userEvent, waitFor, within } from 'storybook/test'
 
 import {
   desktop1280,
@@ -21,45 +21,54 @@ import {
   emptyCreateTaskValues,
 } from '../../createTaskStoryFixtures'
 import {
+  type BudgetChoice,
   CreateTaskBudgetSection,
   type CreateTaskBudgetSectionProps,
 } from './CreateTaskBudgetSection'
 
 type DemoProps = Pick<
   CreateTaskBudgetSectionProps,
-  'bare' | 'sectionHeading' | 'budgetMajorError' | 'budgetUnitError'
+  | 'bare'
+  | 'sectionHeading'
+  | 'questionInTitle'
+  | 'budgetChoiceError'
+  | 'budgetMajorError'
+  | 'budgetUnitError'
 > & {
   budgetMajor?: string
   budgetCurrency?: Currency
   budgetUnit?: string
-  openBudget?: boolean
+  /** Null: the question isn't answered yet (a new task). */
+  choice?: BudgetChoice | null
   paymentMethod?: TaskPaymentMethod
 }
 
 function CreateTaskBudgetSectionDemo({
-  budgetMajor,
+  budgetMajor = '',
   budgetCurrency = emptyCreateTaskValues.budgetCurrency,
   budgetUnit = '',
-  openBudget = false,
+  choice = null,
   paymentMethod = emptyCreateTaskValues.paymentMethod,
   ...props
 }: DemoProps) {
-  const { register } = useForm<CreateTaskFormFieldValues>({
+  const { register, watch } = useForm<CreateTaskFormFieldValues>({
     defaultValues: { ...emptyCreateTaskValues, budgetMajor },
   })
   const [unit, setUnit] = useState(budgetUnit)
-  const [open, setOpen] = useState(openBudget)
+  const [answer, setAnswer] = useState(choice)
   const [payment, setPayment] = useState(paymentMethod)
   return (
     <CreateTaskBudgetSection
       {...props}
       register={register}
       budgetCurrency={budgetCurrency}
+      budgetMajor={watch('budgetMajor')}
       budgetUnit={unit}
-      openBudget={open}
+      budgetAnswered={answer !== null}
+      openBudget={answer === 'open'}
       paymentMethod={payment}
       onBudgetUnitChange={setUnit}
-      onOpenBudgetChange={setOpen}
+      onBudgetChoiceChange={setAnswer}
       onPaymentMethodChange={setPayment}
     />
   )
@@ -69,85 +78,168 @@ const meta = {
   title: 'Create task/CreateTaskBudgetSection',
   component: CreateTaskBudgetSectionDemo,
   parameters: { layout: 'padded' },
-  args: { bare: true },
+  // As the create step: its own title asks the question.
+  args: { bare: true, questionInTitle: true },
 } satisfies Meta<typeof CreateTaskBudgetSectionDemo>
 
 export default meta
 type Story = StoryObj<typeof meta>
 
-/** Defaults (FE-584): no amount yet, nothing for the unit (the whole job), cash. */
-export const Default: Story = {}
+const radio = (canvasElement: HTMLElement, name: string) =>
+  within(canvasElement).getByRole('radio', { name })
+
+/** A reveal has finished opening: nothing is clipped or faded any more. */
+async function opened(element: HTMLElement) {
+  await waitFor(() => expect(element).toBeVisible())
+  await waitFor(() =>
+    expect(
+      getComputedStyle(element.closest('[data-reveal]') as Element).opacity,
+    ).toBe('1'),
+  )
+}
 
 /**
- * A suggestion fills the unit field and shows as chosen; tapping it again
- * clears it. Typing your own words leaves every suggestion unchosen.
+ * A new task (Ryan 22 Nov): the question, with neither answer picked and
+ * nothing under it. No amount, no unit, and how you'll pay isn't asked yet.
  */
-export const Suggestions: Story = {
-  args: { budgetMajor: '60' },
+export const Default: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
-    const field = canvas.getByLabelText(/What's it for/)
-    const perDay = canvas.getByRole('button', { name: 'per day' })
-    await expect(perDay).toHaveAttribute('aria-pressed', 'false')
-    await userEvent.click(perDay)
-    await expect(field).toHaveValue('per day')
-    await expect(perDay).toHaveAttribute('aria-pressed', 'true')
-    await userEvent.click(perDay)
-    await expect(field).toHaveValue('')
-    await userEvent.type(field, 'per room')
-    for (const chip of canvas.getAllByRole('button', { pressed: false })) {
-      await expect(chip).toHaveAttribute('aria-pressed', 'false')
-    }
-    await expect(canvas.queryByRole('button', { pressed: true })).toBeNull()
+    await expect(
+      canvas.getByRole('radiogroup', { name: 'Do you have a budget in mind?' }),
+    ).toBeVisible()
+    await expect(radio(canvasElement, 'Set a budget')).not.toBeChecked()
+    await expect(radio(canvasElement, 'Open budget')).not.toBeChecked()
+    await expect(canvas.queryByLabelText(/^Amount/)).toBeNull()
+    await expect(canvas.queryByText("What's it for?")).toBeNull()
+    await expect(canvas.queryByText("How you'll pay")).toBeNull()
   },
 }
 
-/** Charged per hour: the chosen suggestion. */
-export const PerHour: Story = {
-  args: { budgetMajor: '25', budgetUnit: 'per hour' },
-}
+/**
+ * Set a budget opens the amount with the cursor in it, and how you'll pay
+ * after it. What it's for only opens once an amount is typed, with Whole job
+ * picked; clearing the amount folds it away again.
+ */
+export const SetABudget: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await userEvent.click(radio(canvasElement, 'Set a budget'))
+    await expect(radio(canvasElement, 'Set a budget')).toBeChecked()
+    const amount = await canvas.findByLabelText(/^Amount/)
+    await opened(amount)
+    await expect(amount).toHaveFocus()
+    await opened(await canvas.findByText("How you'll pay"))
+    await expect(canvas.queryByText("What's it for?")).toBeNull()
 
-/** The poster's own words, which workers see as typed. */
-export const OwnUnit: Story = {
-  args: { budgetMajor: '15', budgetUnit: 'per room' },
+    await userEvent.type(amount, '60')
+    await opened(await canvas.findByText("What's it for?"))
+    await expect(radio(canvasElement, 'Whole job')).toBeChecked()
+    await expect(canvas.queryByLabelText(/in your words/)).toBeNull()
+
+    await userEvent.clear(amount)
+    await waitFor(() => expect(canvas.queryByText("What's it for?")).toBeNull())
+  },
 }
 
 /**
- * Skip folds the amount and unit into an Open budget note, with focus on Add
- * a budget; that brings them back with what was typed, focus on the amount.
- * How you'll pay stays either way.
+ * What it's for is one choice: Whole job, a suggestion, or Other, which
+ * opens a field for the poster's own words with the cursor in it. Picking a
+ * suggestion again closes the field.
  */
-export const SkipAndUndo: Story = {
-  args: { budgetMajor: '60', budgetUnit: 'per day' },
+export const WhatItIsFor: Story = {
+  args: { choice: 'set', budgetMajor: '60' },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
-    await userEvent.click(
-      canvas.getByRole('button', { name: 'Skip: let workers quote' }),
+    const group = canvas.getByRole('radiogroup', { name: "What's it for?" })
+    await expect(within(group).getAllByRole('radio')).toHaveLength(7)
+    await userEvent.click(radio(canvasElement, 'Per day'))
+    await expect(radio(canvasElement, 'Per day')).toBeChecked()
+    await expect(radio(canvasElement, 'Whole job')).not.toBeChecked()
+
+    await userEvent.click(radio(canvasElement, 'Other'))
+    const own = await canvas.findByLabelText(/in your words/)
+    await opened(own)
+    await expect(own).toHaveFocus()
+    await expect(own).toHaveValue('')
+    await expect(radio(canvasElement, 'Other')).toBeChecked()
+    await expect(radio(canvasElement, 'Per day')).not.toBeChecked()
+    await userEvent.type(own, 'per room')
+    await expect(radio(canvasElement, 'Other')).toBeChecked()
+
+    await userEvent.click(radio(canvasElement, 'Per hour'))
+    await expect(radio(canvasElement, 'Per hour')).toBeChecked()
+    await waitFor(() =>
+      expect(canvas.queryByLabelText(/in your words/)).toBeNull(),
     )
-    await expect(canvas.getByText('Open budget')).toBeVisible()
+  },
+}
+
+/** Charged per hour: the suggestion picked. */
+export const PerHour: Story = {
+  args: { choice: 'set', budgetMajor: '25', budgetUnit: 'per hour' },
+  play: async ({ canvasElement }) => {
+    await expect(radio(canvasElement, 'Per hour')).toBeChecked()
+  },
+}
+
+/** The poster's own words: Other is picked and its field shows them. */
+export const OwnUnit: Story = {
+  args: { choice: 'set', budgetMajor: '15', budgetUnit: 'per room' },
+  play: async ({ canvasElement }) => {
+    await expect(radio(canvasElement, 'Other')).toBeChecked()
+    await expect(
+      within(canvasElement).getByLabelText(/in your words/),
+    ).toHaveValue('per room')
+  },
+}
+
+/**
+ * Changing the answer keeps what was typed: Open budget folds the amount and
+ * unit into the note, and Set a budget brings them back.
+ */
+export const ChangeYourMind: Story = {
+  args: { choice: 'set', budgetMajor: '60', budgetUnit: 'per day' },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await userEvent.click(radio(canvasElement, 'Open budget'))
+    await opened(await canvas.findByText('Workers will quote their own price.'))
+    await waitFor(() => expect(canvas.queryByLabelText(/^Amount/)).toBeNull())
+    await expect(canvas.queryByText("What's it for?")).toBeNull()
+    await expect(canvas.getByText("How you'll pay")).toBeVisible()
+
+    await userEvent.click(radio(canvasElement, 'Set a budget'))
+    const amount = await canvas.findByLabelText(/^Amount/)
+    await opened(amount)
+    await expect(amount).toHaveValue(60)
+    await expect(amount).toHaveFocus()
+    await expect(radio(canvasElement, 'Per day')).toBeChecked()
+    await waitFor(() =>
+      expect(
+        canvas.queryByText('Workers will quote their own price.'),
+      ).toBeNull(),
+    )
+  },
+}
+
+/** An open budget, as Edit task opens one: the note, and how you'll pay. */
+export const OpenBudget: Story = {
+  args: { choice: 'open' },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(radio(canvasElement, 'Open budget')).toBeChecked()
     await expect(
       canvas.getByText('Workers will quote their own price.'),
     ).toBeVisible()
     await expect(canvas.queryByLabelText(/^Amount/)).toBeNull()
-    const add = canvas.getByRole('button', { name: 'Add a budget' })
-    await expect(add).toHaveFocus()
     await expect(canvas.getByText("How you'll pay")).toBeVisible()
-    await userEvent.click(add)
-    const amount = canvas.getByLabelText(/^Amount/)
-    await expect(amount).toHaveFocus()
-    await expect(amount).toHaveValue(60)
-    await expect(canvas.getByLabelText(/What's it for/)).toHaveValue('per day')
   },
-}
-
-/** An open budget, as Edit task opens one. */
-export const OpenBudget: Story = {
-  args: { openBudget: true },
 }
 
 /** Paid by bank transfer instead of cash. */
 export const BankTransfer: Story = {
   args: {
+    choice: 'set',
     budgetMajor: '120',
     paymentMethod: TaskPaymentMethod.BankTransfer,
   },
@@ -155,22 +247,55 @@ export const BankTransfer: Story = {
 
 /** An older task priced in dollars keeps its symbol (new tasks are in pounds). */
 export const UsDollars: Story = {
-  args: { budgetMajor: '150', budgetCurrency: Currency.Usd },
+  args: { choice: 'set', budgetMajor: '150', budgetCurrency: Currency.Usd },
+}
+
+/** Continue pressed with neither answer picked: the message sits under the choices. */
+export const ChoiceRequired: Story = {
+  args: { budgetChoiceError: 'budgetChoiceRequired' },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(canvas.getByText('Choose one to continue.')).toBeVisible()
+    await expect(
+      canvas.getByRole('radiogroup', { name: 'Do you have a budget in mind?' }),
+    ).toHaveAttribute('aria-invalid', 'true')
+  },
 }
 
 /** Continue pressed with no amount: the real message shows under the field. */
 export const AmountRequired: Story = {
-  args: { budgetMajorError: createTaskStoryErrors().budgetMajor },
+  args: {
+    choice: 'set',
+    budgetMajorError: createTaskStoryErrors().budgetMajor,
+  },
 }
 
-/** Card mode (edit page): the fields sit in a titled section card. */
+/**
+ * Edit task: the section is titled "Budget", so the question shows above the
+ * choices, and the task's own answer starts picked.
+ */
+export const InEditTask: Story = {
+  args: { questionInTitle: false, choice: 'set', budgetMajor: '120' },
+  play: async ({ canvasElement }) => {
+    await expect(
+      within(canvasElement).getByText('Do you have a budget in mind?'),
+    ).toBeVisible()
+  },
+}
+
+/** Card mode: the fields sit in a titled section card. */
 export const CardMode: Story = {
-  args: { bare: false, budgetMajor: '120' },
+  args: {
+    bare: false,
+    questionInTitle: false,
+    choice: 'set',
+    budgetMajor: '120',
+  },
 }
 
-/** zh-HK: the suggestions and the note in Traditional Chinese. */
+/** zh-HK: the question's answers, the choices and the note in Traditional Chinese. */
 export const ZhHk: Story = {
-  args: { budgetMajor: '60', budgetUnit: '按日' },
+  args: { choice: 'set', budgetMajor: '60', budgetUnit: '按日' },
   parameters: { nextjs: { navigation: { pathname: '/zh-hk/tasks/create' } } },
   decorators: [
     (Story) => (
@@ -181,29 +306,34 @@ export const ZhHk: Story = {
   ],
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
-    await expect(canvas.getByRole('button', { name: '按日' })).toHaveAttribute(
-      'aria-pressed',
-      'true',
-    )
-    await expect(
-      canvas.getByRole('button', { name: '略過：讓工作者報價' }),
-    ).toBeVisible()
+    await expect(radio(canvasElement, '設定預算')).toBeChecked()
+    await expect(radio(canvasElement, '按日')).toBeChecked()
+    await expect(radio(canvasElement, '整項工作')).not.toBeChecked()
+    await userEvent.click(radio(canvasElement, '開放預算'))
+    await opened(await canvas.findByText('工作者會自行報價。'))
   },
 }
 
 /**
- * Form spacing (FE-481): the amount, the unit field and the payment group lay
- * out like fields, 20 apart (the Skip link sits between the unit and the
- * payment). The amount and the unit are 48 tall.
+ * Form spacing (FE-481): the choices, the amount, what it's for and the
+ * payment group lay out like fields, 20 apart, each space inside its own
+ * fold. The amount is 48 tall.
  */
 export const Spacing: Story = {
   ...phone390,
-  args: { budgetMajor: '120' },
+  args: { choice: 'set', budgetMajor: '120' },
   play: async ({ canvasElement }) => {
     expectWidth(canvasElement, 390)
+    const canvas = within(canvasElement)
+    const choices = canvas.getByRole('radiogroup', {
+      name: 'Do you have a budget in mind?',
+    })
     const amount = fieldByLabel(canvasElement, /^Amount/)
-    const unit = fieldByLabel(canvasElement, /^What's it for/)
-    await expectGaps([amount, unit], formSpace.fieldGap)
+    const unit = canvas.getByRole('radiogroup', { name: "What's it for?" })
+      .parentElement as HTMLElement
+    const pay = canvas.getByRole('radiogroup', { name: "How you'll pay" })
+      .parentElement as HTMLElement
+    await expectGaps([choices, amount, unit, pay], formSpace.fieldGap)
     await expectField(amount)
     await expectChoiceGroup(canvasElement, "How you'll pay")
   },
@@ -212,7 +342,7 @@ export const Spacing: Story = {
 /** From `sm` the payment rows sit side by side, still 8 apart. */
 export const SpacingWide: Story = {
   ...desktop1280,
-  args: { budgetMajor: '120' },
+  args: { choice: 'set', budgetMajor: '120' },
   play: async ({ canvasElement }) => {
     await expectChoiceGroup(canvasElement, "How you'll pay")
   },

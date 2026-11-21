@@ -165,6 +165,8 @@ function defaultValues(
     budgetMajor: '',
     budgetCurrency: Currency.Gbp,
     budgetUnit: '',
+    // Neither answer starts picked: it is asked (Ryan 22 Nov).
+    budgetAnswered: false,
     openBudget: false,
     paymentMethod: TaskPaymentMethod.Cash,
     preferredContactMethod: contact,
@@ -300,6 +302,7 @@ export function CreateTaskScreen({
       budgetMajor: copied.budgetMajor,
       budgetCurrency: copied.budgetCurrency,
       budgetUnit: copied.budgetUnit,
+      budgetAnswered: copied.budgetAnswered,
       openBudget: copied.openBudget,
       paymentMethod: copied.paymentMethod,
     })
@@ -623,17 +626,22 @@ export function CreateTaskScreen({
         return (
           <CreateTaskBudgetSection
             bare
+            questionInTitle
             register={register}
             budgetCurrency={values.budgetCurrency}
+            budgetMajor={values.budgetMajor}
             budgetUnit={values.budgetUnit}
+            budgetAnswered={values.budgetAnswered}
             openBudget={values.openBudget}
             paymentMethod={values.paymentMethod}
             onBudgetUnitChange={(v) => setValue('budgetUnit', v, UPDATE)}
-            onOpenBudgetChange={(open) => {
-              setValue('openBudget', open, UPDATE)
-              form.clearErrors(['budgetMajor', 'budgetUnit'])
+            onBudgetChoiceChange={(choice) => {
+              setValue('budgetAnswered', true, UPDATE)
+              setValue('openBudget', choice === 'open', UPDATE)
+              form.clearErrors(['budgetAnswered', 'budgetMajor', 'budgetUnit'])
             }}
             onPaymentMethodChange={(v) => setValue('paymentMethod', v, UPDATE)}
+            budgetChoiceError={errors.budgetAnswered?.message}
             budgetMajorError={errors.budgetMajor?.message}
             budgetUnitError={errors.budgetUnit?.message}
           />
