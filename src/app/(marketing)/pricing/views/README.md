@@ -45,7 +45,7 @@ each card's button), and `index.ts` maps names to configs.
 | `unavailable` | The API returned no plans (anyone). | "Pricing isn't loading": Try again (green), Browse tasks (link). No FAQ. | | |
 | `checkingSession` | Session cookie; profile still loading. | placeholder | placeholder | trial |
 | `guest` | No session. | Become a worker: sign up, then /worker/setup | Start free trial: sign up, then /worker/setup?next=/pricing | trial |
-| `customer` | Signed in, no worker profile. | Become a worker: /worker/setup | Start free trial: /worker/setup?next=/pricing | trial |
+| `customer` | Signed in, no worker profile (FE-591). | no button | Become a worker (green): /worker/setup?next=/pricing | trial, then "Slashie Pro for customers is coming soon." in place of the card line |
 | `workerSetup` | Worker profile not finished. | Your plan | Finish worker setup | trial |
 | `workerFree` | `canUpgrade` and `canStartTrial` (never subscribed). | Your plan | Start free trial (Checkout) | trial |
 | `workerLapsed` | `canUpgrade` without `canStartTrial`. | Your plan | Resubscribe (Checkout) | price |

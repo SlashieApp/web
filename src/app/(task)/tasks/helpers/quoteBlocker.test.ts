@@ -3,7 +3,6 @@ import { describe, expect, it } from 'vitest'
 import {
   storyMe,
   storyMembership,
-  storyWorker,
   storyWorkerDraft,
   storyWorkerMe,
 } from '@/app/(auth)/helpers/authStoryFixtures'
@@ -11,7 +10,7 @@ import {
 import { quoteBlocker } from './quoteBlocker'
 
 const withPlan = (kind: Parameters<typeof storyMembership>[0]) =>
-  storyWorkerMe({ worker: storyWorker({ membership: storyMembership(kind) }) })
+  storyWorkerMe({ membership: storyMembership(kind) })
 
 describe('quoteBlocker', () => {
   it('says nothing to a customer or a worker who can quote', () => {

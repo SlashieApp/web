@@ -19,7 +19,7 @@ reads "£54 every 3 months" (zh-HK "每 3 個月 £54") in place of "/ month".
 
 | View | When | Badge | Body | Meter | Price line | Button |
 |---|---|---|---|---|---|---|
-| `customer` | No worker profile | none | Plans are for workers | no | no | Become a worker |
+| `customer` | No worker profile (FE-591): title "Slashie Pro" | none | Slashie Pro for customers is coming soon. Workers can get it now for unlimited quotes. | no | no | Become a worker |
 | `workerSetup` | Worker setup unfinished | none | Plans start after setup | no | no | Finish setup |
 | `loading` | Free plan, price still loading | Free | Quote on 3 new tasks a month... | yes | placeholder | none |
 | `priceUnavailable` | Free plan, price failed | Free | Couldn't load the price | yes | no | Try again |

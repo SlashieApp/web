@@ -29,7 +29,7 @@ export const storyQuarterlyPricing: PricingRecord = {
   priceIntervalCount: 3,
 }
 
-type Membership = NonNullable<MeSnapshot['worker']>['membership']
+type Membership = NonNullable<MeSnapshot['membership']>
 
 /** A free worker who has never subscribed (`NONE`). */
 export const freeMembership: Membership = {
@@ -45,9 +45,19 @@ export const freeMembership: Membership = {
   canUpgrade: true,
 }
 
+/** A customer: Free, and can't subscribe yet (BE-145, FE-591). */
+export const customerMembership: Membership = {
+  ...freeMembership,
+  quotesUsedThisMonth: 0,
+  quotesRemainingThisMonth: 3,
+  canStartTrial: false,
+  canUpgrade: false,
+}
+
 /**
  * Signed-in snapshot with only what pricing reads. `worker: null` is a
  * customer; `setupComplete: false` is a worker who hasn't finished setup.
+ * The membership is the account's (`me.membership`).
  */
 export function buildStoryMe(
   worker: { membership: Membership; setupComplete: boolean } | null,
@@ -63,6 +73,7 @@ export function buildStoryMe(
     deletionBlockers: [],
     savedWorkers: [],
     workerEligibility: worker !== null,
+    membership: worker?.membership ?? customerMembership,
     profile: { name: 'Sam Carter', emailVerified: true, phoneVerified: true },
     settings: {
       isProfilePrivate: false,
@@ -84,7 +95,6 @@ export function buildStoryMe(
       },
       publishState: WorkerPublishState.Published,
       profileGaps: [],
-      membership: worker.membership,
       earnings: { pending: { amount: 0, currency: Currency.Gbp } },
     },
   }

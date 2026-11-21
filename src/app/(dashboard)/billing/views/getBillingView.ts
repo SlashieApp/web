@@ -14,6 +14,8 @@ export function getBillingView({
 }: BillingViewInput): BillingView {
   if (!worker) return 'customer'
   const m = worker.membership
+  // The account's membership hasn't loaded yet.
+  if (!m) return 'loading'
   if (!m.hasPro && checkout === 'returning') return 'activating'
   if (!m.hasPro && checkout === 'delayed') {
     return 'activationDelayed'

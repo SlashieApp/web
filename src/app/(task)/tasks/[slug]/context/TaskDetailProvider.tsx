@@ -307,7 +307,8 @@ export function TaskDetailProvider({
   const meLoadingResolved = Boolean(isAuthenticated && meLoading && !me)
   const hasWorkerRow = Boolean(me?.worker?.id)
   const hasWorkerProfile = isWorkerSetupComplete(me)
-  const workerMembership = me?.worker?.membership ?? null
+  // Slashie Pro is the account's (BE-145); quoting reads it for workers only.
+  const workerMembership = me?.worker ? (me.membership ?? null) : null
   const hasPro = hasUnlimitedQuoting(workerMembership)
   const quotesRemainingThisMonth =
     workerMembership?.quotesRemainingThisMonth ?? null

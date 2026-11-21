@@ -11,7 +11,8 @@ import {
 import type { MeSnapshot } from '../store/user'
 
 export type StoryWorker = NonNullable<MeSnapshot['worker']>
-export type StoryMembership = StoryWorker['membership']
+/** The account's Slashie Pro (`me.membership`, BE-145). */
+export type StoryMembership = NonNullable<MeSnapshot['membership']>
 
 /** Inline SVG avatar, so a story never loads a remote image. */
 export function storyAvatarUrl(initials: string, fill = '#2f7d5b'): string {
@@ -20,6 +21,8 @@ export function storyAvatarUrl(initials: string, fill = '#2f7d5b'): string {
 }
 
 export type StoryMembershipKind =
+  /** A customer: Free, and can't subscribe yet (FE-591). */
+  | 'customer'
   | 'free'
   | 'freeLimitReached'
   | 'trial'
@@ -57,6 +60,14 @@ export function storyMembership(
   overrides: Partial<StoryMembership> = {},
 ): StoryMembership {
   const byKind: Record<StoryMembershipKind, StoryMembership> = {
+    customer: {
+      ...FREE,
+      subscriptionStatus: WorkerSubscriptionStatus.None,
+      quotesUsedThisMonth: 0,
+      quotesRemainingThisMonth: 3,
+      canUpgrade: false,
+      canStartTrial: false,
+    },
     free: {
       ...FREE,
       subscriptionStatus: WorkerSubscriptionStatus.None,
@@ -181,7 +192,6 @@ export function storyWorker(overrides: Partial<StoryWorker> = {}): StoryWorker {
     publishState: WorkerPublishState.Published,
     // No photo on `storyMe` and no portfolio links.
     profileGaps: [WorkerProfileGap.Photo, WorkerProfileGap.Portfolio],
-    membership: storyMembership('free'),
     earnings: { pending: { amount: 0, currency: Currency.Gbp } },
     ...overrides,
   }
@@ -247,6 +257,8 @@ export function storyMe(overrides: StoryMeOverrides = {}): MeSnapshot {
     deletionBlockers: [],
     savedWorkers: [],
     workerEligibility: Boolean(rest.worker),
+    // The account's Slashie Pro (BE-145): Free, and a customer can't subscribe yet.
+    membership: storyMembership(rest.worker ? 'free' : 'customer'),
     ...rest,
     worker: worker ?? null,
     profile: {

@@ -9,7 +9,10 @@ export type PricingViewInput = {
   available: boolean
   /** From the session cookie (server), then the signed-in profile. */
   session: 'guest' | 'checking' | 'signedIn'
-  /** The signed-in viewer's worker profile; null for customers. */
+  /**
+   * The signed-in viewer's worker profile; null for customers. `membership`
+   * is the account's (`me.membership`, BE-145); null while it loads.
+   */
   worker: {
     setupComplete: boolean
     membership: Pick<
@@ -20,7 +23,7 @@ export type PricingViewInput = {
       | 'canManageBilling'
       | 'cancelAtPeriodEnd'
       | 'subscriptionStatus'
-    >
+    > | null
   } | null
 }
 
@@ -40,6 +43,8 @@ export function getPricingView({
   if (session === 'guest') return 'guest'
   if (!worker) return 'customer'
   const m = worker.membership
+  // The account's membership hasn't loaded: placeholders, as for the session.
+  if (!m) return 'checkingSession'
   if (m.hasPro) {
     if (m.cancelAtPeriodEnd) {
       // No Stripe plan to keep: Slashie Pro given until a date (BE-119).

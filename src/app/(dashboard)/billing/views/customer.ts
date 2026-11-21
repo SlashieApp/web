@@ -1,8 +1,12 @@
 import type { BillingViewConfig } from './types'
 
-/** No worker profile: plans are for workers. */
+/**
+ * No worker profile (FE-591; Ryan 21 Nov): Slashie Pro is the account's, but
+ * customers can't subscribe until their first feature ships. Become a worker
+ * stays.
+ */
 export const customer: BillingViewConfig = {
-  title: 'workersOnly',
+  title: 'unlimited',
   body: 'customer',
   date: null,
   badge: null,

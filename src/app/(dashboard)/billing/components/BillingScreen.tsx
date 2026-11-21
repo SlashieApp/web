@@ -78,6 +78,9 @@ export function BillingScreen() {
   if (!me) return null
 
   const worker = me.worker
+  // Slashie Pro is the account's (BE-145, FE-591). A customer's card reads
+  // none of it: it says Pro for customers is coming soon.
+  const membership = worker ? (me.membership ?? null) : null
   const pricing = pricingQuery.data?.pricing ?? null
   const config =
     BILLING_VIEWS[
@@ -85,7 +88,7 @@ export function BillingScreen() {
         worker: worker
           ? {
               setupComplete: isWorkerSetupComplete(me),
-              membership: worker.membership,
+              membership,
             }
           : null,
         pricing: pricing ? 'ready' : pricingQuery.error ? 'failed' : 'loading',
@@ -93,7 +96,7 @@ export function BillingScreen() {
       })
     ]
 
-  const cardAction = billingActionFor(config.action, worker?.membership ?? null)
+  const cardAction = billingActionFor(config.action, membership)
 
   const onAction = (action: BillingAction) => {
     switch (action) {
@@ -107,7 +110,7 @@ export function BillingScreen() {
         return
       case 'keepUnlimited':
         // Unlimited given by Slashie has no Stripe plan to resume (BE-119).
-        if (keepUnlimitedOpens(worker?.membership ?? null) === 'checkout') {
+        if (keepUnlimitedOpens(membership) === 'checkout') {
           void checkoutWithCode()
           return
         }
@@ -138,14 +141,14 @@ export function BillingScreen() {
           ...config,
           action: cardAction,
         }}
-        membership={worker?.membership ?? null}
+        membership={membership}
         pricing={pricing}
         formatDate={formatDate}
         resetsOn={formatDate(nextMonthStart(new Date()).toISOString())}
         actionLoading={checkoutLoading || portalLoading || promo.checking}
         onAction={onAction}
         promo={
-          startsCheckout(cardAction, worker?.membership ?? null) ? (
+          startsCheckout(cardAction, membership) ? (
             <PromoCodeField promo={promo} disabled={checkoutLoading} />
           ) : null
         }

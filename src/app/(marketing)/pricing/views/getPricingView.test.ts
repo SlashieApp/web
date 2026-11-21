@@ -4,7 +4,9 @@ import { afterAll, describe, expect, it } from 'vitest'
 import { PRICING_VIEWS, getPricingView } from '.'
 import type { PricingView, PricingViewInput } from '.'
 
-type Membership = NonNullable<PricingViewInput['worker']>['membership']
+type Membership = NonNullable<
+  NonNullable<PricingViewInput['worker']>['membership']
+>
 
 /** Flags as the API sends them for each state (FE-290: Billing's order). */
 const base = {
@@ -95,8 +97,15 @@ describe('getPricingView', () => {
     expectView({ available: true, session: 'guest', worker: null }, 'guest')
   })
 
-  it('asks a customer to become a worker', () => {
+  it('tells a customer Pro for them is coming soon (FE-591)', () => {
     expectView({ ...signedIn, worker: null }, 'customer')
+  })
+
+  it("holds placeholders while a worker's membership (on the account) loads", () => {
+    expectView(
+      { ...signedIn, worker: { setupComplete: true, membership: null } },
+      'checkingSession',
+    )
   })
 
   it('asks a worker with an unfinished profile to finish it first', () => {
@@ -170,14 +179,19 @@ describe('PRICING_VIEWS', () => {
       .map(([view]) => view)
       .sort()
     expect(withTrial).toEqual(
-      [
-        'checkingSession',
-        'customer',
-        'guest',
-        'workerFree',
-        'workerSetup',
-      ].sort(),
+      ['checkingSession', 'guest', 'workerFree', 'workerSetup'].sort(),
     )
+  })
+
+  it('tells a customer Pro is coming soon, with one Become a worker, on Pro (FE-591)', () => {
+    const { customer } = PRICING_VIEWS
+    expect(customer.paid).toBe('customerSoon')
+    expect(customer.free).toBeNull()
+    expect(customer.unlimited).toEqual({
+      kind: 'link',
+      label: 'becomeWorker',
+      href: '/worker/setup?next=%2Fpricing',
+    })
   })
 
   it('marks the paid plan as theirs while it is failing or paused, and Free while Checkout is unfinished', () => {

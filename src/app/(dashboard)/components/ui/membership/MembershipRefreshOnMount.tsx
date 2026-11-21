@@ -5,7 +5,7 @@ import { useCallback, useRef } from 'react'
 import { useUserStore } from '@/app/(auth)/store/user'
 import { getAuthToken } from '@/utils/auth'
 
-/** Refreshes `me` (including `worker.membership`) from the API once on mount. */
+/** Refreshes `me` (including the account's `membership`) from the API once on mount. */
 export function MembershipRefreshOnMount() {
   const getUser = useUserStore((s) => s.getUser)
   const refreshedRef = useRef(false)

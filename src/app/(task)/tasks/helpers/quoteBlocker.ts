@@ -12,12 +12,15 @@ export function quoteBlocker(me: MeSnapshot | null): QuoteBlocker | null {
   const worker = me?.worker
   if (!me || !worker) return null
   if (!isWorkerSetupComplete(me)) return 'finishSetup'
-  const status = worker.membership.subscriptionStatus
+  // Slashie Pro is the account's (BE-145); null until it loads.
+  const membership = me.membership
+  if (!membership) return null
+  const status = membership.subscriptionStatus
   if (
     status === WorkerSubscriptionStatus.PastDue ||
     status === WorkerSubscriptionStatus.Unpaid
   ) {
     return 'fixPayment'
   }
-  return isQuoteLimitReached(worker.membership) ? 'quotesUsed' : null
+  return isQuoteLimitReached(membership) ? 'quotesUsed' : null
 }

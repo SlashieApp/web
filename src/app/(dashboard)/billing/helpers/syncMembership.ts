@@ -12,21 +12,16 @@ type SyncMembershipResult = {
   membership: WorkerMembershipSnapshot | null
 }
 
+/** Slashie Pro is the account's (BE-145, FE-591): it sits on `me`. */
 export function mergeMembershipIntoMe(
   me: MeSnapshot | null,
   membership: WorkerMembershipSnapshot,
 ): MeSnapshot | null {
-  if (!me?.worker) return me
-  return {
-    ...me,
-    worker: {
-      ...me.worker,
-      membership,
-    },
-  }
+  if (!me) return me
+  return { ...me, membership }
 }
 
-/** Stripe sync mutation + network refresh of `me` (membership under `me.worker`). */
+/** Stripe sync mutation + network refresh of `me` (the account's membership). */
 export async function syncMembershipFromStripe(
   apolloClient: ApolloClient,
   setMe: (me: MeSnapshot | null) => void,
@@ -64,6 +59,6 @@ export async function syncMembershipFromStripe(
 
   return {
     me,
-    membership: me?.worker?.membership ?? membership,
+    membership: me?.membership ?? membership,
   }
 }

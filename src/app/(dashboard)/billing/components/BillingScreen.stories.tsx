@@ -10,7 +10,6 @@ import {
   type StoryMembershipKind,
   storyMe,
   storyMembership,
-  storyWorker,
   storyWorkerDraft,
   storyWorkerMe,
 } from '@/app/(auth)/helpers/authStoryFixtures'
@@ -47,7 +46,7 @@ function screenFor(
 }
 
 const worker = (kind: StoryMembershipKind) =>
-  storyWorkerMe({ worker: storyWorker({ membership: storyMembership(kind) }) })
+  storyWorkerMe({ membership: storyMembership(kind) })
 
 const meta = {
   title: 'Dashboard/Billing/BillingScreen',
@@ -61,7 +60,10 @@ const meta = {
 export default meta
 type Story = StoryObj<typeof meta>
 
-/** `customer`: plans are for workers, with Become a worker. */
+/**
+ * `customer` (FE-591; Ryan 21 Nov): Slashie Pro for customers is coming soon,
+ * with Become a worker. No meter, price or code field.
+ */
 export const Customer: Story = {
   ...screenFor(storyMe()),
   play: async ({ canvasElement }) => {
@@ -69,10 +71,18 @@ export const Customer: Story = {
     await expect(
       await canvas.findByRole('heading', { level: 1, name: 'Plan & billing' }),
     ).toBeVisible()
-    await expect(await canvas.findByText('Plans are for workers')).toBeVisible()
+    await expect(await canvas.findByText('Slashie Pro')).toBeVisible()
+    await expect(
+      canvas.getByText(
+        'Slashie Pro for customers is coming soon. Workers can get it now for unlimited quotes.',
+      ),
+    ).toBeVisible()
     await expect(
       canvas.getByRole('button', { name: 'Become a worker' }),
     ).toBeVisible()
+    await expect(
+      canvas.queryByRole('button', { name: 'Have a code?' }),
+    ).toBeNull()
   },
 }
 
@@ -197,11 +207,9 @@ export const Cancelling: Story = {
 export const GivenUntilDate: Story = {
   ...screenFor(
     storyWorkerMe({
-      worker: storyWorker({
-        membership: storyMembership('activeCancelling', {
-          canManageBilling: false,
-          canUpgrade: true,
-        }),
+      membership: storyMembership('activeCancelling', {
+        canManageBilling: false,
+        canUpgrade: true,
       }),
     }),
   ),
@@ -218,12 +226,10 @@ export const GivenUntilDate: Story = {
 export const GivenNoEnd: Story = {
   ...screenFor(
     storyWorkerMe({
-      worker: storyWorker({
-        membership: storyMembership('active', {
-          canManageBilling: false,
-          canUpgrade: false,
-          currentPeriodEnd: null,
-        }),
+      membership: storyMembership('active', {
+        canManageBilling: false,
+        canUpgrade: false,
+        currentPeriodEnd: null,
       }),
     }),
   ),

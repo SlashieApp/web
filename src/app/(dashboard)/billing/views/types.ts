@@ -18,7 +18,10 @@ export type BillingView =
   | 'activationDelayed'
 
 export type BillingViewInput = {
-  /** The signed-in viewer's worker profile; null for customers. */
+  /**
+   * The signed-in viewer's worker profile; null for customers. `membership`
+   * is the account's (`me.membership`, BE-145); null while it loads.
+   */
   worker: {
     setupComplete: boolean
     membership: Pick<
@@ -28,7 +31,7 @@ export type BillingViewInput = {
       | 'canStartTrial'
       | 'cancelAtPeriodEnd'
       | 'subscriptionStatus'
-    >
+    > | null
   } | null
   /** The Pricing query (price, interval, trial). */
   pricing: 'loading' | 'ready' | 'failed'
@@ -37,11 +40,7 @@ export type BillingViewInput = {
 }
 
 /** Copy keys under `views` in ../i11n.json. */
-export type BillingCardTitle =
-  | 'workersOnly'
-  | 'finishSetup'
-  | 'free'
-  | 'unlimited'
+export type BillingCardTitle = 'finishSetup' | 'free' | 'unlimited'
 
 export type BillingBadge =
   | 'free'

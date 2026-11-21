@@ -10,7 +10,6 @@ import {
 import {
   storyMe,
   storyMembership,
-  storyWorker,
   storyWorkerMe,
 } from '@/app/(auth)/helpers/authStoryFixtures'
 import { expectMyTasksOnLines } from '@/app/(task)/helpers/taskPageRules.testing'
@@ -423,11 +422,7 @@ export const DesktopQuoteBlocker: Story = {
   globals: { viewport: { value: 'desktop' } },
   decorators: [
     session({
-      me: storyWorkerMe({
-        worker: storyWorker({
-          membership: storyMembership('freeLimitReached'),
-        }),
-      }),
+      me: storyWorkerMe({ membership: storyMembership('freeLimitReached') }),
     }),
   ],
   play: async ({ canvasElement }) => {

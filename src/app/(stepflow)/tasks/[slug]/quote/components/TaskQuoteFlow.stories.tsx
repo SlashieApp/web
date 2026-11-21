@@ -226,12 +226,8 @@ export const EmailNotVerifiedSpacing: Story = {
 const withLimitReached = withQuoteStory(
   { viewer: 'worker' },
   {
-    me: (me) => ({
-      worker: me.worker && {
-        ...me.worker,
-        membership: LIMIT_REACHED_MEMBERSHIP,
-      },
-    }),
+    // The account's Slashie Pro (BE-145).
+    me: () => ({ membership: LIMIT_REACHED_MEMBERSHIP }),
   },
 )
 

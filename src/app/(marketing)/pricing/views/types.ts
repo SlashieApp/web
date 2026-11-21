@@ -54,9 +54,12 @@ export type PricingAction =
  * - `ending`: "Ends {date}" (a plan that won't renew, paid or given).
  * - `given`: given by Slashie with no end date: no price.
  * - `paymentProblem`, `paused`, `notFinished`: the state, then Billing's line.
+ * - `customerSoon`: as `trial`, with "Slashie Pro for customers is coming
+ *   soon." in place of the card line (FE-591).
  */
 export type PricingPaidLine =
   | 'trial'
+  | 'customerSoon'
   | 'price'
   | 'trialing'
   | 'ending'

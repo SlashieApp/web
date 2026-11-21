@@ -25,7 +25,6 @@ export function mergeMeWorkerSetupQuery(
           bootstrap.worker.preferredLocation ?? base.worker?.preferredLocation,
         setupProgress:
           bootstrap.worker.setupProgress ?? base.worker?.setupProgress,
-        membership: base.worker?.membership,
         earnings: base.worker?.earnings,
       } as NonNullable<MeQuery['me']['worker']>)
     : base.worker
@@ -63,7 +62,6 @@ export function mergeSaveWorkerSetupIntoMe(
     // Finishing setup turns DRAFT into PUBLISHED (or HIDDEN); /profile reads both.
     publishState: saved.publishState ?? currentWorker?.publishState,
     profileGaps: saved.profileGaps ?? currentWorker?.profileGaps ?? [],
-    membership: currentWorker?.membership,
     earnings: currentWorker?.earnings,
     isVerified: currentWorker?.isVerified ?? false,
     locationAddress:

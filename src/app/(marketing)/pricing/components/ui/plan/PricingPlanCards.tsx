@@ -248,7 +248,9 @@ export function PricingPlanCards({
   const perInterval = pricingPerInterval(pricing, intervals)
   const price = pricingDisplayPrice(pricing)
   const trial =
-    config.paid === 'trial' ? pricingTrialLength(pricing.trialDays) : null
+    config.paid === 'trial' || config.paid === 'customerSoon'
+      ? pricingTrialLength(pricing.trialDays)
+      : null
   const count = pricing.freeQuotesPerMonth
   const paid = paidLines(config.paid, {
     copy,
@@ -329,6 +331,17 @@ function paidLines(
             detail: copy.cardNeeded,
           }
         : priced
+    case 'customerSoon':
+      // Customers can't subscribe yet (FE-591): the trial and price, then why.
+      return trial
+        ? {
+            amount: formatMessage(copy.trial[trial.unit], {
+              count: trial.count,
+            }),
+            note: formatMessage(copy.thenPrice, { priceLine }),
+            detail: copy.customerSoon,
+          }
+        : { ...priced, detail: copy.customerSoon }
     case 'price':
       return priced
     case 'trialing':

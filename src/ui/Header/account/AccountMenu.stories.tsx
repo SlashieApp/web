@@ -23,7 +23,7 @@ import {
 import { FeedbackDialogProvider } from '../../FeedbackDialog/FeedbackDialogProvider'
 import { AccountMenu, type AccountMenuProps } from './AccountMenu'
 
-type Membership = NonNullable<MeSnapshot['worker']>['membership']
+type Membership = NonNullable<MeSnapshot['membership']>
 
 /** Worker on the 6-month trial: unlimited quotes. */
 const trial: Membership = {
@@ -99,6 +99,12 @@ function buildMe({
       acceptsQuoteInvitations: true,
     },
     workerEligibility: membership !== null,
+    // The account's Slashie Pro (BE-145); a customer's is Free.
+    membership: membership ?? {
+      ...free,
+      canStartTrial: false,
+      canUpgrade: false,
+    },
     worker: membership && {
       id: 'worker-1',
       legalName: name,
@@ -125,7 +131,6 @@ function buildMe({
       locationAddress: 'London',
       locationLat: 51.5074,
       locationLng: -0.1278,
-      membership,
       earnings: { pending: { amount: 120, currency: Currency.Gbp } },
     },
   }

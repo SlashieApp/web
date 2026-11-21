@@ -8,7 +8,6 @@
     "description": "Your plan, what it costs and what happens next.",
     "views": {
       "titles": {
-        "workersOnly": "Plans are for workers",
         "finishSetup": "Finish setup first",
         "free": "Free",
         "unlimited": "Slashie Pro"
@@ -24,7 +23,7 @@
         "activating": "Activating"
       },
       "bodies": {
-        "customer": "Slashie Pro gives workers unlimited quotes. Set up a worker profile to see your plan.",
+        "customer": "Slashie Pro for customers is coming soon. Workers can get it now for unlimited quotes.",
         "workerSetup": "Plans start once your worker profile is set up.",
         "free": "Quote on {count} new tasks a month, or go unlimited.",
         "priceUnavailable": "We couldn't load the price right now.",
@@ -129,7 +128,6 @@
     "description": "你的方案、費用和接下來的安排。",
     "views": {
       "titles": {
-        "workersOnly": "方案只適用於工作者",
         "finishSetup": "請先完成設定",
         "free": "免費",
         "unlimited": "Slashie Pro"
@@ -145,7 +143,7 @@
         "activating": "啟用中"
       },
       "bodies": {
-        "customer": "Slashie Pro 讓工作者無限次報價。設定工作者個人檔案後即可查看你的方案。",
+        "customer": "客戶版 Slashie Pro 即將推出。工作者現在就可以使用，無限次報價。",
         "workerSetup": "完成工作者個人檔案設定後，方案便會開始。",
         "free": "每月可為 {count} 個新任務報價，或升級為無限報價。",
         "priceUnavailable": "暫時未能載入價格。",

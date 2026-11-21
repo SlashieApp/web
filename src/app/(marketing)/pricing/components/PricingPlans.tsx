@@ -55,13 +55,14 @@ export function PricingPlans({
     worker: me?.worker
       ? {
           setupComplete: Boolean(me.worker.setupProgress?.isComplete),
-          membership: me.worker.membership,
+          // Slashie Pro is the account's (BE-145, FE-591).
+          membership: me.membership ?? null,
         }
       : null,
   })
   const config = PRICING_VIEWS[view]
   // The date the paid card names: when the trial ends, or when the plan ends.
-  const membership = me?.worker?.membership
+  const membership = me?.membership
   const paidDate =
     config.paid === 'trialing'
       ? formatPlanDate(membership?.trialEndsAt, locale)

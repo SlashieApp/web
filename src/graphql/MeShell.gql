@@ -7,11 +7,12 @@ fragment MeShell on User {
     name
     avatarUrl
   }
+  # Slashie Pro is the account's (BE-145, FE-591), customers included.
+  membership {
+    ...WorkerMembershipFields
+  }
   worker {
     id
-    membership {
-      ...WorkerMembershipFields
-    }
     earnings {
       pending {
         amount

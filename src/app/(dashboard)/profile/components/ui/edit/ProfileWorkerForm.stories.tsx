@@ -129,10 +129,8 @@ export const TitleKeptAfterLapse: Story = {
   parameters: {
     session: withSession({
       me: storyWorkerMe({
-        worker: storyWorker({
-          membership: storyMembership('canceled'),
-          titleChoice: WorkerPrimaryCategory.Plumbing,
-        }),
+        membership: storyMembership('canceled'),
+        worker: storyWorker({ titleChoice: WorkerPrimaryCategory.Plumbing }),
       }),
     }),
   },
@@ -150,9 +148,7 @@ export const TitleKeptAfterLapse: Story = {
 export const TitlePickOnUnlimited: Story = {
   parameters: {
     session: withSession({
-      me: storyWorkerMe({
-        worker: storyWorker({ membership: storyMembership('active') }),
-      }),
+      me: storyWorkerMe({ membership: storyMembership('active') }),
     }),
   },
   play: async ({ canvasElement }) => {
@@ -177,9 +173,7 @@ export const TitlePickOnUnlimited: Story = {
 export const TitleSaveFails: Story = {
   parameters: {
     session: withSession({
-      me: storyWorkerMe({
-        worker: storyWorker({ membership: storyMembership('active') }),
-      }),
+      me: storyWorkerMe({ membership: storyMembership('active') }),
       responses: {
         UpdateWorkerProfile: {
           kind: 'graphqlError',

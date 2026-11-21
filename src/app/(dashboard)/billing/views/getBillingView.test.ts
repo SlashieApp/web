@@ -8,7 +8,9 @@ import {
   getBillingView,
 } from '.'
 
-type Membership = NonNullable<BillingViewInput['worker']>['membership']
+type Membership = NonNullable<
+  NonNullable<BillingViewInput['worker']>['membership']
+>
 
 const free: Membership = {
   hasPro: false,
@@ -42,7 +44,7 @@ const unlimited = (status: WorkerSubscriptionStatus) => ({
 })
 
 describe('getBillingView', () => {
-  it('tells a customer plans are for workers', () => {
+  it('tells a customer Pro for them is coming soon (FE-591)', () => {
     const result = getBillingView({
       worker: null,
       pricing: 'ready',
@@ -50,6 +52,15 @@ describe('getBillingView', () => {
     })
     seen.add(result)
     expect(result).toBe('customer')
+  })
+
+  it("shows loading while a worker's membership (on the account) loads", () => {
+    const result = getBillingView({
+      worker: { setupComplete: true, membership: null },
+      pricing: 'ready',
+      checkout: null,
+    })
+    expect(result).toBe('loading')
   })
 
   it('asks a worker with unfinished setup to finish it first', () => {

@@ -220,18 +220,51 @@ export const CheckingSession: Story = {
   },
 }
 
-/** `customer`: set up a worker profile; the trial button comes back here after. */
+/**
+ * `customer` (FE-591; Ryan 21 Nov): Slashie Pro for customers is coming soon,
+ * in place of the card line. One Become a worker, the green one on Pro, back
+ * here after setup; Free has no button.
+ */
 export const Customer: Story = {
   args: { config: PRICING_VIEWS.customer },
   play: async ({ canvasElement }) => {
-    await expect(link(canvasElement, 'Become a worker')).toHaveAttribute(
-      'href',
-      '/worker/setup',
-    )
-    await expect(link(canvasElement, 'Start free trial')).toHaveAttribute(
+    const canvas = within(canvasElement)
+    const unlimited = canvasElement.querySelector(
+      '[data-pricing-plan="unlimited"]',
+    ) as HTMLElement
+    const free = canvasElement.querySelector(
+      '[data-pricing-plan="free"]',
+    ) as HTMLElement
+    await expect(within(unlimited).getByText('6 months free')).toBeVisible()
+    await expect(
+      within(unlimited).getByText('Then £19.99 / month'),
+    ).toBeVisible()
+    await expect(
+      within(unlimited).getByText('Slashie Pro for customers is coming soon.'),
+    ).toBeVisible()
+    await expect(canvas.queryByText('Card needed to start')).toBeNull()
+    await expect(canvas.getAllByRole('link')).toHaveLength(1)
+    await expect(link(unlimited, 'Become a worker')).toHaveAttribute(
       'href',
       '/worker/setup?next=%2Fpricing',
     )
+    await expect(within(free).queryAllByRole('link')).toHaveLength(0)
+  },
+}
+
+/** `customer` in zh-HK. */
+export const CustomerZhHk: Story = {
+  args: {
+    config: PRICING_VIEWS.customer,
+    copy: pricingBag.zh_hk.plans,
+    intervals: pricingBag.zh_hk.intervals,
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(
+      canvas.getByText('客戶版 Slashie Pro 即將推出。'),
+    ).toBeVisible()
+    await expect(canvas.getByRole('link', { name: '成為工作者' })).toBeVisible()
   },
 }
 

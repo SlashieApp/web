@@ -68,7 +68,8 @@
         "notFinished": "Not finished",
         "notFinishedNote": "Your checkout didn't finish. If you paid, it can take a few minutes to show here."
       },
-      "cardNeeded": "Card needed to start"
+      "cardNeeded": "Card needed to start",
+      "customerSoon": "Slashie Pro for customers is coming soon."
     },
     "counting": {
       "free": {
@@ -200,7 +201,8 @@
         "notFinished": "未完成",
         "notFinishedNote": "你的結帳未完成。如你已付款，可能需要幾分鐘才會在這裡顯示。"
       },
-      "cardNeeded": "開始試用需提供信用卡"
+      "cardNeeded": "開始試用需提供信用卡",
+      "customerSoon": "客戶版 Slashie Pro 即將推出。"
     },
     "counting": {
       "free": {
