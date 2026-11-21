@@ -268,6 +268,24 @@ const sharedTheme = {
         from: { opacity: '0' },
         to: { opacity: '1' },
       },
+      /**
+       * A success moment's block settling in (Task posted; Ryan 22 Nov): it
+       * rises 8px and grows from 98%, fading in. Run it 300ms on
+       * `sdlMotion.easing.emphasis`, whose gentle overshoot is the settle,
+       * once, one block at a time. Under reduced motion run `step-in-fade`.
+       */
+      'moment-settle': {
+        from: { opacity: '0', transform: 'translateY(8px) scale(0.98)' },
+        to: { opacity: '1', transform: 'translateY(0) scale(1)' },
+      },
+      /**
+       * A tick drawing itself: for a path with `pathLength="1"` and
+       * `stroke-dasharray: 1`. Follows the block that carries it.
+       */
+      'tick-draw': {
+        from: { strokeDashoffset: '1' },
+        to: { strokeDashoffset: '0' },
+      },
       /** Landing phone demo: "tap here" ring. Pair with a reduced-motion override. */
       'tap-pulse': {
         '0%': { opacity: '0.7', transform: 'scale(0.92)' },

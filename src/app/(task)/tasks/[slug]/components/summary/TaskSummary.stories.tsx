@@ -10,7 +10,13 @@ import {
   TaskStatus,
 } from '@codegen/schema'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
-import { expect, userEvent, within } from 'storybook/test'
+import { expect, userEvent, waitFor, within } from 'storybook/test'
+
+import {
+  markTaskPosted,
+  postedMomentStorage,
+  takeTaskPosted,
+} from '@/app/(task)/helpers/postedMoment/postedMoment'
 
 import type { OrderItem } from '@/utils/orderHelpers'
 
@@ -189,6 +195,9 @@ function bookingOrders(viewerId: string, otherId: string) {
 const ownerOrders = bookingOrders(STORY_OWNER_ID, STORY_WORKER_ID)
 const workerOrders = bookingOrders(STORY_WORKER_ID, STORY_OWNER_ID)
 
+/** The task Post a task has just landed on, with no quotes yet. */
+const justPostedTask = storyTaskDetail({ quotes: [] })
+
 function view(config: Partial<TaskDetailStoryConfig>): Story {
   return { decorators: [withTaskDetailStory(config, { maxWidth: '1200px' })] }
 }
@@ -213,6 +222,72 @@ export const OwnerOpenNoQuotes = view({
   viewer: 'owner',
   task: storyTaskDetail({ quotes: [] }),
 })
+/**
+ * Landing from Post a task (Ryan 22 Nov): the same block plays the moment
+ * once. It settles in with the emphasis curve, a tick draws beside the pill,
+ * and the headline reads "Task posted" over the same next step. No second
+ * banner. The note posting left is used up, so a refresh reads as usual.
+ */
+export const OwnerJustPosted: Story = {
+  decorators: [
+    withTaskDetailStory(
+      { viewer: 'owner', task: justPostedTask },
+      { maxWidth: '1200px' },
+    ),
+    (Story) => {
+      markTaskPosted(postedMomentStorage(), justPostedTask.id)
+      return <Story />
+    },
+  ],
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(
+      await canvas.findByRole('heading', { name: 'Task posted' }),
+    ).toBeInTheDocument()
+    await expect(
+      canvas.getByText(
+        'Nearby workers can see your task. Share it to get quotes faster.',
+      ),
+    ).toBeInTheDocument()
+    await expect(
+      canvas.queryByText('Your task is live - reaching workers'),
+    ).toBeNull()
+    const block = canvasElement.querySelector(
+      '[data-posted-moment]',
+    ) as HTMLElement
+    const style = getComputedStyle(block)
+    await expect(style.animationName).toBe('moment-settle')
+    await expect(style.animationDuration).toBe('0.3s')
+    // The emphasis curve: the one overshoot of the landing.
+    await expect(style.animationTimingFunction).toBe(
+      'cubic-bezier(0.2, 0, 0, 1.2)',
+    )
+    await expect(
+      canvasElement.querySelector('[data-posted-tick]'),
+    ).not.toBeNull()
+    await waitFor(() => expect(block).toBeVisible())
+    // Used up: nothing is left for a refresh or a later visit.
+    await expect(takeTaskPosted(postedMomentStorage(), justPostedTask.id)).toBe(
+      false,
+    )
+  },
+}
+
+/** A later visit to the same task: the everyday words, no tick, nothing moves. */
+export const OwnerPostedEarlier: Story = {
+  ...view({ viewer: 'owner', task: storyTaskDetail({ quotes: [] }) }),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(
+      await canvas.findByRole('heading', {
+        name: 'Your task is live - reaching workers',
+      }),
+    ).toBeVisible()
+    await expect(canvasElement.querySelector('[data-posted-tick]')).toBeNull()
+    await expect(canvasElement.querySelector('[data-posted-moment]')).toBeNull()
+  },
+}
+
 /** Owner with pending quotes: compare and accept. */
 export const OwnerOpenQuotes = view({ viewer: 'owner', task: openTask })
 /** Owner, booked, before the start: coordinate, reschedule or cancel. */

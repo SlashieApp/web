@@ -22,6 +22,10 @@ import type { ContactOption } from '@/app/(dashboard)/profile/profileEligibility
 import CreateTask from '@/app/(stepflow)/tasks/create/graphql/CreateTask.gql'
 import { MARKETPLACE_MAP_MOTION_MS } from '@/app/(task)/helpers/marketplaceMap/motion'
 import {
+  markTaskPosted,
+  postedMomentStorage,
+} from '@/app/(task)/helpers/postedMoment/postedMoment'
+import {
   budgetUnitFromText,
   taskBudgetBag,
 } from '@/app/(task)/helpers/taskBudget/taskBudget'
@@ -550,8 +554,11 @@ export function CreateTaskScreen({
         photos: photos.files.length,
         photos_failed: failed,
       })
-      // With a worker carried from their profile, the new task's page asks
-      // whether to ask them to quote. Nothing is sent before that tap.
+      // The task's page plays the "Task posted" moment once (Ryan 22 Nov).
+      // Not with a worker carried from their profile: there the page opens
+      // by asking whether to ask them to quote, and that is its moment.
+      // Nothing is sent before that tap.
+      if (!askWorkerId) markTaskPosted(postedMomentStorage(), taskId)
       router.replace(localize(taskPathAfterPost(taskId, askWorkerId)))
       return true
     } catch (err: unknown) {
