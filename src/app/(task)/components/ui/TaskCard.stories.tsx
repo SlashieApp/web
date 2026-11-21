@@ -25,6 +25,7 @@ const defaultTask: TaskCardTask = {
   description: 'Need a worker to mount one TV safely on a plasterboard wall.',
   location: 'Southwark',
   priceLabel: '£120',
+  priceUnitLabel: 'Fixed price',
   categories: ['Tech setup'],
   distanceLabel: '1.2 miles',
   timingLabel: 'Flexible',
@@ -139,9 +140,27 @@ export const LongTitle: Story = {
   },
 }
 
-/** No budget: the pound amount is left out of the meta line. */
+/** No price (My Tasks' own rows): the pound amount is left out of the meta line. */
 export const MissingBudget: Story = {
-  args: { task: { ...defaultTask, priceLabel: '' } },
+  args: { task: { ...defaultTask, priceLabel: '', priceUnitLabel: undefined } },
+}
+
+/** An open budget (FE-584): "Open budget" in the price slot, with no unit. */
+export const OpenBudget: Story = {
+  args: {
+    task: {
+      ...defaultTask,
+      priceLabel: 'Open budget',
+      priceUnitLabel: undefined,
+    },
+  },
+}
+
+/** The poster's own unit, as typed, beside the amount. */
+export const OwnUnit: Story = {
+  args: {
+    task: { ...defaultTask, priceLabel: '£15', priceUnitLabel: 'per room' },
+  },
 }
 
 /** No photo: the same edge-to-edge box, grey with the image icon. */
