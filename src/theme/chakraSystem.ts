@@ -250,6 +250,24 @@ const sharedTheme = {
         from: { opacity: '0', transform: 'translateY(8px)' },
         to: { opacity: '1', transform: 'translateY(0)' },
       },
+      /**
+       * A step of a flow arriving (Post a task motion; Ryan 22 Nov): from the
+       * side you are heading to, 16px, fading in. Run it 200ms on
+       * `sdlMotion.easing.decelerate`, once; under reduced motion run
+       * `step-in-fade` for 150ms instead. No exit: the old step is replaced.
+       */
+      'step-in-forward': {
+        from: { opacity: '0', transform: 'translateX(16px)' },
+        to: { opacity: '1', transform: 'translateX(0)' },
+      },
+      'step-in-back': {
+        from: { opacity: '0', transform: 'translateX(-16px)' },
+        to: { opacity: '1', transform: 'translateX(0)' },
+      },
+      'step-in-fade': {
+        from: { opacity: '0' },
+        to: { opacity: '1' },
+      },
       /** Landing phone demo: "tap here" ring. Pair with a reduced-motion override. */
       'tap-pulse': {
         '0%': { opacity: '0.7', transform: 'scale(0.92)' },

@@ -111,6 +111,25 @@ const COMPACT_MOTION_MQ = `${COMPACT_MQ} and (prefers-reduced-motion: no-prefere
 export const CREATE_TASK_SHEET_MS = Number.parseInt(sdlMotion.duration.slow, 10)
 
 /** Address step to details on phones: the form slides up from the bottom over the band. */
+/**
+ * A step arriving from the side you are heading to (Ryan 22 Nov): Continue
+ * brings the next one in from the right, Back from the left. Quiet and short
+ * (it happens six times a task): 16px, 200ms, no exit. Reduced motion fades.
+ */
+export type StepDirection = 'forward' | 'back'
+
+const stepInCss = (direction: StepDirection) =>
+  ({
+    animationName: direction === 'forward' ? 'step-in-forward' : 'step-in-back',
+    animationDuration: sdlMotion.duration.moderate,
+    animationTimingFunction: sdlMotion.easing.decelerate,
+    animationFillMode: 'both',
+    '@media (prefers-reduced-motion: reduce)': {
+      animationName: 'step-in-fade',
+      animationDuration: sdlMotion.duration.base,
+    },
+  }) as SystemStyleObject
+
 const formRisesCss = {
   [COMPACT_MOTION_MQ]: {
     animationName: 'slide-from-bottom-full',
@@ -166,6 +185,13 @@ export type CreateTaskMapLayoutProps = {
   actions: Omit<StepFlowActionsProps, 'sticky'>
   /** Step heading wrapper; the page focuses it after a step change. */
   headingRef?: Ref<HTMLDivElement>
+  /**
+   * The step shown, and which way it was reached: a new key replaces the
+   * step's title and fields, which slide in from that side. Null on arrival
+   * (a fresh page, a restored draft): nothing moves.
+   */
+  stepKey?: string
+  stepDirection?: StepDirection | null
   children: ReactNode
 }
 
@@ -205,6 +231,8 @@ export function CreateTaskMapLayout({
   errorText,
   actions,
   headingRef,
+  stepKey,
+  stepDirection = null,
   children,
 }: CreateTaskMapLayoutProps) {
   const [cardH, setCardH] = useState(0)
@@ -216,6 +244,9 @@ export function CreateTaskMapLayout({
   const mapFull = mapMode === 'full'
   const formFullScreen = mapMode === 'desktopBand'
   const formRises = formFullScreen && modes.before === 'band'
+  // The whole form rising over the band is that change's motion: the step
+  // inside it doesn't slide as well.
+  const stepSlides = Boolean(stepDirection) && !formRises
 
   const cardRef = useCallback((node: HTMLDivElement | null) => {
     cardObserverRef.current?.disconnect()
@@ -407,7 +438,15 @@ export function CreateTaskMapLayout({
                   css={fieldsClearStickyBarCss}
                   onFocus={keepFocusedFieldInView}
                 >
-                  <StepFlowColumn>
+                  <StepFlowColumn
+                    key={stepKey}
+                    data-step-in={stepSlides ? stepDirection : undefined}
+                    css={
+                      stepSlides && stepDirection
+                        ? stepInCss(stepDirection)
+                        : undefined
+                    }
+                  >
                     {heading}
                     <StepFlowBody errorText={errorText}>
                       {children}

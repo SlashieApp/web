@@ -14,6 +14,20 @@ export function createTaskPreviousStep(
   return ORDER[ORDER.indexOf(id) - 1] ?? null
 }
 
+/**
+ * Which way a step change travels, for the side the next step slides in
+ * from (Ryan 22 Nov): later in the flow is forward, earlier is back, and
+ * staying put moves nothing.
+ */
+export function createTaskStepDirection(
+  from: CreateTaskStepId,
+  to: CreateTaskStepId,
+): 'forward' | 'back' | null {
+  const change = ORDER.indexOf(to) - ORDER.indexOf(from)
+  if (change === 0) return null
+  return change > 0 ? 'forward' : 'back'
+}
+
 /** 1-based position, for the progress strip ("Step 2 of 7"). */
 export function createTaskProgress(id: CreateTaskStepId) {
   const index = ORDER.indexOf(id) + 1

@@ -7,6 +7,7 @@ import {
   createTaskNextStep,
   createTaskPreviousStep,
   createTaskProgress,
+  createTaskStepDirection,
 } from './createTaskSteps'
 
 describe('create task steps', () => {
@@ -113,5 +114,15 @@ describe('create task steps', () => {
     expect(createTaskIsStepUnlocked('address', 'location', new Set())).toBe(
       false,
     )
+  })
+
+  it('says which way a step change travels, for the side the next step slides in from', () => {
+    expect(createTaskStepDirection('details', 'timing')).toBe('forward')
+    expect(createTaskStepDirection('timing', 'details')).toBe('back')
+    // A summary row jumps back several steps; a failed Post to the first one with a problem.
+    expect(createTaskStepDirection('review', 'details')).toBe('back')
+    expect(createTaskStepDirection('location', 'review')).toBe('forward')
+    // Staying put moves nothing.
+    expect(createTaskStepDirection('budget', 'budget')).toBeNull()
   })
 })

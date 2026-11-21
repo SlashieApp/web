@@ -78,6 +78,7 @@ import {
   createTaskNextStep,
   createTaskPreviousStep,
   createTaskProgress,
+  createTaskStepDirection,
 } from '../helpers/createTaskSteps'
 import {
   resolvePublicAreaName,
@@ -100,6 +101,7 @@ import { CreateTaskLocationMap } from './layout/map/CreateTaskLocationMap'
 import {
   CREATE_TASK_SHEET_MS,
   CreateTaskMapLayout,
+  type StepDirection,
 } from './layout/shared/CreateTaskMapLayout'
 import { CreateTaskStepper } from './layout/shared/CreateTaskStepper'
 import { CreateTaskAddressSection } from './ui/sections/CreateTaskAddressSection'
@@ -240,6 +242,8 @@ export function CreateTaskScreen({
   const values = watch()
 
   const [step, setStep] = useState<CreateTaskStepId>(draft?.step ?? 'location')
+  // Null until the first step change: arriving (or a restored draft) moves nothing.
+  const [stepDirection, setStepDirection] = useState<StepDirection | null>(null)
   const [done, setDone] = useState<Set<CreateTaskStepId>>(
     () => new Set(draft?.done ?? []),
   )
@@ -372,10 +376,16 @@ export function CreateTaskScreen({
     photos.converting &&
     (view.primary === 'post' || view.sections.includes('photos'))
 
+  // Every step change says which way it travels: the next step slides in
+  // from that side (Ryan 22 Nov).
+  const moveTo = (next: CreateTaskStepId) => {
+    setStepDirection(createTaskStepDirection(step, next))
+    setStep(next)
+  }
   const go = (next: CreateTaskStepId) => {
     setServerError(null)
     setDraftNotice(false)
-    setStep(next)
+    moveTo(next)
   }
   const goToStep = (id: CreateTaskStepId) => {
     if (createTaskIsStepUnlocked(id, step, done)) go(id)
@@ -393,7 +403,7 @@ export function CreateTaskScreen({
     setDone(new Set())
     setDraftNotice(false)
     setServerError(null)
-    setStep('location')
+    moveTo('location')
   }
 
   async function continueStep() {
@@ -434,7 +444,7 @@ export function CreateTaskScreen({
         (formErrors) => {
           setServerError(t.missingDetails)
           const first = createTaskFirstErroredStep(Object.keys(formErrors))
-          if (first) setStep(first)
+          if (first) moveTo(first)
         },
       )()
       return created
@@ -470,7 +480,7 @@ export function CreateTaskScreen({
       return false
     }
     if (!(await location.applyResolvedLocation())) {
-      setStep('location')
+      moveTo('location')
       return false
     }
     const located = getValues()
@@ -764,6 +774,8 @@ export function CreateTaskScreen({
         </HStack>
       }
       headingRef={headingRef}
+      stepKey={step}
+      stepDirection={stepDirection}
       title={copy.title}
       description={copy.description}
       errorText={serverError}

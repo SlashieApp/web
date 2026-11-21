@@ -89,6 +89,12 @@ function atStep(
   }
 }
 
+/** A step has arrived: its title has slid in and is fully showing. */
+async function arrived(heading: HTMLElement) {
+  await waitFor(() => expect(heading).toBeVisible())
+  return heading
+}
+
 /** On the address step with the pin set but no exact address yet. */
 const addressToAdd = atStep('address', { ...answers, streetAddress: '' })
 
@@ -528,11 +534,11 @@ export const PhotosContinueWithout: Story = {
     const canvas = within(canvasElement)
     await canvas.findByRole('heading', { name: 'Add photos' })
     await userEvent.click(canvas.getByRole('button', { name: /Continue/ }))
-    await expect(
+    await arrived(
       await canvas.findByRole('heading', {
         name: 'Do you have a budget in mind?',
       }),
-    ).toBeVisible()
+    )
   },
 }
 
@@ -642,9 +648,9 @@ export const BudgetNotAnswered: Story = {
     // Open budget is a full answer: Continue then moves on to the review.
     await userEvent.click(canvas.getByRole('radio', { name: 'Open budget' }))
     await userEvent.click(canvas.getByRole('button', { name: /Continue/ }))
-    await expect(
+    await arrived(
       await canvas.findByRole('heading', { name: 'What workers will see' }),
-    ).toBeVisible()
+    )
   },
 }
 
@@ -673,9 +679,42 @@ export const ReviewEditGoesBack: Story = {
     await userEvent.click(
       await canvas.findByRole('button', { name: 'Edit Timing' }),
     )
-    await expect(
+    await arrived(
       await canvas.findByRole('heading', { name: 'When do you need it?' }),
-    ).toBeVisible()
+    )
+  },
+}
+
+/**
+ * Steps arrive from the side you are heading to (Ryan 22 Nov): Continue
+ * brings the next one in from the right, Back from the left, 200ms, and a
+ * draft opening on a step moves nothing.
+ */
+export const StepsSlideTheWayYouGo: Story = {
+  decorators: [atStep('photos')],
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await canvas.findByRole('heading', { name: 'Add photos' })
+    const arriving = () =>
+      canvasElement.querySelector('[data-step-in]') as HTMLElement | null
+    // Opened from a draft: nothing slides.
+    await expect(arriving()).toBeNull()
+
+    await userEvent.click(canvas.getByRole('button', { name: /Continue/ }))
+    await canvas.findByRole('heading', {
+      name: 'Do you have a budget in mind?',
+    })
+    await expect(arriving()).toHaveAttribute('data-step-in', 'forward')
+    const forward = getComputedStyle(arriving() as HTMLElement)
+    await expect(forward.animationName).toBe('step-in-forward')
+    await expect(forward.animationDuration).toBe('0.2s')
+
+    await userEvent.click(canvas.getByRole('button', { name: 'Back' }))
+    await canvas.findByRole('heading', { name: 'Add photos' })
+    await expect(arriving()).toHaveAttribute('data-step-in', 'back')
+    await expect(
+      getComputedStyle(arriving() as HTMLElement).animationName,
+    ).toBe('step-in-back')
   },
 }
 
@@ -687,9 +726,9 @@ export const ReviewEditAddress: Story = {
     await userEvent.click(
       await canvas.findByRole('button', { name: 'Edit Address' }),
     )
-    await expect(
+    await arrived(
       await canvas.findByRole('heading', { name: "What's the exact address?" }),
-    ).toBeVisible()
+    )
     await expect(canvas.getByLabelText(/Exact address/)).toHaveValue(ADDRESS)
   },
 }
@@ -701,9 +740,7 @@ export const ReviewEditPhotos: Story = {
     const canvas = within(canvasElement)
     await expect(await canvas.findByText('No photos')).toBeVisible()
     await userEvent.click(canvas.getByRole('button', { name: 'Edit Photos' }))
-    await expect(
-      await canvas.findByRole('heading', { name: 'Add photos' }),
-    ).toBeVisible()
+    await arrived(await canvas.findByRole('heading', { name: 'Add photos' }))
   },
 }
 
@@ -734,9 +771,9 @@ export const ReviewMissingAddress: Story = {
       }),
     )
     await userEvent.click(canvas.getByRole('button', { name: 'Post task' }))
-    await expect(
+    await arrived(
       await canvas.findByRole('heading', { name: "What's the exact address?" }),
-    ).toBeVisible()
+    )
     await expect(
       canvas.getByText(
         "Some details are missing. We've taken you to the first one.",
