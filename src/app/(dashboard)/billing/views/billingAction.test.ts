@@ -1,6 +1,10 @@
 import { describe, expect, it } from 'vitest'
 
-import { billingActionFor, keepUnlimitedOpens } from './billingAction'
+import {
+  billingActionFor,
+  keepUnlimitedOpens,
+  startsCheckout,
+} from './billingAction'
 
 const paid = { canManageBilling: true, canUpgrade: false }
 const givenUntil = { canManageBilling: false, canUpgrade: true }
@@ -27,5 +31,21 @@ describe('billingActionFor (BE-119)', () => {
     expect(billingActionFor('startTrial', givenForever)).toBe('startTrial')
     expect(billingActionFor('becomeWorker', null)).toBe('becomeWorker')
     expect(billingActionFor(null, paid)).toBeNull()
+  })
+})
+
+describe('startsCheckout (FE-586: where "Have a code?" goes)', () => {
+  it('Start free trial and Resubscribe, and Keep when it opens Checkout', () => {
+    expect(startsCheckout('startTrial', null)).toBe(true)
+    expect(startsCheckout('resubscribe', paid)).toBe(true)
+    expect(startsCheckout('keepUnlimited', givenUntil)).toBe(true)
+  })
+
+  it('not the portal, setup or no button', () => {
+    expect(startsCheckout('keepUnlimited', paid)).toBe(false)
+    expect(startsCheckout('manageBilling', paid)).toBe(false)
+    expect(startsCheckout('fixPayment', paid)).toBe(false)
+    expect(startsCheckout('becomeWorker', null)).toBe(false)
+    expect(startsCheckout(null, null)).toBe(false)
   })
 })

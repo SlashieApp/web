@@ -39,3 +39,14 @@ export function keepUnlimitedOpens(
     ? 'checkout'
     : 'portal'
 }
+
+/** The card's button starts Stripe Checkout, so "Have a code?" goes under it (FE-586). */
+export function startsCheckout(
+  action: BillingAction | null,
+  membership: ActionMembership,
+): boolean {
+  if (action === 'startTrial' || action === 'resubscribe') return true
+  return (
+    action === 'keepUnlimited' && keepUnlimitedOpens(membership) === 'checkout'
+  )
+}

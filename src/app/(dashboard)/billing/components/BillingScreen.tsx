@@ -21,7 +21,11 @@ import { useCheckoutReturn } from '../helpers/useCheckoutReturn'
 import { usePromoCode } from '../helpers/usePromoCode'
 import bag from '../i11n.json'
 import { BILLING_VIEWS, type BillingAction, getBillingView } from '../views'
-import { billingActionFor, keepUnlimitedOpens } from '../views/billingAction'
+import {
+  billingActionFor,
+  keepUnlimitedOpens,
+  startsCheckout,
+} from '../views/billingAction'
 import { BillingViewCapture } from './analytics/BillingViewCapture'
 import { BillingPlanCard } from './ui/BillingPlanCard'
 import { PromoCodeField } from './ui/PromoCodeField'
@@ -29,17 +33,6 @@ import { PromoCodeField } from './ui/PromoCodeField'
 /** The first day of next month (UTC), when the free allowance resets. */
 function nextMonthStart(now: Date): Date {
   return new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1))
-}
-
-/** The card's button starts Stripe Checkout, so "Have a code?" goes under it (FE-586). */
-function startsCheckout(
-  action: BillingAction | null,
-  membership: Parameters<typeof keepUnlimitedOpens>[0],
-): boolean {
-  if (action === 'startTrial' || action === 'resubscribe') return true
-  return (
-    action === 'keepUnlimited' && keepUnlimitedOpens(membership) === 'checkout'
-  )
 }
 
 /**
