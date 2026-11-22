@@ -1,4 +1,5 @@
 import { taskBudgetBag } from '@/app/(task)/helpers/taskBudget/taskBudget'
+import { orderedPaymentMethods } from '@/app/(task)/helpers/taskPayment/taskPayment'
 
 import type { CreateTaskFormFieldValues } from '../createTaskFormSchema'
 import { CREATE_TASK_STEPS, type CreateTaskStepId } from '../views'
@@ -49,7 +50,7 @@ export function readCreateTaskDraft(
     if (!draft.values || typeof draft.values !== 'object') return null
     // A step the flow no longer has can't be reopened.
     if (!CREATE_TASK_STEPS.some((view) => view.step === draft.step)) return null
-    return withBudgetAnswer(withLegacyBudgetType(draft))
+    return withPaymentMethods(withBudgetAnswer(withLegacyBudgetType(draft)))
   } catch {
     return null
   }
@@ -92,6 +93,27 @@ function withBudgetAnswer(draft: CreateTaskDraft): CreateTaskDraft {
         draft.values.openBudget === true ||
         Boolean(draft.values.budgetMajor?.trim()),
     },
+  }
+}
+
+/**
+ * A draft from before the choice of several payment methods (FE-599) kept a
+ * single one: it comes back as that one, not as Cash. A draft with a list
+ * keeps it, also an empty one (the poster took every method off). The same
+ * as the Expo app's `draftPaymentMethods`.
+ */
+function withPaymentMethods(draft: CreateTaskDraft): CreateTaskDraft {
+  const { paymentMethod, ...values } = draft.values as CreateTaskDraftValues & {
+    paymentMethod?: unknown
+  }
+  if (paymentMethod === undefined) return draft
+  if (Array.isArray(values.paymentMethods)) return { ...draft, values }
+  const kept = orderedPaymentMethods([
+    typeof paymentMethod === 'string' ? paymentMethod : null,
+  ])
+  return {
+    ...draft,
+    values: kept.length > 0 ? { ...values, paymentMethods: kept } : values,
   }
 }
 

@@ -88,6 +88,43 @@ describe('create task draft', () => {
     ).toMatchObject({ budgetAnswered: false })
   })
 
+  it('a draft from before several payment methods: it keeps the one it held', () => {
+    const restored = (values: Record<string, unknown>) => {
+      const storage = memoryStorage()
+      storage.setItem(
+        KEY,
+        JSON.stringify({
+          v: 1,
+          savedAt: NOW,
+          step: 'budget',
+          done: ['location'],
+          values: { title: 'Paint a fence', ...values },
+        }),
+      )
+      return readCreateTaskDraft(storage, KEY, NOW)?.values
+    }
+    // The single method becomes the list, and the old field is dropped.
+    const old = restored({ paymentMethod: 'BANK_TRANSFER' })
+    expect(old).toMatchObject({ paymentMethods: ['BANK_TRANSFER'] })
+    expect(old).not.toHaveProperty('paymentMethod')
+    // Something that is not a method leaves the form's own start (Cash).
+    expect(restored({ paymentMethod: 'CHEQUE' })).not.toHaveProperty(
+      'paymentMethods',
+    )
+    expect(restored({ paymentMethod: 7 })).not.toHaveProperty('paymentMethods')
+    // A draft with a list keeps it, also an empty one.
+    expect(
+      restored({ paymentMethod: 'CASH', paymentMethods: ['CARD', 'CASH'] }),
+    ).toMatchObject({ paymentMethods: ['CARD', 'CASH'] })
+    expect(
+      restored({ paymentMethod: 'CASH', paymentMethods: [] }),
+    ).toMatchObject({ paymentMethods: [] })
+    // A draft saved since has no old field and is left as it is.
+    expect(restored({ paymentMethods: ['CARD'] })).toMatchObject({
+      paymentMethods: ['CARD'],
+    })
+  })
+
   it('has nothing to restore at first', () => {
     expect(readCreateTaskDraft(memoryStorage(), KEY, NOW)).toBeNull()
   })
