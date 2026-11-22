@@ -8,7 +8,7 @@ import authBag from '@/app/(auth)/components/i11n.json'
 import { readLastSignIn } from '@/app/(auth)/helpers/lastSignIn'
 import { socialButtonPx } from '@/app/(auth)/helpers/socialButton'
 import { useI11n } from '@/i18n/useI11n'
-import { FormAlternatives, FormDivider } from '@ui'
+import { FormAlternatives, FormDivider, Reveal } from '@ui'
 
 import { GoogleStyleButton } from './GoogleStyleButton'
 
@@ -45,16 +45,23 @@ export function useEmailSection(openNow: boolean) {
  * Log in and Sign up's ways in (FE-563, Ryan 13 Nov): Google, Apple and
  * Continue with email as one stack of equal outlined buttons. Continue with
  * email turns into the email section in place: a divider, then the form.
+ *
+ * On a tap the button folds away as the form slides open under it (`Reveal`;
+ * motion group A, Ryan 22 Nov). A form that is open on arrival, or opened
+ * because this browser last used email, is simply there: nothing moves.
  */
 export function AuthOptions({
   social,
   open,
+  openedByTap,
   onExpand,
   children,
 }: {
   /** Google and Apple, when configured. */
   social: ReactNode | null
   open: boolean
+  /** The person tapped Continue with email: only then does it move. */
+  openedByTap: boolean
   onExpand: () => void
   /** The email form. */
   children: ReactNode
@@ -64,32 +71,35 @@ export function AuthOptions({
   if (!social) return <>{children}</>
   return (
     <Box w="full">
-      <FormAlternatives>
-        {social}
-        {open ? null : (
-          <GoogleStyleButton
-            label={t.continue}
-            onClick={onExpand}
-            aria-expanded={false}
-            aria-controls={EMAIL_SECTION_ID}
-            data-email-option=""
-            icon={
-              <LuMail
-                size={socialButtonPx(18)}
-                color="#3c4043"
-                aria-hidden
-                style={{ flexShrink: 0 }}
-              />
-            }
-          />
-        )}
-      </FormAlternatives>
-      {open ? (
+      <FormAlternatives>{social}</FormAlternatives>
+      {/* Outside the stack above, with its 8 inside the fold: a gap would jump. */}
+      <Reveal
+        open={!open}
+        instant={!openedByTap}
+        spaceAbove="form.alternativesGap"
+      >
+        <GoogleStyleButton
+          label={t.continue}
+          onClick={onExpand}
+          aria-expanded={false}
+          aria-controls={EMAIL_SECTION_ID}
+          data-email-option=""
+          icon={
+            <LuMail
+              size={socialButtonPx(18)}
+              color="#3c4043"
+              aria-hidden
+              style={{ flexShrink: 0 }}
+            />
+          }
+        />
+      </Reveal>
+      <Reveal open={open} instant={!openedByTap}>
         <Box id={EMAIL_SECTION_ID} data-email-section="">
           <FormDivider mt="form.dividerToAlternatives">{t.divider}</FormDivider>
           {children}
         </Box>
-      ) : null}
+      </Reveal>
     </Box>
   )
 }

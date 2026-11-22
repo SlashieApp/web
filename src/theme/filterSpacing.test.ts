@@ -96,9 +96,11 @@ describe('filter panels: one rhythm from the form pieces', () => {
     expect(rail).not.toContain('minH="36px"')
   })
 
-  it('Date and Budget: panels are FormStack and FormRow, the pair error is 4 under the row', () => {
+  it('Date and Budget: the fields are 20 under the presets, in FormRows; the pair error is 4 under the row', () => {
     const filters = SURFACES.TaskSearchFilters
-    expect(filters).toContain('<FormStack>')
+    // From and To slide open under the presets (motion group A, Ryan 22 Nov):
+    // their 20 is inside the fold, so the stack around them has no gap.
+    expect(filters).toContain('spaceAbove="form.fieldGap"')
     expect(filters.match(/<FormRow>/g)).toHaveLength(2)
     expect(filters).toContain('gap="form.controlToHelper"')
     expect(filters).toContain('gap="form.alternativesGap"')

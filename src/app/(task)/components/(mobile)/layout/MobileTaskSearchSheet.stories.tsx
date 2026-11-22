@@ -6,6 +6,7 @@ import { phone390 } from '@/app/(dashboard)/components/ui/dialogSpacing.testing'
 import { formSpace } from '@/theme/styles'
 import { openDrawer } from '@/ui/Drawer/drawerSpacing.testing'
 import { gapBelow, heightOf } from '@/ui/FormField/formGap.testing'
+import { revealsSettled } from '@/ui/Reveal/Reveal.testing'
 
 import { withTaskBrowseStory } from '../../../helpers/taskBrowseStoryDecorator'
 import { storyBrowseTasks } from '../../../helpers/taskBrowseStoryFixtures'
@@ -101,6 +102,8 @@ export const OpenSpacing: Story = {
 
     await userEvent.click(sheet.getByRole('button', { name: /Budget/ }))
     const panel = await sheet.findByRole('group', { name: 'Budget' })
+    // The panel slides open (motion group A): measure at rest.
+    await revealsSettled(dialog)
     const row = chips.parentElement as HTMLElement
     await expect(gapBelow(row, panel)).toBe(8)
     await expect(dialog.scrollWidth).toBeLessThanOrEqual(390)

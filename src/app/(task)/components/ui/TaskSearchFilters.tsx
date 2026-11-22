@@ -1,14 +1,7 @@
 'use client'
 
 import { HStack, Stack, chakra } from '@chakra-ui/react'
-import {
-  Button,
-  FormErrorText,
-  FormField,
-  FormRow,
-  FormStack,
-  Input,
-} from '@ui'
+import { Button, FormErrorText, FormField, FormRow, Input, Reveal } from '@ui'
 import { useId, useState } from 'react'
 import { LuChevronDown, LuX } from 'react-icons/lu'
 
@@ -139,6 +132,10 @@ export function OptionButton({
 /**
  * Date and Budget chips (FE-201). Each opens a small panel below; changes
  * apply in place to both the list and the map pins.
+ *
+ * A panel slides open from its chip, and the From and To fields from Pick
+ * dates (`Reveal`; motion group A, Ryan 22 Nov). Each brings its own space
+ * inside its fold, so nothing jumps: the stack around them has no gap.
  */
 export function TaskSearchFilters() {
   const t = useI11n(bag)
@@ -165,7 +162,7 @@ export function TaskSearchFilters() {
     setDateFilter(from || to ? { preset: 'custom', from, to } : null)
 
   return (
-    <Stack gap={2} pointerEvents="auto">
+    <Stack gap={0} pointerEvents="auto">
       <HStack gap={2} flexWrap="wrap">
         <FilterChip
           label={t.dateChip}
@@ -211,7 +208,7 @@ export function TaskSearchFilters() {
         ) : null}
       </HStack>
 
-      {open === 'date' ? (
+      <Reveal open={open === 'date'} spaceAbove={2}>
         <chakra.fieldset
           id={`${baseId}-date`}
           m={0}
@@ -223,7 +220,7 @@ export function TaskSearchFilters() {
           borderColor="border.default"
           bg="bg.surface"
         >
-          <FormStack>
+          <Stack gap={0} w="full">
             <HStack gap="form.alternativesGap" flexWrap="wrap">
               <OptionButton
                 pressed={dateFilter?.preset === 'today'}
@@ -255,7 +252,10 @@ export function TaskSearchFilters() {
                 {t.filterPickDates}
               </OptionButton>
             </HStack>
-            {picking || dateFilter?.preset === 'custom' ? (
+            <Reveal
+              open={picking || dateFilter?.preset === 'custom'}
+              spaceAbove="form.fieldGap"
+            >
               <FormRow>
                 <FormField label={t.dateFrom}>
                   <Input
@@ -294,12 +294,12 @@ export function TaskSearchFilters() {
                   />
                 </FormField>
               </FormRow>
-            ) : null}
-          </FormStack>
+            </Reveal>
+          </Stack>
         </chakra.fieldset>
-      ) : null}
+      </Reveal>
 
-      {open === 'budget' ? (
+      <Reveal open={open === 'budget'} spaceAbove={2}>
         <chakra.fieldset
           id={`${baseId}-budget`}
           m={0}
@@ -340,7 +340,7 @@ export function TaskSearchFilters() {
             ) : null}
           </Stack>
         </chakra.fieldset>
-      ) : null}
+      </Reveal>
     </Stack>
   )
 }

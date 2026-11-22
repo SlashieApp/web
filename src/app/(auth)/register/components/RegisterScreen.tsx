@@ -273,6 +273,7 @@ export function RegisterScreen() {
             ) : null
           }
           open={email.open}
+          openedByTap={email.openedByTap}
           onExpand={email.expand}
         >
           <Box asChild w="full">

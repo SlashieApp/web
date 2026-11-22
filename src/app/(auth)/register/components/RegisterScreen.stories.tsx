@@ -12,6 +12,7 @@ import { withLastSignIn } from '@/app/(auth)/helpers/lastSignIn.testing'
 import { LocaleProvider } from '@/i18n/LocaleProvider'
 import { formSpace, minHitArea } from '@/theme/styles'
 import { gapBelow, heightOf } from '@/ui/FormField/formGap.testing'
+import { revealsSettled } from '@/ui/Reveal/Reveal.testing'
 
 import { RegisterScreen } from './RegisterScreen'
 
@@ -282,6 +283,12 @@ export const ContinueWithEmail: Story = {
     )
     const name = await canvas.findByLabelText('Full name')
     await waitFor(() => expect(name).toHaveFocus())
+    // The button folds away as the form slides open (motion group A, Ryan
+    // 22 Nov): measure once both have settled.
+    await revealsSettled(canvasElement)
+    await expect(
+      canvas.queryByRole('button', { name: 'Continue with email' }),
+    ).toBeNull()
     await expectRegisterSpacing(canvas)
   },
 }

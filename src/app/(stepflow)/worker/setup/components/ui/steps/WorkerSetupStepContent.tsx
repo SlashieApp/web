@@ -30,6 +30,7 @@ import {
   PhotoTile,
   type PhotoTileState,
   RadioButtonGroup,
+  Reveal,
   formControlRootProps,
 } from '@ui'
 
@@ -320,8 +321,9 @@ function HeadlineSection() {
   const suggestion = suggestedHeadline(form, t)
   return (
     // The suggestion is an inline action under the field: 4 under it (and under
-    // its helper or error), 44 to tap.
-    <Stack gap="form.controlToHelper">
+    // its helper or error), 44 to tap. It slides open under the field and
+    // folds away once it is used (`Reveal`; motion group A, Ryan 22 Nov).
+    <Stack gap={0}>
       <FormField
         label={t.fields.headline}
         helperText={t.fields.headlineHelper}
@@ -335,7 +337,10 @@ function HeadlineSection() {
           rootProps={formControlRootProps}
         />
       </FormField>
-      {suggestion && suggestion !== form.tagline.trim() ? (
+      <Reveal
+        open={Boolean(suggestion) && suggestion !== form.tagline.trim()}
+        spaceAbove="form.controlToHelper"
+      >
         <Button
           type="button"
           variant="ghost"
@@ -350,11 +355,15 @@ function HeadlineSection() {
           whiteSpace="normal"
           textAlign="left"
           {...hitAreaGrowth(20, formSpace.controlToHelper)}
-          onClick={() => patchForm({ tagline: suggestion })}
+          onClick={() => {
+            if (suggestion) patchForm({ tagline: suggestion })
+          }}
         >
-          {formatMessage(t.fields.useSuggestion, { suggestion })}
+          {formatMessage(t.fields.useSuggestion, {
+            suggestion: suggestion ?? '',
+          })}
         </Button>
-      ) : null}
+      </Reveal>
     </Stack>
   )
 }

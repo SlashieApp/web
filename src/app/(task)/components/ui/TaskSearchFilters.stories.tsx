@@ -4,6 +4,7 @@ import { expect, userEvent, within } from 'storybook/test'
 
 import { formSpace } from '@/theme/styles'
 import { gapBelow, gapBeside, heightOf } from '@/ui/FormField/formGap.testing'
+import { revealsSettled } from '@/ui/Reveal/Reveal.testing'
 
 import { browseDatePresetRange } from '../../helpers/taskBrowseHelpers'
 import { withTaskBrowseStory } from '../../helpers/taskBrowseStoryDecorator'
@@ -130,6 +131,8 @@ export const DatePanelSpacing: Story = {
       await canvas.findByRole('button', { name: 'Pick dates' }),
     )
     const panel = await canvas.findByRole('group', { name: 'Date' })
+    // The panel and its fields slide open (motion group A): measure at rest.
+    await revealsSettled(canvasElement)
     const presets = canvas.getByRole('button', { name: 'Today' })
       .parentElement as HTMLElement
     const from = canvas.getByLabelText('From')
@@ -170,6 +173,8 @@ export const DatePanelPresetsOnly: Story = {
     const canvas = within(canvasElement)
     await userEvent.click(await canvas.findByRole('button', { name: 'Date' }))
     const panel = await canvas.findByRole('group', { name: 'Date' })
+    // The panel and its fields slide open (motion group A): measure at rest.
+    await revealsSettled(canvasElement)
     const presets = canvas.getByRole('button', { name: 'Today' })
       .parentElement as HTMLElement
     await expect(
@@ -191,6 +196,8 @@ export const BudgetPanelSpacing: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
     await userEvent.click(await canvas.findByRole('button', { name: 'Budget' }))
+    // The panel slides open (motion group A): measure at rest.
+    await revealsSettled(canvasElement)
     const min = await canvas.findByLabelText('Min (£)')
     const max = canvas.getByLabelText('Max (£)')
     const shell = (input: HTMLElement) => input.parentElement as HTMLElement
@@ -215,5 +222,46 @@ export const BudgetPanelSpacing: Story = {
     await expect(heightOf(alert)).toBe(16)
     await expect(getComputedStyle(alert).fontSize).toBe('12px')
     await expect(getComputedStyle(alert).lineHeight).toBe('16px')
+  },
+}
+
+/**
+ * Motion group A (Ryan 22 Nov): a panel slides open from its chip in place of
+ * popping in, and folds away when its chip is tapped again. Opening the other
+ * chip swaps them: the first folds away (and can't be reached on its way out)
+ * as the second opens. Pick dates opens From and To the same way.
+ */
+export const PanelsSlideOpen: Story = {
+  decorators: [withTaskBrowseStory()],
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const dateChip = await canvas.findByRole('button', { name: 'Date' })
+    await userEvent.click(dateChip)
+    const datePanel = await canvas.findByRole('group', { name: 'Date' })
+    const dateFold = datePanel.closest('[data-reveal]') as HTMLElement
+    // It starts folded and opens: it is in the page before it is at rest.
+    await expect(dateFold).toHaveAttribute('data-reveal-at-rest', 'false')
+    await revealsSettled(canvasElement)
+    await expect(datePanel).toBeVisible()
+
+    // From and To arrive under the presets.
+    await expect(canvas.queryByLabelText('From')).toBeNull()
+    await userEvent.click(canvas.getByRole('button', { name: 'Pick dates' }))
+    const from = await canvas.findByLabelText('From')
+    await revealsSettled(canvasElement)
+    await expect(from).toBeVisible()
+
+    // The other chip: Date folds away as Budget opens.
+    await userEvent.click(canvas.getByRole('button', { name: 'Budget' }))
+    await expect(dateFold).toHaveAttribute('inert')
+    await canvas.findByRole('group', { name: 'Budget' })
+    await revealsSettled(canvasElement)
+    await expect(canvas.queryByRole('group', { name: 'Date' })).toBeNull()
+    await expect(canvas.getByLabelText('Min (£)')).toBeVisible()
+
+    // The same chip again: the panel folds away and leaves the page.
+    await userEvent.click(canvas.getByRole('button', { name: 'Budget' }))
+    await revealsSettled(canvasElement)
+    await expect(canvas.queryByRole('group', { name: 'Budget' })).toBeNull()
   },
 }

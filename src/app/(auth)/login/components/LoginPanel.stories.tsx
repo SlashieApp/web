@@ -10,6 +10,7 @@ import { withLastSignIn } from '@/app/(auth)/helpers/lastSignIn.testing'
 import { LocaleProvider } from '@/i18n/LocaleProvider'
 import { formSpace, minHitArea } from '@/theme/styles'
 import { gapBelow, heightOf } from '@/ui/FormField/formGap.testing'
+import { revealsSettled } from '@/ui/Reveal/Reveal.testing'
 
 import { LoginPanel } from './LoginPanel'
 
@@ -471,7 +472,13 @@ export const ContinueWithEmail: Story = {
     await userEvent.click(email)
     await canvas.findByText('Or with email')
     const field = canvas.getByLabelText('Email')
+    // The cursor is in Email at once, while the form is still sliding open.
     await waitFor(() => expect(field).toHaveFocus())
+    // The button folds away as the form opens (motion group A, Ryan 22 Nov):
+    // on its way out it can't be reached, then it is gone.
+    const leaving = canvasElement.querySelector('[data-email-option]')
+    await expect(leaving?.closest('[inert]')).not.toBeNull()
+    await revealsSettled(canvasElement)
     await expect(
       canvas.queryByRole('button', { name: 'Continue with email' }),
     ).toBeNull()
