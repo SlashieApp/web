@@ -390,6 +390,14 @@ export function Modal({
           transitionProperty="opacity, transform"
           transitionDuration={sdlMotion.duration.moderate}
           transitionTimingFunction={sdlMotion.easing.standard}
+          // Reduced motion: it fades, and nothing grows or shrinks (motion
+          // group D; the scale preset ran regardless).
+          css={{
+            '@media (prefers-reduced-motion: reduce)': {
+              '&[data-state=open]': { animationName: 'fade-in' },
+              '&[data-state=closed]': { animationName: 'fade-out' },
+            },
+          }}
         >
           <DialogHeader ref={headerRef} px={modalPaddingX} pt={5} pb={0}>
             {/* As in `Drawer`: the 44px close button is taller than the title,

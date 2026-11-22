@@ -14,7 +14,11 @@ import { LuCheck, LuMapPin } from 'react-icons/lu'
 import { ReportControl } from '@/content/trust/ReportControl'
 import { formatMessage } from '@/i18n/loadPageI11n'
 import { useI11n } from '@/i18n/useI11n'
-import { sdlMotion } from '@/theme/styles'
+import {
+  sdlMotion,
+  sdlPressActiveCss,
+  sdlTransitionWithPress,
+} from '@/theme/styles'
 import { Badge, Card, Link, Rating } from '@ui'
 
 import bag from '../../i11n.json'
@@ -102,8 +106,12 @@ export function WorkerSearchCard({
       h="full"
       color="text.default"
       _hover={{ textDecoration: 'none', color: 'text.default' }}
+      // A press is answered (motion group D): the card gives a little, as
+      // every other card does.
+      css={sdlPressActiveCss('[data-worker-card]')}
     >
       <Card
+        data-worker-card=""
         p={0}
         maxW="full"
         w="full"
@@ -111,9 +119,10 @@ export function WorkerSearchCard({
         overflow="hidden"
         bg="bg.surface"
         boxShadow="e1"
-        transitionProperty="background-color, border-color, box-shadow"
-        transitionDuration={sdlMotion.duration.base}
-        transitionTimingFunction={sdlMotion.easing.standard}
+        css={sdlTransitionWithPress(
+          'background-color, border-color, box-shadow',
+          sdlMotion.duration.base,
+        )}
         _hover={{ boxShadow: 'e2' }}
       >
         <Box

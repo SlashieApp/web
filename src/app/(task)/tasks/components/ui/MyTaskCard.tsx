@@ -17,7 +17,7 @@ import { TaskStatusPill } from '@/app/(task)/tasks/[slug]/components/ui/TaskStat
 import { useLocale } from '@/i18n/LocaleProvider'
 import { formatMessage } from '@/i18n/loadPageI11n'
 import { useI11n } from '@/i18n/useI11n'
-import { sdlFigure, sdlFocusRing } from '@/theme/styles'
+import { sdlFigure, sdlFocusRing, sdlMotion } from '@/theme/styles'
 import { TASK_ORDER_SECTION_ID } from '@/utils/orderHelpers'
 import { Badge, Button, Link, Thumbnail } from '@ui'
 
@@ -281,7 +281,9 @@ export function MyTaskCard({ row, layout }: MyTaskCardProps) {
       size="sm"
       minH="44px"
       borderRadius="full"
-      variant={row.action === 'review' ? 'secondary' : 'primary'}
+      // One green thing per screen (Ryan 22 Nov): a row's action is
+      // outlined; green is for the page's own main action.
+      variant="secondary"
     >
       <Link
         href={actionHref(row, row.action)}
@@ -344,6 +346,12 @@ export function MyTaskCard({ row, layout }: MyTaskCardProps) {
       borderColor="border.default"
       data-my-task-layout={layout}
       _hover={{ bg: 'bg.subtle' }}
+      // A press is answered (motion group D): a finger never sees the hover
+      // fill. A full-width row does not scale.
+      _active={{ bg: 'bg.subtle' }}
+      transitionProperty="background-color"
+      transitionDuration={sdlMotion.duration.fast}
+      transitionTimingFunction={sdlMotion.easing.standard}
     >
       {content}
     </Box>

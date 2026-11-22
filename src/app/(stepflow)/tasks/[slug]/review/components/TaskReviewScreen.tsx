@@ -1,9 +1,9 @@
 'use client'
 
 import { useMutation } from '@apollo/client/react'
-import { Stack } from '@chakra-ui/react'
+import { Skeleton, Stack } from '@chakra-ui/react'
 import { useRouter } from 'next/navigation'
-import { useCallback, useState } from 'react'
+import { type ReactNode, useCallback, useState } from 'react'
 
 import { AppStatusBanners } from '@/app/(auth)/components/ui/AppStatusBanners'
 import {
@@ -242,6 +242,7 @@ function MessageScreen({
   body,
   actionLabel,
   onAction,
+  children,
 }: {
   exitHref: string
   title: string
@@ -249,6 +250,8 @@ function MessageScreen({
   body?: string
   actionLabel: string
   onAction: () => void
+  /** Under the title: the placeholder shapes while the review loads. */
+  children?: ReactNode
 }) {
   const t = useI11n(bag)
   return (
@@ -275,7 +278,7 @@ function MessageScreen({
         onContinue: onAction,
       }}
     >
-      <Stack />
+      <Stack>{children}</Stack>
     </StepFlowLayout>
   )
 }
@@ -323,10 +326,16 @@ export function TaskReviewScreen({
       <MessageScreen
         exitHref={taskHref}
         title={t.loading}
-        body={t.loading}
         actionLabel={t.backToTask}
         onAction={() => router.push(localize(taskHref))}
-      />
+      >
+        {/* The shape of what is coming, in place of the word "Loading" said
+            twice (motion group D): the stars, then a line. */}
+        <Stack gap={3} aria-hidden data-review-loading="">
+          <Skeleton h="44px" w="220px" borderRadius="md" />
+          <Skeleton h="20px" w="60%" borderRadius="md" />
+        </Stack>
+      </MessageScreen>
     )
   }
 

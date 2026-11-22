@@ -265,3 +265,33 @@ export const PanelsSlideOpen: Story = {
     await expect(canvas.queryByRole('group', { name: 'Budget' })).toBeNull()
   },
 }
+
+/**
+ * Motion group D (Fitts's law): a chip is shorter than 44 but 44 to tap. Its
+ * tap area reaches above and below it without changing how it looks, as do
+ * its clear button and Clear all.
+ */
+export const ChipTapTargets: Story = {
+  decorators: [
+    withTaskBrowseStory({
+      dateFilter: browseDatePresetRange('week'),
+      budget: { min: '50', max: '200' },
+    }),
+  ],
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const clear = await canvas.findByRole('button', {
+      name: 'Remove Date filter',
+    })
+    const chip = clear.previousElementSibling as HTMLElement
+    const clearAll = canvas.getByRole('button', { name: 'Clear all' })
+    for (const button of [chip, clear, clearAll]) {
+      // It looks the same: still a short chip...
+      await expect(button.getBoundingClientRect().height).toBeLessThan(44)
+      // ...and its tap area is 44.
+      const area = getComputedStyle(button, '::before')
+      await expect(area.position).toBe('absolute')
+      await expect(Number.parseFloat(area.height)).toBe(44)
+    }
+  },
+}

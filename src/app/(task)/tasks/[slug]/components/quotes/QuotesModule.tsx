@@ -14,6 +14,7 @@ import { publicProfilePath } from '@/app/helpers/publicProfilePath'
 import { useLocale } from '@/i18n/LocaleProvider'
 import { formatMessage } from '@/i18n/loadPageI11n'
 import { useI11n } from '@/i18n/useI11n'
+import { sdlStaggerChildrenCss } from '@/theme/styles'
 import { priceToPence } from '@/utils/price'
 import { isAcceptedQuoteStatus } from '@/utils/taskJobSchedule'
 import { formatTimeSlotLabel, isTimeSlotPast } from '@/utils/timeSlots'
@@ -384,7 +385,10 @@ export function QuotesModule({ slotsCap = 1 }: QuotesModuleProps) {
         </HStack>
       ) : null}
       {rows.length > 0 ? (
-        <Stack gap={3}>{rows.map(quoteRow)}</Stack>
+        // The quote cards arrive one after another (motion group D), once.
+        <Stack gap={3} css={sdlStaggerChildrenCss}>
+          {rows.map(quoteRow)}
+        </Stack>
       ) : (
         <Text fontSize="sm" color="text.muted">
           {q.subtitles.C1}

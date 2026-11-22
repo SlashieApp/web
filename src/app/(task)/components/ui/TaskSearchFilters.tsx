@@ -7,12 +7,16 @@ import { LuChevronDown, LuX } from 'react-icons/lu'
 
 import { formatMessage } from '@/i18n/loadPageI11n'
 import { useI11n } from '@/i18n/useI11n'
+import { hitAreaOverlayCss } from '@/theme/styles'
 
 import { useTaskBrowseData } from '../../context/TaskBrowseProvider'
 import { browseDatePresetRange } from '../../helpers/taskBrowseHelpers'
 import bag from '../i11n.json'
 
 type Panel = 'date' | 'budget'
+
+/** A chip is shorter than 44; its tap area reaches above and below it, to 44. */
+const CHIP_HIT_AREA = hitAreaOverlayCss
 
 /** A filter chip: green with its value and a clear button once set. Shared with My Tasks. */
 export function FilterChip({
@@ -54,6 +58,8 @@ export function FilterChip({
         size="xs"
         variant="ghost"
         h={8}
+        // 44 to tap though it is shorter (motion group D: Fitts's law).
+        css={CHIP_HIT_AREA}
         px={3}
         borderRadius="full"
         borderRightRadius={active ? 0 : 'full'}
@@ -74,6 +80,7 @@ export function FilterChip({
           size="xs"
           variant="ghost"
           h={8}
+          css={CHIP_HIT_AREA}
           minW={0}
           pl={1.5}
           pr={2.5}
@@ -193,6 +200,7 @@ export function TaskSearchFilters() {
             size="xs"
             variant="ghost"
             h={8}
+            css={CHIP_HIT_AREA}
             px={2}
             borderRadius="full"
             fontSize="xs"

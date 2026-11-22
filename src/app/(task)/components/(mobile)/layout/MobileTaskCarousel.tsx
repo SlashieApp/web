@@ -5,6 +5,7 @@ import { motion } from 'motion/react'
 import { useMemo, useRef } from 'react'
 
 import { useUserStore } from '@/app/(auth)/store/user'
+import { LIST_ENTER } from '@/app/(task)/helpers/listEnter'
 import { taskBudgetBag } from '@/app/(task)/helpers/taskBudget/taskBudget'
 import { toBrowseTaskCard } from '@/app/(task)/helpers/toBrowseTaskCard'
 import { useOpenTaskDetailFromBrowse } from '@/app/(task)/helpers/useOpenTaskDetailFromBrowse'
@@ -62,7 +63,8 @@ export function MobileTaskCarousel() {
           <motion.div
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.34, ease: [0.22, 1, 0.36, 1] }}
+            // The shared 200ms on the decelerate curve (motion group D).
+            transition={{ duration: LIST_ENTER.seconds, ease: LIST_ENTER.ease }}
           >
             <TaskCard loading />
           </motion.div>

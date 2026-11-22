@@ -224,8 +224,12 @@ export function QuoteRow({
             </IconButton>
           ) : null}
           {onAccept ? (
+            // One green thing per screen (Ryan 22 Nov): a row's Accept is
+            // outlined; only the best match's is green, beside the page's
+            // own main action.
             <Button
-              variant="primary"
+              variant={isBestMatch ? 'primary' : 'secondary'}
+              data-accept={isBestMatch ? 'best' : 'row'}
               loading={acceptLoading}
               disabled={off}
               onClick={onAccept}

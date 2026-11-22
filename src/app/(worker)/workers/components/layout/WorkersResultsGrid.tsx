@@ -13,6 +13,7 @@ import {
 import { useTaskBrowseData } from '@/app/(task)/context/TaskBrowseProvider'
 import { formatMessage } from '@/i18n/loadPageI11n'
 import { useI11n } from '@/i18n/useI11n'
+import { sdlStaggerChildrenCss } from '@/theme/styles'
 import { milesToKmRounded } from '@/utils/geoDistance'
 import { Button, Card, SpotIllustration } from '@ui'
 
@@ -164,7 +165,12 @@ export function WorkersResultsGrid() {
       ) : canShowWorkersEmptyState && workers.length === 0 ? (
         <WorkersEmptyState />
       ) : (
-        <SimpleGrid columns={{ base: 2, md: 3, xl: 4 }} gap={4}>
+        // The worker cards arrive one after another (motion group D), once.
+        <SimpleGrid
+          columns={{ base: 2, md: 3, xl: 4 }}
+          gap={4}
+          css={sdlStaggerChildrenCss}
+        >
           {workers.map((worker) => (
             <Box key={worker.id} minW={0}>
               <WorkerSearchCard

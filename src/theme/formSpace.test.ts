@@ -186,7 +186,8 @@ describe('dialog and drawer frames read the form tokens (FE-481 overlay-chrome)'
     // No window-height media query: a short window that has the room keeps the
     // title and the bar fixed, as the app's Dialog does (FE-481 round 8).
     expect(modal).not.toContain('max-height')
-    expect(modal).not.toContain('@media')
+    // (Its one media query is for reduced motion, not for the window.)
+    expect(modal).not.toMatch(/@media[^{'"]*height/)
     expect(modal).toContain("overflowY={scrollsWhole ? 'auto' : 'hidden'}")
     expect(modal).toContain("flex={scrollsWhole ? '0 0 auto' : undefined}")
     expect(modal).toContain('flexShrink={0}')

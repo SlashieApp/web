@@ -310,6 +310,57 @@ export function hitAreaGrowth(
   return { pt: `${up}px`, pb: `${down}px`, mt: `${-up}px`, mb: `${-down}px` }
 }
 
+const STAGGER_STEP_MS = 40
+const STAGGER_MAX = 6
+
+/**
+ * A list of cards arriving (FE-258; motion group D): each child fades in and
+ * rises 4px, 40ms apart, as it is first put on the page. Put it on the stack
+ * or grid that holds the cards. For cards only: dense rows opened many times
+ * a day (the inbox, My tasks) arrive at once. Reduced motion turns it off.
+ */
+export const sdlStaggerChildrenCss = {
+  '& > *': {
+    transitionProperty: 'opacity, transform',
+    transitionDuration: sdlMotion.duration.base,
+    transitionTimingFunction: sdlMotion.easing.standard,
+    '@starting-style': { opacity: 0, transform: 'translateY(4px)' },
+  },
+  ...Object.fromEntries(
+    Array.from({ length: STAGGER_MAX - 1 }, (_, i) => [
+      `& > *:nth-child(${i + 2})`,
+      { transitionDelay: `${(i + 1) * STAGGER_STEP_MS}ms` },
+    ]),
+  ),
+  '@media (prefers-reduced-motion: reduce)': {
+    '& > *': {
+      transition: 'none',
+      '@starting-style': { opacity: 1, transform: 'none' },
+    },
+  },
+} as SystemStyleObject
+
+/**
+ * Grows the pointer target of a filled control (a chip, a pill) to
+ * {@link minHitArea} without changing how it looks: an invisible layer,
+ * centred on it, that is at least 44 tall. Padding would grow the fill, so
+ * {@link hitAreaGrowth} is for unfilled controls only. The same caution
+ * applies: a later sibling is hit first where two targets overlap.
+ */
+export const hitAreaOverlayCss: SystemStyleObject = {
+  position: 'relative',
+  _before: {
+    content: '""',
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: '50%',
+    height: '100%',
+    minHeight: `${minHitArea}px`,
+    transform: 'translateY(-50%)',
+  },
+}
+
 /** SDL radii (px). */
 export const sdlRadii = {
   md: 8,

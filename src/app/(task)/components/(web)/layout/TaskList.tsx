@@ -6,6 +6,7 @@ import { motion } from 'motion/react'
 import { useCallback, useMemo, useRef } from 'react'
 
 import { useUserStore } from '@/app/(auth)/store/user'
+import { LIST_ENTER, listEnterDelay } from '@/app/(task)/helpers/listEnter'
 import { taskBudgetBag } from '@/app/(task)/helpers/taskBudget/taskBudget'
 import { taskHandoffFor } from '@/app/(task)/helpers/taskCardHandoff'
 import { toBrowseTaskCard } from '@/app/(task)/helpers/toBrowseTaskCard'
@@ -116,10 +117,12 @@ export function TaskList({
                 <motion.div
                   initial={skipEnter ? false : { opacity: 0, x: -18 }}
                   animate={{ opacity: 1, x: 0 }}
+                  // 200ms, 60ms apart, none later than 200ms (motion group D:
+                  // everyday motion stays under 300ms).
                   transition={{
-                    duration: 0.42,
-                    delay: Math.min(index * 0.06, 0.42),
-                    ease: [0.22, 1, 0.36, 1],
+                    duration: LIST_ENTER.seconds,
+                    delay: listEnterDelay(index),
+                    ease: LIST_ENTER.ease,
                   }}
                 >
                   <Box
