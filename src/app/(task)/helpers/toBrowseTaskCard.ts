@@ -24,8 +24,10 @@ export function taskViewerRole(
 }
 
 /**
- * Browse-list view model for TaskCard + the listing→detail handoff. The price
- * is the amount and its unit, or "Open budget" (FE-584).
+ * Home-list view model for TaskCard + the listing→detail handoff. The card
+ * draws the time as a tag and no budget or distance (Ryan 22 Nov: the map
+ * pills show both); the price (the amount and its unit, or "Open budget",
+ * FE-584) and the distance are still carried for the task page it opens.
  */
 export function toBrowseTaskCard(
   task: TaskListItem,
@@ -47,5 +49,6 @@ export function toBrowseTaskCard(
     distanceLabel: taskDistanceShortLabelFromReference(task, referenceLocation),
     timingLabel: taskScheduleCompactLabel(task.datetime) ?? undefined,
     viewsLabel: taskPublicViewsLabel(task.views) ?? undefined,
+    layout: 'home',
   }
 }

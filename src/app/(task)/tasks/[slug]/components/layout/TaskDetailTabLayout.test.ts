@@ -36,8 +36,9 @@ describe('TaskDetailTabLayout slots', () => {
     expect(src).not.toContain('tabListAside')
     expect(src).toContain('rail')
     // FE-274: the status intro moved into the Task summary. The web CTA sits
-    // beside the title (bottom-aligned with the chips); the title scrolls away
-    // with the chips and the CTA, which render in the content.
+    // beside the title, above the line under it (22 Nov: the chips are gone);
+    // the title scrolls away with the line and the CTA, which render in the
+    // content.
     expect(src).not.toContain('tabTitle')
     expect(src).not.toContain('TabIntro')
     expect(src).toContain('WEB_MAIN_CTA_W')
@@ -45,8 +46,18 @@ describe('TaskDetailTabLayout slots', () => {
     expect(src.indexOf('{mainCta}')).toBeGreaterThan(
       src.indexOf('tabs={tabs.map'),
     )
-    expect(src.indexOf('{meta}')).toBeGreaterThan(src.indexOf('tabs={tabs.map'))
-    expect(src).toContain('align="flex-end"')
+    // 22 Nov: no row of chips under the title; a hairline ends its block.
+    expect(src).not.toContain('{meta}')
+    expect(src).not.toContain('meta?: ReactNode')
+    expect(src).toContain('data-task-title-line=""')
+    expect(src).toContain('borderBottomWidth="1px"')
+    expect(src.indexOf('data-task-title-line')).toBeGreaterThan(
+      src.indexOf('tabs={tabs.map'),
+    )
+    expect(src.indexOf('data-task-title-line')).toBeLessThan(
+      src.indexOf('<Grid'),
+    )
+    expect(src).toContain('bottom={CTA_ABOVE_LINE}')
     expect(src).not.toContain('syncIntroMinHeight')
     expect(src).not.toContain('ctaObserverRef')
     expect(src).not.toContain('intro.style.minHeight')

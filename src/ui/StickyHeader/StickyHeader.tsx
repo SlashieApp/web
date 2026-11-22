@@ -13,6 +13,7 @@ import {
   createContext,
   useCallback,
   useContext,
+  useId,
   useMemo,
   useRef,
   useState,
@@ -188,21 +189,40 @@ const TitleClampContext = createContext<TitleClamp>({
  * One that is longer is a button inside the heading (so it is still the one
  * h1, holding the whole title) that shows all of it and back; a short one is
  * plain text.
+ *
+ * `after` is a small thing that follows the title's last word on the same
+ * line (the task page's status pill, Ryan 22 Nov): an inline-block, so it
+ * moves to the next line whole when there is no room. Under a title long
+ * enough to be clamped it takes the line below, where it stays in view.
  */
 export function StickyHeaderTitle({
   children,
+  after,
   ...rest
-}: Omit<HeadingProps, 'as'>) {
+}: Omit<HeadingProps, 'as'> & { after?: ReactNode }) {
   const { maxLines, size, expanded, setExpanded } =
     useContext(TitleClampContext)
   const [overflows, setOverflows] = useState(false)
+  // With something after it, the heading is named by its title alone.
+  const textId = useId()
   // Whether the title needs more lines than it may show, as its width changes
   // or its font loads.
   const measure = useCallback(
     (node: HTMLElement | null) => {
       if (!node || !maxLines) return
+      // With something after it, a title that fits is inline text, so the
+      // thing can follow its last word: its lines are counted. (A clamped
+      // title is a box, and its height says.)
+      const inline = node.hasAttribute('data-sticky-header-title-text')
       const check = () => {
         if (!node.isConnected) return
+        if (inline) {
+          const lines = new Set(
+            [...node.getClientRects()].map((line) => Math.round(line.top)),
+          )
+          setOverflows(lines.size > maxLines)
+          return
+        }
         const lineHeight =
           Number.parseFloat(getComputedStyle(node).lineHeight) ||
           TITLE_SIZES[size].line
@@ -211,14 +231,35 @@ export function StickyHeaderTitle({
       check()
       document.fonts?.ready.then(check)
       const observer = new ResizeObserver(check)
-      observer.observe(node)
+      // Inline text has no box of its own to watch: its heading has.
+      observer.observe(
+        inline ? (node.closest('[data-sticky-header-title]') ?? node) : node,
+      )
       return () => observer.disconnect()
     },
     [maxLines, size],
   )
 
+  // After the title's own text only: a skeleton has nothing to follow.
+  const tail =
+    after && typeof children === 'string' && children ? (
+      <chakra.span
+        data-sticky-header-title-after=""
+        // An inline-block, but with no line box of its own: it is as tall as
+        // what it holds, so a small pill never makes the title's line taller.
+        display="inline-flex"
+        verticalAlign="middle"
+      >
+        {after}
+      </chakra.span>
+    ) : null
+
   // Only a title's text is clamped; a skeleton stands in as it is.
-  let content: ReactNode = children
+  let content: ReactNode = tail ? (
+    <chakra.span id={textId}>{children}</chakra.span>
+  ) : (
+    children
+  )
   if (maxLines && typeof children === 'string') {
     const lineClamp = expanded ? undefined : maxLines
     // A new title is a new element (the key), so it is measured afresh.
@@ -226,6 +267,7 @@ export function StickyHeaderTitle({
       <chakra.button
         key={children}
         ref={measure}
+        id={textId}
         type="button"
         data-sticky-header-title-toggle=""
         aria-expanded={expanded}
@@ -246,6 +288,16 @@ export function StickyHeaderTitle({
       >
         {children}
       </chakra.button>
+    ) : tail ? (
+      // It fits: plain inline text, so what follows sits on its last line.
+      <chakra.span
+        key={children}
+        ref={measure}
+        id={textId}
+        data-sticky-header-title-text=""
+      >
+        {children}
+      </chakra.span>
     ) : (
       <chakra.span
         key={children}
@@ -262,10 +314,15 @@ export function StickyHeaderTitle({
     <Heading
       as="h1"
       data-sticky-header-title=""
+      // What follows the title is not part of its name: "Fix a tap", not
+      // "Fix a tap Open".
+      aria-labelledby={tail ? textId : undefined}
       {...titleStyle(size)}
       {...rest}
     >
       {content}
+      {/* A space, so it wraps like a word and has no indent on a new line. */}
+      {tail ? <> {tail}</> : null}
     </Heading>
   )
 }

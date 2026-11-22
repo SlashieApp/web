@@ -14,11 +14,11 @@ import { TaskTitle, useTaskTitle } from './TaskTitle'
 
 /**
  * The task title, the page's one h1 (24px, `heading-lg`, a step under the other
- * page headers' 34): under the map with the chips under
- * it. It scrolls with the page and collapses into the page header's bar (see
- * Task detail/Page), where Back and the options menu are. It shows at most 3
- * lines: a longer title ends with an ellipsis and is a toggle that shows all of
- * it (FE-465). The status badge lives on the Task summary.
+ * page headers' 34): under the map, with a line under it. It scrolls with the
+ * page and collapses into the page header's bar (see Task detail/Page), where
+ * Back and the options menu are. It shows at most 3 lines: a longer title ends
+ * with an ellipsis and is a toggle that shows all of it (FE-465). The task's
+ * status pill follows the title on its last line (Ryan 22 Nov).
  */
 const meta = {
   title: 'Task detail/Layout/TaskTitle',
@@ -81,6 +81,54 @@ export const Default: Story = {
     // No toggle on a short title.
     expect(within(h1).queryByRole('button')).toBeNull()
     expect(h1.querySelector('[aria-expanded]')).toBeNull()
+    // The status pill follows the title on the same line, an inline-block
+    // that adds no height; the heading is still named by the title alone.
+    const pill = within(h1).getByText('Open')
+    const after = h1.querySelector(
+      '[data-sticky-header-title-after]',
+    ) as HTMLElement
+    expect(getComputedStyle(after).display).toBe('inline-flex')
+    const text = h1.querySelector(
+      '[data-sticky-header-title-text]',
+    ) as HTMLElement
+    const lastLine = [...text.getClientRects()].at(-1) as DOMRect
+    expect(pill.getBoundingClientRect().left).toBeGreaterThan(lastLine.right)
+    expect(pill.getBoundingClientRect().top).toBeGreaterThanOrEqual(
+      lastLine.top - 1,
+    )
+    expect(pill.getBoundingClientRect().bottom).toBeLessThanOrEqual(
+      lastLine.bottom + 1,
+    )
+    expect(h1.getBoundingClientRect().height).toBe(LINE)
+  },
+}
+
+/**
+ * A title that fills its line: the pill moves to the next line whole, at the
+ * left edge, never split and never off the edge.
+ */
+export const PillWrapsWhole: Story = {
+  decorators: [
+    (Story) => (
+      <Box maxW="24.5rem">
+        <Story />
+      </Box>
+    ),
+    withHeader,
+    withTaskDetailStory({ viewer: 'owner' }),
+  ],
+  play: async ({ canvasElement }) => {
+    const h1 = await within(canvasElement).findByRole('heading', {
+      level: 1,
+      name: TITLE,
+    })
+    const pill = within(h1).getByText('Open')
+    const box = pill.getBoundingClientRect()
+    const frame = h1.getBoundingClientRect()
+    expect(box.right).toBeLessThanOrEqual(frame.right + 0.5)
+    expect(box.left).toBeGreaterThanOrEqual(frame.left - 0.5)
+    // Still plain text: a title this long is not clamped.
+    expect(within(h1).queryByRole('button')).toBeNull()
   },
 }
 
@@ -105,8 +153,17 @@ export const LongTitle: Story = {
     })
     const toggle = await within(h1).findByRole('button')
     await expect(toggle).toHaveAttribute('aria-expanded', 'false')
-    expect(Math.abs(h1.getBoundingClientRect().height - 3 * LINE)).toBeLessThan(
+    // Three lines of title; the pill cannot follow text that is cut off, so
+    // it takes the line under them.
+    const closed = () =>
+      Math.abs(toggle.getBoundingClientRect().height - 3 * LINE)
+    expect(closed()).toBeLessThan(1)
+    expect(Math.abs(h1.getBoundingClientRect().height - 4 * LINE)).toBeLessThan(
       1,
+    )
+    const pill = within(h1).getByText('Open')
+    expect(pill.getBoundingClientRect().top).toBeGreaterThanOrEqual(
+      toggle.getBoundingClientRect().bottom,
     )
     await expect(h1).toHaveTextContent(LONG_TITLE)
     await expect(
@@ -116,14 +173,12 @@ export const LongTitle: Story = {
     // A click opens it, and a second folds it back.
     await userEvent.click(toggle)
     await waitFor(() => expect(toggle).toHaveAttribute('aria-expanded', 'true'))
-    expect(h1.getBoundingClientRect().height).toBeGreaterThan(3 * LINE + 1)
+    expect(toggle.getBoundingClientRect().height).toBeGreaterThan(3 * LINE + 1)
     await userEvent.click(toggle)
     await waitFor(() =>
       expect(toggle).toHaveAttribute('aria-expanded', 'false'),
     )
-    expect(Math.abs(h1.getBoundingClientRect().height - 3 * LINE)).toBeLessThan(
-      1,
-    )
+    expect(closed()).toBeLessThan(1)
 
     // The keyboard too: Enter opens, Space folds.
     toggle.focus()

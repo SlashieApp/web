@@ -37,16 +37,28 @@ describe('TaskActivityTrigger', () => {
 })
 
 describe('TaskTitle', () => {
-  it('is the page h1 only: Back and the options menu are in the bar (FE-458); no status badge (it is the summary eyebrow)', () => {
+  it('is the page h1, with the status pill after it: Back and the options menu are in the bar (FE-458)', () => {
     const src = readFileSync(join(dir, 'TaskTitle.tsx'), 'utf8')
     expect(src).not.toContain('TaskActivityTrigger')
-    expect(src).not.toContain('TaskStatusPill')
+    // 22 Nov: the status pill follows the title on the same line (it was the
+    // Task summary's eyebrow).
+    expect(src).toContain(
+      'after={pill ? <TaskStatusPill status={pill} size="sm" /> : undefined}',
+    )
+    const summary = readFileSync(
+      join(dir, '../summary/TaskSummary.tsx'),
+      'utf8',
+    )
+    expect(summary).not.toContain('<TaskStatusPill')
     expect(src).toContain('StickyHeaderTitle')
     expect(src).not.toContain('TaskHelpOverflowTrigger')
     expect(src).not.toContain('TaskBackButton')
     expect(src).not.toContain('isStuck')
-    // The chips scroll away under the title (TaskDetailTabs `meta`).
+    // 22 Nov: no row of shortcut chips under the title, here or in the tabs.
     expect(src).not.toContain('TaskDetailMeta')
+    const tabs = readFileSync(join(dir, 'TaskDetailTabs.tsx'), 'utf8')
+    expect(tabs).not.toContain('TaskDetailMeta')
+    expect(tabs).not.toContain('meta=')
     const view = readFileSync(join(dir, 'TaskDetailView.tsx'), 'utf8')
     expect(view).toContain('TaskHelpOverflowTrigger')
   })

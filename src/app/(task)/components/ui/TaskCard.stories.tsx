@@ -33,6 +33,9 @@ const defaultTask: TaskCardTask = {
     'https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=300&h=300&fit=crop',
 }
 
+/** The home list's card (`toBrowseTaskCard`): the same task, drawn the home way. */
+const homeTask: TaskCardTask = { ...defaultTask, layout: 'home' }
+
 const meta = {
   title: 'Tasks/TaskCard',
   component: TaskCard,
@@ -99,7 +102,113 @@ export const Loading: Story = {
   ),
 }
 
-/** The loading card is as tall as a card, and its photo block as tall as the card's photo. */
+/**
+ * The home card (Ryan 22 Nov): the time is a tag at the top, first in the
+ * row, and the card shows no budget and no distance (the map pills above
+ * already show both).
+ */
+export const HomeCard: Story = {
+  args: { task: homeTask },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(canvas.getByText(homeTask.title)).toBeVisible()
+    // The time is a tag, the first one, above the title.
+    const time = canvasElement.querySelector(
+      '[data-task-card-time]',
+    ) as HTMLElement
+    await expect(time).toHaveTextContent('Flexible')
+    await expect(time.parentElement?.firstElementChild).toBe(time)
+    await expect(rect(time).bottom).toBeLessThanOrEqual(
+      rect(canvas.getByText(homeTask.title)).top,
+    )
+    await expect(rect(time).left).toBeLessThan(
+      rect(canvas.getByText('Tech setup')).left,
+    )
+    // No budget, no unit and no distance anywhere on the card.
+    await expect(canvas.queryByText('£120')).toBeNull()
+    await expect(canvas.queryByText('Fixed price')).toBeNull()
+    await expect(canvas.queryByText('1.2 miles')).toBeNull()
+    await expect(
+      getComputedStyle(
+        canvasElement.querySelector('[data-task-card-meta]') as HTMLElement,
+      ).display,
+    ).toBe('none')
+  },
+}
+
+const HOME_CASES: { name: string; task: TaskCardTask }[] = [
+  { name: 'plain', task: homeTask },
+  {
+    name: 'long-title',
+    task: {
+      ...homeTask,
+      title:
+        'Need someone to mount a 55-inch TV, hide the cables in the wall, and tidy the living-room plaster this weekend',
+    },
+  },
+  {
+    name: 'long-unit',
+    task: {
+      ...homeTask,
+      priceLabel: '£1,250',
+      priceUnitLabel: 'per square metre of flooring',
+      distanceLabel: '12.4 miles',
+      timingLabel: 'Before Sat 28 Nov',
+    },
+  },
+  { name: 'no-categories', task: { ...homeTask, categories: [] } },
+  {
+    name: 'many-categories',
+    task: {
+      ...homeTask,
+      viewerRole: 'quoted',
+      categories: ['Plumbing', 'Bathroom fitting', 'Tiling', 'Leaky tap'],
+    },
+  },
+  { name: 'no-time', task: { ...homeTask, timingLabel: undefined } },
+  { name: 'no-photo', task: { ...homeTask, thumbnailSrc: undefined } },
+]
+
+/**
+ * Every home card is the same height, whatever the task holds: a long title,
+ * a long budget unit, many categories, none, no time, no photo. The loading
+ * card is that height too.
+ */
+export const HomeCardsSameHeight: Story = {
+  render: () => (
+    <Stack maxW="520px" w="full" gap={3}>
+      {HOME_CASES.map(({ name, task }) => (
+        <Box key={name} data-case={name}>
+          <TaskCard task={task} detailsHref="/tasks/task-1" />
+        </Box>
+      ))}
+      <Box data-case="loading">
+        <TaskCard loading />
+      </Box>
+    </Stack>
+  ),
+  play: async ({ canvasElement }) => {
+    const heights = [...HOME_CASES.map((c) => c.name), 'loading'].map(
+      (name) =>
+        rect(
+          (canvasElement.querySelector(`[data-case="${name}"]`) as HTMLElement)
+            .firstElementChild as HTMLElement,
+        ).height,
+    )
+    const [first, ...rest] = heights as [number, ...number[]]
+    for (const height of rest) {
+      await expect(Math.abs(height - first)).toBeLessThan(0.5)
+    }
+  },
+}
+
+/** The same on a phone, where the row is narrow. */
+export const HomeCardsSameHeightPhone: Story = {
+  ...HomeCardsSameHeight,
+  globals: { viewport: { value: 'mobile1' } },
+}
+
+/** The loading card is as tall as a home card, and its photo block as tall as the card's photo. */
 export const LoadingMatchesCard: Story = {
   render: () => (
     <Stack maxW="520px" w="full" gap={4}>
@@ -107,7 +216,7 @@ export const LoadingMatchesCard: Story = {
         <TaskCard loading />
       </Box>
       <Box data-case="card">
-        <TaskCard task={defaultTask} detailsHref="/tasks/task-1" />
+        <TaskCard task={homeTask} detailsHref="/tasks/task-1" />
       </Box>
     </Stack>
   ),

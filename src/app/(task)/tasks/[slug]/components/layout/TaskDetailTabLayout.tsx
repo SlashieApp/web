@@ -1,7 +1,7 @@
 'use client'
 
 import type { BoxProps } from '@chakra-ui/react'
-import { Box, Grid, HStack, Stack } from '@chakra-ui/react'
+import { Box, Grid, Stack } from '@chakra-ui/react'
 import type { ReactNode } from 'react'
 
 import {
@@ -34,9 +34,7 @@ export type TaskDetailTabLayoutProps = {
   px?: BoxProps['px']
   /** Desktop right rail (Help & actions, Analytics, Activity). Hidden below `lg`. */
   rail?: ReactNode
-  /** Row under the title (chips). Scrolls away with the page. */
-  meta?: ReactNode
-  /** Desktop main CTA beside the title, bottom-aligned with `meta`; scrolls away. Hidden below `lg`. */
+  /** Desktop main CTA beside the title, its bottom level with the title's; scrolls away. Hidden below `lg`. */
   mainCta?: ReactNode
   /** The desktop CTA is a lone button: size it to its content, not half the row. */
   mainCtaFit?: boolean
@@ -45,17 +43,16 @@ export type TaskDetailTabLayoutProps = {
 const COMPACT_MAX_PX = WEB_MIN_PX - 1
 
 /**
- * The room under the title's last line, before the chips: 12 on phones, 16
- * from md (Chakra steps 3 and 4).
+ * The room under the title's last line, before the line under it: 12 on
+ * phones, 16 from md (Chakra steps 3 and 4).
  */
-const TITLE_TO_CHIPS = { base: 3, md: 4 } as const
+const TITLE_TO_LINE = { base: 3, md: 4 } as const
 
 /**
- * A lone-button CTA is a 44 button beside 32 chips, bottom-aligned with them:
- * it rises this far above the chip row (44 - 32), so the chips keep the room
- * above and the button sits where it always did, in the title's room.
+ * The web CTA sits this far above the line (16), so its bottom is level with
+ * the title's last line. The CTA only shows from `lg`.
  */
-const LONE_CTA_RISE = '-12px'
+const CTA_ABOVE_LINE = 4
 
 /**
  * Web main CTA: half the row (wider than the 1/3 rail cards), capped at the
@@ -63,8 +60,11 @@ const LONE_CTA_RISE = '-12px'
  */
 const WEB_MAIN_CTA_W = `min(${MOBILE_BOTTOM_NAV_MAX_W}, calc((100% - 1.5rem) / 2))`
 
-/** Title and chips stop short of a card CTA that rises beside them. */
+/** The title stops short of a card CTA that rises beside it. */
 const BESIDE_CTA_MAX_W = `calc(100% - ${WEB_MAIN_CTA_W} - 1.5rem)`
+
+/** And short of a lone button: room for the widest ("Find worker", "Send a quote") and the gap. */
+const BESIDE_BUTTON_MAX_W = 'calc(100% - 13.5rem)'
 
 /**
  * Compact (phone + tablet) wash sits under the title and fades up into the
@@ -96,11 +96,11 @@ const COMPACT_TITLE_FADE_CSS = {
 } as const
 
 /**
- * Compact: the chips continue the title's wash (full bleed), so there's no
- * seam between them. Isolated only here, so the web card CTA can still rise
- * above the clear title chrome.
+ * Compact: the line under the title continues the title's wash (full bleed),
+ * so there's no seam between them. Isolated only here, so the web card CTA
+ * can still rise above the clear title chrome.
  */
-const COMPACT_META_BAND_CSS = {
+const COMPACT_LINE_BAND_CSS = {
   [`@media screen and (max-width: ${COMPACT_MAX_PX}px)`]: {
     isolation: 'isolate',
     '&::before': {
@@ -121,10 +121,11 @@ const COMPACT_META_BAND_CSS = {
 /**
  * Task-detail tab layout: the title scrolls with the page and collapses into
  * the page header's bar (FE-458), so only the tab headers stick, under the
- * bar. The chips and the web main CTA sit under and beside the title (CTA
- * bottom-aligned with the chips) and scroll away, then the cards and the
- * desktop rail share a top edge in the 2:1 grid. The compact pin lives in
- * TaskDetailMainCta.
+ * bar. A line under the title ends its block (Ryan 22 Nov: the row of
+ * shortcut chips that sat there is gone, and the status pill follows the
+ * title). The web main CTA sits beside the title, its bottom level with the
+ * title's, and both scroll away. Then the cards and the desktop rail share a
+ * top edge in the 2:1 grid. The compact pin lives in TaskDetailMainCta.
  */
 export function TaskDetailTabLayout({
   title,
@@ -136,15 +137,20 @@ export function TaskDetailTabLayout({
   fittedBelowLg = false,
   px,
   rail,
-  meta,
   mainCta,
   mainCtaFit = false,
 }: TaskDetailTabLayoutProps) {
-  // A card CTA rises beside the title (out of flow); a lone button sits in the chip row.
+  // The CTA rises beside the title (out of flow): a card half the row wide,
+  // or a lone button as wide as its words.
   const cardCta = mainCta != null && !mainCtaFit
   const besideCtaMaxW = {
     base: 'none',
-    lg: cardCta ? BESIDE_CTA_MAX_W : 'none',
+    lg:
+      mainCta == null
+        ? 'none'
+        : cardCta
+          ? BESIDE_CTA_MAX_W
+          : BESIDE_BUTTON_MAX_W,
   } as const
   const splitColumns = rail
     ? { base: '1fr', lg: 'minmax(0, 2fr) minmax(0, 1fr)' }
@@ -157,7 +163,7 @@ export function TaskDetailTabLayout({
         position="relative"
         px={px}
         pt={2}
-        pb={TITLE_TO_CHIPS}
+        pb={TITLE_TO_LINE}
         css={COMPACT_TITLE_FADE_CSS}
       >
         <Box maxW={besideCtaMaxW}>{title}</Box>
@@ -186,37 +192,28 @@ export function TaskDetailTabLayout({
           badge: tab.badge,
         }))}
       >
-        {meta || mainCta ? (
-          <Box position="relative" pb={4} css={COMPACT_META_BAND_CSS}>
-            <HStack align="flex-end" gap={6}>
-              <Box flex="1" minW={0} maxW={besideCtaMaxW}>
-                {meta}
-              </Box>
-              {mainCta && !cardCta ? (
-                <Box
-                  display={{ base: 'none', lg: 'block' }}
-                  flexShrink={0}
-                  mt={LONE_CTA_RISE}
-                >
-                  {mainCta}
-                </Box>
-              ) : null}
-            </HStack>
-            {cardCta ? (
-              // Above the tab chrome that sticks over the title's row.
-              <Box
-                display={{ base: 'none', lg: 'block' }}
-                position="absolute"
-                right={0}
-                bottom={4}
-                w={WEB_MAIN_CTA_W}
-                zIndex={6}
-              >
-                {mainCta}
-              </Box>
-            ) : null}
-          </Box>
-        ) : null}
+        {/* The line under the title: a hairline that ends the title's block. */}
+        <Box
+          data-task-title-line=""
+          position="relative"
+          borderBottomWidth="1px"
+          borderColor="border.default"
+          css={COMPACT_LINE_BAND_CSS}
+        >
+          {mainCta ? (
+            // Out of flow, above the tab chrome that sticks over the title's row.
+            <Box
+              display={{ base: 'none', lg: 'block' }}
+              position="absolute"
+              right={0}
+              bottom={CTA_ABOVE_LINE}
+              w={cardCta ? WEB_MAIN_CTA_W : undefined}
+              zIndex={6}
+            >
+              {mainCta}
+            </Box>
+          ) : null}
+        </Box>
         <Stack gap={5} w="full" pt={5} pb={6}>
           <Grid
             data-task-detail-body=""

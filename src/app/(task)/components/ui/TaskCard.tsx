@@ -3,7 +3,7 @@
 import { Box, HStack, Skeleton, Stack, Text } from '@chakra-ui/react'
 import type { MouseEvent, ReactNode } from 'react'
 import { Fragment } from 'react'
-import { LuBookmark, LuChevronRight } from 'react-icons/lu'
+import { LuBookmark, LuCalendar, LuChevronRight } from 'react-icons/lu'
 
 import type { WorkerQuoteRow } from '@/app/(dashboard)/helpers/workerQuoteJobs'
 import { ReportControl } from '@/content/trust/ReportControl'
@@ -77,6 +77,14 @@ export type TaskCardTask = {
   /** Public views line from GraphQL (`task.views`); fallback when quotes are unavailable. */
   viewsLabel?: string
   thumbnailSrc?: string
+  /**
+   * `home`: the home list and its carousel (Ryan 22 Nov). The time is a tag at
+   * the top of the card, and the card draws no budget and no distance: the map
+   * pills above already show both. With no scan line left to wrap, every home
+   * card is the same height (the tag row and one title line). `priceLabel` and
+   * `distanceLabel` are still carried, for the task page the card opens.
+   */
+  layout?: 'home'
 }
 
 type TaskCardShared = {
@@ -168,9 +176,9 @@ export function TaskCard(props: TaskCardProps) {
 const PHOTO_RADIUS = 'calc({radii.lg} - 1px)'
 
 /**
- * Task-card-shaped placeholder used while browse/search results load: the
- * photo block edge to edge on the left, then the badge row, the title and the
- * scan line in the card's own line boxes, so it is as tall as a card.
+ * Task-card-shaped placeholder used while the home list loads: the photo
+ * block edge to edge on the left, then the tag row and the title in the
+ * card's own line boxes, so it is as tall as a home card (no scan line).
  */
 function TaskCardLoading() {
   return (
@@ -202,13 +210,6 @@ function TaskCardLoading() {
               <Skeleton h="16px" w="78%" borderRadius="md" />
             </HStack>
           </Stack>
-          <HStack
-            minH={taskCardMetaMinHeight}
-            fontSize="sm"
-            lineHeight={taskCardLayout.metaLineHeight}
-          >
-            <Skeleton h="12px" w="52%" borderRadius="md" />
-          </HStack>
         </Stack>
       </HStack>
     </Card>
@@ -261,13 +262,19 @@ function TaskCardBrowse(props: TaskCardBrowseProps) {
   const detailsCtaLabel = props.detailsCtaLabel ?? t.detailsCta
   const activateAriaLabel =
     props.activateAriaLabel ?? `${title}. Select to highlight on map.`
-  const metaParts = taskCardMetaParts({
-    priceLabel,
-    priceUnitLabel,
-    distanceLabel,
-    timingLabel,
-    timingFirst: Boolean(timingTone),
-  })
+  // The home card (22 Nov): the time is a tag at the top, and there is no
+  // budget or distance line.
+  const isHome = cardTask.layout === 'home'
+  const timeTag = isHome ? timingLabel?.trim() : undefined
+  const metaParts = isHome
+    ? []
+    : taskCardMetaParts({
+        priceLabel,
+        priceUnitLabel,
+        distanceLabel,
+        timingLabel,
+        timingFirst: Boolean(timingTone),
+      })
 
   const handleToggleSave = onToggleSave
     ? (e: MouseEvent<HTMLButtonElement>) => {
@@ -356,11 +363,26 @@ function TaskCardBrowse(props: TaskCardBrowseProps) {
                 flexWrap="nowrap"
                 align="center"
                 css={
-                  viewerRole || tags.length > 0 || categories.length > 0
+                  timeTag ||
+                  viewerRole ||
+                  tags.length > 0 ||
+                  categories.length > 0
                     ? BADGE_ROW_FADE
                     : undefined
                 }
               >
+                {/* First, so it sits in the same place on every card. */}
+                {timeTag ? (
+                  <Badge
+                    data-task-card-time
+                    shape="pill"
+                    variant="neutral"
+                    flexShrink={0}
+                  >
+                    <LuCalendar aria-hidden />
+                    {timeTag}
+                  </Badge>
+                ) : null}
                 {viewerRole ? (
                   <TaskRolePill role={viewerRole} flexShrink={0} />
                 ) : null}
@@ -400,6 +422,9 @@ function TaskCardBrowse(props: TaskCardBrowseProps) {
             </Stack>
 
             <HStack
+              data-task-card-meta
+              // The home card has no scan line at all, not an empty one.
+              display={isHome ? 'none' : undefined}
               gap={1}
               minW={0}
               minH={taskCardMetaMinHeight}

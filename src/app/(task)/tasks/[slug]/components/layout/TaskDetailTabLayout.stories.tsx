@@ -18,12 +18,6 @@ const cards = (
   </>
 )
 
-const chips = (
-  <Text fontSize="sm" color="text.muted">
-    Westminster · Wed 10 Jun · Handyman
-  </Text>
-)
-
 const rail = (
   <Card layout="section" framed eyebrow="Help & actions">
     <Text color="text.muted">The desktop rail shares the cards' top edge.</Text>
@@ -58,14 +52,35 @@ const meta = {
 export default meta
 type Story = StoryObj<typeof meta>
 
-/** One section, no rail: the tab list is hidden and the cards fill the width. */
+const rect = (el: Element) => el.getBoundingClientRect()
+
+/** The hairline under the title and the heading above it. */
+async function titleAndLine(canvasElement: HTMLElement) {
+  const heading = await within(canvasElement).findByRole('heading', {
+    name: 'Mount bookshelf on living room wall',
+  })
+  const line = canvasElement.querySelector(
+    '[data-task-title-line]',
+  ) as HTMLElement
+  return { heading, line }
+}
+
+/**
+ * One section, no rail: the tab list is hidden and the cards fill the width.
+ * A line under the title ends its block (Ryan 22 Nov): nothing sits between
+ * the two, where the row of shortcut chips used to be.
+ */
 export const OverviewOnly: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
-    await canvas.findByRole('heading', {
-      name: 'Mount bookshelf on living room wall',
-    })
+    const { heading, line } = await titleAndLine(canvasElement)
     expect(canvas.queryByRole('tab')).toBeNull()
+    // A 1px line, as wide as the column, 16 under the title and 20 over the cards.
+    await expect(getComputedStyle(line).borderBottomWidth).toBe('1px')
+    await expect(rect(line).height).toBe(1)
+    await expect(Math.round(rect(line).top - rect(heading).bottom)).toBe(16)
+    const firstCard = canvas.getByText('Task summary')
+    await expect(rect(firstCard).top).toBeGreaterThan(rect(line).bottom + 19)
   },
 }
 
@@ -78,11 +93,10 @@ export const WithRail: Story = {
   },
 }
 
-/** Desktop: a card main button rises beside the title, bottom-aligned with the chips; both scroll away. */
+/** Desktop: a card main button rises beside the title, its bottom level with the title's; both scroll away. */
 export const WithRailAndMainCta: Story = {
   args: {
     rail,
-    meta: chips,
     mainCta: (
       <Card layout="section" framed eyebrow="Quote sent">
         <Button w="full">Edit quote</Button>
@@ -91,21 +105,36 @@ export const WithRailAndMainCta: Story = {
   },
   globals: { viewport: { value: 'desktop' } },
   play: async ({ canvasElement }) => {
-    await within(canvasElement).findByRole('button', { name: 'Edit quote' })
+    const button = await within(canvasElement).findByRole('button', {
+      name: 'Edit quote',
+    })
+    const { heading, line } = await titleAndLine(canvasElement)
+    // The card sits above the line and beside the title, never over it.
+    const card = button.closest('section') ?? button
+    await expect(rect(card).bottom).toBeLessThanOrEqual(rect(line).top - 15)
+    await expect(rect(heading).right).toBeLessThanOrEqual(rect(card).left)
   },
 }
 
-/** Desktop: a lone button only takes its own width, so the title keeps the rest of the row. */
+/** Desktop: a lone button only takes its own width, beside the title, 16 above the line. */
 export const WithButtonOnlyMainCta: Story = {
   args: {
     rail,
-    meta: chips,
     mainCta: <Button>Preview</Button>,
     mainCtaFit: true,
   },
   globals: { viewport: { value: 'desktop' } },
   play: async ({ canvasElement }) => {
-    await within(canvasElement).findByRole('button', { name: 'Preview' })
+    const button = await within(canvasElement).findByRole('button', {
+      name: 'Preview',
+    })
+    const { heading, line } = await titleAndLine(canvasElement)
+    await expect(Math.round(rect(line).top - rect(button).bottom)).toBe(16)
+    await expect(rect(heading).right).toBeLessThanOrEqual(rect(button).left)
+    // Level with the title's foot, in the row the chips used to hold.
+    await expect(Math.round(rect(button).bottom)).toBe(
+      Math.round(rect(heading).bottom),
+    )
   },
 }
 

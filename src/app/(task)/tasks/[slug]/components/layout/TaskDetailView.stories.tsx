@@ -36,24 +36,56 @@ async function expectTitle(canvasElement: HTMLElement) {
 }
 
 /**
- * The task title is one step smaller than the other pages' (heading-lg, 24/30)
- * and the chips sit 12 under its last line on phones, 16 from md.
+ * The task title is one step smaller than the other pages' (heading-lg, 24/30).
+ * A line sits 12 under its last line on phones, 16 from md (Ryan 22 Nov): no
+ * row of shortcut chips between them. The status pill follows the title on
+ * its last line, and is not part of the heading's name.
  */
 async function expectTitleSizeAndGap(canvasElement: HTMLElement, gap: number) {
   const h1 = await expectTitle(canvasElement)
   const style = getComputedStyle(h1)
   await expect(style.fontSize).toBe('24px')
   await expect(style.lineHeight).toBe('30px')
-  const chip = [...canvasElement.querySelectorAll<HTMLElement>('a, div')].find(
-    (el) =>
-      getComputedStyle(el).minHeight === '32px' &&
-      getComputedStyle(el).whiteSpace === 'nowrap',
+  const line = canvasElement.querySelector(
+    '[data-task-title-line]',
   ) as HTMLElement
   await waitFor(() =>
     expect(
-      chip.getBoundingClientRect().top - h1.getBoundingClientRect().bottom,
+      Math.round(
+        line.getBoundingClientRect().top - h1.getBoundingClientRect().bottom,
+      ),
     ).toBe(gap),
   )
+  await expect(getComputedStyle(line).borderBottomWidth).toBe('1px')
+  // The chips are gone: nothing 32 tall and unwrapped sits under the title.
+  await expect(
+    [...canvasElement.querySelectorAll<HTMLElement>('a, div')].filter(
+      (el) =>
+        getComputedStyle(el).minHeight === '32px' &&
+        getComputedStyle(el).whiteSpace === 'nowrap',
+    ),
+  ).toHaveLength(0)
+  // The pill follows the title's last word: on its last line when there is
+  // room, else whole on the next line, at the left edge. Either way it is
+  // inside the heading's box and adds no height of its own to a line.
+  const pill = await within(h1).findByText('Open')
+  const text = h1.querySelector(
+    '[data-sticky-header-title-text]',
+  ) as HTMLElement
+  const lastLine = [...text.getClientRects()].at(-1) as DOMRect
+  const pillBox = pill.getBoundingClientRect()
+  const frame = h1.getBoundingClientRect()
+  const sameLine = pillBox.top < lastLine.bottom - 1
+  if (sameLine) {
+    await expect(pillBox.left).toBeGreaterThan(lastLine.right)
+    await expect(pillBox.top).toBeGreaterThanOrEqual(lastLine.top - 1)
+    await expect(pillBox.bottom).toBeLessThanOrEqual(lastLine.bottom + 1)
+  } else {
+    await expect(pillBox.top).toBeGreaterThanOrEqual(lastLine.bottom - 4)
+  }
+  await expect(pillBox.left).toBeGreaterThanOrEqual(frame.left - 0.5)
+  await expect(pillBox.right).toBeLessThanOrEqual(frame.right + 0.5)
+  await expect(frame.height % 30).toBe(0)
 }
 
 const bar = (canvasElement: HTMLElement) =>
@@ -240,11 +272,20 @@ export const PhoneLongTitle: Story = {
       { level: 1, name: LONG_TITLE },
       { timeout: 4000 },
     )
-    // Three lines at the top, closed.
+    // Three lines at the top, closed. The status pill cannot follow text that
+    // is cut off, so it takes the line under them, where it stays in view.
     const toggle = await within(h1).findByRole('button')
     await expect(
-      Math.abs(h1.getBoundingClientRect().height - 3 * TITLE_LINE),
+      Math.abs(toggle.getBoundingClientRect().height - 3 * TITLE_LINE),
     ).toBeLessThan(1)
+    await expect(
+      Math.abs(h1.getBoundingClientRect().height - 4 * TITLE_LINE),
+    ).toBeLessThan(1)
+    const pill = within(h1).getByText('Open')
+    await expect(pill).toBeVisible()
+    await expect(pill.getBoundingClientRect().top).toBeGreaterThanOrEqual(
+      toggle.getBoundingClientRect().bottom,
+    )
     await expect(toggle).toHaveAttribute('aria-expanded', 'false')
     await expect(h1).toHaveTextContent(LONG_TITLE)
     await expect(canvas.getAllByRole('heading', { level: 1 })).toHaveLength(1)

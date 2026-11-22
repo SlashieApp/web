@@ -1,6 +1,6 @@
 'use client'
 
-import { HStack, Heading, Skeleton, Stack, Text } from '@chakra-ui/react'
+import { Heading, Skeleton, Stack, Text } from '@chakra-ui/react'
 import {
   type ComponentType,
   useEffect,
@@ -38,7 +38,6 @@ import {
   resolveSummaryCopy,
   summaryBudgetType,
 } from '../../views/resolveSummaryCopy'
-import { TaskStatusPill } from '../ui/TaskStatusPill'
 import { RequestFact } from './facts/BookingActionFacts'
 import {
   AgreedPriceFact,
@@ -160,15 +159,15 @@ function useTaskMoment(
 }
 
 /**
- * Task summary (FE-274): the status badge, a headline, one sub-line saying
- * what to do next, then the facts that matter in the order the view lists
- * them. The view is worked out by `getTaskDetailView`; this only renders its
+ * Task summary (FE-274): a headline, one sub-line saying what to do next,
+ * then the facts that matter in the order the view lists them. (The status
+ * badge was its eyebrow until 22 Nov: it follows the page's title now.) The view is worked out by `getTaskDetailView`; this only renders its
  * config. A card on web; flush on phones and tablets. The main button and
  * Help & actions sit outside it.
  *
  * After posting the task, sending a quote, accepting one or leaving a review
  * (Ryan 22 Nov), the block plays the moment once: it settles in and a tick
- * draws beside the pill. Where its everyday headline does not say what just
+ * draws over the headline. Where its everyday headline does not say what just
  * happened, it does for that first view: "Task posted", "Review sent". The
  * block is the confirmation, so there is no pop-up as well; later visits read
  * as usual.
@@ -212,14 +211,9 @@ export function TaskSummary() {
           transformOrigin="left center"
           css={playing ? momentSettleCss : undefined}
         >
-          {config.pill ? (
-            <HStack gap={2}>
-              {playing ? <SuccessTick /> : null}
-              <TaskStatusPill status={config.pill} size="sm" />
-            </HStack>
-          ) : (
-            <Skeleton h="22px" w="72px" borderRadius="full" />
-          )}
+          {/* The status pill follows the page's title now (22 Nov); the
+              moment's tick still draws here, over the headline. */}
+          {playing ? <SuccessTick /> : null}
           {headline ? (
             <Heading
               as="h2"

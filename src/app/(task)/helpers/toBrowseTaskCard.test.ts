@@ -32,6 +32,28 @@ function listTask(overrides: Partial<TaskListItem> = {}): TaskListItem {
 }
 
 describe('toBrowseTaskCard', () => {
+  it('is the home card: time as a tag, no budget or distance drawn (Ryan 22 Nov)', () => {
+    const card = toBrowseTaskCard(
+      listTask({
+        budget: {
+          amount: 85,
+          currency: Currency.Gbp,
+          unit: TaskBudgetUnit.Total,
+        },
+        datetime: { type: 'FLEXIBLE' },
+      } as Partial<TaskListItem>),
+      reference,
+      null,
+      budgetBag.en,
+    )
+    expect(card.layout).toBe('home')
+    // The time the tag shows.
+    expect(card.timingLabel).toBeTruthy()
+    // Still carried for the task page the card opens, not drawn on the card.
+    expect(card.priceLabel).toBe('£85')
+    expect(card.distanceLabel).toBeTruthy()
+  })
+
   it('an open budget reads "Open budget", with no unit (FE-584)', () => {
     const card = toBrowseTaskCard(
       listTask({ budget: null }),
