@@ -152,3 +152,25 @@ export function threadTitle(
     ? copy.workerQuoted
     : formatMessage(copy.workersQuoted, { count })
 }
+
+/**
+ * The badge once a thread holding `threadUnread` unread items is opened
+ * (motion group B, Ryan 22 Nov: it clears at once, before the server answers).
+ * Never below zero.
+ */
+export function unreadAfterRead(total: number, threadUnread: number): number {
+  return Math.max(0, total - threadUnread)
+}
+
+/**
+ * One try at marking a thread read per state of it. If the server refuses,
+ * the count comes back as it was: the same key, so it is not tried again in
+ * a loop. A new item, or a new count, is a new key.
+ */
+export function readAttemptKey(
+  threadId: string,
+  unreadCount: number,
+  newestId: string | undefined,
+): string {
+  return `${threadId}:${unreadCount}:${newestId ?? ''}`
+}

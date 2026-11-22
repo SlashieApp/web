@@ -11,7 +11,9 @@ import {
 } from '@chakra-ui/react'
 import {
   FlashKind,
+  type MarkThreadReadMutation,
   type MessageThreadQuery,
+  type MessageThreadsQuery,
   type SendMessageMutation,
 } from '@codegen/schema'
 import {
@@ -31,6 +33,7 @@ import {
 import BlockUser from '@/app/(messages)/messages/graphql/BlockUser.gql'
 import MarkThreadRead from '@/app/(messages)/messages/graphql/MarkThreadRead.gql'
 import MessageThread from '@/app/(messages)/messages/graphql/MessageThread.gql'
+import MessageThreads from '@/app/(messages)/messages/graphql/MessageThreads.gql'
 import SendMessage from '@/app/(messages)/messages/graphql/SendMessage.gql'
 import UnblockUser from '@/app/(messages)/messages/graphql/UnblockUser.gql'
 import { taskServerError } from '@/app/(stepflow)/tasks/create/helpers/taskFieldError'
@@ -42,7 +45,12 @@ import { useI11n } from '@/i18n/useI11n'
 import { showAppToast } from '@/utils/appToast'
 import { Button, Link, Textarea } from '@ui'
 
-import { threadQueryState, timelineRows } from '../helpers/messagesThread'
+import {
+  readAttemptKey,
+  threadQueryState,
+  timelineRows,
+  unreadAfterRead,
+} from '../helpers/messagesThread'
 import bag from '../i11n.json'
 import {
   THREAD_VIEWS,
@@ -262,7 +270,8 @@ export function ThreadView({ threadId }: { threadId: string | null }) {
       skip: !threadId,
       fetchPolicy: 'cache-and-network',
     })
-  const [markRead] = useMutation(MarkThreadRead)
+  const [markRead] = useMutation<MarkThreadReadMutation>(MarkThreadRead)
+  const readTried = useRef<string | null>(null)
   const [block] = useMutation(BlockUser)
   const [unblock] = useMutation(UnblockUser)
 
@@ -283,12 +292,45 @@ export function ThreadView({ threadId }: { threadId: string | null }) {
     ]
 
   // Opening the thread, and each new item while it is open, marks it read.
+  // The dot and the badge clear at once, without waiting for the server
+  // (motion group B, Ryan 22 Nov); if it refuses, they come back.
   useEffect(() => {
     if (!thread || thread.unreadCount === 0) return
-    void markRead({ variables: { threadId: thread.id } }).then(() =>
-      refetchThreads(),
-    )
-  }, [markRead, refetchThreads, thread])
+    const unread = thread.unreadCount
+    // One try per state of the thread: a refusal puts the count back as it
+    // was, which must not start the same request again.
+    const key = readAttemptKey(thread.id, unread, newestId)
+    if (readTried.current === key) return
+    readTried.current = key
+    markRead({
+      variables: { threadId: thread.id },
+      // The generated type leaves `__typename` out; the cache needs it to
+      // find the thread.
+      optimisticResponse: {
+        markThreadRead: { __typename: 'Thread', id: thread.id, unreadCount: 0 },
+      } as MarkThreadReadMutation,
+      update: (cache) => {
+        cache.updateQuery<MessageThreadsQuery>(
+          { query: MessageThreads },
+          (prev) =>
+            prev?.me
+              ? {
+                  ...prev,
+                  me: {
+                    ...prev.me,
+                    unreadMessageCount: unreadAfterRead(
+                      prev.me.unreadMessageCount,
+                      unread,
+                    ),
+                  },
+                }
+              : prev,
+        )
+      },
+    })
+      .then(() => refetchThreads())
+      .catch(() => undefined)
+  }, [markRead, newestId, refetchThreads, thread])
 
   // Follow the newest item down.
   useEffect(() => {

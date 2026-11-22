@@ -138,6 +138,9 @@ function taskCoreData(task: TaskDetailRecord) {
       categories: task.categories,
       views: task.views,
       budget: task.budget ? { __typename: 'TaskBudget', ...task.budget } : null,
+      // The query asks for it (FE-584): without it the seeded task is
+      // incomplete and the story shows nothing.
+      paymentMethod: task.paymentMethod ?? null,
       datetime: task.datetime
         ? { __typename: 'TaskDateTime', ...task.datetime }
         : null,

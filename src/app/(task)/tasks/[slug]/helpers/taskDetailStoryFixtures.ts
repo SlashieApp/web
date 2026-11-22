@@ -69,6 +69,9 @@ export function storyTaskDetail(
       amount: 120,
       currency: Currency.Gbp,
       unit: TaskBudgetUnit.Total,
+      // The task query asks for it (FE-584): without it the cached task is
+      // incomplete and every story that loads the task shows nothing.
+      customUnit: null,
     },
     paymentMethod: TaskPaymentMethod.Cash,
     datetime: { date: '2026-06-10', time: '14:00', type: 'EXACT' },

@@ -21,7 +21,7 @@ import { useMessages } from '@/app/(messages)/messages/context/MessagesProvider'
 import { useLocale } from '@/i18n/LocaleProvider'
 import { formatMessage } from '@/i18n/loadPageI11n'
 import { useI11n } from '@/i18n/useI11n'
-import { sdlFigure } from '@/theme/styles'
+import { sdlFigure, sdlMotion } from '@/theme/styles'
 import {
   Avatar,
   Button,
@@ -71,6 +71,12 @@ function ThreadRow({
       borderColor="border.default"
       color="text.default"
       _hover={{ textDecoration: 'none', bg: 'bg.subtle' }}
+      // A press answers at once (motion group B), as the app's row does: a
+      // finger never sees the hover fill. A full-width row does not scale.
+      _active={{ bg: 'bg.subtle' }}
+      transitionProperty="background-color"
+      transitionDuration={sdlMotion.duration.fast}
+      transitionTimingFunction={sdlMotion.easing.standard}
     >
       <Avatar
         name={system ? t.slashie : (thread.otherParty?.name ?? thread.title)}

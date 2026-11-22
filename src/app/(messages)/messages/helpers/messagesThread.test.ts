@@ -7,10 +7,12 @@ import {
 import { describe, expect, it } from 'vitest'
 
 import {
+  readAttemptKey,
   shouldRefetchThreads,
   threadQueryState,
   threadTitle,
   timelineRows,
+  unreadAfterRead,
 } from './messagesThread'
 
 const forbidden = {
@@ -200,5 +202,29 @@ describe('threadTitle', () => {
         copy,
       ),
     ).toBe('Slashie')
+  })
+})
+
+/**
+ * Motion group B (Ryan 22 Nov): opening a thread clears its dot and the badge
+ * at once; the server confirms after.
+ */
+describe('a thread reads at once', () => {
+  it('the badge drops by what the thread held, never below zero', () => {
+    expect(unreadAfterRead(5, 2)).toBe(3)
+    expect(unreadAfterRead(2, 2)).toBe(0)
+    // The badge was already behind: it stops at zero.
+    expect(unreadAfterRead(1, 3)).toBe(0)
+  })
+
+  it('one try per state of the thread, so a refusal cannot loop', () => {
+    const first = readAttemptKey('t1', 2, 'm9')
+    // The server refuses: the count comes back as it was. Same key, no retry.
+    expect(readAttemptKey('t1', 2, 'm9')).toBe(first)
+    // A new message, a new count or another thread is a new try.
+    expect(readAttemptKey('t1', 2, 'm10')).not.toBe(first)
+    expect(readAttemptKey('t1', 3, 'm9')).not.toBe(first)
+    expect(readAttemptKey('t2', 2, 'm9')).not.toBe(first)
+    expect(readAttemptKey('t1', 1, undefined)).toBe('t1:1:')
   })
 })
