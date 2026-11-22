@@ -1,12 +1,14 @@
 'use client'
 
-import { Box, HStack, Stack, Text } from '@chakra-ui/react'
+import { Box, HStack, Stack, Text, chakra } from '@chakra-ui/react'
 import { FlashKind, ThreadItemType } from '@codegen/schema'
 import type { ThreadItemFieldsFragment } from '@codegen/schema'
 import type { ReactNode } from 'react'
+import { LuCircleAlert } from 'react-icons/lu'
 
 import { useTaskDetail } from '@/app/(task)/tasks/[slug]/context/TaskDetailProvider'
 import { useI11n } from '@/i18n/useI11n'
+import { hitAreaGrowth, sdlFocusRing, sdlMotion } from '@/theme/styles'
 import { formatPrice } from '@/utils/price'
 import { formatTimeSlotLabel } from '@/utils/timeSlots'
 import { Button, Link } from '@ui'
@@ -186,17 +188,44 @@ function AcceptedLine({
  * included. Day dividers carry the date, so times are clock times; a run of
  * messages shows one (FE-291).
  */
+/**
+ * A message of yours the server has not confirmed (motion group B, Ryan
+ * 22 Nov). It looks like any message while it is on its way; `failed` is the
+ * line under it once it has not gone, with `onRetry` when a tap can send it
+ * again.
+ */
+export type UnsentState = {
+  failed: { line: string; onRetry?: () => void } | null
+}
+
+/** One line of 12/16 text; the tap area grows to 44 without adding space. */
+const NOT_SENT_LINE_PX = 16
+
+/** A message you just sent joining the conversation: a short fade and rise. */
+const messageInCss = {
+  animationName: 'message-in',
+  animationDuration: sdlMotion.duration.base,
+  animationTimingFunction: sdlMotion.easing.decelerate,
+  animationFillMode: 'both',
+  '@media (prefers-reduced-motion: reduce)': {
+    animationName: 'step-in-fade',
+  },
+} as const
+
 export function ThreadTimelineItem({
   item,
   locale,
   showTime = true,
   latestRequest = false,
+  unsent,
 }: {
   item: Item
   locale: string
   showTime?: boolean
   /** The newest reschedule or cancel request in the thread. */
   latestRequest?: boolean
+  /** Set for a message that is still in the outbox. */
+  unsent?: UnsentState
 }) {
   const time = clockTime(item.createdAt, locale)
   const sheet = useThreadSheet()
@@ -244,12 +273,17 @@ export function ThreadTimelineItem({
   }
 
   const mine = item.isMine
+  const failed = unsent?.failed ?? null
   return (
     <Stack
       alignSelf={mine ? 'flex-end' : 'flex-start'}
       maxW="80%"
       gap={1}
       align={mine ? 'flex-end' : 'flex-start'}
+      data-unsent={unsent ? (failed ? 'failed' : 'sending') : undefined}
+      // Only the message just written arrives in motion: the server's copy
+      // takes its place without moving.
+      css={unsent ? messageInCss : undefined}
     >
       <Box
         px={3.5}
@@ -264,7 +298,41 @@ export function ThreadTimelineItem({
           {item.body}
         </Text>
       </Box>
-      {showTime ? (
+      {failed ? (
+        failed.onRetry ? (
+          // The line is the way to send it again: 44 to tap, no added space.
+          <chakra.button
+            type="button"
+            onClick={failed.onRetry}
+            display="inline-flex"
+            alignItems="center"
+            gap={1}
+            bg="transparent"
+            border="none"
+            cursor="pointer"
+            fontSize="xs"
+            lineHeight={`${NOT_SENT_LINE_PX}px`}
+            fontWeight={500}
+            color="status.danger.fg"
+            textAlign="right"
+            borderRadius="sm"
+            _focusVisible={sdlFocusRing}
+            {...hitAreaGrowth(NOT_SENT_LINE_PX)}
+          >
+            <LuCircleAlert size={14} aria-hidden style={{ flexShrink: 0 }} />
+            {failed.line}
+          </chakra.button>
+        ) : (
+          <HStack gap={1} align="flex-start" color="status.danger.fg">
+            <Box as="span" mt="1px" flexShrink={0} aria-hidden>
+              <LuCircleAlert size={14} />
+            </Box>
+            <Text fontSize="xs" lineHeight={`${NOT_SENT_LINE_PX}px`}>
+              {failed.line}
+            </Text>
+          </HStack>
+        )
+      ) : showTime ? (
         <Text fontSize="xs" color="text.muted">
           {time}
         </Text>

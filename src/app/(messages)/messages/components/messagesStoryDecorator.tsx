@@ -33,6 +33,7 @@ import {
   THREAD_PAGE_SIZE,
 } from '../context/MessagesProvider'
 import MessageThread from '../graphql/MessageThread.gql'
+import { outboxStore } from '../helpers/outbox'
 import { type MessagesViewer, messagesValue } from './messagesStoryFixtures'
 
 export type MessagesStoryConfig = {
@@ -68,6 +69,7 @@ const TYPENAME_BY_FIELD: Record<string, string> = {
   threads: 'Thread',
   lastItem: 'ThreadItem',
   threadItems: 'ThreadItem',
+  sendMessage: 'ThreadItem',
   task: 'Task',
   otherParty: 'ThreadParty',
   author: 'ThreadParty',
@@ -141,8 +143,17 @@ function forCache(task: TaskDetailRecord) {
   }
 }
 
+/** The server's answer to Send: the message as its own item, with typenames. */
+export function sentMessageResponse(
+  item: ThreadItemFieldsFragment,
+): StoryResponse {
+  return { kind: 'data', data: addTypenames({ sendMessage: item }) }
+}
+
 function seed(client: ApolloClient, config: MessagesStoryConfig) {
   const { thread, items = [], task, threadRequest = 'loaded' } = config
+  // The outbox is the tab's: each story starts with nothing waiting to send.
+  outboxStore.clear()
   if (thread && threadRequest === 'loaded') {
     client.writeQuery<MessageThreadQuery, MessageThreadQueryVariables>({
       query: MessageThread,

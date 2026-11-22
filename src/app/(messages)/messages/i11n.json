@@ -34,6 +34,8 @@
     "composerPlaceholder": "Write a message",
     "send": "Send",
     "sendFailed": "Couldn't send your message.",
+    "notSent": "Not sent. Tap to try again.",
+    "notSentBecause": "Not sent. {reason}",
     "blockFailed": "Couldn't update that. Try again.",
     "serverErrors": {
       "TASK_SUSPENDED": "This task is suspended, so it can't be changed.",
@@ -149,6 +151,8 @@
     "composerPlaceholder": "輸入訊息",
     "send": "傳送",
     "sendFailed": "未能傳送訊息。",
+    "notSent": "未能傳送，點一下重試。",
+    "notSentBecause": "未能傳送。{reason}",
     "blockFailed": "未能更新，請再試一次。",
     "serverErrors": {
       "TASK_SUSPENDED": "此任務已暫停，無法更改。",

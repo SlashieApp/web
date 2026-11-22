@@ -26,6 +26,7 @@ import { WebPushSync } from '@/app/(dashboard)/components/notifications/WebPushS
 import MessageThread from '@/app/(messages)/messages/graphql/MessageThread.gql'
 import MessageThreads from '@/app/(messages)/messages/graphql/MessageThreads.gql'
 import ThreadItemAdded from '@/app/(messages)/messages/graphql/ThreadItemAdded.gql'
+import { outboxStore } from '@/app/(messages)/messages/helpers/outbox'
 import {
   getAccountDisabledFlag,
   subscribeAccountDisabled,
@@ -74,11 +75,14 @@ export function MessagesProvider({ children }: { children: ReactNode }) {
     { skip: !signedIn, fetchPolicy: 'cache-and-network' },
   )
 
-  // A new account needs a socket that carries its token.
+  // A new account needs a socket that carries its token. And whatever the
+  // last person had not managed to send goes with them: unsent text must
+  // never show up in someone else's conversation on a shared device.
   const lastMeIdRef = useRef(meId)
   useEffect(() => {
     if (lastMeIdRef.current === meId) return
     lastMeIdRef.current = meId
+    outboxStore.clear()
     restartRealtimeConnection()
   }, [meId])
 

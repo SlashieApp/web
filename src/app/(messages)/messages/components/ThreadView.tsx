@@ -22,8 +22,10 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useMemo,
   useRef,
   useState,
+  useSyncExternalStore,
 } from 'react'
 
 import {
@@ -43,6 +45,7 @@ import { useLocale } from '@/i18n/LocaleProvider'
 import { formatMessage } from '@/i18n/loadPageI11n'
 import { useI11n } from '@/i18n/useI11n'
 import { showAppToast } from '@/utils/appToast'
+import { getGraphQLErrorCode } from '@/utils/graphqlErrors'
 import { Button, Link, Textarea } from '@ui'
 
 import {
@@ -51,6 +54,14 @@ import {
   timelineRows,
   unreadAfterRead,
 } from '../helpers/messagesThread'
+import {
+  type OutboxMessage,
+  inThreadOrder,
+  outboxDelivered,
+  outboxShown,
+  outboxStore,
+} from '../helpers/outbox'
+import { outboxTimelineItem } from '../helpers/outboxItem'
 import bag from '../i11n.json'
 import {
   THREAD_VIEWS,
@@ -61,52 +72,34 @@ import {
 import { ThreadAttentionRefresh } from './ThreadAttentionRefresh'
 import { ThreadHeader } from './ThreadHeader'
 import { THREAD_COMPOSER_ATTR, ThreadSheetProvider } from './ThreadSheet'
-import { ThreadTimelineItem } from './ThreadTimelineItem'
+import { ThreadTimelineItem, type UnsentState } from './ThreadTimelineItem'
 
 type Copy = (typeof bag)['en']
 
 const MESSAGE_MAX = 2000
 
+/**
+ * The message box. Send puts the message in the conversation at once and
+ * empties the box (motion group B, Ryan 22 Nov): it never waits for the
+ * server, so the next message can be written straight away.
+ */
 function Composer({
-  threadId,
   name,
   t,
+  onSend,
 }: {
-  threadId: string
   name: string
   t: Copy
+  /** The trimmed text: it joins the conversation and goes to the server. */
+  onSend: (text: string) => void
 }) {
-  const apollo = useApolloClient()
-  const { refetchThreads } = useMessages()
   const [body, setBody] = useState('')
-  const [send, { loading }] = useMutation<SendMessageMutation>(SendMessage)
   const text = body.trim()
 
-  const submit = async () => {
-    if (!text || loading) return
-    try {
-      const result = await send({ variables: { threadId, body: text } })
-      const item = result.data?.sendMessage
-      if (item) {
-        apollo.cache.updateQuery<MessageThreadQuery>(
-          {
-            query: MessageThread,
-            variables: { threadId, first: THREAD_PAGE_SIZE },
-          },
-          (prev) =>
-            prev && !prev.threadItems.some((row) => row.id === item.id)
-              ? { ...prev, threadItems: [item, ...prev.threadItems] }
-              : prev,
-        )
-      }
-      setBody('')
-      refetchThreads()
-    } catch (error) {
-      showAppToast({
-        title: taskServerError(t.serverErrors, error, t.sendFailed),
-        type: 'error',
-      })
-    }
+  const submit = () => {
+    if (!text) return
+    setBody('')
+    onSend(text)
   }
 
   return (
@@ -119,7 +112,7 @@ function Composer({
       borderColor="border.default"
       onSubmit={(e) => {
         e.preventDefault()
-        void submit()
+        submit()
       }}
     >
       <Textarea
@@ -129,7 +122,7 @@ function Composer({
           if (e.key !== 'Enter' || e.shiftKey || e.nativeEvent.isComposing)
             return
           e.preventDefault()
-          void submit()
+          submit()
         }}
         rows={1}
         maxLength={MESSAGE_MAX}
@@ -141,7 +134,7 @@ function Composer({
         placeholder={t.composerPlaceholder}
         aria-label={formatMessage(t.composerLabel, { name })}
       />
-      <Button type="submit" loading={loading} disabled={!text}>
+      <Button type="submit" disabled={!text}>
         {t.send}
       </Button>
     </HStack>
@@ -157,14 +150,14 @@ function Composer({
  */
 function ThreadComposerArea({
   view,
-  threadId,
   name,
   t,
+  onSend,
 }: {
   view: Omit<ThreadViewInput, 'suspended' | 'otherBooking'>
-  threadId: string
   name: string
   t: Copy
+  onSend: (text: string) => void
 }) {
   const detail = useContext(TaskDetailContext)
   const suspended = Boolean(detail?.permissions.isFrozen)
@@ -174,7 +167,7 @@ function ThreadComposerArea({
   if (config.layout !== 'conversation') return null
 
   if (config.composer === 'open') {
-    return <Composer threadId={threadId} name={name} t={t} />
+    return <Composer name={name} t={t} onSend={onSend} />
   }
   return (
     <Box
@@ -189,6 +182,27 @@ function ThreadComposerArea({
       </Text>
     </Box>
   )
+}
+
+/**
+ * What an unsent message says under its bubble. Nothing while it is on its
+ * way or just sent (it looks like any message); once it has failed, the line
+ * to tap, or the reason when trying again won't help.
+ */
+function unsentFor(
+  message: OutboxMessage | undefined,
+  t: Copy,
+  retry: (message: OutboxMessage) => void,
+): UnsentState | undefined {
+  if (!message) return undefined
+  if (message.status !== 'failed') return { failed: null }
+  return message.reason
+    ? {
+        failed: {
+          line: formatMessage(t.notSentBecause, { reason: message.reason }),
+        },
+      }
+    : { failed: { line: t.notSent, onRetry: () => retry(message) } }
 }
 
 const SKELETON_BUBBLES = [
@@ -274,10 +288,77 @@ export function ThreadView({ threadId }: { threadId: string | null }) {
   const readTried = useRef<string | null>(null)
   const [block] = useMutation(BlockUser)
   const [unblock] = useMutation(UnblockUser)
+  const [sendMessage] = useMutation<SendMessageMutation>(SendMessage)
+  const apollo = useApolloClient()
+  const outbox = useSyncExternalStore(
+    outboxStore.subscribe,
+    outboxStore.get,
+    outboxStore.getServer,
+  )
 
   const thread = data?.thread ?? null
   const items = data?.threadItems ?? []
   const newestId = items[0]?.id
+  // Your messages the server has not confirmed yet: they show at once, after
+  // everything it has sent (motion group B, Ryan 22 Nov).
+  const serverIds = useMemo(
+    () => new Set(items.map((item) => item.id)),
+    [items],
+  )
+  const unsent = threadId ? outboxShown(outbox, threadId, serverIds) : []
+  const lastUnsentId = unsent.at(-1)?.id
+  // A sent message steps aside once the server's own item is in the
+  // timeline; then it is done with.
+  useEffect(() => {
+    const done = outboxDelivered(outbox, serverIds)
+    if (done.length) outboxStore.remove(done)
+  }, [outbox, serverIds])
+
+  /** To the server, one at a time per conversation. It never throws. */
+  const deliver = useCallback(
+    (message: OutboxMessage) =>
+      inThreadOrder(message.threadId, async () => {
+        try {
+          const result = await sendMessage({
+            variables: { threadId: message.threadId, body: message.body },
+          })
+          const item = result.data?.sendMessage
+          if (!item) {
+            outboxStore.fail(message.id, null)
+            return
+          }
+          apollo.cache.updateQuery<MessageThreadQuery>(
+            {
+              query: MessageThread,
+              variables: {
+                threadId: message.threadId,
+                first: THREAD_PAGE_SIZE,
+              },
+            },
+            (prev) =>
+              prev && !prev.threadItems.some((row) => row.id === item.id)
+                ? { ...prev, threadItems: [item, ...prev.threadItems] }
+                : prev,
+          )
+          outboxStore.sent(message.id, item.id)
+          refetchThreads()
+        } catch (error) {
+          // A suspension: trying again won't help, so the line says why.
+          const code = getGraphQLErrorCode(error)
+          const reasons: Record<string, string> = t.serverErrors
+          outboxStore.fail(message.id, (code && reasons[code]) || null)
+        }
+      }),
+    [apollo, refetchThreads, sendMessage, t.serverErrors],
+  )
+  const send = (text: string) => {
+    if (!threadId) return
+    void deliver(outboxStore.add(threadId, text))
+  }
+  const retry = (message: OutboxMessage) => {
+    outboxStore.retry(message.id)
+    void deliver(message)
+  }
   const view = {
     threadId,
     query: threadQueryState({ loading, thread, error }),
@@ -332,12 +413,13 @@ export function ThreadView({ threadId }: { threadId: string | null }) {
       .catch(() => undefined)
   }, [markRead, newestId, refetchThreads, thread])
 
-  // Follow the newest item down.
+  // Follow the newest item down: the server's, or the one just written.
+  const tailId = lastUnsentId ?? newestId
   useEffect(() => {
-    if (!newestId) return
+    if (!tailId) return
     const el = scrollRef.current
     if (el) el.scrollTop = el.scrollHeight
-  }, [newestId])
+  }, [tailId])
 
   // The pins load with the task and change size; while the reader is at the
   // newest item, keep it in view instead of letting them push it out.
@@ -433,7 +515,12 @@ export function ThreadView({ threadId }: { threadId: string | null }) {
 
   if (!thread) return null
   const name = thread.otherParty?.name ?? thread.title
-  const rows = timelineRows([...items].reverse(), locale, t)
+  const unsentById = new Map(unsent.map((message) => [message.id, message]))
+  const rows = timelineRows(
+    [...[...items].reverse(), ...unsent.map(outboxTimelineItem)],
+    locale,
+    t,
+  )
   const pins = config.pins && thread.task != null
   // The newest reschedule or cancel request offers to open it (FE-543).
   const latestRequestId = [...items].find(
@@ -493,6 +580,7 @@ export function ThreadView({ threadId }: { threadId: string | null }) {
                   locale={locale}
                   showTime={row.showTime}
                   latestRequest={row.item.id === latestRequestId}
+                  unsent={unsentFor(unsentById.get(row.item.id), t, retry)}
                 />
               ),
             )}
@@ -500,7 +588,7 @@ export function ThreadView({ threadId }: { threadId: string | null }) {
         </Stack>
       </Box>
 
-      <ThreadComposerArea view={view} threadId={thread.id} name={name} t={t} />
+      <ThreadComposerArea view={view} name={name} t={t} onSend={send} />
     </>
   )
 

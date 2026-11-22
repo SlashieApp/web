@@ -269,6 +269,15 @@ const sharedTheme = {
         to: { opacity: '1' },
       },
       /**
+       * A message you just sent joining the conversation (motion group B):
+       * it fades in, rising 4px, in 150ms on the decelerate curve. Under
+       * reduced motion run `step-in-fade`.
+       */
+      'message-in': {
+        from: { opacity: '0', transform: 'translateY(4px)' },
+        to: { opacity: '1', transform: 'translateY(0)' },
+      },
+      /**
        * A success moment's block settling in (Task posted; Ryan 22 Nov): it
        * rises 8px and grows from 98%, fading in. Run it 300ms on
        * `sdlMotion.easing.emphasis`, whose gentle overshoot is the settle,

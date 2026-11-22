@@ -21,7 +21,7 @@ import { formatTimeSlotLabel } from '@/utils/timeSlots'
 
 import { ThreadView } from './ThreadView'
 
-import { messagesStory } from './messagesStoryDecorator'
+import { messagesStory, sentMessageResponse } from './messagesStoryDecorator'
 import {
   STORY_THREAD_ID,
   bookedConversation,
@@ -965,5 +965,179 @@ export const LoadError: Story = {
     await expect(
       canvas.getByRole('link', { name: 'Back to messages' }),
     ).toBeVisible()
+  },
+}
+
+/** Writes a message and sends it; returns the conversation's log. */
+async function sendMessage(canvasElement: HTMLElement, text: string) {
+  const canvas = within(canvasElement)
+  const log = await canvas.findByRole('log')
+  const composer = canvas.getByRole('textbox', { name: 'Message Jordan Lee' })
+  await userEvent.type(composer, text)
+  await userEvent.click(canvas.getByRole('button', { name: 'Send' }))
+  return { canvas, log, composer }
+}
+
+const SENT_TEXT = 'I can come at 3pm'
+
+/**
+ * Motion group B (Ryan 22 Nov): a sent message is in the conversation at
+ * once, before the server answers (here it never does), and the box is empty
+ * for the next one. It looks like any message of yours: no spinner, no mark.
+ */
+export const SendsAtOnce: Story = {
+  decorators: messagesStory({
+    viewer: 'owner',
+    thread: taskThread('owner', {}, ownerItems),
+    items: ownerItems,
+    ...BOOKED,
+  }),
+  play: async ({ canvasElement }) => {
+    const { canvas, log, composer } = await sendMessage(
+      canvasElement,
+      SENT_TEXT,
+    )
+    // In the conversation in the same breath (it fades in over 150ms).
+    const bubble = within(log).getByText(SENT_TEXT)
+    await waitFor(() => expect(bubble).toBeVisible())
+    await expect(bubble.closest('[data-unsent]')).toHaveAttribute(
+      'data-unsent',
+      'sending',
+    )
+    // It is the newest thing in the conversation.
+    await expect(log.lastElementChild).toContainElement(bubble)
+    await expect(composer).toHaveValue('')
+    await expect(canvas.getByRole('button', { name: 'Send' })).toBeDisabled()
+    await expect(within(log).queryByText(/Not sent/)).toBeNull()
+    // A second one goes straight after it: nothing was waited for.
+    await userEvent.type(composer, 'See you then')
+    await userEvent.click(canvas.getByRole('button', { name: 'Send' }))
+    await expect(log.lastElementChild).toHaveTextContent('See you then')
+  },
+}
+
+/**
+ * The server confirms: its own item takes the place of the one written, with
+ * no second bubble and no gap in between.
+ */
+export const SendConfirms: Story = {
+  decorators: messagesStory({
+    viewer: 'owner',
+    thread: taskThread('owner', {}, ownerItems),
+    items: ownerItems,
+    ...BOOKED,
+    responses: {
+      SendMessage: sentMessageResponse(
+        conversationMessage(
+          'owner',
+          'owner',
+          'm-sent',
+          SENT_TEXT,
+          new Date().toISOString(),
+        ),
+      ),
+    },
+  }),
+  play: async ({ canvasElement }) => {
+    const { log } = await sendMessage(canvasElement, SENT_TEXT)
+    await waitFor(() => expect(within(log).getByText(SENT_TEXT)).toBeVisible())
+    await waitFor(() =>
+      expect(canvasElement.querySelector('[data-unsent]')).toBeNull(),
+    )
+    await expect(within(log).getAllByText(SENT_TEXT)).toHaveLength(1)
+  },
+}
+
+/**
+ * It did not go (Ryan 22 Nov: "Stays, tap to retry"): the message stays where
+ * it is with "Not sent. Tap to try again." under it, and a tap sends it again.
+ */
+export const SendFails: Story = {
+  decorators: messagesStory({
+    viewer: 'owner',
+    thread: taskThread('owner', {}, ownerItems),
+    items: ownerItems,
+    ...BOOKED,
+    responses: { SendMessage: { kind: 'networkError' } },
+  }),
+  play: async ({ canvasElement }) => {
+    const { log, composer } = await sendMessage(canvasElement, SENT_TEXT)
+    const retry = await within(log).findByRole('button', {
+      name: 'Not sent. Tap to try again.',
+    })
+    // The words are still in the conversation, not back in the box. (A
+    // failure can come back before the 150ms arrival has finished.)
+    await waitFor(() => expect(within(log).getByText(SENT_TEXT)).toBeVisible())
+    await expect(composer).toHaveValue('')
+    await expect(retry.closest('[data-unsent]')).toHaveAttribute(
+      'data-unsent',
+      'failed',
+    )
+    // 44 to tap, though the line is 16 tall.
+    await expect(retry.getBoundingClientRect().height).toBeGreaterThanOrEqual(
+      44,
+    )
+    // A tap sends it again: the line goes while it is on its way, and comes
+    // back when it fails again. Still one message.
+    await userEvent.click(retry)
+    await within(log).findByRole('button', {
+      name: 'Not sent. Tap to try again.',
+    })
+    await expect(within(log).getAllByText(SENT_TEXT)).toHaveLength(1)
+  },
+}
+
+/**
+ * The server says no for a reason a retry can't fix (the task is suspended):
+ * the line gives the reason, and there is nothing to tap.
+ */
+export const SendRefused: Story = {
+  decorators: messagesStory({
+    viewer: 'owner',
+    thread: taskThread('owner', {}, ownerItems),
+    items: ownerItems,
+    ...BOOKED,
+    responses: {
+      SendMessage: { kind: 'graphqlError', code: 'TASK_SUSPENDED' },
+    },
+  }),
+  play: async ({ canvasElement }) => {
+    const { log } = await sendMessage(canvasElement, SENT_TEXT)
+    await within(log).findByText(
+      "Not sent. This task is suspended, so it can't be changed.",
+    )
+    await waitFor(() => expect(within(log).getByText(SENT_TEXT)).toBeVisible())
+    await expect(
+      within(log).queryByRole('button', { name: /Not sent/ }),
+    ).toBeNull()
+  },
+}
+
+/** zh-HK: the line under a message that did not go. */
+export const SendFailsChinese: Story = {
+  decorators: [
+    ...messagesStory({
+      viewer: 'owner',
+      thread: taskThread('owner', {}, ownerItems),
+      items: ownerItems,
+      ...BOOKED,
+      responses: { SendMessage: { kind: 'networkError' } },
+    }),
+    (Story) => (
+      <LocaleProvider>
+        <Story />
+      </LocaleProvider>
+    ),
+  ],
+  parameters: {
+    nextjs: { navigation: { pathname: `/zh-hk/messages/${STORY_THREAD_ID}` } },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const log = await canvas.findByRole('log')
+    const composer = canvas.getByRole('textbox')
+    await userEvent.type(composer, '我三點到')
+    await userEvent.click(canvas.getByRole('button', { name: '傳送' }))
+    await within(log).findByRole('button', { name: '未能傳送，點一下重試。' })
   },
 }
