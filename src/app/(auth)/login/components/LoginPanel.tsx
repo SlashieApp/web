@@ -1,6 +1,6 @@
 'use client'
 
-import { Box, chakra } from '@chakra-ui/react'
+import { Box, Stack, chakra } from '@chakra-ui/react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useEffect } from 'react'
 import { Controller, useForm, useWatch } from 'react-hook-form'
@@ -36,7 +36,7 @@ import {
   hitAreaLabel,
   hitAreaLinkFocusRing,
 } from '@/theme/styles'
-import { Button, FormField, FormStack, Link } from '@ui'
+import { Button, FormField, FormStack, Link, Reveal } from '@ui'
 
 import bag from '../i11n.json'
 import {
@@ -244,21 +244,30 @@ export function LoginPanel({
                   />
                 ) : null}
 
-                {messageText ? <AuthAlert>{messageText}</AuthAlert> : null}
-
-                <Button
-                  type="submit"
-                  loading={submitting}
-                  disabled={disabled}
-                  w="full"
-                  size="form"
-                >
-                  {waiting
-                    ? formatMessage(shared.tryAgainIn, {
-                        seconds: retryInSeconds,
-                      })
-                    : t.submit}
-                </Button>
+                {/* The message slides open above the button (motion group A,
+                    Ryan 22 Nov). Its 20 is inside its fold, so the pair is
+                    one slot of the form and nothing jumps. */}
+                <Stack gap={0} w="full">
+                  <Reveal
+                    open={Boolean(messageText)}
+                    spaceBelow="form.fieldGap"
+                  >
+                    <AuthAlert>{messageText}</AuthAlert>
+                  </Reveal>
+                  <Button
+                    type="submit"
+                    loading={submitting}
+                    disabled={disabled}
+                    w="full"
+                    size="form"
+                  >
+                    {waiting
+                      ? formatMessage(shared.tryAgainIn, {
+                          seconds: retryInSeconds,
+                        })
+                      : t.submit}
+                  </Button>
+                </Stack>
               </FormStack>
             </form>
           </Box>

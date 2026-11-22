@@ -385,6 +385,8 @@ export const EmailTaken: Story = {
     const canvas = within(canvasElement)
     await fillForm(canvas)
     const alert = await canvas.findByRole('alert')
+    // The message slides open above the button (motion group A): measure at rest.
+    await revealsSettled(canvasElement)
     expect(alert).toHaveTextContent(
       'An account with this email already exists. Log in instead.',
     )
@@ -410,6 +412,8 @@ export const SecurityCheck: Story = {
     const canvas = within(canvasElement)
     await fillForm(canvas)
     const alert = await canvas.findByRole('alert')
+    // The message slides open above the button (motion group A): measure at rest.
+    await revealsSettled(canvasElement)
     await canvas.findByText('Security check placeholder')
     expect(
       canvas.getByRole('button', { name: 'Create account' }),

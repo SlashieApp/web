@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
+import { type ComponentProps, useState } from 'react'
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test'
 
 import { expectRingHugsLabel } from '@/app/(auth)/helpers/authSpacing.testing'
@@ -525,5 +526,45 @@ export const OptionsFirstChinese: Story = {
     await expect(
       canvas.getByRole('button', { name: '使用 Apple 繼續' }),
     ).toBeVisible()
+  },
+}
+
+/** Story-only: the first try fails, as a wrong password does. */
+function FailsOnce(props: ComponentProps<typeof LoginPanel>) {
+  const [message, setMessage] =
+    useState<ComponentProps<typeof LoginPanel>['message']>(null)
+  return (
+    <LoginPanel
+      {...props}
+      message={message}
+      onSubmit={() => setMessage('invalidCredentials')}
+    />
+  )
+}
+
+/**
+ * A failed try (motion group A, Ryan 22 Nov): the message slides open above
+ * Log in and pushes it down, in place of popping in. At rest it is one more
+ * field of the form: 20 above it and 20 to the button, as before.
+ */
+export const MessageSlidesOpen: Story = {
+  render: (args) => <FailsOnce {...args} />,
+  args: { defaultValues: { email: 'alex@example.com', password: '' } },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const p = await loginParts(canvas)
+    await expect(canvas.queryByRole('alert')).toBeNull()
+    await userEvent.type(p.password.querySelector('input') as HTMLElement, 'x')
+    await userEvent.click(p.main)
+    const alert = await canvas.findByRole('alert')
+    // It starts folded and opens: in the page before it is at rest.
+    await expect(alert.closest('[data-reveal]')).toHaveAttribute(
+      'data-reveal-at-rest',
+      'false',
+    )
+    await revealsSettled(canvasElement)
+    await expect(alert).toHaveTextContent('Email or password is incorrect.')
+    await expect(gapBelow(p.keepControl, alert)).toBe(formSpace.fieldGap)
+    await expect(gapBelow(alert, p.main)).toBe(formSpace.bodyToAction)
   },
 }

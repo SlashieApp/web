@@ -1,7 +1,7 @@
 'use client'
 
 import { useMutation } from '@apollo/client/react'
-import { Box, Text } from '@chakra-ui/react'
+import { Box, Stack, Text } from '@chakra-ui/react'
 import type { RegisterMutation } from '@codegen/schema'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useRouter, useSearchParams } from 'next/navigation'
@@ -56,6 +56,7 @@ import {
   FormStack,
   Input,
   Link,
+  Reveal,
   checkboxRunReach,
 } from '@ui'
 
@@ -328,21 +329,30 @@ export function RegisterScreen() {
                   />
                 ) : null}
 
-                {messageText ? <AuthAlert>{messageText}</AuthAlert> : null}
-
-                <Button
-                  type="submit"
-                  loading={loading}
-                  disabled={waiting || checkPending}
-                  w="full"
-                  size="form"
-                >
-                  {waiting
-                    ? formatMessage(shared.tryAgainIn, {
-                        seconds: retryInSeconds,
-                      })
-                    : t.submit}
-                </Button>
+                {/* The message slides open above the button (motion group A,
+                    Ryan 22 Nov). Its 20 is inside its fold, so the pair is
+                    one slot of the form and nothing jumps. */}
+                <Stack gap={0} w="full">
+                  <Reveal
+                    open={Boolean(messageText)}
+                    spaceBelow="form.fieldGap"
+                  >
+                    <AuthAlert>{messageText}</AuthAlert>
+                  </Reveal>
+                  <Button
+                    type="submit"
+                    loading={loading}
+                    disabled={waiting || checkPending}
+                    w="full"
+                    size="form"
+                  >
+                    {waiting
+                      ? formatMessage(shared.tryAgainIn, {
+                          seconds: retryInSeconds,
+                        })
+                      : t.submit}
+                  </Button>
+                </Stack>
               </FormStack>
             </form>
           </Box>
