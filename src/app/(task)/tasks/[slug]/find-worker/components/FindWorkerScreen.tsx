@@ -159,11 +159,18 @@ export function FindWorkerScreen({
   return (
     <PageLayout
       title={t.title}
-      eyebrow={taskTitle ?? undefined}
       description={t.description}
       onBack={back}
       backAriaLabel={t.back}
     >
+      {
+        // The task this list is for, over whatever follows (the Expo app the same).
+        taskTitle ? (
+          <Text fontWeight={500} lineClamp={2} data-find-worker-task="">
+            {taskTitle}
+          </Text>
+        ) : null
+      }
       {loading ? (
         // The rows' own shape: a round photo, two lines, the button.
         <Stack gap={0} aria-busy="true" data-find-worker-loading="">

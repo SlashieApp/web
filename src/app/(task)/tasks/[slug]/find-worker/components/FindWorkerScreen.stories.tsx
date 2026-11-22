@@ -120,9 +120,19 @@ export const List: Story = {
     const asked = within(rows[2] as HTMLElement)
     await expect(asked.getByText('Asked')).toBeVisible()
     await expect(asked.queryByRole('button')).toBeNull()
-    await expect(
-      canvas.getByText('You can ask 29 more for this task.'),
-    ).toBeVisible()
+    const left = canvas.getByText('You can ask 29 more for this task.')
+    await expect(left).toBeVisible()
+    // The task this is for, then the count, then the rows.
+    const task = canvasElement.querySelector(
+      '[data-find-worker-task]',
+    ) as HTMLElement
+    await expect(task).toHaveTextContent('Fix a leaking kitchen tap')
+    await expect(task.getBoundingClientRect().bottom).toBeLessThanOrEqual(
+      left.getBoundingClientRect().top,
+    )
+    await expect(left.getBoundingClientRect().bottom).toBeLessThanOrEqual(
+      (rows[0] as HTMLElement).getBoundingClientRect().top,
+    )
     // Nothing is sent until a tap.
     await expect(args.onAsk).not.toHaveBeenCalled()
   },
