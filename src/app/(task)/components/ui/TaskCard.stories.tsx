@@ -136,8 +136,54 @@ export const HomeCard: Story = {
   },
 }
 
+/**
+ * A task marked urgent (FE-603, Slashie Pro): an "Urgent" tag at the top,
+ * right after the time and before the categories.
+ */
+export const HomeCardUrgent: Story = {
+  args: { task: { ...homeTask, urgent: true } },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const urgent = canvasElement.querySelector(
+      '[data-task-card-urgent]',
+    ) as HTMLElement
+    await expect(urgent).toHaveTextContent('Urgent')
+    const time = canvasElement.querySelector(
+      '[data-task-card-time]',
+    ) as HTMLElement
+    await expect(time.nextElementSibling).toBe(urgent)
+    await expect(rect(urgent).left).toBeLessThan(
+      rect(canvas.getByText('Tech setup')).left,
+    )
+    await expect(rect(urgent).bottom).toBeLessThanOrEqual(
+      rect(canvas.getByText(homeTask.title)).top,
+    )
+  },
+}
+
+/** Not urgent: no such tag. */
+export const HomeCardNotUrgent: Story = {
+  args: { task: homeTask },
+  play: async ({ canvasElement }) => {
+    await expect(
+      canvasElement.querySelector('[data-task-card-urgent]'),
+    ).toBeNull()
+    await expect(within(canvasElement).queryByText('Urgent')).toBeNull()
+  },
+}
+
 const HOME_CASES: { name: string; task: TaskCardTask }[] = [
   { name: 'plain', task: homeTask },
+  { name: 'urgent', task: { ...homeTask, urgent: true } },
+  {
+    name: 'urgent-many-categories',
+    task: {
+      ...homeTask,
+      urgent: true,
+      timingLabel: 'Before Sat 28 Nov',
+      categories: ['Plumbing', 'Bathroom fitting', 'Tiling', 'Leaky tap'],
+    },
+  },
   {
     name: 'long-title',
     task: {

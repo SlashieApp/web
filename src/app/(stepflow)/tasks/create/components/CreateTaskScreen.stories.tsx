@@ -1,8 +1,9 @@
 import { TaskContactMethod, TaskDateTimeType } from '@codegen/schema'
 import type { Decorator, Meta, StoryObj } from '@storybook/nextjs-vite'
+import { type ReactNode, useEffect, useState } from 'react'
 import { expect, userEvent, waitFor, within } from 'storybook/test'
 
-import type { MeSnapshot } from '@/app/(auth)/store/user'
+import { type MeSnapshot, useUserStore } from '@/app/(auth)/store/user'
 import { getContactOptions } from '@/app/(dashboard)/profile/profileEligibility'
 import {
   compactMapRulesAt,
@@ -189,6 +190,30 @@ function phoneLocation(
     },
   }
 }
+
+/**
+ * The poster's account has Slashie Pro (`me.membership.hasPro`) while the
+ * story is on screen: Urgent and budget units show (FE-603). The account
+ * that was there comes back after it.
+ */
+function ProAccount({ children }: { children: ReactNode }) {
+  const [ready, setReady] = useState(false)
+  useEffect(() => {
+    const before = useUserStore.getState().me
+    useUserStore.setState({
+      me: { membership: { hasPro: true } } as MeSnapshot,
+    })
+    setReady(true)
+    return () => useUserStore.setState({ me: before })
+  }, [])
+  return ready ? children : null
+}
+
+const withPro: Decorator = (Story) => (
+  <ProAccount>
+    <Story />
+  </ProAccount>
+)
 
 const zhHk: Decorator = (Story) => (
   <LocaleProvider>
@@ -481,6 +506,30 @@ export const Timing: Story = {
     )
     await expect(canvas.getByLabelText(/^Date/)).toBeVisible()
     await expect(canvas.getByLabelText(/^Time/)).toBeVisible()
+    // Urgent is a Slashie Pro feature (FE-603): not offered without Pro.
+    await expect(
+      canvas.queryByRole('checkbox', { name: /Mark as urgent/ }),
+    ).toBeNull()
+  },
+}
+
+/**
+ * create.timing with Slashie Pro (FE-603, Ryan 22 Nov): "Mark as urgent"
+ * follows the timing choice, off until it is ticked.
+ */
+export const TimingUrgentWithPro: Story = {
+  decorators: [atStep('timing'), withPro],
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const urgent = await canvas.findByRole('checkbox', {
+      name: /Mark as urgent/,
+    })
+    await expect(urgent).not.toBeChecked()
+    await userEvent.click(urgent)
+    await expect(urgent).toBeChecked()
+    await expect(
+      canvas.getByText('Workers see an Urgent tag on your task.'),
+    ).toBeVisible()
   },
 }
 
@@ -609,14 +658,60 @@ export const Budget: Story = {
       canvas.getByRole('radio', { name: 'Set a budget' }),
     ).toBeChecked()
     await expect(await canvas.findByLabelText(/^Amount/)).toHaveValue(80)
-    await userEvent.click(canvas.getByRole('radio', { name: 'Per day' }))
-    await expect(canvas.getByRole('radio', { name: 'Per day' })).toBeChecked()
+    // Without Slashie Pro every budget is for the whole job (FE-603): no
+    // "What's it for?", with an amount typed.
+    await expect(canvas.getByText('Your accepted payment method')).toBeVisible()
+    await expect(canvas.queryByText("What's it for?")).toBeNull()
+    await expect(canvas.queryByRole('radio', { name: 'Per day' })).toBeNull()
     await userEvent.click(canvas.getByRole('radio', { name: 'Open budget' }))
     await expect(
       await canvas.findByText('Workers will quote their own price.'),
     ).toBeInTheDocument()
     await waitFor(() => expect(canvas.queryByLabelText(/^Amount/)).toBeNull())
     await expect(canvas.getByText('Your accepted payment method')).toBeVisible()
+  },
+}
+
+/** create.budget with Slashie Pro: what the amount is for can be picked. */
+export const BudgetUnitsWithPro: Story = {
+  decorators: [atStep('budget'), withPro],
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(await canvas.findByLabelText(/^Amount/)).toHaveValue(80)
+    await userEvent.click(await canvas.findByRole('radio', { name: 'Per day' }))
+    await expect(canvas.getByRole('radio', { name: 'Per day' })).toBeChecked()
+  },
+}
+
+/**
+ * A draft that kept a unit and the urgent mark (written while the account had
+ * Pro) opened without Pro: neither is shown, so neither is posted.
+ */
+export const ReviewDropsProChoicesWithoutPro: Story = {
+  decorators: [
+    atStep('review', { ...answers, budgetUnit: 'per day', isUrgent: true }),
+  ],
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await canvas.findByRole('heading', { name: 'What workers will see' })
+    await expect(canvas.getByText('£80 · Cash')).toBeVisible()
+    await expect(canvas.getByText('Flexible')).toBeVisible()
+    await expect(canvas.queryByText(/Urgent/)).toBeNull()
+    await expect(canvas.queryByText(/a day/)).toBeNull()
+  },
+}
+
+/** The same draft with Slashie Pro: the unit and Urgent are in the summary. */
+export const ReviewKeepsProChoicesWithPro: Story = {
+  decorators: [
+    atStep('review', { ...answers, budgetUnit: 'per day', isUrgent: true }),
+    withPro,
+  ],
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await canvas.findByRole('heading', { name: 'What workers will see' })
+    await expect(await canvas.findByText('Flexible · Urgent')).toBeVisible()
+    await expect(canvas.getByText(/£80 a day/)).toBeVisible()
   },
 }
 

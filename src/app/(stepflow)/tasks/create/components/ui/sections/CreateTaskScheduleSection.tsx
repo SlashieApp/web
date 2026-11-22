@@ -1,10 +1,10 @@
 'use client'
 
-import { Text } from '@chakra-ui/react'
+import { Stack, Text } from '@chakra-ui/react'
 import { TaskDateTimeType } from '@codegen/schema'
 
 import { useI11n } from '@/i18n/useI11n'
-import { FormField, Input, RadioButtonGroup } from '@ui'
+import { Badge, FormCheckbox, FormField, Input, RadioButtonGroup } from '@ui'
 
 import { londonToday } from '../../../createTaskFormSchema'
 import { taskFieldError } from '../../../helpers/taskFieldError'
@@ -26,11 +26,19 @@ export type CreateTaskScheduleSectionProps = {
     preferredDate?: string
     preferredTime?: string
   }
+  /**
+   * "Mark as urgent" (FE-603, Ryan 22 Nov): a Slashie Pro feature, so it is
+   * only passed for an account with Pro (or, on Edit task, for a task that
+   * is already urgent, so the mark can come off). Left out, nothing shows.
+   */
+  urgent?: { checked: boolean; onChange: (checked: boolean) => void }
 }
 
 /**
  * Flexible, before a date, or a date and time. The date is the device's own
- * picker from today on, so any week is reachable and past days aren't.
+ * picker from today on, so any week is reachable and past days aren't. With
+ * Slashie Pro, "Mark as urgent" follows: workers see an Urgent tag on the
+ * task.
  */
 export function CreateTaskScheduleSection({
   bare = false,
@@ -42,6 +50,7 @@ export function CreateTaskScheduleSection({
   onPreferredDateChange,
   onPreferredTimeChange,
   fieldErrors,
+  urgent,
 }: CreateTaskScheduleSectionProps) {
   const t = useI11n(bag)
   const f = t.fields
@@ -100,6 +109,32 @@ export function CreateTaskScheduleSection({
             rootProps={{ maxW: { base: 'full', md: '240px' } }}
           />
         </FormField>
+      ) : null}
+
+      {urgent ? (
+        <Stack gap="form.controlToHelper" data-urgent-option="">
+          <FormCheckbox
+            checked={urgent.checked}
+            onCheckedChange={urgent.onChange}
+            label={
+              <>
+                {f.urgent}{' '}
+                <Badge
+                  variant="premium"
+                  size="sm"
+                  shape="pill"
+                  aria-label={f.proBadgeLabel}
+                  verticalAlign="middle"
+                >
+                  {f.proBadge}
+                </Badge>
+              </>
+            }
+          />
+          <Text fontSize="xs" color="text.muted" lineHeight="short" ps={8}>
+            {f.urgentHelper}
+          </Text>
+        </Stack>
       ) : null}
     </CreateTaskSection>
   )

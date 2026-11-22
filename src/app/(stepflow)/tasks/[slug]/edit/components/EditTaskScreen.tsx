@@ -29,12 +29,14 @@ import {
 import { taskServerError } from '@/app/(stepflow)/tasks/create/helpers/taskFieldError'
 import { useTaskPhotos } from '@/app/(stepflow)/tasks/create/helpers/useTaskPhotos'
 import createBag from '@/app/(stepflow)/tasks/create/i11n.json'
+import { budgetUnitChoice } from '@/app/(task)/helpers/taskBudget/proUnits'
 import { taskBudgetBag } from '@/app/(task)/helpers/taskBudget/taskBudget'
 import {
   taskImageUrls,
   taskToEditFormValues,
 } from '@/app/(task)/helpers/taskEditHelpers'
 import UpdateTask from '@/app/(task)/tasks/[slug]/graphql/UpdateTask.gql'
+import { useAccountHasPro } from '@/content/pro/useAccountHasPro'
 import { useLocalizedHref } from '@/i18n/LocaleProvider'
 import { formatMessage } from '@/i18n/loadPageI11n'
 import { useI11n } from '@/i18n/useI11n'
@@ -121,6 +123,10 @@ export function EditTaskScreen({
   const { register, setValue, watch, trigger, getValues, formState } = form
   const values = watch()
   const errors = formState.errors
+  // Slashie Pro on the account (FE-603). Without it the task keeps what it
+  // has: its unit can stay or go (no other is offered), and an urgent mark
+  // can come off but not go on.
+  const hasPro = useAccountHasPro()
   // The shared sections type `register` against create's form; edit's fields
   // are the same minus the contact method, which they don't register.
   const sharedRegister =
@@ -330,6 +336,14 @@ export function EditTaskScreen({
               onPreferredTimeChange={(v) =>
                 setValue('preferredTime', v, UPDATE)
               }
+              urgent={
+                hasPro || initial.isUrgent
+                  ? {
+                      checked: values.isUrgent,
+                      onChange: (v) => setValue('isUrgent', v, UPDATE),
+                    }
+                  : undefined
+              }
               fieldErrors={{
                 preferredDate: errors.preferredDate?.message,
                 preferredTime: errors.preferredTime?.message,
@@ -385,6 +399,8 @@ export function EditTaskScreen({
               budgetCurrency={values.budgetCurrency}
               budgetMajor={values.budgetMajor}
               budgetUnit={values.budgetUnit}
+              unitChoice={budgetUnitChoice(hasPro, initial.budgetUnit)}
+              keptUnit={initial.budgetUnit}
               budgetAnswered={values.budgetAnswered}
               openBudget={values.openBudget}
               paymentMethods={values.paymentMethods}

@@ -77,6 +77,8 @@ export type TaskCardTask = {
   /** Public views line from GraphQL (`task.views`); fallback when quotes are unavailable. */
   viewsLabel?: string
   thumbnailSrc?: string
+  /** Marked urgent (FE-603, Slashie Pro): an "Urgent" tag at the top, after the time. */
+  urgent?: boolean
   /**
    * `home`: the home list and its carousel (Ryan 22 Nov). The time is a tag at
    * the top of the card, and the card draws no budget and no distance: the map
@@ -246,6 +248,7 @@ function TaskCardBrowse(props: TaskCardBrowseProps) {
     quotesLabel,
     askLabel,
     thumbnailSrc,
+    urgent = false,
   } = cardTask
 
   const seedHandoff = () => {
@@ -364,6 +367,7 @@ function TaskCardBrowse(props: TaskCardBrowseProps) {
                 align="center"
                 css={
                   timeTag ||
+                  urgent ||
                   viewerRole ||
                   tags.length > 0 ||
                   categories.length > 0
@@ -381,6 +385,16 @@ function TaskCardBrowse(props: TaskCardBrowseProps) {
                   >
                     <LuCalendar aria-hidden />
                     {timeTag}
+                  </Badge>
+                ) : null}
+                {urgent ? (
+                  <Badge
+                    data-task-card-urgent
+                    shape="pill"
+                    variant="warning"
+                    flexShrink={0}
+                  >
+                    {t.urgentTag}
                   </Badge>
                 ) : null}
                 {viewerRole ? (

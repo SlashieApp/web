@@ -42,8 +42,9 @@ describe('TaskTitle', () => {
     expect(src).not.toContain('TaskActivityTrigger')
     // 22 Nov: the status pill follows the title on the same line (it was the
     // Task summary's eyebrow).
+    expect(src).toContain('<StickyHeaderTitle\n      after={')
     expect(src).toContain(
-      'after={pill ? <TaskStatusPill status={pill} size="sm" /> : undefined}',
+      '{pill ? <TaskStatusPill status={pill} size="sm" /> : null}',
     )
     const summary = readFileSync(
       join(dir, '../summary/TaskSummary.tsx'),

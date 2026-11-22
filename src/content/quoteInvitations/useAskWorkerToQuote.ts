@@ -7,6 +7,7 @@ import type {
 } from '@codegen/schema'
 import { useCallback, useState } from 'react'
 
+import { useAccountHasPro } from '@/content/pro/useAccountHasPro'
 import { formatMessage } from '@/i18n/loadPageI11n'
 import { useI11n } from '@/i18n/useI11n'
 import { EVENTS, capture } from '@/utils/analytics'
@@ -18,7 +19,7 @@ import {
 
 import AskWorkerToQuote from './graphql/AskWorkerToQuote.gql'
 import bag from './i11n.json'
-import { quoteInviteErrorKey } from './quoteInviteErrors'
+import { quoteInviteErrorKey, quoteInviteErrorText } from './quoteInviteErrors'
 import { inviteFailedProps, inviteSentProps } from './quoteInviteEvents'
 import type { QuoteInviteSurface } from './types'
 
@@ -43,6 +44,8 @@ export function useAskWorkerToQuote() {
     AskWorkerToQuoteMutationVariables
   >(AskWorkerToQuote)
   const [error, setError] = useState<string | null>(null)
+  // The limits follow the account's Slashie Pro (FE-603).
+  const hasPro = useAccountHasPro()
 
   const ask = useCallback(
     async (input: AskWorkerInput): Promise<boolean> => {
@@ -76,13 +79,16 @@ export function useAskWorkerToQuote() {
         const key = quoteInviteErrorKey(code)
         setError(
           key
-            ? formatMessage(t.errors[key], { name: input.workerName })
+            ? quoteInviteErrorText(key, t.errors, {
+                name: input.workerName,
+                hasPro,
+              })
             : getFriendlyErrorMessage(caught, t.errors.generic),
         )
         return false
       }
     },
-    [run, t],
+    [run, t, hasPro],
   )
 
   return { ask, loading, error, clearError: () => setError(null) }

@@ -77,6 +77,59 @@ export const Open: Story = {
   },
 }
 
+/**
+ * Without Slashie Pro (FE-603): a whole-job task is offered no units and no
+ * "Mark as urgent". Both are Pro features.
+ */
+export const NoProChoicesWithoutPro: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await canvas.findByLabelText(/^Amount/)
+    await expect(canvas.queryByText("What's it for?")).toBeNull()
+    await expect(
+      canvas.queryByRole('checkbox', { name: /Mark as urgent/ }),
+    ).toBeNull()
+  },
+}
+
+/**
+ * A task posted with a unit and marked urgent while the account had Pro,
+ * edited without it: it keeps its unit or goes back to Whole job (no other
+ * unit is offered), and the urgent mark shows so it can come off.
+ */
+export const KeepsItsProChoicesWithoutPro: Story = {
+  args: {
+    task: {
+      ...task,
+      isUrgent: true,
+      budget: {
+        amount: 25,
+        currency: 'GBP',
+        unit: 'PER_HOUR',
+        customUnit: null,
+      },
+    } as unknown as EditTask,
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const units = await canvas.findByRole('radiogroup', {
+      name: "What's it for?",
+    })
+    await expect(within(units).getAllByRole('radio')).toHaveLength(2)
+    await expect(
+      within(units).getByRole('radio', { name: 'Per hour' }),
+    ).toBeChecked()
+    await expect(
+      within(units).getByRole('radio', { name: 'Whole job' }),
+    ).not.toBeChecked()
+    await expect(canvas.queryByRole('radio', { name: 'Other' })).toBeNull()
+    const urgent = canvas.getByRole('checkbox', { name: /Mark as urgent/ })
+    await expect(urgent).toBeChecked()
+    await userEvent.click(urgent)
+    await expect(urgent).not.toBeChecked()
+  },
+}
+
 /** Location: the area workers see, then the private exact address with its hint. */
 export const OpenLocation: Story = {
   play: async ({ canvasElement }) => {

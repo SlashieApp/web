@@ -4,7 +4,14 @@ import { Box, type SystemStyleObject } from '@chakra-ui/react'
 import { useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import type { IconType } from 'react-icons'
-import { LuEye, LuLogIn, LuRepeat, LuRotateCcw, LuSearch } from 'react-icons/lu'
+import {
+  LuEye,
+  LuLogIn,
+  LuRepeat,
+  LuRotateCcw,
+  LuSearch,
+  LuUserSearch,
+} from 'react-icons/lu'
 
 import { WEB_MQ } from '@/theme/breakpoints'
 import { useIsBrowser } from '@/utils/useIsBrowser'
@@ -67,6 +74,7 @@ function TaskDetailMainCtaFade() {
 /** Icons for the button-only actions. */
 const BUTTON_ICONS: Partial<Record<TaskDetailPrimaryAction, IconType>> = {
   preview: LuEye,
+  findWorker: LuUserSearch,
   signInToQuote: LuLogIn,
   repost: LuRepeat,
   reopen: LuRotateCcw,

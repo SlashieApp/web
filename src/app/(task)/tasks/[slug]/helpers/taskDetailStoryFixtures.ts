@@ -74,6 +74,7 @@ export function storyTaskDetail(
       customUnit: null,
     },
     paymentMethods: [TaskPaymentMethod.Cash],
+    isUrgent: false,
     datetime: { date: '2026-06-10', time: '14:00', type: 'EXACT' },
     images: [
       STORY_THUMBNAIL,
@@ -420,6 +421,7 @@ const STORY_PEOPLE = {
 
 export function storyMe(
   viewer: Exclude<TaskDetailStoryViewer, 'visitor'>,
+  options: { pro?: boolean } = {},
 ): NonNullable<MeQuery['me']> {
   const person = STORY_PEOPLE[viewer === 'customer' ? 'owner' : viewer]
   const base = {
@@ -447,6 +449,8 @@ export function storyMe(
       marketingEmails: false,
     },
     workerEligibility: true,
+    // The account's Slashie Pro (BE-145), worker or not.
+    membership: options.pro ? { hasPro: true } : null,
     worker:
       viewer === 'worker'
         ? {
@@ -473,6 +477,8 @@ export type TaskDetailStoryConfig = {
   order?: OrderItem | null
   /** The owner's preview: the page as a signed-out visitor gets it. */
   viewAs?: 'guest'
+  /** The signed-in account has Slashie Pro (`me.membership.hasPro`). */
+  pro?: boolean
   /**
    * Canned answers by operation name (a mutation such as `ReopenTask`);
    * anything else never resolves.

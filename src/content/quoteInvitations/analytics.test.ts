@@ -36,6 +36,14 @@ describe('quote invitation analytics (FE-507)', () => {
       inviteSentProps({ taskId: 't1', workerUserId: 'w1', surface: 'profile' })
         .surface,
     ).toBe('profile')
+    // The task's Find worker list (FE-603, Slashie Pro).
+    expect(
+      inviteSentProps({
+        taskId: 't1',
+        workerUserId: 'w1',
+        surface: 'find_worker',
+      }).surface,
+    ).toBe('find_worker')
   })
 
   it('quote_invite_failed carries the API code only, UNKNOWN without one', () => {

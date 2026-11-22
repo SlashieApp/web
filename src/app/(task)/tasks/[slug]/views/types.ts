@@ -107,6 +107,11 @@ export type TaskDetailAction =
 /** The one main button for the view (the page CTA). */
 export type TaskDetailPrimaryAction =
   | 'preview'
+  /**
+   * In place of Preview for an owner with Slashie Pro, on an open task
+   * (FE-603; `withFindWorker`). No view names it: the provider swaps it in.
+   */
+  | 'findWorker'
   | 'sendQuote'
   | 'editQuote'
   | 'becomeWorker'

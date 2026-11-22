@@ -26,11 +26,16 @@ import {
   postedMomentStorage,
 } from '@/app/(task)/helpers/postedMoment/postedMoment'
 import {
+  allowedBudgetUnit,
+  budgetUnitChoice,
+} from '@/app/(task)/helpers/taskBudget/proUnits'
+import {
   budgetUnitFromText,
   taskBudgetBag,
 } from '@/app/(task)/helpers/taskBudget/taskBudget'
 import { taskToEditFormValues } from '@/app/(task)/helpers/taskEditHelpers'
 import TaskForEdit from '@/app/(task)/tasks/[slug]/graphql/TaskForEdit.gql'
+import { useAccountHasPro } from '@/content/pro/useAccountHasPro'
 import {
   parseAskWorkerParam,
   taskPathAfterPost,
@@ -168,6 +173,7 @@ function defaultValues(
     datetimeType: TaskDateTimeType.Flexible,
     preferredDate: londonToday(),
     preferredTime: '09:00',
+    isUrgent: false,
     budgetMajor: '',
     budgetCurrency: Currency.Gbp,
     budgetUnit: '',
@@ -244,6 +250,10 @@ export function CreateTaskScreen({
   const { register, setValue, watch, getValues, trigger, handleSubmit } = form
   const errors = form.formState.errors
   const values = watch()
+  // Slashie Pro on the account (FE-603): urgent and budget units. Without it
+  // a unit a draft or a copied task carried is not shown, and never sent.
+  const hasPro = useAccountHasPro()
+  const unitText = allowedBudgetUnit(values.budgetUnit, hasPro)
 
   const [step, setStep] = useState<CreateTaskStepId>(draft?.step ?? 'location')
   // Null until the first step change: arriving (or a restored draft) moves nothing.
@@ -504,9 +514,14 @@ export function CreateTaskScreen({
               : {
                   amount: Number.parseFloat(located.budgetMajor),
                   currency: submitted.budgetCurrency,
-                  ...budgetUnitFromText(submitted.budgetUnit),
+                  // Without Slashie Pro every budget is one-off (FE-603).
+                  ...budgetUnitFromText(
+                    allowedBudgetUnit(submitted.budgetUnit, hasPro),
+                  ),
                 },
             paymentMethods: submitted.paymentMethods,
+            // Urgent is a Slashie Pro feature; the API checks it too.
+            ...(hasPro && submitted.isUrgent ? { isUrgent: true } : {}),
             location: {
               lat,
               lng,
@@ -637,6 +652,14 @@ export function CreateTaskScreen({
               preferredDate: errors.preferredDate?.message,
               preferredTime: errors.preferredTime?.message,
             }}
+            urgent={
+              hasPro
+                ? {
+                    checked: values.isUrgent,
+                    onChange: (v) => setValue('isUrgent', v, UPDATE),
+                  }
+                : undefined
+            }
           />
         )
       case 'budget':
@@ -647,7 +670,8 @@ export function CreateTaskScreen({
             register={register}
             budgetCurrency={values.budgetCurrency}
             budgetMajor={values.budgetMajor}
-            budgetUnit={values.budgetUnit}
+            budgetUnit={unitText}
+            unitChoice={budgetUnitChoice(hasPro)}
             budgetAnswered={values.budgetAnswered}
             openBudget={values.openBudget}
             paymentMethods={values.paymentMethods}
@@ -681,7 +705,8 @@ export function CreateTaskScreen({
               preferredTime: values.preferredTime,
               budgetMajor: values.budgetMajor,
               budgetCurrency: values.budgetCurrency,
-              budgetUnit: values.budgetUnit,
+              budgetUnit: unitText,
+              isUrgent: hasPro && values.isUrgent,
               openBudget: values.openBudget,
               paymentMethods: values.paymentMethods,
               photoCount: photos.files.length,

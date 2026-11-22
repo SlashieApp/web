@@ -36,6 +36,8 @@ export type CreateTaskSummary = {
   datetimeType: TaskDateTimeType
   preferredDate: string
   preferredTime: string
+  /** Marked urgent (FE-603): "Urgent" joins the When line. */
+  isUrgent?: boolean
   budgetMajor: string
   budgetCurrency: Currency
   /** The unit field's text (FE-584). */
@@ -196,7 +198,7 @@ export function CreateTaskSummarySection({
         editLabel={editLabel('timing')}
         onEdit={() => onEdit('timing')}
       >
-        {when}
+        {summary.isUrgent ? `${when} · ${s.urgent}` : when}
       </Row>
       <Row
         label={s.budget}

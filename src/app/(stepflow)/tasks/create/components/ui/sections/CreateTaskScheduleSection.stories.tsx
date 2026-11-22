@@ -1,6 +1,7 @@
 import { TaskDateTimeType } from '@codegen/schema'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { useState } from 'react'
+import { expect, userEvent, within } from 'storybook/test'
 
 import { storyDateInDays } from '@/app/(stepflow)/stepflowStoryHelpers'
 
@@ -20,15 +21,25 @@ import {
 
 type DemoProps = Omit<
   CreateTaskScheduleSectionProps,
-  'onDatetimeTypeChange' | 'onPreferredDateChange' | 'onPreferredTimeChange'
->
+  | 'onDatetimeTypeChange'
+  | 'onPreferredDateChange'
+  | 'onPreferredTimeChange'
+  | 'urgent'
+> & {
+  /** With Slashie Pro: show "Mark as urgent", starting ticked or not. */
+  urgentOption?: boolean
+  startsUrgent?: boolean
+}
 
 function CreateTaskScheduleSectionDemo({
   datetimeType,
   preferredDate,
   preferredTime,
+  urgentOption = false,
+  startsUrgent = false,
   ...props
 }: DemoProps) {
+  const [isUrgent, setIsUrgent] = useState(startsUrgent)
   const [type, setType] = useState(datetimeType)
   const [date, setDate] = useState(preferredDate)
   const [time, setTime] = useState(preferredTime)
@@ -41,6 +52,9 @@ function CreateTaskScheduleSectionDemo({
       onPreferredDateChange={setDate}
       preferredTime={time}
       onPreferredTimeChange={setTime}
+      urgent={
+        urgentOption ? { checked: isUrgent, onChange: setIsUrgent } : undefined
+      }
     />
   )
 }
@@ -60,8 +74,77 @@ const meta = {
 export default meta
 type Story = StoryObj<typeof meta>
 
-/** Flexible: no date or time to choose. */
-export const Flexible: Story = {}
+/**
+ * Flexible: no date or time to choose. Without Slashie Pro there is no
+ * "Mark as urgent" either (FE-603): the option is not shown at all.
+ */
+export const Flexible: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(canvas.queryByRole('checkbox')).toBeNull()
+    await expect(canvas.queryByText(/urgent/i)).toBeNull()
+    await expect(canvasElement.querySelector('[data-urgent-option]')).toBeNull()
+  },
+}
+
+/**
+ * With Slashie Pro (FE-603, Ryan 22 Nov): "Mark as urgent" follows the timing
+ * choice, with a Pro badge and what it does. It starts off and a tap ticks it.
+ */
+export const UrgentWithPro: Story = {
+  args: { urgentOption: true },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const option = canvas.getByRole('checkbox', { name: /Mark as urgent/ })
+    await expect(option).not.toBeChecked()
+    await expect(canvas.getByLabelText('Slashie Pro')).toHaveTextContent('Pro')
+    await expect(
+      canvas.getByText('Workers see an Urgent tag on your task.'),
+    ).toBeVisible()
+    // After the timing choice, never before it.
+    const group = canvas.getByRole('radiogroup')
+    await expect(
+      group.compareDocumentPosition(option) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy()
+    await userEvent.click(option)
+    await expect(option).toBeChecked()
+    await userEvent.click(option)
+    await expect(option).not.toBeChecked()
+  },
+}
+
+/** A task already marked urgent (Edit task): ticked, and it can come off. */
+export const UrgentTicked: Story = {
+  args: {
+    urgentOption: true,
+    startsUrgent: true,
+    datetimeType: TaskDateTimeType.Exact,
+  },
+  play: async ({ canvasElement }) => {
+    const option = within(canvasElement).getByRole('checkbox', {
+      name: /Mark as urgent/,
+    })
+    await expect(option).toBeChecked()
+    await userEvent.click(option)
+    await expect(option).not.toBeChecked()
+  },
+}
+
+/** A phone: the label, its badge and the helper stay inside the column. */
+export const UrgentPhone: Story = {
+  ...phone390,
+  args: { urgentOption: true },
+  play: async ({ canvasElement }) => {
+    const doc = canvasElement.ownerDocument.documentElement
+    await expect(doc.scrollWidth).toBeLessThanOrEqual(doc.clientWidth)
+    const option = canvasElement.querySelector(
+      '[data-urgent-option]',
+    ) as HTMLElement
+    await expect(option.getBoundingClientRect().right).toBeLessThanOrEqual(
+      doc.clientWidth,
+    )
+  },
+}
 
 /** Before a date: the week strip appears with the chosen day selected. */
 export const BeforeDate: Story = {

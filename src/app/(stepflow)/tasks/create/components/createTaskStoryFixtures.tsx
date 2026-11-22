@@ -36,6 +36,7 @@ export const emptyCreateTaskValues: CreateTaskFormFieldValues = {
   budgetAnswered: false,
   openBudget: false,
   paymentMethods: [TaskPaymentMethod.Cash],
+  isUrgent: false,
   preferredContactMethod: TaskContactMethod.InApp,
   acceptedProhibitedUse: false,
 }

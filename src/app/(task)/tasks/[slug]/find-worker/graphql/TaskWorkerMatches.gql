@@ -1,0 +1,37 @@
+# Find worker (BE-149, Slashie Pro): the workers the owner can ask to quote on
+# their OPEN task, best match first. The API refuses anyone else and an
+# account with no Pro (`PRO_REQUIRED`). Public-safe worker fields only, as on
+# /workers. The task's own row gives its title and how many may still be asked.
+query TaskWorkerMatches($taskId: ID!) {
+  taskWorkerMatches(taskId: $taskId) {
+    matchedCategories
+    distanceMiles
+    alreadyAsked
+    worker {
+      id
+      userId
+      hasPro
+      ratingSummary {
+        average
+        count
+      }
+      user {
+        id
+        profile {
+          name
+          avatarUrl
+        }
+      }
+      profile {
+        avatarUrl
+      }
+    }
+  }
+  task(id: $taskId) {
+    id
+    title
+    categories
+    quoteInvitationLimit
+    quoteInvitationsLeft
+  }
+}

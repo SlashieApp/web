@@ -243,6 +243,21 @@ reloads the task.
 
 ### Frozen
 
+## Slashie Pro: Find worker (FE-603)
+
+On the two `owner.open.*` views, an owner whose account has Slashie Pro
+(`me.membership.hasPro`, the account's own, never a worker-only check) gets
+**Find worker** as the main button in place of Preview (`withFindWorker`). It
+opens `/tasks/[slug]/find-worker`: the workers who fit the task's categories
+and area, best match first, each with Ask to quote (the same invitation as on
+a worker's profile). Preview moves to Help & actions as "Preview task". No
+view names `findWorker`: the provider swaps it in. A suspended task keeps
+Preview, since the API refuses the list.
+
+A task marked urgent (`Task.isUrgent`, a Pro feature) shows an "Urgent" tag
+after the status pill on the title's line, and on its home card after the
+time tag.
+
 `permissions.isSuspended`: the task is suspended (for any reason).
 `permissions.isFrozen`: that, or the current booking's other party is
 suspended. The summary reads the same, but nothing the API would refuse is

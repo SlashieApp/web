@@ -49,6 +49,7 @@ export function toBrowseTaskCard(
     distanceLabel: taskDistanceShortLabelFromReference(task, referenceLocation),
     timingLabel: taskScheduleCompactLabel(task.datetime) ?? undefined,
     viewsLabel: taskPublicViewsLabel(task.views) ?? undefined,
+    urgent: task.isUrgent === true,
     layout: 'home',
   }
 }

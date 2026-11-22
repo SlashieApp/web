@@ -11,6 +11,7 @@ import {
 } from '@/app/(stepflow)/worker/setup/helpers/workerSetupCategories'
 import setupBag from '@/app/(stepflow)/worker/setup/i11n.json'
 import { publicProfilePath } from '@/app/helpers/publicProfilePath'
+import { quoteInviteUsage } from '@/content/quoteInvitations/limits'
 import { useLocale } from '@/i18n/LocaleProvider'
 import { formatMessage } from '@/i18n/loadPageI11n'
 import { useI11n } from '@/i18n/useI11n'
@@ -397,6 +398,7 @@ export function QuotesModule({ slotsCap = 1 }: QuotesModuleProps) {
       <AskedToQuoteGroup
         invitations={asked}
         taskId={task.id}
+        usage={quoteInviteUsage(task)}
         withTopDivider={rows.length > 0}
       />
       {acceptSafetyDialog}

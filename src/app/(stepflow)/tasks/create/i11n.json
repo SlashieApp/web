@@ -138,7 +138,11 @@
       "allowedHeading": "Allowed tasks only",
       "allowedBadge": "Heads up",
       "allowedBody": "Do not post illegal, unsafe, or licensed work unless the worker holds the right credentials. Slashie does not vet listings.",
-      "allowedConfirm": "I confirm this task is legal, and I will not ask for unsafe or unlicensed work."
+      "allowedConfirm": "I confirm this task is legal, and I will not ask for unsafe or unlicensed work.",
+      "urgent": "Mark as urgent",
+      "urgentHelper": "Workers see an Urgent tag on your task.",
+      "proBadge": "Pro",
+      "proBadgeLabel": "Slashie Pro"
     },
     "summary": {
       "heading": "What workers will see",
@@ -154,7 +158,8 @@
       "photoCount": "{count} photos",
       "flexible": "Flexible",
       "before": "Before {date}",
-      "exact": "{date} at {time}"
+      "exact": "{date} at {time}",
+      "urgent": "Urgent"
     },
     "verify": {
       "title": "Verify your email to post",
@@ -341,7 +346,11 @@
       "allowedHeading": "只限允許的任務",
       "allowedBadge": "請注意",
       "allowedBody": "請勿發佈非法、不安全的工作，或在對方沒有所需資格時要求持牌工作。Slashie 不會審查刊登內容。",
-      "allowedConfirm": "我確認此任務合法，且不會要求不安全或無牌的工作。"
+      "allowedConfirm": "我確認此任務合法，且不會要求不安全或無牌的工作。",
+      "urgent": "標記為緊急",
+      "urgentHelper": "工作者會在你的任務上看到「緊急」標籤。",
+      "proBadge": "Pro",
+      "proBadgeLabel": "Slashie Pro"
     },
     "summary": {
       "heading": "工作者會看到",
@@ -357,7 +366,8 @@
       "photoCount": "{count} 張相片",
       "flexible": "彈性",
       "before": "{date} 前",
-      "exact": "{date} {time}"
+      "exact": "{date} {time}",
+      "urgent": "緊急"
     },
     "verify": {
       "title": "請先驗證電郵才可發佈",

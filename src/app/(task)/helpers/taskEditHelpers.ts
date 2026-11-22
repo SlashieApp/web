@@ -59,6 +59,7 @@ export function taskToEditFormValues(
     datetimeType,
     preferredDate: dt?.date?.trim() || londonToday(),
     preferredTime: dt?.time?.trim() || '09:00',
+    isUrgent: task.isUrgent === true,
     budgetMajor:
       typeof budgetAmount === 'number' && Number.isFinite(budgetAmount)
         ? String(budgetAmount)

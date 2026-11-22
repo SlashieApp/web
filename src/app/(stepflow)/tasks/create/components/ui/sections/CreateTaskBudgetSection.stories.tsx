@@ -37,6 +37,8 @@ type DemoProps = Pick<
   | 'budgetMajorError'
   | 'budgetUnitError'
   | 'paymentMethodsError'
+  | 'unitChoice'
+  | 'keptUnit'
 > & {
   budgetMajor?: string
   budgetCurrency?: Currency
@@ -175,6 +177,50 @@ export const WhatItIsFor: Story = {
     await waitFor(() =>
       expect(canvas.queryByLabelText(/in your words/)).toBeNull(),
     )
+  },
+}
+
+/**
+ * Without Slashie Pro (FE-603, Ryan 22 Nov): every budget is for the whole
+ * job, so "What's it for?" is never asked, whatever is typed.
+ */
+export const NoUnitsWithoutPro: Story = {
+  args: { unitChoice: 'none' },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await userEvent.click(radio(canvasElement, 'Set a budget'))
+    const amount = await canvas.findByLabelText(/^Amount/)
+    await opened(amount)
+    await userEvent.type(amount, '60')
+    await opened(await canvas.findByText(PAYMENT_LABEL))
+    await expect(canvas.queryByText("What's it for?")).toBeNull()
+    await expect(canvas.queryByRole('radio', { name: 'Per hour' })).toBeNull()
+    await expect(canvas.queryByRole('radio', { name: 'Other' })).toBeNull()
+  },
+}
+
+/**
+ * Edit task without Pro, on a task that already has a unit (posted while the
+ * account had Pro): it can keep that unit or go back to Whole job, and no
+ * other unit is offered.
+ */
+export const KeptUnitWithoutPro: Story = {
+  args: {
+    choice: 'set',
+    budgetMajor: '25',
+    budgetUnit: 'per hour',
+    unitChoice: 'keep',
+    keptUnit: 'per hour',
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const group = canvas.getByRole('radiogroup', { name: "What's it for?" })
+    await expect(within(group).getAllByRole('radio')).toHaveLength(2)
+    await expect(radio(canvasElement, 'Per hour')).toBeChecked()
+    await userEvent.click(radio(canvasElement, 'Whole job'))
+    await expect(radio(canvasElement, 'Whole job')).toBeChecked()
+    await expect(canvas.queryByRole('radio', { name: 'Per day' })).toBeNull()
+    await expect(canvas.queryByRole('radio', { name: 'Other' })).toBeNull()
   },
 }
 

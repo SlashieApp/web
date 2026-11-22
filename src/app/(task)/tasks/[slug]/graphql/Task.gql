@@ -70,6 +70,10 @@ query Task($id: ID!) {
       avatarUrl
       createdAt
     }
+    # The owner's limit for this task and how many are left (BE-149): 1
+    # without Slashie Pro, 30 with it. Null for everyone else.
+    quoteInvitationLimit
+    quoteInvitationsLeft
     viewerQuoteInvitation {
       customerName
       createdAt

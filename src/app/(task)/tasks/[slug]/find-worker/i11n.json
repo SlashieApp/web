@@ -1,0 +1,110 @@
+{
+  "en": {
+    "metadata": {
+      "title": "Find worker",
+      "description": "Workers who fit your task, best match first."
+    },
+    "title": "Find worker",
+    "description": "Workers who cover this task's area and fit its categories, best match first. Ask one to quote and they decide whether to send a price.",
+    "back": "Back to task",
+    "left": "You can ask {left} more for this task.",
+    "leftOne": "You can ask 1 more for this task.",
+    "leftNone": "You've asked {limit} workers about this task, the most for one task.",
+    "listLabel": "Matching workers",
+    "matches": "Fits: {categories}",
+    "distance": "{miles} miles away",
+    "distanceOne": "1 mile away",
+    "nearby": "Nearby",
+    "rating": "{average} ({count})",
+    "proBadge": "Pro",
+    "proBadgeLabel": "Slashie Pro",
+    "viewProfile": "View {name}'s profile",
+    "ask": "Ask to quote",
+    "askFor": "Ask {name} to quote",
+    "asked": "Asked",
+    "fallbackWorker": "Slashie worker",
+    "empty": {
+      "title": "No matching workers yet",
+      "body": "Nobody who covers this area fits {categories} right now. You can still ask a worker from their profile.",
+      "bodyNoCategories": "Nobody who covers this area fits this task right now. You can still ask a worker from their profile.",
+      "browse": "Browse all workers"
+    },
+    "states": {
+      "proRequired": {
+        "title": "Find worker comes with Slashie Pro",
+        "body": "With Slashie Pro you see the workers who fit your task and can ask up to {proLimit} of them.",
+        "action": "See Slashie Pro"
+      },
+      "closed": {
+        "title": "This task isn't open for quotes any more",
+        "body": "Find worker is for tasks that are open.",
+        "action": "Back to task"
+      },
+      "unavailable": {
+        "title": "We couldn't open this",
+        "body": "Find worker is for the person who posted the task.",
+        "action": "Go to My tasks"
+      },
+      "error": {
+        "title": "That didn't load",
+        "body": "Check your connection and try again.",
+        "action": "Try again"
+      }
+    },
+    "taskFallback": "Task"
+  },
+  "zh_hk": {
+    "metadata": {
+      "title": "尋找工作者",
+      "description": "符合你任務的工作者，最合適的排在最前。"
+    },
+    "title": "尋找工作者",
+    "description": "服務範圍涵蓋這項任務、而且符合任務類別的工作者，最合適的排在最前。邀請對方報價後，由對方決定是否報價。",
+    "back": "返回任務",
+    "left": "這項任務還可以邀請 {left} 位。",
+    "leftOne": "這項任務還可以邀請 1 位。",
+    "leftNone": "你已就此任務邀請了 {limit} 位工作者，已達單一任務的上限。",
+    "listLabel": "符合的工作者",
+    "matches": "符合：{categories}",
+    "distance": "距離 {miles} 英里",
+    "distanceOne": "距離 1 英里",
+    "nearby": "就在附近",
+    "rating": "{average}（{count}）",
+    "proBadge": "Pro",
+    "proBadgeLabel": "Slashie Pro",
+    "viewProfile": "查看 {name} 的檔案",
+    "ask": "邀請報價",
+    "askFor": "請 {name} 報價",
+    "asked": "已邀請",
+    "fallbackWorker": "Slashie 工作者",
+    "empty": {
+      "title": "暫時未有符合的工作者",
+      "body": "目前沒有服務這個地區又符合「{categories}」的工作者。你仍可在工作者的檔案中邀請對方。",
+      "bodyNoCategories": "目前沒有服務這個地區又符合這項任務的工作者。你仍可在工作者的檔案中邀請對方。",
+      "browse": "瀏覽所有工作者"
+    },
+    "states": {
+      "proRequired": {
+        "title": "尋找工作者是 Slashie Pro 的功能",
+        "body": "使用 Slashie Pro，你可以看到符合任務的工作者，並最多邀請 {proLimit} 位。",
+        "action": "了解 Slashie Pro"
+      },
+      "closed": {
+        "title": "此任務已不再接受報價",
+        "body": "尋找工作者只適用於開放中的任務。",
+        "action": "返回任務"
+      },
+      "unavailable": {
+        "title": "未能開啟此頁",
+        "body": "尋找工作者只供發布任務的人使用。",
+        "action": "前往我的任務"
+      },
+      "error": {
+        "title": "未能載入",
+        "body": "請檢查網絡連線後再試。",
+        "action": "再試一次"
+      }
+    },
+    "taskFallback": "任務"
+  }
+}

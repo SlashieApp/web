@@ -9,6 +9,7 @@ import {
   LuCircleAlert,
   LuCircleCheck,
   LuEllipsisVertical,
+  LuEye,
   LuPencil,
   LuRepeat,
   LuShare2,
@@ -326,7 +327,7 @@ export function TaskOverflowActions({
 }) {
   const close = onDone ?? (() => {})
   const t = useI11n(bag)
-  const { task, permissions, cancelError } = useTaskDetail()
+  const { task, permissions, cancelError, mainCta } = useTaskDetail()
   const insideDrawer = useInsideDrawer()
   const onShare = useShareTask(task?.title?.trim() || t.fallbackTask, task?.id)
 
@@ -357,6 +358,18 @@ export function TaskOverflowActions({
           onClick={close}
         />
       ) : null}
+      {
+        // Find worker took the main button from Preview (FE-603, Slashie
+        // Pro), so Preview is here.
+        mainCta?.action === 'findWorker' ? (
+          <MenuAction
+            icon={<LuEye />}
+            label={t.actions.previewTask}
+            href={`/tasks/${task.id}/preview`}
+            onClick={close}
+          />
+        ) : null
+      }
       {permissions.canRepostTask ? (
         <MenuAction
           icon={<LuRepeat />}

@@ -749,6 +749,80 @@ export const AskedNotShownToWorkers: Story = {
   },
 }
 
+/**
+ * Without Slashie Pro (FE-603): one worker per task. Once that one is asked
+ * the group says so, and what Pro gives.
+ */
+export const AskedCountAtTheFreeLimit: Story = {
+  decorators: [
+    withTaskDetailStory(
+      {
+        viewer: 'owner',
+        task: storyTaskDetail({
+          quotes: [],
+          quoteInvitations: ASKED.slice(0, 1),
+          quoteInvitationLimit: 1,
+          quoteInvitationsLeft: 0,
+        }),
+      },
+      QUOTE_LIST,
+    ),
+  ],
+  play: async ({ canvasElement }) => {
+    await within(canvasElement).findByText('Asked to quote')
+    const usage = canvasElement.querySelector(
+      '[data-asked-usage]',
+    ) as HTMLElement
+    await expect(usage).toHaveTextContent(
+      '1 of 1 asked. With Slashie Pro you can ask up to 30 workers per task.',
+    )
+  },
+}
+
+/** With Slashie Pro: 30 per task, and no line about Pro. */
+export const AskedCountWithPro: Story = {
+  decorators: [
+    withTaskDetailStory(
+      {
+        viewer: 'owner',
+        pro: true,
+        task: storyTaskDetail({
+          quotes: [],
+          quoteInvitations: ASKED,
+          quoteInvitationLimit: 30,
+          quoteInvitationsLeft: 28,
+        }),
+      },
+      QUOTE_LIST,
+    ),
+  ],
+  play: async ({ canvasElement }) => {
+    await within(canvasElement).findByText('Asked to quote')
+    const usage = canvasElement.querySelector(
+      '[data-asked-usage]',
+    ) as HTMLElement
+    await expect(usage).toHaveTextContent('2 of 30 asked.')
+    await expect(usage).not.toHaveTextContent('Slashie Pro')
+  },
+}
+
+/** The API said nothing about the limit (an older reply): no count line. */
+export const AskedWithNoCount: Story = {
+  decorators: [
+    withTaskDetailStory(
+      {
+        viewer: 'owner',
+        task: storyTaskDetail({ quotes: [], quoteInvitations: ASKED }),
+      },
+      QUOTE_LIST,
+    ),
+  ],
+  play: async ({ canvasElement }) => {
+    await within(canvasElement).findByText('Asked to quote')
+    await expect(canvasElement.querySelector('[data-asked-usage]')).toBeNull()
+  },
+}
+
 /** Phone: the rows fit 390 wide. */
 export const AskedPhone: Story = {
   ...AskedAfterTheQuotes,

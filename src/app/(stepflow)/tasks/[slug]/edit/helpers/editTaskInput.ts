@@ -43,6 +43,8 @@ export function buildEditTaskInput({
       ...budgetUnitFromText(values.budgetUnit),
     }
   }
+  // FE-603: the urgent mark, added (Slashie Pro) or taken off.
+  if (dirty.isUrgent) input.isUrgent = values.isUrgent
   // FE-599: the whole list replaces the task's accepted methods.
   if (dirty.paymentMethods) input.paymentMethods = values.paymentMethods
   if (changed(LOCATION)) {

@@ -18,6 +18,7 @@ import {
 import { withTaskDetailStory } from '../../helpers/taskDetailStoryDecorator'
 import { withOrderReviewSeed } from '../../helpers/taskDetailStoryExtras'
 import {
+  STORY_TASK_ID,
   type TaskDetailStoryConfig,
   storyTaskDetail,
   storyTaskOrder,
@@ -85,6 +86,37 @@ export const OwnerPreview: Story = {
   ...cta({ viewer: 'owner' }),
   play: async ({ canvasElement }) => {
     await within(canvasElement).findByRole('link', { name: 'Preview' })
+  },
+}
+
+/**
+ * The same owner with Slashie Pro (FE-603): Find worker takes the button and
+ * opens the list of workers who fit the task. Preview is in Help & actions.
+ */
+export const OwnerFindWorker: Story = {
+  ...desktop,
+  ...cta({ viewer: 'owner', pro: true }),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(
+      await canvas.findByRole('link', { name: 'Find worker' }),
+    ).toHaveAttribute('href', `/tasks/${STORY_TASK_ID}/find-worker`)
+    await expect(canvas.queryByRole('link', { name: 'Preview' })).toBeNull()
+  },
+}
+
+/** Slashie Pro changes nothing for a worker looking at someone else's task. */
+export const WorkerWithProStillSendsQuote: Story = {
+  ...desktop,
+  ...cta({
+    viewer: 'worker',
+    pro: true,
+    task: storyTaskDetail({ quotes: [competitorQuote] }),
+  }),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await canvas.findByRole('link', { name: 'Send quote' })
+    await expect(canvas.queryByRole('link', { name: 'Find worker' })).toBeNull()
   },
 }
 

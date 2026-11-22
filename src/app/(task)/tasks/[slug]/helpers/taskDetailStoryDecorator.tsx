@@ -70,7 +70,7 @@ function TaskDetailStorySeed({
   config: TaskDetailStoryConfig
   children: ReactNode
 }) {
-  const { viewer, task, order, viewAs } = config
+  const { viewer, task, order, viewAs, pro } = config
   const taskId = task?.id ?? STORY_TASK_ID
 
   useEffect(() => {
@@ -92,6 +92,10 @@ function TaskDetailStorySeed({
                   ...invitation,
                 }))
               : null,
+            // The query asks for them (FE-603): without them the seeded task
+            // is incomplete and the story shows nothing.
+            quoteInvitationLimit: task.quoteInvitationLimit ?? null,
+            quoteInvitationsLeft: task.quoteInvitationsLeft ?? null,
             viewerQuoteInvitation: task.viewerQuoteInvitation
               ? {
                   __typename: 'ViewerQuoteInvitation',
@@ -217,7 +221,7 @@ function TaskDetailStorySeed({
     }
 
     setAuthToken('storybook-task-detail-token')
-    const me = storyMe(viewer)
+    const me = storyMe(viewer, { pro })
     useUserStore.getState().setMe(me)
     useUserStore.getState().setUser({ id: me.id, email: me.email })
     // The real getUser() hits the live API, fails on the fake story token,
@@ -232,7 +236,7 @@ function TaskDetailStorySeed({
       useUserStore.getState().setMe(null)
       useUserStore.getState().setUser(null)
     }
-  }, [viewer, task, order, taskId])
+  }, [viewer, task, order, taskId, pro])
 
   return (
     <TaskDetailProvider

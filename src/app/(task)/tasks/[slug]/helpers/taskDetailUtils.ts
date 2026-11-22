@@ -47,6 +47,10 @@ export type TaskDetailRecord = Omit<TaskCoreRecord, 'location' | 'poster'> & {
   canReopen: TaskClientRecord['canReopen']
   /** The owner only: workers asked to quote with no quote yet (FE-507). */
   quoteInvitations?: TaskClientRecord['quoteInvitations']
+  /** The owner only: how many workers they may ask about it, 1 or 30 (BE-149). */
+  quoteInvitationLimit?: TaskClientRecord['quoteInvitationLimit']
+  /** The owner only: how many more they may ask; every one sent counts (BE-149). */
+  quoteInvitationsLeft?: TaskClientRecord['quoteInvitationsLeft']
   /** The invited worker only: who asked them, and whether they said Not for me (FE-507). */
   viewerQuoteInvitation?: TaskClientRecord['viewerQuoteInvitation']
 }

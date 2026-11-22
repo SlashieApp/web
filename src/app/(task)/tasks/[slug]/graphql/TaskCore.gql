@@ -15,6 +15,7 @@ query TaskCore($id: ID!) {
       customUnit
     }
     paymentMethods
+    isUrgent
     datetime {
       date
       time

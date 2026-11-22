@@ -3,6 +3,7 @@
 import { HStack, Stack, Text } from '@chakra-ui/react'
 
 import { publicProfilePath } from '@/app/helpers/publicProfilePath'
+import { QUOTE_INVITE_LIMITS } from '@/content/quoteInvitations/limits'
 import { formatMessage } from '@/i18n/loadPageI11n'
 import { useI11n } from '@/i18n/useI11n'
 import { sdlEyebrow } from '@/theme/styles'
@@ -16,6 +17,12 @@ import { QuoteAvatar } from './QuoteRow'
 export type AskedToQuoteGroupProps = {
   invitations: readonly TaskQuoteInvitationRow[]
   taskId: string
+  /**
+   * How many workers were asked out of how many the owner may ask
+   * (`quoteInviteUsage`; FE-603): "1 of 30 asked". Left out when the API
+   * said nothing.
+   */
+  usage?: { limit: number; used: number; left: number } | null
   /** A rule above the group when quotes are listed over it. */
   withTopDivider?: boolean
 }
@@ -35,14 +42,23 @@ function initialsOf(name: string, workerUserId: string): string {
  * The owner's "Asked to quote" group (FE-507): the workers they asked who have
  * not quoted yet (one who said Not for me is in it too: the customer is never
  * told). Each row links to the worker's profile. Only shown when there is one.
+ *
+ * Under the heading it says how many were asked of how many may be (FE-603:
+ * one per task without Slashie Pro, 30 with it), and at the one-worker limit
+ * what Pro gives.
  */
 export function AskedToQuoteGroup({
   invitations,
   taskId,
+  usage = null,
   withTopDivider = false,
 }: AskedToQuoteGroupProps) {
   const { quotes: q, fallbackWorker } = useI11n(bag)
   if (invitations.length === 0) return null
+  const atFreeLimit =
+    usage != null &&
+    usage.left === 0 &&
+    usage.limit === QUOTE_INVITE_LIMITS.free.perTask
   return (
     <Stack
       as="section"
@@ -53,6 +69,19 @@ export function AskedToQuoteGroup({
       borderColor="border.default"
     >
       <Text {...sdlEyebrow}>{q.asked.heading}</Text>
+      {usage ? (
+        <Text fontSize="xs" color="text.muted" data-asked-usage="">
+          {formatMessage(q.asked.usage, {
+            used: usage.used,
+            limit: usage.limit,
+          })}
+          {atFreeLimit
+            ? ` ${formatMessage(q.asked.proLimit, {
+                proLimit: QUOTE_INVITE_LIMITS.pro.perTask,
+              })}`
+            : ''}
+        </Text>
+      ) : null}
       <Stack as="ul" gap={0} listStyleType="none" m={0} p={0}>
         {invitations.map((invitation) => {
           const name = invitation.name.trim() || fallbackWorker

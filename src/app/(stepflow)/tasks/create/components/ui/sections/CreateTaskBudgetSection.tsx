@@ -5,6 +5,7 @@ import { Currency, type TaskPaymentMethod } from '@codegen/schema'
 import { useEffect, useId, useRef, useState } from 'react'
 import type { UseFormRegister } from 'react-hook-form'
 
+import type { BudgetUnitChoice } from '@/app/(task)/helpers/taskBudget/proUnits'
 import {
   BUDGET_UNIT_SUGGESTIONS,
   type BudgetUnitSuggestion,
@@ -53,6 +54,15 @@ export type CreateTaskBudgetSectionProps = {
   budgetMajor: string
   /** What the amount is for: blank (the whole job), a suggestion, or the poster's own words. */
   budgetUnit: string
+  /**
+   * What "What's it for?" offers (FE-603; budget units are Slashie Pro only).
+   * `all` (default): every unit and the poster's own words. `none`: no unit
+   * question, the budget is for the whole job. `keep`: Whole job or
+   * `keptUnit`, the unit the task already has (Edit task without Pro).
+   */
+  unitChoice?: BudgetUnitChoice
+  /** The unit text the task was saved with, for `keep`. */
+  keptUnit?: string
   /** The budget question has been answered; false on a new task. */
   budgetAnswered: boolean
   /** Open budget: no amount or unit, workers quote their own price. */
@@ -163,6 +173,8 @@ const STAGGER_MS = 60
  * picked. Set a budget opens the amount under it, with the cursor in it; once
  * an amount is typed, "What's it for?" opens with Whole job picked, the
  * suggestions, and Other, which opens a field for the poster's own words.
+ * That question is a Slashie Pro feature (FE-603): without Pro it does not
+ * show and every budget is for the whole job (`unitChoice`).
  * Open budget shows the one-line note. "Your accepted payment method"
  * follows either answer: Cash, Bank transfer and Pay by card, any number of
  * them (FE-599). The customer pays the worker directly, card included. Each
@@ -178,6 +190,8 @@ export function CreateTaskBudgetSection({
   budgetCurrency,
   budgetMajor,
   budgetUnit,
+  unitChoice = 'all',
+  keptUnit = '',
   budgetAnswered,
   openBudget,
   paymentMethods,
@@ -215,6 +229,15 @@ export function CreateTaskBudgetSection({
     setOtherTapped(false)
     onBudgetUnitChange(unit ? units.suggestion[unit] : '')
   }
+  // `keep`: the task's own unit, worded as a chip (a suggestion in the
+  // reader's language, the poster's own words as typed).
+  const keptSuggestion = chosenUnitSuggestion(keptUnit)
+  const keptLabel = keptSuggestion
+    ? units.unit[keptSuggestion]
+    : normalizeUnitText(keptUnit)
+  const keptOn =
+    normalizeUnitText(budgetUnit) !== '' &&
+    normalizeUnitText(budgetUnit) === normalizeUnitText(keptUnit)
 
   // Focus follows the answer: into the amount after Set a budget, into the
   // field after Other. Only after a tap here, never on load.
@@ -290,9 +313,9 @@ export function CreateTaskBudgetSection({
         </Reveal>
 
         <Reveal
-          open={choice === 'set' && hasAmount}
+          open={choice === 'set' && hasAmount && unitChoice !== 'none'}
           spaceAbove="form.fieldGap"
-          data-budget-unit=""
+          data-budget-unit={unitChoice}
         >
           <Stack gap={0} w="full">
             <Text id={unitLabelId} {...formControlLabelProps} px={1}>
@@ -305,33 +328,52 @@ export function CreateTaskBudgetSection({
             >
               <UnitChip
                 name={unitName}
-                on={wholeJobOn}
+                on={unitChoice === 'keep' ? !keptOn : wholeJobOn}
                 label={f.unitWholeJob}
                 onPick={() => pickUnit(null)}
               />
-              {BUDGET_UNIT_SUGGESTIONS.map((unit) => (
+              {unitChoice === 'keep' ? (
+                // Without Slashie Pro the task keeps the unit it has, or
+                // drops it: no other unit is offered.
                 <UnitChip
-                  key={unit}
                   name={unitName}
-                  on={!otherOn && chosen === unit}
-                  label={units.unit[unit]}
-                  onPick={() => pickUnit(unit)}
+                  on={keptOn}
+                  label={keptLabel}
+                  onPick={() => {
+                    setOtherTapped(false)
+                    onBudgetUnitChange(keptUnit)
+                  }}
                 />
-              ))}
-              <UnitChip
-                name={unitName}
-                on={otherOn}
-                label={f.unitOther}
-                onPick={(byPointer) => {
-                  // Arrowing past Other must not pull focus out of the choices.
-                  if (byPointer) focusNext.current = 'other'
-                  setOtherTapped(true)
-                  // A tapped suggestion isn't the poster's own words.
-                  if (chosen !== null) onBudgetUnitChange('')
-                }}
-              />
+              ) : (
+                <>
+                  {BUDGET_UNIT_SUGGESTIONS.map((unit) => (
+                    <UnitChip
+                      key={unit}
+                      name={unitName}
+                      on={!otherOn && chosen === unit}
+                      label={units.unit[unit]}
+                      onPick={() => pickUnit(unit)}
+                    />
+                  ))}
+                  <UnitChip
+                    name={unitName}
+                    on={otherOn}
+                    label={f.unitOther}
+                    onPick={(byPointer) => {
+                      // Arrowing past Other must not pull focus out of the choices.
+                      if (byPointer) focusNext.current = 'other'
+                      setOtherTapped(true)
+                      // A tapped suggestion isn't the poster's own words.
+                      if (chosen !== null) onBudgetUnitChange('')
+                    }}
+                  />
+                </>
+              )}
             </Wrap>
-            <Reveal open={otherOn} spaceAbove="form.labelToControl">
+            <Reveal
+              open={otherOn && unitChoice === 'all'}
+              spaceAbove="form.labelToControl"
+            >
               <FormField
                 label={f.unitOtherLabel}
                 labelProps={{ srOnly: true }}

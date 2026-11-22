@@ -43,6 +43,7 @@ import {
   markTaskMoment,
   postedMomentStorage,
 } from '@/app/(task)/helpers/postedMoment/postedMoment'
+import { withFindWorker } from '@/app/(task)/tasks/[slug]/find-worker/helpers/findWorker'
 import AcceptOrderCancellation from '@/app/(task)/tasks/[slug]/graphql/AcceptOrderCancellation.gql'
 import AcceptQuote from '@/app/(task)/tasks/[slug]/graphql/AcceptQuote.gql'
 import AddQuote from '@/app/(task)/tasks/[slug]/graphql/AddQuote.gql'
@@ -84,6 +85,7 @@ import {
   TASK_DETAIL_VIEWS,
   getTaskDetailView,
 } from '@/app/(task)/tasks/[slug]/views'
+import { accountHasPro } from '@/content/pro/accountPro'
 import Me from '@/graphql/Me.gql'
 import {
   EVENTS,
@@ -323,6 +325,9 @@ export function TaskDetailProvider({
   // Slashie Pro is the account's (BE-145); quoting reads it for workers only.
   const workerMembership = me?.worker ? (me.membership ?? null) : null
   const hasPro = hasUnlimitedQuoting(workerMembership)
+  // The account's own Slashie Pro, worker or not: what the poster's perks
+  // read (Find worker, FE-603). Never the worker-only read above.
+  const accountPro = accountHasPro(me)
   const quotesRemainingThisMonth =
     workerMembership?.quotesRemainingThisMonth ?? null
   const quoteLimitReached = isQuoteLimitReached(workerMembership)
@@ -435,6 +440,8 @@ export function TaskDetailProvider({
       bookingStatus: clientTask?.bookingStatus ?? TaskBookingStatus.None,
       canReopen: viewerTask?.canReopen ?? false,
       quoteInvitations: viewerTask?.quoteInvitations ?? null,
+      quoteInvitationLimit: viewerTask?.quoteInvitationLimit ?? null,
+      quoteInvitationsLeft: viewerTask?.quoteInvitationsLeft ?? null,
       viewerQuoteInvitation: viewerTask?.viewerQuoteInvitation ?? null,
       location:
         viewerTask?.location ??
@@ -1078,14 +1085,16 @@ export function TaskDetailProvider({
         ? buildTaskDetailMainCta({
             // Not one the API would refuse: a suspension (BE-108), or a
             // reopen it doesn't offer (BE-113).
-            action: availablePrimaryAction(
-              TASK_DETAIL_VIEWS[view].primaryAction,
-              {
+            // An owner with Slashie Pro gets Find worker in place of
+            // Preview (FE-603); Preview moves to Help & actions.
+            action: withFindWorker(
+              availablePrimaryAction(TASK_DETAIL_VIEWS[view].primaryAction, {
                 isSuspended: permissions.isSuspended,
                 isFrozen: permissions.isFrozen,
                 canReopen: permissions.canReopen,
                 viewerHasSubmittedReview,
-              },
+              }),
+              { hasPro: accountPro, isSuspended: permissions.isSuspended },
             ),
             task,
             order: myOrder,
@@ -1109,6 +1118,7 @@ export function TaskDetailProvider({
       permissions.isSuspended,
       permissions.isFrozen,
       permissions.canReopen,
+      accountPro,
       viewerHasSubmittedReview,
       invitedBy,
       taskThreadHref,

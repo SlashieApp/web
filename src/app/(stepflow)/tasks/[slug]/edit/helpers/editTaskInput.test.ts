@@ -27,6 +27,7 @@ const values: EditTaskFormValues = {
   budgetAnswered: true,
   openBudget: false,
   paymentMethods: [TaskPaymentMethod.Cash],
+  isUrgent: false,
 }
 
 const build = (

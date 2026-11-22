@@ -22,8 +22,9 @@
     "toast": "{name} has been asked to quote on {task}.",
     "errors": {
       "alreadySent": "You've already asked {name} about this task.",
-      "taskLimit": "You've asked 5 workers about this task, the most for one task.",
-      "dailyLimit": "You've asked 10 workers in the last 24 hours. Try again later.",
+      "taskLimit": "You've asked {limit} workers about this task, the most for one task.",
+      "taskLimitFree": "You can ask one worker per task. With Slashie Pro you can ask up to {proLimit}.",
+      "dailyLimit": "You've asked {limit} workers in the last 24 hours. Try again later.",
       "notAvailable": "{name} can't be asked to quote right now.",
       "taskClosed": "This task isn't open for quotes any more.",
       "generic": "That didn't work. Refresh and try again."
@@ -52,8 +53,9 @@
     "toast": "已請 {name} 就「{task}」報價。",
     "errors": {
       "alreadySent": "你已就此任務邀請過 {name}。",
-      "taskLimit": "你已就此任務邀請了 5 位工作者，已達單一任務的上限。",
-      "dailyLimit": "你在過去 24 小時內已邀請了 10 位工作者。請稍後再試。",
+      "taskLimit": "你已就此任務邀請了 {limit} 位工作者，已達單一任務的上限。",
+      "taskLimitFree": "每項任務可邀請一位工作者。使用 Slashie Pro 最多可邀請 {proLimit} 位。",
+      "dailyLimit": "你在過去 24 小時內已邀請了 {limit} 位工作者。請稍後再試。",
       "notAvailable": "目前未能請 {name} 報價。",
       "taskClosed": "此任務已不再接受報價。",
       "generic": "操作未成功。請重新整理後再試。"

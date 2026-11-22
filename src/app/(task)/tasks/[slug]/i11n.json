@@ -41,6 +41,7 @@
       "editQuote": "Edit quote",
       "updateQuote": "Update quote",
       "preview": "Preview",
+      "findWorker": "Find worker",
       "quoteSent": "Quote sent",
       "askingPrice": "Your asking price",
       "yourQuote": "Your quote",
@@ -187,6 +188,7 @@
         }
       }
     },
+    "urgentTag": "Urgent",
     "statusPill": {
       "OPEN": "Open",
       "AWARDED": "Booked",
@@ -204,6 +206,7 @@
     "actions": {
       "shareTask": "Share task",
       "editTask": "Edit task",
+      "previewTask": "Preview task",
       "payingMeetingSafely": "Paying & meeting safely",
       "helpHeading": "Help & actions",
       "cancelTask": "Cancel task",
@@ -309,6 +312,8 @@
       },
       "asked": {
         "heading": "Asked to quote",
+        "usage": "{used} of {limit} asked.",
+        "proLimit": "With Slashie Pro you can ask up to {proLimit} workers per task.",
         "noQuote": "No quote yet",
         "viewProfileFor": "View profile for {name}"
       },
@@ -558,6 +563,7 @@
       "editQuote": "編輯報價",
       "updateQuote": "更新報價",
       "preview": "預覽",
+      "findWorker": "尋找工作者",
       "quoteSent": "報價已傳送",
       "askingPrice": "你的報價",
       "yourQuote": "你的報價",
@@ -704,6 +710,7 @@
         }
       }
     },
+    "urgentTag": "緊急",
     "statusPill": {
       "OPEN": "開放中",
       "AWARDED": "已預約",
@@ -721,6 +728,7 @@
     "actions": {
       "shareTask": "分享任務",
       "editTask": "編輯任務",
+      "previewTask": "預覽任務",
       "payingMeetingSafely": "付款與安全見面",
       "helpHeading": "協助與操作",
       "cancelTask": "取消任務",
@@ -826,6 +834,8 @@
       },
       "asked": {
         "heading": "已邀請報價",
+        "usage": "已邀請 {used} 位，上限 {limit} 位。",
+        "proLimit": "使用 Slashie Pro，每項任務最多可邀請 {proLimit} 位工作者。",
         "noQuote": "暫未報價",
         "viewProfileFor": "查看 {name} 的檔案"
       },

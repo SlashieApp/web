@@ -77,6 +77,15 @@ describe('buildTaskDetailMainCta', () => {
     })
   })
 
+  it('owner with Slashie Pro gets Find worker, to the list of workers (FE-603)', () => {
+    expect(cta('findWorker', { isOwner: true })).toMatchObject({
+      action: 'findWorker',
+      presentation: 'button',
+      buttonLabel: 'Find worker',
+      href: '/tasks/task-1/find-worker',
+    })
+  })
+
   it('worker who can quote sees the budget beside Send quote', () => {
     expect(cta('sendQuote')).toMatchObject({
       presentation: 'quoted',

@@ -41,6 +41,8 @@ export const taskDetailsFields = {
   datetimeType: z.nativeEnum(TaskDateTimeType),
   preferredDate: z.string(),
   preferredTime: z.string(),
+  /** Marked urgent (FE-603): a Slashie Pro feature, checked by the API. */
+  isUrgent: z.boolean(),
   /** The amount; checked by `refineTaskBudget`, as an open budget has none. */
   budgetMajor: z.string().trim(),
   budgetCurrency: z.nativeEnum(Currency),

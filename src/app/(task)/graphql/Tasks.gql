@@ -11,6 +11,7 @@ query Tasks($filter: TaskFilter, $sort: TaskSort, $first: Int, $after: ID) {
       customUnit
     }
     paymentMethods
+    isUrgent
     datetime {
       date
       time

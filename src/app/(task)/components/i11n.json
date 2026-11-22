@@ -35,7 +35,8 @@
     "viewerRole": {
       "hosted": "Posted",
       "quoted": "Quoted"
-    }
+    },
+    "urgentTag": "Urgent"
   },
   "zh_hk": {
     "detailsCta": "查看任務",
@@ -73,6 +74,7 @@
     "viewerRole": {
       "hosted": "我發佈",
       "quoted": "我報價"
-    }
+    },
+    "urgentTag": "緊急"
   }
 }

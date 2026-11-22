@@ -60,6 +60,8 @@ export type TaskListItem = {
   > | null
   /** Every way to pay the poster accepts (BE-148), on open-budget tasks too. */
   paymentMethods?: TaskPaymentMethod[] | null
+  /** Marked urgent by a poster with Slashie Pro (BE-149). */
+  isUrgent?: boolean | null
   contactMethod?: string | null
   images?: string[]
   poster?: {

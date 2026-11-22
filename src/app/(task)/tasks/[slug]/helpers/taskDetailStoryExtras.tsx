@@ -141,6 +141,7 @@ function taskCoreData(task: TaskDetailRecord) {
       // The query asks for it (FE-584): without it the seeded task is
       // incomplete and the story shows nothing.
       paymentMethods: task.paymentMethods ?? [],
+      isUrgent: task.isUrgent ?? false,
       datetime: task.datetime
         ? { __typename: 'TaskDateTime', ...task.datetime }
         : null,

@@ -22,6 +22,7 @@ import {
 import { withTaskDetailStory } from '../../helpers/taskDetailStoryDecorator'
 import {
   STORY_OWNER_ID,
+  STORY_TASK_ID,
   type TaskDetailStoryConfig,
   storyTaskDetail,
   storyTaskOrder,
@@ -105,6 +106,38 @@ export const OwnerOpenTask: Story = {
     expect(panel.queryByRole('link', { name: 'Get help' })).toBeNull()
     await panel.findByRole('button', { name: 'Cancel task' })
     expect(panel.queryByRole('button', { name: 'Report task' })).toBeNull()
+  },
+}
+
+/**
+ * Owner with Slashie Pro (FE-603): Find worker took the page's main button
+ * from Preview, so Preview task is a row here, after Edit task.
+ */
+export const OwnerWithProHasPreview: Story = {
+  ...desktop,
+  ...menu({ viewer: 'owner', pro: true }),
+  play: async ({ canvasElement }) => {
+    const panel = await openMenu(canvasElement)
+    const preview = await panel.findByRole('link', { name: 'Preview task' })
+    await expect(preview).toHaveAttribute(
+      'href',
+      `/tasks/${STORY_TASK_ID}/preview`,
+    )
+    const edit = panel.getByRole('link', { name: 'Edit task' })
+    await expect(
+      edit.compareDocumentPosition(preview) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy()
+  },
+}
+
+/** Without Pro the main button is Preview, so the menu has no such row. */
+export const OwnerWithoutProHasNoPreviewRow: Story = {
+  ...desktop,
+  ...menu({ viewer: 'owner' }),
+  play: async ({ canvasElement }) => {
+    const panel = await openMenu(canvasElement)
+    await panel.findByRole('link', { name: 'Edit task' })
+    await expect(panel.queryByRole('link', { name: 'Preview task' })).toBeNull()
   },
 }
 

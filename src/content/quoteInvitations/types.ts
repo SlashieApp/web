@@ -21,4 +21,8 @@ export type AskableTaskChoice = {
   canAsk: boolean
 }
 
-export type QuoteInviteSurface = 'profile' | 'after_post'
+/**
+ * Where the invitation was sent from: the worker's profile, the prompt after
+ * Post a task, or the task's Find worker list (FE-603, Slashie Pro).
+ */
+export type QuoteInviteSurface = 'profile' | 'after_post' | 'find_worker'

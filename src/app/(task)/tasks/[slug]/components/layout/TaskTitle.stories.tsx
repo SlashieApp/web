@@ -104,6 +104,51 @@ export const Default: Story = {
 }
 
 /**
+ * A task marked urgent (FE-603, Slashie Pro): an "Urgent" tag follows the
+ * status pill on the title's line. The heading is still named by the title
+ * alone, and the line is no taller.
+ */
+export const Urgent: Story = {
+  decorators: [
+    withHeader,
+    withTaskDetailStory({
+      viewer: 'owner',
+      task: storyTaskDetail({ isUrgent: true }),
+    }),
+  ],
+  play: async ({ canvasElement }) => {
+    const h1 = await within(canvasElement).findByRole('heading', {
+      level: 1,
+      name: TITLE,
+    })
+    const pill = within(h1).getByText('Open')
+    const urgent = h1.querySelector('[data-task-urgent]') as HTMLElement
+    expect(urgent).toHaveTextContent('Urgent')
+    expect(urgent.getBoundingClientRect().left).toBeGreaterThan(
+      pill.getBoundingClientRect().right,
+    )
+    expect(
+      Math.abs(
+        urgent.getBoundingClientRect().top - pill.getBoundingClientRect().top,
+      ),
+    ).toBeLessThanOrEqual(2)
+    expect(h1.getBoundingClientRect().height).toBe(LINE)
+  },
+}
+
+/** Not urgent: the pill is alone after the title. */
+export const NotUrgent: Story = {
+  decorators: [withHeader, withTaskDetailStory({ viewer: 'owner' })],
+  play: async ({ canvasElement }) => {
+    const h1 = await within(canvasElement).findByRole('heading', {
+      level: 1,
+      name: TITLE,
+    })
+    expect(h1.querySelector('[data-task-urgent]')).toBeNull()
+  },
+}
+
+/**
  * A title that fills its line: the pill moves to the next line whole, at the
  * left edge, never split and never off the edge.
  */

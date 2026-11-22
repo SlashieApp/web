@@ -123,6 +123,8 @@ export function buildTaskDetailMainCta(input: {
   switch (action) {
     case 'preview':
       return button(copy.cta.preview, `${taskPath}/preview`)
+    case 'findWorker':
+      return button(copy.cta.findWorker, `${taskPath}/find-worker`)
     case 'signInToQuote':
       return button(
         copy.cta.signInToQuote,
