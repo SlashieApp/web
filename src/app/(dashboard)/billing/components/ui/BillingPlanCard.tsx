@@ -17,7 +17,7 @@ import {
 import type { PricingRecord } from '@/app/(marketing)/pricing/helpers/getPricingForPage'
 import { formatMessage } from '@/i18n/loadPageI11n'
 import { useI11n } from '@/i18n/useI11n'
-import { Badge, Button, Card } from '@ui'
+import { Badge, Button, Card, SuccessTick, momentSettleCss } from '@ui'
 import type { ReactNode } from 'react'
 
 import bag from '../../i11n.json'
@@ -36,6 +36,13 @@ export type BillingPlanCardProps = {
   onAction: (action: BillingAction) => void
   /** "Have a code?" under the button, when it starts Checkout (FE-586). */
   promo?: ReactNode
+  /**
+   * Slashie Pro has just become active on this visit (back from Checkout):
+   * the card plays the success moment once. Its title says so, it settles
+   * in and a tick draws beside the badge. No pop-up as well (motion group C,
+   * Ryan 22 Nov).
+   */
+  justActivated?: boolean
 }
 
 function membershipDate(
@@ -103,8 +110,11 @@ export function BillingPlanCard({
   actionLoading,
   onAction,
   promo,
+  justActivated = false,
 }: BillingPlanCardProps) {
   const t = useI11n(bag).views
+  // The words the pop-up used: "Slashie Pro is active".
+  const activatedTitle = useI11n(bag).toasts.activatedTitle
   const date = config.date
     ? formatDate(membershipDate(membership, config.date))
     : null
@@ -120,14 +130,29 @@ export function BillingPlanCard({
   return (
     <Card layout="section" p={{ base: 5, md: 6 }}>
       <Stack gap={5}>
-        <HStack justify="space-between" align="flex-start" gap={3}>
+        <HStack
+          // A new key when it turns active: the moment plays on these words.
+          key={justActivated ? 'activated' : 'plan'}
+          data-plan-moment={justActivated ? '' : undefined}
+          justify="space-between"
+          align="flex-start"
+          gap={3}
+          aria-live="polite"
+          transformOrigin="left center"
+          css={justActivated ? momentSettleCss : undefined}
+        >
           <Heading as="h2" fontSize="lg" letterSpacing="-0.01em">
-            {t.titles[config.title]}
+            {justActivated ? activatedTitle : t.titles[config.title]}
           </Heading>
-          {config.badge ? (
-            <Badge variant={config.badge.tone} dot shape="pill">
-              {t.badges[config.badge.label]}
-            </Badge>
+          {config.badge || justActivated ? (
+            <HStack gap={2} flexShrink={0}>
+              {justActivated ? <SuccessTick /> : null}
+              {config.badge ? (
+                <Badge variant={config.badge.tone} dot shape="pill">
+                  {t.badges[config.badge.label]}
+                </Badge>
+              ) : null}
+            </HStack>
           ) : null}
         </HStack>
 

@@ -6,6 +6,10 @@ import { useRouter } from 'next/navigation'
 import { useCallback, useState } from 'react'
 
 import { AppStatusBanners } from '@/app/(auth)/components/ui/AppStatusBanners'
+import {
+  markTaskMoment,
+  postedMomentStorage,
+} from '@/app/(task)/helpers/postedMoment/postedMoment'
 import { useTaskDetail } from '@/app/(task)/tasks/[slug]/context/TaskDetailProvider'
 import CreateReview from '@/app/(task)/tasks/[slug]/graphql/CreateReview.gql'
 import UpdateReview from '@/app/(task)/tasks/[slug]/graphql/UpdateReview.gql'
@@ -20,7 +24,6 @@ import { formatMessage } from '@/i18n/loadPageI11n'
 import { useI11n } from '@/i18n/useI11n'
 import reviewBag from '@/ui/ReviewForm/i11n.json'
 import { EVENTS, capture } from '@/utils/analytics'
-import { showAppToast } from '@/utils/appToast'
 import { getFriendlyErrorMessage } from '@/utils/graphqlErrors'
 import { StepFlowHeader, StepFlowLayout, StepFlowProgress, Stepper } from '@ui'
 
@@ -137,7 +140,14 @@ function TaskReviewFlow({
         order_id: orderId,
         edited: editing,
       })
-      showAppToast({ title: t.saved, type: 'success' })
+      // The task's page says it: its status block plays the moment and
+      // reads "Review sent" (a new review; Ryan 22 Nov) or "Review saved"
+      // (an edited one), so there is no pop-up as well.
+      markTaskMoment(
+        postedMomentStorage(),
+        taskId,
+        editing ? 'reviewSaved' : 'reviewSent',
+      )
       router.push(localize(taskHref))
     } catch (error: unknown) {
       capture(EVENTS.review_submit_fail, { order_id: orderId })
@@ -155,8 +165,8 @@ function TaskReviewFlow({
     router,
     stars,
     step,
-    t.saved,
     taskHref,
+    taskId,
     updateReview,
     validate,
   ])

@@ -13,6 +13,8 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { expect, userEvent, waitFor, within } from 'storybook/test'
 
 import {
+  type TaskMoment,
+  markTaskMoment,
   markTaskPosted,
   postedMomentStorage,
   takeTaskPosted,
@@ -253,7 +255,7 @@ export const OwnerJustPosted: Story = {
       canvas.queryByText('Your task is live - reaching workers'),
     ).toBeNull()
     const block = canvasElement.querySelector(
-      '[data-posted-moment]',
+      '[data-task-moment="posted"]',
     ) as HTMLElement
     const style = getComputedStyle(block)
     await expect(style.animationName).toBe('moment-settle')
@@ -263,7 +265,7 @@ export const OwnerJustPosted: Story = {
       'cubic-bezier(0.2, 0, 0, 1.2)',
     )
     await expect(
-      canvasElement.querySelector('[data-posted-tick]'),
+      canvasElement.querySelector('[data-success-tick]'),
     ).not.toBeNull()
     await waitFor(() => expect(block).toBeVisible())
     // Used up: nothing is left for a refresh or a later visit.
@@ -283,8 +285,124 @@ export const OwnerPostedEarlier: Story = {
         name: 'Your task is live - reaching workers',
       }),
     ).toBeVisible()
-    await expect(canvasElement.querySelector('[data-posted-tick]')).toBeNull()
-    await expect(canvasElement.querySelector('[data-posted-moment]')).toBeNull()
+    await expect(canvasElement.querySelector('[data-success-tick]')).toBeNull()
+    await expect(canvasElement.querySelector('[data-task-moment]')).toBeNull()
+  },
+}
+
+/**
+ * The other success moments (motion group C, Ryan 22 Nov): the same block
+ * plays once after a quote is sent or accepted, or a review is left. The
+ * note the action left is on the task, as landing from it would find it.
+ */
+function afterMoment(
+  moment: TaskMoment,
+  config: Partial<TaskDetailStoryConfig>,
+): Story['decorators'] {
+  return [
+    withTaskDetailStory(config, { maxWidth: '1200px' }),
+    (Story) => {
+      const task = config.task
+      if (task) markTaskMoment(postedMomentStorage(), task.id, moment)
+      return <Story />
+    },
+  ]
+}
+
+/** The block is playing `moment`: it settles in and its tick is there. */
+async function expectMoment(canvasElement: HTMLElement, moment: TaskMoment) {
+  const block = await waitFor(() => {
+    const found = canvasElement.querySelector(`[data-task-moment="${moment}"]`)
+    if (!found) throw new Error(`no ${moment} moment yet`)
+    return found as HTMLElement
+  })
+  await expect(getComputedStyle(block).animationName).toBe('moment-settle')
+  await expect(
+    canvasElement.querySelector('[data-success-tick]'),
+  ).not.toBeNull()
+  await waitFor(() => expect(block).toBeVisible())
+  // Used up: a refresh or a later visit reads as usual.
+  await expect(window.sessionStorage.getItem('slashie:task-posted')).toBeNull()
+}
+
+/**
+ * A worker lands here from sending a quote: the block already reads "Quote
+ * sent", so only the settle and the tick are added. No pop-up.
+ */
+export const WorkerJustQuoted: Story = {
+  decorators: afterMoment('quoteSent', { viewer: 'worker', task: openTask }),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await canvas.findByRole('heading', { name: 'Quote sent' })
+    await expectMoment(canvasElement, 'quoteSent')
+  },
+}
+
+/**
+ * The owner has just accepted a quote: the block turns to the booking
+ * ("Worker booked") and plays the moment.
+ */
+export const OwnerJustAccepted: Story = {
+  decorators: afterMoment('quoteAccepted', {
+    viewer: 'owner',
+    task: bookedTask,
+    order: ownerOrders.beforeStart,
+  }),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await canvas.findByRole('heading', { name: 'Worker booked' })
+    await expectMoment(canvasElement, 'quoteAccepted')
+  },
+}
+
+/**
+ * Back from leaving a review (Ryan 22 Nov): for this first view the block
+ * reads "Review sent" in place of "Job complete".
+ */
+export const OwnerJustReviewed: Story = {
+  decorators: afterMoment('reviewSent', {
+    viewer: 'owner',
+    task: bookedTask,
+    order: ownerOrders.completed,
+  }),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await canvas.findByRole('heading', { name: 'Review sent' })
+    await expect(canvas.queryByText('Job complete')).toBeNull()
+    await expectMoment(canvasElement, 'reviewSent')
+  },
+}
+
+/** Back from editing a review: the words it has always used, "Review saved". */
+export const WorkerJustEditedReview: Story = {
+  decorators: afterMoment('reviewSaved', {
+    viewer: 'worker',
+    task: bookedTask,
+    order: workerOrders.completed,
+  }),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await canvas.findByRole('heading', { name: 'Review saved' })
+    await expectMoment(canvasElement, 'reviewSaved')
+  },
+}
+
+/**
+ * A moment only plays on the view its action ends on: a note for a sent
+ * quote does nothing on the owner's page.
+ */
+export const MomentOnTheWrongView: Story = {
+  decorators: afterMoment('quoteSent', {
+    viewer: 'owner',
+    task: storyTaskDetail({ quotes: [] }),
+  }),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await canvas.findByRole('heading', {
+      name: 'Your task is live - reaching workers',
+    })
+    await expect(canvasElement.querySelector('[data-task-moment]')).toBeNull()
+    await expect(canvasElement.querySelector('[data-success-tick]')).toBeNull()
   },
 }
 

@@ -2,8 +2,11 @@ import { describe, expect, it } from 'vitest'
 
 import {
   POSTED_MOMENT_MAX_AGE_MS,
+  markTaskMoment,
   markTaskPosted,
+  takeTaskMoment,
   takeTaskPosted,
+  taskMomentPlaysOn,
 } from './postedMoment'
 
 function memoryStorage() {
@@ -63,5 +66,46 @@ describe('the Task posted moment', () => {
     const junk = memoryStorage()
     junk.setItem('slashie:task-posted', 'not json')
     expect(takeTaskPosted(junk, 'task-1', NOW)).toBe(false)
+  })
+})
+
+/**
+ * Motion group C (Ryan 22 Nov): the same note carries a sent quote, an
+ * accepted one and a review to the task's page, which plays it once.
+ */
+describe('the other success moments', () => {
+  it('carries what was done to the task it was done on, once', () => {
+    const storage = memoryStorage()
+    markTaskMoment(storage, 'task-1', 'quoteSent', NOW)
+    expect(takeTaskMoment(storage, 'task-1', NOW + 500)).toBe('quoteSent')
+    expect(takeTaskMoment(storage, 'task-1', NOW + 600)).toBeNull()
+    markTaskMoment(storage, 'task-1', 'reviewSent', NOW)
+    // Another task's page takes it away without playing it.
+    expect(takeTaskMoment(storage, 'task-2', NOW)).toBeNull()
+    expect(takeTaskMoment(storage, 'task-1', NOW)).toBeNull()
+  })
+
+  it('a note that is not one of ours plays nothing', () => {
+    const storage = memoryStorage()
+    storage.setItem(
+      'slashie:task-posted',
+      JSON.stringify({ id: 'task-1', at: NOW, moment: 'somethingElse' }),
+    )
+    expect(takeTaskMoment(storage, 'task-1', NOW)).toBeNull()
+  })
+
+  it('each moment plays only on the view its action ends on', () => {
+    expect(taskMomentPlaysOn('posted', 'owner.open.noQuotes')).toBe(true)
+    expect(taskMomentPlaysOn('posted', 'owner.open.quotes')).toBe(false)
+    expect(taskMomentPlaysOn('quoteSent', 'worker.open.quoted')).toBe(true)
+    expect(taskMomentPlaysOn('quoteSent', 'worker.open.notQuoted')).toBe(false)
+    expect(taskMomentPlaysOn('quoteAccepted', 'owner.booked.beforeStart')).toBe(
+      true,
+    )
+    expect(taskMomentPlaysOn('quoteAccepted', 'owner.open.quotes')).toBe(false)
+    // A review plays wherever its task now stands, but never on the placeholders.
+    expect(taskMomentPlaysOn('reviewSent', 'owner.completed')).toBe(true)
+    expect(taskMomentPlaysOn('reviewSaved', 'worker.completed')).toBe(true)
+    expect(taskMomentPlaysOn('reviewSent', 'loading')).toBe(false)
   })
 })

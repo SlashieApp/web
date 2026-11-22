@@ -38,6 +38,10 @@ import {
 import { taskServerError } from '@/app/(stepflow)/tasks/create/helpers/taskFieldError'
 import { isWorkerSetupComplete } from '@/app/(stepflow)/worker/setup/helpers/workerSetupEligibility'
 import { workerSetupHref } from '@/app/(stepflow)/worker/setup/helpers/workerSetupHref'
+import {
+  markTaskMoment,
+  postedMomentStorage,
+} from '@/app/(task)/helpers/postedMoment/postedMoment'
 import AcceptOrderCancellation from '@/app/(task)/tasks/[slug]/graphql/AcceptOrderCancellation.gql'
 import AcceptQuote from '@/app/(task)/tasks/[slug]/graphql/AcceptQuote.gql'
 import AddQuote from '@/app/(task)/tasks/[slug]/graphql/AddQuote.gql'
@@ -254,6 +258,12 @@ type TaskDetailProviderProps = {
   viewAs?: 'guest'
   /** False outside the task page (e.g. a Messages thread): no task-view analytics. */
   captureView?: boolean
+  /**
+   * This surface has no status block to play a success moment (the
+   * conversation), so a success keeps its pop-up. Off on the task's page,
+   * where the block is the confirmation (motion group C).
+   */
+  confirmWithToast?: boolean
   children: React.ReactNode
 }
 
@@ -262,6 +272,7 @@ export function TaskDetailProvider({
   initialTask,
   viewAs,
   captureView = true,
+  confirmWithToast = false,
   children,
 }: TaskDetailProviderProps) {
   const asGuest = viewAs === 'guest'
@@ -642,11 +653,10 @@ export function TaskDetailProvider({
         ...invitedProperty(task),
       })
       setQuoteSuccess(p.quoteSentSuccess)
-      showAppToast({
-        title: p.quoteSentTitle,
-        description: p.quoteSentSuccess,
-        type: 'success',
-      })
+      // The quote flow ends on the task's page, whose status block says
+      // "Quote sent" and plays the moment (motion group C, Ryan 22 Nov):
+      // the block is the confirmation, so there is no pop-up as well.
+      markTaskMoment(postedMomentStorage(), task.id, 'quoteSent')
       refreshPageData()
       return true
     } catch (error: unknown) {
@@ -718,10 +728,18 @@ export function TaskDetailProvider({
         if (!order?.id) {
           throw new Error(p.acceptFailed)
         }
-        showAppToast({
-          title: p.quoteAcceptedTitle,
-          type: 'success',
-        })
+        // On the task's page the status block turns to the booking and
+        // plays the moment (motion group C, Ryan 22 Nov), so there is no
+        // pop-up as well. A surface without that block (the conversation)
+        // keeps the pop-up.
+        if (confirmWithToast) {
+          showAppToast({
+            title: p.quoteAcceptedTitle,
+            type: 'success',
+          })
+        } else {
+          markTaskMoment(postedMomentStorage(), task.id, 'quoteAccepted')
+        }
         trackFlowSucceeded(EVENTS.quote_accept_success, {
           task_id: task.id,
           quote_id: quoteId,
@@ -751,6 +769,7 @@ export function TaskDetailProvider({
     },
     [
       acceptQuote,
+      confirmWithToast,
       permissions.canAcceptQuote,
       refetchClientTask,
       refreshPageData,

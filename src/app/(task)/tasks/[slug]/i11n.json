@@ -438,6 +438,8 @@
     },
     "summary": {
       "ownerPostedHeadline": "Task posted",
+      "reviewSentHeadline": "Review sent",
+      "reviewSavedHeadline": "Review saved",
       "ownerLiveHeadline": "Your task is live - reaching workers",
       "ownerLiveSubline": "Nearby workers can see your task. Share it to get quotes faster.",
       "ownerQuotesHeadlineOne": "{count} quote - compare and accept",
@@ -952,6 +954,8 @@
     },
     "summary": {
       "ownerPostedHeadline": "任務已發佈",
+      "reviewSentHeadline": "評價已送出",
+      "reviewSavedHeadline": "已儲存評價",
       "ownerLiveHeadline": "你的任務已上線，正在觸達工作者",
       "ownerLiveSubline": "附近工作者可以看到你的任務。分享可更快收到報價。",
       "ownerQuotesHeadlineOne": "{count} 個報價：比較並接受",

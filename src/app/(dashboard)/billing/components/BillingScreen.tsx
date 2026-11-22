@@ -46,7 +46,7 @@ export function BillingScreen() {
   const localize = useLocalizedHref()
   const router = useRouter()
   const me = useUserStore((s) => s.me)
-  const { checkout, checkAgain, rootRef } = useCheckoutReturn()
+  const { checkout, checkAgain, rootRef, activated } = useCheckoutReturn()
   const { startCheckout, openBillingPortal, checkoutLoading, portalLoading } =
     useBillingActions()
   const promo = usePromoCode()
@@ -142,6 +142,8 @@ export function BillingScreen() {
           action: cardAction,
         }}
         membership={membership}
+        // The plan has just become active here: the card says so, once.
+        justActivated={activated && Boolean(membership?.hasPro)}
         pricing={pricing}
         formatDate={formatDate}
         resetsOn={formatDate(nextMonthStart(new Date()).toISOString())}

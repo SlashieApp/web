@@ -49,6 +49,47 @@ export const EveryThreeMonths: Story = {
 }
 
 /** `activating`: a spinner and the message, no button. */
+/**
+ * Back from Checkout, the plan has just become active (motion group C, Ryan
+ * 22 Nov): the card says "Slashie Pro is active" for this first view, settles
+ * in, and a tick draws beside the badge. This replaces the pop-up.
+ */
+export const JustActivated: Story = {
+  args: {
+    config: BILLING_VIEWS.trialing,
+    membership: storyMembership('trial'),
+    justActivated: true,
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await canvas.findByRole('heading', { name: 'Slashie Pro is active' })
+    const head = canvasElement.querySelector(
+      '[data-plan-moment]',
+    ) as HTMLElement
+    await expect(getComputedStyle(head).animationName).toBe('moment-settle')
+    await expect(
+      canvasElement.querySelector('[data-success-tick]'),
+    ).not.toBeNull()
+  },
+}
+
+/** The same plan on any later visit: its everyday title, no tick. */
+export const TrialingLater: Story = {
+  args: {
+    config: BILLING_VIEWS.trialing,
+    membership: storyMembership('trial'),
+  },
+  play: async ({ canvasElement }) => {
+    await expect(canvasElement.querySelector('[data-plan-moment]')).toBeNull()
+    await expect(canvasElement.querySelector('[data-success-tick]')).toBeNull()
+    await expect(
+      within(canvasElement).queryByRole('heading', {
+        name: 'Slashie Pro is active',
+      }),
+    ).toBeNull()
+  },
+}
+
 export const Activating: Story = {
   args: { config: BILLING_VIEWS.activating },
   play: async ({ canvasElement }) => {

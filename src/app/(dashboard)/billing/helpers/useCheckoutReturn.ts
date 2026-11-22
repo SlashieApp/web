@@ -23,6 +23,10 @@ export type CheckoutReturn = 'returning' | 'delayed' | null
  * Stripe until the plan is active (`returning`), or says it's slow after
  * about 16 seconds (`delayed`). `checkAgain` re-syncs once, for that and for
  * an unfinished Checkout. Attach `rootRef` to the page root.
+ *
+ * `activated` turns true the moment the plan becomes active here: the plan
+ * card plays the success moment and says so (motion group C, Ryan 22 Nov),
+ * so there is no pop-up as well.
  */
 export function useCheckoutReturn() {
   const t = useI11n(bag).toasts
@@ -32,6 +36,7 @@ export function useCheckoutReturn() {
   const apolloClient = useApolloClient()
   const setMe = useUserStore((s) => s.setMe)
   const [checkout, setCheckout] = useState<CheckoutReturn>(null)
+  const [activated, setActivated] = useState(false)
   const handledRef = useRef(false)
 
   const sync = useCallback(async () => {
@@ -64,7 +69,7 @@ export function useCheckoutReturn() {
         attempts += 1
         if (await sync()) {
           setCheckout(null)
-          showAppToast({ title: t.activatedTitle, type: 'success' })
+          setActivated(true)
           return
         }
         if (attempts >= POLL_ATTEMPTS) {
@@ -82,11 +87,11 @@ export function useCheckoutReturn() {
     setCheckout('returning')
     if (await sync()) {
       setCheckout(null)
-      showAppToast({ title: t.activatedTitle, type: 'success' })
+      setActivated(true)
       return
     }
     setCheckout('delayed')
-  }, [sync, t])
+  }, [sync])
 
-  return { checkout, checkAgain, rootRef }
+  return { checkout, checkAgain, rootRef, activated }
 }

@@ -1,19 +1,26 @@
 'use client'
 
 import { HStack, Heading, Skeleton, Stack, Text } from '@chakra-ui/react'
-import { type ComponentType, useLayoutEffect, useState } from 'react'
+import {
+  type ComponentType,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from 'react'
 
 import {
+  type TaskMoment,
   postedMomentStorage,
-  takeTaskPosted,
+  takeTaskMoment,
+  taskMomentPlaysOn,
 } from '@/app/(task)/helpers/postedMoment/postedMoment'
 
 import { taskBudgetCustomUnit } from '@/app/(task)/helpers/taskBudget/taskBudget'
 import { useI11n } from '@/i18n/useI11n'
-import { sdlMotion } from '@/theme/styles'
 import { TASK_ORDER_SECTION_ID } from '@/utils/orderHelpers'
 import { formatBudgetAmount } from '@/utils/price'
-import { Card } from '@ui'
+import { Card, SuccessTick, momentSettleCss } from '@ui'
 
 import { useTaskDetail } from '../../context/TaskDetailProvider'
 import { TASK_DETAIL_SECTION_CARD } from '../../helpers/taskDetailLayout'
@@ -32,7 +39,6 @@ import {
   summaryBudgetType,
 } from '../../views/resolveSummaryCopy'
 import { TaskStatusPill } from '../ui/TaskStatusPill'
-import { PostedTick } from './PostedTick'
 import { RequestFact } from './facts/BookingActionFacts'
 import {
   AgreedPriceFact,
@@ -123,35 +129,34 @@ export function useSummaryLines(config: TaskDetailViewConfig) {
 }
 
 /**
- * The status block settling in for the "Task posted" moment: a short rise
- * with the emphasis curve's gentle overshoot, the one playful motion of the
- * landing. Reduced motion fades it in.
+ * What was just done on this task, once (`postedMoment`): posted, a quote
+ * sent or accepted, a review left. Read before the first paint, so the block
+ * never shows its everyday words first; and again when the view changes,
+ * since accepting a quote happens on this page. It plays only on the view its
+ * action ends on, and is over once the page moves on from it.
  */
-const momentSettleCss = {
-  animationName: 'moment-settle',
-  animationDuration: sdlMotion.duration.slow,
-  animationTimingFunction: sdlMotion.easing.emphasis,
-  animationFillMode: 'both',
-  '@media (prefers-reduced-motion: reduce)': {
-    animationName: 'step-in-fade',
-    animationDuration: sdlMotion.duration.base,
-    animationTimingFunction: sdlMotion.easing.standard,
-  },
-} as const
-
-/**
- * True once, on the page Post a task has just landed on (`postedMoment`).
- * Read before the first paint, so the block never shows its everyday words
- * first.
- */
-function useJustPosted(taskId: string | undefined): boolean {
-  const [justPosted, setJustPosted] = useState(false)
+function useTaskMoment(
+  taskId: string | undefined,
+  view: string,
+): TaskMoment | null {
+  const [moment, setMoment] = useState<TaskMoment | null>(null)
+  // biome-ignore lint/correctness/useExhaustiveDependencies: a new view may carry a new moment
   useLayoutEffect(() => {
-    if (taskId && takeTaskPosted(postedMomentStorage(), taskId)) {
-      setJustPosted(true)
+    if (!taskId) return
+    const taken = takeTaskMoment(postedMomentStorage(), taskId)
+    if (taken) setMoment(taken)
+  }, [taskId, view])
+  const playing = moment !== null && taskMomentPlaysOn(moment, view)
+  // Its view has come and gone: it does not play again if the page returns.
+  const seen = useRef(false)
+  useEffect(() => {
+    if (playing) seen.current = true
+    else if (seen.current) {
+      seen.current = false
+      setMoment(null)
     }
-  }, [taskId])
-  return justPosted
+  }, [playing])
+  return playing ? moment : null
 }
 
 /**
@@ -161,20 +166,32 @@ function useJustPosted(taskId: string | undefined): boolean {
  * config. A card on web; flush on phones and tablets. The main button and
  * Help & actions sit outside it.
  *
- * Landing here from Post a task (Ryan 22 Nov), the block plays the moment
- * once: it settles in, a tick draws beside the pill, and the headline reads
- * "Task posted". The page already says the task is live, so there is no
- * second banner; later visits read as usual.
+ * After posting the task, sending a quote, accepting one or leaving a review
+ * (Ryan 22 Nov), the block plays the moment once: it settles in and a tick
+ * draws beside the pill. Where its everyday headline does not say what just
+ * happened, it does for that first view: "Task posted", "Review sent". The
+ * block is the confirmation, so there is no pop-up as well; later visits read
+ * as usual.
  */
 export function TaskSummary() {
   const { view, jobActionError, task } = useTaskDetail()
   const config = TASK_DETAIL_VIEWS[view]
   const lines = useSummaryLines(config)
   const t = useI11n(bag)
-  // Only the view posting lands on: the owner's open task with no quotes yet.
-  const posted = useJustPosted(task?.id) && view === 'owner.open.noQuotes'
+  const moment = useTaskMoment(task?.id, view)
+  // A sent or accepted quote: the block already says it ("Quote sent",
+  // "Worker booked"), so only the tick and the settle are added.
+  const momentHeadline =
+    moment === 'posted'
+      ? t.summary.ownerPostedHeadline
+      : moment === 'reviewSent'
+        ? t.summary.reviewSentHeadline
+        : moment === 'reviewSaved'
+          ? t.summary.reviewSavedHeadline
+          : null
   const headline =
-    posted && lines.headline ? t.summary.ownerPostedHeadline : lines.headline
+    momentHeadline && lines.headline ? momentHeadline : lines.headline
+  const playing = moment !== null && Boolean(headline)
   const subline = lines.subline
 
   return (
@@ -187,17 +204,17 @@ export function TaskSummary() {
         <Stack
           // A new key once the words are in: the moment plays on them, not on
           // the placeholders.
-          key={posted && headline ? 'posted' : 'summary'}
-          data-posted-moment={posted && headline ? '' : undefined}
+          key={playing ? 'moment' : 'summary'}
+          data-task-moment={playing ? moment : undefined}
           gap={1.5}
           align="flex-start"
           aria-live="polite"
           transformOrigin="left center"
-          css={posted && headline ? momentSettleCss : undefined}
+          css={playing ? momentSettleCss : undefined}
         >
           {config.pill ? (
             <HStack gap={2}>
-              {posted && headline ? <PostedTick /> : null}
+              {playing ? <SuccessTick /> : null}
               <TaskStatusPill status={config.pill} size="sm" />
             </HStack>
           ) : (

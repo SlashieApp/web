@@ -159,6 +159,7 @@ export {
   StepFlowProgress,
 } from './StepFlowLayout'
 export { Stepper } from './Stepper'
+export { SuccessTick, momentSettleCss } from './SuccessMoment'
 export { Tabs } from './Tabs'
 export { Textarea } from './Textarea'
 export { Thumbnail } from './Thumbnail'

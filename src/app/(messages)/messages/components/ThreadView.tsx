@@ -598,7 +598,12 @@ export function ThreadView({ threadId }: { threadId: string | null }) {
   if (!pins || !thread.task) return conversation
   // The sheet rises from the foot of this column, over the composer (FE-543).
   return (
-    <TaskDetailProvider taskId={thread.task.id} captureView={false}>
+    <TaskDetailProvider
+      taskId={thread.task.id}
+      captureView={false}
+      // No status block here to play a success moment: keep the pop-up.
+      confirmWithToast
+    >
       <Stack
         ref={columnRef}
         data-thread-column=""
