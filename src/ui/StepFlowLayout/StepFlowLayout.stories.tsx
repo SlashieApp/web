@@ -1,5 +1,6 @@
 import { Box, HStack, Stack, Text } from '@chakra-ui/react'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
+import { useState } from 'react'
 import { LuCheck } from 'react-icons/lu'
 import { expect, userEvent, waitFor, within } from 'storybook/test'
 
@@ -371,6 +372,65 @@ export const CustomActionLabels: Story = {
 /** Long content: the panel grows and the page scrolls to the action bar. */
 export const LongContent: Story = {
   args: { ...WithAside.args, children: longFields },
+}
+
+/** A three-step flow whose fields are one component keeping what was typed. */
+function SlidingFlow() {
+  const [step, setStep] = useState(0)
+  const [note, setNote] = useState('')
+  return (
+    <StepFlowLayout
+      stepper={<DemoStepper activeIndex={step} />}
+      title={`Step ${step + 1} of 3`}
+      description="Continue and Back slide the step in from the side you are heading to."
+      stepIndex={step}
+      actions={{
+        showBack: step > 0,
+        backLabel: 'Back',
+        continueLabel: 'Continue',
+        onBack: () => setStep((at) => Math.max(0, at - 1)),
+        onContinue: () => setStep((at) => Math.min(2, at + 1)),
+      }}
+    >
+      <FormField label="A note kept across the steps">
+        <Input value={note} onChange={(e) => setNote(e.target.value)} />
+      </FormField>
+    </StepFlowLayout>
+  )
+}
+
+/**
+ * Steps arrive from the side you are heading to (Ryan 22 Nov): Continue from
+ * the right, Back from the left, 200ms. Nothing moves on arrival, and the
+ * step is animated in place, so what was typed is still there.
+ */
+export const StepsSlideTheWayYouGo: Story = {
+  globals: { viewport: { value: 'mobile1', isRotated: false } },
+  args: { ...TwoColumn.args },
+  render: () => <SlidingFlow />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const field = await canvas.findByLabelText('A note kept across the steps')
+    await userEvent.type(field, 'kept')
+    // On arrival nothing is marked as sliding.
+    await expect(canvasElement.querySelector('[data-step-in]')).toBeNull()
+
+    await userEvent.click(canvas.getByRole('button', { name: /Continue/ }))
+    await canvas.findByRole('heading', { name: 'Step 2 of 3' })
+    const step = canvasElement.querySelector('[data-step-in]') as HTMLElement
+    await expect(step).toHaveAttribute('data-step-in', 'forward')
+    const [slide] = step.getAnimations()
+    await expect(slide?.effect?.getTiming().duration).toBe(200)
+    // The same field, not a new one: its text is still there.
+    await expect(field).toBeInTheDocument()
+    await expect(field).toHaveValue('kept')
+
+    await userEvent.click(canvas.getByRole('button', { name: 'Back' }))
+    await canvas.findByRole('heading', { name: 'Step 1 of 3' })
+    await expect(step).toHaveAttribute('data-step-in', 'back')
+    await waitFor(() => expect(step.getAnimations()).toHaveLength(0))
+    await expect(getComputedStyle(step).opacity).toBe('1')
+  },
 }
 
 /** Phone, middle step: progress, body and a sticky Back + Continue bar. */

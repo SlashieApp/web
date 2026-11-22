@@ -1,7 +1,7 @@
 'use client'
 
-import type { MouseEvent, ReactNode } from 'react'
-import { useRef } from 'react'
+import type { MouseEvent, ReactNode, RefObject } from 'react'
+import { useLayoutEffect, useRef, useState } from 'react'
 
 import {
   Box,
@@ -15,6 +15,7 @@ import {
 import { LuArrowLeft, LuArrowRight, LuX } from 'react-icons/lu'
 
 import { READABLE_COLUMN_MAX_W } from '@/theme/pageContainer'
+import { sdlMotion } from '@/theme/styles'
 
 import { Button } from '../Button/Button'
 import { FormStack } from '../FormStack/FormStack'
@@ -25,6 +26,13 @@ import { PageBleed, PageContainer } from '../PageContainer'
 import { ProgressBar } from '../ProgressBar'
 import { useKeepFocusClearOfBar } from '../focusClearance'
 import { STEP_FLOW_BAR_ATTR } from './stepFlowBar'
+import {
+  STEP_IN_FADE_MS,
+  STEP_IN_MS,
+  type StepDirection,
+  stepDirectionBetween,
+  stepInKeyframes,
+} from './stepIn'
 
 /**
  * SDL StepFlowLayout — the shared shell for multi-step flows (send a quote,
@@ -375,12 +383,50 @@ export function StepFlowBody({ errorText, children }: StepFlowBodyProps) {
   )
 }
 
+/**
+ * A step arriving from the side you are heading to (Post a task motion; Ryan
+ * 22 Nov): when `stepIndex` changes, the step's title and fields slide in
+ * 16px from the right going on, from the left going back, over 200ms, with
+ * no exit. Nothing moves on arrival. Reduced motion fades instead.
+ *
+ * The step is animated in place, not remounted: a flow's fields are often one
+ * component that keeps its own state across steps.
+ */
+function useStepIn(stepIndex: number | undefined): {
+  stepRef: RefObject<HTMLDivElement | null>
+  direction: StepDirection | null
+} {
+  const stepRef = useRef<HTMLDivElement | null>(null)
+  const last = useRef(stepIndex)
+  const [direction, setDirection] = useState<StepDirection | null>(null)
+
+  useLayoutEffect(() => {
+    const before = last.current
+    last.current = stepIndex
+    const next = stepDirectionBetween(before, stepIndex)
+    if (!next) return
+    setDirection(next)
+    const node = stepRef.current
+    if (!node || typeof node.animate !== 'function') return
+    const reduced =
+      window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false
+    node.animate(stepInKeyframes(next, reduced), {
+      duration: reduced ? STEP_IN_FADE_MS : STEP_IN_MS,
+      easing: sdlMotion.easing.decelerate,
+    })
+  }, [stepIndex])
+
+  return { stepRef, direction }
+}
+
 type StepFlowPanelProps = {
   title: string
   description?: string
   headingRef?: StepFlowHeadingProps['headingRef']
   errorText?: string | null
   actions: Omit<StepFlowActionsProps, 'sticky'>
+  stepRef?: RefObject<HTMLDivElement | null>
+  stepDirection?: StepDirection | null
   children: ReactNode
 }
 
@@ -391,6 +437,8 @@ function StepFlowPanel({
   headingRef,
   errorText,
   actions,
+  stepRef,
+  stepDirection,
   children,
 }: StepFlowPanelProps) {
   return (
@@ -402,13 +450,17 @@ function StepFlowPanel({
         px={STEP_FLOW_PX}
         pt={{ base: 5, md: 8 }}
         pb="form.bodyToAction"
+        // A step sliding in never widens the panel.
+        overflowX="clip"
       >
-        <StepFlowHeading
-          title={title}
-          description={description}
-          headingRef={headingRef}
-        />
-        <StepFlowBody errorText={errorText}>{children}</StepFlowBody>
+        <Box ref={stepRef} data-step-in={stepDirection ?? undefined}>
+          <StepFlowHeading
+            title={title}
+            description={description}
+            headingRef={headingRef}
+          />
+          <StepFlowBody errorText={errorText}>{children}</StepFlowBody>
+        </Box>
       </Box>
       <StepFlowActions {...actions} sticky />
     </Stack>
@@ -436,6 +488,12 @@ export type StepFlowLayoutProps = {
   /** Save/submit error shown above the step content. */
   errorText?: string | null
   actions: Omit<StepFlowActionsProps, 'sticky'>
+  /**
+   * The step's place in the flow (0, 1, 2...). When it changes, the step
+   * slides in from the side you are heading to (`useStepIn`). Leave it out
+   * for a one-screen flow.
+   */
+  stepIndex?: number
   children: ReactNode
 }
 
@@ -451,8 +509,10 @@ export function StepFlowLayout({
   headingRef,
   errorText,
   actions,
+  stepIndex,
   children,
 }: StepFlowLayoutProps) {
+  const { stepRef, direction } = useStepIn(stepIndex)
   // JS breakpoint (not CSS hiding) so form state inside `children` is mounted
   // exactly once: the phone and desktop bodies would otherwise both mount it.
   const showDesktopLayout =
@@ -467,15 +527,25 @@ export function StepFlowLayout({
         <Stack flex={1} minH={0} gap={0}>
           {mobileTop}
           {progress}
-          <Box as="main" flex={1} minH={0} overflowY="auto" bg="bg.surface">
+          <Box
+            as="main"
+            flex={1}
+            minH={0}
+            overflowY="auto"
+            // A step sliding in never scrolls the page sideways.
+            overflowX="clip"
+            bg="bg.surface"
+          >
             <Box px={STEP_FLOW_PX} pt={5} pb="form.bodyToAction">
               <StepFlowColumn>
-                <StepFlowHeading
-                  title={title}
-                  description={description}
-                  headingRef={headingRef}
-                />
-                <StepFlowBody errorText={errorText}>{children}</StepFlowBody>
+                <Box ref={stepRef} data-step-in={direction ?? undefined}>
+                  <StepFlowHeading
+                    title={title}
+                    description={description}
+                    headingRef={headingRef}
+                  />
+                  <StepFlowBody errorText={errorText}>{children}</StepFlowBody>
+                </Box>
               </StepFlowColumn>
             </Box>
           </Box>
@@ -516,6 +586,8 @@ export function StepFlowLayout({
                 headingRef={headingRef}
                 errorText={errorText}
                 actions={actions}
+                stepRef={stepRef}
+                stepDirection={direction}
               >
                 {children}
               </StepFlowPanel>

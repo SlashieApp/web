@@ -1,7 +1,7 @@
 import { ApolloProvider } from '@apollo/client/react'
 import { OrderPartyRole, OrderStatus } from '@codegen/schema'
 import type { Decorator } from '@storybook/nextjs-vite'
-import { expect, userEvent, within } from 'storybook/test'
+import { expect, userEvent, waitFor, within } from 'storybook/test'
 
 import { createStoryApolloClient } from '@/app/(stepflow)/stepflowStoryHelpers'
 import {
@@ -134,9 +134,13 @@ export async function rateAndContinue(
     await canvas.findByRole('radio', { name: `${stars} out of 5 stars` }, WAIT),
   )
   await userEvent.click(canvas.getByRole('button', { name: /^continue/i }))
-  await expect(
-    await canvas.findByRole('heading', { name: nextHeading }, WAIT),
-  ).toBeVisible()
+  // The step slides in (Ryan 22 Nov): wait for it to have arrived.
+  const heading = await canvas.findByRole(
+    'heading',
+    { name: nextHeading },
+    WAIT,
+  )
+  await waitFor(() => expect(heading).toBeVisible())
 }
 
 /** Walks a new review to its last step, with an optional comment. */
@@ -153,7 +157,11 @@ export async function reachSubmitStep(
     )
   }
   await userEvent.click(canvas.getByRole('button', { name: /^continue/i }))
-  await expect(
-    await canvas.findByRole('heading', { name: /send your review/i }, WAIT),
-  ).toBeVisible()
+  // The step slides in (Ryan 22 Nov): wait for it to have arrived.
+  const heading = await canvas.findByRole(
+    'heading',
+    { name: /send your review/i },
+    WAIT,
+  )
+  await waitFor(() => expect(heading).toBeVisible())
 }

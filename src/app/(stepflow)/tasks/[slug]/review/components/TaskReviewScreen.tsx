@@ -197,6 +197,8 @@ function TaskReviewFlow({
       }
       title={copy.title}
       description={copy.description}
+      // Steps slide in the way you go, as in Post a task (Ryan 22 Nov).
+      stepIndex={reviewStepIndex(step)}
       errorText={submitError}
       actions={{
         showBack: step !== 'stars',

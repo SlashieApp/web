@@ -10,7 +10,7 @@ import photoTileBag from '@/ui/PhotoTile/i11n.json'
 import { Button, Link, StepFlowHeader, StepFlowLayout } from '@ui'
 
 import { useWorkerSetup } from '../context/WorkerSetupProvider'
-import { previousScreen } from '../helpers/workerSetupScreens'
+import { previousScreen, screenNumber } from '../helpers/workerSetupScreens'
 import bag from '../i11n.json'
 import { WORKER_SETUP_VIEWS, getWorkerSetupView } from '../views'
 import { WorkerSetupProgressBar } from './layout/steppers/WorkerSetupProgressBar'
@@ -77,6 +77,8 @@ export function WorkerSetupScreen() {
       stepper={<WorkerSetupStepper />}
       title={copy.title}
       description={copy.description}
+      // Screens slide in the way you go, as in Post a task (Ryan 22 Nov).
+      stepIndex={screenNumber(view.screen)}
       headingRef={headingRef}
       errorText={saveError}
       actions={{

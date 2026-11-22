@@ -17,6 +17,7 @@ import {
   taskQuoteNextSubStep,
   taskQuotePreviousSubStep,
   taskQuoteProgressPercent,
+  taskQuoteSubStepIndex,
 } from '../helpers/taskQuoteSteps.config'
 import { TaskQuoteProgressBar } from './layout/stepper/TaskQuoteProgressBar'
 import { TaskQuoteStepper } from './layout/stepper/TaskQuoteStepper'
@@ -240,6 +241,8 @@ export function TaskQuoteScreen({
       aside={<TaskQuoteTaskDetailPanel backHref={backToTask} />}
       title={copy.title}
       description={copy.description}
+      // Steps slide in the way you go, as in Post a task (Ryan 22 Nov).
+      stepIndex={taskQuoteSubStepIndex(activeSubStep)}
       actions={{
         showBack: !isFirstStep,
         backLabel: flowCopy.back,

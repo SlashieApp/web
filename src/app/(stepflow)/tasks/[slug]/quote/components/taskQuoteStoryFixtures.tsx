@@ -1,7 +1,7 @@
 import { WorkerSubscriptionStatus } from '@codegen/schema'
 import type { Decorator } from '@storybook/nextjs-vite'
 import { type ReactNode, useCallback } from 'react'
-import { expect, userEvent, within } from 'storybook/test'
+import { expect, userEvent, waitFor, within } from 'storybook/test'
 
 import { type MeSnapshot, useUserStore } from '@/app/(auth)/store/user'
 import {
@@ -184,13 +184,13 @@ export async function advanceQuoteTo(
     )
     step = taskQuoteNextSubStep(step)
     if (step) {
-      await expect(
-        await canvas.findByRole(
-          'heading',
-          { name: copy.steps[step].title },
-          WAIT,
-        ),
-      ).toBeVisible()
+      // The step slides in (Ryan 22 Nov): wait for it to have arrived.
+      const heading = await canvas.findByRole(
+        'heading',
+        { name: copy.steps[step].title },
+        WAIT,
+      )
+      await waitFor(() => expect(heading).toBeVisible())
     }
   }
 }
