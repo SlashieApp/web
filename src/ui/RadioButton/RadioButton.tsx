@@ -8,6 +8,7 @@ import {
   chakra,
 } from '@chakra-ui/react'
 import type { ReactNode } from 'react'
+import { LuCheck } from 'react-icons/lu'
 
 import { sdlFocusRing, sdlMotion } from '@/theme/styles'
 
@@ -61,6 +62,12 @@ export type RadioButtonProps = Omit<
   size?: UiRadioButtonSize
   /** Disable interaction and dim the row. */
   disabled?: boolean
+  /**
+   * What marks the row as chosen: the dot of a single choice (default), or a
+   * ticked box for one of several (`CheckButtonGroup`), so the two are told
+   * apart by shape, not only by how they behave.
+   */
+  indicator?: 'dot' | 'check'
 }
 
 type SdlVariant = 'primary' | 'subtle'
@@ -162,6 +169,7 @@ export function RadioButton({
   variant = 'primary',
   size = 'md',
   disabled = false,
+  indicator = 'dot',
   borderRadius = 'md',
   ...rest
 }: RadioButtonProps) {
@@ -169,8 +177,11 @@ export function RadioButton({
   const sizing = radioSizes[sizeAlias[size]]
 
   const rowState = checked ? visual.rowChecked : visual.row
-  // Inside a RadioButtonGroup each row is a radio: checked, not pressed.
-  const isRadio = (rest as { role?: string }).role === 'radio'
+  // Inside a RadioButtonGroup each row is a radio, inside a CheckButtonGroup
+  // a checkbox: checked, not pressed.
+  const role = (rest as { role?: string }).role
+  const isRadio = role === 'radio' || role === 'checkbox'
+  const isCheck = indicator === 'check'
 
   return (
     <RadioButtonShell
@@ -205,17 +216,26 @@ export function RadioButton({
         as="span"
         aria-hidden
         boxSize={sizing.indicator.boxSize}
-        borderRadius="full"
+        borderRadius={isCheck ? 'sm' : 'full'}
         borderWidth="2px"
         borderColor={
-          checked ? visual.indicatorBorderChecked : visual.indicatorBorder
+          isCheck && checked
+            ? 'action.primary'
+            : checked
+              ? visual.indicatorBorderChecked
+              : visual.indicatorBorder
         }
+        // A ticked box is filled, like the form checkbox.
+        bg={isCheck && checked ? 'action.primary' : undefined}
+        color={isCheck ? 'text.onGreen' : undefined}
         display="inline-flex"
         alignItems="center"
         justifyContent="center"
         flexShrink={0}
       >
-        {checked ? (
+        {checked && isCheck ? (
+          <LuCheck size={12} strokeWidth={3} />
+        ) : checked ? (
           <Box
             as="span"
             boxSize={sizing.indicator.dot}

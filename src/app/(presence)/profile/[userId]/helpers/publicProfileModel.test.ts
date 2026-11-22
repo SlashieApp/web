@@ -54,7 +54,7 @@ function record(
           currency: Currency.Gbp,
           unit: TaskBudgetUnit.Total,
         },
-        paymentMethod: TaskPaymentMethod.Cash,
+        paymentMethods: [TaskPaymentMethod.Cash],
         datetime: null,
         location: { name: 'Camden' },
       },

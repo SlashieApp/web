@@ -594,7 +594,7 @@ export const PhotosConvertingPhoto: Story = {
 /**
  * create.budget, a saved draft with an amount (Ryan 22 Nov): Set a budget is
  * picked under the title that asks, the amount and what it's for show, and
- * Open budget folds them into the note. How you'll pay is asked either way.
+ * Open budget folds them into the note. The accepted payment methods are asked either way.
  */
 export const Budget: Story = {
   decorators: [atStep('budget')],
@@ -616,7 +616,7 @@ export const Budget: Story = {
       await canvas.findByText('Workers will quote their own price.'),
     ).toBeInTheDocument()
     await waitFor(() => expect(canvas.queryByLabelText(/^Amount/)).toBeNull())
-    await expect(canvas.getByText("How you'll pay")).toBeVisible()
+    await expect(canvas.getByText('Your accepted payment method')).toBeVisible()
   },
 }
 
@@ -640,7 +640,7 @@ export const BudgetNotAnswered: Story = {
       canvas.getByRole('radio', { name: 'Open budget' }),
     ).not.toBeChecked()
     await expect(canvas.queryByLabelText(/^Amount/)).toBeNull()
-    await expect(canvas.queryByText("How you'll pay")).toBeNull()
+    await expect(canvas.queryByText('Your accepted payment method')).toBeNull()
     await userEvent.click(canvas.getByRole('button', { name: /Continue/ }))
     await expect(
       await canvas.findByText('Choose one to continue.'),

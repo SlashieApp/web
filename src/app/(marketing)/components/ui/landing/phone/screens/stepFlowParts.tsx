@@ -2,7 +2,7 @@
 
 import { Box, HStack, Stack, Text } from '@chakra-ui/react'
 import type { ReactNode } from 'react'
-import { LuArrowLeft, LuArrowRight, LuX } from 'react-icons/lu'
+import { LuArrowLeft, LuArrowRight, LuCheck, LuX } from 'react-icons/lu'
 
 import { formatMessage } from '@/i18n/loadPageI11n'
 
@@ -314,10 +314,13 @@ export function FlowRadio({
   label,
   selected = false,
   compact = false,
+  check = false,
 }: {
   label: string
   selected?: boolean
   compact?: boolean
+  /** One of several (the accepted payment methods): a ticked box, not a dot. */
+  check?: boolean
 }) {
   return (
     <HStack
@@ -333,12 +336,24 @@ export function FlowRadio({
         w="16px"
         h="16px"
         flexShrink={0}
-        borderRadius="full"
-        borderWidth={selected ? '5px' : '1.5px'}
-        borderColor={selected ? 'accent.active' : 'border.strong'}
-        bg="bg.surface"
+        borderRadius={check ? '4px' : 'full'}
+        borderWidth={selected && !check ? '5px' : '1.5px'}
+        borderColor={
+          selected
+            ? check
+              ? 'action.primary'
+              : 'accent.active'
+            : 'border.strong'
+        }
+        bg={check && selected ? 'action.primary' : 'bg.surface'}
+        color="text.onGreen"
+        display="flex"
+        alignItems="center"
+        justifyContent="center"
         aria-hidden
-      />
+      >
+        {check && selected ? <LuCheck size={11} strokeWidth={3} /> : null}
+      </Box>
       <Text
         fontSize={compact ? '12px' : '14px'}
         lineHeight={compact ? '16px' : '20px'}

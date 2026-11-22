@@ -26,7 +26,7 @@ const values: EditTaskFormValues = {
   budgetUnit: '',
   budgetAnswered: true,
   openBudget: false,
-  paymentMethod: TaskPaymentMethod.Cash,
+  paymentMethods: [TaskPaymentMethod.Cash],
 }
 
 const build = (
@@ -106,18 +106,21 @@ describe('buildEditTaskInput', () => {
     })
   })
 
-  it('a new way to pay is sent on the task, with or without a budget', () => {
+  it('new accepted payment methods are sent whole, with or without a budget', () => {
+    const methods = [TaskPaymentMethod.BankTransfer, TaskPaymentMethod.Card]
     expect(
-      build({ paymentMethod: true }, null, {
-        paymentMethod: TaskPaymentMethod.BankTransfer,
-      }),
-    ).toEqual({ paymentMethod: TaskPaymentMethod.BankTransfer })
+      build({ paymentMethods: true }, null, { paymentMethods: methods }),
+    ).toEqual({ paymentMethods: methods })
     expect(
-      build({ paymentMethod: true }, null, {
+      build({ paymentMethods: true }, null, {
         openBudget: true,
-        paymentMethod: TaskPaymentMethod.BankTransfer,
+        paymentMethods: methods,
       }),
-    ).toEqual({ paymentMethod: TaskPaymentMethod.BankTransfer })
+    ).toEqual({ paymentMethods: methods })
+  })
+
+  it('untouched payment methods are not sent', () => {
+    expect(build({ title: true })).not.toHaveProperty('paymentMethods')
   })
 
   it('sends the location with the town workers see when it changed', () => {

@@ -161,7 +161,7 @@ export const AgreedPriceBankTransfer: Story = {
     order: storyTaskOrder({
       snapshot: {
         ...storyTaskOrder().snapshot,
-        paymentMethod: TaskPaymentMethod.BankTransfer,
+        paymentMethods: [TaskPaymentMethod.BankTransfer],
       },
     }),
   }),

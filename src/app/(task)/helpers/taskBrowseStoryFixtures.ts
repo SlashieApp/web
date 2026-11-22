@@ -30,7 +30,7 @@ export function storyBrowseTask(
       currency: Currency.Gbp,
       unit: TaskBudgetUnit.Total,
     },
-    paymentMethod: TaskPaymentMethod.Cash,
+    paymentMethods: [TaskPaymentMethod.Cash],
     images: [STORY_THUMBNAIL],
     location: { lat: 51.5035, lng: -0.0948, name: 'Southwark', address: null },
     poster: {
@@ -53,7 +53,7 @@ export const storyBrowseTasks: TaskListItem[] = [
       currency: Currency.Gbp,
       unit: TaskBudgetUnit.PerHour,
     },
-    paymentMethod: TaskPaymentMethod.BankTransfer,
+    paymentMethods: [TaskPaymentMethod.BankTransfer],
     datetime: {
       type: TaskDateTimeType.Exact,
       date: '2030-06-15',
@@ -70,7 +70,7 @@ export const storyBrowseTasks: TaskListItem[] = [
       currency: Currency.Gbp,
       unit: TaskBudgetUnit.Total,
     },
-    paymentMethod: TaskPaymentMethod.Cash,
+    paymentMethods: [TaskPaymentMethod.Cash],
     datetime: {
       type: TaskDateTimeType.Before,
       date: '2030-06-21',
@@ -100,7 +100,7 @@ export const storyBrowseTasks: TaskListItem[] = [
       currency: Currency.Gbp,
       unit: TaskBudgetUnit.PerHour,
     },
-    paymentMethod: TaskPaymentMethod.Cash,
+    paymentMethods: [TaskPaymentMethod.Cash],
     images: [],
     location: { lat: 51.4613, lng: -0.1384, name: 'Clapham', address: null },
   }),

@@ -4,7 +4,7 @@ import { Box, HStack, Stack, Text } from '@chakra-ui/react'
 import {
   type Currency,
   TaskDateTimeType,
-  TaskPaymentMethod,
+  type TaskPaymentMethod,
 } from '@codegen/schema'
 import type { ReactNode } from 'react'
 
@@ -13,6 +13,10 @@ import {
   budgetUnitFromText,
   taskBudgetBag,
 } from '@/app/(task)/helpers/taskBudget/taskBudget'
+import {
+  paymentMethodsLine,
+  taskPaymentBag,
+} from '@/app/(task)/helpers/taskPayment/taskPayment'
 import { useLocale } from '@/i18n/LocaleProvider'
 import { formatMessage } from '@/i18n/loadPageI11n'
 import { useI11n } from '@/i18n/useI11n'
@@ -38,7 +42,8 @@ export type CreateTaskSummary = {
   budgetUnit: string
   /** Skipped: shown as "Open budget". */
   openBudget: boolean
-  paymentMethod: TaskPaymentMethod
+  /** Every method the poster accepts (FE-599). */
+  paymentMethods: readonly TaskPaymentMethod[]
   photoCount: number
 }
 
@@ -111,6 +116,7 @@ export function CreateTaskSummarySection({
 }: CreateTaskSummarySectionProps) {
   const t = useI11n(bag)
   const units = useI11n(taskBudgetBag)
+  const paymentCopy = useI11n(taskPaymentBag)
   const s = t.summary
   const locale = useLocale() === 'zh-hk' ? 'zh-HK' : 'en-GB'
   const editLabel = (step: CreateTaskStepId) =>
@@ -139,10 +145,7 @@ export function CreateTaskSummarySection({
   const budget = summary.openBudget
     ? units.open
     : budgetPhrase(price, budgetUnitFromText(summary.budgetUnit), units)
-  const payment =
-    summary.paymentMethod === TaskPaymentMethod.BankTransfer
-      ? t.fields.bankTransfer
-      : t.fields.cash
+  const payment = paymentMethodsLine(summary, paymentCopy)
   const photos =
     summary.photoCount === 0
       ? s.noPhotos
@@ -200,7 +203,7 @@ export function CreateTaskSummarySection({
         editLabel={editLabel('budget')}
         onEdit={() => onEdit('budget')}
       >
-        {`${budget} · ${payment}`}
+        {[budget, payment].filter(Boolean).join(' · ')}
       </Row>
       <Row
         label={s.photos}

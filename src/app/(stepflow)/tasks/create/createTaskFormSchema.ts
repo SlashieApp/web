@@ -57,7 +57,10 @@ export const taskDetailsFields = {
   budgetAnswered: z.boolean(),
   /** Open budget: no amount, workers quote their own price (BE-139). */
   openBudget: z.boolean(),
-  paymentMethod: z.nativeEnum(TaskPaymentMethod),
+  /** Every method the poster accepts (FE-599): at least one. */
+  paymentMethods: z
+    .array(z.nativeEnum(TaskPaymentMethod))
+    .min(1, 'paymentMethodRequired'),
   preferredContactMethod: z.nativeEnum(TaskContactMethod),
 }
 

@@ -16,6 +16,7 @@ import {
   hasTaskBudget,
 } from './taskBudget/taskBudget'
 import { taskCategoryLabels } from './taskCategories'
+import { taskPaymentMethods } from './taskPayment/taskPayment'
 
 export type EditableTask = NonNullable<TaskForEditQuery['task']>
 
@@ -42,6 +43,7 @@ export function taskToEditFormValues(
   const budgetAmount = task.budget?.amount
   const lat = task.location?.lat
   const lng = task.location?.lng
+  const methods = taskPaymentMethods(task)
 
   return {
     title: task.title?.trim() ?? '',
@@ -66,7 +68,8 @@ export function taskToEditFormValues(
     // A saved task has its answer: a budget, or an open one.
     budgetAnswered: true,
     openBudget: !hasTaskBudget(task.budget),
-    paymentMethod: task.paymentMethod ?? TaskPaymentMethod.Cash,
+    // An older task reads as its one method; one saved with none starts on Cash.
+    paymentMethods: methods.length > 0 ? methods : [TaskPaymentMethod.Cash],
     // contactMethod was removed from the Task type; the edit form starts from
     // the default (per-task contact method now lives on the poster profile).
     preferredContactMethod: TaskContactMethod.InApp,

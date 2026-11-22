@@ -127,7 +127,11 @@ export { PageLayout } from './PageLayout'
 export { PhoneInput } from './PhoneInput'
 export { PhotoSourcePicker } from './PhotoSourcePicker'
 export { ProgressBar } from './ProgressBar'
-export { RadioButton, RadioButtonGroup } from './RadioButton'
+export {
+  CheckButtonGroup,
+  RadioButton,
+  RadioButtonGroup,
+} from './RadioButton'
 export { REVEAL_MS, Reveal } from './Reveal'
 export { Rating, RatingStars } from './Rating'
 export {
@@ -258,6 +262,8 @@ export type {
   ProgressBarTone,
 } from './ProgressBar'
 export type {
+  CheckButtonGroupOption,
+  CheckButtonGroupProps,
   RadioButtonGroupOption,
   RadioButtonGroupProps,
   RadioButtonProps,

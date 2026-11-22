@@ -28,7 +28,7 @@ query PublicProfile($userId: ID!, $excludeTaskId: ID) {
         unit
         customUnit
       }
-      paymentMethod
+      paymentMethods
       datetime {
         date
         time

@@ -6,6 +6,7 @@ import profileCopy from '@/app/(presence)/profile/[userId]/i11n.json'
 import quoteFlowCopy from '@/app/(stepflow)/tasks/[slug]/quote/i11n.json'
 import reviewFlowCopy from '@/app/(stepflow)/tasks/[slug]/review/i11n.json'
 import createFlowCopy from '@/app/(stepflow)/tasks/create/i11n.json'
+import paymentCopy from '@/app/(task)/helpers/taskPayment/i11n.json'
 import taskCopy from '@/app/(task)/tasks/[slug]/i11n.json'
 import reviewFormCopy from '@/ui/ReviewForm/i11n.json'
 import safetyCopy from '@/ui/SafetyNotice/i11n.json'
@@ -78,7 +79,7 @@ describe('the phone demos use the app’s own labels', () => {
       expect(f.budgetSet).toBe(create.fields.setBudget)
       expect(f.budgetOpen).toBe(create.fields.openBudget)
       expect(f.paymentLabel).toBe(create.fields.payment)
-      expect(f.paymentCash).toBe(create.fields.cash)
+      expect(f.paymentCash).toBe(paymentCopy[locale].method.CASH)
       expect(f.summaryTask).toBe(create.summary.task)
       expect(f.summaryArea).toBe(create.summary.area)
       expect(f.summaryWhen).toBe(create.summary.when)

@@ -121,7 +121,7 @@ export const BudgetHourly: Story = fact(BudgetFact, {
       currency: Currency.Gbp,
       unit: TaskBudgetUnit.PerHour,
     },
-    paymentMethod: TaskPaymentMethod.BankTransfer,
+    paymentMethods: [TaskPaymentMethod.BankTransfer],
   }),
 })
 
@@ -134,9 +134,38 @@ export const BudgetDaily: Story = fact(BudgetFact, {
       currency: Currency.Gbp,
       unit: TaskBudgetUnit.PerDay,
     },
-    paymentMethod: TaskPaymentMethod.Cash,
+    paymentMethods: [TaskPaymentMethod.Cash],
   }),
 })
+
+/**
+ * Every payment method the poster accepts is shown (FE-599), one pill each,
+ * in the order Cash, Bank transfer, Pay by card.
+ */
+export const BudgetEveryPaymentMethod: Story = {
+  ...fact(BudgetFact, {
+    ...visitor,
+    task: storyTaskDetail({
+      budget: fixedBudget,
+      paymentMethods: [
+        TaskPaymentMethod.Card,
+        TaskPaymentMethod.Cash,
+        TaskPaymentMethod.BankTransfer,
+      ],
+    }),
+  }),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const cash = await canvas.findByText('Cash')
+    const bank = canvas.getByText('Bank transfer')
+    const card = canvas.getByText('Pay by card')
+    for (const pill of [cash, bank, card]) await expect(pill).toBeVisible()
+    // In the order they are always listed, whatever order they were saved in.
+    const left = (el: HTMLElement) => el.getBoundingClientRect().left
+    await expect(left(cash)).toBeLessThan(left(bank))
+    await expect(left(bank)).toBeLessThan(left(card))
+  },
+}
 
 /** An open budget (FE-584): "Open budget", no unit, and the way to pay. */
 export const BudgetOpen: Story = fact(BudgetFact, {
@@ -194,9 +223,25 @@ export const PaymentBankTransfer: Story = fact(PaymentFact, {
   ...visitor,
   task: storyTaskDetail({
     budget: fixedBudget,
-    paymentMethod: TaskPaymentMethod.BankTransfer,
+    paymentMethods: [TaskPaymentMethod.BankTransfer],
   }),
 })
+
+/** Several methods on the one row, in the reader's words (FE-599). */
+export const PaymentSeveral: Story = {
+  ...fact(PaymentFact, {
+    ...visitor,
+    task: storyTaskDetail({
+      budget: fixedBudget,
+      paymentMethods: [TaskPaymentMethod.Cash, TaskPaymentMethod.Card],
+    }),
+  }),
+  play: async ({ canvasElement }) => {
+    await expect(
+      await within(canvasElement).findByText('Cash, Pay by card'),
+    ).toBeVisible()
+  },
+}
 
 /** No way to pay on record: the row is left out. */
 export const PaymentNone: Story = {
@@ -204,7 +249,7 @@ export const PaymentNone: Story = {
   decorators: [
     withTaskDetailStory({
       ...visitor,
-      task: storyTaskDetail({ budget: null, paymentMethod: null }),
+      task: storyTaskDetail({ budget: null, paymentMethods: [] }),
     }),
   ],
   play: async ({ canvasElement }) => {

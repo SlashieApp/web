@@ -10,12 +10,16 @@ import {
   Wrap,
   chakra,
 } from '@chakra-ui/react'
+import { TaskPaymentMethod } from '@codegen/schema'
 import { useCallback, useState, useSyncExternalStore } from 'react'
+import type { IconType } from 'react-icons'
 import {
+  LuBanknote,
   LuCalendar,
   LuCalendarCheck,
   LuCalendarClock,
   LuCreditCard,
+  LuLandmark,
   LuMapPin,
   LuTag,
   LuUser,
@@ -25,6 +29,11 @@ import {
   taskBudgetBag,
   taskBudgetUnitLabel,
 } from '@/app/(task)/helpers/taskBudget/taskBudget'
+import {
+  paymentMethodsLine,
+  taskPaymentBag,
+  taskPaymentMethods,
+} from '@/app/(task)/helpers/taskPayment/taskPayment'
 import { publicProfilePath } from '@/app/helpers/publicProfilePath'
 import { useLocale } from '@/i18n/LocaleProvider'
 import { formatMessage } from '@/i18n/loadPageI11n'
@@ -45,7 +54,6 @@ import {
   taskDetailTimeChip,
 } from '../../../helpers/taskDetailMetaTags'
 import {
-  formatTaskBudgetPaymentMethodLabel,
   taskBudgetDisplayLine,
   taskDetailLocationLabel,
 } from '../../../helpers/taskDetailUtils'
@@ -81,9 +89,11 @@ function LineSkeleton({ width }: { width: string }) {
   return <Skeleton h={LINE_BOX} w={width} borderRadius="md" />
 }
 
-function paymentLabel(method: string | null | undefined): string | null {
-  const value = method?.trim()
-  return value ? formatTaskBudgetPaymentMethodLabel(value) : null
+/** One icon per way to pay, so three pills in a row are told apart at a glance. */
+const PAYMENT_ICON: Record<TaskPaymentMethod, IconType> = {
+  [TaskPaymentMethod.Cash]: LuBanknote,
+  [TaskPaymentMethod.BankTransfer]: LuLandmark,
+  [TaskPaymentMethod.Card]: LuCreditCard,
 }
 
 /** Date (and time) badge, plus a countdown badge once the client clock is known. */
@@ -233,7 +243,9 @@ export function BudgetFact() {
     ? taskBudgetDisplayLine(task, 'visitor', budgetCopy.open)
     : seed?.priceLabel
   const kind = taskBudgetUnitLabel(task?.budget, budgetCopy)
-  const payment = paymentLabel(task?.paymentMethod)
+  const paymentCopy = useI11n(taskPaymentBag)
+  // Every method the poster accepts (FE-599), one pill each.
+  const methods = taskPaymentMethods(task)
 
   return (
     <Stack gap={2} py={3}>
@@ -251,19 +263,22 @@ export function BudgetFact() {
       ) : (
         <Skeleton h="40px" w="42%" borderRadius="md" />
       )}
-      {kind || payment ? (
-        <Wrap gap={1.5}>
+      {kind || methods.length > 0 ? (
+        <Wrap gap={1.5} data-payment-methods={methods.join(' ')}>
           {kind ? (
             <Badge variant="neutral" shape="pill">
               {kind}
             </Badge>
           ) : null}
-          {payment ? (
-            <Badge variant="neutral" shape="pill">
-              <LuCreditCard aria-hidden />
-              {payment}
-            </Badge>
-          ) : null}
+          {methods.map((method) => {
+            const Icon = PAYMENT_ICON[method]
+            return (
+              <Badge key={method} variant="neutral" shape="pill">
+                <Icon aria-hidden />
+                {paymentCopy.method[method]}
+              </Badge>
+            )
+          })}
         </Wrap>
       ) : null}
     </Stack>
@@ -274,7 +289,7 @@ export function BudgetFact() {
 export function PaymentFact() {
   const { task } = useTaskDetail()
   const t = useI11n(bag)
-  const payment = paymentLabel(task?.paymentMethod)
+  const payment = paymentMethodsLine(task, useI11n(taskPaymentBag))
   if (!payment) return null
   return (
     <DetailRow icon={<LuCreditCard />} label={t.details.payment}>
@@ -288,6 +303,7 @@ export function MyQuoteFact() {
   const { task, myQuote } = useTaskDetail()
   const t = useI11n(bag)
   const budgetCopy = useI11n(taskBudgetBag)
+  const paymentCopy = useI11n(taskPaymentBag)
   const locale = useDateLocale()
   if (!task || !myQuote?.price) return null
 
@@ -326,7 +342,7 @@ export function MyQuoteFact() {
           value={taskBudgetDisplayLine(task, 'visitor', budgetCopy.open)}
           detail={[
             taskBudgetUnitLabel(task.budget, budgetCopy),
-            paymentLabel(task.paymentMethod),
+            paymentMethodsLine(task, paymentCopy),
           ]
             .filter(Boolean)
             .join(' · ')}

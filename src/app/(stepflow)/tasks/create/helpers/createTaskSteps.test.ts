@@ -82,7 +82,7 @@ describe('create task steps', () => {
     expect(createTaskFirstErroredStep(['preferredTime', 'budgetMajor'])).toBe(
       'timing',
     )
-    expect(createTaskFirstErroredStep(['budgetMajor', 'paymentMethod'])).toBe(
+    expect(createTaskFirstErroredStep(['budgetMajor', 'paymentMethods'])).toBe(
       'budget',
     )
   })

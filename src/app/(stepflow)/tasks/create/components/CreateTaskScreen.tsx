@@ -174,7 +174,7 @@ function defaultValues(
     // Neither answer starts picked: it is asked (Ryan 22 Nov).
     budgetAnswered: false,
     openBudget: false,
-    paymentMethod: TaskPaymentMethod.Cash,
+    paymentMethods: [TaskPaymentMethod.Cash],
     preferredContactMethod: contact,
     acceptedProhibitedUse: false,
   }
@@ -312,7 +312,7 @@ export function CreateTaskScreen({
       budgetUnit: copied.budgetUnit,
       budgetAnswered: copied.budgetAnswered,
       openBudget: copied.openBudget,
-      paymentMethod: copied.paymentMethod,
+      paymentMethods: copied.paymentMethods,
     })
   }, [budgetCopy, form, getValues, location.pinChosenRef, repostData])
 
@@ -506,7 +506,7 @@ export function CreateTaskScreen({
                   currency: submitted.budgetCurrency,
                   ...budgetUnitFromText(submitted.budgetUnit),
                 },
-            paymentMethod: submitted.paymentMethod,
+            paymentMethods: submitted.paymentMethods,
             location: {
               lat,
               lng,
@@ -650,17 +650,21 @@ export function CreateTaskScreen({
             budgetUnit={values.budgetUnit}
             budgetAnswered={values.budgetAnswered}
             openBudget={values.openBudget}
-            paymentMethod={values.paymentMethod}
+            paymentMethods={values.paymentMethods}
             onBudgetUnitChange={(v) => setValue('budgetUnit', v, UPDATE)}
             onBudgetChoiceChange={(choice) => {
               setValue('budgetAnswered', true, UPDATE)
               setValue('openBudget', choice === 'open', UPDATE)
               form.clearErrors(['budgetAnswered', 'budgetMajor', 'budgetUnit'])
             }}
-            onPaymentMethodChange={(v) => setValue('paymentMethod', v, UPDATE)}
+            onPaymentMethodsChange={(v) => {
+              setValue('paymentMethods', v, UPDATE)
+              if (v.length > 0) form.clearErrors('paymentMethods')
+            }}
             budgetChoiceError={errors.budgetAnswered?.message}
             budgetMajorError={errors.budgetMajor?.message}
             budgetUnitError={errors.budgetUnit?.message}
+            paymentMethodsError={errors.paymentMethods?.message}
           />
         )
       case 'summary':
@@ -679,7 +683,7 @@ export function CreateTaskScreen({
               budgetCurrency: values.budgetCurrency,
               budgetUnit: values.budgetUnit,
               openBudget: values.openBudget,
-              paymentMethod: values.paymentMethod,
+              paymentMethods: values.paymentMethods,
               photoCount: photos.files.length,
             }}
             onEdit={goToStep}

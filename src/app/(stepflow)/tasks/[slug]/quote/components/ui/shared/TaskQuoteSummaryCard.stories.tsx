@@ -70,7 +70,7 @@ export const PerHourBudget: Story = {
       currency: Currency.Gbp,
       unit: TaskBudgetUnit.PerHour,
     },
-    paymentMethod: TaskPaymentMethod.Cash,
+    paymentMethods: [TaskPaymentMethod.Cash],
   }),
 }
 

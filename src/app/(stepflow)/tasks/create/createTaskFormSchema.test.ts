@@ -28,7 +28,7 @@ const valid = {
   budgetUnit: '',
   budgetAnswered: true,
   openBudget: false,
-  paymentMethod: TaskPaymentMethod.Cash,
+  paymentMethods: [TaskPaymentMethod.Cash],
   preferredContactMethod: TaskContactMethod.InApp,
   acceptedProhibitedUse: true,
 }

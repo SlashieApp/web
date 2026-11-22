@@ -12,7 +12,7 @@ query MyQuotes($filter: TaskFilter, $sort: TaskSort) {
           unit
           customUnit
         }
-        paymentMethod
+        paymentMethods
         datetime {
           date
           time

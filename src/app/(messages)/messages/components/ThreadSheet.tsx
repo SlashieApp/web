@@ -20,6 +20,10 @@ import {
 import { LuCalendar, LuChevronRight } from 'react-icons/lu'
 
 import { useUserStore } from '@/app/(auth)/store/user'
+import {
+  paymentMethodsLine,
+  taskPaymentBag,
+} from '@/app/(task)/helpers/taskPayment/taskPayment'
 import { OrderDoneSlide } from '@/app/(task)/tasks/[slug]/components/overview/OrderCloseCard'
 import {
   OrderCancelDialog,
@@ -29,10 +33,7 @@ import {
 import { useDateLocale } from '@/app/(task)/tasks/[slug]/components/summary/facts/TaskFacts'
 import { TaskStatusPill } from '@/app/(task)/tasks/[slug]/components/ui/TaskStatusPill'
 import { useTaskDetail } from '@/app/(task)/tasks/[slug]/context/TaskDetailProvider'
-import {
-  formatTaskBudgetPaymentMethodLabel,
-  orderCounterpart,
-} from '@/app/(task)/tasks/[slug]/helpers/taskDetailUtils'
+import { orderCounterpart } from '@/app/(task)/tasks/[slug]/helpers/taskDetailUtils'
 import taskBag from '@/app/(task)/tasks/[slug]/i11n.json'
 import { TASK_DETAIL_VIEWS } from '@/app/(task)/tasks/[slug]/views'
 import { formatMessage } from '@/i18n/loadPageI11n'
@@ -67,10 +68,10 @@ export const THREAD_COMPOSER_ATTR = 'data-thread-composer'
 function useBookingSummary() {
   const { task, myOrder, permissions } = useTaskDetail()
   const taskCopy = useI11n(taskBag)
+  const paymentCopy = useI11n(taskPaymentBag)
   const locale = useDateLocale()
   if (!task || !myOrder) return null
   const person = orderCounterpart(task, myOrder, permissions.isOwner, taskCopy)
-  const payment = myOrder.snapshot.paymentMethod?.trim()
   return {
     name: person.name,
     avatarUrl: person.avatarUrl,
@@ -79,7 +80,8 @@ function useBookingSummary() {
       { start: myOrder.bookedStart, end: myOrder.bookedEnd },
       locale,
     ),
-    payment: payment ? formatTaskBudgetPaymentMethodLabel(payment) : null,
+    // Every method the poster accepted when the booking was made (FE-599).
+    payment: paymentMethodsLine(myOrder.snapshot, paymentCopy),
   }
 }
 

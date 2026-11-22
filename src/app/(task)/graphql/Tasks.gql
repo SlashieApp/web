@@ -10,7 +10,7 @@ query Tasks($filter: TaskFilter, $sort: TaskSort, $first: Int, $after: ID) {
       unit
       customUnit
     }
-    paymentMethod
+    paymentMethods
     datetime {
       date
       time

@@ -1,7 +1,7 @@
 'use client'
 
 import { Box, Stack, Text, Wrap, chakra } from '@chakra-ui/react'
-import { Currency, TaskPaymentMethod } from '@codegen/schema'
+import { Currency, type TaskPaymentMethod } from '@codegen/schema'
 import { useEffect, useId, useRef, useState } from 'react'
 import type { UseFormRegister } from 'react-hook-form'
 
@@ -13,9 +13,14 @@ import {
   normalizeUnitText,
   taskBudgetBag,
 } from '@/app/(task)/helpers/taskBudget/taskBudget'
+import {
+  TASK_PAYMENT_METHODS,
+  taskPaymentBag,
+} from '@/app/(task)/helpers/taskPayment/taskPayment'
 import { useI11n } from '@/i18n/useI11n'
 import { sdlFigure, sdlFocusRing, sdlMotion } from '@/theme/styles'
 import {
+  CheckButtonGroup,
   FormField,
   Input,
   RadioButtonGroup,
@@ -52,14 +57,16 @@ export type CreateTaskBudgetSectionProps = {
   budgetAnswered: boolean
   /** Open budget: no amount or unit, workers quote their own price. */
   openBudget: boolean
-  paymentMethod: TaskPaymentMethod
+  /** Every payment method the poster accepts (FE-599): one or more. */
+  paymentMethods: readonly TaskPaymentMethod[]
   onBudgetUnitChange: (value: string) => void
   onBudgetChoiceChange: (choice: BudgetChoice) => void
-  onPaymentMethodChange: (value: TaskPaymentMethod) => void
+  onPaymentMethodsChange: (value: TaskPaymentMethod[]) => void
   /** Copy keys from the form schema. */
   budgetChoiceError?: string
   budgetMajorError?: string
   budgetUnitError?: string
+  paymentMethodsError?: string
 }
 
 const CURRENCY_SYMBOL: Record<Currency, string> = {
@@ -156,8 +163,10 @@ const STAGGER_MS = 60
  * picked. Set a budget opens the amount under it, with the cursor in it; once
  * an amount is typed, "What's it for?" opens with Whole job picked, the
  * suggestions, and Other, which opens a field for the poster's own words.
- * Open budget shows the one-line note. "How you'll pay" follows either
- * answer. Each part slides open from the answer that revealed it (`Reveal`).
+ * Open budget shows the one-line note. "Your accepted payment method"
+ * follows either answer: Cash, Bank transfer and Pay by card, any number of
+ * them (FE-599). The customer pays the worker directly, card included. Each
+ * part slides open from the answer that revealed it (`Reveal`).
  * Changing the answer keeps what was typed. The same in Edit task and the
  * Expo app.
  */
@@ -171,16 +180,18 @@ export function CreateTaskBudgetSection({
   budgetUnit,
   budgetAnswered,
   openBudget,
-  paymentMethod,
+  paymentMethods,
   onBudgetUnitChange,
   onBudgetChoiceChange,
-  onPaymentMethodChange,
+  onPaymentMethodsChange,
   budgetChoiceError,
   budgetMajorError,
   budgetUnitError,
+  paymentMethodsError,
 }: CreateTaskBudgetSectionProps) {
   const t = useI11n(bag)
   const units = useI11n(taskBudgetBag)
+  const payment = useI11n(taskPaymentBag)
   const f = t.fields
   const unitLabelId = useId()
 
@@ -355,14 +366,16 @@ export function CreateTaskBudgetSection({
           delayMs={STAGGER_MS}
           spaceAbove="form.fieldGap"
         >
-          <RadioButtonGroup
+          <CheckButtonGroup
             label={f.payment}
-            value={paymentMethod}
-            options={[
-              { value: TaskPaymentMethod.Cash, label: f.cash },
-              { value: TaskPaymentMethod.BankTransfer, label: f.bankTransfer },
-            ]}
-            onChange={onPaymentMethodChange}
+            helperText={f.paymentHelper}
+            values={paymentMethods}
+            options={TASK_PAYMENT_METHODS.map((method) => ({
+              value: method,
+              label: payment.method[method],
+            }))}
+            onChange={onPaymentMethodsChange}
+            errorText={taskFieldError(t.errors, paymentMethodsError)}
           />
         </Reveal>
       </Stack>

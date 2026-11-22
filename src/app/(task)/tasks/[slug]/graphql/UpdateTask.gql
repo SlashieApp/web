@@ -11,7 +11,7 @@ mutation UpdateTask($taskId: ID!, $input: UpdateTaskInput!) {
       unit
       customUnit
     }
-    paymentMethod
+    paymentMethods
     location {
       lat
       lng

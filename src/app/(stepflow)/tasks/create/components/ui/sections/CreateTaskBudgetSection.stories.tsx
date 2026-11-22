@@ -26,6 +26,8 @@ import {
   type CreateTaskBudgetSectionProps,
 } from './CreateTaskBudgetSection'
 
+const PAYMENT_LABEL = 'Your accepted payment method'
+
 type DemoProps = Pick<
   CreateTaskBudgetSectionProps,
   | 'bare'
@@ -34,13 +36,14 @@ type DemoProps = Pick<
   | 'budgetChoiceError'
   | 'budgetMajorError'
   | 'budgetUnitError'
+  | 'paymentMethodsError'
 > & {
   budgetMajor?: string
   budgetCurrency?: Currency
   budgetUnit?: string
   /** Null: the question isn't answered yet (a new task). */
   choice?: BudgetChoice | null
-  paymentMethod?: TaskPaymentMethod
+  paymentMethods?: TaskPaymentMethod[]
 }
 
 function CreateTaskBudgetSectionDemo({
@@ -48,7 +51,7 @@ function CreateTaskBudgetSectionDemo({
   budgetCurrency = emptyCreateTaskValues.budgetCurrency,
   budgetUnit = '',
   choice = null,
-  paymentMethod = emptyCreateTaskValues.paymentMethod,
+  paymentMethods = emptyCreateTaskValues.paymentMethods,
   ...props
 }: DemoProps) {
   const { register, watch } = useForm<CreateTaskFormFieldValues>({
@@ -56,7 +59,7 @@ function CreateTaskBudgetSectionDemo({
   })
   const [unit, setUnit] = useState(budgetUnit)
   const [answer, setAnswer] = useState(choice)
-  const [payment, setPayment] = useState(paymentMethod)
+  const [payment, setPayment] = useState(paymentMethods)
   return (
     <CreateTaskBudgetSection
       {...props}
@@ -66,10 +69,10 @@ function CreateTaskBudgetSectionDemo({
       budgetUnit={unit}
       budgetAnswered={answer !== null}
       openBudget={answer === 'open'}
-      paymentMethod={payment}
+      paymentMethods={payment}
       onBudgetUnitChange={setUnit}
       onBudgetChoiceChange={setAnswer}
-      onPaymentMethodChange={setPayment}
+      onPaymentMethodsChange={setPayment}
     />
   )
 }
@@ -112,7 +115,7 @@ export const Default: Story = {
     await expect(radio(canvasElement, 'Open budget')).not.toBeChecked()
     await expect(canvas.queryByLabelText(/^Amount/)).toBeNull()
     await expect(canvas.queryByText("What's it for?")).toBeNull()
-    await expect(canvas.queryByText("How you'll pay")).toBeNull()
+    await expect(canvas.queryByText(PAYMENT_LABEL)).toBeNull()
   },
 }
 
@@ -129,7 +132,7 @@ export const SetABudget: Story = {
     const amount = await canvas.findByLabelText(/^Amount/)
     await opened(amount)
     await expect(amount).toHaveFocus()
-    await opened(await canvas.findByText("How you'll pay"))
+    await opened(await canvas.findByText(PAYMENT_LABEL))
     await expect(canvas.queryByText("What's it for?")).toBeNull()
 
     await userEvent.type(amount, '60')
@@ -206,7 +209,7 @@ export const ChangeYourMind: Story = {
     await opened(await canvas.findByText('Workers will quote their own price.'))
     await waitFor(() => expect(canvas.queryByLabelText(/^Amount/)).toBeNull())
     await expect(canvas.queryByText("What's it for?")).toBeNull()
-    await expect(canvas.getByText("How you'll pay")).toBeVisible()
+    await expect(canvas.getByText(PAYMENT_LABEL)).toBeVisible()
 
     await userEvent.click(radio(canvasElement, 'Set a budget'))
     const amount = await canvas.findByLabelText(/^Amount/)
@@ -232,16 +235,57 @@ export const OpenBudget: Story = {
       canvas.getByText('Workers will quote their own price.'),
     ).toBeVisible()
     await expect(canvas.queryByLabelText(/^Amount/)).toBeNull()
-    await expect(canvas.getByText("How you'll pay")).toBeVisible()
+    await expect(canvas.getByText(PAYMENT_LABEL)).toBeVisible()
   },
 }
 
-/** Paid by bank transfer instead of cash. */
-export const BankTransfer: Story = {
+/**
+ * "Your accepted payment method" takes any number of the three (FE-599):
+ * Cash, Bank transfer, Pay by card. A tap adds one or takes it off.
+ */
+export const SeveralPaymentMethods: Story = {
   args: {
     choice: 'set',
     budgetMajor: '120',
-    paymentMethod: TaskPaymentMethod.BankTransfer,
+    paymentMethods: [TaskPaymentMethod.Cash],
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const group = await canvas.findByRole('group', { name: PAYMENT_LABEL })
+    const rows = within(group).getAllByRole('checkbox')
+    await expect(rows.map((row) => row.textContent)).toEqual([
+      'Cash',
+      'Bank transfer',
+      'Pay by card',
+    ])
+    const [cash, bank, card] = rows as [HTMLElement, HTMLElement, HTMLElement]
+    await expect(cash).toHaveAttribute('aria-checked', 'true')
+    await expect(bank).toHaveAttribute('aria-checked', 'false')
+
+    await userEvent.click(card)
+    await userEvent.click(bank)
+    for (const row of rows) {
+      await expect(row).toHaveAttribute('aria-checked', 'true')
+    }
+    await userEvent.click(cash)
+    await expect(cash).toHaveAttribute('aria-checked', 'false')
+    await expect(card).toHaveAttribute('aria-checked', 'true')
+  },
+}
+
+/** With none chosen the form says so under the rows. */
+export const NoPaymentMethod: Story = {
+  args: {
+    choice: 'set',
+    budgetMajor: '120',
+    paymentMethods: [],
+    paymentMethodsError: 'paymentMethodRequired',
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(
+      await canvas.findByText('Choose at least one payment method.'),
+    ).toBeVisible()
   },
 }
 
@@ -331,11 +375,11 @@ export const Spacing: Story = {
     const amount = fieldByLabel(canvasElement, /^Amount/)
     const unit = canvas.getByRole('radiogroup', { name: "What's it for?" })
       .parentElement as HTMLElement
-    const pay = canvas.getByRole('radiogroup', { name: "How you'll pay" })
+    const pay = canvas.getByRole('group', { name: PAYMENT_LABEL })
       .parentElement as HTMLElement
     await expectGaps([choices, amount, unit, pay], formSpace.fieldGap)
     await expectField(amount)
-    await expectChoiceGroup(canvasElement, "How you'll pay")
+    await expectChoiceGroup(canvasElement, PAYMENT_LABEL, [], 'group')
   },
 }
 
@@ -344,6 +388,6 @@ export const SpacingWide: Story = {
   ...desktop1280,
   args: { choice: 'set', budgetMajor: '120' },
   play: async ({ canvasElement }) => {
-    await expectChoiceGroup(canvasElement, "How you'll pay")
+    await expectChoiceGroup(canvasElement, PAYMENT_LABEL, [], 'group')
   },
 }

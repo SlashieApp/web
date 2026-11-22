@@ -1,0 +1,18 @@
+{
+  "en": {
+    "method": {
+      "CASH": "Cash",
+      "BANK_TRANSFER": "Bank transfer",
+      "CARD": "Pay by card"
+    },
+    "separator": ", "
+  },
+  "zh_hk": {
+    "method": {
+      "CASH": "現金",
+      "BANK_TRANSFER": "銀行轉帳",
+      "CARD": "刷卡付款"
+    },
+    "separator": "、"
+  }
+}

@@ -58,8 +58,8 @@ export type TaskListItem = {
     TaskBudget,
     'amount' | 'currency' | 'unit' | 'customUnit'
   > | null
-  /** The way to pay, on open-budget tasks too (BE-139). */
-  paymentMethod?: TaskPaymentMethod | null
+  /** Every way to pay the poster accepts (BE-148), on open-budget tasks too. */
+  paymentMethods?: TaskPaymentMethod[] | null
   contactMethod?: string | null
   images?: string[]
   poster?: {

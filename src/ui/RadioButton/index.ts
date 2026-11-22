@@ -1,4 +1,9 @@
 export {
+  CheckButtonGroup,
+  type CheckButtonGroupOption,
+  type CheckButtonGroupProps,
+} from './CheckButtonGroup'
+export {
   RadioButton,
   type RadioButtonProps,
   type UiRadioButtonSize,

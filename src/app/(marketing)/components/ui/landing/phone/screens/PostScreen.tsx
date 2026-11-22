@@ -230,7 +230,7 @@ export function PostScreen({
         />
         {compact ? null : (
           <FlowGroup label={f.paymentLabel}>
-            <FlowRadio label={f.paymentCash} selected />
+            <FlowRadio label={f.paymentCash} selected check />
           </FlowGroup>
         )}
       </FlowShell>

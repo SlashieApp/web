@@ -436,6 +436,7 @@ describe('taskActivityLines: TASK_UPDATED names the fields', () => {
       [F.ContactMethod, 'contact method', '聯絡方式'],
       [F.Status, 'status', '狀態'],
       [F.Hidden, 'visibility', '可見度'],
+      [F.Urgent, 'urgent', '緊急'],
     ]
     expect(words.map(([field]) => field).sort()).toEqual(
       Object.values(F).sort(),

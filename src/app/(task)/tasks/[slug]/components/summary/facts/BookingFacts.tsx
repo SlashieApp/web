@@ -4,6 +4,10 @@ import { Box, Flex, HStack, Stack, Text } from '@chakra-ui/react'
 import type { ReactNode } from 'react'
 import { LuReceipt, LuUser } from 'react-icons/lu'
 
+import {
+  paymentMethodsLine,
+  taskPaymentBag,
+} from '@/app/(task)/helpers/taskPayment/taskPayment'
 import { type C2CReview, reviewCanEdit } from '@/content/reviews/reviewModel'
 import { ReportControl } from '@/content/trust/ReportControl'
 import { useI11n } from '@/i18n/useI11n'
@@ -16,10 +20,7 @@ import {
 import { Avatar, Button, DetailRow, Link, RatingStars } from '@ui'
 
 import { useTaskDetail } from '../../../context/TaskDetailProvider'
-import {
-  formatTaskBudgetPaymentMethodLabel,
-  orderCounterpart,
-} from '../../../helpers/taskDetailUtils'
+import { orderCounterpart } from '../../../helpers/taskDetailUtils'
 import bag from '../../../i11n.json'
 
 /** Your worker / Your customer: name, phone, and email. */
@@ -63,16 +64,16 @@ export function OtherPartyFact() {
 export function AgreedPriceFact() {
   const { myOrder } = useTaskDetail()
   const t = useI11n(bag)
+  const paymentCopy = useI11n(taskPaymentBag)
   if (!myOrder) return null
-  const payment = myOrder.snapshot.paymentMethod?.trim()
+  // Every method the poster accepted when the booking was made (FE-599).
+  const payment = paymentMethodsLine(myOrder.snapshot, paymentCopy)
 
   return (
     <DetailRow
       icon={<LuReceipt />}
       label={t.order.agreedTotal}
-      subLine={
-        payment ? formatTaskBudgetPaymentMethodLabel(payment) : undefined
-      }
+      subLine={payment ?? undefined}
     >
       {formatOrderAgreedPrice(myOrder)}
     </DetailRow>

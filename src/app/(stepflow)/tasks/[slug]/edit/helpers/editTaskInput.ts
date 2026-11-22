@@ -43,7 +43,8 @@ export function buildEditTaskInput({
       ...budgetUnitFromText(values.budgetUnit),
     }
   }
-  if (dirty.paymentMethod) input.paymentMethod = values.paymentMethod
+  // FE-599: the whole list replaces the task's accepted methods.
+  if (dirty.paymentMethods) input.paymentMethods = values.paymentMethods
   if (changed(LOCATION)) {
     input.location = {
       lat: Number.parseFloat(values.locationLat),

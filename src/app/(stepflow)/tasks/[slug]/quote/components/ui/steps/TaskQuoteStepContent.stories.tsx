@@ -106,7 +106,7 @@ export const PricePerHourBudget: Story = {
       currency: Currency.Usd,
       unit: TaskBudgetUnit.PerHour,
     },
-    paymentMethod: TaskPaymentMethod.Cash,
+    paymentMethods: [TaskPaymentMethod.Cash],
   }),
 }
 

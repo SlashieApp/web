@@ -73,7 +73,7 @@ export function storyTaskDetail(
       // incomplete and every story that loads the task shows nothing.
       customUnit: null,
     },
-    paymentMethod: TaskPaymentMethod.Cash,
+    paymentMethods: [TaskPaymentMethod.Cash],
     datetime: { date: '2026-06-10', time: '14:00', type: 'EXACT' },
     images: [
       STORY_THUMBNAIL,
@@ -380,7 +380,7 @@ export function storyTaskOrder(overrides: Partial<OrderItem> = {}): OrderItem {
       contactMethod: 'PHONE',
       quoteMessage: 'I can do this Saturday morning with my own tools.',
       budgetAmount: 120,
-      paymentMethod: 'CASH',
+      paymentMethods: [TaskPaymentMethod.Cash],
     },
     // In the past, so booked stories show Done/Failed by default.
     bookedStart: '2026-06-10T14:00:00.000Z',

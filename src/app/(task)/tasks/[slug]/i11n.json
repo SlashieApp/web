@@ -86,7 +86,8 @@
         "DATETIME": "timing",
         "CONTACT_METHOD": "contact method",
         "STATUS": "status",
-        "HIDDEN": "visibility"
+        "HIDDEN": "visibility",
+        "URGENT": "urgent"
       },
       "fieldsSeparator": ", ",
       "fieldsLastSeparator": " and ",
@@ -602,7 +603,8 @@
         "DATETIME": "時間",
         "CONTACT_METHOD": "聯絡方式",
         "STATUS": "狀態",
-        "HIDDEN": "可見度"
+        "HIDDEN": "可見度",
+        "URGENT": "緊急"
       },
       "fieldsSeparator": "、",
       "fieldsLastSeparator": "、",

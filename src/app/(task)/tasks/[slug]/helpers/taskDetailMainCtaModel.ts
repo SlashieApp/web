@@ -9,14 +9,14 @@ import {
   type TaskBudgetCopy,
   taskBudgetUnitLabel,
 } from '@/app/(task)/helpers/taskBudget/taskBudget'
+import {
+  type TaskPaymentCopy,
+  paymentMethodsLine,
+} from '@/app/(task)/helpers/taskPayment/taskPayment'
 import type bag from '../i11n.json'
 import type { TaskDetailPrimaryAction } from '../views'
 
-import {
-  formatTaskBudgetPaymentMethodLabel,
-  orderCounterpart,
-  taskBudgetDisplayLine,
-} from './taskDetailUtils'
+import { orderCounterpart, taskBudgetDisplayLine } from './taskDetailUtils'
 import type { TaskDetailRecord } from './taskDetailUtils'
 
 type TaskDetailCopy = (typeof bag)['en']
@@ -48,15 +48,16 @@ function budgetContent(
   task: TaskDetailRecord,
   copy: TaskDetailCopy,
   budgetCopy: TaskBudgetCopy,
+  paymentCopy: TaskPaymentCopy,
 ): TaskDetailMainCtaContent {
-  const payment = task.paymentMethod?.trim()
   return {
     eyebrow: copy.details.budget,
     value: taskBudgetDisplayLine(task, 'visitor', budgetCopy.open),
     meta:
       [
         taskBudgetUnitLabel(task.budget, budgetCopy),
-        payment ? formatTaskBudgetPaymentMethodLabel(payment) : null,
+        // Every method the poster accepts (FE-599).
+        paymentMethodsLine(task, paymentCopy),
       ]
         .filter(Boolean)
         .join(' · ') || undefined,
@@ -88,6 +89,8 @@ export function buildTaskDetailMainCta(input: {
   copy: TaskDetailCopy
   /** Budget words in the reader's language (FE-584). */
   budgetCopy: TaskBudgetCopy
+  /** Payment method words in the reader's language (FE-599). */
+  paymentCopy: TaskPaymentCopy
   /** `Intl` locale for the Done card's date (`en-GB`, `zh-HK`). */
   dateLocale: string
 }): TaskDetailMainCtaModel | null {
@@ -135,7 +138,7 @@ export function buildTaskDetailMainCta(input: {
       return quoted(
         copy.cta.sendQuote,
         {
-          ...budgetContent(task, copy, input.budgetCopy),
+          ...budgetContent(task, copy, input.budgetCopy, input.paymentCopy),
           // A blank name reads as the customer fallback, as the Messages pin does.
           note:
             input.invitedBy == null
@@ -147,7 +150,12 @@ export function buildTaskDetailMainCta(input: {
         `${taskPath}/quote`,
       )
     case 'becomeWorker': {
-      const budget = budgetContent(task, copy, input.budgetCopy)
+      const budget = budgetContent(
+        task,
+        copy,
+        input.budgetCopy,
+        input.paymentCopy,
+      )
       return quoted(
         copy.cta.becomeWorker,
         task.budget ? { ...budget, eyebrow: copy.cta.youCanEarn } : budget,

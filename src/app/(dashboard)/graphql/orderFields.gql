@@ -29,7 +29,7 @@ fragment OrderFields on Order {
     contactMethod
     quoteMessage
     budgetAmount
-    paymentMethod
+    paymentMethods
   }
   bookedStart
   bookedEnd

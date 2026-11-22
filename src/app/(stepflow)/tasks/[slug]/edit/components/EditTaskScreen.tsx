@@ -387,7 +387,7 @@ export function EditTaskScreen({
               budgetUnit={values.budgetUnit}
               budgetAnswered={values.budgetAnswered}
               openBudget={values.openBudget}
-              paymentMethod={values.paymentMethod}
+              paymentMethods={values.paymentMethods}
               onBudgetUnitChange={(v) => setValue('budgetUnit', v, UPDATE)}
               onBudgetChoiceChange={(choice) => {
                 setValue('budgetAnswered', true, UPDATE)
@@ -398,12 +398,14 @@ export function EditTaskScreen({
                   'budgetUnit',
                 ])
               }}
-              onPaymentMethodChange={(v) =>
-                setValue('paymentMethod', v, UPDATE)
-              }
+              onPaymentMethodsChange={(v) => {
+                setValue('paymentMethods', v, UPDATE)
+                if (v.length > 0) form.clearErrors('paymentMethods')
+              }}
               budgetChoiceError={errors.budgetAnswered?.message}
               budgetMajorError={errors.budgetMajor?.message}
               budgetUnitError={errors.budgetUnit?.message}
+              paymentMethodsError={errors.paymentMethods?.message}
             />
           </FormSection>
 

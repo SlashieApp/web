@@ -30,7 +30,7 @@ fragment TaskDetailOrderFields on Order {
     contactMethod
     quoteMessage
     budgetAmount
-    paymentMethod
+    paymentMethods
   }
   bookedStart
   bookedEnd

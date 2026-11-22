@@ -188,8 +188,10 @@ export async function expectChoiceGroup(
   scope: HTMLElement,
   name: string | RegExp,
   lines: (string | RegExp)[] = [],
+  /** `group` for a choice of several (`CheckButtonGroup`). */
+  role: 'radiogroup' | 'group' = 'radiogroup',
 ) {
-  const grid = within(scope).getByRole('radiogroup', { name })
+  const grid = within(scope).getByRole(role, { name })
   const label = grid.ownerDocument.getElementById(
     grid.getAttribute('aria-labelledby') as string,
   ) as HTMLElement

@@ -30,7 +30,7 @@ function openTask(
       currency: Currency.Gbp,
       unit: TaskBudgetUnit.Total,
     },
-    paymentMethod: TaskPaymentMethod.Cash,
+    paymentMethods: [TaskPaymentMethod.Cash],
     datetime: { date: null, time: null, type: TaskDateTimeType.Flexible },
     location: { name: 'Kennedy Town' },
     ...overrides,

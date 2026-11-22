@@ -12,7 +12,7 @@ query TaskForEdit($id: ID!) {
       unit
       customUnit
     }
-    paymentMethod
+    paymentMethods
     datetime {
       date
       time

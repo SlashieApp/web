@@ -10,7 +10,7 @@ mutation CreateTask($input: CreateTaskInput!) {
       unit
       customUnit
     }
-    paymentMethod
+    paymentMethods
     datetime {
       date
       time
