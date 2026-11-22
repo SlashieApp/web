@@ -28,6 +28,22 @@ export type OutboxMessage = {
   sentAs: string | null
 }
 
+/** Refusals a second try can get past: the line stays "Tap to try again". */
+const RETRY_CAN_HELP = new Set(['MESSAGE_RATE_LIMITED'])
+
+/**
+ * Why a message was refused, when trying again won't help (blocked, not yet
+ * allowed, a suspension): the line under it says so and offers no retry.
+ * Null for a lost connection, an unknown error, or sending too fast.
+ */
+export function sendRefusalReason(
+  code: string | undefined,
+  reasons: Record<string, string>,
+): string | null {
+  if (!code || RETRY_CAN_HELP.has(code)) return null
+  return reasons[code] ?? null
+}
+
 const LOCAL_PREFIX = 'local:'
 
 export function isLocalMessageId(id: string): boolean {

@@ -12,6 +12,7 @@ import {
   outboxSent,
   outboxShown,
   outboxStore,
+  sendRefusalReason,
 } from './outbox'
 
 const message = (over: Partial<OutboxMessage> = {}): OutboxMessage => ({
@@ -79,6 +80,30 @@ describe('the outbox', () => {
   it('a local id can never be mistaken for a server one', () => {
     expect(isLocalMessageId('local:4')).toBe(true)
     expect(isLocalMessageId('665f1c2e9b1e')).toBe(false)
+  })
+})
+
+describe('why a message was refused', () => {
+  const reasons = {
+    MESSAGE_BLOCKED: 'Messages are blocked between you and this person.',
+    TASK_SUSPENDED: 'This task is suspended.',
+    MESSAGE_RATE_LIMITED: 'You are sending messages too quickly.',
+  }
+
+  it('says why when trying again will not help', () => {
+    expect(sendRefusalReason('MESSAGE_BLOCKED', reasons)).toBe(
+      'Messages are blocked between you and this person.',
+    )
+    expect(sendRefusalReason('TASK_SUSPENDED', reasons)).toBe(
+      'This task is suspended.',
+    )
+  })
+
+  it('offers the retry for anything a second try can get past', () => {
+    // No signal, an unknown error, or sending too fast.
+    expect(sendRefusalReason(undefined, reasons)).toBeNull()
+    expect(sendRefusalReason('INTERNAL_SERVER_ERROR', reasons)).toBeNull()
+    expect(sendRefusalReason('MESSAGE_RATE_LIMITED', reasons)).toBeNull()
   })
 })
 

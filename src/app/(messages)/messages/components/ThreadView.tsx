@@ -60,6 +60,7 @@ import {
   outboxDelivered,
   outboxShown,
   outboxStore,
+  sendRefusalReason,
 } from '../helpers/outbox'
 import { outboxTimelineItem } from '../helpers/outboxItem'
 import bag from '../i11n.json'
@@ -343,10 +344,12 @@ export function ThreadView({ threadId }: { threadId: string | null }) {
           outboxStore.sent(message.id, item.id)
           refetchThreads()
         } catch (error) {
-          // A suspension: trying again won't help, so the line says why.
-          const code = getGraphQLErrorCode(error)
-          const reasons: Record<string, string> = t.serverErrors
-          outboxStore.fail(message.id, (code && reasons[code]) || null)
+          // Blocked, not yet allowed, a suspension: trying again won't
+          // help, so the line says why.
+          outboxStore.fail(
+            message.id,
+            sendRefusalReason(getGraphQLErrorCode(error), t.serverErrors),
+          )
         }
       }),
     [apollo, refetchThreads, sendMessage, t.serverErrors],

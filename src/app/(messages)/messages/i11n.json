@@ -38,6 +38,11 @@
     "notSentBecause": "Not sent. {reason}",
     "blockFailed": "Couldn't update that. Try again.",
     "serverErrors": {
+      "MESSAGE_TOO_LONG": "Messages can be up to 2,000 characters.",
+      "MESSAGE_LOCKED": "You can message here once a quote is accepted.",
+      "MESSAGE_BLOCKED": "Messages are blocked between you and this person.",
+      "MESSAGE_RATE_LIMITED": "You're sending messages too quickly. Wait a moment and try again.",
+      "FORBIDDEN": "You can't do that here.",
       "TASK_SUSPENDED": "This task is suspended, so it can't be changed.",
       "COUNTERPARTY_SUSPENDED": "The other person's account is suspended, so this can't be done right now.",
       "ACCOUNT_DISABLED": "Your account is suspended. Contact support if you think this is a mistake."
@@ -155,6 +160,11 @@
     "notSentBecause": "未能傳送。{reason}",
     "blockFailed": "未能更新，請再試一次。",
     "serverErrors": {
+      "MESSAGE_TOO_LONG": "訊息最多可有 2,000 個字元。",
+      "MESSAGE_LOCKED": "報價被接受後，你就可以在這裡傳送訊息。",
+      "MESSAGE_BLOCKED": "你與對方之間的訊息已被封鎖。",
+      "MESSAGE_RATE_LIMITED": "你傳送訊息太快，請稍等片刻再試。",
+      "FORBIDDEN": "你無法執行此操作。",
       "TASK_SUSPENDED": "此任務已暫停，無法更改。",
       "COUNTERPARTY_SUSPENDED": "對方帳戶已暫停，目前無法進行此操作。",
       "ACCOUNT_DISABLED": "你的帳戶已被暫停。如你認為有誤，請聯絡客服。"
