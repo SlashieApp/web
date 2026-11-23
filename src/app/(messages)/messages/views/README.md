@@ -157,8 +157,8 @@ once someone else is booked (BE-113), but not while the task is suspended.
 
 The live quote(s) before a booking (information only: price, times,
 status), the booking card once booked (it opens the sheet), then the last
-status. Before a booking, what needs the viewer (an invitation to quote) is a
-line under the status that opens the sheet. The header's task name opens the
+status. Before a booking, what needs the viewer (an invitation to quote) is on
+its item in the conversation (below), not here. The header's task name opens the
 task. It reads task detail's
 own named view and data (`sortedQuotes`, `myQuote`, `myOrder`). The person
 is in the header, not here.
@@ -168,11 +168,32 @@ is in the header, not here.
 | `pin.quotes` | `owner.open.quotes` | Open · "Live quotes · cheapest {price}", then up to three live (PENDING) quotes, cheapest first: worker, price, status; "+N more" after three |
 | `pin.myQuote` | `worker.open.quoted` | "Your quote", price, its status (Awaiting reply), the times offered |
 | `pin.booking` | `*.booked.*`, `*.conflict.*` | The booking card (FE-543, the Home "Hire and pay directly" language): the other person, the agreed price and the booked time, with a chevron; a "Needs you" line with what it is when something needs the viewer. The whole card opens the booking in the sheet |
-| `pin.status` | `owner.open.noQuotes`, `worker.open.notQuoted`, `worker.open.closed` | The pill and headline |
+| `pin.status` | `worker.open.closed` | The pill and headline |
 | `pin.closed` | `*.completed`, `*.bookingCancelled`, `*.bookingFailed`, `owner.cancelled`, `worker.bookedByOther`, `worker.completedByOther`, `worker.otherBookingEnded`, `visitor.*` | The status: pill and headline ("Booked by someone else", "Task completed", "Booking cancelled" for a worker whose quote is still pending) |
 
 A placeholder row while the task loads; no pin for `customer.open` and
 `guest.open` (they can't be in a task thread) or on Slashie threads.
+
+No pin either while an open task has no quote and no booking
+(`owner.open.noQuotes`, `worker.open.notQuoted`; Ryan 23 Nov, FE-608): there
+is no time and no live status to show, so the conversation starts under the
+header.
+
+## "Asked to quote" in the conversation (FE-608, Ryan 23 Nov)
+
+The `QUOTE_INVITED` item is a line with a card under it (`InvitationItem` in
+`ThreadTimelineItem`, cards in `ThreadInvitationCards`):
+
+| Who | Line | Card | Opens |
+|---|---|---|---|
+| The customer who asked | "Asked to quote · {time}" (no sentence: the card names the worker) | The worker (`ThreadItem.invitedWorker`, BE-151): photo, name, the Pro badge, rating or "No reviews yet" | Their profile; a deleted account has no link |
+| The invited worker | "Asked to quote · {time}", then "{customer} asked you to quote on this task." | The task, drawn by the app's `TaskCard` as the home list draws it (time tag, Urgent, categories, title) | The task |
+
+While the invitation still waits on the worker, an **Answer** button under the
+card opens the sheet at the foot of the conversation with Send a quote and
+Not for me, as a reschedule request's "Open the request" does. It goes once
+they quote or say Not for me. An item the API answered before BE-151 names no
+worker and stays a line with its sentence.
 
 ## What needs the viewer: `getBottomPinView({ attention, view })`
 

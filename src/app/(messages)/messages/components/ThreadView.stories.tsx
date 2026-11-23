@@ -217,6 +217,125 @@ export const WorkerAwaitingReply: Story = {
   },
 }
 
+// ------------------------------------------- asked to quote (FE-608)
+
+const noQuotesTask = storyTaskDetail({ quotes: [] })
+const invitedByAlexTask = storyTaskDetail({
+  quotes: [],
+  viewerQuoteInvitation: {
+    customerName: 'Alex Chen',
+    createdAt: new Date().toISOString(),
+    dismissed: false,
+  },
+})
+const invitedWorker = {
+  userId: STORY_WORKER_ID,
+  name: 'Jordan Lee',
+  avatarUrl: null,
+  deleted: false,
+  ratingSummary: { average: 4.8, count: 12 },
+  hasPro: true,
+}
+const ownerAskedItems = [
+  conversationFlash(
+    'inv-owner',
+    FlashKind.QuoteInvited,
+    'Asked to quote',
+    'You asked Jordan Lee to quote.',
+    new Date().toISOString(),
+    { isMine: true, invitedWorker },
+  ),
+]
+const workerAskedItems = [
+  conversationFlash(
+    'inv-worker',
+    FlashKind.QuoteInvited,
+    'Asked to quote',
+    'Alex Chen asked you to quote on this task.',
+    new Date().toISOString(),
+    { isMine: false, invitedWorker },
+  ),
+]
+
+/**
+ * The customer's thread after asking a worker to quote (Ryan 23 Nov,
+ * FE-608): no bar pinned under the header (an open task with no quote has no
+ * time or live status to show), and the worker's card under "Asked to quote".
+ */
+export const OwnerAskedToQuote: Story = {
+  decorators: messagesStory({
+    viewer: 'owner',
+    thread: taskThread(
+      'owner',
+      { canSend: false, otherParty: null },
+      ownerAskedItems,
+    ),
+    items: ownerAskedItems,
+    ...FRAME,
+    task: noQuotesTask,
+  }),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const log = await canvas.findByRole('log')
+    const card = await within(log).findByRole('link', {
+      name: "View Jordan Lee's profile",
+    })
+    await expect(card).toBeVisible()
+    await expect(within(card).getByText('4.8 (12)')).toBeVisible()
+    await waitFor(() =>
+      expect(
+        canvasElement.querySelector('[data-thread-pin-loading]'),
+      ).toBeNull(),
+    )
+    await expect(canvasElement.querySelector('[data-thread-pin]')).toBeNull()
+    await expect(
+      canvas.queryByText('Your task is live - reaching workers'),
+    ).toBeNull()
+    await expect(
+      canvas.getByText('You can message here once a quote is accepted.'),
+    ).toBeVisible()
+  },
+}
+
+/**
+ * The invited worker's thread: no bar pinned either, the task's card under
+ * "Asked to quote", and "Answer", which opens Send a quote and Not for me in
+ * the sheet at the foot of the conversation.
+ */
+export const WorkerAskedToQuote: Story = {
+  decorators: messagesStory({
+    viewer: 'worker',
+    thread: taskThread(
+      'worker',
+      {
+        canSend: false,
+        attention: needs(ThreadAttentionKind.QuoteInvitation),
+      },
+      workerAskedItems,
+    ),
+    items: workerAskedItems,
+    ...FRAME,
+    task: invitedByAlexTask,
+  }),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const body = within(canvasElement.ownerDocument.body)
+    const log = await canvas.findByRole('log')
+    await waitFor(() =>
+      expect(log.querySelector('[data-thread-task-card]')).not.toBeNull(),
+    )
+    await expect(canvasElement.querySelector('[data-thread-pin]')).toBeNull()
+    await userEvent.click(
+      await within(log).findByRole('button', { name: 'Answer' }),
+    )
+    // The sheet rises with the two answers.
+    await expect(
+      await body.findByRole('link', { name: 'Send a quote' }),
+    ).toBeVisible()
+    await expect(body.getByRole('button', { name: 'Not for me' })).toBeVisible()
+  },
+}
+
 const askedTask = bookedTaskWith(
   requestedOrder(OrderRequestKind.Reschedule, STORY_WORKER_ID),
 )

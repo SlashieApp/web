@@ -73,6 +73,7 @@ const TYPENAME_BY_FIELD: Record<string, string> = {
   task: 'Task',
   otherParty: 'ThreadParty',
   author: 'ThreadParty',
+  invitedWorker: 'ThreadInvitedWorker',
   quote: 'Quote',
   quotes: 'Quote',
   orders: 'Order',
@@ -121,6 +122,10 @@ function forCache(task: TaskDetailRecord) {
     // The `Task` query asks for these (FE-507); the fixtures leave them off.
     quoteInvitations: task.quoteInvitations ?? null,
     viewerQuoteInvitation: task.viewerQuoteInvitation ?? null,
+    // And these since FE-603 (the invitation count); without them the cached
+    // task is incomplete and the thread's task never loads.
+    quoteInvitationLimit: task.quoteInvitationLimit ?? null,
+    quoteInvitationsLeft: task.quoteInvitationsLeft ?? null,
     images: [],
     poster: task.poster && {
       ...task.poster,
@@ -143,11 +148,25 @@ function forCache(task: TaskDetailRecord) {
   }
 }
 
+/**
+ * A thread item as the query reads it: the fixtures leave `invitedWorker` off
+ * every item that is not an invitation (BE-151), and a cached item without it
+ * is incomplete, so the thread would never load.
+ */
+function forItemCache<T extends ThreadItemFieldsFragment | null | undefined>(
+  item: T,
+): T {
+  return item ? { ...item, invitedWorker: item.invitedWorker ?? null } : item
+}
+
 /** The server's answer to Send: the message as its own item, with typenames. */
 export function sentMessageResponse(
   item: ThreadItemFieldsFragment,
 ): StoryResponse {
-  return { kind: 'data', data: addTypenames({ sendMessage: item }) }
+  return {
+    kind: 'data',
+    data: addTypenames({ sendMessage: forItemCache(item) }),
+  }
 }
 
 function seed(client: ApolloClient, config: MessagesStoryConfig) {
@@ -158,7 +177,10 @@ function seed(client: ApolloClient, config: MessagesStoryConfig) {
     client.writeQuery<MessageThreadQuery, MessageThreadQueryVariables>({
       query: MessageThread,
       variables: { threadId: thread.id, first: THREAD_PAGE_SIZE },
-      data: addTypenames({ thread, threadItems: [...items] }),
+      data: addTypenames({
+        thread: { ...thread, lastItem: forItemCache(thread.lastItem) },
+        threadItems: items.map((item) => forItemCache(item)),
+      }),
     })
   }
   if (task) {

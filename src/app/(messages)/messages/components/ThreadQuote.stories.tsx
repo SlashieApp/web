@@ -105,6 +105,7 @@ export const OpensTheSheet: Story = {
           open: parameters.open,
           close: fn(),
           requestPending: false,
+          invitationPending: false,
         }}
       >
         <Story />
