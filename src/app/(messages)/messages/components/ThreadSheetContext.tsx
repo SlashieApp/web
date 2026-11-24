@@ -22,6 +22,12 @@ export type ThreadSheetControls = {
    * newest request in the timeline offers to open it.
    */
   requestPending: boolean
+  /**
+   * An invitation to quote still waits on the viewer (FE-608): the "Asked to
+   * quote" item in the timeline offers to open its answers, Send a quote and
+   * Not for me, in the sheet.
+   */
+  invitationPending: boolean
 }
 
 export const ThreadSheetContext = createContext<ThreadSheetControls | null>(

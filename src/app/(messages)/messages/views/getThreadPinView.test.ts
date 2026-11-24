@@ -16,16 +16,21 @@ describe('getThreadPinView', () => {
     expect(pin('owner.open.quotes')).toBe('pin.quotes')
   })
 
-  it("shows a poster's open task without live quotes as a plain status", () => {
-    expect(pin('owner.open.noQuotes')).toBe('pin.status')
+  // Ryan 23 Nov (FE-608): an open task with no quote and no booking has no
+  // time and no live status to pin, for its poster or for a worker.
+  it("pins nothing on a poster's open task with no live quotes", () => {
+    expect(pin('owner.open.noQuotes')).toBeNull()
   })
 
   it('shows a worker their own quote and where it stands', () => {
     expect(pin('worker.open.quoted')).toBe('pin.myQuote')
   })
 
-  it('shows a worker without a live quote the task status', () => {
-    expect(pin('worker.open.notQuoted')).toBe('pin.status')
+  it('pins nothing for a worker who has not quoted (an invitation included)', () => {
+    expect(pin('worker.open.notQuoted')).toBeNull()
+  })
+
+  it('still tells a worker whose quote was closed where it stands', () => {
     expect(pin('worker.open.closed')).toBe('pin.status')
   })
 

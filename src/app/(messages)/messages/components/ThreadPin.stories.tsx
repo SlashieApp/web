@@ -49,7 +49,12 @@ const meta = {
     <TaskDetailProvider taskId={STORY_TASK_ID} captureView={false}>
       {/* The thread's sheet, which the booking card opens (FE-543). */}
       <ThreadSheetContext.Provider
-        value={{ open: fn(), close: fn(), requestPending: false }}
+        value={{
+          open: fn(),
+          close: fn(),
+          requestPending: false,
+          invitationPending: false,
+        }}
       >
         <ThreadPin {...args} />
       </ThreadSheetContext.Provider>
@@ -116,14 +121,24 @@ export const PosterManyQuotes: Story = {
   },
 }
 
-/** pin.status: the poster's open task with no live quotes: the status only. */
+/**
+ * The poster's open task with no live quotes: no pin (Ryan 23 Nov, FE-608).
+ * There is no time and no live status to show, so the conversation starts
+ * right under the header.
+ */
 export const PosterNoQuotes: Story = {
   ...pin('owner', storyTaskDetail({ quotes: [] })),
   play: async ({ canvasElement }) => {
-    await shows(canvasElement, 'pin.status')
+    // The task has loaded: the placeholder is gone and nothing took its place.
+    await waitFor(() =>
+      expect(
+        canvasElement.querySelector('[data-thread-pin-loading]'),
+      ).toBeNull(),
+    )
+    await expect(canvasElement.querySelector('[data-thread-pin]')).toBeNull()
     await expect(
-      within(canvasElement).getByText('Your task is live - reaching workers'),
-    ).toBeVisible()
+      within(canvasElement).queryByText('Your task is live - reaching workers'),
+    ).toBeNull()
   },
 }
 
@@ -331,9 +346,9 @@ export const Completed: Story = {
 }
 
 /**
- * Before a booking, something needs the viewer (asked to quote): "Needs you"
- * is a plain line under the status that opens the sheet, with no box round it
- * (FE-567).
+ * A worker asked to quote who has not quoted: no pin either (Ryan 23 Nov,
+ * FE-608). The "Asked to quote" item in the conversation carries the task's
+ * card and the way to answer (`ThreadTimelineItem` stories).
  */
 export const WorkerInvited: Story = {
   ...pin(
@@ -349,12 +364,15 @@ export const WorkerInvited: Story = {
     needs(ThreadAttentionKind.QuoteInvitation),
   ),
   play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement)
-    const line = await canvas.findByRole('button', { name: /Needs you/ })
-    await expect(within(line).getByText('Needs you')).toBeVisible()
-    const cs = getComputedStyle(line)
-    await expect(cs.borderTopWidth).toBe('0px')
-    await expect(cs.backgroundColor).toBe('rgba(0, 0, 0, 0)')
+    await waitFor(() =>
+      expect(
+        canvasElement.querySelector('[data-thread-pin-loading]'),
+      ).toBeNull(),
+    )
+    await expect(canvasElement.querySelector('[data-thread-pin]')).toBeNull()
+    await expect(
+      within(canvasElement).queryByRole('button', { name: /Needs you/ }),
+    ).toBeNull()
   },
 }
 

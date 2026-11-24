@@ -118,7 +118,16 @@
       "actions": "Booking actions",
       "needsTitle": "Needs you",
       "openNeeds": "Needs you: {need}. Open it.",
-      "openRequest": "Open the request"
+      "openRequest": "Open the request",
+      "answerInvitation": "Answer"
+    },
+    "invitation": {
+      "proBadge": "Pro",
+      "proBadgeLabel": "Slashie Pro",
+      "rating": "Worker rating",
+      "noReviews": "No reviews yet",
+      "viewProfile": "View {name}'s profile",
+      "viewTask": "{title}. View task details."
     }
   },
   "zh_hk": {
@@ -240,7 +249,16 @@
       "actions": "預約操作",
       "needsTitle": "需要你處理",
       "openNeeds": "需要你處理：{need}。打開。",
-      "openRequest": "打開請求"
+      "openRequest": "打開請求",
+      "answerInvitation": "回覆"
+    },
+    "invitation": {
+      "proBadge": "Pro",
+      "proBadgeLabel": "Slashie Pro",
+      "rating": "工作者評分",
+      "noReviews": "暫未有評價",
+      "viewProfile": "查看 {name} 的檔案",
+      "viewTask": "{title}。查看任務詳情。"
     }
   }
 }

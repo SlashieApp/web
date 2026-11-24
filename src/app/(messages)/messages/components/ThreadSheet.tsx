@@ -428,6 +428,8 @@ export function ThreadSheetProvider({
   const need = useThreadNeed(attention)
   const requestPending =
     need != null && BOTTOM_PIN_VIEWS[need.name].controls === 'request'
+  const invitationPending =
+    need != null && BOTTOM_PIN_VIEWS[need.name].controls === 'invitation'
   const controls = useMemo<ThreadSheetControls>(
     () => ({
       open: (next) => {
@@ -436,8 +438,9 @@ export function ThreadSheetProvider({
       },
       close: () => setOpen(false),
       requestPending,
+      invitationPending,
     }),
-    [requestPending],
+    [requestPending, invitationPending],
   )
   const close = controls.close
 

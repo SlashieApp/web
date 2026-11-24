@@ -103,6 +103,7 @@ function PinSkeleton() {
       borderBottomWidth="1px"
       borderColor="border.default"
       aria-hidden
+      data-thread-pin-loading=""
     >
       <Skeleton h="22px" w="72px" borderRadius="full" />
       <Skeleton h="16px" w="40%" borderRadius="md" />

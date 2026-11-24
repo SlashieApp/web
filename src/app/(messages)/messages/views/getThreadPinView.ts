@@ -5,10 +5,15 @@ import type { ThreadPinViewName } from './types'
 /**
  * Task detail's view → the top pin under a task thread's header. Null while
  * the task loads, and for viewers who can't be in a task thread.
+ *
+ * Also null while an open task has no quote and no booking, for its owner and
+ * for a worker who has not quoted (Ryan 23 Nov, FE-608): there is no time and
+ * no live status to pin. The conversation's "Asked to quote" item carries the
+ * card and, for the worker, the way to answer.
  */
 const PIN_BY_TASK_VIEW: Record<TaskDetailViewName, ThreadPinViewName | null> = {
   loading: null,
-  'owner.open.noQuotes': 'pin.status',
+  'owner.open.noQuotes': null,
   'owner.open.quotes': 'pin.quotes',
   'owner.booked.beforeStart': 'pin.booking',
   'owner.booked.ready': 'pin.booking',
@@ -41,7 +46,7 @@ const PIN_BY_TASK_VIEW: Record<TaskDetailViewName, ThreadPinViewName | null> = {
   'worker.completed': 'pin.closed',
   'worker.bookingCancelled': 'pin.closed',
   'worker.bookingFailed': 'pin.closed',
-  'worker.open.notQuoted': 'pin.status',
+  'worker.open.notQuoted': null,
   'worker.open.quoted': 'pin.myQuote',
   'worker.open.closed': 'pin.status',
   'worker.bookedByOther': 'pin.closed',

@@ -3,15 +3,19 @@ import { FlashKind, QuoteStatus } from '@codegen/schema'
 import type { ThreadItemFieldsFragment } from '@codegen/schema'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import type { ReactNode } from 'react'
-import { expect, waitFor, within } from 'storybook/test'
+import { expect, userEvent, waitFor, within } from 'storybook/test'
 
 import { withSession } from '@/app/(auth)/helpers/authStoryDecorator'
 import { storyAvatarUrl, storyMe } from '@/app/(auth)/helpers/authStoryFixtures'
 import { TaskDetailProvider } from '@/app/(task)/tasks/[slug]/context/TaskDetailProvider'
-import { STORY_TASK_ID } from '@/app/(task)/tasks/[slug]/helpers/taskDetailStoryFixtures'
+import {
+  STORY_TASK_ID,
+  storyTaskDetail,
+} from '@/app/(task)/tasks/[slug]/helpers/taskDetailStoryFixtures'
 import { formatTimeSlotLabel } from '@/utils/timeSlots'
 
 import { clockTime } from '../helpers/messagesFormat'
+import { ThreadSheetContext } from './ThreadSheetContext'
 import { ThreadTimelineItem } from './ThreadTimelineItem'
 import { messagesStory } from './messagesStoryDecorator'
 import {
@@ -358,47 +362,267 @@ export const LongMessage: Story = {
   },
 }
 
+/** The worker Alex asked: public details only, as the API sends them (BE-151). */
+const invitedJordan = {
+  userId: 'u-worker',
+  name: 'Jordan Lee',
+  avatarUrl: null,
+  deleted: false,
+  ratingSummary: { average: 4.8, count: 12 },
+  hasPro: true,
+}
+
+const invitedOwnerItem: ThreadItemFieldsFragment = {
+  ...event(
+    'line-invited-owner',
+    FlashKind.QuoteInvited,
+    'Asked to quote',
+    'You asked Jordan Lee to quote.',
+  ),
+  isMine: true,
+  taskId: STORY_TASK_ID,
+  invitedWorker: invitedJordan,
+}
+
+const invitedWorkerItem: ThreadItemFieldsFragment = {
+  ...event(
+    'line-invited-worker',
+    FlashKind.QuoteInvited,
+    'Asked to quote',
+    'Alex Chen asked you to quote on this task.',
+  ),
+  isMine: false,
+  taskId: STORY_TASK_ID,
+  invitedWorker: invitedJordan,
+}
+
+/** The thread's sheet, as the conversation mounts it round its items. */
+const inSheet = (
+  children: ReactNode,
+  controls: { open?: () => void; invitationPending?: boolean } = {},
+) => (
+  <ThreadSheetContext.Provider
+    value={{
+      open: controls.open ?? (() => {}),
+      close: () => {},
+      requestPending: false,
+      invitationPending: controls.invitationPending ?? false,
+    }}
+  >
+    {children}
+  </ThreadSheetContext.Provider>
+)
+
 /**
- * The quote invitation (FE-507): one flash, worded by the API for the viewer.
- * A line like the others: title, time, body. No card, no quote, no price, and
- * nothing to press.
+ * Asked to quote, as the customer who asked sees it (FE-608, Ryan 23 Nov):
+ * the line, then a card of the worker with their photo, name, the Pro badge
+ * and rating. The card opens their profile. The card names the worker, so the
+ * sentence is left out. Nothing here can be pressed but the card.
  */
-export const QuoteInvitedWorkerLine: Story = {
-  args: {
-    item: event(
-      'line-invited-worker',
-      FlashKind.QuoteInvited,
-      'Asked to quote',
-      'Alex Chen asked you to quote on this task.',
-    ),
-  },
-  decorators: [asWorker],
+export const QuoteInvitedOwnerCard: Story = {
+  args: { item: invitedOwnerItem },
+  decorators: [asOwner],
   play: async ({ canvasElement }) => {
-    await line(canvasElement, FlashKind.QuoteInvited)
     const canvas = within(canvasElement)
+    await expect(
+      canvasElement.querySelector('[data-flash-invitation="asked"]'),
+    ).toBeVisible()
     await expect(canvas.getByText('Asked to quote')).toBeVisible()
     await expect(
-      canvas.getByText('Alex Chen asked you to quote on this task.'),
-    ).toBeVisible()
+      canvas.queryByText('You asked Jordan Lee to quote.'),
+    ).toBeNull()
+    const card = canvas.getByRole('link', {
+      name: "View Jordan Lee's profile",
+    })
+    await expect(card).toHaveAttribute(
+      'href',
+      `/profile/u-worker?fromTask=${STORY_TASK_ID}`,
+    )
+    await expect(within(card).getByText('Jordan Lee')).toBeVisible()
+    await expect(within(card).getByLabelText('Slashie Pro')).toHaveTextContent(
+      'Pro',
+    )
+    await expect(within(card).getByText('4.8 (12)')).toBeVisible()
+    // The line sits over the card, and no price or button is shown.
+    const line = canvasElement.querySelector(
+      '[data-flash-line="QUOTE_INVITED"]',
+    ) as HTMLElement
+    await expect(line.getBoundingClientRect().bottom).toBeLessThanOrEqual(
+      card.getBoundingClientRect().top,
+    )
     await expect(canvas.queryByText(/£/)).toBeNull()
+    await expect(canvas.queryAllByRole('button')).toHaveLength(0)
   },
 }
 
-/** The same flash for the customer, worded for them. */
-export const QuoteInvitedOwnerLine: Story = {
+/** A worker with too few reviews to show a rating, and no Pro. */
+export const QuoteInvitedOwnerCardNewWorker: Story = {
   args: {
-    item: event(
-      'line-invited-owner',
-      FlashKind.QuoteInvited,
-      'Asked to quote',
-      'You asked Jordan Lee to quote.',
-    ),
+    item: {
+      ...invitedOwnerItem,
+      invitedWorker: {
+        ...invitedJordan,
+        ratingSummary: { average: null, count: 1 },
+        hasPro: false,
+      },
+    },
   },
+  decorators: [asOwner],
+  play: async ({ canvasElement }) => {
+    const card = within(canvasElement).getByRole('link', {
+      name: "View Jordan Lee's profile",
+    })
+    await expect(within(card).getByText('No reviews yet')).toBeVisible()
+    await expect(within(card).queryByLabelText('Slashie Pro')).toBeNull()
+  },
+}
+
+/** A worker who deleted their account: named as the API names them, no link. */
+export const QuoteInvitedOwnerCardDeleted: Story = {
+  args: {
+    item: {
+      ...invitedOwnerItem,
+      invitedWorker: {
+        ...invitedJordan,
+        name: 'Deleted user',
+        deleted: true,
+        hasPro: false,
+        ratingSummary: { average: null, count: 0 },
+      },
+    },
+  },
+  decorators: [asOwner],
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(canvas.getByText('Deleted user')).toBeVisible()
+    await expect(canvas.queryByRole('link')).toBeNull()
+  },
+}
+
+/**
+ * An item the API answered before BE-151 names no worker: it stays the line
+ * it was, with its sentence.
+ */
+export const QuoteInvitedOwnerLine: Story = {
+  args: { item: { ...invitedOwnerItem, invitedWorker: null } },
   decorators: [asOwner],
   play: async ({ canvasElement }) => {
     await line(canvasElement, FlashKind.QuoteInvited)
     await expect(
       within(canvasElement).getByText('You asked Jordan Lee to quote.'),
     ).toBeVisible()
+    await expect(
+      canvasElement.querySelector('[data-thread-worker-card]'),
+    ).toBeNull()
+  },
+}
+
+const invitedTask = storyTaskDetail({
+  quotes: [],
+  viewerQuoteInvitation: {
+    customerName: 'Alex Chen',
+    createdAt: '2026-06-01T10:00:00.000Z',
+    dismissed: false,
+  },
+})
+
+/**
+ * Asked to quote, as the worker sees it (FE-608, Ryan 23 Nov): the line with
+ * who asked, then the task's own card, which opens the task. While it still
+ * waits on them, "Answer" opens Send a quote and Not for me in the sheet at
+ * the foot of the conversation, as a reschedule request does.
+ */
+export const QuoteInvitedWorkerCard: Story = {
+  args: { item: invitedWorkerItem },
+  decorators: messagesStory({ viewer: 'worker', task: invitedTask }),
+  render: (args) =>
+    inTaskThread(
+      inSheet(
+        <Stack gap={3} maxW="640px">
+          <ThreadTimelineItem {...args} />
+        </Stack>,
+        {
+          invitationPending: true,
+          // Story-only: note that the sheet was asked to open.
+          open: () => {
+            document.body.dataset.sheetOpened = 'needs'
+          },
+        },
+      ),
+    ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    delete canvasElement.ownerDocument.body.dataset.sheetOpened
+    await expect(
+      canvas.getByText('Alex Chen asked you to quote on this task.'),
+    ).toBeVisible()
+    const card = (await waitFor(() => {
+      const found = canvasElement.querySelector('[data-thread-task-card]')
+      if (!found) throw new Error('No task card yet')
+      return found
+    })) as HTMLElement
+    await expect(within(card).getByText(invitedTask.title ?? '')).toBeVisible()
+    // The home card: the time is a tag, and no price is drawn.
+    await expect(card.querySelector('[data-task-card-time]')).not.toBeNull()
+    await expect(within(card).queryByText(/£/)).toBeNull()
+    // The line, the card, then the way to answer.
+    const answer = canvas.getByRole('button', { name: 'Answer' })
+    await expect(card.getBoundingClientRect().bottom).toBeLessThanOrEqual(
+      answer.getBoundingClientRect().top,
+    )
+    await userEvent.click(answer)
+    await expect(canvasElement.ownerDocument.body.dataset.sheetOpened).toBe(
+      'needs',
+    )
+  },
+}
+
+/** Once they have quoted or said Not for me, nothing is left to answer. */
+export const QuoteInvitedWorkerAnswered: Story = {
+  args: { item: invitedWorkerItem },
+  decorators: messagesStory({
+    viewer: 'worker',
+    task: {
+      ...invitedTask,
+      viewerQuoteInvitation: {
+        customerName: 'Alex Chen',
+        createdAt: '2026-06-01T10:00:00.000Z',
+        dismissed: true,
+      },
+    },
+  }),
+  render: (args) =>
+    inTaskThread(
+      inSheet(
+        <Stack gap={3} maxW="640px">
+          <ThreadTimelineItem {...args} />
+        </Stack>,
+      ),
+    ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await waitFor(() =>
+      expect(
+        canvasElement.querySelector('[data-thread-task-card]'),
+      ).not.toBeNull(),
+    )
+    await expect(canvas.queryByRole('button', { name: 'Answer' })).toBeNull()
+  },
+}
+
+/** Outside a task thread there is no task to draw: the line alone. */
+export const QuoteInvitedWorkerLine: Story = {
+  args: { item: invitedWorkerItem },
+  decorators: [asWorker],
+  play: async ({ canvasElement }) => {
+    await line(canvasElement, FlashKind.QuoteInvited)
+    await expect(
+      within(canvasElement).getByText(
+        'Alex Chen asked you to quote on this task.',
+      ),
+    ).toBeVisible()
+    await expect(
+      canvasElement.querySelector('[data-thread-task-card]'),
+    ).toBeNull()
   },
 }

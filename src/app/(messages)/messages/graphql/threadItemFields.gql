@@ -43,4 +43,17 @@ fragment ThreadItemFields on ThreadItem {
       }
     }
   }
+  # BE-151: the worker an "Asked to quote" item asked, for the card under it
+  # (public details only). Null on every other item.
+  invitedWorker {
+    userId
+    name
+    avatarUrl
+    deleted
+    ratingSummary {
+      average
+      count
+    }
+    hasPro
+  }
 }

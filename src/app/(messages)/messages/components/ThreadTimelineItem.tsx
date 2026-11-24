@@ -3,9 +3,10 @@
 import { Box, HStack, Stack, Text, chakra } from '@chakra-ui/react'
 import { FlashKind, ThreadItemType } from '@codegen/schema'
 import type { ThreadItemFieldsFragment } from '@codegen/schema'
-import type { ReactNode } from 'react'
+import { type ReactNode, useContext } from 'react'
 import { LuCircleAlert } from 'react-icons/lu'
 
+import { TaskDetailContext } from '@/app/(task)/tasks/[slug]/context/TaskDetailContext'
 import { useTaskDetail } from '@/app/(task)/tasks/[slug]/context/TaskDetailProvider'
 import { useI11n } from '@/i18n/useI11n'
 import { hitAreaGrowth, sdlFocusRing, sdlMotion } from '@/theme/styles'
@@ -15,6 +16,7 @@ import { Button, Link } from '@ui'
 
 import { clockTime, flashAction, flashSlot } from '../helpers/messagesFormat'
 import bag from '../i11n.json'
+import { ThreadTaskCard, ThreadWorkerCard } from './ThreadInvitationCards'
 import { ThreadQuote } from './ThreadQuote'
 import { useThreadSheet } from './ThreadSheetContext'
 
@@ -181,6 +183,63 @@ function AcceptedLine({
 }
 
 /**
+ * "Asked to quote" (FE-608, Ryan 23 Nov). The customer who asked sees the
+ * line and a card of the worker (the card names them, so the sentence is left
+ * out). The worker sees the line with who asked, a card of the task, and,
+ * while it still waits on them, a button that opens Send a quote and Not for
+ * me in the sheet at the foot of the conversation, as a reschedule request
+ * does. An item from before BE-151 names no worker and stays a line.
+ */
+function InvitationItem({ item, time }: { item: Item; time: string }) {
+  const t = useI11n(bag)
+  const sheet = useThreadSheet()
+  // Null outside a task thread: then there is no task to show a card of.
+  const task = useContext(TaskDetailContext)?.task ?? null
+  if (item.isMine) {
+    const worker = item.invitedWorker ?? null
+    return (
+      <Stack
+        data-flash-invitation="asked"
+        alignSelf="center"
+        w="full"
+        maxW="420px"
+        gap={1.5}
+      >
+        <FlashLine item={item} time={time} withBody={!worker} />
+        {worker ? (
+          <ThreadWorkerCard worker={worker} taskId={item.taskId} />
+        ) : null}
+      </Stack>
+    )
+  }
+  const mine = task != null && item.taskId === task.id
+  return (
+    <Stack
+      data-flash-invitation="invited"
+      alignSelf="center"
+      w="full"
+      maxW="420px"
+      gap={1.5}
+    >
+      <FlashLine item={item} time={time} />
+      {mine ? <ThreadTaskCard /> : null}
+      {sheet?.invitationPending ? (
+        <Button
+          type="button"
+          size="xs"
+          variant="secondary"
+          alignSelf="center"
+          data-invitation-answer=""
+          onClick={() => sheet.open({ kind: 'needs' })}
+        >
+          {t.sheet.answerInvitation}
+        </Button>
+      ) : null}
+    </Stack>
+  )
+}
+
+/**
  * One timeline entry: a chat bubble (mine on the right) or a flash. Only the
  * worker's "quote sent" flash is its line and then the quote card, where the
  * poster accepts (no card around it, FE-567); Slashie announcements stay cards; every other event is a short line
@@ -265,6 +324,9 @@ export function ThreadTimelineItem({
     }
     if (item.flashKind === FlashKind.SystemAnnouncement) {
       return <FlashCard item={item} time={time} />
+    }
+    if (item.flashKind === FlashKind.QuoteInvited) {
+      return <InvitationItem item={item} time={time} />
     }
     if (item.flashKind === FlashKind.QuoteAccepted) {
       return <AcceptedLine item={item} time={time} locale={locale} />
