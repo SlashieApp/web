@@ -69,7 +69,7 @@ The site header's content box in the page container defines the **logo line** (l
 | --- | --- | --- |
 | R1 | Every page's content sits in the page container: 80rem, gutters 16 / 24 / 32, centred. | `PageContainer` |
 | R2 | The page header (Back, the title, a description) starts on the logo line and spans the full container, at every width. | `PageLayout` (`StickyHeader`) |
-| R3 | Single-column pages (Account, Billing, admin notifications, settings-style pages) keep a 720 column, LEFT-aligned on the logo line. | `PageLayout width="column"` |
+| R3 | Single-column pages (Account, Billing, settings-style pages) keep a 720 column, LEFT-aligned on the logo line. | `PageLayout width="column"` |
 | R4 | Wide pages (Profile, My tasks, task detail, lists, Messages) fill the container, with an optional rail. | `PageLayout width="wide"` |
 | R5 | Full-bleed elements (maps, bands, covers, page backgrounds) go edge to edge; their content sits in the container. | `PageBleed` |
 | R6 | Centred cards (auth forms, auth status pages, status, gate and error cards) stay centred, all at one width. | `StatusCard` (28rem) |
@@ -137,7 +137,7 @@ Routes are already grouped by Next.js route groups, which align to shells:
 
 ### Page header (FE-458)
 
-One header for Account, Plan & billing, Pricing, Terms, Privacy, Cookies, Safety, Profile, admin notifications, task details and a public profile: `StickyHeader` (`@ui`), which wraps the page. The same numbers drive the app's header (FE-459); they live in `src/ui/StickyHeader/headerCollapse.ts`.
+One header for Account, Plan & billing, Pricing, Terms, Privacy, Cookies, Safety, Profile, task details and a public profile: `StickyHeader` (`@ui`), which wraps the page. The same numbers drive the app's header (FE-459); they live in `src/ui/StickyHeader/headerCollapse.ts`.
 
 - **Bar:** one 56px row that sticks to the top of the page (`stickyTop` under the marketing header; the app shell's pane is already under the app header). Its row lines up with the page's column and gutters (16 / 24 / 32), its fill is the page's own colour, with no rule or shadow. Back is on the left at every width (a 44px box, the 24px glyph on the content's left edge; over a map or cover see below); a page's own icon button goes on the right (`option`, such as the task options). Labelled buttons stay in the page.
 - **Big title:** under the bar, 34px, 500, -0.03em, line height 1.2, the page's one h1, 8px under the bar, then the description. As the page scrolls it moves up and shrinks to 18px beside Back over 48px of scroll, and over the last quarter cross-fades into the bar's one-line copy (18px, 500, -0.01em, ellipsis, hidden from screen readers). Scrolling back up reverses it; with `prefers-reduced-motion` nothing interpolates and the copy shows at once 48px in.

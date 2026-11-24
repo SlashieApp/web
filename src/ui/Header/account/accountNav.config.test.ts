@@ -37,15 +37,13 @@ describe('account nav destinations', () => {
     expect(language?.section).toBe('more')
   })
 
-  it('shows send-a-notification only for Slashie admins', () => {
-    const hidden = resolveAccountNavItems(true).some(
-      (item) => item.id === 'admin-notifications',
-    )
-    const shown = resolveAccountNavItems(false, { isAdmin: true }).some(
-      (item) => item.href === '/admin/notifications',
-    )
-    expect(hidden).toBe(false)
-    expect(shown).toBe(true)
+  // Staff tools live in the admin panel (FE-612), never in this menu.
+  it('has no admin entries', () => {
+    for (const item of ACCOUNT_NAV_ITEMS) {
+      expect(item.id).not.toMatch(/admin/i)
+      expect(item.href ?? '').not.toMatch(/^\/admin(?:\/|$)/)
+      expect(['all', 'worker', 'non-worker']).toContain(item.audience)
+    }
   })
 
   it('keeps Terms, Privacy and Cookie settings in the menu, since the app has no footer', () => {

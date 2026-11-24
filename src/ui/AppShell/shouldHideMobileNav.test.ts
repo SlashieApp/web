@@ -13,13 +13,7 @@ describe('shouldHideMobileNav', () => {
   })
 
   it('hides the dock on the account pages (FE-364)', () => {
-    for (const path of [
-      '/account',
-      '/zh-hk/account',
-      '/profile',
-      '/billing',
-      '/admin/notifications',
-    ]) {
+    for (const path of ['/account', '/zh-hk/account', '/profile', '/billing']) {
       expect(shouldHideMobileNav(path)).toBe(true)
     }
     expect(shouldHideMobileNav('/accounting')).toBe(false)

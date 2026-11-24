@@ -28,7 +28,6 @@
       "terms": "Terms",
       "privacy": "Privacy",
       "cookie-settings": "Cookie settings",
-      "admin-notifications": "Send an announcement",
       "logout": "Log out"
     },
     "messagesUnread": "Messages, {count} unread"
@@ -62,7 +61,6 @@
       "terms": "條款",
       "privacy": "私隱",
       "cookie-settings": "Cookie 設定",
-      "admin-notifications": "發送公告",
       "logout": "登出"
     },
     "messagesUnread": "訊息，{count} 則未讀"

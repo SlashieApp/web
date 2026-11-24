@@ -6,8 +6,8 @@ import { describe, expect, it } from 'vitest'
 /**
  * The profile editors and the remaining page forms on the form spacing (wiki:
  * Foundations-Form-Spacing, FE-481 profile-editors): the Personal and Worker
- * editors and the photo card in the profile drawer, the drawer's own bar, and
- * the admin announcement composer. The gaps are measured in each surface's
+ * editors and the photo card in the profile drawer, and the drawer's own bar.
+ * The gaps are measured in each surface's
  * stories; these pin that the numbers come from the form pieces and tokens, so
  * an editor does not go back to typing its own steps.
  */
@@ -19,9 +19,6 @@ const SURFACES = {
   ProfileEditDrawer: read(`${EDIT}/ProfileEditDrawer.tsx`),
   ProfileWorkerForm: read(`${EDIT}/ProfileWorkerForm.tsx`),
   ProfilePhotoCard: read(`${EDIT}/ProfilePhotoCard.tsx`),
-  AdminNotificationComposer: read(
-    'src/app/(dashboard)/admin/notifications/components/ui/AdminNotificationComposer.tsx',
-  ),
   DrawerBar: read('src/ui/Drawer/DrawerBar.tsx'),
 } as const
 
@@ -132,21 +129,5 @@ describe('profile editors: one rhythm from the form pieces', () => {
       'src/app/(stepflow)/worker/setup/components/ui/inputs/WorkerSetupCategoryTiles.tsx',
     )
     expect(tiles).toMatch(/<Tile\s+key=\{slug\}[^>]*position="relative"/)
-  })
-
-  it('Admin composer: a FormStack under a heading 24 above it, buttons 8 apart, cohorts a choice group', () => {
-    const admin = SURFACES.AdminNotificationComposer
-    expect(admin).toContain('<FormStack>')
-    expect(admin).toContain('bodyGap="form.headerToBody"')
-    expect(admin).toContain('{...formControlLabelProps}')
-    expect(admin).toContain('gap="form.alternativesGap"')
-    expect(admin.match(/size="form"/g)).toHaveLength(2)
-    // Rows 8 apart each take half of that for their tap target (28), so two
-    // targets never overlap: a click on an upper row cannot tick the next box.
-    expect(admin).toContain('COHORT_REACH = formSpace.alternativesGap / 2')
-    expect(admin).toContain('<FormCheckbox')
-    expect(admin).toContain('reachAbove={COHORT_REACH}')
-    expect(admin).toContain('reachBelow={COHORT_REACH}')
-    expect(admin).not.toContain('minH="44px"')
   })
 })

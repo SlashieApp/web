@@ -30,7 +30,7 @@ Canonical source: **`docs/coding-guidebook.md`** §12 (product-area grouping, FE
 | `src/app/(stepflow)/tasks/[slug]/review/` | `Review flow/<Component>` |
 | `src/app/(stepflow)/worker/setup/` | `Worker setup/<Component>` |
 | `src/app/(worker)/workers/` | `Workers/<Component>` |
-| `src/app/(dashboard)/<section>/` | `Dashboard/<Section>/<Component>` (Account, Billing, Profile, Admin, Shared) |
+| `src/app/(dashboard)/<section>/` | `Dashboard/<Section>/<Component>` (Account, Billing, Profile, Shared) |
 | `src/app/(messages)/` | `Messages/<Component>` |
 | `src/app/(auth)/` | `Auth/<Component>` |
 | `src/app/(presence)/` | `Public profile/<Component>` |

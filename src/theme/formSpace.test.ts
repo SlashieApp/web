@@ -235,8 +235,8 @@ describe('dialog and drawer frames read the form tokens (FE-481 overlay-chrome)'
 
 describe('one checkbox row (FE-481 tokens)', () => {
   // The row (the label's 20px lines, the 44px target that grows into the gaps,
-  // the error 4 under it) is one piece, so auth, post a task and the admin
-  // cohorts cannot drift apart.
+  // the error 4 under it) is one piece, so auth and post a task cannot drift
+  // apart.
   const sources = (dir: string): string[] =>
     readdirSync(join(process.cwd(), dir), { withFileTypes: true }).flatMap(
       (entry) => {

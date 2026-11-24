@@ -6,7 +6,6 @@ import bag from '../i11n.json'
 
 import { MeAvatar } from '@/app/(auth)/components/ui/MeAvatar'
 import { useMe, useUserStore } from '@/app/(auth)/store/user'
-import { isSlashieAdminEmail } from '@/content/admin/isSlashieAdminEmail'
 import { useLocalizedHref } from '@/i18n/LocaleProvider'
 import { useDropdownClose } from '../../Dropdown'
 
@@ -53,9 +52,7 @@ export function AccountMenuContent({
 
   const hasWorker = Boolean(me?.worker)
   const email = user?.email ?? me?.email ?? ''
-  const navItems = resolveAccountNavItems(hasWorker, {
-    isAdmin: isSlashieAdminEmail(email),
-  })
+  const navItems = resolveAccountNavItems(hasWorker)
 
   const onLogout = useCallback(() => {
     logout()

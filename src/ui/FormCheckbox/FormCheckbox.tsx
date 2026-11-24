@@ -78,8 +78,8 @@ export type FormCheckboxProps = {
  * ({@link hitAreaGrowth}), so it adds no space.
  *
  * Used for log in's "Keep me signed in", sign up's age, Terms and marketing
- * boxes, post a task's confirmation and the admin cohorts, so the geometry of a
- * checkbox row is one thing.
+ * boxes and post a task's confirmation, so the geometry of a checkbox row is
+ * one thing.
  */
 export function FormCheckbox({
   checked,

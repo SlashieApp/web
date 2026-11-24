@@ -20,7 +20,6 @@ const TARGET_PAGES = [
   'src/app/(auth)/verify-email/page.tsx',
   'src/app/(auth)/verify-email/sent/page.tsx',
   'src/app/(dashboard)/account/page.tsx',
-  'src/app/(dashboard)/admin/notifications/page.tsx',
   'src/app/(dashboard)/billing/page.tsx',
   'src/app/(dashboard)/profile/page.tsx',
   'src/app/(task)/search/page.tsx',
@@ -45,7 +44,7 @@ describe('per-page i11n coverage', () => {
     for (const segment of TARGET_PAGE_GLOBS) {
       expect(existsSync(path.join(root, segment))).toBe(true)
     }
-    expect(TARGET_PAGES).toHaveLength(21)
+    expect(TARGET_PAGES).toHaveLength(20)
   })
 
   it('requires en and zh_hk metadata beside every target page', () => {

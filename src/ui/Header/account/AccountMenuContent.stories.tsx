@@ -127,7 +127,6 @@ function buildMe({
 const meTrial = buildMe()
 const meFree = buildMe({ membership: free })
 const meCustomer = buildMe({ membership: null })
-const meAdmin = buildMe({ email: 'story.admin@slashie.app' })
 const meLongText = buildMe({
   name: 'Alexandria Montgomery-Featherstonehaugh',
   email:
@@ -194,11 +193,6 @@ export const WorkerOnFreePlan: Story = {
 /** Customer: the header pitches posting for free, and "Become a worker" is in the list. */
 export const Customer: Story = {
   decorators: [withMe(meCustomer)],
-}
-
-/** Admin: a Slashie team email also gets the "Send an announcement" link. */
-export const Admin: Story = {
-  decorators: [withMe(meAdmin)],
 }
 
 /** Long text: a long name and email truncate with an ellipsis instead of wrapping. */

@@ -2,11 +2,11 @@ import { stripLocalePrefix } from '@/i18n/navigation'
 
 /**
  * Pages in the shell that are not nav pages (FE-445): the signed-in account
- * pages (the `(dashboard)` group: account, your own profile, billing, admin),
+ * pages (the `(dashboard)` group: account, your own profile, billing),
  * Workers (opened from the Account menu) and a public profile (`/profile/:id`)
  * and its retired `/workers/:id`. Each brings its own back control (FE-364).
  */
-const BACK_PAGE = /^\/(?:account|billing|admin|profile|workers)(?:\/|$)/
+const BACK_PAGE = /^\/(?:account|billing|profile|workers)(?:\/|$)/
 
 /**
  * The bottom nav is for Search, My tasks and Messages. Any other page in the

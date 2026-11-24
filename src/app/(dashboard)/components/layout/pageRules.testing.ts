@@ -41,7 +41,7 @@ export function expectHeaderOnLogoLine(
 }
 
 /**
- * R2 and R3 for a single-column page (Account, Billing, Admin notifications):
+ * R2 and R3 for a single-column page (Account, Billing):
  * the header as above, then a body column of 720 (or the container, when that
  * is narrower), left-aligned on the logo line and never centred.
  */

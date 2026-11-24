@@ -68,11 +68,6 @@ export const Customer: Story = {
   args: { items: resolveAccountNavItems(false) },
 }
 
-/** Admin: a Slashie team account also gets the "Send an announcement" link. */
-export const Admin: Story = {
-  args: { items: resolveAccountNavItems(true, { isAdmin: true }) },
-}
-
 /** No dividers: the three groups run together without separator lines. */
 export const NoDividers: Story = {
   args: { showDividers: false },
