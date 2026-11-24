@@ -6,7 +6,7 @@ import {
   railIndex,
   railPosition,
   railTravel,
-} from './storyRail'
+} from './storyRailMotion'
 
 describe('the sideways story', () => {
   it('takes a hold for every step and a move between each pair', () => {

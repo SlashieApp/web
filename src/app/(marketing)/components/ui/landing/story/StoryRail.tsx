@@ -20,7 +20,7 @@ import {
   railIndex,
   railPosition,
   railTravel,
-} from './storyRail'
+} from './storyRailMotion'
 import { type StoryStage, setRailOnScreen, setStoryStage } from './storyState'
 import { stepDomId } from './storySteps'
 
@@ -146,7 +146,7 @@ function RailCard({
  * its steps as cards in a row, and the demo phone docked at the screen's foot.
  * The act pins under the index row while the visitor scrolls down through it;
  * the scroll carries the cards sideways, each holding still in place for a
- * while (`storyRail.ts`), and the phone shows the step whose card is in place.
+ * while (`storyRailMotion.ts`), and the phone shows the step whose card is in place.
  * The section index and the story's stage follow that step too.
  *
  * Each step keeps a link target (`stepDomId`): an empty block placed where

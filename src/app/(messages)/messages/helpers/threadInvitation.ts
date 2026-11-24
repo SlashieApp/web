@@ -1,4 +1,7 @@
-import type { ThreadItemFieldsFragment } from '@codegen/schema'
+import type {
+  ThreadItemFieldsFragment,
+  WorkerRatingSummary,
+} from '@codegen/schema'
 
 import type { TaskCardTask } from '@/app/(task)/components/ui/TaskCard'
 import { taskScheduleCompactLabel } from '@/app/(task)/helpers/taskBrowseHelpers'
@@ -17,9 +20,23 @@ import type { TaskListItem } from '@/graphql/tasks-query.types'
  * sees a card of the task. These word the two cards; the Expo app's
  * `threadInvitation.ts` reads the same.
  */
-export type InvitedWorker = NonNullable<
-  ThreadItemFieldsFragment['invitedWorker']
->
+/**
+ * The worker an "Asked to quote" item names (BE-151). The API does not send
+ * this yet, so it stays off the query and is optional on an item.
+ */
+export type InvitedWorker = {
+  userId: string
+  name: string
+  avatarUrl?: string | null
+  deleted: boolean
+  ratingSummary: WorkerRatingSummary
+  hasPro?: boolean | null
+}
+
+/** A thread item, plus the invitation card when the API starts sending it. */
+export type ThreadItemWithInvite = ThreadItemFieldsFragment & {
+  invitedWorker?: InvitedWorker | null
+}
 
 export type InvitedWorkerCard = {
   userId: string

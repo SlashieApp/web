@@ -156,7 +156,10 @@ function forCache(task: TaskDetailRecord) {
 function forItemCache<T extends ThreadItemFieldsFragment | null | undefined>(
   item: T,
 ): T {
-  return item ? { ...item, invitedWorker: item.invitedWorker ?? null } : item
+  if (!item) return item
+  const invitedWorker =
+    'invitedWorker' in item ? (item.invitedWorker ?? null) : null
+  return { ...item, invitedWorker }
 }
 
 /** The server's answer to Send: the message as its own item, with typenames. */

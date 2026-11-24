@@ -16,6 +16,8 @@ import type {
   ThreadItemFieldsFragment,
 } from '@codegen/schema'
 
+import type { ThreadItemWithInvite } from '../helpers/threadInvitation'
+
 import {
   STORY_OWNER_ID,
   STORY_TASK_ID,
@@ -270,8 +272,8 @@ export function conversationFlash(
   title: string,
   body: string,
   createdAt: string,
-  overrides: Partial<ThreadItemFieldsFragment> = {},
-): ThreadItemFieldsFragment {
+  overrides: Partial<ThreadItemWithInvite> = {},
+): ThreadItemWithInvite {
   return {
     id,
     threadId: STORY_THREAD_ID,

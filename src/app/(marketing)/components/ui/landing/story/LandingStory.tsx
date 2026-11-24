@@ -21,6 +21,7 @@ import {
 import { PHONE_ASPECT } from '../phone/PhoneFrame'
 import type { PhoneCopy, StoryCopy } from '../phone/phoneCopy'
 import { StoryIndex } from './StoryIndex'
+import { StoryRail, useStoryRail } from './StoryRail'
 import { StoryStageMarker } from './StoryTracker'
 import {
   STORY_HEADER_H,
@@ -28,7 +29,6 @@ import {
   STORY_STEP_PB,
   STORY_STEP_SCROLL_MARGIN,
 } from './storyLayout'
-import { toryRail, useStoryRail } from './storyRail'
 import type { StoryStage } from './storyState'
 import {
   CUSTOMER_STAGES,

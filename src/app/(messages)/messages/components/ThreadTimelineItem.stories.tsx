@@ -15,6 +15,7 @@ import {
 import { formatTimeSlotLabel } from '@/utils/timeSlots'
 
 import { clockTime } from '../helpers/messagesFormat'
+import type { ThreadItemWithInvite } from '../helpers/threadInvitation'
 import { ThreadSheetContext } from './ThreadSheetContext'
 import { ThreadTimelineItem } from './ThreadTimelineItem'
 import { messagesStory } from './messagesStoryDecorator'
@@ -372,7 +373,7 @@ const invitedJordan = {
   hasPro: true,
 }
 
-const invitedOwnerItem: ThreadItemFieldsFragment = {
+const invitedOwnerItem: ThreadItemWithInvite = {
   ...event(
     'line-invited-owner',
     FlashKind.QuoteInvited,
@@ -384,7 +385,7 @@ const invitedOwnerItem: ThreadItemFieldsFragment = {
   invitedWorker: invitedJordan,
 }
 
-const invitedWorkerItem: ThreadItemFieldsFragment = {
+const invitedWorkerItem: ThreadItemWithInvite = {
   ...event(
     'line-invited-worker',
     FlashKind.QuoteInvited,

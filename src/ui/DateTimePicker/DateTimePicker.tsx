@@ -1,6 +1,6 @@
 'use client'
 
-import { Box, Grid, HStack, Stack, Text } from '@chakra-ui/react'
+import { Box, Grid, HStack, Stack, Text, chakra } from '@chakra-ui/react'
 import { useState } from 'react'
 import { LuCalendar, LuChevronLeft, LuChevronRight } from 'react-icons/lu'
 
@@ -112,8 +112,7 @@ export function DateTimePicker({
 
   return (
     <>
-      <Box
-        as="button"
+      <chakra.button
         type="button"
         id={field.id}
         aria-invalid={field['aria-invalid']}
@@ -141,7 +140,7 @@ export function DateTimePicker({
       >
         <LuCalendar size={16} aria-hidden />
         {label || (withTime ? t.chooseDateTime : t.chooseDate)}
-      </Box>
+      </chakra.button>
       <Modal
         open={open}
         onOpenChange={setOpen}
@@ -202,9 +201,8 @@ export function DateTimePicker({
               const disabled = value < min
               const selected = value === draftDate
               return (
-                <Box
+                <chakra.button
                   key={value}
-                  as="button"
                   type="button"
                   aria-pressed={selected}
                   aria-label={formatDate(value, locale)}
@@ -229,7 +227,7 @@ export function DateTimePicker({
                   _focusVisible={sdlFocusRing}
                 >
                   {cell.day}
-                </Box>
+                </chakra.button>
               )
             })}
           </Grid>
@@ -280,9 +278,8 @@ function TimeRow({
           {values.map((value) => {
             const on = value === selected
             return (
-              <Box
+              <chakra.button
                 key={value}
-                as="button"
                 type="button"
                 aria-pressed={on}
                 onClick={() => onSelect(value)}
@@ -299,7 +296,7 @@ function TimeRow({
                 _focusVisible={sdlFocusRing}
               >
                 {String(value).padStart(2, '0')}
-              </Box>
+              </chakra.button>
             )
           })}
         </Grid>

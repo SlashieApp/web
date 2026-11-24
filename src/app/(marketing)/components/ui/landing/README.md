@@ -54,7 +54,7 @@ components/ui/landing/
     LandingStory.tsx         the hero, then how it works: the acts as hairline rows, the pinned phone
     StoryIndex.tsx           the section index (vertical from lg, a sticky row below), driven by the tracker
     StoryRail.tsx            on a phone (below md): an act pinned under the index, its steps as cards that ride across, a docked phone
-    storyRail.ts             pure: the rail's scroll maths (each step holds, then moves; where a link lands) (unit-tested)
+    storyRailMotion.ts             pure: the rail's scroll maths (each step holds, then moves; where a link lands) (unit-tested)
     storySteps.ts            pure: the steps of each act, the rows' ids, the index's groups (unit-tested)
     storyLayout.ts           header, index row and scroll-margin measures
   phone/
@@ -360,7 +360,7 @@ it under the sticky header).
   the act pins under the index row (its head, its steps as cards in one row,
   the next card peeking 36px), and the scroll carries the cards across. Each
   step first holds still for 45% of its scroll (70% of the screen's height a
-  step), then moves on, eased (`storyRail.ts`); the last holds too before the
+  step), then moves on, eased (`storyRailMotion.ts`); the last holds too before the
   act lets go. One phone per act is docked at the screen's foot
   (`DockedPhone`, the cropped phone without its well, its foot faded out over
   the 32px it has under the compact layout's action) and slides to the step

@@ -2,7 +2,6 @@
 
 import { Box, HStack, Stack, Text, chakra } from '@chakra-ui/react'
 import { FlashKind, ThreadItemType } from '@codegen/schema'
-import type { ThreadItemFieldsFragment } from '@codegen/schema'
 import { type ReactNode, useContext } from 'react'
 import { LuCircleAlert } from 'react-icons/lu'
 
@@ -15,12 +14,13 @@ import { formatTimeSlotLabel } from '@/utils/timeSlots'
 import { Button, Link } from '@ui'
 
 import { clockTime, flashAction, flashSlot } from '../helpers/messagesFormat'
+import type { ThreadItemWithInvite } from '../helpers/threadInvitation'
 import bag from '../i11n.json'
 import { ThreadTaskCard, ThreadWorkerCard } from './ThreadInvitationCards'
 import { ThreadQuote } from './ThreadQuote'
 import { useThreadSheet } from './ThreadSheetContext'
 
-type Item = ThreadItemFieldsFragment
+type Item = ThreadItemWithInvite
 
 /** A centred card: a Slashie announcement. */
 function FlashCard({
