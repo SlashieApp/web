@@ -1,11 +1,8 @@
-import { TaskContactMethod } from '@codegen/schema'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { expect, spyOn, userEvent, waitFor, within } from 'storybook/test'
 
-import type { MeSnapshot } from '@/app/(auth)/store/user'
-import { getContactOptions } from '@/app/(dashboard)/profile/profileEligibility'
 import {
   desktop1280,
   expectNoBarLine,
@@ -30,8 +27,6 @@ import {
 } from '../../createTaskStoryFixtures'
 import { CreateTaskAddressSection } from '../../ui/sections/CreateTaskAddressSection'
 import { CreateTaskBasicsSection } from '../../ui/sections/CreateTaskBasicsSection'
-import { CreateTaskConsentSection } from '../../ui/sections/CreateTaskConsentSection'
-import { CreateTaskContactSection } from '../../ui/sections/CreateTaskContactSection'
 import { CreateTaskLocationSection } from '../../ui/sections/CreateTaskLocationSection'
 import { CreateTaskLocationMap } from '../map/CreateTaskLocationMap'
 import { CreateTaskMapLayout } from './CreateTaskMapLayout'
@@ -177,20 +172,7 @@ function CreateTaskMapDemo({
           categories={categories}
           onCategoriesChange={setCategories}
         />
-      ) : (
-        <>
-          <CreateTaskContactSection
-            bare
-            preferredContactMethod={TaskContactMethod.InApp}
-            onPreferredContactMethodChange={() => {}}
-            contactOptions={getContactOptions({
-              emailVerified: true,
-              phoneVerified: true,
-            } as MeSnapshot)}
-          />
-          <CreateTaskConsentSection accepted onChange={() => {}} />
-        </>
-      )}
+      ) : null}
     </CreateTaskMapLayout>
   )
 }
@@ -447,7 +429,7 @@ export const SpacingDetailsPhone: Story = {
   },
 }
 
-/** The review step: the contact group and the consent notice are field groups, 20 apart. */
+/** The review step: what workers will see, then Post task. */
 export const SpacingReview: Story = {
   ...desktop1280,
   args: { start: 'review' },

@@ -18,11 +18,29 @@ import {
 } from '@/app/(task)/helpers/taskBudget/taskBudget'
 import { taskCategoriesSchema } from '@/app/(task)/helpers/taskCategories'
 
+import { isUkPostcode } from './helpers/exactAddress'
+
 export const taskDetailsFields = {
   title: z.string().trim().min(1, 'titleRequired'),
   categories: taskCategoriesSchema,
-  description: z.string().trim().min(1, 'descriptionRequired'),
-  streetAddress: z.string().trim().min(1, 'addressRequired'),
+  /** Optional. Plain text, or bold, italic and lists stored as HTML. */
+  description: z.string(),
+  addressLine1: z.string().trim().min(1, 'addressLine1Required'),
+  addressLine2: z.string().trim(),
+  city: z.string().trim().min(1, 'cityRequired'),
+  county: z.string().trim(),
+  postcode: z
+    .string()
+    .trim()
+    .superRefine((value, ctx) => {
+      if (!value) {
+        ctx.addIssue({ code: 'custom', message: 'postcodeRequired' })
+        return
+      }
+      if (!isUkPostcode(value)) {
+        ctx.addIssue({ code: 'custom', message: 'postcodeInvalid' })
+      }
+    }),
   mapPlaceName: z.string().trim().min(1, 'areaRequired'),
   locationLat: z
     .string()

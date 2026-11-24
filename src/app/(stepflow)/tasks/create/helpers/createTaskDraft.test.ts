@@ -22,7 +22,9 @@ const values = {
   title: 'Fix a leaking tap',
   description: '',
   categories: ['Plumbing'],
-  streetAddress: '12 Example Street',
+  addressLine1: '12 Example Street',
+  city: 'London',
+  postcode: 'SW1A 1AA',
   acceptedProhibitedUse: true,
 }
 
@@ -156,7 +158,11 @@ describe('create task draft', () => {
     expect(readCreateTaskDraft(storage, KEY, NOW)).toMatchObject({
       step: 'address',
       done: ['location'],
-      values: { streetAddress: '12 Example Street' },
+      values: {
+        addressLine1: '12 Example Street',
+        city: 'London',
+        postcode: 'SW1A 1AA',
+      },
     })
   })
 
@@ -189,12 +195,12 @@ describe('create task draft', () => {
     expect(readCreateTaskDraft(storage, KEY, NOW)).toBeNull()
   })
 
-  it('never keeps the allowed-tasks confirmation', () => {
+  it('keeps the allowed-tasks confirmation', () => {
     const storage = memoryStorage()
     saveCreateTaskDraft(storage, KEY, { step: 'review', done: [], values }, NOW)
-    expect(readCreateTaskDraft(storage, KEY, NOW)?.values).not.toHaveProperty(
-      'acceptedProhibitedUse',
-    )
+    expect(readCreateTaskDraft(storage, KEY, NOW)?.values).toMatchObject({
+      acceptedProhibitedUse: true,
+    })
   })
 
   it('forgets a draft older than a week', () => {
@@ -216,7 +222,7 @@ describe('create task draft', () => {
       {
         step: 'location',
         done: [],
-        values: { title: ' ', categories: [], streetAddress: '' },
+        values: { title: ' ', categories: [], addressLine1: '' },
       },
       NOW,
     )

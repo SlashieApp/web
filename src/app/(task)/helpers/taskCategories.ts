@@ -112,6 +112,30 @@ export function addTaskCategories(
   return { categories: next }
 }
 
+/**
+ * The pins on the category field: suggestions first (popular, then starters,
+ * still shown once chosen), then categories the poster typed that are not
+ * suggestions. Others is not a category; the field adds it itself.
+ */
+export function taskCategoryPins(
+  popular: readonly string[],
+  added: readonly string[],
+  limit = 12,
+): { suggestions: string[]; custom: string[] } {
+  const suggestions: string[] = []
+  const seen = new Set<string>()
+  for (const raw of [...popular, ...STARTER_TASK_CATEGORIES]) {
+    const category = normaliseTaskCategory(raw)
+    const key = category.toLowerCase()
+    if (!category || seen.has(key)) continue
+    seen.add(key)
+    suggestions.push(category)
+    if (suggestions.length >= limit) break
+  }
+  const custom = added.filter((category) => !seen.has(category.toLowerCase()))
+  return { suggestions, custom }
+}
+
 /** Popular categories first, then the starter list; none already added. */
 export function suggestedTaskCategories(
   popular: readonly string[],

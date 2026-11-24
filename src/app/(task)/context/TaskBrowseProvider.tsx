@@ -57,6 +57,10 @@ import {
   parseBrowseBudget,
   taskDistanceLabelFromReference,
 } from '../helpers/taskBrowseHelpers'
+import {
+  DESKTOP_MAP_CENTER_LEFT_INSET_PX,
+  MOBILE_MAP_CENTER_LEFT_INSET_PX,
+} from '../helpers/taskMap/centerOffset'
 
 type BrowseMapTask = {
   id: string
@@ -174,10 +178,6 @@ const TaskBrowseLayoutContext =
 
 const MIN_RADIUS_MILES = 1
 const MAX_RADIUS_MILES = 50
-/** Edit this to tune map center offset for desktop split layout. */
-const DESKTOP_MAP_CENTER_LEFT_INSET_PX = 420
-/** Mobile (base < lg) should not offset map center. */
-const MOBILE_MAP_CENTER_LEFT_INSET_PX = 0
 /** Discovery `tasks` page size (server default and max). */
 const TASKS_PAGE_SIZE = 100
 /** Pause after typing before search text or budget is sent. */

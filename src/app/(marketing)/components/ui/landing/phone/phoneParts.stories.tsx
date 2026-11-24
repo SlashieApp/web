@@ -179,8 +179,7 @@ export const PrimaryButtonDone: Story = {
   decorators: [withColumn],
   render: () => (
     <DemoPrimary>
-      <LuCheck size={18} aria-hidden />
-      {copy.post.postedTitle}
+      <LuCheck size={18} aria-hidden /> {copy.post.postedTitle}
     </DemoPrimary>
   ),
 }

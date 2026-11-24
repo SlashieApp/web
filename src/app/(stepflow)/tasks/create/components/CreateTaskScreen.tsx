@@ -58,7 +58,15 @@ import {
 } from '@/utils/photoUploadProgress'
 import { uploadTaskImagesSettled } from '@/utils/taskImageUpload'
 import { townOnly } from '@/utils/taskLocationDisplay'
-import { Button, StepFlowHeader, StepFlowProgress } from '@ui'
+import {
+  Button,
+  FormCheckbox,
+  Modal,
+  ModalButton,
+  StepFlowHeader,
+  StepFlowProgress,
+  richTextForSubmit,
+} from '@ui'
 
 import {
   type CreateTaskFormFieldValues,
@@ -89,12 +97,13 @@ import {
   createTaskProgress,
   createTaskStepDirection,
 } from '../helpers/createTaskSteps'
+import { formatExactAddress } from '../helpers/exactAddress'
 import {
   resolvePublicAreaName,
   usePublicTaskArea,
 } from '../helpers/publicTaskArea'
 import { publishOnce } from '../helpers/publishOnce'
-import { taskServerError } from '../helpers/taskFieldError'
+import { taskFieldError, taskServerError } from '../helpers/taskFieldError'
 import { useCreateTaskLocation } from '../helpers/useCreateTaskLocation'
 import { useTaskPhotos } from '../helpers/useTaskPhotos'
 import bag from '../i11n.json'
@@ -116,8 +125,6 @@ import { CreateTaskStepper } from './layout/shared/CreateTaskStepper'
 import { CreateTaskAddressSection } from './ui/sections/CreateTaskAddressSection'
 import { CreateTaskBasicsSection } from './ui/sections/CreateTaskBasicsSection'
 import { CreateTaskBudgetSection } from './ui/sections/CreateTaskBudgetSection'
-import { CreateTaskConsentSection } from './ui/sections/CreateTaskConsentSection'
-import { CreateTaskContactSection } from './ui/sections/CreateTaskContactSection'
 import { CreateTaskLocationSection } from './ui/sections/CreateTaskLocationSection'
 import { CreateTaskScheduleSection } from './ui/sections/CreateTaskScheduleSection'
 import { CreateTaskSummarySection } from './ui/sections/CreateTaskSummarySection'
@@ -166,7 +173,11 @@ function defaultValues(
     title,
     categories: [],
     description: '',
-    streetAddress: '',
+    addressLine1: '',
+    addressLine2: '',
+    city: '',
+    county: '',
+    postcode: '',
     mapPlaceName: '',
     locationLat: pinned ? startCentre.lat.toFixed(6) : '',
     locationLng: pinned ? startCentre.lng.toFixed(6) : '',
@@ -256,6 +267,8 @@ export function CreateTaskScreen({
   const unitText = allowedBudgetUnit(values.budgetUnit, hasPro)
 
   const [step, setStep] = useState<CreateTaskStepId>(draft?.step ?? 'location')
+  const [allowedChecked, setAllowedChecked] = useState(false)
+  const [allowedDismissed, setAllowedDismissed] = useState(false)
   // Null until the first step change: arriving (or a restored draft) moves nothing.
   const [stepDirection, setStepDirection] = useState<StepDirection | null>(null)
   const [done, setDone] = useState<Set<CreateTaskStepId>>(
@@ -313,7 +326,11 @@ export function CreateTaskScreen({
       title: copied.title,
       categories: copied.categories,
       description: copied.description,
-      streetAddress: copied.streetAddress,
+      addressLine1: copied.addressLine1,
+      addressLine2: copied.addressLine2,
+      city: copied.city,
+      county: copied.county,
+      postcode: copied.postcode,
       mapPlaceName: copied.mapPlaceName,
       locationLat: copied.locationLat,
       locationLng: copied.locationLng,
@@ -417,6 +434,8 @@ export function CreateTaskScreen({
     setDone(new Set())
     setDraftNotice(false)
     setServerError(null)
+    setAllowedChecked(false)
+    setAllowedDismissed(false)
     moveTo('location')
   }
 
@@ -432,7 +451,10 @@ export function CreateTaskScreen({
       if (step === 'location' && !(await location.applyResolvedLocation())) {
         return
       }
-      if (!(await trigger([...view.fields], { shouldFocus: true }))) return
+      if (!(await trigger([...view.fields], { shouldFocus: true }))) {
+        if (!getValues('acceptedProhibitedUse')) setAllowedDismissed(false)
+        return
+      }
       setDone((prev) => new Set(prev).add(step))
       const next = createTaskNextStep(step)
       if (next) go(next)
@@ -506,7 +528,7 @@ export function CreateTaskScreen({
         variables: {
           input: {
             title: submitted.title.trim(),
-            description: submitted.description.trim(),
+            description: richTextForSubmit(submitted.description),
             categories: submitted.categories,
             // Skipped: an open budget, workers quote their own (BE-139).
             budget: submitted.openBudget
@@ -532,7 +554,7 @@ export function CreateTaskScreen({
                 fallbackLabel: located.mapPlaceName,
                 accessToken,
               }),
-              address: located.streetAddress.trim(),
+              address: formatExactAddress(located),
             },
             datetime: buildDatetimePayload(submitted),
             preferredContactMethod: submitted.preferredContactMethod,
@@ -569,7 +591,7 @@ export function CreateTaskScreen({
         photos: photos.files.length,
         photos_failed: failed,
       })
-      // The task's page plays the "Task posted" moment once (Ryan 22 Nov).
+      // The task's page plays the posted moment once (Ryan 22 Nov).
       // Not with a worker carried from their profile: there the page opens
       // by asking whether to ask them to quote, and that is its moment.
       // Nothing is sent before that tap.
@@ -606,7 +628,11 @@ export function CreateTaskScreen({
         return (
           <CreateTaskAddressSection
             register={register}
-            streetAddressError={errors.streetAddress?.message}
+            addressErrors={{
+              addressLine1: errors.addressLine1?.message,
+              city: errors.city?.message,
+              postcode: errors.postcode?.message,
+            }}
             pinAddress={values.mapPlaceName}
             onUsePinAddress={location.onUsePinAddress}
           />
@@ -621,7 +647,6 @@ export function CreateTaskScreen({
             fieldErrors={{
               title: errors.title?.message,
               categories: errors.categories?.message,
-              description: errors.description?.message,
             }}
           />
         )
@@ -636,6 +661,10 @@ export function CreateTaskScreen({
             rejected={photos.rejected}
             onFilesAdded={photos.add}
             onRemoveFile={photos.remove}
+            description={values.description}
+            onDescriptionChange={(next) =>
+              setValue('description', next, UPDATE)
+            }
           />
         )
       case 'timing':
@@ -652,14 +681,14 @@ export function CreateTaskScreen({
               preferredDate: errors.preferredDate?.message,
               preferredTime: errors.preferredTime?.message,
             }}
-            urgent={
-              hasPro
-                ? {
-                    checked: values.isUrgent,
-                    onChange: (v) => setValue('isUrgent', v, UPDATE),
-                  }
-                : undefined
-            }
+            urgent={{
+              checked: values.isUrgent,
+              locked: !hasPro,
+              onChange: (v) => {
+                if (!hasPro && v) return
+                setValue('isUrgent', v, UPDATE)
+              },
+            }}
           />
         )
       case 'budget':
@@ -699,7 +728,7 @@ export function CreateTaskScreen({
               description: values.description,
               categories: values.categories,
               area,
-              streetAddress: values.streetAddress,
+              streetAddress: formatExactAddress(values),
               datetimeType: values.datetimeType,
               preferredDate: values.preferredDate,
               preferredTime: values.preferredTime,
@@ -714,25 +743,6 @@ export function CreateTaskScreen({
             onEdit={goToStep}
           />
         )
-      case 'contact':
-        return (
-          <CreateTaskContactSection
-            bare
-            preferredContactMethod={values.preferredContactMethod}
-            contactOptions={contactOptions}
-            onPreferredContactMethodChange={(v) =>
-              setValue('preferredContactMethod', v, UPDATE)
-            }
-          />
-        )
-      case 'consent':
-        return (
-          <CreateTaskConsentSection
-            accepted={values.acceptedProhibitedUse}
-            onChange={(v) => setValue('acceptedProhibitedUse', v, UPDATE)}
-            errorText={errors.acceptedProhibitedUse?.message}
-          />
-        )
     }
   }
 
@@ -741,126 +751,161 @@ export function CreateTaskScreen({
   const posting = view.primary === 'post'
   const postBusy = posting && (publishing || creating)
 
+  const showAllowed =
+    step === 'location' && !values.acceptedProhibitedUse && !allowedDismissed
+
   return (
-    <CreateTaskMapLayout
-      banner={<AppStatusBanners />}
-      header={
-        <StepFlowHeader
-          title={t.eyebrow}
-          exitHref={APP_HOME}
-          closeLabel={t.closeLabel}
-        />
-      }
-      progress={
-        <StepFlowProgress
-          value={progress.percent}
-          label={formatMessage(t.progress, {
-            step: progress.index,
-            total: progress.total,
-            label: copy.label,
-          })}
-          trackLabel={t.progressTrack}
-        />
-      }
-      stepper={
-        <CreateTaskStepper active={step} done={done} onSelect={goToStep} />
-      }
-      map={
-        <CreateTaskLocationMap
-          accessToken={accessToken}
-          location={values.mapPlaceName}
-          locationLat={values.locationLat}
-          locationLng={values.locationLng}
-          onLocationChange={location.onMapPlaceNameChange}
-          onLocationLatChange={location.onLocationLatChange}
-          onLocationLngChange={location.onLocationLngChange}
-          collapsed={view.map !== 'full'}
-          onLocateFailed={location.onLocateFailed}
-        />
-      }
-      mapMode={view.map}
-      bandOverlay={
-        <HStack
-          gap={1}
-          pl={3}
-          bg="bg.surface"
-          borderRadius="full"
-          borderWidth="1px"
-          borderColor="border.default"
-          boxShadow="e2"
-          maxW="full"
-        >
-          <LuMapPin size={14} aria-hidden />
-          <Text fontSize="sm" fontWeight={500} lineClamp={1}>
-            {bandArea
-              ? formatMessage(t.band.near, { area: bandArea })
-              : t.location.areaPending}
-          </Text>
-          <Button
-            type="button"
-            variant="ghost"
-            minH="44px"
+    <>
+      <CreateTaskMapLayout
+        banner={<AppStatusBanners />}
+        header={
+          <StepFlowHeader
+            title={t.eyebrow}
+            exitHref={APP_HOME}
+            closeLabel={t.closeLabel}
+          />
+        }
+        progress={
+          <StepFlowProgress
+            value={progress.percent}
+            label={formatMessage(t.progress, {
+              step: progress.index,
+              total: progress.total,
+              label: copy.label,
+            })}
+            trackLabel={t.progressTrack}
+          />
+        }
+        stepper={
+          <CreateTaskStepper active={step} done={done} onSelect={goToStep} />
+        }
+        map={
+          <CreateTaskLocationMap
+            accessToken={accessToken}
+            location={values.mapPlaceName}
+            locationLat={values.locationLat}
+            locationLng={values.locationLng}
+            onLocationChange={location.onMapPlaceNameChange}
+            onLocationLatChange={location.onLocationLatChange}
+            onLocationLngChange={location.onLocationLngChange}
+            collapsed={view.map !== 'full'}
+            onLocateFailed={location.onLocateFailed}
+          />
+        }
+        mapMode={view.map}
+        bandOverlay={
+          <HStack
+            gap={1}
+            pl={3}
+            bg="bg.surface"
             borderRadius="full"
-            color="text.link"
-            aria-label={t.band.changeLabel}
-            onClick={() => goToStep('location')}
+            borderWidth="1px"
+            borderColor="border.default"
+            boxShadow="e2"
+            maxW="full"
           >
-            {t.band.change}
-          </Button>
-        </HStack>
-      }
-      headingRef={headingRef}
-      stepKey={step}
-      stepDirection={stepDirection}
-      title={copy.title}
-      description={copy.description}
-      errorText={serverError}
-      actions={{
-        showBack: step !== 'location',
-        backLabel: t.back,
-        continueLabel: posting ? t.post : t.continue,
-        continueLoading: advancing || postBusy || waitingForPhotos,
-        // Post says what it's doing: the task, then each photo (FE-341).
-        continueLoadingText: postBusy
-          ? photoProgressLabel(
-              photoProgress,
-              t.photoProgress,
-              t.photoProgress.posting,
-            )
-          : waitingForPhotos
-            ? t.photoProgress.converting
-            : undefined,
-        isFinal: posting,
-        onBack: goBack,
-        onContinue: () => void continueStep(),
-      }}
-    >
-      {draftNotice ? (
-        <HStack
-          justify="space-between"
-          gap={3}
-          pl={4}
-          pr={1}
-          borderRadius="lg"
-          bg="status.info.soft"
-        >
-          <Text fontSize="sm" color="text.default">
-            {t.draft.restored}
-          </Text>
-          <Button
+            <LuMapPin size={14} aria-hidden />
+            <Text fontSize="sm" fontWeight={500} lineClamp={1}>
+              {bandArea
+                ? formatMessage(t.band.near, { area: bandArea })
+                : t.location.areaPending}
+            </Text>
+            <Button
+              type="button"
+              variant="ghost"
+              minH="44px"
+              borderRadius="full"
+              color="text.link"
+              aria-label={t.band.changeLabel}
+              onClick={() => goToStep('location')}
+            >
+              {t.band.change}
+            </Button>
+          </HStack>
+        }
+        headingRef={headingRef}
+        stepKey={step}
+        stepDirection={stepDirection}
+        title={copy.title}
+        description={copy.description}
+        errorText={serverError}
+        actions={{
+          showBack: step !== 'location',
+          backLabel: t.back,
+          continueLabel: posting ? t.post : t.continue,
+          continueLoading: advancing || postBusy || waitingForPhotos,
+          // Post says what it's doing: the task, then each photo (FE-341).
+          continueLoadingText: postBusy
+            ? photoProgressLabel(
+                photoProgress,
+                t.photoProgress,
+                t.photoProgress.posting,
+              )
+            : waitingForPhotos
+              ? t.photoProgress.converting
+              : undefined,
+          isFinal: posting,
+          onBack: goBack,
+          onContinue: () => void continueStep(),
+        }}
+      >
+        {draftNotice ? (
+          <HStack
+            justify="space-between"
+            gap={3}
+            pl={4}
+            pr={1}
+            borderRadius="lg"
+            bg="status.info.soft"
+          >
+            <Text fontSize="sm" color="text.default">
+              {t.draft.restored}
+            </Text>
+            <Button
+              type="button"
+              variant="ghost"
+              minH="44px"
+              color="text.link"
+              onClick={startOver}
+            >
+              {t.draft.startOver}
+            </Button>
+          </HStack>
+        ) : null}
+        {view.sections.map((id) => (
+          <Fragment key={id}>{section(id)}</Fragment>
+        ))}
+      </CreateTaskMapLayout>
+      <Modal
+        open={showAllowed}
+        onOpenChange={(next) => {
+          if (!next) setAllowedDismissed(true)
+        }}
+        title={t.fields.allowedHeading}
+        description={t.fields.allowedBody}
+        footer={
+          <ModalButton
             type="button"
-            variant="ghost"
-            minH="44px"
-            color="text.link"
-            onClick={startOver}
+            disabled={!allowedChecked}
+            onClick={() => {
+              setValue('acceptedProhibitedUse', true, UPDATE)
+              form.clearErrors('acceptedProhibitedUse')
+            }}
           >
-            {t.draft.startOver}
-          </Button>
-        </HStack>
-      ) : null}
-      {view.sections.map((id) => (
-        <Fragment key={id}>{section(id)}</Fragment>
-      ))}
-    </CreateTaskMapLayout>
+            {t.continue}
+          </ModalButton>
+        }
+      >
+        <FormCheckbox
+          checked={allowedChecked}
+          onCheckedChange={setAllowedChecked}
+          label={t.fields.allowedConfirm}
+          errorText={taskFieldError(
+            t.errors,
+            errors.acceptedProhibitedUse?.message,
+          )}
+        />
+      </Modal>
+    </>
   )
 }

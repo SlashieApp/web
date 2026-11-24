@@ -3,13 +3,12 @@ import { orderedPaymentMethods } from '@/app/(task)/helpers/taskPayment/taskPaym
 
 import type { CreateTaskFormFieldValues } from '../createTaskFormSchema'
 import { CREATE_TASK_STEPS, type CreateTaskStepId } from '../views'
+import { parseExactAddress } from './exactAddress'
 
 type StorageLike = Pick<Storage, 'getItem' | 'setItem' | 'removeItem'>
 
-/** The answers kept between visits; photos and the confirmation are not. */
-export type CreateTaskDraftValues = Partial<
-  Omit<CreateTaskFormFieldValues, 'acceptedProhibitedUse'>
->
+/** The answers kept between visits; photos are not. */
+export type CreateTaskDraftValues = Partial<CreateTaskFormFieldValues>
 
 export type CreateTaskDraft = {
   v: 1
@@ -30,7 +29,9 @@ function hasAnswers(values: Partial<CreateTaskFormFieldValues>): boolean {
   return Boolean(
     values.title?.trim() ||
       values.description?.trim() ||
-      values.streetAddress?.trim() ||
+      values.addressLine1?.trim() ||
+      values.city?.trim() ||
+      values.postcode?.trim() ||
       values.budgetMajor?.trim() ||
       (values.categories?.length ?? 0) > 0,
   )
@@ -50,9 +51,27 @@ export function readCreateTaskDraft(
     if (!draft.values || typeof draft.values !== 'object') return null
     // A step the flow no longer has can't be reopened.
     if (!CREATE_TASK_STEPS.some((view) => view.step === draft.step)) return null
-    return withPaymentMethods(withBudgetAnswer(withLegacyBudgetType(draft)))
+    return withPaymentMethods(
+      withBudgetAnswer(withLegacyBudgetType(withExactAddress(draft))),
+    )
   } catch {
     return null
+  }
+}
+
+/**
+ * A draft from before the address was split kept one line. It becomes line 1
+ * (and city, county, postcode when the line has them).
+ */
+function withExactAddress(draft: CreateTaskDraft): CreateTaskDraft {
+  const { streetAddress, ...values } = draft.values as CreateTaskDraftValues & {
+    streetAddress?: unknown
+  }
+  if (typeof streetAddress !== 'string') return draft
+  if (values.addressLine1) return { ...draft, values }
+  return {
+    ...draft,
+    values: { ...values, ...parseExactAddress(streetAddress) },
   }
 }
 
@@ -133,13 +152,12 @@ export function saveCreateTaskDraft(
       storage.removeItem(key)
       return
     }
-    const { acceptedProhibitedUse: _, ...values } = input.values
     const draft: CreateTaskDraft = {
       v: 1,
       savedAt: now,
       step: input.step,
       done: input.done,
-      values,
+      values: input.values,
     }
     storage.setItem(key, JSON.stringify(draft))
   } catch {

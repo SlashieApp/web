@@ -6,6 +6,6 @@ export const createAddress: CreateTaskViewConfig = {
   step: 'address',
   map: 'band',
   sections: ['address'],
-  fields: ['streetAddress'],
+  fields: ['addressLine1', 'addressLine2', 'city', 'county', 'postcode'],
   primary: 'continue',
 }

@@ -6,7 +6,6 @@ import { useParams, useRouter } from 'next/navigation'
 import { useRef, useState } from 'react'
 
 import { SessionLoading } from '@/app/(auth)/components/ui/SessionLoading'
-import { getContactOptions } from '@/app/(dashboard)/profile/profileEligibility'
 import TaskForEdit from '@/app/(task)/tasks/[slug]/graphql/TaskForEdit.gql'
 import { liveQuoteCount } from '@/app/(task)/tasks/[slug]/views/getTaskDetailView'
 import Me from '@/graphql/Me.gql'
@@ -80,7 +79,6 @@ export default function EditTaskPage() {
     return (
       <EditTaskScreen
         task={task}
-        contactOptions={getContactOptions(me.data.me)}
         liveQuotes={liveQuotes}
         quotesWarning={config.quotesWarning}
       />

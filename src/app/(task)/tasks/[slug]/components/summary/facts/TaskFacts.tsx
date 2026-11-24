@@ -39,6 +39,7 @@ import { useLocale } from '@/i18n/LocaleProvider'
 import { formatMessage } from '@/i18n/loadPageI11n'
 import { useI11n } from '@/i18n/useI11n'
 import { sdlEyebrow, sdlFigure, sdlFocusRing } from '@/theme/styles'
+import { RichTextView } from '@/ui/RichText'
 import { mapsDirectionsUrl } from '@/utils/mapsDirectionsUrl'
 import { orderBookedDatetime } from '@/utils/orderHelpers'
 import { formatPrice } from '@/utils/price'
@@ -195,7 +196,7 @@ function Description({ text }: { text: string }) {
   const t = useI11n(bag)
   const [expanded, setExpanded] = useState(false)
   const [overflows, setOverflows] = useState(false)
-  const measure = useCallback((node: HTMLParagraphElement | null) => {
+  const measure = useCallback((node: HTMLDivElement | null) => {
     if (!node) return
     const check = () => setOverflows(node.scrollHeight > node.clientHeight + 1)
     check()
@@ -206,16 +207,15 @@ function Description({ text }: { text: string }) {
 
   return (
     <Stack gap={1} align="flex-start">
-      <Text
+      <Box
         ref={measure}
         fontSize="md"
         color="text.default"
         lineHeight="tall"
-        whiteSpace="pre-line"
         lineClamp={expanded ? undefined : DESCRIPTION_LINES}
       >
-        {text}
-      </Text>
+        <RichTextView value={text} />
+      </Box>
       {expanded || overflows ? (
         <Button
           variant="ghost"

@@ -4,7 +4,6 @@ import { useState } from 'react'
 import { expect, userEvent, within } from 'storybook/test'
 
 import {
-  expectAddRow,
   expectGaps,
   expectLineUnder,
   expectPieces,
@@ -68,7 +67,7 @@ export const StarterSuggestionsOnly: Story = {
   decorators: [withPopularCategories([])],
 }
 
-/** Three chosen: they show as removable chips and leave the suggestions. */
+/** Chosen suggestions stay put; a typed one sits after them, before Others. */
 export const WithCategories: Story = {
   args: { value: ['Plumbing', 'Dog walking', 'Handyman'] },
 }
@@ -80,7 +79,7 @@ export const LongCategory: Story = {
   },
 }
 
-/** Ten chosen: the field, Add button and suggestions are all gone. */
+/** Ten chosen: further suggestions and Others cannot be added. */
 export const AtCap: Story = {
   args: { value: [...NINE, 'Decorating'] },
 }
@@ -94,6 +93,7 @@ export const Required: Story = {
 export const TooLong: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
+    await userEvent.click(canvas.getByRole('checkbox', { name: 'Others' }))
     await userEvent.type(
       canvas.getByRole('textbox', { name: /add a category/i }),
       `${'a'.repeat(65)}{Enter}`,
@@ -107,6 +107,7 @@ export const TooMany: Story = {
   args: { value: NINE },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
+    await userEvent.click(canvas.getByRole('checkbox', { name: 'Others' }))
     await userEvent.click(
       canvas.getByRole('textbox', { name: /add a category/i }),
     )
@@ -117,24 +118,21 @@ export const TooMany: Story = {
 }
 
 /**
- * Form spacing (FE-481): one composite field. The label is 8 above the tags, the
- * pieces (tags, add row, suggestions) are 8 apart, the input and Add are 12
- * apart and 48 tall, and the helper is 4 under the control.
+ * Form spacing (FE-481): the label is 8 above the pins, the pins are 8 apart,
+ * and the helper is 4 under them. The field stays hidden until Others.
  */
 export const Spacing: Story = {
   args: { value: ['Plumbing', 'Dog walking'] },
   play: async ({ canvasElement }) => {
     const field = fieldByLabel(canvasElement, /Categories/)
-    const { control, pieces } = await expectPieces(field)
-    const [tags, row, suggestions] = pieces
-    await expectGaps([...tags.children], formSpace.alternativesGap)
-    await expectAddRow(row)
-    await expectGaps([...suggestions.children], formSpace.labelToControl)
-    // The suggestions wrap 8 apart, on a line and between lines.
-    await expectGaps(
-      [...(suggestions.lastElementChild as HTMLElement).children],
-      formSpace.alternativesGap,
-    )
+    const { control } = await expectPieces(field)
+    const pins = [
+      ...control.querySelectorAll(':scope > * > label'),
+    ] as HTMLElement[]
+    await expectGaps(pins, formSpace.alternativesGap)
+    await expect(
+      within(canvasElement).queryByRole('textbox', { name: /add a category/i }),
+    ).toBeNull()
     await expectLineUnder(control, field, /Tap a suggestion/)
   },
 }

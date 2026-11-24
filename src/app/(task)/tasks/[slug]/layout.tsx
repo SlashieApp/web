@@ -6,6 +6,7 @@ import {
   loadPageI11n,
   metadataFromI11n,
 } from '@/i18n/loadPageI11n'
+import { richTextToPlain } from '@/ui/RichText'
 import { absoluteUrlFromEnv } from '@/utils/absoluteUrl'
 import { getTaskForTaskDetailPage } from './helpers/getTaskForTaskDetailPage'
 import bag from './i11n.json'
@@ -22,7 +23,7 @@ export async function generateMetadata({
   const title = task
     ? formatMessage(copy.metadataTitleSuffix, { title: task.title })
     : copy.metadata.title
-  const rawDescription = task?.description?.trim()
+  const rawDescription = richTextToPlain(task?.description ?? '')
   const description = rawDescription
     ? rawDescription.length > 160
       ? `${rawDescription.slice(0, 157)}…`

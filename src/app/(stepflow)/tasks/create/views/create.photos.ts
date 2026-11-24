@@ -1,14 +1,14 @@
 import type { CreateTaskViewConfig } from './types'
 
 /**
- * Optional photos (FE-355): no fields to check, so Continue works with none.
- * It waits while a HEIC photo converts.
+ * Details: an optional description, then optional photos (FE-355). Continue
+ * works with neither. It waits while a HEIC photo converts.
  */
 export const createPhotos: CreateTaskViewConfig = {
   layout: 'step',
   step: 'photos',
   map: 'desktopBand',
   sections: ['photos'],
-  fields: [],
+  fields: ['description'],
   primary: 'continue',
 }

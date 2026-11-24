@@ -49,14 +49,17 @@ const ORDER: CreateTaskStepId[] = [
   'review',
 ]
 
-const ADDRESS = '12 Example Street, London SW1A 1AA'
-
 const answers: CreateTaskDraftValues = {
   title: 'Fix a leaking kitchen tap',
   description:
     'The cold tap drips all the time. The washer probably needs replacing.',
   categories: ['Plumbing'],
-  streetAddress: ADDRESS,
+  addressLine1: '12 Example Street',
+  addressLine2: '',
+  city: 'London',
+  county: '',
+  postcode: 'SW1A 1AA',
+  acceptedProhibitedUse: true,
   mapPlaceName: 'Westminster, London',
   locationLat: '51.501000',
   locationLng: '-0.141000',
@@ -97,7 +100,12 @@ async function arrived(heading: HTMLElement) {
 }
 
 /** On the address step with the pin set but no exact address yet. */
-const addressToAdd = atStep('address', { ...answers, streetAddress: '' })
+const addressToAdd = atStep('address', {
+  ...answers,
+  addressLine1: '',
+  city: '',
+  postcode: '',
+})
 
 /** A small PNG, as the photo library hands it over. */
 async function storyPng(name: string, color: string): Promise<File> {
@@ -165,6 +173,7 @@ function phoneLocation(
     beforeEach: shareLocation,
     globals: { viewport: { value: viewport } },
     play: async ({ canvasElement }) => {
+      await confirmAllowedTasks(canvasElement)
       const canvas = within(canvasElement)
       await canvas.findByRole('heading', { name: 'Where is the task?' })
       await expect(`${window.innerWidth}px`).toBe(width)
@@ -184,7 +193,7 @@ function phoneLocation(
       await expect(
         canvas.getByRole('button', { name: /Continue/ }),
       ).toBeVisible()
-      await expect(canvas.queryByLabelText(/Exact address/)).toBeNull()
+      await expect(canvas.queryByLabelText(/Address line 1/)).toBeNull()
       const map = await storyVisibleMapHeight(canvasElement)
       await expect(map / window.innerHeight).toBeGreaterThanOrEqual(minMapShare)
     },
@@ -248,10 +257,26 @@ const meta = {
 export default meta
 type Story = StoryObj<typeof meta>
 
+/** Dismiss the allowed-tasks notice that opens on a fresh location step. */
+async function confirmAllowedTasks(canvasElement: HTMLElement) {
+  const dialog = within(canvasElement.ownerDocument.body).getByRole('dialog', {
+    name: /Allowed tasks only/,
+  })
+  await userEvent.click(
+    within(dialog).getByRole('checkbox', {
+      name: /I confirm this task is legal/,
+    }),
+  )
+  await userEvent.click(
+    within(dialog).getByRole('button', { name: 'Continue' }),
+  )
+}
+
 /** create.location: the full-screen map and a short card; no address, no Back. */
 export const Location: Story = {
   decorators: [fresh],
   play: async ({ canvasElement }) => {
+    await confirmAllowedTasks(canvasElement)
     const canvas = within(canvasElement)
     await expect(
       await canvas.findByRole('heading', { name: 'Where is the task?' }),
@@ -259,7 +284,7 @@ export const Location: Story = {
     await expect(
       canvas.getByText(/Workers only see this approximate area/),
     ).toBeVisible()
-    await expect(canvas.queryByLabelText(/Exact address/)).toBeNull()
+    await expect(canvas.queryByLabelText(/Address line 1/)).toBeNull()
     await expect(canvas.queryByRole('button', { name: /Back/ })).toBeNull()
   },
 }
@@ -292,14 +317,14 @@ export const Address: Story = {
         'Only shared with the worker you accept, after you accept their quote.',
       ),
     ).toBeVisible()
-    const field = canvas.getByLabelText(/Exact address/)
+    const field = canvas.getByLabelText(/Address line 1/)
     await expect(field).toHaveValue('')
     await expect(field).not.toHaveAccessibleDescription()
     await expect(
       canvas.queryByText('Shared only with the worker you accept.'),
     ).toBeNull()
     await expect(
-      canvas.getByRole('button', { name: 'Use pin address' }),
+      canvas.getByRole('button', { name: 'Use Westminster, London' }),
     ).toBeEnabled()
     await expect(
       canvas.getByRole('button', { name: 'Change the task location' }),
@@ -313,9 +338,11 @@ export const AddressFilled: Story = {
   decorators: [atStep('address')],
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
-    await expect(await canvas.findByLabelText(/Exact address/)).toHaveValue(
-      ADDRESS,
+    await expect(await canvas.findByLabelText(/Address line 1/)).toHaveValue(
+      '12 Example Street',
     )
+    await expect(canvas.getByLabelText(/^City/)).toHaveValue('London')
+    await expect(canvas.getByLabelText(/Postcode/)).toHaveValue('SW1A 1AA')
     await userEvent.click(canvas.getByRole('button', { name: /Continue/ }))
     await expect(
       await canvas.findByRole('heading', { name: 'What needs doing?' }),
@@ -330,9 +357,11 @@ export const AddressMissing: Story = {
     const canvas = within(canvasElement)
     await canvas.findByRole('heading', { name: "What's the exact address?" })
     await userEvent.click(canvas.getByRole('button', { name: /Continue/ }))
-    const field = canvas.getByLabelText(/Exact address/)
+    const field = canvas.getByLabelText(/Address line 1/)
     await waitFor(() => expect(field).toHaveFocus())
-    await expect(field).toHaveAccessibleDescription(/Add the exact address\./)
+    await expect(field).toHaveAccessibleDescription(
+      /Add the first line of the address\./,
+    )
   },
 }
 
@@ -341,12 +370,13 @@ export const AddressUsePinAddress: Story = {
   decorators: [addressToAdd],
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
-    const field = await canvas.findByLabelText(/Exact address/)
+    const field = await canvas.findByLabelText(/Address line 1/)
     await expect(field).toHaveValue('')
     await userEvent.click(
-      canvas.getByRole('button', { name: 'Use pin address' }),
+      canvas.getByRole('button', { name: 'Use Westminster, London' }),
     )
-    await expect(field).toHaveValue('Westminster, London')
+    await expect(field).toHaveValue('Westminster')
+    await expect(canvas.getByLabelText(/^City/)).toHaveValue('London')
   },
 }
 
@@ -360,7 +390,7 @@ export const AddressPhone: Story = {
       await canvas.findByRole('heading', { name: "What's the exact address?" }),
     ).toBeVisible()
     await expect(canvas.getByText('Step 2 of 7 · Address')).toBeVisible()
-    await expect(canvas.getByLabelText(/Exact address/)).toBeVisible()
+    await expect(canvas.getByLabelText(/Address line 1/)).toBeVisible()
     await expect(canvas.getByRole('button', { name: /Continue/ })).toBeVisible()
   },
 }
@@ -504,12 +534,15 @@ export const Timing: Story = {
     await userEvent.click(
       await canvas.findByRole('radio', { name: 'On a date and time' }),
     )
-    await expect(canvas.getByLabelText(/^Date/)).toBeVisible()
-    await expect(canvas.getByLabelText(/^Time/)).toBeVisible()
-    // Urgent is a Slashie Pro feature (FE-603): not offered without Pro.
     await expect(
-      canvas.queryByRole('checkbox', { name: /Mark as urgent/ }),
-    ).toBeNull()
+      canvas.getByRole('button', { name: /Choose a date and time/ }),
+    ).toBeVisible()
+    // Urgent is shown without Pro, locked.
+    const urgent = canvas.getByRole('checkbox', { name: /Mark as urgent/ })
+    await expect(urgent).toBeDisabled()
+    await expect(
+      canvasElement.querySelector('[data-urgent-lock]'),
+    ).not.toBeNull()
   },
 }
 
@@ -562,11 +595,11 @@ export const Photos: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
     await expect(
-      await canvas.findByRole('heading', { name: 'Add photos' }),
+      await canvas.findByRole('heading', { name: 'Details' }),
     ).toBeVisible()
     await expect(
       canvas.getByText(
-        "Optional. Photos help workers quote. They're public on your task, so leave out house numbers and faces.",
+        'Optional. Describe the job, and add photos if they help. Photos are public, so leave out house numbers and faces.',
       ),
     ).toBeVisible()
     await expect(
@@ -581,7 +614,7 @@ export const PhotosContinueWithout: Story = {
   decorators: [atStep('photos')],
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
-    await canvas.findByRole('heading', { name: 'Add photos' })
+    await canvas.findByRole('heading', { name: 'Details' })
     await userEvent.click(canvas.getByRole('button', { name: /Continue/ }))
     await arrived(
       await canvas.findByRole('heading', {
@@ -597,7 +630,7 @@ export const PhotosWithPhotos: Story = {
   globals: { viewport: { value: 'mobile1' } },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
-    await canvas.findByRole('heading', { name: 'Add photos' })
+    await canvas.findByRole('heading', { name: 'Details' })
     await expect(canvas.getByText('Step 5 of 7 · Photos')).toBeVisible()
     await expect(await storyVisibleMapHeight(canvasElement)).toBe(0)
     await userEvent.upload(photoLibrary(canvasElement), [
@@ -621,7 +654,7 @@ export const PhotosConvertingPhoto: Story = {
   decorators: [atStep('photos')],
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
-    await canvas.findByRole('heading', { name: 'Add photos' })
+    await canvas.findByRole('heading', { name: 'Details' })
     await userEvent.upload(photoLibrary(canvasElement), await storyHeicPhoto())
     await expect(await canvas.findByText('Converting photo…')).toBeVisible()
     await expect(
@@ -749,7 +782,7 @@ export const BudgetNotAnswered: Story = {
   },
 }
 
-/** create.review: what workers will see, the private address, contact, the confirmation and Post task. */
+/** create.review: what workers will see, then Post task. */
 export const Review: Story = {
   decorators: [atStep('review')],
   play: async ({ canvasElement }) => {
@@ -758,7 +791,9 @@ export const Review: Story = {
       await canvas.findByRole('heading', { name: 'What workers will see' }),
     ).toBeVisible()
     await expect(canvas.getByText('Fix a leaking kitchen tap')).toBeVisible()
-    await expect(canvas.getByText(ADDRESS)).toBeVisible()
+    await expect(
+      canvas.getByText('12 Example Street, London, SW1A 1AA'),
+    ).toBeVisible()
     await expect(canvas.getByText('£80 · Cash')).toBeVisible()
     await expect(
       canvas.getByRole('button', { name: 'Post task' }),
@@ -789,7 +824,7 @@ export const StepsSlideTheWayYouGo: Story = {
   decorators: [atStep('photos')],
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
-    await canvas.findByRole('heading', { name: 'Add photos' })
+    await canvas.findByRole('heading', { name: 'Details' })
     const arriving = () =>
       canvasElement.querySelector('[data-step-in]') as HTMLElement | null
     // Opened from a draft: nothing slides.
@@ -805,7 +840,7 @@ export const StepsSlideTheWayYouGo: Story = {
     await expect(forward.animationDuration).toBe('0.2s')
 
     await userEvent.click(canvas.getByRole('button', { name: 'Back' }))
-    await canvas.findByRole('heading', { name: 'Add photos' })
+    await canvas.findByRole('heading', { name: 'Details' })
     await expect(arriving()).toHaveAttribute('data-step-in', 'back')
     await expect(
       getComputedStyle(arriving() as HTMLElement).animationName,
@@ -824,7 +859,9 @@ export const ReviewEditAddress: Story = {
     await arrived(
       await canvas.findByRole('heading', { name: "What's the exact address?" }),
     )
-    await expect(canvas.getByLabelText(/Exact address/)).toHaveValue(ADDRESS)
+    await expect(canvas.getByLabelText(/Address line 1/)).toHaveValue(
+      '12 Example Street',
+    )
   },
 }
 
@@ -835,7 +872,7 @@ export const ReviewEditPhotos: Story = {
     const canvas = within(canvasElement)
     await expect(await canvas.findByText('No photos')).toBeVisible()
     await userEvent.click(canvas.getByRole('button', { name: 'Edit Photos' }))
-    await arrived(await canvas.findByRole('heading', { name: 'Add photos' }))
+    await arrived(await canvas.findByRole('heading', { name: 'Details' }))
   },
 }
 
@@ -857,14 +894,16 @@ export const ReviewEditArea: Story = {
 
 /** Post task with no exact address: back to the address step, saying why. */
 export const ReviewMissingAddress: Story = {
-  decorators: [atStep('review', { ...answers, streetAddress: '' })],
+  decorators: [
+    atStep('review', {
+      ...answers,
+      addressLine1: '',
+      city: '',
+      postcode: '',
+    }),
+  ],
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
-    await userEvent.click(
-      await canvas.findByRole('checkbox', {
-        name: /I confirm this task is legal/,
-      }),
-    )
     await userEvent.click(canvas.getByRole('button', { name: 'Post task' }))
     await arrived(
       await canvas.findByRole('heading', { name: "What's the exact address?" }),
@@ -875,8 +914,8 @@ export const ReviewMissingAddress: Story = {
       ),
     ).toBeVisible()
     await expect(
-      canvas.getByLabelText(/Exact address/),
-    ).toHaveAccessibleDescription(/Add the exact address\./)
+      canvas.getByLabelText(/Address line 1/),
+    ).toHaveAccessibleDescription(/Add the first line of the address\./)
   },
 }
 
@@ -903,16 +942,20 @@ export const ReviewEmailNotVerified: Story = {
   },
 }
 
-/** Post task without the confirmation: the box says why. */
+/** Post task without the confirmation: back to the map, where the notice opens. */
 export const ReviewNeedsConfirmation: Story = {
-  decorators: [atStep('review')],
+  decorators: [atStep('review', { ...answers, acceptedProhibitedUse: false })],
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
     await userEvent.click(
       await canvas.findByRole('button', { name: 'Post task' }),
     )
+    const dialog = await within(canvasElement.ownerDocument.body).findByRole(
+      'dialog',
+      { name: /Allowed tasks only/ },
+    )
     await expect(
-      await canvas.findByText('Tick the box to confirm this task is allowed.'),
+      within(dialog).getByText('Tick the box to confirm this task is allowed.'),
     ).toBeVisible()
   },
 }
@@ -925,6 +968,7 @@ export const StartOver: Story = {
     await userEvent.click(
       await canvas.findByRole('button', { name: 'Start over' }),
     )
+    await confirmAllowedTasks(canvasElement)
     // The map card rises in, so wait for it to finish fading in.
     const heading = await canvas.findByRole('heading', {
       name: 'Where is the task?',
@@ -1053,7 +1097,7 @@ export const DetailsFocusClearsBarKeyboard: Story = {
   },
 }
 
-/** The review step on a phone: the summary, the contact group and the confirmation, 20 apart. */
+/** The review step on a phone: the summary, then Post task. */
 export const SpacingReviewPhone: Story = {
   ...phone390,
   decorators: [atStep('review')],

@@ -14,7 +14,11 @@ const values: EditTaskFormValues = {
   title: ' Fix a leaking tap ',
   categories: ['Plumbing'],
   description: 'Cold tap drips.',
-  streetAddress: '12 Example Street',
+  addressLine1: '12 Example Street',
+  addressLine2: '',
+  city: 'London',
+  county: '',
+  postcode: 'SW1A 1AA',
   mapPlaceName: 'Westminster, London',
   locationLat: '51.5',
   locationLng: '-0.14',
@@ -130,7 +134,7 @@ describe('buildEditTaskInput', () => {
         lat: 51.5,
         lng: -0.14,
         name: 'Westminster',
-        address: '12 Example Street',
+        address: '12 Example Street, London, SW1A 1AA',
       },
     })
   })

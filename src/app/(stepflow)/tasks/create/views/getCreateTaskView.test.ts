@@ -50,7 +50,7 @@ describe('getCreateTaskView', () => {
     expect(view({ step: 'details' })).toBe('create.details')
     expect(CREATE_TASK_VIEWS['create.details']).toMatchObject({
       sections: ['basics'],
-      fields: ['title', 'categories', 'description'],
+      fields: ['title', 'categories'],
     })
   })
 
@@ -58,12 +58,12 @@ describe('getCreateTaskView', () => {
     expect(view({ step: 'timing' })).toBe('create.timing')
   })
 
-  it('asks for photos on their own step, with nothing to check', () => {
+  it('asks for an optional description with the photos', () => {
     expect(view({ step: 'photos' })).toBe('create.photos')
     expect(CREATE_TASK_VIEWS['create.photos']).toMatchObject({
       step: 'photos',
       sections: ['photos'],
-      fields: [],
+      fields: ['description'],
       primary: 'continue',
     })
   })
@@ -78,7 +78,7 @@ describe('getCreateTaskView', () => {
 
   it('checks the email once, before the flow, not at the review', () => {
     expect(CREATE_TASK_VIEWS['create.review']).toMatchObject({
-      sections: ['summary', 'contact', 'consent'],
+      sections: ['summary'],
     })
   })
 
@@ -86,12 +86,17 @@ describe('getCreateTaskView', () => {
     expect(CREATE_TASK_VIEWS['create.location']).toMatchObject({
       map: 'full',
       sections: ['location'],
-      fields: ['mapPlaceName', 'locationLat', 'locationLng'],
+      fields: [
+        'mapPlaceName',
+        'locationLat',
+        'locationLng',
+        'acceptedProhibitedUse',
+      ],
     })
     expect(CREATE_TASK_VIEWS['create.address']).toMatchObject({
       map: 'band',
       sections: ['address'],
-      fields: ['streetAddress'],
+      fields: ['addressLine1', 'addressLine2', 'city', 'county', 'postcode'],
       primary: 'continue',
     })
   })

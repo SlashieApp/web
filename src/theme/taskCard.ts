@@ -11,8 +11,8 @@ export const taskCardLayout = {
   // taller than one without.
   badgeRowMinHeight: '1.625rem',
   /**
-   * The photo (FE-502, Ryan 2026-11-07): the card's left side, edge to edge
-   * from its top to its bottom, 96 wide, cropped to fit.
+   * The photo: a 96 square on the card's left, cropped to fit. It does not
+   * stretch when the text is taller.
    */
   photoWidth: '96px',
 } as const

@@ -1,6 +1,6 @@
 'use client'
 
-import { Box, Stack, Text, Wrap, chakra } from '@chakra-ui/react'
+import { Box, Stack, Text, Wrap } from '@chakra-ui/react'
 import { Currency, type TaskPaymentMethod } from '@codegen/schema'
 import { useEffect, useId, useRef, useState } from 'react'
 import type { UseFormRegister } from 'react-hook-form'
@@ -19,9 +19,10 @@ import {
   taskPaymentBag,
 } from '@/app/(task)/helpers/taskPayment/taskPayment'
 import { useI11n } from '@/i18n/useI11n'
-import { sdlFigure, sdlFocusRing, sdlMotion } from '@/theme/styles'
+import { sdlFigure } from '@/theme/styles'
 import {
   CheckButtonGroup,
+  ChoiceChip,
   FormField,
   Input,
   RadioButtonGroup,
@@ -82,86 +83,6 @@ export type CreateTaskBudgetSectionProps = {
 const CURRENCY_SYMBOL: Record<Currency, string> = {
   [Currency.Gbp]: '£',
   [Currency.Usd]: '$',
-}
-
-const chipTransition = {
-  transitionProperty: 'background-color, border-color, color',
-  transitionDuration: sdlMotion.duration.base,
-  transitionTimingFunction: sdlMotion.easing.standard,
-} as const
-
-const ChipLabel = chakra('label')
-const ChipInput = chakra('input')
-
-/**
- * One of the "What's it for?" choices: a pill, green when it is the one
- * picked. A real radio input under the pill, so the arrow keys move between
- * the choices and each is announced as "2 of 7".
- */
-function UnitChip({
-  name,
-  on,
-  label,
-  onPick,
-}: {
-  /** The group's name: one choice at a time. */
-  name: string
-  on: boolean
-  label: string
-  /** `byPointer`: tapped or clicked, not reached with the arrow keys. */
-  onPick: (byPointer: boolean) => void
-}) {
-  const pointer = useRef(false)
-  return (
-    <ChipLabel
-      position="relative"
-      display="inline-flex"
-      alignItems="center"
-      px={3}
-      minH="44px"
-      borderRadius="full"
-      borderWidth="1px"
-      borderColor={on ? 'transparent' : 'border.strong'}
-      bg={on ? 'status.success.soft' : 'bg.surface'}
-      color={on ? 'status.success.fg' : 'text.muted'}
-      fontSize="sm"
-      fontWeight={500}
-      cursor="pointer"
-      _hover={
-        on
-          ? undefined
-          : {
-              bg: 'bg.subtle',
-              borderColor: 'border.hover',
-              color: 'text.default',
-            }
-      }
-      _focusWithin={{ '&:has(:focus-visible)': sdlFocusRing }}
-      {...chipTransition}
-    >
-      <ChipInput
-        type="radio"
-        name={name}
-        checked={on}
-        // A real click has a count; one made by the keyboard has none.
-        onClick={(e) => {
-          pointer.current = e.detail > 0
-        }}
-        onChange={() => {
-          onPick(pointer.current)
-          pointer.current = false
-        }}
-        position="absolute"
-        inset={0}
-        w="full"
-        h="full"
-        m={0}
-        opacity={0}
-        cursor="pointer"
-      />
-      {label}
-    </ChipLabel>
-  )
 }
 
 /** The second thing an answer reveals follows the first by this much (staggering). */
@@ -326,47 +247,51 @@ export function CreateTaskBudgetSection({
               aria-labelledby={unitLabelId}
               gap="form.alternativesGap"
             >
-              <UnitChip
+              <ChoiceChip
                 name={unitName}
-                on={unitChoice === 'keep' ? !keptOn : wholeJobOn}
-                label={f.unitWholeJob}
-                onPick={() => pickUnit(null)}
-              />
+                selected={unitChoice === 'keep' ? !keptOn : wholeJobOn}
+                onSelect={() => pickUnit(null)}
+              >
+                {f.unitWholeJob}
+              </ChoiceChip>
               {unitChoice === 'keep' ? (
                 // Without Slashie Pro the task keeps the unit it has, or
                 // drops it: no other unit is offered.
-                <UnitChip
+                <ChoiceChip
                   name={unitName}
-                  on={keptOn}
-                  label={keptLabel}
-                  onPick={() => {
+                  selected={keptOn}
+                  onSelect={() => {
                     setOtherTapped(false)
                     onBudgetUnitChange(keptUnit)
                   }}
-                />
+                >
+                  {keptLabel}
+                </ChoiceChip>
               ) : (
                 <>
                   {BUDGET_UNIT_SUGGESTIONS.map((unit) => (
-                    <UnitChip
+                    <ChoiceChip
                       key={unit}
                       name={unitName}
-                      on={!otherOn && chosen === unit}
-                      label={units.unit[unit]}
-                      onPick={() => pickUnit(unit)}
-                    />
+                      selected={!otherOn && chosen === unit}
+                      onSelect={() => pickUnit(unit)}
+                    >
+                      {units.unit[unit]}
+                    </ChoiceChip>
                   ))}
-                  <UnitChip
+                  <ChoiceChip
                     name={unitName}
-                    on={otherOn}
-                    label={f.unitOther}
-                    onPick={(byPointer) => {
+                    selected={otherOn}
+                    onSelect={(byPointer) => {
                       // Arrowing past Other must not pull focus out of the choices.
                       if (byPointer) focusNext.current = 'other'
                       setOtherTapped(true)
                       // A tapped suggestion isn't the poster's own words.
                       if (chosen !== null) onBudgetUnitChange('')
                     }}
-                  />
+                  >
+                    {f.unitOther}
+                  </ChoiceChip>
                 </>
               )}
             </Wrap>

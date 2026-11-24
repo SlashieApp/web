@@ -1,7 +1,7 @@
 'use client'
 
 import { Box, Text } from '@chakra-ui/react'
-import { useEffect } from 'react'
+import { useEffect, useSyncExternalStore } from 'react'
 
 import { marketplaceMapMotion } from '@/app/(task)/helpers/marketplaceMap/motion'
 import {
@@ -12,7 +12,12 @@ import {
   mountMapFadeOverlay,
   overlayWatermarkCss,
 } from '@/app/(task)/helpers/marketplaceMap/overlay/overlay'
+import {
+  DESKTOP_MAP_CENTER_LEFT_INSET_PX,
+  mapCenterOffsetPx,
+} from '@/app/(task)/helpers/taskMap/centerOffset'
 import { useIsTouchMobileDevice } from '@/app/(task)/helpers/touchMobileDevice'
+import { WEB_MQ } from '@/theme/breakpoints'
 import { PageContainer } from '@ui'
 
 import {
@@ -22,6 +27,21 @@ import {
   TaskLocationSearchBar,
 } from './TaskLocationMapPicker'
 import { useTaskLocationMap } from './useTaskLocationMap'
+
+function subscribeWebLayout(onChange: () => void) {
+  const query = window.matchMedia(WEB_MQ)
+  query.addEventListener('change', onChange)
+  return () => query.removeEventListener('change', onChange)
+}
+
+/** Desktop (`lg`): the same split search uses for its centre offset. */
+function useWebLayout() {
+  return useSyncExternalStore(
+    subscribeWebLayout,
+    () => window.matchMedia(WEB_MQ).matches,
+    () => false,
+  )
+}
 
 export type CreateTaskLocationMapProps = {
   accessToken: string | undefined
@@ -56,6 +76,14 @@ export function CreateTaskLocationMap({
   onLocateFailed,
 }: CreateTaskLocationMapProps) {
   const hideZoomControls = useIsTouchMobileDevice()
+  const web = useWebLayout()
+  // Full-screen location step on desktop: the pin sits where /search draws
+  // its centre, in the open map beside the card. The band and phones stay
+  // centred in the map that shows.
+  const centerOffset: [number, number] =
+    collapsed || !web
+      ? [0, 0]
+      : mapCenterOffsetPx(DESKTOP_MAP_CENTER_LEFT_INSET_PX)
 
   const {
     attachMapContainer,
@@ -74,6 +102,7 @@ export function CreateTaskLocationMap({
     onLocationLatChange,
     onLocationLngChange,
     onLocateFailed,
+    centerOffset,
     onMapCreated: (map) => {
       mountMapFadeOverlay(map.getContainer())
     },
@@ -172,8 +201,8 @@ export function CreateTaskLocationMap({
         pointerEvents="none"
         aria-hidden
       >
-        {collapsed ? null : <TaskLocationAreaHalo />}
-        <TaskLocationCentrePin />
+        {collapsed ? null : <TaskLocationAreaHalo offset={centerOffset} />}
+        <TaskLocationCentrePin offset={centerOffset} />
       </Box>
 
       {collapsed ? null : (

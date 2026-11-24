@@ -6,6 +6,11 @@ export const createLocation: CreateTaskViewConfig = {
   step: 'location',
   map: 'full',
   sections: ['location'],
-  fields: ['mapPlaceName', 'locationLat', 'locationLng'],
+  fields: [
+    'mapPlaceName',
+    'locationLat',
+    'locationLng',
+    'acceptedProhibitedUse',
+  ],
   primary: 'continue',
 }

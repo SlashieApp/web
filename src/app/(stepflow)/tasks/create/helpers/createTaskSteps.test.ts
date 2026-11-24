@@ -58,25 +58,28 @@ describe('create task steps', () => {
     expect(createTaskFirstErroredStep(['locationLat', 'locationLng'])).toBe(
       'location',
     )
-    expect(createTaskFirstErroredStep(['streetAddress'])).toBe('address')
+    expect(createTaskFirstErroredStep(['addressLine1'])).toBe('address')
     expect(createTaskFirstErroredStep(['budgetMajor', 'title'])).toBe('details')
     expect(createTaskFirstErroredStep(['preferredDate'])).toBe('timing')
     expect(createTaskFirstErroredStep(['budgetMajor'])).toBe('budget')
-    expect(createTaskFirstErroredStep(['acceptedProhibitedUse'])).toBe('review')
+    expect(createTaskFirstErroredStep(['acceptedProhibitedUse'])).toBe(
+      'location',
+    )
     expect(createTaskFirstErroredStep([])).toBeNull()
   })
 
   it('goes to the earliest of several steps with a problem', () => {
-    expect(createTaskFirstErroredStep(['title', 'streetAddress'])).toBe(
+    expect(createTaskFirstErroredStep(['title', 'addressLine1'])).toBe(
       'address',
     )
-    expect(createTaskFirstErroredStep(['streetAddress', 'mapPlaceName'])).toBe(
+    expect(createTaskFirstErroredStep(['postcode', 'mapPlaceName'])).toBe(
       'location',
     )
   })
 
-  it('never stops on the photos step: photos are optional, and not form fields', () => {
-    expect(createTaskStep('photos').fields).toEqual([])
+  it('keeps the description on the details step, and photos are not a field', () => {
+    expect(createTaskStep('photos').fields).toEqual(['description'])
+    expect(createTaskFirstErroredStep(['description'])).toBe('photos')
     expect(createTaskFirstErroredStep(['photos'])).toBeNull()
     // A problem on either side of the photos step skips it.
     expect(createTaskFirstErroredStep(['preferredTime', 'budgetMajor'])).toBe(

@@ -41,8 +41,6 @@ export type CreateTaskSection =
   | 'timing'
   | 'budget'
   | 'summary'
-  | 'contact'
-  | 'consent'
 
 /**
  * Where the map sits: full screen behind a short card (location), the band

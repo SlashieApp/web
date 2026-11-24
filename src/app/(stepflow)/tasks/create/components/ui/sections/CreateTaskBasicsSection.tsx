@@ -3,7 +3,7 @@
 import type { UseFormRegister } from 'react-hook-form'
 
 import { useI11n } from '@/i18n/useI11n'
-import { FormField, Input, Textarea } from '@ui'
+import { FormField, Input } from '@ui'
 
 import type { CreateTaskFormFieldValues } from '../../../createTaskFormSchema'
 import { taskFieldError } from '../../../helpers/taskFieldError'
@@ -23,11 +23,10 @@ export type CreateTaskBasicsSectionProps = {
   fieldErrors?: {
     title?: string
     categories?: string
-    description?: string
   }
 }
 
-/** Title, categories and description. */
+/** Title and categories. The description is on the details step. */
 export function CreateTaskBasicsSection({
   bare = false,
   sectionHeading = '',
@@ -54,18 +53,6 @@ export function CreateTaskBasicsSection({
         onChange={onCategoriesChange}
         errorText={fieldErrors?.categories}
       />
-
-      <FormField
-        label={f.description}
-        required
-        errorText={taskFieldError(t.errors, fieldErrors?.description)}
-      >
-        <Textarea
-          {...register('description')}
-          placeholder={f.descriptionPlaceholder}
-          rows={4}
-        />
-      </FormField>
     </CreateTaskSection>
   )
 }

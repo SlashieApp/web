@@ -34,9 +34,9 @@
         "description": "Only shared with the worker you accept, after you accept their quote."
       },
       "details": {
-        "label": "Details",
+        "label": "Task",
         "title": "What needs doing?",
-        "description": "A clear title and a few lines help workers quote."
+        "description": "A clear title and categories help workers quote."
       },
       "timing": {
         "label": "Timing",
@@ -44,9 +44,9 @@
         "description": "Keep it flexible or pick a date. You agree the final time with your worker."
       },
       "photos": {
-        "label": "Photos",
-        "title": "Add photos",
-        "description": "Optional. Photos help workers quote. They're public on your task, so leave out house numbers and faces."
+        "label": "Details",
+        "title": "Details",
+        "description": "Optional. Describe the job, and add photos if they help. Photos are public, so leave out house numbers and faces."
       },
       "budget": {
         "label": "Budget",
@@ -65,12 +65,22 @@
       "locateLabel": "Use current location",
       "locateUnavailable": "We couldn't get your location. Search or drag the map instead.",
       "addressLabel": "Exact address",
-      "addressPlaceholder": "Apt, street, unit number…",
+      "addressLine1": "Address line 1",
+      "addressLine1Placeholder": "12 Clarendon Road",
+      "addressLine2": "Address line 2",
+      "addressLine2Placeholder": "Flat or building, if you have one",
+      "city": "City",
+      "cityPlaceholder": "Watford",
+      "county": "County",
+      "countyPlaceholder": "Hertfordshire",
+      "postcode": "Postcode",
+      "postcodePlaceholder": "WD17 1JJ",
       "workersWillSee": "Workers will see: {area}",
       "privacyCallout": "Your exact address stays private until you accept a worker. Until then, workers only see the town and an approximate area on the map.",
       "areaPending": "Move the map to set the area.",
       "addressHelper": "Shared only with the worker you accept.",
-      "usePinAddress": "Use pin address",
+      "usePinAddress": "Use {address}",
+      "usePinAddressEmpty": "Use pin address",
       "mapUnavailable": "The map isn't available right now. Type the address instead."
     },
     "band": {
@@ -86,7 +96,8 @@
       "title": "Task title",
       "titlePlaceholder": "e.g. Fix a leaking kitchen tap",
       "categories": "Categories",
-      "categoriesHelper": "Tap a suggestion or type your own. Up to 10.",
+      "categoriesHelper": "Tap a suggestion, or Others to type your own. Up to 10.",
+      "categoriesOther": "Others",
       "categoryPlaceholder": "e.g. Plumbing",
       "categoryInputLabel": "Add a category",
       "addCategory": "Add",
@@ -152,7 +163,7 @@
       "area": "Area",
       "when": "When",
       "budget": "Budget",
-      "photos": "Photos",
+      "photos": "Details",
       "noPhotos": "No photos",
       "onePhoto": "1 photo",
       "photoCount": "{count} photos",
@@ -170,7 +181,10 @@
     "errors": {
       "titleRequired": "Add a title.",
       "descriptionRequired": "Describe what needs doing.",
-      "addressRequired": "Add the exact address.",
+      "addressLine1Required": "Add the first line of the address.",
+      "cityRequired": "Add the city.",
+      "postcodeRequired": "Add the postcode.",
+      "postcodeInvalid": "Enter a UK postcode, like SW1A 1AA.",
       "areaRequired": "Search or move the map to set the area.",
       "mapUnreadable": "We couldn't read the map. Move it slightly and try again.",
       "budgetChoiceRequired": "Choose one to continue.",
@@ -242,9 +256,9 @@
         "description": "只會在你接受報價後，分享給你選擇的工作者。"
       },
       "details": {
-        "label": "詳情",
+        "label": "任務",
         "title": "需要做甚麼？",
-        "description": "清楚的標題和幾句說明，有助工作者報價。"
+        "description": "清楚的標題和類別，有助工作者報價。"
       },
       "timing": {
         "label": "時間",
@@ -252,9 +266,9 @@
         "description": "可以保持彈性，或揀一個日期。最終時間會與工作者再商量。"
       },
       "photos": {
-        "label": "相片",
-        "title": "加入相片",
-        "description": "選填。相片有助工作者報價。相片會在任務中公開，請避免拍到門牌號碼和人臉。"
+        "label": "詳情",
+        "title": "詳情",
+        "description": "選填。描述工作內容，需要的話加入相片。相片會公開，請避免拍到門牌號碼和人臉。"
       },
       "budget": {
         "label": "預算",
@@ -273,12 +287,22 @@
       "locateLabel": "使用目前位置",
       "locateUnavailable": "無法取得你的位置，請搜尋或拖動地圖。",
       "addressLabel": "詳細地址",
-      "addressPlaceholder": "單位、街道、門牌號碼…",
+      "addressLine1": "地址第一行",
+      "addressLine1Placeholder": "12 Clarendon Road",
+      "addressLine2": "地址第二行",
+      "addressLine2Placeholder": "如有單位或大廈名稱",
+      "city": "城市",
+      "cityPlaceholder": "Watford",
+      "county": "郡",
+      "countyPlaceholder": "Hertfordshire",
+      "postcode": "郵遞區號",
+      "postcodePlaceholder": "WD17 1JJ",
       "workersWillSee": "工作者會看到：{area}",
       "privacyCallout": "在你接受工作者之前，你的確切地址會保密。在此之前，工作者只會看到地區名稱和地圖上的大概位置。",
       "areaPending": "移動地圖以設定地區。",
       "addressHelper": "只會分享給你接受的工作者。",
-      "usePinAddress": "使用地圖位置的地址",
+      "usePinAddress": "使用{address}",
+      "usePinAddressEmpty": "使用地圖位置的地址",
       "mapUnavailable": "地圖暫時未能使用，請直接輸入地址。"
     },
     "band": {
@@ -294,7 +318,8 @@
       "title": "任務標題",
       "titlePlaceholder": "例如：修理漏水的廚房水龍頭",
       "categories": "類別",
-      "categoriesHelper": "點選建議或自行輸入，最多 10 個。",
+      "categoriesHelper": "點選建議，或選「其他」自行輸入，最多 10 個。",
+      "categoriesOther": "其他",
       "categoryPlaceholder": "例如：水喉",
       "categoryInputLabel": "加入類別",
       "addCategory": "加入",
@@ -360,7 +385,7 @@
       "area": "地區",
       "when": "時間",
       "budget": "預算",
-      "photos": "相片",
+      "photos": "詳情",
       "noPhotos": "沒有相片",
       "onePhoto": "1 張相片",
       "photoCount": "{count} 張相片",
@@ -378,7 +403,10 @@
     "errors": {
       "titleRequired": "請加入標題。",
       "descriptionRequired": "請描述需要做甚麼。",
-      "addressRequired": "請加入詳細地址。",
+      "addressLine1Required": "請加入地址第一行。",
+      "cityRequired": "請加入城市。",
+      "postcodeRequired": "請加入郵遞區號。",
+      "postcodeInvalid": "請輸入英國郵遞區號，例如 SW1A 1AA。",
       "areaRequired": "請搜尋或移動地圖以設定地區。",
       "mapUnreadable": "未能讀取地圖，請稍為移動地圖再試。",
       "budgetChoiceRequired": "請選擇其中一項再繼續。",

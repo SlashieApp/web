@@ -11,6 +11,7 @@ import {
   resolveCreateTaskStartCentre,
 } from './createTaskStartCentre'
 import { currentPosition } from './currentPosition'
+import { formatExactAddress, parseExactAddress } from './exactAddress'
 import { resolveSubmittedTaskLocation } from './resolveTaskLocation'
 
 const UPDATE = { shouldValidate: true, shouldDirty: true } as const
@@ -74,8 +75,12 @@ export function useCreateTaskLocation({
    * tap so a later pin move never overwrites what the poster typed.
    */
   const onUsePinAddress = useCallback(() => {
-    const name = getValues('mapPlaceName').trim()
-    if (name) setValue('streetAddress', name, UPDATE)
+    const parsed = parseExactAddress(getValues('mapPlaceName'))
+    setValue('addressLine1', parsed.addressLine1, UPDATE)
+    setValue('addressLine2', parsed.addressLine2, UPDATE)
+    setValue('city', parsed.city, UPDATE)
+    setValue('county', parsed.county, UPDATE)
+    setValue('postcode', parsed.postcode, UPDATE)
   }, [getValues, setValue])
 
   /** Reverse geocode a label for the starting pin, keeping one the poster already has. */
@@ -140,7 +145,7 @@ export function useCreateTaskLocation({
     let resolved: Awaited<ReturnType<typeof resolveSubmittedTaskLocation>>
     try {
       resolved = await resolveSubmittedTaskLocation({
-        streetAddress: values.streetAddress,
+        streetAddress: formatExactAddress(values),
         mapPlaceName: values.mapPlaceName,
         locationLat: values.locationLat,
         locationLng: values.locationLng,

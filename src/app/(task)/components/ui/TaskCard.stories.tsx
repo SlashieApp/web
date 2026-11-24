@@ -61,9 +61,8 @@ type Story = StoryObj<typeof meta>
 const rect = (el: Element) => el.getBoundingClientRect()
 
 /**
- * The photo (FE-502): the card's left side from its top edge to its bottom
- * edge inside the 1px border, 96 wide, its left corners the card's 12 less the
- * border, and the text 12 after it (14 from md).
+ * The photo: a 96 square inside the 1px border, its left corners the card's
+ * 12 less the border, and the text 12 after it (14 from md).
  */
 async function expectEdgeToEdgePhoto(canvasElement: HTMLElement) {
   const photo = canvasElement.querySelector(
@@ -71,8 +70,8 @@ async function expectEdgeToEdgePhoto(canvasElement: HTMLElement) {
   ) as HTMLElement
   const card = (photo.parentElement as HTMLElement).parentElement as HTMLElement
   await expect(rect(photo).width).toBe(96)
+  await expect(rect(photo).height).toBe(96)
   await expect(rect(photo).top - rect(card).top).toBe(1)
-  await expect(rect(card).bottom - rect(photo).bottom).toBe(1)
   await expect(rect(photo).left - rect(card).left).toBe(1)
   const style = getComputedStyle(photo)
   await expect(style.borderTopLeftRadius).toBe('11px')
@@ -103,27 +102,23 @@ export const Loading: Story = {
 }
 
 /**
- * The home card (Ryan 22 Nov): the time is a tag at the top, first in the
- * row, and the card shows no budget and no distance (the map pills above
- * already show both).
+ * The home card: the time is an eyebrow above the title, not a pill, and the
+ * card shows no budget and no distance (the map pills above already show both).
+ * Categories are a thinner row under the title.
  */
 export const HomeCard: Story = {
   args: { task: homeTask },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
-    await expect(canvas.getByText(homeTask.title)).toBeVisible()
-    // The time is a tag, the first one, above the title.
+    const title = canvas.getByText(homeTask.title)
+    await expect(title).toBeVisible()
     const time = canvasElement.querySelector(
       '[data-task-card-time]',
     ) as HTMLElement
     await expect(time).toHaveTextContent('Flexible')
-    await expect(time.parentElement?.firstElementChild).toBe(time)
-    await expect(rect(time).bottom).toBeLessThanOrEqual(
-      rect(canvas.getByText(homeTask.title)).top,
-    )
-    await expect(rect(time).left).toBeLessThan(
-      rect(canvas.getByText('Tech setup')).left,
-    )
+    await expect(rect(time).bottom).toBeLessThanOrEqual(rect(title).top)
+    const category = canvas.getByText('Tech setup')
+    await expect(rect(category).top).toBeGreaterThanOrEqual(rect(title).bottom)
     // No budget, no unit and no distance anywhere on the card.
     await expect(canvas.queryByText('£120')).toBeNull()
     await expect(canvas.queryByText('Fixed price')).toBeNull()
@@ -137,27 +132,23 @@ export const HomeCard: Story = {
 }
 
 /**
- * A task marked urgent (FE-603, Slashie Pro): an "Urgent" tag at the top,
- * right after the time and before the categories.
+ * A task marked urgent (FE-603): the time eyebrow is purple, above the title.
+ * There is no separate Urgent pill.
  */
 export const HomeCardUrgent: Story = {
   args: { task: { ...homeTask, urgent: true } },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
-    const urgent = canvasElement.querySelector(
-      '[data-task-card-urgent]',
-    ) as HTMLElement
-    await expect(urgent).toHaveTextContent('Urgent')
     const time = canvasElement.querySelector(
       '[data-task-card-time]',
     ) as HTMLElement
-    await expect(time.nextElementSibling).toBe(urgent)
-    await expect(rect(urgent).left).toBeLessThan(
-      rect(canvas.getByText('Tech setup')).left,
-    )
-    await expect(rect(urgent).bottom).toBeLessThanOrEqual(
+    await expect(time).toHaveAttribute('data-urgent')
+    await expect(time).toHaveTextContent('Flexible')
+    await expect(getComputedStyle(time).color).toBe('rgb(89, 37, 220)')
+    await expect(rect(time).bottom).toBeLessThanOrEqual(
       rect(canvas.getByText(homeTask.title)).top,
     )
+    await expect(canvas.queryByText('Urgent')).toBeNull()
   },
 }
 
@@ -381,9 +372,19 @@ export const YouQuoted: Story = {
   },
 }
 
-/** You posted it. */
+/** You posted it: a small flag on the right, not a pill in the tag row. */
 export const YouHosted: Story = {
   args: { task: { ...defaultTask, viewerRole: 'hosted' } },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const flag = canvasElement.querySelector(
+      '[data-task-card-posted]',
+    ) as HTMLElement
+    const title = canvas.getByText(defaultTask.title)
+    await expect(flag).toHaveTextContent('Posted')
+    await expect(rect(flag).left).toBeGreaterThan(rect(title).left)
+    await expect(rect(flag).top).toBeLessThan(rect(title).top)
+  },
 }
 
 /** My tasks: a quote that is over adds Closed after the role pill. */

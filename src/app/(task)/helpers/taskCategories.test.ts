@@ -7,6 +7,7 @@ import {
   taskCategoriesSchema,
   taskCategoriesSummary,
   taskCategoryLabels,
+  taskCategoryPins,
 } from './taskCategories'
 
 describe('task categories (BE-79)', () => {
@@ -41,6 +42,18 @@ describe('addTaskCategories', () => {
     const full = Array.from({ length: TASK_CATEGORIES_MAX }, (_, i) => `C${i}`)
     expect(addTaskCategories(full, 'One more').error).toBe('tooMany')
     expect(addTaskCategories([], 'x'.repeat(65)).error).toBe('tooLong')
+  })
+})
+
+describe('taskCategoryPins', () => {
+  it('keeps a chosen suggestion in place and lists typed ones after', () => {
+    const pins = taskCategoryPins(
+      ['Dog walking'],
+      ['Moving', 'Dog walking', 'Roofing'],
+    )
+    expect(pins.suggestions.slice(0, 2)).toEqual(['Dog walking', 'Cleaning'])
+    expect(pins.suggestions).toContain('Moving')
+    expect(pins.custom).toEqual(['Roofing'])
   })
 })
 

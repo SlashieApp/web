@@ -16,6 +16,7 @@ import {
   approxZoneCameraKey,
   approxZoneKey,
 } from './approxZone'
+import { mapCenterOffsetPx } from './centerOffset'
 import {
   CLUSTER_SOURCE_ID,
   TASK_STACK_LIMIT,
@@ -59,12 +60,6 @@ function radiusMilesToZoom(miles: number): number {
   )
   const zoom = 13 - Math.log2(clamped / 10)
   return Math.min(MAP_MAX_ZOOM, Math.max(MAP_MIN_ZOOM, zoom))
-}
-
-function fullscreenCenterOffsetPx(
-  leftViewportPadding: number,
-): [number, number] {
-  return [Math.max(0, (leftViewportPadding - 120) / 2), 0]
 }
 
 function viewPaddingSig(
@@ -383,7 +378,7 @@ export function createTaskMapController(args: {
     flyCamera({
       center: [p.centerLng, p.centerLat],
       zoom: radiusMilesToZoom(p.effectiveSearchRadiusMiles),
-      offset: fullscreenCenterOffsetPx(leftPad),
+      offset: mapCenterOffsetPx(leftPad),
       padding: zeroPadding(),
     })
   }
@@ -630,7 +625,7 @@ export function createTaskMapController(args: {
       m.flyTo({
         center: [cluster.lng, cluster.lat],
         zoom: Math.min(zoom, MAP_MAX_ZOOM),
-        offset: fullscreenCenterOffsetPx(getProps().leftViewportPadding ?? 48),
+        offset: mapCenterOffsetPx(getProps().leftViewportPadding ?? 48),
         duration,
         essential: true,
       })
@@ -701,7 +696,7 @@ export function createTaskMapController(args: {
         MAP_MAX_ZOOM,
         Math.max(MAP_MIN_ZOOM, detail ? 14.5 : Math.max(map.getZoom(), 13.5)),
       ),
-      offset: detail ? [0, 0] : fullscreenCenterOffsetPx(leftPad),
+      offset: detail ? [0, 0] : mapCenterOffsetPx(leftPad),
       padding: {
         top: pad.top ?? 0,
         right: pad.right ?? 0,

@@ -225,10 +225,10 @@ export const OwnerOpenNoQuotes = view({
   task: storyTaskDetail({ quotes: [] }),
 })
 /**
- * Landing from Post a task (Ryan 22 Nov): the same block plays the moment
- * once. It settles in with the emphasis curve, a tick draws beside the pill,
- * and the headline reads "Task posted" over the same next step. No second
- * banner. The note posting left is used up, so a refresh reads as usual.
+ * Landing from Post a task: the same block plays the moment once. It settles
+ * in with the emphasis curve and a tick draws, and the headline stays "Your
+ * task is live - reaching workers". No second banner. The note posting left
+ * is used up, so a refresh reads as usual.
  */
 export const OwnerJustPosted: Story = {
   decorators: [
@@ -244,7 +244,9 @@ export const OwnerJustPosted: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
     await expect(
-      await canvas.findByRole('heading', { name: 'Task posted' }),
+      await canvas.findByRole('heading', {
+        name: 'Your task is live - reaching workers',
+      }),
     ).toBeInTheDocument()
     await expect(
       canvas.getByText(
@@ -252,7 +254,7 @@ export const OwnerJustPosted: Story = {
       ),
     ).toBeInTheDocument()
     await expect(
-      canvas.queryByText('Your task is live - reaching workers'),
+      canvas.queryByRole('heading', { name: 'Task posted' }),
     ).toBeNull()
     const block = canvasElement.querySelector(
       '[data-task-moment="posted"]',

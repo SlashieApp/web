@@ -10,6 +10,7 @@ import {
   type CreateTaskFormFieldValues,
   londonToday,
 } from '@/app/(stepflow)/tasks/create/createTaskFormSchema'
+import { parseExactAddress } from '@/app/(stepflow)/tasks/create/helpers/exactAddress'
 import {
   type TaskBudgetCopy,
   budgetUnitText,
@@ -50,7 +51,7 @@ export function taskToEditFormValues(
     // Legacy codes (HANDYMAN) become their labels, so a save tidies them.
     categories: taskCategoryLabels(task.categories),
     description: task.description?.trim() ?? '',
-    streetAddress: task.location?.address?.trim() ?? '',
+    ...parseExactAddress(task.location?.address?.trim() ?? ''),
     mapPlaceName: task.location?.name?.trim() ?? '',
     locationLat:
       typeof lat === 'number' && Number.isFinite(lat) ? String(lat) : '',

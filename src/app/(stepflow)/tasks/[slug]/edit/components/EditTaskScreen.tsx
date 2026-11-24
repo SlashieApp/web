@@ -1,27 +1,22 @@
 'use client'
 
 import { useApolloClient, useMutation } from '@apollo/client/react'
-import type {
-  TaskContactMethod,
-  TaskForEditQuery,
-  UpdateTaskMutation,
-} from '@codegen/schema'
+import type { TaskForEditQuery, UpdateTaskMutation } from '@codegen/schema'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useRouter } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
 import { type UseFormRegister, useForm } from 'react-hook-form'
 
 import { AppStatusBanners } from '@/app/(auth)/components/ui/AppStatusBanners'
-import type { ContactOption } from '@/app/(dashboard)/profile/profileEligibility'
 import { TaskLocationMapPicker } from '@/app/(stepflow)/tasks/create/components/layout/map/TaskLocationMapPicker'
 import { CreateTaskAddressSection } from '@/app/(stepflow)/tasks/create/components/ui/sections/CreateTaskAddressSection'
 import { CreateTaskBasicsSection } from '@/app/(stepflow)/tasks/create/components/ui/sections/CreateTaskBasicsSection'
 import { CreateTaskBudgetSection } from '@/app/(stepflow)/tasks/create/components/ui/sections/CreateTaskBudgetSection'
-import { CreateTaskContactSection } from '@/app/(stepflow)/tasks/create/components/ui/sections/CreateTaskContactSection'
 import { CreateTaskLocationSection } from '@/app/(stepflow)/tasks/create/components/ui/sections/CreateTaskLocationSection'
 import { CreateTaskScheduleSection } from '@/app/(stepflow)/tasks/create/components/ui/sections/CreateTaskScheduleSection'
 import { CreateTaskVisualsSection } from '@/app/(stepflow)/tasks/create/components/ui/sections/CreateTaskVisualsSection'
 import type { CreateTaskFormFieldValues } from '@/app/(stepflow)/tasks/create/createTaskFormSchema'
+import { parseExactAddress } from '@/app/(stepflow)/tasks/create/helpers/exactAddress'
 import {
   resolvePublicAreaName,
   usePublicTaskArea,
@@ -76,7 +71,6 @@ const UPDATE = { shouldValidate: true, shouldDirty: true } as const
 
 export type EditTaskScreenProps = {
   task: NonNullable<TaskForEditQuery['task']>
-  contactOptions: ContactOption[]
   liveQuotes: number
   /** Workers have quoted: they won't be told about changes. */
   quotesWarning: boolean
@@ -84,9 +78,8 @@ export type EditTaskScreenProps = {
 
 /**
  * /tasks/[slug]/edit (FE-297), in the step-flow shell: create's own sections
- * on one page, one Save at the bottom. Only what changed is sent, so an
- * untouched contact method keeps its current value. Leaving with changes
- * asks first.
+ * on one page, one Save at the bottom. Only what changed is sent. Leaving
+ * with changes asks first.
  *
  * Form spacing (FE-481): it is a long form, so the groups are sections: 32
  * apart with no dividing line, each title 12 above its first field, the fields
@@ -94,7 +87,6 @@ export type EditTaskScreenProps = {
  */
 export function EditTaskScreen({
   task,
-  contactOptions,
   liveQuotes,
   quotesWarning,
 }: EditTaskScreenProps) {
@@ -133,7 +125,6 @@ export function EditTaskScreen({
     register as unknown as UseFormRegister<CreateTaskFormFieldValues>
 
   const photos = useTaskPhotos(existing.length)
-  const [contact, setContact] = useState<TaskContactMethod | null>(null)
   // "Use pin address" only once the pin has moved: before that, the label is
   // the stored town, not an address.
   const [pinMoved, setPinMoved] = useState(false)
@@ -150,8 +141,7 @@ export function EditTaskScreen({
     values.locationLng,
     accessToken,
   )
-  const changed =
-    formState.isDirty || contact !== null || photos.files.length > 0
+  const changed = formState.isDirty || photos.files.length > 0
 
   // A reload or closing the tab with changes asks the browser's question.
   useEffect(() => {
@@ -207,7 +197,7 @@ export function EditTaskScreen({
       const input = buildEditTaskInput({
         values: submitted,
         dirty,
-        contact,
+        contact: null,
         publicName,
       })
       if (Object.keys(input).length > 0) {
@@ -318,7 +308,6 @@ export function EditTaskScreen({
               fieldErrors={{
                 title: errors.title?.message,
                 categories: errors.categories?.message,
-                description: errors.description?.message,
               }}
             />
           </FormSection>
@@ -336,14 +325,14 @@ export function EditTaskScreen({
               onPreferredTimeChange={(v) =>
                 setValue('preferredTime', v, UPDATE)
               }
-              urgent={
-                hasPro || initial.isUrgent
-                  ? {
-                      checked: values.isUrgent,
-                      onChange: (v) => setValue('isUrgent', v, UPDATE),
-                    }
-                  : undefined
-              }
+              urgent={{
+                checked: values.isUrgent,
+                locked: !hasPro,
+                onChange: (v) => {
+                  if (!hasPro && v) return
+                  setValue('isUrgent', v, UPDATE)
+                },
+              }}
               fieldErrors={{
                 preferredDate: errors.preferredDate?.message,
                 preferredTime: errors.preferredTime?.message,
@@ -379,13 +368,23 @@ export function EditTaskScreen({
             <CreateTaskAddressSection
               register={sharedRegister}
               privacyHint
-              streetAddressError={errors.streetAddress?.message}
+              addressErrors={{
+                addressLine1: errors.addressLine1?.message,
+                city: errors.city?.message,
+                postcode: errors.postcode?.message,
+              }}
               pinAddress={values.mapPlaceName}
               onUsePinAddress={
                 pinMoved
                   ? () => {
-                      const name = getValues('mapPlaceName').trim()
-                      if (name) setValue('streetAddress', name, UPDATE)
+                      const parsed = parseExactAddress(
+                        getValues('mapPlaceName'),
+                      )
+                      setValue('addressLine1', parsed.addressLine1, UPDATE)
+                      setValue('addressLine2', parsed.addressLine2, UPDATE)
+                      setValue('city', parsed.city, UPDATE)
+                      setValue('county', parsed.county, UPDATE)
+                      setValue('postcode', parsed.postcode, UPDATE)
                     }
                   : undefined
               }
@@ -425,7 +424,7 @@ export function EditTaskScreen({
             />
           </FormSection>
 
-          <FormSection title={t.sections.photos}>
+          <FormSection title={create.steps.photos.label}>
             <CreateTaskVisualsSection
               bare
               labelled={false}
@@ -434,16 +433,10 @@ export function EditTaskScreen({
               rejected={photos.rejected}
               onFilesAdded={photos.add}
               onRemoveFile={photos.remove}
-            />
-          </FormSection>
-
-          <FormSection title={t.sections.contact}>
-            <CreateTaskContactSection
-              bare
-              preferredContactMethod={contact}
-              onPreferredContactMethodChange={setContact}
-              contactOptions={contactOptions}
-              helperText={t.contactKeep}
+              description={values.description}
+              onDescriptionChange={(next) =>
+                setValue('description', next, UPDATE)
+              }
             />
           </FormSection>
         </FormStack>

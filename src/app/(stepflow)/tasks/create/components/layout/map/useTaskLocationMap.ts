@@ -8,6 +8,7 @@ import {
   TASK_MAP_PREVIEW_LAT,
   TASK_MAP_PREVIEW_LNG,
 } from '@/app/(stepflow)/tasks/create/helpers/resolveTaskLocation'
+import { paddingForMapCenterOffset } from '@/app/(task)/helpers/taskMap/centerOffset'
 import { useColorMode } from '@/ui/color-mode'
 import { ensureMapboxStyles } from '@/utils/ensureMapboxStyles'
 import {
@@ -59,14 +60,21 @@ export type UseTaskLocationMapInput = {
   mapOptions?: Partial<MapOptions>
   /** Add overlays to a new map (they live in its container). */
   onMapCreated?: (map: MapboxMap, mapboxgl: MapboxModule) => void
+  /**
+   * Where the fixed pin sits relative to the map box centre, in pixels.
+   * Create's desktop map uses the search-page offset so the pin is in the
+   * open map. Padding puts `getCenter()` on that point.
+   */
+  centerOffset?: readonly [number, number]
 }
 
 /**
  * Centre-pin location map: the map moves under a fixed pin. Dragging commits
  * the centre (then reverse geocodes a label); typing a place forward
- * geocodes and moves the map; locate-me commits the poster's position as a
- * drag would. Shared by the create stage and the edit card, so both have the
- * same style, logo corner and zoom buttons (top right).
+ * geocodes and moves the map, and the field keeps what was typed; locate-me
+ * commits the poster's position as a drag would. Shared by the create stage
+ * and the edit card, so both have the same style, logo corner and zoom
+ * buttons (top right).
  */
 export function useTaskLocationMap({
   accessToken,
@@ -79,6 +87,7 @@ export function useTaskLocationMap({
   onLocateFailed,
   mapOptions,
   onMapCreated,
+  centerOffset = [0, 0],
 }: UseTaskLocationMapInput) {
   const { colorMode } = useColorMode()
   const mapRef = useRef<MapboxMap | null>(null)
@@ -86,8 +95,8 @@ export function useTaskLocationMap({
   const [mapReady, setMapReady] = useState(false)
   const [locating, setLocating] = useState(false)
   const skipNextMoveEndRef = useRef(false)
-  /** Drag commits the pin. The opening camera must not. */
-  const pinDraggedRef = useRef(false)
+  /** A pointer or wheel move is in progress. Resizes must not commit the pin. */
+  const gestureRef = useRef(false)
   const moveDebounceRef = useRef<number | null>(null)
   const locationGeocodeTimerRef = useRef<number | null>(null)
 
@@ -109,6 +118,10 @@ export function useTaskLocationMap({
   locationLatRef.current = locationLat
   locationLngRef.current = locationLng
   locationRef.current = location
+  const centerOffsetRef = useRef(centerOffset)
+  centerOffsetRef.current = centerOffset
+  const offsetKey = `${centerOffset[0]},${centerOffset[1]}`
+  const prevOffsetKeyRef = useRef<string | null>(null)
 
   const onLocationChangeRef = useRef(onLocationChange)
   const onLocationLatChangeRef = useRef(onLocationLatChange)
@@ -116,6 +129,49 @@ export function useTaskLocationMap({
   onLocationChangeRef.current = onLocationChange
   onLocationLatChangeRef.current = onLocationLatChange
   onLocationLngChangeRef.current = onLocationLngChange
+
+  /** The coordinates the pin stands on, once the poster has a place. */
+  const savedCenter = (): [number, number] | null => {
+    const lat = parseCoordString(locationLatRef.current)
+    const lng = parseCoordString(locationLngRef.current)
+    if (lat == null || lng == null) return null
+    return [lng, lat]
+  }
+
+  /**
+   * Put the saved place under the pin, with the current centre offset.
+   * Passing `center` stops Mapbox treating a padding or resize change as a
+   * return to the camera the map opened on (London, before geolocation).
+   */
+  const placeCamera = (map: MapboxMap, offset: readonly [number, number]) => {
+    const center = savedCenter()
+    const padding = paddingForMapCenterOffset(offset)
+    skipNextMoveEndRef.current = true
+    if (center) map.jumpTo({ center, padding })
+    else map.setPadding(padding)
+  }
+
+  /** After a resize drifted the camera, put the pin's place back. */
+  const restoreCenter = (map: MapboxMap) => {
+    if (gestureRef.current || !map.isStyleLoaded()) return
+    const center = savedCenter()
+    if (!center) return
+    const current = map.getCenter()
+    if (
+      Number.isFinite(current.lat) &&
+      Math.abs(current.lat - center[1]) + Math.abs(current.lng - center[0]) <
+        1e-6
+    ) {
+      return
+    }
+    skipNextMoveEndRef.current = true
+    map.jumpTo({ center })
+  }
+
+  const placeCameraRef = useRef(placeCamera)
+  placeCameraRef.current = placeCamera
+  const restoreCenterRef = useRef(restoreCenter)
+  restoreCenterRef.current = restoreCenter
 
   const applyCenter = useCallback(
     (lat: number, lng: number, opts?: { animate?: boolean }) => {
@@ -195,13 +251,18 @@ export function useTaskLocationMap({
           mapRef.current = map
 
           const resizeObserver = new ResizeObserver(() => {
-            mapRef.current?.resize()
+            const current = mapRef.current
+            if (!current) return
+            // The location step's height animates into the address band.
+            // That resize can drop the camera back to the opening centre.
+            current.resize()
+            restoreCenterRef.current(current)
           })
           resizeObserver.observe(el)
           resizeObserverRef.current = resizeObserver
 
-          map.on('dragstart', () => {
-            pinDraggedRef.current = true
+          map.on('movestart', (event) => {
+            if (event.originalEvent) gestureRef.current = true
           })
 
           const onMoveEnd = () => {
@@ -209,13 +270,14 @@ export function useTaskLocationMap({
               skipNextMoveEndRef.current = false
               return
             }
-            if (!pinDraggedRef.current) return
+            // Only a drag or a zoom commits. The step change resizes the map
+            // and must not replace the pin with the opening centre.
+            if (!gestureRef.current) return
+            gestureRef.current = false
             if (moveDebounceRef.current)
               window.clearTimeout(moveDebounceRef.current)
+            const c = map.getCenter()
             moveDebounceRef.current = window.setTimeout(() => {
-              const c = map.getCenter()
-              // Resizes, zooms in place, and the camera arriving at a searched
-              // place also end a move. The pin is already committed there.
               if (
                 c.lat.toFixed(6) === locationLatRef.current &&
                 c.lng.toFixed(6) === locationLngRef.current
@@ -230,7 +292,9 @@ export function useTaskLocationMap({
 
           map.on('load', () => {
             if (!el.isConnected) return
-            skipNextMoveEndRef.current = true
+            const offset = centerOffsetRef.current
+            prevOffsetKeyRef.current = `${offset[0]},${offset[1]}`
+            placeCameraRef.current(map, offset)
             bumpMapResize(map)
             setMapReady(true)
           })
@@ -242,6 +306,21 @@ export function useTaskLocationMap({
 
   const prevCoordsKeyRef = useRef<string | null>(null)
   const coordsKey = `${locationLat}|${locationLng}`
+
+  if (
+    mapReady &&
+    mapRef.current?.isStyleLoaded() &&
+    offsetKey !== prevOffsetKeyRef.current
+  ) {
+    prevOffsetKeyRef.current = offsetKey
+    const offset = centerOffset
+    const map = mapRef.current
+    queueMicrotask(() => {
+      if (mapRef.current !== map) return
+      placeCameraRef.current(map, offset)
+    })
+  }
+
   if (
     mapReady &&
     mapRef.current?.isStyleLoaded() &&
@@ -273,9 +352,11 @@ export function useTaskLocationMap({
         proximity: centre ? { lat: centre.lat, lng: centre.lng } : null,
       }).then((hit) => {
         if (!hit) return
+        // The poster kept typing: this answer is for an older query.
+        if (locationRef.current.trim() !== q) return
         onLocationLatChangeRef.current(hit.lat.toFixed(6))
         onLocationLngChangeRef.current(hit.lng.toFixed(6))
-        onLocationChangeRef.current(hit.placeName)
+        // Leave the field as typed. The pin moves; the words stay theirs.
         applyCenter(hit.lat, hit.lng)
       })
     },

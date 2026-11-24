@@ -3,7 +3,7 @@
 import { Box, HStack, Skeleton, Stack, Text } from '@chakra-ui/react'
 import type { MouseEvent, ReactNode } from 'react'
 import { Fragment } from 'react'
-import { LuBookmark, LuCalendar, LuChevronRight } from 'react-icons/lu'
+import { LuBookmark, LuChevronRight } from 'react-icons/lu'
 
 import type { WorkerQuoteRow } from '@/app/(dashboard)/helpers/workerQuoteJobs'
 import { ReportControl } from '@/content/trust/ReportControl'
@@ -40,6 +40,17 @@ const META_PART_STYLE = {
   muted: { fontWeight: 500, color: 'text.muted' },
   lead: { ...sdlFigure, color: 'text.default' },
   overdue: { ...sdlFigure, color: 'status.danger.fg' },
+} as const
+
+/** Category and status tags under the title: shorter than the 26px badge. */
+const thinTag = {
+  flexShrink: 0,
+  h: '18px',
+  minH: '18px',
+  px: 1.5,
+  py: 0,
+  fontSize: '10px',
+  lineHeight: '16px',
 } as const
 
 function metaPartStyle(
@@ -187,8 +198,9 @@ function TaskCardLoading() {
     <Card p={0} maxW="full" aria-hidden>
       <HStack gap={0} align="stretch">
         <Skeleton
-          w={taskCardLayout.photoWidth}
+          boxSize={taskCardLayout.photoWidth}
           flexShrink={0}
+          alignSelf="flex-start"
           borderRadius={0}
           borderLeftRadius={PHOTO_RADIUS}
         />
@@ -268,15 +280,13 @@ function TaskCardBrowse(props: TaskCardBrowseProps) {
   // The home card (22 Nov): the time is a tag at the top, and there is no
   // budget or distance line.
   const isHome = cardTask.layout === 'home'
-  const timeTag = isHome ? timingLabel?.trim() : undefined
+  const timeEyebrow = timingLabel?.trim() || (urgent ? t.urgentTag : '')
   const metaParts = isHome
     ? []
     : taskCardMetaParts({
         priceLabel,
         priceUnitLabel,
         distanceLabel,
-        timingLabel,
-        timingFirst: Boolean(timingTone),
       })
 
   const handleToggleSave = onToggleSave
@@ -332,7 +342,8 @@ function TaskCardBrowse(props: TaskCardBrowseProps) {
           data-task-card-photo
           position="relative"
           flexShrink={0}
-          w={taskCardLayout.photoWidth}
+          alignSelf="flex-start"
+          boxSize={taskCardLayout.photoWidth}
           overflow="hidden"
           borderLeftRadius={PHOTO_RADIUS}
         >
@@ -358,68 +369,55 @@ function TaskCardBrowse(props: TaskCardBrowseProps) {
           <Stack flex={1} minW={0} gap={1.5}>
             <Stack gap={1} minW={0} align="flex-start">
               <HStack
-                gap={1}
+                gap={2}
                 w="full"
                 minW={0}
-                minH={taskCardLayout.badgeRowMinHeight}
-                overflow="hidden"
-                flexWrap="nowrap"
+                minH="16px"
+                justify="space-between"
                 align="center"
-                css={
-                  timeTag ||
-                  urgent ||
-                  viewerRole ||
-                  tags.length > 0 ||
-                  categories.length > 0
-                    ? BADGE_ROW_FADE
-                    : undefined
-                }
               >
-                {/* First, so it sits in the same place on every card. */}
-                {timeTag ? (
-                  <Badge
-                    data-task-card-time
-                    shape="pill"
-                    variant="neutral"
+                <Text
+                  data-task-card-time
+                  data-urgent={urgent || undefined}
+                  fontSize="xs"
+                  fontWeight={timingTone === 'lead' ? 600 : 500}
+                  letterSpacing="0.04em"
+                  textTransform="uppercase"
+                  lineHeight="1"
+                  color={
+                    timingTone === 'overdue'
+                      ? 'status.danger.fg'
+                      : urgent
+                        ? 'status.premium.fg'
+                        : 'text.subtle'
+                  }
+                  lineClamp={1}
+                  minW={0}
+                >
+                  {timeEyebrow}
+                </Text>
+                {viewerRole === 'hosted' ? (
+                  <Text
+                    data-task-card-posted
                     flexShrink={0}
+                    fontSize="10px"
+                    fontWeight={600}
+                    lineHeight="1"
+                    letterSpacing="0.04em"
+                    textTransform="uppercase"
+                    color="status.success.fg"
+                    bg="status.success.soft"
+                    ps={2.5}
+                    pe={2}
+                    py={1}
+                    css={{
+                      clipPath:
+                        'polygon(8px 0, 100% 0, 100% 100%, 8px 100%, 0 50%)',
+                    }}
                   >
-                    <LuCalendar aria-hidden />
-                    {timeTag}
-                  </Badge>
+                    {t.viewerRole.hosted}
+                  </Text>
                 ) : null}
-                {urgent ? (
-                  <Badge
-                    data-task-card-urgent
-                    shape="pill"
-                    variant="warning"
-                    flexShrink={0}
-                  >
-                    {t.urgentTag}
-                  </Badge>
-                ) : null}
-                {viewerRole ? (
-                  <TaskRolePill role={viewerRole} flexShrink={0} />
-                ) : null}
-                {tags.map((tag) => (
-                  <Badge
-                    key={`tag-${tag}`}
-                    shape="pill"
-                    variant="neutral"
-                    flexShrink={0}
-                  >
-                    {tag}
-                  </Badge>
-                ))}
-                {categories.map((category) => (
-                  <Badge
-                    key={category}
-                    shape="pill"
-                    variant="neutral"
-                    flexShrink={0}
-                  >
-                    {category}
-                  </Badge>
-                ))}
               </HStack>
               <Text
                 fontSize="md"
@@ -433,6 +431,47 @@ function TaskCardBrowse(props: TaskCardBrowseProps) {
               >
                 {title}
               </Text>
+              <HStack
+                data-task-card-tags
+                gap={1}
+                w="full"
+                minW={0}
+                minH="18px"
+                overflow="hidden"
+                flexWrap="nowrap"
+                align="center"
+                css={
+                  viewerRole === 'quoted' ||
+                  tags.length > 0 ||
+                  categories.length > 0
+                    ? BADGE_ROW_FADE
+                    : undefined
+                }
+              >
+                {viewerRole === 'quoted' ? (
+                  <TaskRolePill {...thinTag} role={viewerRole} />
+                ) : null}
+                {tags.map((tag) => (
+                  <Badge
+                    key={`tag-${tag}`}
+                    shape="pill"
+                    variant="neutral"
+                    {...thinTag}
+                  >
+                    {tag}
+                  </Badge>
+                ))}
+                {categories.map((category) => (
+                  <Badge
+                    key={category}
+                    shape="pill"
+                    variant="neutral"
+                    {...thinTag}
+                  >
+                    {category}
+                  </Badge>
+                ))}
+              </HStack>
             </Stack>
 
             <HStack

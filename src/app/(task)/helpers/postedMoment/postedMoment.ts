@@ -2,8 +2,9 @@
  * A task's success moments (Post a task motion and motion group C; Ryan
  * 22 Nov). Posting a task, sending a quote, accepting one or leaving a review
  * ends on the task's page, whose own status block plays the moment once: a
- * tick draws, the block settles in, and for that first view its headline says
- * what just happened ("Task posted", "Review sent"). The block is the
+ * tick draws and the block settles in. A just-posted task keeps "Your task
+ * is live - reaching workers"; a review says what just happened ("Review
+ * sent"). The block is the
  * confirmation, so there is no pop-up as well.
  *
  * What was done leaves a note for the page it ends on; the page takes it, so

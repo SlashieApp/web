@@ -1,22 +1,18 @@
 'use client'
 
 import { useQuery } from '@apollo/client/react'
-import { HStack, Stack, Text, Wrap, chakra } from '@chakra-ui/react'
+import { Stack, Wrap } from '@chakra-ui/react'
 import type { PopularTaskCategoriesQuery } from '@codegen/schema'
-import { useState } from 'react'
-import { LuPlus, LuX } from 'react-icons/lu'
+import { useEffect, useRef, useState } from 'react'
 
 import {
   TASK_CATEGORIES_MAX,
   TASK_CATEGORY_MAX_CHARS,
   addTaskCategories,
-  suggestedTaskCategories,
-  taskCategoryDisplayLabel,
+  taskCategoryPins,
 } from '@/app/(task)/helpers/taskCategories'
-import { formatMessage } from '@/i18n/loadPageI11n'
 import { useI11n } from '@/i18n/useI11n'
-import { sdlFocusRing, sdlMotion } from '@/theme/styles'
-import { Button, FormField, Input, formControlRootProps } from '@ui'
+import { ChoiceChip, FormField, Input, Reveal, formControlRootProps } from '@ui'
 
 import PopularTaskCategories from '../../../graphql/PopularTaskCategories.gql'
 import { taskFieldError } from '../../../helpers/taskFieldError'
@@ -28,28 +24,21 @@ export type CreateTaskCategoriesInputProps = {
   errorText?: string
 }
 
-const chipTransition = {
-  transitionProperty: 'background-color, border-color, color',
-  transitionDuration: sdlMotion.duration.base,
-  transitionTimingFunction: sdlMotion.easing.standard,
-} as const
-
-const ChipButton = chakra('button')
-
 /** `addTaskCategories` limits → copy keys in `errors`. */
 const LIMIT_ERROR = {
   tooMany: 'tooManyCategories',
   tooLong: 'categoryTooLong',
 } as const
 
+function sameCategory(a: string, b: string): boolean {
+  return a.toLowerCase() === b.toLowerCase()
+}
+
 /**
- * Task categories as tags (FE-211, BE-79): suggested keywords to tap, or
- * type your own (Enter, comma or Add). 1 to 10, each up to 64 characters.
- *
- * Form spacing (FE-481): one composite field. Its pieces (the chosen tags, the
- * add row, the suggestions) are `labelToControl` (8) apart, the tags and the
- * suggestions wrap 8 apart, the input and Add sit `inlineGap` (12) apart, both
- * 48 tall, and the suggestions' heading is 8 above them.
+ * Task categories as thin pins (FE-211, BE-79): the suggestions first, each
+ * one a toggle, then any the poster typed, then Others. Others is not a
+ * category. It is the same pin, and it opens the field. 1 to 10, each up to
+ * 64 characters. The pins are the budget section's `ChoiceChip`.
  */
 export function CreateTaskCategoriesInput({
   value,
@@ -59,18 +48,24 @@ export function CreateTaskCategoriesInput({
   const t = useI11n(bag)
   const f = t.fields
   const [draft, setDraft] = useState('')
+  const [othersOn, setOthersOn] = useState(false)
   const [limitError, setLimitError] = useState<keyof typeof LIMIT_ERROR | null>(
     null,
   )
+  const inputRef = useRef<HTMLInputElement | null>(null)
+  const focusInput = useRef(false)
   const { data } = useQuery<PopularTaskCategoriesQuery>(PopularTaskCategories, {
     variables: { first: 12 },
     fetchPolicy: 'cache-first',
   })
 
   const atCap = value.length >= TASK_CATEGORIES_MAX
-  const suggestions = atCap
-    ? []
-    : suggestedTaskCategories(data?.popularTaskCategories ?? [], value)
+  const { suggestions, custom } = taskCategoryPins(
+    data?.popularTaskCategories ?? [],
+    value,
+  )
+  const chosen = (category: string) =>
+    value.some((c) => sameCategory(c, category))
 
   const add = (raw: string) => {
     const result = addTaskCategories(value, raw)
@@ -79,10 +74,25 @@ export function CreateTaskCategoriesInput({
     return !result.error
   }
 
+  const toggleSuggestion = (category: string) => {
+    setLimitError(null)
+    if (chosen(category)) {
+      onChange(value.filter((c) => !sameCategory(c, category)))
+      return
+    }
+    add(category)
+  }
+
   const commitDraft = () => {
     if (!draft.trim()) return
     if (add(draft)) setDraft('')
   }
+
+  useEffect(() => {
+    if (!othersOn || !focusInput.current) return
+    focusInput.current = false
+    inputRef.current?.focus()
+  })
 
   return (
     <FormField
@@ -94,57 +104,48 @@ export function CreateTaskCategoriesInput({
         limitError ? LIMIT_ERROR[limitError] : errorText,
       )}
     >
-      <Stack gap="form.labelToControl" w="full">
-        {value.length > 0 ? (
-          <Wrap gap="form.alternativesGap">
-            {value.map((category) => (
-              <HStack
-                key={category.toLowerCase()}
-                as="span"
-                gap={0}
-                pl={3}
-                minH="44px"
-                borderRadius="full"
-                bg="status.success.soft"
-                color="status.success.fg"
-                fontSize="sm"
-                fontWeight={500}
-              >
-                <Text as="span">
-                  {taskCategoryDisplayLabel(category) ?? category}
-                </Text>
-                <ChipButton
-                  type="button"
-                  aria-label={formatMessage(f.removeCategory, { category })}
-                  onClick={() => {
-                    setLimitError(null)
-                    onChange(value.filter((c) => c !== category))
-                  }}
-                  display="inline-flex"
-                  alignItems="center"
-                  justifyContent="center"
-                  boxSize="44px"
-                  borderRadius="full"
-                  cursor="pointer"
-                  color="status.success.fg"
-                  _hover={{ bg: 'bg.surface' }}
-                  _focusVisible={sdlFocusRing}
-                  {...chipTransition}
-                >
-                  <LuX size={14} strokeWidth={2.5} aria-hidden />
-                </ChipButton>
-              </HStack>
-            ))}
-          </Wrap>
-        ) : null}
-
-        <HStack gap="form.inlineGap" align="stretch">
+      <Stack gap={0} w="full">
+        <Wrap gap="form.alternativesGap">
+          {suggestions.map((category) => (
+            <ChoiceChip
+              key={category.toLowerCase()}
+              selected={chosen(category)}
+              disabled={atCap && !chosen(category)}
+              onSelect={() => toggleSuggestion(category)}
+            >
+              {category}
+            </ChoiceChip>
+          ))}
+          {custom.map((category) => (
+            <ChoiceChip
+              key={category.toLowerCase()}
+              selected
+              onSelect={() => {
+                setLimitError(null)
+                onChange(value.filter((c) => !sameCategory(c, category)))
+              }}
+            >
+              {category}
+            </ChoiceChip>
+          ))}
+          <ChoiceChip
+            selected={othersOn}
+            disabled={atCap}
+            onSelect={(byPointer) => {
+              if (byPointer) focusInput.current = true
+              setOthersOn((on) => !on)
+            }}
+          >
+            {f.categoriesOther}
+          </ChoiceChip>
+        </Wrap>
+        <Reveal open={othersOn} spaceAbove="form.labelToControl">
           <Input
+            ref={inputRef}
             value={draft}
             maxLength={TASK_CATEGORY_MAX_CHARS * 2}
             onChange={(e) => {
               const next = e.target.value
-              // A comma finishes a tag, like the Enter key.
               if (next.endsWith(',')) {
                 if (add(next)) setDraft('')
                 else setDraft(next.slice(0, -1))
@@ -157,65 +158,13 @@ export function CreateTaskCategoriesInput({
               e.preventDefault()
               commitDraft()
             }}
-            // A half-typed category is kept, not dropped on Continue.
             onBlur={commitDraft}
             placeholder={f.categoryPlaceholder}
             disabled={atCap}
             aria-label={f.categoryInputLabel}
-            rootProps={{ ...formControlRootProps, flex: 1 }}
+            rootProps={{ ...formControlRootProps, maxW: { md: '360px' } }}
           />
-          <Button
-            type="button"
-            variant="secondary"
-            size="form"
-            onClick={commitDraft}
-            disabled={atCap || !draft.trim()}
-            flexShrink={0}
-          >
-            {f.addCategory}
-          </Button>
-        </HStack>
-
-        {suggestions.length > 0 ? (
-          <Stack gap="form.labelToControl">
-            <Text fontSize="xs" fontWeight={500} color="text.muted">
-              {f.suggestions}
-            </Text>
-            <Wrap gap="form.alternativesGap">
-              {suggestions.map((category) => (
-                <ChipButton
-                  key={category.toLowerCase()}
-                  type="button"
-                  aria-label={formatMessage(f.suggestCategory, { category })}
-                  onClick={() => add(category)}
-                  display="inline-flex"
-                  alignItems="center"
-                  gap={1}
-                  px={3}
-                  minH="44px"
-                  borderRadius="full"
-                  borderWidth="1px"
-                  borderColor="border.strong"
-                  bg="bg.surface"
-                  color="text.muted"
-                  fontSize="sm"
-                  fontWeight={500}
-                  cursor="pointer"
-                  _hover={{
-                    bg: 'bg.subtle',
-                    borderColor: 'border.hover',
-                    color: 'text.default',
-                  }}
-                  _focusVisible={sdlFocusRing}
-                  {...chipTransition}
-                >
-                  <LuPlus size={13} strokeWidth={2.5} aria-hidden />
-                  {category}
-                </ChipButton>
-              ))}
-            </Wrap>
-          </Stack>
-        ) : null}
+        </Reveal>
       </Stack>
     </FormField>
   )

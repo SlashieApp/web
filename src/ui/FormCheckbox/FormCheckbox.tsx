@@ -63,6 +63,8 @@ export type FormCheckboxProps = {
    */
   reachAbove?: number
   reachBelow?: number
+  /** The box cannot be changed. */
+  disabled?: boolean
   /** Overrides for the box and the label, for a form that draws them differently. */
   controlProps?: ComponentProps<typeof Checkbox.Control>
   labelProps?: ComponentProps<typeof Checkbox.Label>
@@ -88,6 +90,7 @@ export function FormCheckbox({
   errorText,
   reachAbove,
   reachBelow,
+  disabled = false,
   controlProps,
   labelProps,
 }: FormCheckboxProps) {
@@ -97,7 +100,11 @@ export function FormCheckbox({
       <Checkbox.Root
         name={name}
         checked={checked}
-        onCheckedChange={(detail) => onCheckedChange(Boolean(detail.checked))}
+        disabled={disabled}
+        onCheckedChange={(detail) => {
+          if (disabled) return
+          onCheckedChange(Boolean(detail.checked))
+        }}
         colorPalette="green"
         invalid={Boolean(errorText)}
       >
@@ -115,7 +122,7 @@ export function FormCheckbox({
             borderWidth="1px"
             borderColor="border.strong"
             bg="bg.surface"
-            cursor="pointer"
+            cursor={disabled ? 'not-allowed' : 'pointer'}
             _checked={{
               bg: 'action.primary',
               borderColor: 'action.primary',
@@ -130,7 +137,7 @@ export function FormCheckbox({
             fontWeight={500}
             color="text.default"
             lineHeight={`${FORM_CHECKBOX_LINE_HEIGHT}px`}
-            cursor="pointer"
+            cursor={disabled ? 'not-allowed' : 'pointer'}
             {...labelProps}
           >
             {label}

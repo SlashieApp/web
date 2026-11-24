@@ -52,9 +52,11 @@ function CreateTaskScheduleSectionDemo({
       onPreferredDateChange={setDate}
       preferredTime={time}
       onPreferredTimeChange={setTime}
-      urgent={
-        urgentOption ? { checked: isUrgent, onChange: setIsUrgent } : undefined
-      }
+      urgent={{
+        checked: isUrgent,
+        locked: !urgentOption,
+        onChange: setIsUrgent,
+      }}
     />
   )
 }
@@ -75,15 +77,19 @@ export default meta
 type Story = StoryObj<typeof meta>
 
 /**
- * Flexible: no date or time to choose. Without Slashie Pro there is no
- * "Mark as urgent" either (FE-603): the option is not shown at all.
+ * Flexible: no date or time to choose. Without Slashie Pro, "Mark as urgent"
+ * is shown locked: disabled, with the Pro tag and a lock.
  */
 export const Flexible: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
-    await expect(canvas.queryByRole('checkbox')).toBeNull()
-    await expect(canvas.queryByText(/urgent/i)).toBeNull()
-    await expect(canvasElement.querySelector('[data-urgent-option]')).toBeNull()
+    const option = canvas.getByRole('checkbox', { name: /Mark as urgent/ })
+    await expect(option).toBeDisabled()
+    await expect(option).not.toBeChecked()
+    await expect(canvas.getByLabelText('Slashie Pro')).toHaveTextContent('Pro')
+    await expect(
+      canvasElement.querySelector('[data-urgent-lock]'),
+    ).not.toBeNull()
   },
 }
 
@@ -146,12 +152,12 @@ export const UrgentPhone: Story = {
   },
 }
 
-/** Before a date: the week strip appears with the chosen day selected. */
+/** Before a date: the field opens a calendar. */
 export const BeforeDate: Story = {
   args: { datetimeType: TaskDateTimeType.Before },
 }
 
-/** Exact date and time: the week strip plus a time field. */
+/** On a date and time: the same modal also picks the hour and minute. */
 export const ExactDateAndTime: Story = {
   args: { datetimeType: TaskDateTimeType.Exact },
 }

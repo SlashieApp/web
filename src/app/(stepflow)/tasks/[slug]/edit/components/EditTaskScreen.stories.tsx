@@ -2,8 +2,6 @@ import type { TaskForEditQuery } from '@codegen/schema'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { expect, userEvent, waitFor, within } from 'storybook/test'
 
-import type { MeSnapshot } from '@/app/(auth)/store/user'
-import { getContactOptions } from '@/app/(dashboard)/profile/profileEligibility'
 import { stepFlowRulesAt } from '@/app/(stepflow)/stepFlowPageRules.testing'
 import {
   desktop1280,
@@ -47,10 +45,6 @@ const meta = {
   decorators: [withPopularCategories()],
   args: {
     task,
-    contactOptions: getContactOptions({
-      emailVerified: true,
-      phoneVerified: true,
-    } as MeSnapshot),
     liveQuotes: 0,
     quotesWarning: false,
   },
@@ -78,17 +72,19 @@ export const Open: Story = {
 }
 
 /**
- * Without Slashie Pro (FE-603): a whole-job task is offered no units and no
- * "Mark as urgent". Both are Pro features.
+ * Without Slashie Pro (FE-603): a whole-job task is offered no units.
+ * "Mark as urgent" is shown locked.
  */
 export const NoProChoicesWithoutPro: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
     await canvas.findByLabelText(/^Amount/)
     await expect(canvas.queryByText("What's it for?")).toBeNull()
+    const urgent = canvas.getByRole('checkbox', { name: /Mark as urgent/ })
+    await expect(urgent).toBeDisabled()
     await expect(
-      canvas.queryByRole('checkbox', { name: /Mark as urgent/ }),
-    ).toBeNull()
+      canvasElement.querySelector('[data-urgent-lock]'),
+    ).not.toBeNull()
   },
 }
 
@@ -134,8 +130,10 @@ export const KeepsItsProChoicesWithoutPro: Story = {
 export const OpenLocation: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
-    const address = await canvas.findByLabelText(/Exact address/)
-    await expect(address).toHaveValue('12 Example Street, London SW1A 1AA')
+    const address = await canvas.findByLabelText(/Address line 1/)
+    await expect(address).toHaveValue('12 Example Street')
+    await expect(canvas.getByLabelText(/^City/)).toHaveValue('London')
+    await expect(canvas.getByLabelText(/Postcode/)).toHaveValue('SW1A 1AA')
     await expect(address).toHaveAccessibleDescription(
       'Shared only with the worker you accept.',
     )
@@ -238,22 +236,6 @@ export const SaveWaitsForPhoto: Story = {
     await expect(
       await canvas.findByRole('button', { name: 'Save changes' }),
     ).toBeEnabled()
-  },
-}
-
-/** The contact method starts unchosen: leaving it keeps the task's current one. */
-export const ContactKeepsCurrent: Story = {
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement)
-    await expect(
-      await canvas.findByText('Leave this to keep your current choice.'),
-    ).toBeVisible()
-    for (const name of ['In-app chat', 'Phone', 'Email']) {
-      await expect(canvas.getByRole('radio', { name })).toHaveAttribute(
-        'aria-checked',
-        'false',
-      )
-    }
   },
 }
 

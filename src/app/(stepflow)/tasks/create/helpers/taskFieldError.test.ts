@@ -21,8 +21,10 @@ describe('taskFieldError', () => {
   it('has copy for every key the schema and the map can raise', () => {
     for (const key of [
       'titleRequired',
-      'descriptionRequired',
-      'addressRequired',
+      'addressLine1Required',
+      'cityRequired',
+      'postcodeRequired',
+      'postcodeInvalid',
       'areaRequired',
       'mapUnreadable',
       'budgetRequired',

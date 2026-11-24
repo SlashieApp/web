@@ -167,10 +167,10 @@ function useTaskMoment(
  *
  * After posting the task, sending a quote, accepting one or leaving a review
  * (Ryan 22 Nov), the block plays the moment once: it settles in and a tick
- * draws over the headline. Where its everyday headline does not say what just
- * happened, it does for that first view: "Task posted", "Review sent". The
- * block is the confirmation, so there is no pop-up as well; later visits read
- * as usual.
+ * draws over the headline. A just-posted task keeps its everyday headline
+ * ("Your task is live - reaching workers"). A review uses "Review sent" or
+ * "Review saved" for that first view. The block is the confirmation, so
+ * there is no pop-up as well; later visits read as usual.
  */
 export function TaskSummary() {
   const { view, jobActionError, task } = useTaskDetail()
@@ -181,13 +181,11 @@ export function TaskSummary() {
   // A sent or accepted quote: the block already says it ("Quote sent",
   // "Worker booked"), so only the tick and the settle are added.
   const momentHeadline =
-    moment === 'posted'
-      ? t.summary.ownerPostedHeadline
-      : moment === 'reviewSent'
-        ? t.summary.reviewSentHeadline
-        : moment === 'reviewSaved'
-          ? t.summary.reviewSavedHeadline
-          : null
+    moment === 'reviewSent'
+      ? t.summary.reviewSentHeadline
+      : moment === 'reviewSaved'
+        ? t.summary.reviewSavedHeadline
+        : null
   const headline =
     momentHeadline && lines.headline ? momentHeadline : lines.headline
   const playing = moment !== null && Boolean(headline)

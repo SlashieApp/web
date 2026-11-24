@@ -1,12 +1,23 @@
 import type { TaskContactMethod, UpdateTaskInput } from '@codegen/schema'
 
 import { buildDatetimePayload } from '@/app/(stepflow)/tasks/create/createTaskFormSchema'
+import { formatExactAddress } from '@/app/(stepflow)/tasks/create/helpers/exactAddress'
 import { budgetUnitFromText } from '@/app/(task)/helpers/taskBudget/taskBudget'
+import { richTextForSubmit } from '@/ui/RichText'
 
 import type { EditTaskFormValues } from '../editTaskFormSchema'
 
 const BUDGET = ['budgetMajor', 'budgetCurrency', 'budgetUnit', 'openBudget']
-const LOCATION = ['streetAddress', 'mapPlaceName', 'locationLat', 'locationLng']
+const LOCATION = [
+  'addressLine1',
+  'addressLine2',
+  'city',
+  'county',
+  'postcode',
+  'mapPlaceName',
+  'locationLat',
+  'locationLng',
+]
 const TIMING = ['datetimeType', 'preferredDate', 'preferredTime']
 
 /**
@@ -30,7 +41,8 @@ export function buildEditTaskInput({
   const changed = (fields: string[]) => fields.some((field) => dirty[field])
   const input: UpdateTaskInput = {}
   if (dirty.title) input.title = values.title.trim()
-  if (dirty.description) input.description = values.description.trim()
+  if (dirty.description)
+    input.description = richTextForSubmit(values.description)
   if (dirty.categories) input.categories = values.categories
   // BE-139: `budget: null` opens the budget (only when it was priced); a
   // priced one is sent whole when any part of it changed.
@@ -52,7 +64,7 @@ export function buildEditTaskInput({
       lat: Number.parseFloat(values.locationLat),
       lng: Number.parseFloat(values.locationLng),
       name: publicName,
-      address: values.streetAddress.trim(),
+      address: formatExactAddress(values),
     }
   }
   if (changed(TIMING)) input.datetime = buildDatetimePayload(values)

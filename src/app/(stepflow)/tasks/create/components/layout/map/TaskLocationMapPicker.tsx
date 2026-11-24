@@ -20,17 +20,30 @@ import { useTaskLocationMap } from './useTaskLocationMap'
  */
 export const BELOW_TASK_LOCATION_SEARCH = '64px'
 
+/** CSS anchor for a centre pin shifted by `offset` pixels (search-page centre). */
+function pinAnchor(offset: readonly [number, number]) {
+  const [x, y] = offset
+  return {
+    left: `calc(50% + ${x}px)`,
+    top: `calc(50% + ${y}px)`,
+  }
+}
+
 /**
  * Soft circle behind the centre pin (FE-70): workers see an approximate
  * area, not this exact point. Decorative.
  */
-export function TaskLocationAreaHalo() {
+export function TaskLocationAreaHalo({
+  offset = [0, 0],
+}: {
+  /** Pixels from the map box centre. Create's desktop map matches /search. */
+  offset?: readonly [number, number]
+}) {
   return (
     <Box
       pointerEvents="none"
       position="absolute"
-      left="50%"
-      top="50%"
+      {...pinAnchor(offset)}
       w="128px"
       h="128px"
       ml="-64px"
@@ -47,13 +60,17 @@ export function TaskLocationAreaHalo() {
 }
 
 /** Fixed centre pin: the tip sits on the map centre. Decorative. */
-export function TaskLocationCentrePin() {
+export function TaskLocationCentrePin({
+  offset = [0, 0],
+}: {
+  /** Pixels from the map box centre. Create's desktop map matches /search. */
+  offset?: readonly [number, number]
+}) {
   return (
     <Box
       pointerEvents="none"
       position="absolute"
-      left="50%"
-      top="50%"
+      {...pinAnchor(offset)}
       w="32px"
       h="32px"
       ml="-16px"

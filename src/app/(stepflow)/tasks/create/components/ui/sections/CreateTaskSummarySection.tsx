@@ -20,6 +20,7 @@ import {
 import { useLocale } from '@/i18n/LocaleProvider'
 import { formatMessage } from '@/i18n/loadPageI11n'
 import { useI11n } from '@/i18n/useI11n'
+import { richTextToPlain } from '@/ui/RichText'
 import { Button } from '@ui'
 
 import bag from '../../../i11n.json'
@@ -173,9 +174,6 @@ export function CreateTaskSummarySection({
         onEdit={() => onEdit('details')}
       >
         <Text fontWeight={500}>{summary.title}</Text>
-        <Text color="text.muted" lineClamp={2}>
-          {summary.description}
-        </Text>
         <Text color="text.muted">{summary.categories.join(' · ')}</Text>
       </Row>
       <Row
@@ -212,6 +210,11 @@ export function CreateTaskSummarySection({
         editLabel={editLabel('photos')}
         onEdit={() => onEdit('photos')}
       >
+        {richTextToPlain(summary.description) ? (
+          <Text color="text.muted" lineClamp={2}>
+            {richTextToPlain(summary.description)}
+          </Text>
+        ) : null}
         {photos}
       </Row>
     </Stack>

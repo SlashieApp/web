@@ -1,10 +1,17 @@
 'use client'
 
-import { Stack, Text } from '@chakra-ui/react'
+import { HStack, Stack, Text } from '@chakra-ui/react'
 import { TaskDateTimeType } from '@codegen/schema'
+import { LuLock } from 'react-icons/lu'
 
 import { useI11n } from '@/i18n/useI11n'
-import { Badge, FormCheckbox, FormField, Input, RadioButtonGroup } from '@ui'
+import {
+  Badge,
+  DateTimePicker,
+  FormCheckbox,
+  FormField,
+  RadioButtonGroup,
+} from '@ui'
 
 import { londonToday } from '../../../createTaskFormSchema'
 import { taskFieldError } from '../../../helpers/taskFieldError'
@@ -27,18 +34,21 @@ export type CreateTaskScheduleSectionProps = {
     preferredTime?: string
   }
   /**
-   * "Mark as urgent" (FE-603, Ryan 22 Nov): a Slashie Pro feature, so it is
-   * only passed for an account with Pro (or, on Edit task, for a task that
-   * is already urgent, so the mark can come off). Left out, nothing shows.
+   * "Mark as urgent" (FE-603). Always shown. `locked` is an account without
+   * Slashie Pro: the box is disabled, with the Pro tag and a lock. A task
+   * that is already urgent can still be unticked.
    */
-  urgent?: { checked: boolean; onChange: (checked: boolean) => void }
+  urgent?: {
+    checked: boolean
+    locked?: boolean
+    onChange: (checked: boolean) => void
+  }
 }
 
 /**
- * Flexible, before a date, or a date and time. The date is the device's own
- * picker from today on, so any week is reachable and past days aren't. With
- * Slashie Pro, "Mark as urgent" follows: workers see an Urgent tag on the
- * task.
+ * Flexible, before a date, or a date and time. The date (and the time, on a
+ * date) opens in a modal. Past days are not offered. "Mark as urgent" always
+ * follows. Without Slashie Pro it is locked.
  */
 export function CreateTaskScheduleSection({
   bare = false,
@@ -84,29 +94,19 @@ export function CreateTaskScheduleSection({
         <FormField
           label={datetimeType === TaskDateTimeType.Before ? f.doneBy : f.date}
           required
-          errorText={taskFieldError(t.errors, fieldErrors?.preferredDate)}
+          errorText={taskFieldError(
+            t.errors,
+            fieldErrors?.preferredDate ??
+              (showTime ? fieldErrors?.preferredTime : undefined),
+          )}
         >
-          <Input
-            type="date"
+          <DateTimePicker
+            date={preferredDate}
+            time={preferredTime}
+            withTime={showTime}
             min={londonToday()}
-            value={preferredDate}
-            onChange={(e) => onPreferredDateChange(e.target.value)}
-            rootProps={{ maxW: { base: 'full', md: '240px' } }}
-          />
-        </FormField>
-      ) : null}
-
-      {showTime ? (
-        <FormField
-          label={f.time}
-          required
-          errorText={taskFieldError(t.errors, fieldErrors?.preferredTime)}
-        >
-          <Input
-            type="time"
-            value={preferredTime}
-            onChange={(e) => onPreferredTimeChange(e.target.value)}
-            rootProps={{ maxW: { base: 'full', md: '240px' } }}
+            onDateChange={onPreferredDateChange}
+            onTimeChange={onPreferredTimeChange}
           />
         </FormField>
       ) : null}
@@ -115,10 +115,14 @@ export function CreateTaskScheduleSection({
         <Stack gap="form.controlToHelper" data-urgent-option="">
           <FormCheckbox
             checked={urgent.checked}
-            onCheckedChange={urgent.onChange}
+            disabled={Boolean(urgent.locked) && !urgent.checked}
+            onCheckedChange={(checked) => {
+              if (urgent.locked && checked) return
+              urgent.onChange(checked)
+            }}
             label={
-              <>
-                {f.urgent}{' '}
+              <HStack as="span" gap={1.5} display="inline-flex">
+                {f.urgent}
                 <Badge
                   variant="premium"
                   size="sm"
@@ -128,7 +132,15 @@ export function CreateTaskScheduleSection({
                 >
                   {f.proBadge}
                 </Badge>
-              </>
+                {urgent.locked ? (
+                  <LuLock
+                    size={14}
+                    aria-hidden
+                    data-urgent-lock=""
+                    style={{ verticalAlign: 'middle' }}
+                  />
+                ) : null}
+              </HStack>
             }
           />
           <Text fontSize="xs" color="text.muted" lineHeight="short" ps={8}>

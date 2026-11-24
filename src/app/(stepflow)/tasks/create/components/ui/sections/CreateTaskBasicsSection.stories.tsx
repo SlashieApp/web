@@ -3,7 +3,6 @@ import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 
 import {
-  expectAddRow,
   expectGaps,
   expectLineUnder,
   expectPieces,
@@ -72,7 +71,7 @@ export const WithCategories: Story = {
   args: { initialCategories: ['Plumbing', 'Dog walking', 'HANDYMAN'] },
 }
 
-/** Everything filled in: title, categories and description. */
+/** Everything filled in: title and categories. */
 export const Filled: Story = {
   args: { initialCategories: ['Plumbing'], defaultValues: filled },
 }
@@ -103,7 +102,7 @@ export const MissingCategory: Story = {
   },
 }
 
-/** Continue pressed on an empty step: title, categories and description flagged. */
+/** Continue pressed on an empty step: title and categories flagged. */
 export const AllRequired: Story = {
   args: { fieldErrors: createTaskStoryErrors() },
 }
@@ -115,9 +114,7 @@ export const CardMode: Story = {
 
 /**
  * Form spacing (FE-481): the fields are 20 apart, each label 8 above its
- * control. The categories field is one composite control: its tags, the add row
- * and the suggestions are 8 apart, the tags 8 apart, the input and Add 12 apart
- * and 48 tall, the suggestions' heading 8 above them, and its helper 4 under it.
+ * control. Category pins are 8 apart, and the helper is 4 under them.
  */
 export const Spacing: Story = {
   args: {
@@ -127,16 +124,14 @@ export const Spacing: Story = {
   play: async ({ canvasElement }) => {
     const title = fieldByLabel(canvasElement, /Task title/)
     const categories = fieldByLabel(canvasElement, /Categories/)
-    const description = fieldByLabel(canvasElement, /Description/)
-    await expectGaps([title, categories, description], formSpace.fieldGap)
+    await expectGaps([title, categories], formSpace.fieldGap)
     await expectField(title)
-    await expectField(description, null)
 
-    const { control, pieces } = await expectPieces(categories)
-    const [tags, row, suggestions] = pieces
-    await expectGaps([...tags.children], formSpace.alternativesGap)
-    await expectAddRow(row)
-    await expectGaps([...suggestions.children], formSpace.labelToControl)
+    const { control } = await expectPieces(categories)
+    const pins = [
+      ...control.querySelectorAll(':scope > * > label'),
+    ] as HTMLElement[]
+    await expectGaps(pins, formSpace.alternativesGap)
     await expectLineUnder(control, categories, /Tap a suggestion/)
   },
 }

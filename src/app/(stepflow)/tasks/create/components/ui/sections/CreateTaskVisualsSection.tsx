@@ -10,10 +10,12 @@ import { formHelperTextStyle, sdlFocusRing } from '@/theme/styles'
 import {
   AddPhotoTile,
   Badge,
+  FormField,
   IconButton,
   ImagePreview,
   PhotoSourcePicker,
   PhotoTile,
+  RichTextInput,
 } from '@ui'
 
 import {
@@ -41,6 +43,9 @@ export type CreateTaskVisualsSectionProps = {
   labelled?: boolean
   /** False when the step's description already says what photos are for (create's photos step). */
   helper?: boolean
+  /** The optional description. Omit the change handler to hide the field. */
+  description?: string
+  onDescriptionChange?: (value: string) => void
 }
 
 const THUMB = '88px'
@@ -87,6 +92,8 @@ export function CreateTaskVisualsSection({
   sectionHeading = '',
   labelled = true,
   helper = true,
+  description = '',
+  onDescriptionChange,
 }: CreateTaskVisualsSectionProps) {
   const f = useI11n(bag).fields
   const [previewIndex, setPreviewIndex] = useState<number | null>(null)
@@ -129,6 +136,24 @@ export function CreateTaskVisualsSection({
 
   return (
     <CreateTaskSection bare={bare} heading={sectionHeading}>
+      {onDescriptionChange ? (
+        <FormField
+          label={
+            <HStack gap={2}>
+              <Text as="span">{f.description}</Text>
+              <Badge variant="neutral" shape="pill">
+                {f.optional}
+              </Badge>
+            </HStack>
+          }
+        >
+          <RichTextInput
+            value={description}
+            onChange={onDescriptionChange}
+            placeholder={f.descriptionPlaceholder}
+          />
+        </FormField>
+      ) : null}
       {/* One field: its label, lead-in and tiles are `labelToControl` (8)
           apart, and a rejected file's reason hangs 4 under the tiles. */}
       <Stack gap="form.controlToHelper">
