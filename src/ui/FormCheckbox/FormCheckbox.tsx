@@ -1,7 +1,7 @@
 'use client'
 
 import { Checkbox, HStack, Stack } from '@chakra-ui/react'
-import { type ComponentProps, type ReactNode, type Ref, useId } from 'react'
+import { type ReactNode, type Ref, useId } from 'react'
 
 import { formSpace, hitAreaGrowth, minHitArea } from '@/theme/styles'
 
@@ -65,9 +65,6 @@ export type FormCheckboxProps = {
   reachBelow?: number
   /** The box cannot be changed. */
   disabled?: boolean
-  /** Overrides for the box and the label, for a form that draws them differently. */
-  controlProps?: ComponentProps<typeof Checkbox.Control>
-  labelProps?: ComponentProps<typeof Checkbox.Label>
 }
 
 /**
@@ -91,8 +88,6 @@ export function FormCheckbox({
   reachAbove,
   reachBelow,
   disabled = false,
-  controlProps,
-  labelProps,
 }: FormCheckboxProps) {
   const errorId = useId()
   return (
@@ -128,7 +123,6 @@ export function FormCheckbox({
               borderColor: 'action.primary',
               color: 'text.onGreen',
             }}
-            {...controlProps}
           >
             <Checkbox.Indicator color="inherit" />
           </Checkbox.Control>
@@ -138,7 +132,6 @@ export function FormCheckbox({
             color="text.default"
             lineHeight={`${FORM_CHECKBOX_LINE_HEIGHT}px`}
             cursor={disabled ? 'not-allowed' : 'pointer'}
-            {...labelProps}
           >
             {label}
           </Checkbox.Label>
