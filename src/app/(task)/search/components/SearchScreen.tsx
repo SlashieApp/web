@@ -43,7 +43,6 @@ export function SearchScreen({
       {seededReference ? null : <BrowseGeolocationInit />}
       <SearchUrlSync />
       <SearchRefreshListener />
-      {/* Browse view capture: ./analytics/SearchViewTracker */}
       <Box
         flex={1}
         w="full"
