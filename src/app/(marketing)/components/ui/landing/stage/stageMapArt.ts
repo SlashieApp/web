@@ -13,7 +13,6 @@ export const MAP_VIEWBOX = { width: 1200, height: 600 } as const
 /** The river: one stroke that bends down the middle of the canvas. */
 export const MAP_RIVER =
   'M 600 -40 C 540 90, 660 190, 612 310 S 548 500, 604 640'
-export const MAP_RIVER_WIDTH = 46
 
 /** Wide roads, drawn with a hairline casing. They cross the river (bridges). */
 export const MAP_MAJOR_ROADS: readonly string[] = [
@@ -24,7 +23,6 @@ export const MAP_MAJOR_ROADS: readonly string[] = [
   'M 1010 -40 C 990 140, 1040 270, 1015 390 S 970 540, 1010 640',
   'M -40 520 C 200 500, 420 550, 640 505 S 1000 470, 1240 530',
 ]
-export const MAP_MAJOR_ROAD_WIDTH = 9
 
 /** Parks: soft rounded patches a shade darker than the land. */
 export const MAP_PARKS: readonly {
@@ -85,4 +83,3 @@ function buildMinorStreets(): string[] {
 }
 
 export const MAP_MINOR_STREETS: readonly string[] = buildMinorStreets()
-export const MAP_MINOR_STREET_WIDTH = 3

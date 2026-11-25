@@ -15,15 +15,6 @@ const DIALS_LONGEST_FIRST = [
 
 export const DEFAULT_CALLING_CODE = '+44'
 
-/** UK-only MVP — always +44. */
-export function detectDefaultCallingCode(): string {
-  return DEFAULT_CALLING_CODE
-}
-
-export function countryForDial(dial: string): PhoneCountry | undefined {
-  return PHONE_COUNTRIES.find((c) => c.dial === dial)
-}
-
 /** Split an E.164 or loose international string into dial code + national digits. */
 export function splitPhoneE164(
   value: string,

@@ -25,11 +25,6 @@ export const LOCALE_TO_I11N_KEY: Record<AppLocale, I11nKey> = {
   'zh-hk': 'zh_hk',
 }
 
-export const I11N_KEY_TO_LOCALE: Record<I11nKey, AppLocale> = {
-  en: 'en',
-  zh_hk: 'zh-hk',
-}
-
 /** GraphQL `UserLanguage` enum values (apollo BE-38). */
 export type UserLanguageApi = 'EN' | 'ZH_TW'
 

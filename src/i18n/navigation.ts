@@ -1,4 +1,4 @@
-import { type AppLocale, DEFAULT_LOCALE, LOCALES, isAppLocale } from './locales'
+import { type AppLocale, DEFAULT_LOCALE, isAppLocale } from './locales'
 
 /**
  * Strip a leading locale segment from a pathname.
@@ -71,9 +71,4 @@ export function swapLocaleInPath(
   return search
     ? `${base}${search.startsWith('?') ? search : `?${search}`}`
     : base
-}
-
-export function isLocalePrefixed(pathname: string): boolean {
-  const maybe = pathname.split('/')[1]
-  return (LOCALES as readonly string[]).includes(maybe ?? '')
 }

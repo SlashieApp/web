@@ -1,5 +1,4 @@
 import {
-  type MyOrdersQuery,
   OrderCloseKind,
   OrderRequestKind,
   OrderStatus,
@@ -8,18 +7,10 @@ import {
 } from '@codegen/schema'
 
 import { formatPounds } from '@/utils/dashboardHelpers'
-import {
-  type TaskDatetimeLike,
-  parseTaskScheduleDate,
-  scheduleChipForTask,
-} from '@/utils/taskJobSchedule'
+import type { TaskDatetimeLike } from '@/utils/taskJobSchedule'
 
 /** Detail-page order shape (client-fetched via Task.gql). */
 export type OrderItem = NonNullable<TaskQuery['task']>['orders'][number]
-
-export type MyOrdersListItem = NonNullable<
-  NonNullable<MyOrdersQuery['me']>['orders']
->[number]
 
 export function orderAgreedPricePence(order: OrderItem): number {
   const amount = order.agreedPrice?.amount
@@ -44,34 +35,6 @@ export function orderBookedDatetime(
     time: `${pad2(start.getHours())}:${pad2(start.getMinutes())}`,
     type: TaskDateTimeType.Exact,
   }
-}
-
-export function scheduleChipForOrder(order: OrderItem) {
-  return scheduleChipForTask(orderBookedDatetime(order))
-}
-
-export function sortOrdersBySchedule(orders: OrderItem[]): OrderItem[] {
-  return [...orders].sort((a, b) => {
-    const aWhen =
-      parseTaskScheduleDate(orderBookedDatetime(a))?.getTime() ??
-      Number.MAX_SAFE_INTEGER
-    const bWhen =
-      parseTaskScheduleDate(orderBookedDatetime(b))?.getTime() ??
-      Number.MAX_SAFE_INTEGER
-    return aWhen - bWhen
-  })
-}
-
-export function sortOrdersByClosedAtDesc(orders: OrderItem[]): OrderItem[] {
-  return [...orders].sort((a, b) => {
-    const aWhen = a.closedAt ? new Date(String(a.closedAt)).getTime() : 0
-    const bWhen = b.closedAt ? new Date(String(b.closedAt)).getTime() : 0
-    if (bWhen !== aWhen) return bWhen - aWhen
-    return (
-      new Date(String(b.createdAt)).getTime() -
-      new Date(String(a.createdAt)).getTime()
-    )
-  })
 }
 
 export function isOrderClosed(status: OrderStatus | string): boolean {
@@ -124,23 +87,6 @@ export function currentTaskOrder<
   return newestOrder(orders)
 }
 
-export type OrderPartyRole = 'customer' | 'worker'
-
-export function orderPartyRole(
-  order: OrderItem,
-  userId: string,
-): OrderPartyRole | null {
-  if (order.customerUserId === userId) return 'customer'
-  if (order.workerUserId === userId) return 'worker'
-  return null
-}
-
-export function orderTaskHref(
-  order: OrderItem | { id: string; taskId: string },
-): string {
-  return taskOrderSectionHref(order.taskId)
-}
-
 export const TASK_ORDER_SECTION_ID = 'task-order'
 
 /** Deep link to the inline order block on task detail. */
@@ -151,16 +97,6 @@ export function taskOrderSectionHref(taskId: string): string {
 /** @deprecated Use {@link taskOrderSectionHref}. */
 export function taskOrderHref(taskId: string): string {
   return taskOrderSectionHref(taskId)
-}
-
-/** @deprecated Use {@link taskOrderSectionHref}. */
-export function requestOrderHref(taskId: string): string {
-  return taskOrderSectionHref(taskId)
-}
-
-/** @deprecated Use {@link taskOrderHref} with `taskId`. */
-export function orderDashboardHref(_orderId: string): string {
-  return '/tasks'
 }
 
 export type OrderCloseActionKind = 'DONE' | 'FAILED'
@@ -307,16 +243,4 @@ export function orderLocationLabel(order: OrderItem): string {
 
 export function formatOrderAgreedPrice(order: OrderItem): string {
   return formatPounds(orderAgreedPricePence(order))
-}
-
-export function findOrderForTask(
-  orders: readonly OrderItem[],
-  taskId: string,
-  userId: string,
-): OrderItem | null {
-  return (
-    orders.find(
-      (o) => o.taskId === taskId && orderPartyRole(o, userId) != null,
-    ) ?? null
-  )
 }

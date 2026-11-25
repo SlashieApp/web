@@ -11,7 +11,6 @@ const NOT_FOUND_CODES = new Set([
   'WORKER_NOT_FOUND',
 ])
 const TASK_NOT_FOUND_CODES = NOT_FOUND_CODES
-const WORKER_NOT_FOUND_CODES = NOT_FOUND_CODES
 
 function normaliseErrorCode(error: GraphqlErrorLike): string | null {
   const code = error.extensions?.code?.trim()
@@ -34,9 +33,4 @@ function isGraphqlNotFound(errors: unknown, codes: Set<string>): boolean {
 /** True when a GraphQL response indicates a task detail page should 404. */
 export function isGraphqlTaskNotFound(errors: unknown): boolean {
   return isGraphqlNotFound(errors, TASK_NOT_FOUND_CODES)
-}
-
-/** True when a GraphQL response indicates a public worker profile should 404. */
-export function isGraphqlWorkerNotFound(errors: unknown): boolean {
-  return isGraphqlNotFound(errors, WORKER_NOT_FOUND_CODES)
 }

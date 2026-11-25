@@ -18,8 +18,6 @@ export const TASK_PAYMENT_METHODS = [
   TaskPaymentMethod.Card,
 ] as const
 
-const KNOWN = new Set<string>(TASK_PAYMENT_METHODS)
-
 /** A task or a booking as the queries read it. */
 export type PaymentMethodsLike =
   | {
@@ -77,9 +75,4 @@ export function paymentMethodsLine(
 ): string | null {
   const labels = paymentMethodLabels(source, copy)
   return labels.length > 0 ? labels.join(copy.separator) : null
-}
-
-/** Whether a string is one of the methods (`KNOWN`), for older free text. */
-export function isTaskPaymentMethod(value: string): value is TaskPaymentMethod {
-  return KNOWN.has(value)
 }

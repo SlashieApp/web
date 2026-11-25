@@ -3,7 +3,6 @@
 import { QuoteStatus } from '@codegen/schema'
 
 import type { MyRequestsQueryData } from '@/graphql/tasks-query.types'
-import { budgetToPence, priceToPence } from '@/utils/price'
 import { taskPublicLocationLabel } from '@/utils/taskLocationDisplay'
 
 export function getDisplayNameFromEmail(email: string | null | undefined) {
@@ -28,14 +27,6 @@ export type MyQuoteItem = {
 
 export function formatPounds(pricePence: number) {
   return `£${(pricePence / 100).toFixed(0)}`
-}
-
-export function quotePricePence(quote: { price?: { amount: number } | null }) {
-  return priceToPence(quote.price) ?? 0
-}
-
-export function taskBudgetPence(task: { budget?: { amount: number } | null }) {
-  return budgetToPence(task.budget) ?? 0
 }
 
 export function timeFromUnknown(value: unknown): number {

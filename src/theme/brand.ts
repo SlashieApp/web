@@ -21,11 +21,8 @@ export const brandPrimary = {
 /** Brand green = SDL green-400 (action.primary). Dark ink text on green, never white. */
 export const BRAND_PRIMARY = '#00DC82'
 export const BRAND_PRIMARY_HOVER = '#00C275'
-export const BRAND_PRIMARY_PRESSED = '#02A567'
 export const BRAND_INK = '#0A1512'
-export const BRAND_SECONDARY = '#048654'
 export const BRAND_PRIMARY_SOFT_BG = '#C6F6DD'
-export const BRAND_PRIMARY_SOFT_FG = '#048654'
 
 /**
  * Map accent colors for raw Mapbox/SVG consumers. Brand green pins/routes per spec;

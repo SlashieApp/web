@@ -250,17 +250,6 @@ export function isUnauthenticatedError(error: unknown) {
   return normaliseMessage(graphQLError.message) === 'UNAUTHENTICATED'
 }
 
-export function isMonthlyConnectionLimitError(error: unknown) {
-  const graphQLError = pickGraphQLError(error)
-  if (graphQLError?.extensions?.code === MONTHLY_CONNECTION_LIMIT_ERROR_CODE)
-    return true
-  if (!graphQLError?.message) return false
-  return (
-    normaliseMessage(graphQLError.message) ===
-    MONTHLY_CONNECTION_LIMIT_ERROR_CODE
-  )
-}
-
 export function isWorkerQuoteLimitError(error: unknown) {
   const graphQLError = pickGraphQLError(error)
   if (graphQLError?.extensions?.code === WORKER_QUOTE_LIMIT_ERROR_CODE)

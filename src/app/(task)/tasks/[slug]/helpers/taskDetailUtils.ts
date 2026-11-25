@@ -17,11 +17,6 @@ export type TaskQuoteInvitationRow = NonNullable<
   TaskClientRecord['quoteInvitations']
 >[number]
 
-/** The invited worker's own invitation (FE-507): `Task.viewerQuoteInvitation`. */
-export type ViewerQuoteInvitationRecord = NonNullable<
-  TaskClientRecord['viewerQuoteInvitation']
->
-
 /**
  * The merged task the detail context exposes:
  * - PUBLIC meta server-rendered via TaskCore (fast, auth-free SSR),

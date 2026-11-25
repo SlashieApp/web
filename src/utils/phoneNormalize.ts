@@ -23,15 +23,6 @@ export function toE164ForApi(phone: string): string {
   throw new Error('INVALID_PHONE_NUMBER')
 }
 
-/** Best-effort comparison of two phone strings after E.164 normalisation. */
-export function phonesMatchForApi(a: string, b: string): boolean {
-  try {
-    return toE164ForApi(a) === toE164ForApi(b)
-  } catch {
-    return a.trim() === b.trim()
-  }
-}
-
 export function formatPhoneForDisplay(phone: string): string {
   const trimmed = phone.trim()
   if (!trimmed) return ''

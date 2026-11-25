@@ -1,4 +1,4 @@
-import { QuoteStatus, TaskDateTimeType, TaskStatus } from '@codegen/schema'
+import { QuoteStatus, TaskDateTimeType } from '@codegen/schema'
 
 import { startOfLocalDay } from '@/utils/startOfLocalDay'
 
@@ -6,11 +6,6 @@ export type TaskDatetimeLike = {
   date?: string | null
   time?: string | null
   type: TaskDateTimeType | string
-}
-
-export type TaskScheduleLike = {
-  datetime?: TaskDatetimeLike | null
-  status: string
 }
 
 export type ScheduleChip = 'today' | 'tomorrow' | 'overdue' | null
@@ -63,51 +58,7 @@ export function formatDoneCardDate(
   }).format(start)
 }
 
-/**
- * Before the scheduled time, or when timing is flexible, the worker should
- * still be on site. Once an exact or deadline time has passed, they can
- * mark the job complete.
- */
-export function workerOnSitePhase(
-  datetime: TaskDatetimeLike | null | undefined,
-  now = new Date(),
-): 'onsite' | 'complete' {
-  if (!datetime || datetime.type === TaskDateTimeType.Flexible) return 'onsite'
-  if (datetime.type === TaskDateTimeType.Before) {
-    const date = datetime.date?.trim()
-    if (!date) return 'onsite'
-    const end = new Date(`${date}T23:59:59`)
-    if (Number.isNaN(end.getTime()) || end.getTime() >= now.getTime()) {
-      return 'onsite'
-    }
-    return 'complete'
-  }
-  const when = parseTaskScheduleDate(datetime)
-  if (!when || when.getTime() > now.getTime()) return 'onsite'
-  return 'complete'
-}
-
 /** Exactly ACCEPTED: no other status means the quote won. */
 export function isAcceptedQuoteStatus(status: string): boolean {
   return status.trim().toUpperCase() === QuoteStatus.Accepted
-}
-
-export function isJobClosedStatus(status: string): boolean {
-  return status === TaskStatus.Cancelled || /confirm|closed/i.test(status)
-}
-
-export function canSubmitNewQuote(
-  task: {
-    status: string
-    quotes?: ReadonlyArray<{ workerUserId: string; status: string }>
-  },
-  workerUserId: string | undefined,
-): boolean {
-  if (!workerUserId) return false
-  if (task.status !== TaskStatus.Open) return false
-  const accepted = task.quotes?.some((q) => isAcceptedQuoteStatus(q.status))
-  if (accepted) return false
-  const mine = task.quotes?.find((q) => q.workerUserId === workerUserId)
-  if (mine && isAcceptedQuoteStatus(mine.status)) return false
-  return true
 }

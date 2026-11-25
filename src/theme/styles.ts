@@ -162,7 +162,6 @@ export const sdlTypeScale = {
     letterSpacing: '0',
   },
 } as const satisfies Record<string, SdlTypeStep>
-export type SdlTypeRole = keyof typeof sdlTypeScale
 
 /** SDL spacing scale (px), 4px base. Mirrors Chakra default spacing tokens. */
 export const sdlSpace = {
@@ -395,16 +394,6 @@ export const sdlCardSurface: SystemStyleObject = {
 }
 
 /**
- * Same surface, lifted for chrome that floats over the map. `e3` carries its own
- * 1px ring, so it has no border of its own.
- */
-export const sdlOverlaySurface: SystemStyleObject = {
-  ...sdlCardSurface,
-  borderWidth: 0,
-  boxShadow: sdlCard.overlayShadow,
-}
-
-/**
  * Prices, counts and other figures: weight 600 with tabular figures. Spread it
  * onto the `Text` that holds the number.
  */
@@ -545,12 +534,6 @@ export function formControlInvalidFieldStyles(
       outline: 'none',
     },
   }
-}
-
-/** Focus ring for solid danger buttons (uses the `status.danger.ring` token). */
-export const statusDangerSolidFocusRing: SystemStyleObject = {
-  outline: 'none',
-  boxShadow: '0 0 0 4px var(--chakra-colors-status-danger-ring)',
 }
 
 /**
