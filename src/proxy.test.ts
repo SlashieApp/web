@@ -70,14 +70,14 @@ describe('proxy locale routing', async () => {
     expect(rewrite).toContain('/pricing')
   })
 
-  it('308-redirects www to the canonical apex host', async () => {
-    const res = await proxy(
-      request('/search?mode=tasks', { host: 'www.slashie.app' }),
-    )
-    expect(res.status).toBe(308)
-    expect(res.headers.get('location')).toBe(
-      'https://slashie.app/search?mode=tasks',
-    )
+  // Host redirects live in Vercel's Domains settings (FE-616). The proxy
+  // redirecting www as well looped with Vercel sending the apex to www.
+  it('serves www and the apex without a host redirect', async () => {
+    for (const host of ['www.slashie.app', 'slashie.app']) {
+      const res = await proxy(request('/search?mode=tasks', { host }))
+      expect(res.status).toBe(200)
+      expect(res.headers.get('location')).toBeNull()
+    }
   })
 
   it('does not force localhost onto the public origin', async () => {

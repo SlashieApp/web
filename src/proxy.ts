@@ -19,9 +19,6 @@ const PUBLIC_FILE = /\.[^/]+$/
 
 /** Same host as next.config PostHog reverse-proxy rewrites. */
 const POSTHOG_PROXY_HOST = 'e.slashie.app'
-/** Public site origin used by metadataBase / OG URLs. */
-const CANONICAL_HOST = 'slashie.app'
-const WWW_HOST = 'www.slashie.app'
 
 function hostnameOf(request: NextRequest): string {
   return (
@@ -106,13 +103,8 @@ export function proxy(
     return NextResponse.next()
   }
 
-  // One public origin: www is a permanent alias of the apex.
-  if (host === WWW_HOST) {
-    const redirectUrl = request.nextUrl.clone()
-    redirectUrl.hostname = CANONICAL_HOST
-    redirectUrl.protocol = 'https:'
-    return NextResponse.redirect(redirectUrl, 308)
-  }
+  // Redirects between slashie.app and www.slashie.app are set in Vercel's
+  // Domains settings only (FE-616). Doing it here too made a loop.
 
   if (shouldSkip(pathname)) {
     return NextResponse.next()
