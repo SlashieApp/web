@@ -6,7 +6,6 @@
     "createTask": "Post a task",
     "messages": "Messages",
     "messagesUnread": "Messages, {count} unread",
-    "profile": "Profile",
     "account": "Account"
   },
   "zh_hk": {
@@ -16,7 +15,6 @@
     "createTask": "發佈任務",
     "messages": "訊息",
     "messagesUnread": "訊息，{count} 則未讀",
-    "profile": "個人檔案",
     "account": "帳戶"
   }
 }
