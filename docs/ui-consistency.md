@@ -89,7 +89,7 @@ Marketing pages sit in the marketing frame (FE-471, `src/app/(marketing)/compone
 a white page, from `lg` a 1px `border.default` rail down each side of this same page column, a full-width
 1px rule between sections (`SectionRule`), a left-aligned section head with a green 600 icon and an
 eyebrow (`SectionHead`), and section padding from `SECTION_PY` (56px phone to 128px wide). Only the hero
-and the closing call to action are centred. `/home`, `/pricing`, `/about` and the legal pages (`/terms`,
+and the closing call to action are centred. `/home`, `/pricing` and the legal pages (`/terms`,
 `/privacy`, `/cookies`, `/help/safety`, one `LegalPageLayout`: rows with the heading beside the text in a
 32em reading column) are in the frame so far (the marketing header is white on those routes,
 `FRAMED_ROUTES`); a page whose sticky page header paints an opaque bar passes `railsZIndex` so the rails
@@ -124,7 +124,7 @@ Routes are already grouped by Next.js route groups, which align to shells:
 
 | Route group | Shell | Chrome |
 | --- | --- | --- |
-| `src/app/(marketing)` — `/`, `/about`, `/pricing` | Marketing | Header only, footer; no sidebar/dock |
+| `src/app/(marketing)` — `/`, `/pricing` (`/about` redirects to the company site) | Marketing | Header only, footer; no sidebar/dock |
 | `src/app/(auth)`: `/login`, `/register`, verify | Marketing (auth) | Logo row with a back arrow (Log in only when something is behind it), centered card, legal links |
 | `src/app/(task)` — `/search`, `/tasks` (My Tasks hub), `/tasks/[slug]` | Discovery / My Tasks / Task detail | Map browse on `/search`; hub list on `/tasks`; mobile bottom dock (4); detail = header + quote sidebar |
 | `src/app/(stepflow)` — `/tasks/create`, `/tasks/[slug]/quote`, `/tasks/[slug]/review`, `/worker/setup` | StepFlow | Own route-group `layout.tsx`, no app `Header` / `Dock` (FE-78). Every flow uses `StepFlowHeader`; quote, review, edit and worker setup (six screens, the standard phone body, FE-296) use `StepFlowLayout`; create uses its map variant `CreateTaskMapLayout` (full-screen map, then the band) with the same heading, progress and action bar (FE-295) |

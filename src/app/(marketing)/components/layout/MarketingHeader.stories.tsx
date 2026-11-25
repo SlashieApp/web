@@ -5,6 +5,7 @@ import { useState } from 'react'
 import { expect, userEvent, waitFor, within } from 'storybook/test'
 
 import { type MeSnapshot, useUserStore } from '@/app/(auth)/store/user'
+import { COMPANY_SITE_HREF } from '@/content/legal/company'
 import { LocaleProvider } from '@/i18n/LocaleProvider'
 import { FeedbackDialogProvider } from '@/ui/FeedbackDialog/FeedbackDialogProvider'
 import { viewportAt } from '@/ui/PageContainer/pageLines.testing'
@@ -136,27 +137,9 @@ export const PricingActive: Story = {
         ),
       { timeout: 3000 },
     )
-    await expect(
-      canvas.getByRole('link', { name: 'About' }),
-    ).not.toHaveAttribute('aria-current')
-  },
-}
-
-/**
- * On `/about`: the About link is current, and the header is white like the
- * page, which sits in the marketing frame (FE-471).
- */
-export const AboutActive: Story = {
-  parameters: { nextjs: { navigation: { pathname: '/about' } } },
-  play: async ({ canvasElement }) => {
-    await expect(headerBackground(canvasElement)).toBe('rgb(255, 255, 255)')
-    await waitFor(
-      () =>
-        expect(
-          within(canvasElement).getByRole('link', { name: 'About' }),
-        ).toHaveAttribute('aria-current', 'page'),
-      { timeout: 3000 },
-    )
+    const about = canvas.getByRole('link', { name: 'About' })
+    await expect(about).not.toHaveAttribute('aria-current')
+    await expect(about).toHaveAttribute('href', COMPANY_SITE_HREF)
   },
 }
 
@@ -323,6 +306,9 @@ export const MobileMenuOpen: Story = {
     await expect(
       within(drawer).getByRole('link', { name: 'Pricing' }),
     ).toBeVisible()
+    await expect(
+      within(drawer).getByRole('link', { name: 'About' }),
+    ).toHaveAttribute('href', COMPANY_SITE_HREF)
     await expect(
       within(drawer).getByRole('link', { name: 'Log in' }),
     ).toBeVisible()

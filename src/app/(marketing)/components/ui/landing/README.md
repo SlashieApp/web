@@ -98,8 +98,8 @@ section builds on it:
 - **One green fill per screen, the header included.** The marketing header's
   Get started (Open in app on a phone) is the green primary only while no
   green action of the page's own is in view. It is secondary while the hero's
-  Post a task pill, the closing call's green Post a task (the landing and the foot
-  of `/about`) or the paid plan's action on `/pricing` is on screen;
+  Post a task pill, the closing call's green Post a task on the landing, or the
+  paid plan's action on `/pricing` is on screen;
   `layout/pageGreenWatch.ts` watches the buttons that carry
   `data-page-green-action` (the buttons, not the sections around them) and the
   header reads it (`quiet`). The moment none is on screen the header's action
@@ -139,7 +139,7 @@ The one centred section (`hero/HeroSection.tsx`), built from tokens only:
   the same place with no title. A visitor who already has a session skips
   sign-up and goes straight to the form; so do the closing call's and the
   floating pill's links (`sections/landingCtaPath.ts`, from the session
-  cookie the page reads, as `/about` and `/pricing` do). The pill is the
+  cookie the page reads, as `/pricing` does). The pill is the
   hero's only green fill; the
   header's Get started stays secondary while it is on screen (the pill carries
   `data-page-green-action`, the header watches the button, not the hero, so
@@ -662,7 +662,7 @@ and the view's analytics. The views (who sees which button) are unchanged:
   600 tag icon. "Questions" has none: no existing string fits it. Both heads are
   `size="title"` (34/41 at every width), because the page's own title is 34/41 and
   a section head under it must not out-size it (the 44/48 display head was larger
-  than the h1); the landing and `/about` keep the display size.
+  than the h1); the landing keeps the display size.
 - **Plan cards** are the teaser's card: `sdlCardSurface` (white, a 1px hairline,
   12px corners, `e1`), `p` 20 / 24 / 28, left-aligned, one height. In order, as
   before: the plan's name (an h3, a 14/500 label, muted on Free), its line, the
@@ -696,7 +696,7 @@ and the view's analytics. The views (who sees which button) are unchanged:
 - **Without JavaScript (recorded, not changed).** `page.tsx` awaits its two fetches
   under `loading.tsx`, so React streams the page into a hidden block that only its
   inline swap script reveals: with JavaScript off `/pricing` shows the loading frame
-  and the footer, where the landing, `/about` and the legal pages render in full
+  and the footer, where the landing and the legal pages render in full
   (the copy is in the HTML, inside the hidden block). This predates the branch, and
   the loading frame is what keeps the layout from jumping while the plans arrive. If
   the spec's "all copy stays server-rendered" is to hold here too, drop
@@ -705,44 +705,11 @@ and the view's analytics. The views (who sees which button) are unchanged:
 - **Motion.** The head and the content of each section are `Reveal`s; reduced
   motion and no JS show them as they are.
 
-## About page
+## About
 
-`/about` (`src/app/(marketing)/about/`) takes the same frame, rules and type as the
-landing. `components/AboutScreen.tsx` renders the page inside `MarketingFrame`
-(`bg="bg.surface"`) from the copy and the view; `page.tsx` adds the footer under the
-frame. The views (who sees which closing button) are unchanged: `about/views/README.md`.
-
-- **Frame.** A white page, the rails from `lg`, and a `SectionRule` between each of the
-  five sections (the title, how it works, what it costs, the mission with the open
-  source note, the closing band). The marketing header is white on `/about`
-  (`FRAMED_ROUTES`). Each section is a landmark named by its heading (`aria-labelledby`),
-  in the page column with `SECTION_PY`.
-- **Title.** The h1 "About Slashie" is left-aligned (only the landing hero and the
-  closing band are centred): `display-xl` (56/58) from `md`, `display-lg` (44/48) on a
-  phone, the body in `text-lg` muted with `text-wrap: balance`.
-- **Heads.** Every section head is `SectionHead` (left-aligned, an h2 at 34/41, 44/48 from
-  `lg`, 500). They have no eyebrow: an eyebrow needs a string and this page adds none.
-  The eyebrow style (12/16 caps, 500, +0.08em, `text.subtle`, with a small green 600
-  icon) is on the two step groups' names instead, which are today's strings ("If you
-  need a hand", "If you do the work"; the same user and hard hat icons as the landing's
-  acts). They stay h3s.
-- **Steps** follow the landing's: hairline rows in an `ol` (a 1px `border.default` above
-  each, the last also below). The number is Geist Mono 12 in `text.subtle`, as "01", "02",
-  "03", never green and no disc behind it (it was a filled circle); the step is `text-md`
-  in ink. The two groups sit side by side from `md` (a 32px gap, 64px from `lg`) and stack
-  on a phone.
-- **What it costs** is three hairline-topped columns from `md` (each an h3 at 18/500 over a
-  14px muted line; stacked on a phone, with the last row closing the list). "See pricing"
-  is the `emphasis` link (green 800), set close under the points.
-- **Mission and open source** are two sections side by side from `md`, each a
-  `SectionHead` with its text as the head's body (`text-lg` muted, 60ch). The GitHub and
-  LinkedIn buttons are outline pills.
-- **Closing band** is `FinalCtaBand` unchanged (the landing's close), under a rule. On
-  this page it is the same band. Green is the group icons and its Post a task
-  pill; the marketing header's Get started is secondary here while the close is on screen
-  (one green fill per screen, as at the foot of the landing) and green higher up the page.
-- **Motion.** The heads and the content of each section are `Reveal`s (the title is not:
-  it is the first thing on the page); reduced motion and no JS show them as they are.
+`/about`, `/en/about` and `/zh-hk/about` permanently redirect to
+https://www.slashie.ltd. There is no in-app about page. The marketing header
+and the footer link About to that same URL.
 
 ## Legal pages
 
@@ -834,9 +801,8 @@ UI references SDL semantic tokens only (`src/theme/chakraSystem.ts`).
   `/pricing`'s plans head (the nav's "Pricing", an existing string both times) and
   the legal pages (the footer's "Legal", an existing string: see Legal pages).
   Heads without: the bento (no head of its own, its cells' titles are the h2s),
-  the trust row (no head), `/pricing`'s "Questions",
-  `/about`'s four section heads (its two step groups have a group label, placed
-  under the h2) and the legal rows. No existing string fits any of them ("For
+  the trust row (no head), `/pricing`'s "Questions", and the legal rows. No
+  existing string fits any of them ("For
   customers" over the bento would repeat the act's eyebrow right below it). The options for Ryan: (a) keep
   reusing existing strings where one fits and accept the rest, (b) allow a few
   new eyebrow strings in en and zh-HK, or (c) amend the spec to "eyebrows where

@@ -668,7 +668,7 @@ export const HoverPanelPadding: Story = {
       <Dropdown
         hoverExpand
         contentLabel="Explore"
-        trigger={<Link href="/about">Explore</Link>}
+        trigger={<Link href="/pricing">Explore</Link>}
       >
         <PlainRows />
       </Dropdown>

@@ -13,7 +13,7 @@ export function stripLocalePrefix(pathname: string): string {
   return pathname || '/'
 }
 
-/** Read locale from a browser pathname (`/zh-hk/about` → `zh-hk`). */
+/** Read locale from a browser pathname (`/zh-hk/pricing` → `zh-hk`). */
 export function localeFromPathname(pathname: string): AppLocale {
   const maybe = pathname.split('/')[1]
   return isAppLocale(maybe) ? maybe : DEFAULT_LOCALE

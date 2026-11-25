@@ -14,7 +14,7 @@ import { PageContainer } from '@/ui/PageContainer'
  * The top of a marketing page, built like Home's hero (FE-552, FE-554): the
  * faint radial grey under the header, the h1 in `display-2xl` and the body in
  * `text-lg` muted, centred and rising in as Home's do. What the page shows
- * first (Pricing's plans, About's map) follows under the copy in the same
+ * first (Pricing's plans) follows under the copy in the same
  * section and rises in a beat later. The section is a landmark named by the h1.
  */
 export function CentredHero({

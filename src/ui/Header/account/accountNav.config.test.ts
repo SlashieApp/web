@@ -3,6 +3,8 @@ import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
 
+import { COMPANY_SITE_HREF } from '@/content/legal/company'
+
 import { ACCOUNT_NAV_ITEMS, resolveAccountNavItems } from './accountNav.config'
 
 const dir = dirname(fileURLToPath(import.meta.url))
@@ -15,7 +17,7 @@ describe('account nav destinations', () => {
     expect(labelOf('/account')).toBe('Account')
     expect(labelOf('/billing')).toBe('Plan & billing')
     expect(labelOf('/search')).toBe('Search')
-    expect(labelOf('/about')).toBe('About')
+    expect(labelOf(COMPANY_SITE_HREF)).toBe('About')
   })
 
   it('links My tasks to the hub rather than requests or quotes', () => {

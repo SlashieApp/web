@@ -13,6 +13,7 @@ import { usePathname } from 'next/navigation'
 import { useCallback, useEffect, useState } from 'react'
 
 import { AccountSuspendedBanner } from '@/app/(auth)/components/ui/AccountSuspendedBanner'
+import { COMPANY_SITE_HREF } from '@/content/legal/company'
 import { useLocale } from '@/i18n/LocaleProvider'
 import { loadPageI11n } from '@/i18n/loadPageI11n'
 import { stripLocalePrefix } from '@/i18n/navigation'
@@ -29,7 +30,7 @@ import { watchPageGreen } from './pageGreenWatch'
 
 const MARKETING_NAV_LINKS = [
   { key: 'pricing', href: '/pricing' },
-  { key: 'about', href: '/about' },
+  { key: 'about', href: COMPANY_SITE_HREF },
 ] as const
 
 type MarketingChromeCopy = (typeof chromeMessages)['en']
@@ -92,6 +93,7 @@ function MarketingAuthButtons({
 
 function isNavActive(pathname: string | null, href: string): boolean {
   if (!pathname) return false
+  if (href.startsWith('http://') || href.startsWith('https://')) return false
   const barePathname = stripLocalePrefix(pathname)
   return barePathname === href || barePathname.startsWith(`${href}/`)
 }
@@ -343,7 +345,6 @@ export type MarketingHeaderProps = Omit<BoxProps, 'children'>
 const FRAMED_ROUTES: readonly string[] = [
   MARKETING_HOME,
   '/pricing',
-  '/about',
   '/terms',
   '/privacy',
   '/cookies',
@@ -359,7 +360,7 @@ const FRAMED_ROUTES: readonly string[] = [
  * plan's action is on screen it is secondary (the screen's one green fill is the
  * page's), and with none on screen (or on a page with none, the legal pages) it
  * is the screen's one green button. The other
- * framed routes (`FRAMED_ROUTES`, such as `/pricing` and `/about`) always get
+ * framed routes (`FRAMED_ROUTES`, such as `/pricing`) always get
  * the solid header, in white, as do the legal pages. Marketing routes that
  * have not taken the marketing frame yet get it on the canvas colour their
  * pages still use.

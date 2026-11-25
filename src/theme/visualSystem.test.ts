@@ -542,7 +542,6 @@ describe('decorative washes', () => {
     'src/ui/Card/Card.tsx',
     'src/app/(dashboard)/profile/components/ui/hero/ProfileIdentityHero.tsx',
     'src/app/(dashboard)/components/layout/DashboardSectionCard.tsx',
-    'src/app/(marketing)/about/components/AboutScreen.tsx',
     'src/app/(marketing)/pricing/components/ui/plan/PricingPlanCards.tsx',
     'src/app/(presence)/profile/[userId]/components/ui/PublicProfileHero.tsx',
     'src/app/(stepflow)/tasks/[slug]/quote/components/ui/shared/TaskQuoteSummaryCard.tsx',

@@ -1,5 +1,7 @@
 import type { NextConfig } from 'next'
 
+import { COMPANY_SITE_HREF } from './src/content/legal/company'
+
 /** First-party PostHog reverse-proxy host (same Vercel project as www). */
 const POSTHOG_PROXY_HOST = 'e.slashie.app'
 
@@ -216,6 +218,16 @@ const nextConfig: NextConfig = {
         destination: '/messages',
         permanent: true,
       },
+      // The in-app about page moved to the company site. `zh-hk` is the
+      // only non-default URL locale; `/en` is the explicit default prefix.
+      // Trailing slashes are listed because skipTrailingSlashRedirect is on.
+      ...['/about', '/en/about', `/${zhHk}/about`].flatMap((source) =>
+        [source, `${source}/`].map((path) => ({
+          source: path,
+          destination: COMPANY_SITE_HREF,
+          permanent: true,
+        })),
+      ),
     ]
   },
   images: {

@@ -17,6 +17,7 @@ import {
   COMPANY_LEGAL_NAME,
   COMPANY_NUMBER,
   COMPANY_REGISTERED_OFFICE,
+  COMPANY_SITE_HREF,
   LEGAL_CONTACT_EMAIL,
 } from '@/content/legal/company'
 import { SLASHIE_GITHUB_URL, SLASHIE_LINKEDIN_URL } from '@/content/social'
@@ -159,7 +160,7 @@ export function Footer({
       key: 'company',
       label: t.columns.company,
       items: linkItems([
-        { label: t.company.about, href: '/about' },
+        { label: t.company.about, href: COMPANY_SITE_HREF },
         { label: t.company.contact, href: `mailto:${LEGAL_CONTACT_EMAIL}` },
       ]),
     },

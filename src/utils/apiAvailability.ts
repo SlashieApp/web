@@ -23,7 +23,6 @@ export function isMarketingRoute(pathname: string): boolean {
   return (
     path === MARKETING_HOME ||
     path.startsWith('/pricing') ||
-    path.startsWith('/about') ||
     path.startsWith('/cookies') ||
     path.startsWith('/privacy') ||
     path.startsWith('/terms')

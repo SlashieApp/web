@@ -36,7 +36,7 @@ describe('navigation', () => {
     expect(withLocale('en', '/')).toBe('/')
     expect(withLocale('en', '/home')).toBe('/home')
     expect(withLocale('en', '/search?mode=tasks')).toBe('/search?mode=tasks')
-    expect(localeFromPathname('/zh-hk/about')).toBe('zh-hk')
+    expect(localeFromPathname('/zh-hk/pricing')).toBe('zh-hk')
     expect(localeFromPathname('/pricing')).toBe('en')
     expect(swapLocaleInPath('/en/pricing', 'zh-hk')).toBe('/zh-hk/pricing')
     expect(swapLocaleInPath('/zh-hk/home', 'en')).toBe('/home')
@@ -69,7 +69,6 @@ describe('marketing page dictionaries', () => {
     'src/app/(marketing)/i11n.chrome.json',
     'src/app/(marketing)/i11n.json',
     'src/app/(marketing)/pricing/i11n.json',
-    'src/app/(marketing)/about/i11n.json',
     'src/app/(marketing)/cookies/i11n.json',
     'src/app/(marketing)/privacy/i11n.json',
     'src/app/(marketing)/terms/i11n.json',

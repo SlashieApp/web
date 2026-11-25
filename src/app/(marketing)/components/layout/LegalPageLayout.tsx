@@ -94,8 +94,8 @@ export function linkifyEmails(paragraph: string): ReactNode[] {
 /**
  * Shared prose shell for the public legal pages (/terms, /privacy, /cookies),
  * in the marketing frame: a white page, from `lg` a rail down each side of the
- * page column. The top is Home's centred hero (FE-557, as on Pricing, About
- * and Safety): the footer's column name as the eyebrow ("Legal"), the title
+ * page column. The top is Home's centred hero (FE-557, as on Pricing and
+ * Safety): the footer's column name as the eyebrow ("Legal"), the title
  * (the one h1), the document's description and "Last updated". A full-width
  * rule, then the policy, an article named by the title: the intro, then each
  * section as a hairline row with its heading (an h2, `heading-lg`) beside its
