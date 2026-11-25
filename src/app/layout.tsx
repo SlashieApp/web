@@ -22,7 +22,7 @@ export const metadata: Metadata = {
   // Absolute base for canonical/og URLs + the opengraph-image route.
   metadataBase: new URL(
     process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, '') ||
-      'https://slashie.app',
+      'https://www.slashie.app',
   ),
   title: 'Slashie App - Local Trades and Home Tasks Marketplace',
   description:

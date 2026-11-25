@@ -44,4 +44,4 @@ export const MARKETING_HOME = '/home' as const
 export const SAFETY_HREF = '/help/safety' as const
 
 /** Marketing / store landing until dedicated app-store links exist. */
-export const GET_APP_HREF = 'https://slashie.app' as const
+export const GET_APP_HREF = 'https://www.slashie.app' as const
